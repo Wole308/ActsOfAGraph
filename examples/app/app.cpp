@@ -101,7 +101,7 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 8; // 32; // 3,12,32
+	unsigned int NumGraphIters = 32; // 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
@@ -197,7 +197,7 @@ runsummary_t app::run_hw(){
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(actvvs, (keyy_t *)&kvbuffer[i], &container, globalparams); }
 	cout<<"app::generatevmaskdata:: generating vmask... "<<endl;
 	globalparams = loadgraphobj->generatevmaskdata(actvvs, kvbuffer, globalparams);
-	// exit(EXIT_SUCCESS); //////////////////////
+	// exit(EXIT_SUCCESS);
 	
 	// stats info 
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
@@ -220,8 +220,7 @@ runsummary_t app::run_hw(){
 		SSSP,
 		#endif
 		globalparams);
-	// cout<<"-------+++++++++++++++++++++++++++++++++++++-------------- numValidIters: "<<numValidIters<<endl;
-	// exit(EXIT_SUCCESS); // --------------
+	// exit(EXIT_SUCCESS); //
 	
 	// others
 	cout<<"app::appendkeyvaluecount:: appending value count... "<<endl;
@@ -241,14 +240,13 @@ runsummary_t app::run_hw(){
 	#else
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters);
 	#endif
-	// cout<<"-------+++++++++++++++++++++++++++++++++++++(app)-------------- numValidIters: "<<numValidIters<<endl;
-	// exit(EXIT_SUCCESS); // --------------
+	// exit(EXIT_SUCCESS); //
+	// return statsobj->timingandsummary(NAp, 23);
 	
 	// run_hw
-	// numValidIters = 8;
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
 	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)edges, (uint512_vec_dt **)kvbuffer, timeelapsed_totals, numValidIters);
-	// exit(EXIT_SUCCESS); // --------------
+	// exit(EXIT_SUCCESS); //
 	
 	// output
 	#ifdef _DEBUGMODE_HOSTPRINTS
@@ -287,7 +285,8 @@ runsummary_t app::run_hw(){
 	cout<<endl<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
 	cout<<">>> app::run_hw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;			
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((total_edges_processed / total_time_elapsed) / (1000)) * (32 / NUMSUBCPUTHREADS)<<" million edges/sec)"<< RESET <<endl;
+	// cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((total_edges_processed / total_time_elapsed) / (1000)) * (32 / NUMSUBCPUTHREADS)<<" million edges/sec)"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUMSUBCPUTHREADS)<<" million edges/sec)"<< RESET <<endl;
 	
 	// numValidIters = 0;
 	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters);

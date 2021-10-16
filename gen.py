@@ -389,12 +389,18 @@ for i in range (0,(context['NUMSUBCPUTHREADS']/8)):
 context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] # CRITICAL FIXME, CRITICAL REMOVEME
 if context['NUMSYNCTHREADS'] == 0:
     context['NUMSYNCTHREADS'] = 1
+    
+context['KKL'] = (context['NUMSUBCPUTHREADS']/4) * 4
+context['KKM'] = context['NUMSUBCPUTHREADS'] - context['KKL']
+if context['KKM'] == 0:
+    context['KKM'] = 4
 
 context['SYNCTHREADS_seq'] = []
 for i in range (0,(context['NUMSYNCTHREADS'])):
 		context['SYNCTHREADS_seq'].append(i)
         
-context['NUMSYNCTHREADS_DIV_4'] = context['NUMSYNCTHREADS'] / 4
+# context['NUMSYNCTHREADS_DIV_4'] = context['NUMSYNCTHREADS'] / 4
+context['NUMSYNCTHREADS_DIV_4'] = (context['NUMSYNCTHREADS'] + (4-1)) / 4 # CRITICAL NEWCHANGE.
 context['NUMSYNCTHREADS_DIV_4_seq'] = []
 for i in range (0,(context['NUMSYNCTHREADS_DIV_4'])):
 		context['NUMSYNCTHREADS_DIV_4_seq'].append(i)

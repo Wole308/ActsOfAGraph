@@ -327,6 +327,7 @@ SYNC_get_num_source_partitions(step_type currentLOP){
 	}
 	return pow;
 }
+// #ifdef XXXXXX
 globalparams_t 
 	#ifdef SW 
 	actssync::
@@ -384,7 +385,7 @@ SYNC_getglobalparams(uint512_dt * kvdram){
 	globalparams.POW_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_REDUCE].range(31, 0);
 	globalparams.POW_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_BATCHRANGE].range(31, 0);
 	
-	globalparams.ALGORITHMINFO_GRAPHITERATIONID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0);
+	globalparams.ALGORITHMINFO_GRAPHITERATIONID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) - 1; // NEWCHANGE. actsproc.retrievekvdramstats has incremented it
 	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHALGORITHMID].range(31, 0);
 
 	globalparams.ACTSPARAMS_BEGINLOP = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_BEGINLOP].range(31, 0);
@@ -448,7 +449,7 @@ SYNC_getglobalparams(uint512_dt * kvdram){
 	globalparams.POW_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_REDUCE].data[0].key;
 	globalparams.POW_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_BATCHRANGE].data[0].key;
 	
-	globalparams.ALGORITHMINFO_GRAPHITERATIONID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
+	globalparams.ALGORITHMINFO_GRAPHITERATIONID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key - 1; // NEWCHANGE. actsproc.retrievekvdramstats has incremented it
 	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHALGORITHMID].data[0].key;
 
 	globalparams.ACTSPARAMS_BEGINLOP = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_BEGINLOP].data[0].key;
@@ -467,6 +468,176 @@ SYNC_getglobalparams(uint512_dt * kvdram){
 	#endif
 	return globalparams;
 }
+// #endif 
+#ifdef YYYYYY
+globalparams_t 
+	#ifdef SW 
+	actssync::
+	#endif 
+SYNC_getglobalparams(uint512_dt * kvdram){
+	unsigned int GP[BLOCKRAM_SIZE];
+	unsigned int noff=0;
+	
+	GETGLOBALPARAMS_LOOP: for (buffer_type i=0; i<128; i++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		GP[i] = kvdram[BASEOFFSET_MESSAGESDATA_KVS + i].range(31, 0);
+		#else 
+		GP[i] = kvdram[BASEOFFSET_MESSAGESDATA_KVS + i].data[0].key;
+		#endif
+	}
+	
+	globalparams_t globalparams;
+	globalparams.ENABLE_RUNKERNELCOMMAND = GP[noff+0];
+	globalparams.ENABLE_PROCESSCOMMAND = GP[noff+1];
+	globalparams.ENABLE_PARTITIONCOMMAND = GP[noff+2];
+	globalparams.ENABLE_APPLYUPDATESCOMMAND = GP[noff+3];
+	globalparams.ENABLE_SAVEVMASK = GP[noff+4];
+	globalparams.ENABLE_SAVEVMASKP = GP[noff+5];
+	
+	globalparams.BASEOFFSETKVS_MESSAGESDATA = GP[noff+6];
+	globalparams.BASEOFFSETKVS_EDGESDATA = GP[noff+7];
+	globalparams.BASEOFFSETKVS_VERTEXPTR = GP[noff+8];
+	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = GP[noff+9];
+	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = GP[noff+10];
+	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = GP[noff+11];
+	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = GP[noff+12];
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = GP[noff+13];
+	globalparams.BASEOFFSETKVS_STATSDRAM = GP[noff+14];
+	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = GP[noff+15];
+	globalparams.BASEOFFSETKVS_KVDRAM = GP[noff+16];
+	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = GP[noff+17];
+	
+	globalparams.SIZE_MESSAGESDRAM = GP[noff+18];
+	globalparams.SIZE_EDGES = GP[noff+19];
+	globalparams.SIZE_VERTEXPTRS = GP[noff+20];
+	globalparams.SIZE_SRCVERTICESDATA = GP[noff+21];
+	globalparams.SIZE_DESTVERTICESDATA = GP[noff+22];
+	globalparams.SIZE_ACTIVEVERTICES = GP[noff+23];
+	globalparams.SIZE_VERTICESDATAMASK = GP[noff+24];
+	globalparams.SIZE_VERTICESPARTITIONMASK = GP[noff+25];
+	globalparams.SIZE_KVSTATSDRAM = GP[noff+26];
+	globalparams.SIZE_EDGESSTATSDRAM = GP[noff+27];
+	globalparams.SIZE_KVDRAM = GP[noff+28];
+	globalparams.SIZE_KVDRAMWORKSPACE = GP[noff+29];
+	globalparams.SIZE_REDUCE = GP[noff+30];
+	globalparams.SIZE_BATCHRANGE = GP[noff+31];
+	globalparams.SIZE_RUN = GP[noff+32];
+
+	globalparams.POW_MESSAGESDRAM = GP[noff+33];
+	globalparams.POW_EDGES = GP[noff+34];
+	globalparams.POW_VERTEXPTRS = GP[noff+35];
+	globalparams.POW_SRCVERTICESDATA = GP[noff+36];
+	globalparams.POW_DESTVERTICESDATA = GP[noff+37];
+	globalparams.POW_ACTIVEVERTICES = GP[noff+38];
+	globalparams.POW_VERTICESDATAMASK = GP[noff+39];
+	globalparams.POW_KVSTATSDRAM = GP[noff+40];
+	globalparams.POW_EDGESSTATSDRAM = GP[noff+41];
+	globalparams.POW_KVDRAM = GP[noff+42];
+	globalparams.POW_KVDRAMWORKSPACE = GP[noff+43];
+	globalparams.POW_REDUCE = GP[noff+44];
+	globalparams.POW_BATCHRANGE = GP[noff+45];
+	
+	globalparams.ALGORITHMINFO_GRAPHITERATIONID = GP[noff+46];
+	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = GP[noff+47];
+
+	globalparams.ACTSPARAMS_BEGINLOP = GP[noff+48];
+	globalparams.ACTSPARAMS_NUMLOPS = GP[noff+49];
+	globalparams.ACTSPARAMS_TREEDEPTH = GP[noff+50];
+	globalparams.ACTSPARAMS_FINALNUMPARTITIONS = GP[noff+51];
+	globalparams.ACTSPARAMS_SRCVOFFSET = GP[noff+52];
+	globalparams.ACTSPARAMS_SRCVSIZE = GP[noff+53];
+	globalparams.ACTSPARAMS_DESTVOFFSET = GP[noff+54];
+	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = GP[noff+55];
+	
+	globalparams.RETURN_RETURNVALUES = GP[noff+56];
+	globalparams.VARS_WORKBATCH = 0;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printglobalparameters("actsproc::getglobalparams:: printing global parameters", globalparams);
+	#endif
+	return globalparams;
+}
+#endif 
+#ifdef ZZZZZZ // CRITICAL REMOVEME.//////////////////////////////////////////////////////////
+globalparams_t 
+	#ifdef SW 
+	actssync::
+	#endif 
+SYNC_getglobalparams(uint512_dt * kvdram){
+	globalparams_t globalparams;
+
+	globalparams.ENABLE_RUNKERNELCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].range(31, 0);
+	globalparams.ENABLE_PROCESSCOMMAND = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.ENABLE_PARTITIONCOMMAND = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.ENABLE_APPLYUPDATESCOMMAND = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.ENABLE_SAVEVMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.ENABLE_SAVEVMASKP = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	
+	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.BASEOFFSETKVS_EDGESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 17;
+	globalparams.BASEOFFSETKVS_VERTEXPTR = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.ENABLE_RUNKERNELCOMMAND + 11;
+	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 15; //
+	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.ENABLE_RUNKERNELCOMMAND + 17;
+	
+	globalparams.SIZE_MESSAGESDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.SIZE_EDGES = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.SIZE_VERTEXPTRS = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.SIZE_SRCVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 11;
+	globalparams.SIZE_DESTVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.SIZE_ACTIVEVERTICES = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.SIZE_VERTICESDATAMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.SIZE_VERTICESPARTITIONMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	globalparams.SIZE_KVSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.SIZE_EDGESSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 17; //
+	globalparams.SIZE_KVDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.SIZE_KVDRAMWORKSPACE = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.SIZE_REDUCE = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.SIZE_BATCHRANGE = globalparams.ENABLE_RUNKERNELCOMMAND + 11;
+	globalparams.SIZE_RUN = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+
+	globalparams.POW_MESSAGESDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.POW_EDGES = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.POW_VERTEXPTRS = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	globalparams.POW_SRCVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.POW_DESTVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 17;
+	globalparams.POW_ACTIVEVERTICES = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.POW_VERTICESDATAMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.POW_KVSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.POW_EDGESSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 11; //
+	globalparams.POW_KVDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.POW_KVDRAMWORKSPACE = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.POW_REDUCE = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.POW_BATCHRANGE = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	
+	globalparams.ALGORITHMINFO_GRAPHITERATIONID = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = globalparams.ENABLE_RUNKERNELCOMMAND + 17;
+
+	globalparams.ACTSPARAMS_BEGINLOP = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.ACTSPARAMS_NUMLOPS = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.ACTSPARAMS_TREEDEPTH = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.ACTSPARAMS_FINALNUMPARTITIONS = globalparams.ENABLE_RUNKERNELCOMMAND + 11;
+	globalparams.ACTSPARAMS_SRCVOFFSET = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.ACTSPARAMS_SRCVSIZE = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.ACTSPARAMS_DESTVOFFSET = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	
+	globalparams.RETURN_RETURNVALUES = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.VARS_WORKBATCH = 0;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printglobalparameters("actsproc::getglobalparams:: printing global parameters", globalparams);
+	#endif
+	return globalparams;
+}
+#endif 
 travstate_t 
 	#ifdef SW 
 	actssync::
@@ -629,7 +800,8 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
+readandsynchronize1(bool_type enable1, bool_type enable2, unsigned int nk, 
+uint512_dt * kvdram0,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=res
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -722,43 +894,233 @@ readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,ui
 	keyvalue_t mykeyvalue37;
 	
 	
+	unsigned int dramoffsets_kvs[4];
+	#pragma HLS ARRAY_PARTITION variable=dramoffsets_kvs complete
+	for(unsigned int i=0; i<4; i++){
+		if(i < nk){ dramoffsets_kvs[i] = dramoffset_kvs; }
+		else { dramoffsets_kvs[i] = 0; }
+	}
+	
 	for (buffer_type i=0; i<reducebuffersz; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		mykeyvalue00.key = kvdram0[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue00.value = kvdram0[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue01.key = kvdram0[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue01.value = kvdram0[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue02.key = kvdram0[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue02.value = kvdram0[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue03.key = kvdram0[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue03.value = kvdram0[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue04.key = kvdram0[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue04.value = kvdram0[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue05.key = kvdram0[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue05.value = kvdram0[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue06.key = kvdram0[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue06.value = kvdram0[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue07.key = kvdram0[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue07.value = kvdram0[dramoffset_kvs + i].range(511, 480); 
+		mykeyvalue00.key = kvdram0[dramoffsets_kvs[0] + i].range(31, 0); 
+		mykeyvalue00.value = kvdram0[dramoffsets_kvs[0] + i].range(63, 32); 
+		mykeyvalue01.key = kvdram0[dramoffsets_kvs[0] + i].range(95, 64); 
+		mykeyvalue01.value = kvdram0[dramoffsets_kvs[0] + i].range(127, 96); 
+		mykeyvalue02.key = kvdram0[dramoffsets_kvs[0] + i].range(159, 128); 
+		mykeyvalue02.value = kvdram0[dramoffsets_kvs[0] + i].range(191, 160); 
+		mykeyvalue03.key = kvdram0[dramoffsets_kvs[0] + i].range(223, 192); 
+		mykeyvalue03.value = kvdram0[dramoffsets_kvs[0] + i].range(255, 224); 
+		mykeyvalue04.key = kvdram0[dramoffsets_kvs[0] + i].range(287, 256); 
+		mykeyvalue04.value = kvdram0[dramoffsets_kvs[0] + i].range(319, 288); 
+		mykeyvalue05.key = kvdram0[dramoffsets_kvs[0] + i].range(351, 320); 
+		mykeyvalue05.value = kvdram0[dramoffsets_kvs[0] + i].range(383, 352); 
+		mykeyvalue06.key = kvdram0[dramoffsets_kvs[0] + i].range(415, 384); 
+		mykeyvalue06.value = kvdram0[dramoffsets_kvs[0] + i].range(447, 416); 
+		mykeyvalue07.key = kvdram0[dramoffsets_kvs[0] + i].range(479, 448); 
+		mykeyvalue07.value = kvdram0[dramoffsets_kvs[0] + i].range(511, 480); 
 		#else 
-		mykeyvalue00.key = kvdram0[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue00.value = kvdram0[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue01.key = kvdram0[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue01.value = kvdram0[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue02.key = kvdram0[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue02.value = kvdram0[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue03.key = kvdram0[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue03.value = kvdram0[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue04.key = kvdram0[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue04.value = kvdram0[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue05.key = kvdram0[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue05.value = kvdram0[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue06.key = kvdram0[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue06.value = kvdram0[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue07.key = kvdram0[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue07.value = kvdram0[dramoffset_kvs + i].data[7].value; 
+		mykeyvalue00.key = kvdram0[dramoffsets_kvs[0] + i].data[0].key; 
+		mykeyvalue00.value = kvdram0[dramoffsets_kvs[0] + i].data[0].value; 
+		mykeyvalue01.key = kvdram0[dramoffsets_kvs[0] + i].data[1].key; 
+		mykeyvalue01.value = kvdram0[dramoffsets_kvs[0] + i].data[1].value; 
+		mykeyvalue02.key = kvdram0[dramoffsets_kvs[0] + i].data[2].key; 
+		mykeyvalue02.value = kvdram0[dramoffsets_kvs[0] + i].data[2].value; 
+		mykeyvalue03.key = kvdram0[dramoffsets_kvs[0] + i].data[3].key; 
+		mykeyvalue03.value = kvdram0[dramoffsets_kvs[0] + i].data[3].value; 
+		mykeyvalue04.key = kvdram0[dramoffsets_kvs[0] + i].data[4].key; 
+		mykeyvalue04.value = kvdram0[dramoffsets_kvs[0] + i].data[4].value; 
+		mykeyvalue05.key = kvdram0[dramoffsets_kvs[0] + i].data[5].key; 
+		mykeyvalue05.value = kvdram0[dramoffsets_kvs[0] + i].data[5].value; 
+		mykeyvalue06.key = kvdram0[dramoffsets_kvs[0] + i].data[6].key; 
+		mykeyvalue06.value = kvdram0[dramoffsets_kvs[0] + i].data[6].value; 
+		mykeyvalue07.key = kvdram0[dramoffsets_kvs[0] + i].data[7].key; 
+		mykeyvalue07.value = kvdram0[dramoffsets_kvs[0] + i].data[7].value; 
+		#endif
+		keyvalue0_vault1 = mykeyvalue00; 
+		keyvalue1_vault1 = mykeyvalue01; 
+		keyvalue2_vault1 = mykeyvalue02; 
+		keyvalue3_vault1 = mykeyvalue03; 
+		keyvalue4_vault1 = mykeyvalue04; 
+		keyvalue5_vault1 = mykeyvalue05; 
+		keyvalue6_vault1 = mykeyvalue06; 
+		keyvalue7_vault1 = mykeyvalue07; 
+			
+
+		res[0][i] = SYNC_GETKV2(keyvalue0_vault1);
+		res[1][i] = SYNC_GETKV2(keyvalue1_vault1);
+		res[2][i] = SYNC_GETKV2(keyvalue2_vault1);
+		res[3][i] = SYNC_GETKV2(keyvalue3_vault1);
+		res[4][i] = SYNC_GETKV2(keyvalue4_vault1);
+		res[5][i] = SYNC_GETKV2(keyvalue5_vault1);
+		res[6][i] = SYNC_GETKV2(keyvalue6_vault1);
+		res[7][i] = SYNC_GETKV2(keyvalue7_vault1);
+	
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		if(SYNC_GETKV2(res[0][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[0][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[1][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[1][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[2][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[2][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[3][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[3][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[4][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[4][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[5][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[5][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[6][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[6][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[7][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[7][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		#endif
+	}
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+readandsynchronize2(bool_type enable1, bool_type enable2, unsigned int nk, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=res
+	if(enable1 == OFF || enable2 == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	keyvalue_t mykeyvalue00;
+	keyvalue_t mykeyvalue01;
+	keyvalue_t mykeyvalue02;
+	keyvalue_t mykeyvalue03;
+	keyvalue_t mykeyvalue04;
+	keyvalue_t mykeyvalue05;
+	keyvalue_t mykeyvalue06;
+	keyvalue_t mykeyvalue07;
+	
+	keyvalue_t mykeyvalue10;
+	keyvalue_t mykeyvalue11;
+	keyvalue_t mykeyvalue12;
+	keyvalue_t mykeyvalue13;
+	keyvalue_t mykeyvalue14;
+	keyvalue_t mykeyvalue15;
+	keyvalue_t mykeyvalue16;
+	keyvalue_t mykeyvalue17;
+	
+	keyvalue_t mykeyvalue20;
+	keyvalue_t mykeyvalue21;
+	keyvalue_t mykeyvalue22;
+	keyvalue_t mykeyvalue23;
+	keyvalue_t mykeyvalue24;
+	keyvalue_t mykeyvalue25;
+	keyvalue_t mykeyvalue26;
+	keyvalue_t mykeyvalue27;
+	
+	keyvalue_t mykeyvalue30;
+	keyvalue_t mykeyvalue31;
+	keyvalue_t mykeyvalue32;
+	keyvalue_t mykeyvalue33;
+	keyvalue_t mykeyvalue34;
+	keyvalue_t mykeyvalue35;
+	keyvalue_t mykeyvalue36;
+	keyvalue_t mykeyvalue37;
+	
+	
+	unsigned int dramoffsets_kvs[4];
+	#pragma HLS ARRAY_PARTITION variable=dramoffsets_kvs complete
+	for(unsigned int i=0; i<4; i++){
+		if(i < nk){ dramoffsets_kvs[i] = dramoffset_kvs; }
+		else { dramoffsets_kvs[i] = 0; }
+	}
+	
+	for (buffer_type i=0; i<reducebuffersz; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		mykeyvalue00.key = kvdram0[dramoffsets_kvs[0] + i].range(31, 0); 
+		mykeyvalue00.value = kvdram0[dramoffsets_kvs[0] + i].range(63, 32); 
+		mykeyvalue01.key = kvdram0[dramoffsets_kvs[0] + i].range(95, 64); 
+		mykeyvalue01.value = kvdram0[dramoffsets_kvs[0] + i].range(127, 96); 
+		mykeyvalue02.key = kvdram0[dramoffsets_kvs[0] + i].range(159, 128); 
+		mykeyvalue02.value = kvdram0[dramoffsets_kvs[0] + i].range(191, 160); 
+		mykeyvalue03.key = kvdram0[dramoffsets_kvs[0] + i].range(223, 192); 
+		mykeyvalue03.value = kvdram0[dramoffsets_kvs[0] + i].range(255, 224); 
+		mykeyvalue04.key = kvdram0[dramoffsets_kvs[0] + i].range(287, 256); 
+		mykeyvalue04.value = kvdram0[dramoffsets_kvs[0] + i].range(319, 288); 
+		mykeyvalue05.key = kvdram0[dramoffsets_kvs[0] + i].range(351, 320); 
+		mykeyvalue05.value = kvdram0[dramoffsets_kvs[0] + i].range(383, 352); 
+		mykeyvalue06.key = kvdram0[dramoffsets_kvs[0] + i].range(415, 384); 
+		mykeyvalue06.value = kvdram0[dramoffsets_kvs[0] + i].range(447, 416); 
+		mykeyvalue07.key = kvdram0[dramoffsets_kvs[0] + i].range(479, 448); 
+		mykeyvalue07.value = kvdram0[dramoffsets_kvs[0] + i].range(511, 480); 
+		#else 
+		mykeyvalue00.key = kvdram0[dramoffsets_kvs[0] + i].data[0].key; 
+		mykeyvalue00.value = kvdram0[dramoffsets_kvs[0] + i].data[0].value; 
+		mykeyvalue01.key = kvdram0[dramoffsets_kvs[0] + i].data[1].key; 
+		mykeyvalue01.value = kvdram0[dramoffsets_kvs[0] + i].data[1].value; 
+		mykeyvalue02.key = kvdram0[dramoffsets_kvs[0] + i].data[2].key; 
+		mykeyvalue02.value = kvdram0[dramoffsets_kvs[0] + i].data[2].value; 
+		mykeyvalue03.key = kvdram0[dramoffsets_kvs[0] + i].data[3].key; 
+		mykeyvalue03.value = kvdram0[dramoffsets_kvs[0] + i].data[3].value; 
+		mykeyvalue04.key = kvdram0[dramoffsets_kvs[0] + i].data[4].key; 
+		mykeyvalue04.value = kvdram0[dramoffsets_kvs[0] + i].data[4].value; 
+		mykeyvalue05.key = kvdram0[dramoffsets_kvs[0] + i].data[5].key; 
+		mykeyvalue05.value = kvdram0[dramoffsets_kvs[0] + i].data[5].value; 
+		mykeyvalue06.key = kvdram0[dramoffsets_kvs[0] + i].data[6].key; 
+		mykeyvalue06.value = kvdram0[dramoffsets_kvs[0] + i].data[6].value; 
+		mykeyvalue07.key = kvdram0[dramoffsets_kvs[0] + i].data[7].key; 
+		mykeyvalue07.value = kvdram0[dramoffsets_kvs[0] + i].data[7].value; 
 		#endif
 		keyvalue0_vault1 = mykeyvalue00; 
 		keyvalue1_vault1 = mykeyvalue01; 
@@ -771,39 +1133,276 @@ readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,ui
 			
 		
 		#ifdef _WIDEWORD
-		mykeyvalue10.key = kvdram1[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue10.value = kvdram1[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue11.key = kvdram1[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue11.value = kvdram1[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue12.key = kvdram1[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue12.value = kvdram1[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue13.key = kvdram1[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue13.value = kvdram1[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue14.key = kvdram1[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue14.value = kvdram1[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue15.key = kvdram1[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue15.value = kvdram1[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue16.key = kvdram1[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue16.value = kvdram1[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue17.key = kvdram1[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue17.value = kvdram1[dramoffset_kvs + i].range(511, 480); 
+		mykeyvalue10.key = kvdram1[dramoffsets_kvs[1] + i].range(31, 0); 
+		mykeyvalue10.value = kvdram1[dramoffsets_kvs[1] + i].range(63, 32); 
+		mykeyvalue11.key = kvdram1[dramoffsets_kvs[1] + i].range(95, 64); 
+		mykeyvalue11.value = kvdram1[dramoffsets_kvs[1] + i].range(127, 96); 
+		mykeyvalue12.key = kvdram1[dramoffsets_kvs[1] + i].range(159, 128); 
+		mykeyvalue12.value = kvdram1[dramoffsets_kvs[1] + i].range(191, 160); 
+		mykeyvalue13.key = kvdram1[dramoffsets_kvs[1] + i].range(223, 192); 
+		mykeyvalue13.value = kvdram1[dramoffsets_kvs[1] + i].range(255, 224); 
+		mykeyvalue14.key = kvdram1[dramoffsets_kvs[1] + i].range(287, 256); 
+		mykeyvalue14.value = kvdram1[dramoffsets_kvs[1] + i].range(319, 288); 
+		mykeyvalue15.key = kvdram1[dramoffsets_kvs[1] + i].range(351, 320); 
+		mykeyvalue15.value = kvdram1[dramoffsets_kvs[1] + i].range(383, 352); 
+		mykeyvalue16.key = kvdram1[dramoffsets_kvs[1] + i].range(415, 384); 
+		mykeyvalue16.value = kvdram1[dramoffsets_kvs[1] + i].range(447, 416); 
+		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].range(479, 448); 
+		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].range(511, 480); 
 		#else 
-		mykeyvalue10.key = kvdram1[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue10.value = kvdram1[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue11.key = kvdram1[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue11.value = kvdram1[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue12.key = kvdram1[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue12.value = kvdram1[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue13.key = kvdram1[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue13.value = kvdram1[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue14.key = kvdram1[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue14.value = kvdram1[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue15.key = kvdram1[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue15.value = kvdram1[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue16.key = kvdram1[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue16.value = kvdram1[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue17.key = kvdram1[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue17.value = kvdram1[dramoffset_kvs + i].data[7].value; 
+		mykeyvalue10.key = kvdram1[dramoffsets_kvs[1] + i].data[0].key; 
+		mykeyvalue10.value = kvdram1[dramoffsets_kvs[1] + i].data[0].value; 
+		mykeyvalue11.key = kvdram1[dramoffsets_kvs[1] + i].data[1].key; 
+		mykeyvalue11.value = kvdram1[dramoffsets_kvs[1] + i].data[1].value; 
+		mykeyvalue12.key = kvdram1[dramoffsets_kvs[1] + i].data[2].key; 
+		mykeyvalue12.value = kvdram1[dramoffsets_kvs[1] + i].data[2].value; 
+		mykeyvalue13.key = kvdram1[dramoffsets_kvs[1] + i].data[3].key; 
+		mykeyvalue13.value = kvdram1[dramoffsets_kvs[1] + i].data[3].value; 
+		mykeyvalue14.key = kvdram1[dramoffsets_kvs[1] + i].data[4].key; 
+		mykeyvalue14.value = kvdram1[dramoffsets_kvs[1] + i].data[4].value; 
+		mykeyvalue15.key = kvdram1[dramoffsets_kvs[1] + i].data[5].key; 
+		mykeyvalue15.value = kvdram1[dramoffsets_kvs[1] + i].data[5].value; 
+		mykeyvalue16.key = kvdram1[dramoffsets_kvs[1] + i].data[6].key; 
+		mykeyvalue16.value = kvdram1[dramoffsets_kvs[1] + i].data[6].value; 
+		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].data[7].key; 
+		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].data[7].value; 
+		#endif
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		
+
+		res[0][i] = SYNC_GETKV2(keyvalue0_vault2);
+		res[1][i] = SYNC_GETKV2(keyvalue1_vault2);
+		res[2][i] = SYNC_GETKV2(keyvalue2_vault2);
+		res[3][i] = SYNC_GETKV2(keyvalue3_vault2);
+		res[4][i] = SYNC_GETKV2(keyvalue4_vault2);
+		res[5][i] = SYNC_GETKV2(keyvalue5_vault2);
+		res[6][i] = SYNC_GETKV2(keyvalue6_vault2);
+		res[7][i] = SYNC_GETKV2(keyvalue7_vault2);
+	
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		if(SYNC_GETKV2(res[0][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[0][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[1][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[1][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[2][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[2][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[3][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[3][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[4][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[4][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[5][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[5][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[6][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[6][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[7][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[7][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		#endif
+	}
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+readandsynchronize3(bool_type enable1, bool_type enable2, unsigned int nk, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=res
+	if(enable1 == OFF || enable2 == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	keyvalue_t mykeyvalue00;
+	keyvalue_t mykeyvalue01;
+	keyvalue_t mykeyvalue02;
+	keyvalue_t mykeyvalue03;
+	keyvalue_t mykeyvalue04;
+	keyvalue_t mykeyvalue05;
+	keyvalue_t mykeyvalue06;
+	keyvalue_t mykeyvalue07;
+	
+	keyvalue_t mykeyvalue10;
+	keyvalue_t mykeyvalue11;
+	keyvalue_t mykeyvalue12;
+	keyvalue_t mykeyvalue13;
+	keyvalue_t mykeyvalue14;
+	keyvalue_t mykeyvalue15;
+	keyvalue_t mykeyvalue16;
+	keyvalue_t mykeyvalue17;
+	
+	keyvalue_t mykeyvalue20;
+	keyvalue_t mykeyvalue21;
+	keyvalue_t mykeyvalue22;
+	keyvalue_t mykeyvalue23;
+	keyvalue_t mykeyvalue24;
+	keyvalue_t mykeyvalue25;
+	keyvalue_t mykeyvalue26;
+	keyvalue_t mykeyvalue27;
+	
+	keyvalue_t mykeyvalue30;
+	keyvalue_t mykeyvalue31;
+	keyvalue_t mykeyvalue32;
+	keyvalue_t mykeyvalue33;
+	keyvalue_t mykeyvalue34;
+	keyvalue_t mykeyvalue35;
+	keyvalue_t mykeyvalue36;
+	keyvalue_t mykeyvalue37;
+	
+	
+	unsigned int dramoffsets_kvs[4];
+	#pragma HLS ARRAY_PARTITION variable=dramoffsets_kvs complete
+	for(unsigned int i=0; i<4; i++){
+		if(i < nk){ dramoffsets_kvs[i] = dramoffset_kvs; }
+		else { dramoffsets_kvs[i] = 0; }
+	}
+	
+	for (buffer_type i=0; i<reducebuffersz; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		mykeyvalue00.key = kvdram0[dramoffsets_kvs[0] + i].range(31, 0); 
+		mykeyvalue00.value = kvdram0[dramoffsets_kvs[0] + i].range(63, 32); 
+		mykeyvalue01.key = kvdram0[dramoffsets_kvs[0] + i].range(95, 64); 
+		mykeyvalue01.value = kvdram0[dramoffsets_kvs[0] + i].range(127, 96); 
+		mykeyvalue02.key = kvdram0[dramoffsets_kvs[0] + i].range(159, 128); 
+		mykeyvalue02.value = kvdram0[dramoffsets_kvs[0] + i].range(191, 160); 
+		mykeyvalue03.key = kvdram0[dramoffsets_kvs[0] + i].range(223, 192); 
+		mykeyvalue03.value = kvdram0[dramoffsets_kvs[0] + i].range(255, 224); 
+		mykeyvalue04.key = kvdram0[dramoffsets_kvs[0] + i].range(287, 256); 
+		mykeyvalue04.value = kvdram0[dramoffsets_kvs[0] + i].range(319, 288); 
+		mykeyvalue05.key = kvdram0[dramoffsets_kvs[0] + i].range(351, 320); 
+		mykeyvalue05.value = kvdram0[dramoffsets_kvs[0] + i].range(383, 352); 
+		mykeyvalue06.key = kvdram0[dramoffsets_kvs[0] + i].range(415, 384); 
+		mykeyvalue06.value = kvdram0[dramoffsets_kvs[0] + i].range(447, 416); 
+		mykeyvalue07.key = kvdram0[dramoffsets_kvs[0] + i].range(479, 448); 
+		mykeyvalue07.value = kvdram0[dramoffsets_kvs[0] + i].range(511, 480); 
+		#else 
+		mykeyvalue00.key = kvdram0[dramoffsets_kvs[0] + i].data[0].key; 
+		mykeyvalue00.value = kvdram0[dramoffsets_kvs[0] + i].data[0].value; 
+		mykeyvalue01.key = kvdram0[dramoffsets_kvs[0] + i].data[1].key; 
+		mykeyvalue01.value = kvdram0[dramoffsets_kvs[0] + i].data[1].value; 
+		mykeyvalue02.key = kvdram0[dramoffsets_kvs[0] + i].data[2].key; 
+		mykeyvalue02.value = kvdram0[dramoffsets_kvs[0] + i].data[2].value; 
+		mykeyvalue03.key = kvdram0[dramoffsets_kvs[0] + i].data[3].key; 
+		mykeyvalue03.value = kvdram0[dramoffsets_kvs[0] + i].data[3].value; 
+		mykeyvalue04.key = kvdram0[dramoffsets_kvs[0] + i].data[4].key; 
+		mykeyvalue04.value = kvdram0[dramoffsets_kvs[0] + i].data[4].value; 
+		mykeyvalue05.key = kvdram0[dramoffsets_kvs[0] + i].data[5].key; 
+		mykeyvalue05.value = kvdram0[dramoffsets_kvs[0] + i].data[5].value; 
+		mykeyvalue06.key = kvdram0[dramoffsets_kvs[0] + i].data[6].key; 
+		mykeyvalue06.value = kvdram0[dramoffsets_kvs[0] + i].data[6].value; 
+		mykeyvalue07.key = kvdram0[dramoffsets_kvs[0] + i].data[7].key; 
+		mykeyvalue07.value = kvdram0[dramoffsets_kvs[0] + i].data[7].value; 
+		#endif
+		keyvalue0_vault1 = mykeyvalue00; 
+		keyvalue1_vault1 = mykeyvalue01; 
+		keyvalue2_vault1 = mykeyvalue02; 
+		keyvalue3_vault1 = mykeyvalue03; 
+		keyvalue4_vault1 = mykeyvalue04; 
+		keyvalue5_vault1 = mykeyvalue05; 
+		keyvalue6_vault1 = mykeyvalue06; 
+		keyvalue7_vault1 = mykeyvalue07; 
+			
+		
+		#ifdef _WIDEWORD
+		mykeyvalue10.key = kvdram1[dramoffsets_kvs[1] + i].range(31, 0); 
+		mykeyvalue10.value = kvdram1[dramoffsets_kvs[1] + i].range(63, 32); 
+		mykeyvalue11.key = kvdram1[dramoffsets_kvs[1] + i].range(95, 64); 
+		mykeyvalue11.value = kvdram1[dramoffsets_kvs[1] + i].range(127, 96); 
+		mykeyvalue12.key = kvdram1[dramoffsets_kvs[1] + i].range(159, 128); 
+		mykeyvalue12.value = kvdram1[dramoffsets_kvs[1] + i].range(191, 160); 
+		mykeyvalue13.key = kvdram1[dramoffsets_kvs[1] + i].range(223, 192); 
+		mykeyvalue13.value = kvdram1[dramoffsets_kvs[1] + i].range(255, 224); 
+		mykeyvalue14.key = kvdram1[dramoffsets_kvs[1] + i].range(287, 256); 
+		mykeyvalue14.value = kvdram1[dramoffsets_kvs[1] + i].range(319, 288); 
+		mykeyvalue15.key = kvdram1[dramoffsets_kvs[1] + i].range(351, 320); 
+		mykeyvalue15.value = kvdram1[dramoffsets_kvs[1] + i].range(383, 352); 
+		mykeyvalue16.key = kvdram1[dramoffsets_kvs[1] + i].range(415, 384); 
+		mykeyvalue16.value = kvdram1[dramoffsets_kvs[1] + i].range(447, 416); 
+		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].range(479, 448); 
+		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].range(511, 480); 
+		#else 
+		mykeyvalue10.key = kvdram1[dramoffsets_kvs[1] + i].data[0].key; 
+		mykeyvalue10.value = kvdram1[dramoffsets_kvs[1] + i].data[0].value; 
+		mykeyvalue11.key = kvdram1[dramoffsets_kvs[1] + i].data[1].key; 
+		mykeyvalue11.value = kvdram1[dramoffsets_kvs[1] + i].data[1].value; 
+		mykeyvalue12.key = kvdram1[dramoffsets_kvs[1] + i].data[2].key; 
+		mykeyvalue12.value = kvdram1[dramoffsets_kvs[1] + i].data[2].value; 
+		mykeyvalue13.key = kvdram1[dramoffsets_kvs[1] + i].data[3].key; 
+		mykeyvalue13.value = kvdram1[dramoffsets_kvs[1] + i].data[3].value; 
+		mykeyvalue14.key = kvdram1[dramoffsets_kvs[1] + i].data[4].key; 
+		mykeyvalue14.value = kvdram1[dramoffsets_kvs[1] + i].data[4].value; 
+		mykeyvalue15.key = kvdram1[dramoffsets_kvs[1] + i].data[5].key; 
+		mykeyvalue15.value = kvdram1[dramoffsets_kvs[1] + i].data[5].value; 
+		mykeyvalue16.key = kvdram1[dramoffsets_kvs[1] + i].data[6].key; 
+		mykeyvalue16.value = kvdram1[dramoffsets_kvs[1] + i].data[6].value; 
+		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].data[7].key; 
+		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].data[7].value; 
 		#endif
 		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -825,39 +1424,330 @@ readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,ui
 		
 		
 		#ifdef _WIDEWORD
-		mykeyvalue20.key = kvdram2[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue20.value = kvdram2[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue21.key = kvdram2[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue21.value = kvdram2[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue22.key = kvdram2[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue22.value = kvdram2[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue23.key = kvdram2[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue23.value = kvdram2[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue24.key = kvdram2[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue24.value = kvdram2[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue25.key = kvdram2[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue25.value = kvdram2[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue26.key = kvdram2[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue26.value = kvdram2[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue27.key = kvdram2[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue27.value = kvdram2[dramoffset_kvs + i].range(511, 480); 
+		mykeyvalue20.key = kvdram2[dramoffsets_kvs[2] + i].range(31, 0); 
+		mykeyvalue20.value = kvdram2[dramoffsets_kvs[2] + i].range(63, 32); 
+		mykeyvalue21.key = kvdram2[dramoffsets_kvs[2] + i].range(95, 64); 
+		mykeyvalue21.value = kvdram2[dramoffsets_kvs[2] + i].range(127, 96); 
+		mykeyvalue22.key = kvdram2[dramoffsets_kvs[2] + i].range(159, 128); 
+		mykeyvalue22.value = kvdram2[dramoffsets_kvs[2] + i].range(191, 160); 
+		mykeyvalue23.key = kvdram2[dramoffsets_kvs[2] + i].range(223, 192); 
+		mykeyvalue23.value = kvdram2[dramoffsets_kvs[2] + i].range(255, 224); 
+		mykeyvalue24.key = kvdram2[dramoffsets_kvs[2] + i].range(287, 256); 
+		mykeyvalue24.value = kvdram2[dramoffsets_kvs[2] + i].range(319, 288); 
+		mykeyvalue25.key = kvdram2[dramoffsets_kvs[2] + i].range(351, 320); 
+		mykeyvalue25.value = kvdram2[dramoffsets_kvs[2] + i].range(383, 352); 
+		mykeyvalue26.key = kvdram2[dramoffsets_kvs[2] + i].range(415, 384); 
+		mykeyvalue26.value = kvdram2[dramoffsets_kvs[2] + i].range(447, 416); 
+		mykeyvalue27.key = kvdram2[dramoffsets_kvs[2] + i].range(479, 448); 
+		mykeyvalue27.value = kvdram2[dramoffsets_kvs[2] + i].range(511, 480); 
 		#else 
-		mykeyvalue20.key = kvdram2[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue20.value = kvdram2[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue21.key = kvdram2[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue21.value = kvdram2[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue22.key = kvdram2[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue22.value = kvdram2[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue23.key = kvdram2[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue23.value = kvdram2[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue24.key = kvdram2[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue24.value = kvdram2[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue25.key = kvdram2[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue25.value = kvdram2[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue26.key = kvdram2[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue26.value = kvdram2[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue27.key = kvdram2[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue27.value = kvdram2[dramoffset_kvs + i].data[7].value; 
+		mykeyvalue20.key = kvdram2[dramoffsets_kvs[2] + i].data[0].key; 
+		mykeyvalue20.value = kvdram2[dramoffsets_kvs[2] + i].data[0].value; 
+		mykeyvalue21.key = kvdram2[dramoffsets_kvs[2] + i].data[1].key; 
+		mykeyvalue21.value = kvdram2[dramoffsets_kvs[2] + i].data[1].value; 
+		mykeyvalue22.key = kvdram2[dramoffsets_kvs[2] + i].data[2].key; 
+		mykeyvalue22.value = kvdram2[dramoffsets_kvs[2] + i].data[2].value; 
+		mykeyvalue23.key = kvdram2[dramoffsets_kvs[2] + i].data[3].key; 
+		mykeyvalue23.value = kvdram2[dramoffsets_kvs[2] + i].data[3].value; 
+		mykeyvalue24.key = kvdram2[dramoffsets_kvs[2] + i].data[4].key; 
+		mykeyvalue24.value = kvdram2[dramoffsets_kvs[2] + i].data[4].value; 
+		mykeyvalue25.key = kvdram2[dramoffsets_kvs[2] + i].data[5].key; 
+		mykeyvalue25.value = kvdram2[dramoffsets_kvs[2] + i].data[5].value; 
+		mykeyvalue26.key = kvdram2[dramoffsets_kvs[2] + i].data[6].key; 
+		mykeyvalue26.value = kvdram2[dramoffsets_kvs[2] + i].data[6].value; 
+		mykeyvalue27.key = kvdram2[dramoffsets_kvs[2] + i].data[7].key; 
+		mykeyvalue27.value = kvdram2[dramoffsets_kvs[2] + i].data[7].value; 
+		#endif
+		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, mykeyvalue20.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, mykeyvalue20.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, mykeyvalue21.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, mykeyvalue21.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, mykeyvalue22.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, mykeyvalue22.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, mykeyvalue23.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, mykeyvalue23.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, mykeyvalue24.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, mykeyvalue24.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, mykeyvalue25.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, mykeyvalue25.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, mykeyvalue26.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, mykeyvalue26.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, mykeyvalue27.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, mykeyvalue27.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		
+
+		res[0][i] = SYNC_GETKV2(keyvalue0_vault3);
+		res[1][i] = SYNC_GETKV2(keyvalue1_vault3);
+		res[2][i] = SYNC_GETKV2(keyvalue2_vault3);
+		res[3][i] = SYNC_GETKV2(keyvalue3_vault3);
+		res[4][i] = SYNC_GETKV2(keyvalue4_vault3);
+		res[5][i] = SYNC_GETKV2(keyvalue5_vault3);
+		res[6][i] = SYNC_GETKV2(keyvalue6_vault3);
+		res[7][i] = SYNC_GETKV2(keyvalue7_vault3);
+	
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		if(SYNC_GETKV2(res[0][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[0][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[1][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[1][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[2][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[2][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[3][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[3][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[4][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[4][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[5][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[5][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[6][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[6][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[7][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[7][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		#endif
+	}
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+readandsynchronize4(bool_type enable1, bool_type enable2, unsigned int nk, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=res
+	if(enable1 == OFF || enable2 == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	keyvalue_t mykeyvalue00;
+	keyvalue_t mykeyvalue01;
+	keyvalue_t mykeyvalue02;
+	keyvalue_t mykeyvalue03;
+	keyvalue_t mykeyvalue04;
+	keyvalue_t mykeyvalue05;
+	keyvalue_t mykeyvalue06;
+	keyvalue_t mykeyvalue07;
+	
+	keyvalue_t mykeyvalue10;
+	keyvalue_t mykeyvalue11;
+	keyvalue_t mykeyvalue12;
+	keyvalue_t mykeyvalue13;
+	keyvalue_t mykeyvalue14;
+	keyvalue_t mykeyvalue15;
+	keyvalue_t mykeyvalue16;
+	keyvalue_t mykeyvalue17;
+	
+	keyvalue_t mykeyvalue20;
+	keyvalue_t mykeyvalue21;
+	keyvalue_t mykeyvalue22;
+	keyvalue_t mykeyvalue23;
+	keyvalue_t mykeyvalue24;
+	keyvalue_t mykeyvalue25;
+	keyvalue_t mykeyvalue26;
+	keyvalue_t mykeyvalue27;
+	
+	keyvalue_t mykeyvalue30;
+	keyvalue_t mykeyvalue31;
+	keyvalue_t mykeyvalue32;
+	keyvalue_t mykeyvalue33;
+	keyvalue_t mykeyvalue34;
+	keyvalue_t mykeyvalue35;
+	keyvalue_t mykeyvalue36;
+	keyvalue_t mykeyvalue37;
+	
+	
+	unsigned int dramoffsets_kvs[4];
+	#pragma HLS ARRAY_PARTITION variable=dramoffsets_kvs complete
+	for(unsigned int i=0; i<4; i++){
+		if(i < nk){ dramoffsets_kvs[i] = dramoffset_kvs; }
+		else { dramoffsets_kvs[i] = 0; }
+	}
+	
+	for (buffer_type i=0; i<reducebuffersz; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		mykeyvalue00.key = kvdram0[dramoffsets_kvs[0] + i].range(31, 0); 
+		mykeyvalue00.value = kvdram0[dramoffsets_kvs[0] + i].range(63, 32); 
+		mykeyvalue01.key = kvdram0[dramoffsets_kvs[0] + i].range(95, 64); 
+		mykeyvalue01.value = kvdram0[dramoffsets_kvs[0] + i].range(127, 96); 
+		mykeyvalue02.key = kvdram0[dramoffsets_kvs[0] + i].range(159, 128); 
+		mykeyvalue02.value = kvdram0[dramoffsets_kvs[0] + i].range(191, 160); 
+		mykeyvalue03.key = kvdram0[dramoffsets_kvs[0] + i].range(223, 192); 
+		mykeyvalue03.value = kvdram0[dramoffsets_kvs[0] + i].range(255, 224); 
+		mykeyvalue04.key = kvdram0[dramoffsets_kvs[0] + i].range(287, 256); 
+		mykeyvalue04.value = kvdram0[dramoffsets_kvs[0] + i].range(319, 288); 
+		mykeyvalue05.key = kvdram0[dramoffsets_kvs[0] + i].range(351, 320); 
+		mykeyvalue05.value = kvdram0[dramoffsets_kvs[0] + i].range(383, 352); 
+		mykeyvalue06.key = kvdram0[dramoffsets_kvs[0] + i].range(415, 384); 
+		mykeyvalue06.value = kvdram0[dramoffsets_kvs[0] + i].range(447, 416); 
+		mykeyvalue07.key = kvdram0[dramoffsets_kvs[0] + i].range(479, 448); 
+		mykeyvalue07.value = kvdram0[dramoffsets_kvs[0] + i].range(511, 480); 
+		#else 
+		mykeyvalue00.key = kvdram0[dramoffsets_kvs[0] + i].data[0].key; 
+		mykeyvalue00.value = kvdram0[dramoffsets_kvs[0] + i].data[0].value; 
+		mykeyvalue01.key = kvdram0[dramoffsets_kvs[0] + i].data[1].key; 
+		mykeyvalue01.value = kvdram0[dramoffsets_kvs[0] + i].data[1].value; 
+		mykeyvalue02.key = kvdram0[dramoffsets_kvs[0] + i].data[2].key; 
+		mykeyvalue02.value = kvdram0[dramoffsets_kvs[0] + i].data[2].value; 
+		mykeyvalue03.key = kvdram0[dramoffsets_kvs[0] + i].data[3].key; 
+		mykeyvalue03.value = kvdram0[dramoffsets_kvs[0] + i].data[3].value; 
+		mykeyvalue04.key = kvdram0[dramoffsets_kvs[0] + i].data[4].key; 
+		mykeyvalue04.value = kvdram0[dramoffsets_kvs[0] + i].data[4].value; 
+		mykeyvalue05.key = kvdram0[dramoffsets_kvs[0] + i].data[5].key; 
+		mykeyvalue05.value = kvdram0[dramoffsets_kvs[0] + i].data[5].value; 
+		mykeyvalue06.key = kvdram0[dramoffsets_kvs[0] + i].data[6].key; 
+		mykeyvalue06.value = kvdram0[dramoffsets_kvs[0] + i].data[6].value; 
+		mykeyvalue07.key = kvdram0[dramoffsets_kvs[0] + i].data[7].key; 
+		mykeyvalue07.value = kvdram0[dramoffsets_kvs[0] + i].data[7].value; 
+		#endif
+		keyvalue0_vault1 = mykeyvalue00; 
+		keyvalue1_vault1 = mykeyvalue01; 
+		keyvalue2_vault1 = mykeyvalue02; 
+		keyvalue3_vault1 = mykeyvalue03; 
+		keyvalue4_vault1 = mykeyvalue04; 
+		keyvalue5_vault1 = mykeyvalue05; 
+		keyvalue6_vault1 = mykeyvalue06; 
+		keyvalue7_vault1 = mykeyvalue07; 
+			
+		
+		#ifdef _WIDEWORD
+		mykeyvalue10.key = kvdram1[dramoffsets_kvs[1] + i].range(31, 0); 
+		mykeyvalue10.value = kvdram1[dramoffsets_kvs[1] + i].range(63, 32); 
+		mykeyvalue11.key = kvdram1[dramoffsets_kvs[1] + i].range(95, 64); 
+		mykeyvalue11.value = kvdram1[dramoffsets_kvs[1] + i].range(127, 96); 
+		mykeyvalue12.key = kvdram1[dramoffsets_kvs[1] + i].range(159, 128); 
+		mykeyvalue12.value = kvdram1[dramoffsets_kvs[1] + i].range(191, 160); 
+		mykeyvalue13.key = kvdram1[dramoffsets_kvs[1] + i].range(223, 192); 
+		mykeyvalue13.value = kvdram1[dramoffsets_kvs[1] + i].range(255, 224); 
+		mykeyvalue14.key = kvdram1[dramoffsets_kvs[1] + i].range(287, 256); 
+		mykeyvalue14.value = kvdram1[dramoffsets_kvs[1] + i].range(319, 288); 
+		mykeyvalue15.key = kvdram1[dramoffsets_kvs[1] + i].range(351, 320); 
+		mykeyvalue15.value = kvdram1[dramoffsets_kvs[1] + i].range(383, 352); 
+		mykeyvalue16.key = kvdram1[dramoffsets_kvs[1] + i].range(415, 384); 
+		mykeyvalue16.value = kvdram1[dramoffsets_kvs[1] + i].range(447, 416); 
+		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].range(479, 448); 
+		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].range(511, 480); 
+		#else 
+		mykeyvalue10.key = kvdram1[dramoffsets_kvs[1] + i].data[0].key; 
+		mykeyvalue10.value = kvdram1[dramoffsets_kvs[1] + i].data[0].value; 
+		mykeyvalue11.key = kvdram1[dramoffsets_kvs[1] + i].data[1].key; 
+		mykeyvalue11.value = kvdram1[dramoffsets_kvs[1] + i].data[1].value; 
+		mykeyvalue12.key = kvdram1[dramoffsets_kvs[1] + i].data[2].key; 
+		mykeyvalue12.value = kvdram1[dramoffsets_kvs[1] + i].data[2].value; 
+		mykeyvalue13.key = kvdram1[dramoffsets_kvs[1] + i].data[3].key; 
+		mykeyvalue13.value = kvdram1[dramoffsets_kvs[1] + i].data[3].value; 
+		mykeyvalue14.key = kvdram1[dramoffsets_kvs[1] + i].data[4].key; 
+		mykeyvalue14.value = kvdram1[dramoffsets_kvs[1] + i].data[4].value; 
+		mykeyvalue15.key = kvdram1[dramoffsets_kvs[1] + i].data[5].key; 
+		mykeyvalue15.value = kvdram1[dramoffsets_kvs[1] + i].data[5].value; 
+		mykeyvalue16.key = kvdram1[dramoffsets_kvs[1] + i].data[6].key; 
+		mykeyvalue16.value = kvdram1[dramoffsets_kvs[1] + i].data[6].value; 
+		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].data[7].key; 
+		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].data[7].value; 
+		#endif
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		
+		
+		#ifdef _WIDEWORD
+		mykeyvalue20.key = kvdram2[dramoffsets_kvs[2] + i].range(31, 0); 
+		mykeyvalue20.value = kvdram2[dramoffsets_kvs[2] + i].range(63, 32); 
+		mykeyvalue21.key = kvdram2[dramoffsets_kvs[2] + i].range(95, 64); 
+		mykeyvalue21.value = kvdram2[dramoffsets_kvs[2] + i].range(127, 96); 
+		mykeyvalue22.key = kvdram2[dramoffsets_kvs[2] + i].range(159, 128); 
+		mykeyvalue22.value = kvdram2[dramoffsets_kvs[2] + i].range(191, 160); 
+		mykeyvalue23.key = kvdram2[dramoffsets_kvs[2] + i].range(223, 192); 
+		mykeyvalue23.value = kvdram2[dramoffsets_kvs[2] + i].range(255, 224); 
+		mykeyvalue24.key = kvdram2[dramoffsets_kvs[2] + i].range(287, 256); 
+		mykeyvalue24.value = kvdram2[dramoffsets_kvs[2] + i].range(319, 288); 
+		mykeyvalue25.key = kvdram2[dramoffsets_kvs[2] + i].range(351, 320); 
+		mykeyvalue25.value = kvdram2[dramoffsets_kvs[2] + i].range(383, 352); 
+		mykeyvalue26.key = kvdram2[dramoffsets_kvs[2] + i].range(415, 384); 
+		mykeyvalue26.value = kvdram2[dramoffsets_kvs[2] + i].range(447, 416); 
+		mykeyvalue27.key = kvdram2[dramoffsets_kvs[2] + i].range(479, 448); 
+		mykeyvalue27.value = kvdram2[dramoffsets_kvs[2] + i].range(511, 480); 
+		#else 
+		mykeyvalue20.key = kvdram2[dramoffsets_kvs[2] + i].data[0].key; 
+		mykeyvalue20.value = kvdram2[dramoffsets_kvs[2] + i].data[0].value; 
+		mykeyvalue21.key = kvdram2[dramoffsets_kvs[2] + i].data[1].key; 
+		mykeyvalue21.value = kvdram2[dramoffsets_kvs[2] + i].data[1].value; 
+		mykeyvalue22.key = kvdram2[dramoffsets_kvs[2] + i].data[2].key; 
+		mykeyvalue22.value = kvdram2[dramoffsets_kvs[2] + i].data[2].value; 
+		mykeyvalue23.key = kvdram2[dramoffsets_kvs[2] + i].data[3].key; 
+		mykeyvalue23.value = kvdram2[dramoffsets_kvs[2] + i].data[3].value; 
+		mykeyvalue24.key = kvdram2[dramoffsets_kvs[2] + i].data[4].key; 
+		mykeyvalue24.value = kvdram2[dramoffsets_kvs[2] + i].data[4].value; 
+		mykeyvalue25.key = kvdram2[dramoffsets_kvs[2] + i].data[5].key; 
+		mykeyvalue25.value = kvdram2[dramoffsets_kvs[2] + i].data[5].value; 
+		mykeyvalue26.key = kvdram2[dramoffsets_kvs[2] + i].data[6].key; 
+		mykeyvalue26.value = kvdram2[dramoffsets_kvs[2] + i].data[6].value; 
+		mykeyvalue27.key = kvdram2[dramoffsets_kvs[2] + i].data[7].key; 
+		mykeyvalue27.value = kvdram2[dramoffsets_kvs[2] + i].data[7].value; 
 		#endif
 		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, mykeyvalue20.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, mykeyvalue20.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -879,39 +1769,39 @@ readandsynchronize(bool_type enable1, bool_type enable2, uint512_dt * kvdram0,ui
 		
 		
 		#ifdef _WIDEWORD
-		mykeyvalue30.key = kvdram3[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue30.value = kvdram3[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue31.key = kvdram3[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue31.value = kvdram3[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue32.key = kvdram3[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue32.value = kvdram3[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue33.key = kvdram3[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue33.value = kvdram3[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue34.key = kvdram3[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue34.value = kvdram3[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue35.key = kvdram3[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue35.value = kvdram3[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue36.key = kvdram3[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue36.value = kvdram3[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue37.key = kvdram3[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue37.value = kvdram3[dramoffset_kvs + i].range(511, 480); 
+		mykeyvalue30.key = kvdram3[dramoffsets_kvs[3] + i].range(31, 0); 
+		mykeyvalue30.value = kvdram3[dramoffsets_kvs[3] + i].range(63, 32); 
+		mykeyvalue31.key = kvdram3[dramoffsets_kvs[3] + i].range(95, 64); 
+		mykeyvalue31.value = kvdram3[dramoffsets_kvs[3] + i].range(127, 96); 
+		mykeyvalue32.key = kvdram3[dramoffsets_kvs[3] + i].range(159, 128); 
+		mykeyvalue32.value = kvdram3[dramoffsets_kvs[3] + i].range(191, 160); 
+		mykeyvalue33.key = kvdram3[dramoffsets_kvs[3] + i].range(223, 192); 
+		mykeyvalue33.value = kvdram3[dramoffsets_kvs[3] + i].range(255, 224); 
+		mykeyvalue34.key = kvdram3[dramoffsets_kvs[3] + i].range(287, 256); 
+		mykeyvalue34.value = kvdram3[dramoffsets_kvs[3] + i].range(319, 288); 
+		mykeyvalue35.key = kvdram3[dramoffsets_kvs[3] + i].range(351, 320); 
+		mykeyvalue35.value = kvdram3[dramoffsets_kvs[3] + i].range(383, 352); 
+		mykeyvalue36.key = kvdram3[dramoffsets_kvs[3] + i].range(415, 384); 
+		mykeyvalue36.value = kvdram3[dramoffsets_kvs[3] + i].range(447, 416); 
+		mykeyvalue37.key = kvdram3[dramoffsets_kvs[3] + i].range(479, 448); 
+		mykeyvalue37.value = kvdram3[dramoffsets_kvs[3] + i].range(511, 480); 
 		#else 
-		mykeyvalue30.key = kvdram3[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue30.value = kvdram3[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue31.key = kvdram3[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue31.value = kvdram3[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue32.key = kvdram3[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue32.value = kvdram3[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue33.key = kvdram3[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue33.value = kvdram3[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue34.key = kvdram3[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue34.value = kvdram3[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue35.key = kvdram3[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue35.value = kvdram3[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue36.key = kvdram3[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue36.value = kvdram3[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue37.key = kvdram3[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue37.value = kvdram3[dramoffset_kvs + i].data[7].value; 
+		mykeyvalue30.key = kvdram3[dramoffsets_kvs[3] + i].data[0].key; 
+		mykeyvalue30.value = kvdram3[dramoffsets_kvs[3] + i].data[0].value; 
+		mykeyvalue31.key = kvdram3[dramoffsets_kvs[3] + i].data[1].key; 
+		mykeyvalue31.value = kvdram3[dramoffsets_kvs[3] + i].data[1].value; 
+		mykeyvalue32.key = kvdram3[dramoffsets_kvs[3] + i].data[2].key; 
+		mykeyvalue32.value = kvdram3[dramoffsets_kvs[3] + i].data[2].value; 
+		mykeyvalue33.key = kvdram3[dramoffsets_kvs[3] + i].data[3].key; 
+		mykeyvalue33.value = kvdram3[dramoffsets_kvs[3] + i].data[3].value; 
+		mykeyvalue34.key = kvdram3[dramoffsets_kvs[3] + i].data[4].key; 
+		mykeyvalue34.value = kvdram3[dramoffsets_kvs[3] + i].data[4].value; 
+		mykeyvalue35.key = kvdram3[dramoffsets_kvs[3] + i].data[5].key; 
+		mykeyvalue35.value = kvdram3[dramoffsets_kvs[3] + i].data[5].value; 
+		mykeyvalue36.key = kvdram3[dramoffsets_kvs[3] + i].data[6].key; 
+		mykeyvalue36.value = kvdram3[dramoffsets_kvs[3] + i].data[6].value; 
+		mykeyvalue37.key = kvdram3[dramoffsets_kvs[3] + i].data[7].key; 
+		mykeyvalue37.value = kvdram3[dramoffsets_kvs[3] + i].data[7].value; 
 		#endif
 		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, mykeyvalue30.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, mykeyvalue30.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -968,7 +1858,7 @@ uint32_type
 	#ifdef SW 
 	actssync::
 	#endif
-synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
+synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	uint32_type cummvmask_sp = 0;
 	
 	#ifndef SW_IMPL
@@ -998,6 +1888,24 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 	keyvalue_t keyvalue6_vault1;
 	keyvalue_t keyvalue7_vault1;
 	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
 	
 	unsigned int vid[NUM_PARTITIONS][2];
 	#pragma HLS ARRAY_PARTITION variable=vid complete
@@ -1024,15 +1932,49 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 		keyvalue6_vault1 = SYNC_GETKV2(buffer0[6][i]); 
 		keyvalue7_vault1 = SYNC_GETKV2(buffer0[7][i]); 
 			
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, SYNC_GETKV2(buffer1[0][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, SYNC_GETKV2(buffer1[0][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, SYNC_GETKV2(buffer1[1][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, SYNC_GETKV2(buffer1[1][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, SYNC_GETKV2(buffer1[2][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, SYNC_GETKV2(buffer1[2][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, SYNC_GETKV2(buffer1[3][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, SYNC_GETKV2(buffer1[3][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, SYNC_GETKV2(buffer1[4][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, SYNC_GETKV2(buffer1[4][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, SYNC_GETKV2(buffer1[5][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, SYNC_GETKV2(buffer1[5][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, SYNC_GETKV2(buffer1[6][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, SYNC_GETKV2(buffer1[6][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, SYNC_GETKV2(buffer1[7][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, SYNC_GETKV2(buffer1[7][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, SYNC_GETKV2(buffer2[0][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, SYNC_GETKV2(buffer2[0][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, SYNC_GETKV2(buffer2[1][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, SYNC_GETKV2(buffer2[1][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, SYNC_GETKV2(buffer2[2][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, SYNC_GETKV2(buffer2[2][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, SYNC_GETKV2(buffer2[3][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, SYNC_GETKV2(buffer2[3][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, SYNC_GETKV2(buffer2[4][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, SYNC_GETKV2(buffer2[4][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, SYNC_GETKV2(buffer2[5][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, SYNC_GETKV2(buffer2[5][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, SYNC_GETKV2(buffer2[6][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, SYNC_GETKV2(buffer2[6][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, SYNC_GETKV2(buffer2[7][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, SYNC_GETKV2(buffer2[7][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
 
-		res[0][i] = SYNC_GETKV2(keyvalue0_vault1);
-		res[1][i] = SYNC_GETKV2(keyvalue1_vault1);
-		res[2][i] = SYNC_GETKV2(keyvalue2_vault1);
-		res[3][i] = SYNC_GETKV2(keyvalue3_vault1);
-		res[4][i] = SYNC_GETKV2(keyvalue4_vault1);
-		res[5][i] = SYNC_GETKV2(keyvalue5_vault1);
-		res[6][i] = SYNC_GETKV2(keyvalue6_vault1);
-		res[7][i] = SYNC_GETKV2(keyvalue7_vault1);
+		res[0][i] = SYNC_GETKV2(keyvalue0_vault3);
+		res[1][i] = SYNC_GETKV2(keyvalue1_vault3);
+		res[2][i] = SYNC_GETKV2(keyvalue2_vault3);
+		res[3][i] = SYNC_GETKV2(keyvalue3_vault3);
+		res[4][i] = SYNC_GETKV2(keyvalue4_vault3);
+		res[5][i] = SYNC_GETKV2(keyvalue5_vault3);
+		res[6][i] = SYNC_GETKV2(keyvalue6_vault3);
+		res[7][i] = SYNC_GETKV2(keyvalue7_vault3);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
 		if(SYNC_GETKV2(res[0][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
@@ -1074,14 +2016,14 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 	
 		#endif 
 		
-		keyvalue_t data0 = keyvalue0_vault1;
-		keyvalue_t data1 = keyvalue1_vault1;
-		keyvalue_t data2 = keyvalue2_vault1;
-		keyvalue_t data3 = keyvalue3_vault1;
-		keyvalue_t data4 = keyvalue4_vault1;
-		keyvalue_t data5 = keyvalue5_vault1;
-		keyvalue_t data6 = keyvalue6_vault1;
-		keyvalue_t data7 = keyvalue7_vault1;
+		keyvalue_t data0 = keyvalue0_vault3;
+		keyvalue_t data1 = keyvalue1_vault3;
+		keyvalue_t data2 = keyvalue2_vault3;
+		keyvalue_t data3 = keyvalue3_vault3;
+		keyvalue_t data4 = keyvalue4_vault3;
+		keyvalue_t data5 = keyvalue5_vault3;
+		keyvalue_t data6 = keyvalue6_vault3;
+		keyvalue_t data7 = keyvalue7_vault3;
 		keyvalue_t udata0 = SYNC_GETKV2(refbuffer[0][i]);
 		keyvalue_t udata1 = SYNC_GETKV2(refbuffer[1][i]);
 		keyvalue_t udata2 = SYNC_GETKV2(refbuffer[2][i]);
@@ -1181,7 +2123,7 @@ uint32_type
 	#ifdef SW 
 	actssync::
 	#endif
-synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
+synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	uint32_type cummvmask_sp = 0;
 	
 	#ifndef SW_IMPL
@@ -1210,6 +2152,24 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 	keyvalue_t keyvalue5_vault1;
 	keyvalue_t keyvalue6_vault1;
 	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
 	
 	
 	unsigned int vid[NUM_PARTITIONS][2];
@@ -1262,46 +2222,96 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 	
 		keyvalue7_vault1 = SYNC_GETKV2(buffer0[7][i]); 
 			
+	
+		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, SYNC_GETKV2(buffer1[0][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, SYNC_GETKV2(buffer1[0][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, SYNC_GETKV2(buffer1[1][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, SYNC_GETKV2(buffer1[1][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, SYNC_GETKV2(buffer1[2][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, SYNC_GETKV2(buffer1[2][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, SYNC_GETKV2(buffer1[3][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, SYNC_GETKV2(buffer1[3][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, SYNC_GETKV2(buffer1[4][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, SYNC_GETKV2(buffer1[4][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, SYNC_GETKV2(buffer1[5][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, SYNC_GETKV2(buffer1[5][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, SYNC_GETKV2(buffer1[6][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, SYNC_GETKV2(buffer1[6][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, SYNC_GETKV2(buffer1[7][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, SYNC_GETKV2(buffer1[7][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+	
+		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, SYNC_GETKV2(buffer2[0][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, SYNC_GETKV2(buffer2[0][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, SYNC_GETKV2(buffer2[1][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, SYNC_GETKV2(buffer2[1][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, SYNC_GETKV2(buffer2[2][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, SYNC_GETKV2(buffer2[2][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, SYNC_GETKV2(buffer2[3][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, SYNC_GETKV2(buffer2[3][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, SYNC_GETKV2(buffer2[4][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, SYNC_GETKV2(buffer2[4][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, SYNC_GETKV2(buffer2[5][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, SYNC_GETKV2(buffer2[5][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, SYNC_GETKV2(buffer2[6][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, SYNC_GETKV2(buffer2[6][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
+		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, SYNC_GETKV2(buffer2[7][i]).key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, SYNC_GETKV2(buffer2[7][i]).value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	
 
 	
 		keyvalue_t mykeyvalue0;
-		mykeyvalue0.key = mergefunc(udata0.key, keyvalue0_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue0.value = mergefunc(udata0.value, keyvalue0_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue0.key = mergefunc(udata0.key, keyvalue0_vault3.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue0.value = mergefunc(udata0.value, keyvalue0_vault3.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[0][i] = SYNC_GETKV2(mykeyvalue0);
 	
 		keyvalue_t mykeyvalue1;
-		mykeyvalue1.key = mergefunc(udata1.key, keyvalue1_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue1.value = mergefunc(udata1.value, keyvalue1_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue1.key = mergefunc(udata1.key, keyvalue1_vault3.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue1.value = mergefunc(udata1.value, keyvalue1_vault3.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[1][i] = SYNC_GETKV2(mykeyvalue1);
 	
 		keyvalue_t mykeyvalue2;
-		mykeyvalue2.key = mergefunc(udata2.key, keyvalue2_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue2.value = mergefunc(udata2.value, keyvalue2_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue2.key = mergefunc(udata2.key, keyvalue2_vault3.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue2.value = mergefunc(udata2.value, keyvalue2_vault3.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[2][i] = SYNC_GETKV2(mykeyvalue2);
 	
 		keyvalue_t mykeyvalue3;
-		mykeyvalue3.key = mergefunc(udata3.key, keyvalue3_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue3.value = mergefunc(udata3.value, keyvalue3_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue3.key = mergefunc(udata3.key, keyvalue3_vault3.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue3.value = mergefunc(udata3.value, keyvalue3_vault3.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[3][i] = SYNC_GETKV2(mykeyvalue3);
 	
 		keyvalue_t mykeyvalue4;
-		mykeyvalue4.key = mergefunc(udata4.key, keyvalue4_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue4.value = mergefunc(udata4.value, keyvalue4_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue4.key = mergefunc(udata4.key, keyvalue4_vault3.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue4.value = mergefunc(udata4.value, keyvalue4_vault3.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[4][i] = SYNC_GETKV2(mykeyvalue4);
 	
 		keyvalue_t mykeyvalue5;
-		mykeyvalue5.key = mergefunc(udata5.key, keyvalue5_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue5.value = mergefunc(udata5.value, keyvalue5_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue5.key = mergefunc(udata5.key, keyvalue5_vault3.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue5.value = mergefunc(udata5.value, keyvalue5_vault3.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[5][i] = SYNC_GETKV2(mykeyvalue5);
 	
 		keyvalue_t mykeyvalue6;
-		mykeyvalue6.key = mergefunc(udata6.key, keyvalue6_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue6.value = mergefunc(udata6.value, keyvalue6_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue6.key = mergefunc(udata6.key, keyvalue6_vault3.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue6.value = mergefunc(udata6.value, keyvalue6_vault3.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[6][i] = SYNC_GETKV2(mykeyvalue6);
 	
 		keyvalue_t mykeyvalue7;
-		mykeyvalue7.key = mergefunc(udata7.key, keyvalue7_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue7.value = mergefunc(udata7.value, keyvalue7_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue7.key = mergefunc(udata7.key, keyvalue7_vault3.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue7.value = mergefunc(udata7.value, keyvalue7_vault3.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[7][i] = SYNC_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
@@ -1344,14 +2354,14 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 	
 		#endif 
 		
-		keyvalue_t data0 = keyvalue0_vault1;
-		keyvalue_t data1 = keyvalue1_vault1;
-		keyvalue_t data2 = keyvalue2_vault1;
-		keyvalue_t data3 = keyvalue3_vault1;
-		keyvalue_t data4 = keyvalue4_vault1;
-		keyvalue_t data5 = keyvalue5_vault1;
-		keyvalue_t data6 = keyvalue6_vault1;
-		keyvalue_t data7 = keyvalue7_vault1;
+		keyvalue_t data0 = keyvalue0_vault3;
+		keyvalue_t data1 = keyvalue1_vault3;
+		keyvalue_t data2 = keyvalue2_vault3;
+		keyvalue_t data3 = keyvalue3_vault3;
+		keyvalue_t data4 = keyvalue4_vault3;
+		keyvalue_t data5 = keyvalue5_vault3;
+		keyvalue_t data6 = keyvalue6_vault3;
+		keyvalue_t data7 = keyvalue7_vault3;
 	
 	
 		res0.key = applyfunc(udata0.key, data0.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -1444,7 +2454,7 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -1471,6 +2481,24 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VDAT
 	keyvalue_t keyvalue5_vault1;
 	keyvalue_t keyvalue6_vault1;
 	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
 	
 	
 	for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
@@ -1502,24 +2530,58 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VDAT
 		buffer0[7][i] = SYNC_GETKV2(keyvalue7_vault0);
 		keyvalue7_vault1 = keyvalue7_vault0;
 	
+		buffer1[0][i] = SYNC_GETKV2(keyvalue0_vault1);
+		keyvalue0_vault2 = keyvalue0_vault1;
+		buffer1[1][i] = SYNC_GETKV2(keyvalue1_vault1);
+		keyvalue1_vault2 = keyvalue1_vault1;
+		buffer1[2][i] = SYNC_GETKV2(keyvalue2_vault1);
+		keyvalue2_vault2 = keyvalue2_vault1;
+		buffer1[3][i] = SYNC_GETKV2(keyvalue3_vault1);
+		keyvalue3_vault2 = keyvalue3_vault1;
+		buffer1[4][i] = SYNC_GETKV2(keyvalue4_vault1);
+		keyvalue4_vault2 = keyvalue4_vault1;
+		buffer1[5][i] = SYNC_GETKV2(keyvalue5_vault1);
+		keyvalue5_vault2 = keyvalue5_vault1;
+		buffer1[6][i] = SYNC_GETKV2(keyvalue6_vault1);
+		keyvalue6_vault2 = keyvalue6_vault1;
+		buffer1[7][i] = SYNC_GETKV2(keyvalue7_vault1);
+		keyvalue7_vault2 = keyvalue7_vault1;
+	
+		buffer2[0][i] = SYNC_GETKV2(keyvalue0_vault2);
+		keyvalue0_vault3 = keyvalue0_vault2;
+		buffer2[1][i] = SYNC_GETKV2(keyvalue1_vault2);
+		keyvalue1_vault3 = keyvalue1_vault2;
+		buffer2[2][i] = SYNC_GETKV2(keyvalue2_vault2);
+		keyvalue2_vault3 = keyvalue2_vault2;
+		buffer2[3][i] = SYNC_GETKV2(keyvalue3_vault2);
+		keyvalue3_vault3 = keyvalue3_vault2;
+		buffer2[4][i] = SYNC_GETKV2(keyvalue4_vault2);
+		keyvalue4_vault3 = keyvalue4_vault2;
+		buffer2[5][i] = SYNC_GETKV2(keyvalue5_vault2);
+		keyvalue5_vault3 = keyvalue5_vault2;
+		buffer2[6][i] = SYNC_GETKV2(keyvalue6_vault2);
+		keyvalue6_vault3 = keyvalue6_vault2;
+		buffer2[7][i] = SYNC_GETKV2(keyvalue7_vault2);
+		keyvalue7_vault3 = keyvalue7_vault2;
+	
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-		if(SYNC_GETKV2(buffer0[0][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
-		if(SYNC_GETKV2(buffer0[0][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKV2(buffer0[1][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
-		if(SYNC_GETKV2(buffer0[1][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKV2(buffer0[2][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
-		if(SYNC_GETKV2(buffer0[2][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKV2(buffer0[3][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
-		if(SYNC_GETKV2(buffer0[3][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKV2(buffer0[4][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
-		if(SYNC_GETKV2(buffer0[4][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKV2(buffer0[5][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
-		if(SYNC_GETKV2(buffer0[5][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKV2(buffer0[6][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
-		if(SYNC_GETKV2(buffer0[6][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKV2(buffer0[7][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
-		if(SYNC_GETKV2(buffer0[7][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer2[0][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer2[0][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer2[1][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer2[1][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer2[2][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer2[2][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer2[3][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer2[3][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer2[4][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer2[4][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer2[5][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer2[5][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer2[6][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer2[6][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(buffer2[7][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(buffer2[7][i]).value < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
 		#endif
 	}
 	return;
@@ -1529,7 +2591,7 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], globalparams_t globalparams){
+spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE OFF //
 	if(enable1 == OFF || enable2 == OFF || enable3 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
@@ -1540,6 +2602,8 @@ spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwid
 	unitBRAMwidth_type vmask_vault0;
 	unitBRAMwidth_type vmask_vault1;
 	unitBRAMwidth_type vmask_vault2;
+	unitBRAMwidth_type vmask_vault3;
+	unitBRAMwidth_type vmask_vault4;
 	
 	for (buffer_type i=0; i<BLOCKRAM_SIZE; i++){ // 8, 16, BLOCKRAM_SIZE
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -1550,6 +2614,12 @@ spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwid
 		vmask_vault2 = vmask_vault1;
 		vmask0[i] = vmask_vault1;
 	
+		vmask_vault3 = vmask_vault2;
+		vmask1[i] = vmask_vault2;
+	
+		vmask_vault4 = vmask_vault3;
+		vmask2[i] = vmask_vault3;
+	
 	}
 	return;
 }
@@ -1558,13 +2628,14 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,		keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vbuffer_offset_kvs, buffer_type vbuffer_size_kvs, 
-		unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
-		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
-		globalparams_t globalparams){
+spreadandwrite1(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
+uint512_dt * kvdram0,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
+			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"spreadandwrite: spread (vdata) function called."<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
+	cout<<"spreadandwrite1: spread (vdata) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -1624,466 +2695,1611 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 	
 	
 	if(enable1 == ON && enable2 == ON){
-	SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		// spread operation
-		keyvalue0_vault0 = SYNC_GETKV2(source[0][i]); 
-		keyvalue1_vault0 = SYNC_GETKV2(source[1][i]); 
-		keyvalue2_vault0 = SYNC_GETKV2(source[2][i]); 
-		keyvalue3_vault0 = SYNC_GETKV2(source[3][i]); 
-		keyvalue4_vault0 = SYNC_GETKV2(source[4][i]); 
-		keyvalue5_vault0 = SYNC_GETKV2(source[5][i]); 
-		keyvalue6_vault0 = SYNC_GETKV2(source[6][i]); 
-		keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
+		SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		#pragma HLS PIPELINE II=1
+			// spread operation
+			keyvalue0_vault0 = SYNC_GETKV2(source[0][i]); 
+			keyvalue1_vault0 = SYNC_GETKV2(source[1][i]); 
+			keyvalue2_vault0 = SYNC_GETKV2(source[2][i]); 
+			keyvalue3_vault0 = SYNC_GETKV2(source[3][i]); 
+			keyvalue4_vault0 = SYNC_GETKV2(source[4][i]); 
+			keyvalue5_vault0 = SYNC_GETKV2(source[5][i]); 
+			keyvalue6_vault0 = SYNC_GETKV2(source[6][i]); 
+			keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
+			
+			#ifdef _WIDEWORD
+			kvdram0[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value;  // dramoffset_kvs
+			keyvalue0_vault1 = keyvalue0_vault0;
+			kvdram0[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value;  // dramoffset_kvs
+			keyvalue1_vault1 = keyvalue1_vault0;
+			kvdram0[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value;  // dramoffset_kvs
+			keyvalue2_vault1 = keyvalue2_vault0;
+			kvdram0[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value;  // dramoffset_kvs
+			keyvalue3_vault1 = keyvalue3_vault0;
+			kvdram0[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value;  // dramoffset_kvs
+			keyvalue4_vault1 = keyvalue4_vault0;
+			kvdram0[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value;  // dramoffset_kvs
+			keyvalue5_vault1 = keyvalue5_vault0;
+			kvdram0[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value;  // dramoffset_kvs
+			keyvalue6_vault1 = keyvalue6_vault0;
+			kvdram0[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value;  // dramoffset_kvs
+			keyvalue7_vault1 = keyvalue7_vault0;
+			#else 
+			kvdram0[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value; // dramoffset_kvs
+			keyvalue0_vault1 = keyvalue0_vault0;
+			kvdram0[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value; // dramoffset_kvs
+			keyvalue1_vault1 = keyvalue1_vault0;
+			kvdram0[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value; // dramoffset_kvs
+			keyvalue2_vault1 = keyvalue2_vault0;
+			kvdram0[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value; // dramoffset_kvs
+			keyvalue3_vault1 = keyvalue3_vault0;
+			kvdram0[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value; // dramoffset_kvs
+			keyvalue4_vault1 = keyvalue4_vault0;
+			kvdram0[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value; // dramoffset_kvs
+			keyvalue5_vault1 = keyvalue5_vault0;
+			kvdram0[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value; // dramoffset_kvs
+			keyvalue6_vault1 = keyvalue6_vault0;
+			kvdram0[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value; // dramoffset_kvs
+			keyvalue7_vault1 = keyvalue7_vault0;
+			#endif
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+			#endif
+			
+			// combined with prepare vmask operation
+			unsigned int X = i % 16; // AUTOMATEME.
+			unsigned int Y = i / 16;
 		
-		#ifdef _WIDEWORD
-		kvdram0[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault0.value; 
-		keyvalue0_vault1 = keyvalue0_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault0.value; 
-		keyvalue1_vault1 = keyvalue1_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault0.value; 
-		keyvalue2_vault1 = keyvalue2_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault0.value; 
-		keyvalue3_vault1 = keyvalue3_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault0.value; 
-		keyvalue4_vault1 = keyvalue4_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault0.value; 
-		keyvalue5_vault1 = keyvalue5_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault0.value; 
-		keyvalue6_vault1 = keyvalue6_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault0.value; 
-		keyvalue7_vault1 = keyvalue7_vault0;
-		kvdram1[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault1.value; 
-		keyvalue0_vault2 = keyvalue0_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault1.value; 
-		keyvalue1_vault2 = keyvalue1_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault1.value; 
-		keyvalue2_vault2 = keyvalue2_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault1.value; 
-		keyvalue3_vault2 = keyvalue3_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault1.value; 
-		keyvalue4_vault2 = keyvalue4_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault1.value; 
-		keyvalue5_vault2 = keyvalue5_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault1.value; 
-		keyvalue6_vault2 = keyvalue6_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault1.value; 
-		keyvalue7_vault2 = keyvalue7_vault1;
-		kvdram2[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault2.value; 
-		keyvalue0_vault3 = keyvalue0_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault2.value; 
-		keyvalue1_vault3 = keyvalue1_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault2.value; 
-		keyvalue2_vault3 = keyvalue2_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault2.value; 
-		keyvalue3_vault3 = keyvalue3_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault2.value; 
-		keyvalue4_vault3 = keyvalue4_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault2.value; 
-		keyvalue5_vault3 = keyvalue5_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault2.value; 
-		keyvalue6_vault3 = keyvalue6_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault2.value; 
-		keyvalue7_vault3 = keyvalue7_vault2;
-		kvdram3[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault3.value; 
-		keyvalue0_vault4 = keyvalue0_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault3.value; 
-		keyvalue1_vault4 = keyvalue1_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault3.value; 
-		keyvalue2_vault4 = keyvalue2_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault3.value; 
-		keyvalue3_vault4 = keyvalue3_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault3.value; 
-		keyvalue4_vault4 = keyvalue4_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault3.value; 
-		keyvalue5_vault4 = keyvalue5_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault3.value; 
-		keyvalue6_vault4 = keyvalue6_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault3.value; 
-		keyvalue7_vault4 = keyvalue7_vault3;
-		#else 
-		kvdram0[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault0.value;
-		keyvalue0_vault1 = keyvalue0_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault0.value;
-		keyvalue1_vault1 = keyvalue1_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault0.value;
-		keyvalue2_vault1 = keyvalue2_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault0.value;
-		keyvalue3_vault1 = keyvalue3_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault0.value;
-		keyvalue4_vault1 = keyvalue4_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault0.value;
-		keyvalue5_vault1 = keyvalue5_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault0.value;
-		keyvalue6_vault1 = keyvalue6_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault0.value;
-		keyvalue7_vault1 = keyvalue7_vault0;
-		kvdram1[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault1.value;
-		keyvalue0_vault2 = keyvalue0_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault1.value;
-		keyvalue1_vault2 = keyvalue1_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault1.value;
-		keyvalue2_vault2 = keyvalue2_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault1.value;
-		keyvalue3_vault2 = keyvalue3_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault1.value;
-		keyvalue4_vault2 = keyvalue4_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault1.value;
-		keyvalue5_vault2 = keyvalue5_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault1.value;
-		keyvalue6_vault2 = keyvalue6_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault1.value;
-		keyvalue7_vault2 = keyvalue7_vault1;
-		kvdram2[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault2.value;
-		keyvalue0_vault3 = keyvalue0_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault2.value;
-		keyvalue1_vault3 = keyvalue1_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault2.value;
-		keyvalue2_vault3 = keyvalue2_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault2.value;
-		keyvalue3_vault3 = keyvalue3_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault2.value;
-		keyvalue4_vault3 = keyvalue4_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault2.value;
-		keyvalue5_vault3 = keyvalue5_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault2.value;
-		keyvalue6_vault3 = keyvalue6_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault2.value;
-		keyvalue7_vault3 = keyvalue7_vault2;
-		kvdram3[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault3.value;
-		keyvalue0_vault4 = keyvalue0_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault3.value;
-		keyvalue1_vault4 = keyvalue1_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault3.value;
-		keyvalue2_vault4 = keyvalue2_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault3.value;
-		keyvalue3_vault4 = keyvalue3_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault3.value;
-		keyvalue4_vault4 = keyvalue4_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault3.value;
-		keyvalue5_vault4 = keyvalue5_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault3.value;
-		keyvalue6_vault4 = keyvalue6_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault3.value;
-		keyvalue7_vault4 = keyvalue7_vault3;
-		#endif 
+			#ifdef _WIDEWORD
+			tempbuffer[X][Y].range(0, 0) = vmask[i].data[0].key;
+			tempbuffer[X][Y].range(1, 1) = vmask[i].data[0].value;
+			tempbuffer[X][Y].range(2, 2) = vmask[i].data[1].key;
+			tempbuffer[X][Y].range(3, 3) = vmask[i].data[1].value;
+			tempbuffer[X][Y].range(4, 4) = vmask[i].data[2].key;
+			tempbuffer[X][Y].range(5, 5) = vmask[i].data[2].value;
+			tempbuffer[X][Y].range(6, 6) = vmask[i].data[3].key;
+			tempbuffer[X][Y].range(7, 7) = vmask[i].data[3].value;
+			tempbuffer[X][Y].range(8, 8) = vmask[i].data[4].key;
+			tempbuffer[X][Y].range(9, 9) = vmask[i].data[4].value;
+			tempbuffer[X][Y].range(10, 10) = vmask[i].data[5].key;
+			tempbuffer[X][Y].range(11, 11) = vmask[i].data[5].value;
+			tempbuffer[X][Y].range(12, 12) = vmask[i].data[6].key;
+			tempbuffer[X][Y].range(13, 13) = vmask[i].data[6].value;
+			tempbuffer[X][Y].range(14, 14) = vmask[i].data[7].key;
+			tempbuffer[X][Y].range(15, 15) = vmask[i].data[7].value;
+			tempbuffer[X][Y].range(16, 16) = vmask[i].data[8].key;
+			tempbuffer[X][Y].range(17, 17) = vmask[i].data[8].value;
+			tempbuffer[X][Y].range(18, 18) = vmask[i].data[9].key;
+			tempbuffer[X][Y].range(19, 19) = vmask[i].data[9].value;
+			tempbuffer[X][Y].range(20, 20) = vmask[i].data[10].key;
+			tempbuffer[X][Y].range(21, 21) = vmask[i].data[10].value;
+			tempbuffer[X][Y].range(22, 22) = vmask[i].data[11].key;
+			tempbuffer[X][Y].range(23, 23) = vmask[i].data[11].value;
+			tempbuffer[X][Y].range(24, 24) = vmask[i].data[12].key;
+			tempbuffer[X][Y].range(25, 25) = vmask[i].data[12].value;
+			tempbuffer[X][Y].range(26, 26) = vmask[i].data[13].key;
+			tempbuffer[X][Y].range(27, 27) = vmask[i].data[13].value;
+			tempbuffer[X][Y].range(28, 28) = vmask[i].data[14].key;
+			tempbuffer[X][Y].range(29, 29) = vmask[i].data[14].value;
+			tempbuffer[X][Y].range(30, 30) = vmask[i].data[15].key;
+			tempbuffer[X][Y].range(31, 31) = vmask[i].data[15].value;
+			#else
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[i].data[0].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[i].data[0].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[i].data[1].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[i].data[1].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[i].data[2].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[i].data[2].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[i].data[3].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[i].data[3].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[i].data[4].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[i].data[4].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[i].data[5].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[i].data[5].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[i].data[6].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[i].data[6].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[i].data[7].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[i].data[7].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[i].data[8].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[i].data[8].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[i].data[9].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[i].data[9].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[i].data[10].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[i].data[10].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[i].data[11].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[i].data[11].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[i].data[12].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[i].data[12].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[i].data[13].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[i].data[13].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[i].data[14].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[i].data[14].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[i].data[15].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[i].data[15].value);
+			#endif
+		}
 		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
-		#endif
-		
-		// combined with prepare vmask operation
-		unsigned int X = i % 16;
-		unsigned int Y = i / 16;
-	
-		#ifdef _WIDEWORD
-		tempbuffer[X][Y].range(0, 0) = vmask[i].data[0].key;
-		tempbuffer[X][Y].range(1, 1) = vmask[i].data[0].value;
-		tempbuffer[X][Y].range(2, 2) = vmask[i].data[1].key;
-		tempbuffer[X][Y].range(3, 3) = vmask[i].data[1].value;
-		tempbuffer[X][Y].range(4, 4) = vmask[i].data[2].key;
-		tempbuffer[X][Y].range(5, 5) = vmask[i].data[2].value;
-		tempbuffer[X][Y].range(6, 6) = vmask[i].data[3].key;
-		tempbuffer[X][Y].range(7, 7) = vmask[i].data[3].value;
-		tempbuffer[X][Y].range(8, 8) = vmask[i].data[4].key;
-		tempbuffer[X][Y].range(9, 9) = vmask[i].data[4].value;
-		tempbuffer[X][Y].range(10, 10) = vmask[i].data[5].key;
-		tempbuffer[X][Y].range(11, 11) = vmask[i].data[5].value;
-		tempbuffer[X][Y].range(12, 12) = vmask[i].data[6].key;
-		tempbuffer[X][Y].range(13, 13) = vmask[i].data[6].value;
-		tempbuffer[X][Y].range(14, 14) = vmask[i].data[7].key;
-		tempbuffer[X][Y].range(15, 15) = vmask[i].data[7].value;
-		tempbuffer[X][Y].range(16, 16) = vmask[i].data[8].key;
-		tempbuffer[X][Y].range(17, 17) = vmask[i].data[8].value;
-		tempbuffer[X][Y].range(18, 18) = vmask[i].data[9].key;
-		tempbuffer[X][Y].range(19, 19) = vmask[i].data[9].value;
-		tempbuffer[X][Y].range(20, 20) = vmask[i].data[10].key;
-		tempbuffer[X][Y].range(21, 21) = vmask[i].data[10].value;
-		tempbuffer[X][Y].range(22, 22) = vmask[i].data[11].key;
-		tempbuffer[X][Y].range(23, 23) = vmask[i].data[11].value;
-		tempbuffer[X][Y].range(24, 24) = vmask[i].data[12].key;
-		tempbuffer[X][Y].range(25, 25) = vmask[i].data[12].value;
-		tempbuffer[X][Y].range(26, 26) = vmask[i].data[13].key;
-		tempbuffer[X][Y].range(27, 27) = vmask[i].data[13].value;
-		tempbuffer[X][Y].range(28, 28) = vmask[i].data[14].key;
-		tempbuffer[X][Y].range(29, 29) = vmask[i].data[14].value;
-		tempbuffer[X][Y].range(30, 30) = vmask[i].data[15].key;
-		tempbuffer[X][Y].range(31, 31) = vmask[i].data[15].value;
-		#else
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[i].data[0].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[i].data[0].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[i].data[1].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[i].data[1].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[i].data[2].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[i].data[2].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[i].data[3].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[i].data[3].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[i].data[4].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[i].data[4].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[i].data[5].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[i].data[5].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[i].data[6].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[i].data[6].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[i].data[7].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[i].data[7].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[i].data[8].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[i].data[8].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[i].data[9].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[i].data[9].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[i].data[10].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[i].data[10].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[i].data[11].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[i].data[11].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[i].data[12].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[i].data[12].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[i].data[13].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[i].data[13].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[i].data[14].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[i].data[14].value);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[i].data[15].key);
-		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[i].data[15].value);
-		#endif
-	}
-	
-	if(enable_savevmask == ON){
-	SAVEVMASKS_LOOP: for(buffer_type i=0; i<vmask_size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
-	#pragma HLS PIPELINE II=1
-		#ifdef _WIDEWORD
-		kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; 
-		kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i]; 
-		kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; 
-		kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i]; 
-		kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; 
-		kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i]; 
-		kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; 
-		kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i]; 
-		kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; 
-		kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i]; 
-		kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; 
-		kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i]; 
-		kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; 
-		kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i]; 
-		kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; 
-		kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i]; 
-		kvdram1[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; 
-		kvdram1[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i]; 
-		kvdram1[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; 
-		kvdram1[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i]; 
-		kvdram1[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; 
-		kvdram1[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i]; 
-		kvdram1[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; 
-		kvdram1[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i]; 
-		kvdram1[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; 
-		kvdram1[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i]; 
-		kvdram1[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; 
-		kvdram1[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i]; 
-		kvdram1[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; 
-		kvdram1[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i]; 
-		kvdram1[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; 
-		kvdram1[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i]; 
-		kvdram2[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; 
-		kvdram2[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i]; 
-		kvdram2[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; 
-		kvdram2[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i]; 
-		kvdram2[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; 
-		kvdram2[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i]; 
-		kvdram2[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; 
-		kvdram2[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i]; 
-		kvdram2[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; 
-		kvdram2[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i]; 
-		kvdram2[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; 
-		kvdram2[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i]; 
-		kvdram2[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; 
-		kvdram2[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i]; 
-		kvdram2[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; 
-		kvdram2[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i]; 
-		kvdram3[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; 
-		kvdram3[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i]; 
-		kvdram3[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; 
-		kvdram3[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i]; 
-		kvdram3[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; 
-		kvdram3[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i]; 
-		kvdram3[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; 
-		kvdram3[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i]; 
-		kvdram3[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; 
-		kvdram3[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i]; 
-		kvdram3[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; 
-		kvdram3[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i]; 
-		kvdram3[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; 
-		kvdram3[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i]; 
-		kvdram3[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; 
-		kvdram3[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i]; 
-		#else 
-		kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i];
-		kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i]; 
-		kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i];
-		kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i]; 
-		kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i];
-		kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i]; 
-		kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i];
-		kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i]; 
-		kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i];
-		kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i]; 
-		kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i];
-		kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i]; 
-		kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i];
-		kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i]; 
-		kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i];
-		kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i]; 
-		kvdram1[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i];
-		kvdram1[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i]; 
-		kvdram1[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i];
-		kvdram1[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i]; 
-		kvdram1[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i];
-		kvdram1[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i]; 
-		kvdram1[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i];
-		kvdram1[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i]; 
-		kvdram1[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i];
-		kvdram1[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i]; 
-		kvdram1[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i];
-		kvdram1[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i]; 
-		kvdram1[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i];
-		kvdram1[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i]; 
-		kvdram1[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i];
-		kvdram1[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i]; 
-		kvdram2[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i];
-		kvdram2[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i]; 
-		kvdram2[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i];
-		kvdram2[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i]; 
-		kvdram2[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i];
-		kvdram2[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i]; 
-		kvdram2[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i];
-		kvdram2[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i]; 
-		kvdram2[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i];
-		kvdram2[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i]; 
-		kvdram2[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i];
-		kvdram2[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i]; 
-		kvdram2[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i];
-		kvdram2[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i]; 
-		kvdram2[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i];
-		kvdram2[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i]; 
-		kvdram3[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i];
-		kvdram3[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i]; 
-		kvdram3[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i];
-		kvdram3[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i]; 
-		kvdram3[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i];
-		kvdram3[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i]; 
-		kvdram3[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i];
-		kvdram3[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i]; 
-		kvdram3[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i];
-		kvdram3[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i]; 
-		kvdram3[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i];
-		kvdram3[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i]; 
-		kvdram3[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i];
-		kvdram3[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i]; 
-		kvdram3[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i];
-		kvdram3[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i]; 
-		#endif 
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
-		#endif
-	}
-	}
+		if(enable_savevmask == ON){
+			SAVEVMASKS_LOOP: for(buffer_type i=0; i<vmask_size_kvs; i++){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
+			#pragma HLS PIPELINE II=1
+				#ifdef _WIDEWORD
+				kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				#else 
+				kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				#endif 
+				
+				#ifdef _DEBUGMODE_STATS
+				actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+				#endif
+			}
+		}
 	}
 	
 	// savevmaskp
 	if(enable_savevmaskp == ON){
-	uint32_type vmask_p = 0;
-	if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
-	#ifdef _WIDEWORD
-	kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p;
-	kvdram1[vmaskp_offset_kvs].range(31, 0) = vmask_p;
-	kvdram2[vmaskp_offset_kvs].range(31, 0) = vmask_p;
-	kvdram3[vmaskp_offset_kvs].range(31, 0) = vmask_p;
-	#else
-	kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p;
-	kvdram1[vmaskp_offset_kvs].data[0].key = vmask_p;
-	kvdram2[vmaskp_offset_kvs].data[0].key = vmask_p;
-	kvdram3[vmaskp_offset_kvs].data[0].key = vmask_p;
-	#endif
+		uint32_type vmask_p = 0;
+		if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
+		#ifdef _WIDEWORD
+		kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		#else
+		kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		#endif
 	}
+	
+	/* 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+ */
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+spreadandwrite2(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
+			globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=source
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
+	cout<<"spreadandwrite2: spread (vdata) function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE / 16;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // prepare vmask variables
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
+	buffer_type transfsize = vmask_size_kvs * 16;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	if(enable1 == ON && enable2 == ON){
+		SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		#pragma HLS PIPELINE II=1
+			// spread operation
+			keyvalue0_vault0 = SYNC_GETKV2(source[0][i]); 
+			keyvalue1_vault0 = SYNC_GETKV2(source[1][i]); 
+			keyvalue2_vault0 = SYNC_GETKV2(source[2][i]); 
+			keyvalue3_vault0 = SYNC_GETKV2(source[3][i]); 
+			keyvalue4_vault0 = SYNC_GETKV2(source[4][i]); 
+			keyvalue5_vault0 = SYNC_GETKV2(source[5][i]); 
+			keyvalue6_vault0 = SYNC_GETKV2(source[6][i]); 
+			keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
+			
+			#ifdef _WIDEWORD
+			kvdram0[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value;  // dramoffset_kvs
+			keyvalue0_vault1 = keyvalue0_vault0;
+			kvdram0[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value;  // dramoffset_kvs
+			keyvalue1_vault1 = keyvalue1_vault0;
+			kvdram0[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value;  // dramoffset_kvs
+			keyvalue2_vault1 = keyvalue2_vault0;
+			kvdram0[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value;  // dramoffset_kvs
+			keyvalue3_vault1 = keyvalue3_vault0;
+			kvdram0[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value;  // dramoffset_kvs
+			keyvalue4_vault1 = keyvalue4_vault0;
+			kvdram0[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value;  // dramoffset_kvs
+			keyvalue5_vault1 = keyvalue5_vault0;
+			kvdram0[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value;  // dramoffset_kvs
+			keyvalue6_vault1 = keyvalue6_vault0;
+			kvdram0[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value;  // dramoffset_kvs
+			keyvalue7_vault1 = keyvalue7_vault0;
+			kvdram1[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault1.value;  // dramoffset_kvs
+			keyvalue0_vault2 = keyvalue0_vault1;
+			kvdram1[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault1.value;  // dramoffset_kvs
+			keyvalue1_vault2 = keyvalue1_vault1;
+			kvdram1[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault1.value;  // dramoffset_kvs
+			keyvalue2_vault2 = keyvalue2_vault1;
+			kvdram1[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault1.value;  // dramoffset_kvs
+			keyvalue3_vault2 = keyvalue3_vault1;
+			kvdram1[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault1.value;  // dramoffset_kvs
+			keyvalue4_vault2 = keyvalue4_vault1;
+			kvdram1[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault1.value;  // dramoffset_kvs
+			keyvalue5_vault2 = keyvalue5_vault1;
+			kvdram1[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault1.value;  // dramoffset_kvs
+			keyvalue6_vault2 = keyvalue6_vault1;
+			kvdram1[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault1.value;  // dramoffset_kvs
+			keyvalue7_vault2 = keyvalue7_vault1;
+			#else 
+			kvdram0[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value; // dramoffset_kvs
+			keyvalue0_vault1 = keyvalue0_vault0;
+			kvdram0[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value; // dramoffset_kvs
+			keyvalue1_vault1 = keyvalue1_vault0;
+			kvdram0[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value; // dramoffset_kvs
+			keyvalue2_vault1 = keyvalue2_vault0;
+			kvdram0[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value; // dramoffset_kvs
+			keyvalue3_vault1 = keyvalue3_vault0;
+			kvdram0[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value; // dramoffset_kvs
+			keyvalue4_vault1 = keyvalue4_vault0;
+			kvdram0[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value; // dramoffset_kvs
+			keyvalue5_vault1 = keyvalue5_vault0;
+			kvdram0[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value; // dramoffset_kvs
+			keyvalue6_vault1 = keyvalue6_vault0;
+			kvdram0[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value; // dramoffset_kvs
+			keyvalue7_vault1 = keyvalue7_vault0;
+			kvdram1[dramoffset_kvs + i].data[0].key = keyvalue0_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[0].value = keyvalue0_vault1.value; // dramoffset_kvs
+			keyvalue0_vault2 = keyvalue0_vault1;
+			kvdram1[dramoffset_kvs + i].data[1].key = keyvalue1_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[1].value = keyvalue1_vault1.value; // dramoffset_kvs
+			keyvalue1_vault2 = keyvalue1_vault1;
+			kvdram1[dramoffset_kvs + i].data[2].key = keyvalue2_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[2].value = keyvalue2_vault1.value; // dramoffset_kvs
+			keyvalue2_vault2 = keyvalue2_vault1;
+			kvdram1[dramoffset_kvs + i].data[3].key = keyvalue3_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[3].value = keyvalue3_vault1.value; // dramoffset_kvs
+			keyvalue3_vault2 = keyvalue3_vault1;
+			kvdram1[dramoffset_kvs + i].data[4].key = keyvalue4_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[4].value = keyvalue4_vault1.value; // dramoffset_kvs
+			keyvalue4_vault2 = keyvalue4_vault1;
+			kvdram1[dramoffset_kvs + i].data[5].key = keyvalue5_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[5].value = keyvalue5_vault1.value; // dramoffset_kvs
+			keyvalue5_vault2 = keyvalue5_vault1;
+			kvdram1[dramoffset_kvs + i].data[6].key = keyvalue6_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[6].value = keyvalue6_vault1.value; // dramoffset_kvs
+			keyvalue6_vault2 = keyvalue6_vault1;
+			kvdram1[dramoffset_kvs + i].data[7].key = keyvalue7_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[7].value = keyvalue7_vault1.value; // dramoffset_kvs
+			keyvalue7_vault2 = keyvalue7_vault1;
+			#endif
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+			#endif
+			
+			// combined with prepare vmask operation
+			unsigned int X = i % 16; // AUTOMATEME.
+			unsigned int Y = i / 16;
+		
+			#ifdef _WIDEWORD
+			tempbuffer[X][Y].range(0, 0) = vmask[i].data[0].key;
+			tempbuffer[X][Y].range(1, 1) = vmask[i].data[0].value;
+			tempbuffer[X][Y].range(2, 2) = vmask[i].data[1].key;
+			tempbuffer[X][Y].range(3, 3) = vmask[i].data[1].value;
+			tempbuffer[X][Y].range(4, 4) = vmask[i].data[2].key;
+			tempbuffer[X][Y].range(5, 5) = vmask[i].data[2].value;
+			tempbuffer[X][Y].range(6, 6) = vmask[i].data[3].key;
+			tempbuffer[X][Y].range(7, 7) = vmask[i].data[3].value;
+			tempbuffer[X][Y].range(8, 8) = vmask[i].data[4].key;
+			tempbuffer[X][Y].range(9, 9) = vmask[i].data[4].value;
+			tempbuffer[X][Y].range(10, 10) = vmask[i].data[5].key;
+			tempbuffer[X][Y].range(11, 11) = vmask[i].data[5].value;
+			tempbuffer[X][Y].range(12, 12) = vmask[i].data[6].key;
+			tempbuffer[X][Y].range(13, 13) = vmask[i].data[6].value;
+			tempbuffer[X][Y].range(14, 14) = vmask[i].data[7].key;
+			tempbuffer[X][Y].range(15, 15) = vmask[i].data[7].value;
+			tempbuffer[X][Y].range(16, 16) = vmask[i].data[8].key;
+			tempbuffer[X][Y].range(17, 17) = vmask[i].data[8].value;
+			tempbuffer[X][Y].range(18, 18) = vmask[i].data[9].key;
+			tempbuffer[X][Y].range(19, 19) = vmask[i].data[9].value;
+			tempbuffer[X][Y].range(20, 20) = vmask[i].data[10].key;
+			tempbuffer[X][Y].range(21, 21) = vmask[i].data[10].value;
+			tempbuffer[X][Y].range(22, 22) = vmask[i].data[11].key;
+			tempbuffer[X][Y].range(23, 23) = vmask[i].data[11].value;
+			tempbuffer[X][Y].range(24, 24) = vmask[i].data[12].key;
+			tempbuffer[X][Y].range(25, 25) = vmask[i].data[12].value;
+			tempbuffer[X][Y].range(26, 26) = vmask[i].data[13].key;
+			tempbuffer[X][Y].range(27, 27) = vmask[i].data[13].value;
+			tempbuffer[X][Y].range(28, 28) = vmask[i].data[14].key;
+			tempbuffer[X][Y].range(29, 29) = vmask[i].data[14].value;
+			tempbuffer[X][Y].range(30, 30) = vmask[i].data[15].key;
+			tempbuffer[X][Y].range(31, 31) = vmask[i].data[15].value;
+			#else
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[i].data[0].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[i].data[0].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[i].data[1].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[i].data[1].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[i].data[2].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[i].data[2].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[i].data[3].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[i].data[3].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[i].data[4].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[i].data[4].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[i].data[5].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[i].data[5].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[i].data[6].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[i].data[6].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[i].data[7].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[i].data[7].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[i].data[8].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[i].data[8].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[i].data[9].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[i].data[9].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[i].data[10].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[i].data[10].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[i].data[11].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[i].data[11].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[i].data[12].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[i].data[12].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[i].data[13].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[i].data[13].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[i].data[14].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[i].data[14].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[i].data[15].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[i].data[15].value);
+			#endif
+		}
+		
+		if(enable_savevmask == ON){
+			SAVEVMASKS_LOOP: for(buffer_type i=0; i<vmask_size_kvs; i++){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
+			#pragma HLS PIPELINE II=1
+				#ifdef _WIDEWORD
+				kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				#else 
+				kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				#endif 
+				
+				#ifdef _DEBUGMODE_STATS
+				actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+				#endif
+			}
+		}
+	}
+	
+	// savevmaskp
+	if(enable_savevmaskp == ON){
+		uint32_type vmask_p = 0;
+		if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
+		#ifdef _WIDEWORD
+		kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		#else
+		kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		#endif
+	}
+	
+	/* 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram1[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+ */
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+spreadandwrite3(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
+			globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=source
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
+	cout<<"spreadandwrite3: spread (vdata) function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE / 16;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // prepare vmask variables
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
+	buffer_type transfsize = vmask_size_kvs * 16;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	if(enable1 == ON && enable2 == ON){
+		SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		#pragma HLS PIPELINE II=1
+			// spread operation
+			keyvalue0_vault0 = SYNC_GETKV2(source[0][i]); 
+			keyvalue1_vault0 = SYNC_GETKV2(source[1][i]); 
+			keyvalue2_vault0 = SYNC_GETKV2(source[2][i]); 
+			keyvalue3_vault0 = SYNC_GETKV2(source[3][i]); 
+			keyvalue4_vault0 = SYNC_GETKV2(source[4][i]); 
+			keyvalue5_vault0 = SYNC_GETKV2(source[5][i]); 
+			keyvalue6_vault0 = SYNC_GETKV2(source[6][i]); 
+			keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
+			
+			#ifdef _WIDEWORD
+			kvdram0[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value;  // dramoffset_kvs
+			keyvalue0_vault1 = keyvalue0_vault0;
+			kvdram0[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value;  // dramoffset_kvs
+			keyvalue1_vault1 = keyvalue1_vault0;
+			kvdram0[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value;  // dramoffset_kvs
+			keyvalue2_vault1 = keyvalue2_vault0;
+			kvdram0[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value;  // dramoffset_kvs
+			keyvalue3_vault1 = keyvalue3_vault0;
+			kvdram0[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value;  // dramoffset_kvs
+			keyvalue4_vault1 = keyvalue4_vault0;
+			kvdram0[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value;  // dramoffset_kvs
+			keyvalue5_vault1 = keyvalue5_vault0;
+			kvdram0[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value;  // dramoffset_kvs
+			keyvalue6_vault1 = keyvalue6_vault0;
+			kvdram0[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value;  // dramoffset_kvs
+			keyvalue7_vault1 = keyvalue7_vault0;
+			kvdram1[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault1.value;  // dramoffset_kvs
+			keyvalue0_vault2 = keyvalue0_vault1;
+			kvdram1[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault1.value;  // dramoffset_kvs
+			keyvalue1_vault2 = keyvalue1_vault1;
+			kvdram1[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault1.value;  // dramoffset_kvs
+			keyvalue2_vault2 = keyvalue2_vault1;
+			kvdram1[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault1.value;  // dramoffset_kvs
+			keyvalue3_vault2 = keyvalue3_vault1;
+			kvdram1[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault1.value;  // dramoffset_kvs
+			keyvalue4_vault2 = keyvalue4_vault1;
+			kvdram1[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault1.value;  // dramoffset_kvs
+			keyvalue5_vault2 = keyvalue5_vault1;
+			kvdram1[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault1.value;  // dramoffset_kvs
+			keyvalue6_vault2 = keyvalue6_vault1;
+			kvdram1[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault1.value;  // dramoffset_kvs
+			keyvalue7_vault2 = keyvalue7_vault1;
+			kvdram2[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault2.value;  // dramoffset_kvs
+			keyvalue0_vault3 = keyvalue0_vault2;
+			kvdram2[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault2.value;  // dramoffset_kvs
+			keyvalue1_vault3 = keyvalue1_vault2;
+			kvdram2[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault2.value;  // dramoffset_kvs
+			keyvalue2_vault3 = keyvalue2_vault2;
+			kvdram2[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault2.value;  // dramoffset_kvs
+			keyvalue3_vault3 = keyvalue3_vault2;
+			kvdram2[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault2.value;  // dramoffset_kvs
+			keyvalue4_vault3 = keyvalue4_vault2;
+			kvdram2[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault2.value;  // dramoffset_kvs
+			keyvalue5_vault3 = keyvalue5_vault2;
+			kvdram2[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault2.value;  // dramoffset_kvs
+			keyvalue6_vault3 = keyvalue6_vault2;
+			kvdram2[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault2.value;  // dramoffset_kvs
+			keyvalue7_vault3 = keyvalue7_vault2;
+			#else 
+			kvdram0[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value; // dramoffset_kvs
+			keyvalue0_vault1 = keyvalue0_vault0;
+			kvdram0[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value; // dramoffset_kvs
+			keyvalue1_vault1 = keyvalue1_vault0;
+			kvdram0[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value; // dramoffset_kvs
+			keyvalue2_vault1 = keyvalue2_vault0;
+			kvdram0[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value; // dramoffset_kvs
+			keyvalue3_vault1 = keyvalue3_vault0;
+			kvdram0[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value; // dramoffset_kvs
+			keyvalue4_vault1 = keyvalue4_vault0;
+			kvdram0[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value; // dramoffset_kvs
+			keyvalue5_vault1 = keyvalue5_vault0;
+			kvdram0[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value; // dramoffset_kvs
+			keyvalue6_vault1 = keyvalue6_vault0;
+			kvdram0[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value; // dramoffset_kvs
+			keyvalue7_vault1 = keyvalue7_vault0;
+			kvdram1[dramoffset_kvs + i].data[0].key = keyvalue0_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[0].value = keyvalue0_vault1.value; // dramoffset_kvs
+			keyvalue0_vault2 = keyvalue0_vault1;
+			kvdram1[dramoffset_kvs + i].data[1].key = keyvalue1_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[1].value = keyvalue1_vault1.value; // dramoffset_kvs
+			keyvalue1_vault2 = keyvalue1_vault1;
+			kvdram1[dramoffset_kvs + i].data[2].key = keyvalue2_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[2].value = keyvalue2_vault1.value; // dramoffset_kvs
+			keyvalue2_vault2 = keyvalue2_vault1;
+			kvdram1[dramoffset_kvs + i].data[3].key = keyvalue3_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[3].value = keyvalue3_vault1.value; // dramoffset_kvs
+			keyvalue3_vault2 = keyvalue3_vault1;
+			kvdram1[dramoffset_kvs + i].data[4].key = keyvalue4_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[4].value = keyvalue4_vault1.value; // dramoffset_kvs
+			keyvalue4_vault2 = keyvalue4_vault1;
+			kvdram1[dramoffset_kvs + i].data[5].key = keyvalue5_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[5].value = keyvalue5_vault1.value; // dramoffset_kvs
+			keyvalue5_vault2 = keyvalue5_vault1;
+			kvdram1[dramoffset_kvs + i].data[6].key = keyvalue6_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[6].value = keyvalue6_vault1.value; // dramoffset_kvs
+			keyvalue6_vault2 = keyvalue6_vault1;
+			kvdram1[dramoffset_kvs + i].data[7].key = keyvalue7_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[7].value = keyvalue7_vault1.value; // dramoffset_kvs
+			keyvalue7_vault2 = keyvalue7_vault1;
+			kvdram2[dramoffset_kvs + i].data[0].key = keyvalue0_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[0].value = keyvalue0_vault2.value; // dramoffset_kvs
+			keyvalue0_vault3 = keyvalue0_vault2;
+			kvdram2[dramoffset_kvs + i].data[1].key = keyvalue1_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[1].value = keyvalue1_vault2.value; // dramoffset_kvs
+			keyvalue1_vault3 = keyvalue1_vault2;
+			kvdram2[dramoffset_kvs + i].data[2].key = keyvalue2_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[2].value = keyvalue2_vault2.value; // dramoffset_kvs
+			keyvalue2_vault3 = keyvalue2_vault2;
+			kvdram2[dramoffset_kvs + i].data[3].key = keyvalue3_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[3].value = keyvalue3_vault2.value; // dramoffset_kvs
+			keyvalue3_vault3 = keyvalue3_vault2;
+			kvdram2[dramoffset_kvs + i].data[4].key = keyvalue4_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[4].value = keyvalue4_vault2.value; // dramoffset_kvs
+			keyvalue4_vault3 = keyvalue4_vault2;
+			kvdram2[dramoffset_kvs + i].data[5].key = keyvalue5_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[5].value = keyvalue5_vault2.value; // dramoffset_kvs
+			keyvalue5_vault3 = keyvalue5_vault2;
+			kvdram2[dramoffset_kvs + i].data[6].key = keyvalue6_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[6].value = keyvalue6_vault2.value; // dramoffset_kvs
+			keyvalue6_vault3 = keyvalue6_vault2;
+			kvdram2[dramoffset_kvs + i].data[7].key = keyvalue7_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[7].value = keyvalue7_vault2.value; // dramoffset_kvs
+			keyvalue7_vault3 = keyvalue7_vault2;
+			#endif
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+			#endif
+			
+			// combined with prepare vmask operation
+			unsigned int X = i % 16; // AUTOMATEME.
+			unsigned int Y = i / 16;
+		
+			#ifdef _WIDEWORD
+			tempbuffer[X][Y].range(0, 0) = vmask[i].data[0].key;
+			tempbuffer[X][Y].range(1, 1) = vmask[i].data[0].value;
+			tempbuffer[X][Y].range(2, 2) = vmask[i].data[1].key;
+			tempbuffer[X][Y].range(3, 3) = vmask[i].data[1].value;
+			tempbuffer[X][Y].range(4, 4) = vmask[i].data[2].key;
+			tempbuffer[X][Y].range(5, 5) = vmask[i].data[2].value;
+			tempbuffer[X][Y].range(6, 6) = vmask[i].data[3].key;
+			tempbuffer[X][Y].range(7, 7) = vmask[i].data[3].value;
+			tempbuffer[X][Y].range(8, 8) = vmask[i].data[4].key;
+			tempbuffer[X][Y].range(9, 9) = vmask[i].data[4].value;
+			tempbuffer[X][Y].range(10, 10) = vmask[i].data[5].key;
+			tempbuffer[X][Y].range(11, 11) = vmask[i].data[5].value;
+			tempbuffer[X][Y].range(12, 12) = vmask[i].data[6].key;
+			tempbuffer[X][Y].range(13, 13) = vmask[i].data[6].value;
+			tempbuffer[X][Y].range(14, 14) = vmask[i].data[7].key;
+			tempbuffer[X][Y].range(15, 15) = vmask[i].data[7].value;
+			tempbuffer[X][Y].range(16, 16) = vmask[i].data[8].key;
+			tempbuffer[X][Y].range(17, 17) = vmask[i].data[8].value;
+			tempbuffer[X][Y].range(18, 18) = vmask[i].data[9].key;
+			tempbuffer[X][Y].range(19, 19) = vmask[i].data[9].value;
+			tempbuffer[X][Y].range(20, 20) = vmask[i].data[10].key;
+			tempbuffer[X][Y].range(21, 21) = vmask[i].data[10].value;
+			tempbuffer[X][Y].range(22, 22) = vmask[i].data[11].key;
+			tempbuffer[X][Y].range(23, 23) = vmask[i].data[11].value;
+			tempbuffer[X][Y].range(24, 24) = vmask[i].data[12].key;
+			tempbuffer[X][Y].range(25, 25) = vmask[i].data[12].value;
+			tempbuffer[X][Y].range(26, 26) = vmask[i].data[13].key;
+			tempbuffer[X][Y].range(27, 27) = vmask[i].data[13].value;
+			tempbuffer[X][Y].range(28, 28) = vmask[i].data[14].key;
+			tempbuffer[X][Y].range(29, 29) = vmask[i].data[14].value;
+			tempbuffer[X][Y].range(30, 30) = vmask[i].data[15].key;
+			tempbuffer[X][Y].range(31, 31) = vmask[i].data[15].value;
+			#else
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[i].data[0].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[i].data[0].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[i].data[1].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[i].data[1].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[i].data[2].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[i].data[2].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[i].data[3].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[i].data[3].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[i].data[4].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[i].data[4].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[i].data[5].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[i].data[5].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[i].data[6].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[i].data[6].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[i].data[7].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[i].data[7].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[i].data[8].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[i].data[8].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[i].data[9].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[i].data[9].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[i].data[10].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[i].data[10].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[i].data[11].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[i].data[11].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[i].data[12].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[i].data[12].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[i].data[13].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[i].data[13].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[i].data[14].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[i].data[14].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[i].data[15].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[i].data[15].value);
+			#endif
+		}
+		
+		if(enable_savevmask == ON){
+			SAVEVMASKS_LOOP: for(buffer_type i=0; i<vmask_size_kvs; i++){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
+			#pragma HLS PIPELINE II=1
+				#ifdef _WIDEWORD
+				kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				#else 
+				kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				#endif 
+				
+				#ifdef _DEBUGMODE_STATS
+				actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+				#endif
+			}
+		}
+	}
+	
+	// savevmaskp
+	if(enable_savevmaskp == ON){
+		uint32_type vmask_p = 0;
+		if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
+		#ifdef _WIDEWORD
+		kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram2[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		#else
+		kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram2[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		#endif
+	}
+	
+	/* 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram1[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram2[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+ */
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+spreadandwrite4(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
+			globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=source
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
+	cout<<"spreadandwrite4: spread (vdata) function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE / 16;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // prepare vmask variables
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
+	buffer_type transfsize = vmask_size_kvs * 16;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	if(enable1 == ON && enable2 == ON){
+		SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		#pragma HLS PIPELINE II=1
+			// spread operation
+			keyvalue0_vault0 = SYNC_GETKV2(source[0][i]); 
+			keyvalue1_vault0 = SYNC_GETKV2(source[1][i]); 
+			keyvalue2_vault0 = SYNC_GETKV2(source[2][i]); 
+			keyvalue3_vault0 = SYNC_GETKV2(source[3][i]); 
+			keyvalue4_vault0 = SYNC_GETKV2(source[4][i]); 
+			keyvalue5_vault0 = SYNC_GETKV2(source[5][i]); 
+			keyvalue6_vault0 = SYNC_GETKV2(source[6][i]); 
+			keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
+			
+			#ifdef _WIDEWORD
+			kvdram0[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value;  // dramoffset_kvs
+			keyvalue0_vault1 = keyvalue0_vault0;
+			kvdram0[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value;  // dramoffset_kvs
+			keyvalue1_vault1 = keyvalue1_vault0;
+			kvdram0[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value;  // dramoffset_kvs
+			keyvalue2_vault1 = keyvalue2_vault0;
+			kvdram0[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value;  // dramoffset_kvs
+			keyvalue3_vault1 = keyvalue3_vault0;
+			kvdram0[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value;  // dramoffset_kvs
+			keyvalue4_vault1 = keyvalue4_vault0;
+			kvdram0[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value;  // dramoffset_kvs
+			keyvalue5_vault1 = keyvalue5_vault0;
+			kvdram0[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value;  // dramoffset_kvs
+			keyvalue6_vault1 = keyvalue6_vault0;
+			kvdram0[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value;  // dramoffset_kvs
+			keyvalue7_vault1 = keyvalue7_vault0;
+			kvdram1[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault1.value;  // dramoffset_kvs
+			keyvalue0_vault2 = keyvalue0_vault1;
+			kvdram1[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault1.value;  // dramoffset_kvs
+			keyvalue1_vault2 = keyvalue1_vault1;
+			kvdram1[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault1.value;  // dramoffset_kvs
+			keyvalue2_vault2 = keyvalue2_vault1;
+			kvdram1[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault1.value;  // dramoffset_kvs
+			keyvalue3_vault2 = keyvalue3_vault1;
+			kvdram1[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault1.value;  // dramoffset_kvs
+			keyvalue4_vault2 = keyvalue4_vault1;
+			kvdram1[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault1.value;  // dramoffset_kvs
+			keyvalue5_vault2 = keyvalue5_vault1;
+			kvdram1[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault1.value;  // dramoffset_kvs
+			keyvalue6_vault2 = keyvalue6_vault1;
+			kvdram1[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault1.value;  // dramoffset_kvs
+			keyvalue7_vault2 = keyvalue7_vault1;
+			kvdram2[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault2.value;  // dramoffset_kvs
+			keyvalue0_vault3 = keyvalue0_vault2;
+			kvdram2[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault2.value;  // dramoffset_kvs
+			keyvalue1_vault3 = keyvalue1_vault2;
+			kvdram2[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault2.value;  // dramoffset_kvs
+			keyvalue2_vault3 = keyvalue2_vault2;
+			kvdram2[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault2.value;  // dramoffset_kvs
+			keyvalue3_vault3 = keyvalue3_vault2;
+			kvdram2[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault2.value;  // dramoffset_kvs
+			keyvalue4_vault3 = keyvalue4_vault2;
+			kvdram2[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault2.value;  // dramoffset_kvs
+			keyvalue5_vault3 = keyvalue5_vault2;
+			kvdram2[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault2.value;  // dramoffset_kvs
+			keyvalue6_vault3 = keyvalue6_vault2;
+			kvdram2[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault2.value;  // dramoffset_kvs
+			keyvalue7_vault3 = keyvalue7_vault2;
+			kvdram3[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault3.value;  // dramoffset_kvs
+			keyvalue0_vault4 = keyvalue0_vault3;
+			kvdram3[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault3.value;  // dramoffset_kvs
+			keyvalue1_vault4 = keyvalue1_vault3;
+			kvdram3[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault3.value;  // dramoffset_kvs
+			keyvalue2_vault4 = keyvalue2_vault3;
+			kvdram3[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault3.value;  // dramoffset_kvs
+			keyvalue3_vault4 = keyvalue3_vault3;
+			kvdram3[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault3.value;  // dramoffset_kvs
+			keyvalue4_vault4 = keyvalue4_vault3;
+			kvdram3[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault3.value;  // dramoffset_kvs
+			keyvalue5_vault4 = keyvalue5_vault3;
+			kvdram3[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault3.value;  // dramoffset_kvs
+			keyvalue6_vault4 = keyvalue6_vault3;
+			kvdram3[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault3.value;  // dramoffset_kvs
+			keyvalue7_vault4 = keyvalue7_vault3;
+			#else 
+			kvdram0[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value; // dramoffset_kvs
+			keyvalue0_vault1 = keyvalue0_vault0;
+			kvdram0[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value; // dramoffset_kvs
+			keyvalue1_vault1 = keyvalue1_vault0;
+			kvdram0[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value; // dramoffset_kvs
+			keyvalue2_vault1 = keyvalue2_vault0;
+			kvdram0[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value; // dramoffset_kvs
+			keyvalue3_vault1 = keyvalue3_vault0;
+			kvdram0[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value; // dramoffset_kvs
+			keyvalue4_vault1 = keyvalue4_vault0;
+			kvdram0[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value; // dramoffset_kvs
+			keyvalue5_vault1 = keyvalue5_vault0;
+			kvdram0[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value; // dramoffset_kvs
+			keyvalue6_vault1 = keyvalue6_vault0;
+			kvdram0[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key; // dramoffset_kvs
+			kvdram0[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value; // dramoffset_kvs
+			keyvalue7_vault1 = keyvalue7_vault0;
+			kvdram1[dramoffset_kvs + i].data[0].key = keyvalue0_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[0].value = keyvalue0_vault1.value; // dramoffset_kvs
+			keyvalue0_vault2 = keyvalue0_vault1;
+			kvdram1[dramoffset_kvs + i].data[1].key = keyvalue1_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[1].value = keyvalue1_vault1.value; // dramoffset_kvs
+			keyvalue1_vault2 = keyvalue1_vault1;
+			kvdram1[dramoffset_kvs + i].data[2].key = keyvalue2_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[2].value = keyvalue2_vault1.value; // dramoffset_kvs
+			keyvalue2_vault2 = keyvalue2_vault1;
+			kvdram1[dramoffset_kvs + i].data[3].key = keyvalue3_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[3].value = keyvalue3_vault1.value; // dramoffset_kvs
+			keyvalue3_vault2 = keyvalue3_vault1;
+			kvdram1[dramoffset_kvs + i].data[4].key = keyvalue4_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[4].value = keyvalue4_vault1.value; // dramoffset_kvs
+			keyvalue4_vault2 = keyvalue4_vault1;
+			kvdram1[dramoffset_kvs + i].data[5].key = keyvalue5_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[5].value = keyvalue5_vault1.value; // dramoffset_kvs
+			keyvalue5_vault2 = keyvalue5_vault1;
+			kvdram1[dramoffset_kvs + i].data[6].key = keyvalue6_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[6].value = keyvalue6_vault1.value; // dramoffset_kvs
+			keyvalue6_vault2 = keyvalue6_vault1;
+			kvdram1[dramoffset_kvs + i].data[7].key = keyvalue7_vault1.key; // dramoffset_kvs
+			kvdram1[dramoffset_kvs + i].data[7].value = keyvalue7_vault1.value; // dramoffset_kvs
+			keyvalue7_vault2 = keyvalue7_vault1;
+			kvdram2[dramoffset_kvs + i].data[0].key = keyvalue0_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[0].value = keyvalue0_vault2.value; // dramoffset_kvs
+			keyvalue0_vault3 = keyvalue0_vault2;
+			kvdram2[dramoffset_kvs + i].data[1].key = keyvalue1_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[1].value = keyvalue1_vault2.value; // dramoffset_kvs
+			keyvalue1_vault3 = keyvalue1_vault2;
+			kvdram2[dramoffset_kvs + i].data[2].key = keyvalue2_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[2].value = keyvalue2_vault2.value; // dramoffset_kvs
+			keyvalue2_vault3 = keyvalue2_vault2;
+			kvdram2[dramoffset_kvs + i].data[3].key = keyvalue3_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[3].value = keyvalue3_vault2.value; // dramoffset_kvs
+			keyvalue3_vault3 = keyvalue3_vault2;
+			kvdram2[dramoffset_kvs + i].data[4].key = keyvalue4_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[4].value = keyvalue4_vault2.value; // dramoffset_kvs
+			keyvalue4_vault3 = keyvalue4_vault2;
+			kvdram2[dramoffset_kvs + i].data[5].key = keyvalue5_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[5].value = keyvalue5_vault2.value; // dramoffset_kvs
+			keyvalue5_vault3 = keyvalue5_vault2;
+			kvdram2[dramoffset_kvs + i].data[6].key = keyvalue6_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[6].value = keyvalue6_vault2.value; // dramoffset_kvs
+			keyvalue6_vault3 = keyvalue6_vault2;
+			kvdram2[dramoffset_kvs + i].data[7].key = keyvalue7_vault2.key; // dramoffset_kvs
+			kvdram2[dramoffset_kvs + i].data[7].value = keyvalue7_vault2.value; // dramoffset_kvs
+			keyvalue7_vault3 = keyvalue7_vault2;
+			kvdram3[dramoffset_kvs + i].data[0].key = keyvalue0_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].data[0].value = keyvalue0_vault3.value; // dramoffset_kvs
+			keyvalue0_vault4 = keyvalue0_vault3;
+			kvdram3[dramoffset_kvs + i].data[1].key = keyvalue1_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].data[1].value = keyvalue1_vault3.value; // dramoffset_kvs
+			keyvalue1_vault4 = keyvalue1_vault3;
+			kvdram3[dramoffset_kvs + i].data[2].key = keyvalue2_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].data[2].value = keyvalue2_vault3.value; // dramoffset_kvs
+			keyvalue2_vault4 = keyvalue2_vault3;
+			kvdram3[dramoffset_kvs + i].data[3].key = keyvalue3_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].data[3].value = keyvalue3_vault3.value; // dramoffset_kvs
+			keyvalue3_vault4 = keyvalue3_vault3;
+			kvdram3[dramoffset_kvs + i].data[4].key = keyvalue4_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].data[4].value = keyvalue4_vault3.value; // dramoffset_kvs
+			keyvalue4_vault4 = keyvalue4_vault3;
+			kvdram3[dramoffset_kvs + i].data[5].key = keyvalue5_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].data[5].value = keyvalue5_vault3.value; // dramoffset_kvs
+			keyvalue5_vault4 = keyvalue5_vault3;
+			kvdram3[dramoffset_kvs + i].data[6].key = keyvalue6_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].data[6].value = keyvalue6_vault3.value; // dramoffset_kvs
+			keyvalue6_vault4 = keyvalue6_vault3;
+			kvdram3[dramoffset_kvs + i].data[7].key = keyvalue7_vault3.key; // dramoffset_kvs
+			kvdram3[dramoffset_kvs + i].data[7].value = keyvalue7_vault3.value; // dramoffset_kvs
+			keyvalue7_vault4 = keyvalue7_vault3;
+			#endif
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+			if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+			if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+			#endif
+			
+			// combined with prepare vmask operation
+			unsigned int X = i % 16; // AUTOMATEME.
+			unsigned int Y = i / 16;
+		
+			#ifdef _WIDEWORD
+			tempbuffer[X][Y].range(0, 0) = vmask[i].data[0].key;
+			tempbuffer[X][Y].range(1, 1) = vmask[i].data[0].value;
+			tempbuffer[X][Y].range(2, 2) = vmask[i].data[1].key;
+			tempbuffer[X][Y].range(3, 3) = vmask[i].data[1].value;
+			tempbuffer[X][Y].range(4, 4) = vmask[i].data[2].key;
+			tempbuffer[X][Y].range(5, 5) = vmask[i].data[2].value;
+			tempbuffer[X][Y].range(6, 6) = vmask[i].data[3].key;
+			tempbuffer[X][Y].range(7, 7) = vmask[i].data[3].value;
+			tempbuffer[X][Y].range(8, 8) = vmask[i].data[4].key;
+			tempbuffer[X][Y].range(9, 9) = vmask[i].data[4].value;
+			tempbuffer[X][Y].range(10, 10) = vmask[i].data[5].key;
+			tempbuffer[X][Y].range(11, 11) = vmask[i].data[5].value;
+			tempbuffer[X][Y].range(12, 12) = vmask[i].data[6].key;
+			tempbuffer[X][Y].range(13, 13) = vmask[i].data[6].value;
+			tempbuffer[X][Y].range(14, 14) = vmask[i].data[7].key;
+			tempbuffer[X][Y].range(15, 15) = vmask[i].data[7].value;
+			tempbuffer[X][Y].range(16, 16) = vmask[i].data[8].key;
+			tempbuffer[X][Y].range(17, 17) = vmask[i].data[8].value;
+			tempbuffer[X][Y].range(18, 18) = vmask[i].data[9].key;
+			tempbuffer[X][Y].range(19, 19) = vmask[i].data[9].value;
+			tempbuffer[X][Y].range(20, 20) = vmask[i].data[10].key;
+			tempbuffer[X][Y].range(21, 21) = vmask[i].data[10].value;
+			tempbuffer[X][Y].range(22, 22) = vmask[i].data[11].key;
+			tempbuffer[X][Y].range(23, 23) = vmask[i].data[11].value;
+			tempbuffer[X][Y].range(24, 24) = vmask[i].data[12].key;
+			tempbuffer[X][Y].range(25, 25) = vmask[i].data[12].value;
+			tempbuffer[X][Y].range(26, 26) = vmask[i].data[13].key;
+			tempbuffer[X][Y].range(27, 27) = vmask[i].data[13].value;
+			tempbuffer[X][Y].range(28, 28) = vmask[i].data[14].key;
+			tempbuffer[X][Y].range(29, 29) = vmask[i].data[14].value;
+			tempbuffer[X][Y].range(30, 30) = vmask[i].data[15].key;
+			tempbuffer[X][Y].range(31, 31) = vmask[i].data[15].value;
+			#else
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[i].data[0].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[i].data[0].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[i].data[1].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[i].data[1].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[i].data[2].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[i].data[2].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[i].data[3].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[i].data[3].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[i].data[4].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[i].data[4].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[i].data[5].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[i].data[5].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[i].data[6].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[i].data[6].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[i].data[7].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[i].data[7].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[i].data[8].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[i].data[8].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[i].data[9].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[i].data[9].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[i].data[10].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[i].data[10].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[i].data[11].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[i].data[11].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[i].data[12].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[i].data[12].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[i].data[13].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[i].data[13].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[i].data[14].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[i].data[14].value);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[i].data[15].key);
+			SYNC_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[i].data[15].value);
+			#endif
+		}
+		
+		if(enable_savevmask == ON){
+			SAVEVMASKS_LOOP: for(buffer_type i=0; i<vmask_size_kvs; i++){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
+			#pragma HLS PIPELINE II=1
+				#ifdef _WIDEWORD
+				kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+				#else 
+				kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram1[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram2[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+				kvdram3[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+				#endif 
+				
+				#ifdef _DEBUGMODE_STATS
+				actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+				#endif
+			}
+		}
+	}
+	
+	// savevmaskp
+	if(enable_savevmaskp == ON){
+		uint32_type vmask_p = 0;
+		if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
+		#ifdef _WIDEWORD
+		kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram2[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram3[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		#else
+		kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram2[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram3[vmaskp_offset_kvs].data[0].key = vmask_p; // vmaskp_offset_kvs
+		// kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		#endif
+	}
+	
+	/* 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram1[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram2[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram3[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+ */
 	return;
 }
 
@@ -2091,13 +4307,14 @@ void
 	#ifdef SW 
 	actssync::
 	#endif
-spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,		keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vbuffer_offset_kvs, buffer_type vbuffer_size_kvs, 
-		unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
-		unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2],
-		globalparams_t globalparams){
+spreadandwrite1(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
+uint512_dt * kvdram0,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
+			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"spreadandwrite: spread and write function called."<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
+	cout<<"spreadandwrite1: spread and write function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -2171,255 +4388,111 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 		keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
 		
 		#ifdef _WIDEWORD
-		kvdram0[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault0.value; 
+		kvdram0[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value;  // dramoffset_kvs
 		keyvalue0_vault1 = keyvalue0_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault0.value; 
+		kvdram0[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value;  // dramoffset_kvs
 		keyvalue1_vault1 = keyvalue1_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault0.value; 
+		kvdram0[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value;  // dramoffset_kvs
 		keyvalue2_vault1 = keyvalue2_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault0.value; 
+		kvdram0[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value;  // dramoffset_kvs
 		keyvalue3_vault1 = keyvalue3_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault0.value; 
+		kvdram0[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value;  // dramoffset_kvs
 		keyvalue4_vault1 = keyvalue4_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault0.value; 
+		kvdram0[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value;  // dramoffset_kvs
 		keyvalue5_vault1 = keyvalue5_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault0.value; 
+		kvdram0[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value;  // dramoffset_kvs
 		keyvalue6_vault1 = keyvalue6_vault0;
-		kvdram0[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault0.key; 
-		kvdram0[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault0.value; 
+		kvdram0[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value;  // dramoffset_kvs
 		keyvalue7_vault1 = keyvalue7_vault0;
-		kvdram1[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault1.value; 
-		keyvalue0_vault2 = keyvalue0_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault1.value; 
-		keyvalue1_vault2 = keyvalue1_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault1.value; 
-		keyvalue2_vault2 = keyvalue2_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault1.value; 
-		keyvalue3_vault2 = keyvalue3_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault1.value; 
-		keyvalue4_vault2 = keyvalue4_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault1.value; 
-		keyvalue5_vault2 = keyvalue5_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault1.value; 
-		keyvalue6_vault2 = keyvalue6_vault1;
-		kvdram1[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault1.key; 
-		kvdram1[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault1.value; 
-		keyvalue7_vault2 = keyvalue7_vault1;
-		kvdram2[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault2.value; 
-		keyvalue0_vault3 = keyvalue0_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault2.value; 
-		keyvalue1_vault3 = keyvalue1_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault2.value; 
-		keyvalue2_vault3 = keyvalue2_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault2.value; 
-		keyvalue3_vault3 = keyvalue3_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault2.value; 
-		keyvalue4_vault3 = keyvalue4_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault2.value; 
-		keyvalue5_vault3 = keyvalue5_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault2.value; 
-		keyvalue6_vault3 = keyvalue6_vault2;
-		kvdram2[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault2.key; 
-		kvdram2[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault2.value; 
-		keyvalue7_vault3 = keyvalue7_vault2;
-		kvdram3[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault3.value; 
-		keyvalue0_vault4 = keyvalue0_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault3.value; 
-		keyvalue1_vault4 = keyvalue1_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault3.value; 
-		keyvalue2_vault4 = keyvalue2_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault3.value; 
-		keyvalue3_vault4 = keyvalue3_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault3.value; 
-		keyvalue4_vault4 = keyvalue4_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault3.value; 
-		keyvalue5_vault4 = keyvalue5_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault3.value; 
-		keyvalue6_vault4 = keyvalue6_vault3;
-		kvdram3[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault3.key; 
-		kvdram3[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault3.value; 
-		keyvalue7_vault4 = keyvalue7_vault3;
 		#else 
-		kvdram0[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault0.value;
+		kvdram0[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value; // dramoffset_kvs
 		keyvalue0_vault1 = keyvalue0_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault0.value;
+		kvdram0[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value; // dramoffset_kvs
 		keyvalue1_vault1 = keyvalue1_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault0.value;
+		kvdram0[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value; // dramoffset_kvs
 		keyvalue2_vault1 = keyvalue2_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault0.value;
+		kvdram0[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value; // dramoffset_kvs
 		keyvalue3_vault1 = keyvalue3_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault0.value;
+		kvdram0[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value; // dramoffset_kvs
 		keyvalue4_vault1 = keyvalue4_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault0.value;
+		kvdram0[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value; // dramoffset_kvs
 		keyvalue5_vault1 = keyvalue5_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault0.value;
+		kvdram0[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value; // dramoffset_kvs
 		keyvalue6_vault1 = keyvalue6_vault0;
-		kvdram0[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault0.key;
-		kvdram0[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault0.value;
+		kvdram0[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value; // dramoffset_kvs
 		keyvalue7_vault1 = keyvalue7_vault0;
-		kvdram1[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault1.value;
-		keyvalue0_vault2 = keyvalue0_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault1.value;
-		keyvalue1_vault2 = keyvalue1_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault1.value;
-		keyvalue2_vault2 = keyvalue2_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault1.value;
-		keyvalue3_vault2 = keyvalue3_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault1.value;
-		keyvalue4_vault2 = keyvalue4_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault1.value;
-		keyvalue5_vault2 = keyvalue5_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault1.value;
-		keyvalue6_vault2 = keyvalue6_vault1;
-		kvdram1[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault1.key;
-		kvdram1[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault1.value;
-		keyvalue7_vault2 = keyvalue7_vault1;
-		kvdram2[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault2.value;
-		keyvalue0_vault3 = keyvalue0_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault2.value;
-		keyvalue1_vault3 = keyvalue1_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault2.value;
-		keyvalue2_vault3 = keyvalue2_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault2.value;
-		keyvalue3_vault3 = keyvalue3_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault2.value;
-		keyvalue4_vault3 = keyvalue4_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault2.value;
-		keyvalue5_vault3 = keyvalue5_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault2.value;
-		keyvalue6_vault3 = keyvalue6_vault2;
-		kvdram2[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault2.key;
-		kvdram2[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault2.value;
-		keyvalue7_vault3 = keyvalue7_vault2;
-		kvdram3[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault3.value;
-		keyvalue0_vault4 = keyvalue0_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault3.value;
-		keyvalue1_vault4 = keyvalue1_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault3.value;
-		keyvalue2_vault4 = keyvalue2_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault3.value;
-		keyvalue3_vault4 = keyvalue3_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault3.value;
-		keyvalue4_vault4 = keyvalue4_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault3.value;
-		keyvalue5_vault4 = keyvalue5_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault3.value;
-		keyvalue6_vault4 = keyvalue6_vault3;
-		kvdram3[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault3.key;
-		kvdram3[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault3.value;
-		keyvalue7_vault4 = keyvalue7_vault3;
 		#endif 
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
-		if(SYNC_GETKEYENTRY(kvdram3[vbuffer_offset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
-		if(GETVALUEENTRY(kvdram3[vbuffer_offset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram0[dramoffset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram0[dramoffset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
 		#endif
 		
 		// combined with save to vdram operation
 		#ifdef _WIDEWORD
-		vdram[vbuffer_offset_kvs + i].range(31, 0) = keyvalue0_vault0.key; 
-		vdram[vbuffer_offset_kvs + i].range(63, 32) = keyvalue0_vault0.value; 
-		vdram[vbuffer_offset_kvs + i].range(95, 64) = keyvalue1_vault0.key; 
-		vdram[vbuffer_offset_kvs + i].range(127, 96) = keyvalue1_vault0.value; 
-		vdram[vbuffer_offset_kvs + i].range(159, 128) = keyvalue2_vault0.key; 
-		vdram[vbuffer_offset_kvs + i].range(191, 160) = keyvalue2_vault0.value; 
-		vdram[vbuffer_offset_kvs + i].range(223, 192) = keyvalue3_vault0.key; 
-		vdram[vbuffer_offset_kvs + i].range(255, 224) = keyvalue3_vault0.value; 
-		vdram[vbuffer_offset_kvs + i].range(287, 256) = keyvalue4_vault0.key; 
-		vdram[vbuffer_offset_kvs + i].range(319, 288) = keyvalue4_vault0.value; 
-		vdram[vbuffer_offset_kvs + i].range(351, 320) = keyvalue5_vault0.key; 
-		vdram[vbuffer_offset_kvs + i].range(383, 352) = keyvalue5_vault0.value; 
-		vdram[vbuffer_offset_kvs + i].range(415, 384) = keyvalue6_vault0.key; 
-		vdram[vbuffer_offset_kvs + i].range(447, 416) = keyvalue6_vault0.value; 
-		vdram[vbuffer_offset_kvs + i].range(479, 448) = keyvalue7_vault0.key; 
-		vdram[vbuffer_offset_kvs + i].range(511, 480) = keyvalue7_vault0.value; 
+		vdram[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; 
+		vdram[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value; 
+		vdram[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; 
+		vdram[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value; 
+		vdram[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; 
+		vdram[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value; 
+		vdram[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; 
+		vdram[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value; 
+		vdram[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; 
+		vdram[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value; 
+		vdram[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; 
+		vdram[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value; 
+		vdram[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; 
+		vdram[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value; 
+		vdram[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; 
+		vdram[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value; 
 		#else
-		vdram[vbuffer_offset_kvs + i].data[0].key = keyvalue0_vault0.key;
-		vdram[vbuffer_offset_kvs + i].data[0].value = keyvalue0_vault0.value;
-		vdram[vbuffer_offset_kvs + i].data[1].key = keyvalue1_vault0.key;
-		vdram[vbuffer_offset_kvs + i].data[1].value = keyvalue1_vault0.value;
-		vdram[vbuffer_offset_kvs + i].data[2].key = keyvalue2_vault0.key;
-		vdram[vbuffer_offset_kvs + i].data[2].value = keyvalue2_vault0.value;
-		vdram[vbuffer_offset_kvs + i].data[3].key = keyvalue3_vault0.key;
-		vdram[vbuffer_offset_kvs + i].data[3].value = keyvalue3_vault0.value;
-		vdram[vbuffer_offset_kvs + i].data[4].key = keyvalue4_vault0.key;
-		vdram[vbuffer_offset_kvs + i].data[4].value = keyvalue4_vault0.value;
-		vdram[vbuffer_offset_kvs + i].data[5].key = keyvalue5_vault0.key;
-		vdram[vbuffer_offset_kvs + i].data[5].value = keyvalue5_vault0.value;
-		vdram[vbuffer_offset_kvs + i].data[6].key = keyvalue6_vault0.key;
-		vdram[vbuffer_offset_kvs + i].data[6].value = keyvalue6_vault0.value;
-		vdram[vbuffer_offset_kvs + i].data[7].key = keyvalue7_vault0.key;
-		vdram[vbuffer_offset_kvs + i].data[7].value = keyvalue7_vault0.value;
+		vdram[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key;
+		vdram[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value;
+		vdram[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key;
+		vdram[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value;
+		vdram[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key;
+		vdram[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value;
+		vdram[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key;
+		vdram[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value;
+		vdram[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key;
+		vdram[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value;
+		vdram[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key;
+		vdram[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value;
+		vdram[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key;
+		vdram[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value;
+		vdram[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key;
+		vdram[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value;
 		#endif 
 		
 		// combined with prepare vmask operation
@@ -2500,135 +4573,39 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; 
-		kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i]; 
-		kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; 
-		kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i]; 
-		kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; 
-		kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i]; 
-		kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; 
-		kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i]; 
-		kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; 
-		kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i]; 
-		kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; 
-		kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i]; 
-		kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; 
-		kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i]; 
-		kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; 
-		kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i]; 
-		kvdram1[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; 
-		kvdram1[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i]; 
-		kvdram1[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; 
-		kvdram1[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i]; 
-		kvdram1[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; 
-		kvdram1[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i]; 
-		kvdram1[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; 
-		kvdram1[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i]; 
-		kvdram1[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; 
-		kvdram1[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i]; 
-		kvdram1[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; 
-		kvdram1[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i]; 
-		kvdram1[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; 
-		kvdram1[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i]; 
-		kvdram1[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; 
-		kvdram1[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i]; 
-		kvdram2[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; 
-		kvdram2[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i]; 
-		kvdram2[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; 
-		kvdram2[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i]; 
-		kvdram2[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; 
-		kvdram2[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i]; 
-		kvdram2[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; 
-		kvdram2[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i]; 
-		kvdram2[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; 
-		kvdram2[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i]; 
-		kvdram2[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; 
-		kvdram2[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i]; 
-		kvdram2[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; 
-		kvdram2[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i]; 
-		kvdram2[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; 
-		kvdram2[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i]; 
-		kvdram3[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i]; 
-		kvdram3[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i]; 
-		kvdram3[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i]; 
-		kvdram3[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i]; 
-		kvdram3[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i]; 
-		kvdram3[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i]; 
-		kvdram3[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i]; 
-		kvdram3[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i]; 
-		kvdram3[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i]; 
-		kvdram3[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i]; 
-		kvdram3[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i]; 
-		kvdram3[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i]; 
-		kvdram3[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i]; 
-		kvdram3[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i]; 
-		kvdram3[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i]; 
-		kvdram3[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i]; 
+		kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
 		#else 
-		kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i];
-		kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i]; 
-		kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i];
-		kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i]; 
-		kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i];
-		kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i]; 
-		kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i];
-		kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i]; 
-		kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i];
-		kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i]; 
-		kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i];
-		kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i]; 
-		kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i];
-		kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i]; 
-		kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i];
-		kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i]; 
-		kvdram1[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i];
-		kvdram1[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i]; 
-		kvdram1[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i];
-		kvdram1[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i]; 
-		kvdram1[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i];
-		kvdram1[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i]; 
-		kvdram1[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i];
-		kvdram1[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i]; 
-		kvdram1[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i];
-		kvdram1[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i]; 
-		kvdram1[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i];
-		kvdram1[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i]; 
-		kvdram1[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i];
-		kvdram1[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i]; 
-		kvdram1[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i];
-		kvdram1[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i]; 
-		kvdram2[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i];
-		kvdram2[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i]; 
-		kvdram2[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i];
-		kvdram2[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i]; 
-		kvdram2[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i];
-		kvdram2[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i]; 
-		kvdram2[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i];
-		kvdram2[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i]; 
-		kvdram2[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i];
-		kvdram2[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i]; 
-		kvdram2[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i];
-		kvdram2[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i]; 
-		kvdram2[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i];
-		kvdram2[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i]; 
-		kvdram2[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i];
-		kvdram2[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i]; 
-		kvdram3[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i];
-		kvdram3[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i]; 
-		kvdram3[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i];
-		kvdram3[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i]; 
-		kvdram3[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i];
-		kvdram3[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i]; 
-		kvdram3[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i];
-		kvdram3[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i]; 
-		kvdram3[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i];
-		kvdram3[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i]; 
-		kvdram3[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i];
-		kvdram3[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i]; 
-		kvdram3[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i];
-		kvdram3[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i]; 
-		kvdram3[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i];
-		kvdram3[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i]; 
+		kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
 		#endif 
 		
 		#ifdef _DEBUGMODE_STATS
@@ -2640,20 +4617,1516 @@ spreadandwrite(bool_type enable1, bool_type enable2, bool_type enable_savevmask,
 	
 	// savevmaskp
 	if(enable_savevmaskp == ON){
-	uint32_type vmask_p = 0;
-	if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
-	#ifdef _WIDEWORD
-	kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p;
-	kvdram1[vmaskp_offset_kvs].range(31, 0) = vmask_p;
-	kvdram2[vmaskp_offset_kvs].range(31, 0) = vmask_p;
-	kvdram3[vmaskp_offset_kvs].range(31, 0) = vmask_p;
-	#else
-	kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p;
-	kvdram1[vmaskp_offset_kvs].data[0].key = vmask_p;
-	kvdram2[vmaskp_offset_kvs].data[0].key = vmask_p;
-	kvdram3[vmaskp_offset_kvs].data[0].key = vmask_p;
-	#endif 
+		uint32_type vmask_p = 0;
+		if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
+		#ifdef _WIDEWORD
+		kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		#else
+		kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		#endif 
 	}
+	
+	/* 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+ */
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+spreadandwrite2(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
+			globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=source
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
+	cout<<"spreadandwrite2: spread and write function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE / 16;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // prepare vmask variables
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
+	buffer_type transfsize = vmask_size_kvs * 16;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	if(enable1 == ON && enable2 == ON){
+	SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		// spread operation
+		keyvalue0_vault0 = SYNC_GETKV2(source[0][i]); 
+		keyvalue1_vault0 = SYNC_GETKV2(source[1][i]); 
+		keyvalue2_vault0 = SYNC_GETKV2(source[2][i]); 
+		keyvalue3_vault0 = SYNC_GETKV2(source[3][i]); 
+		keyvalue4_vault0 = SYNC_GETKV2(source[4][i]); 
+		keyvalue5_vault0 = SYNC_GETKV2(source[5][i]); 
+		keyvalue6_vault0 = SYNC_GETKV2(source[6][i]); 
+		keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
+		
+		#ifdef _WIDEWORD
+		kvdram0[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value;  // dramoffset_kvs
+		keyvalue0_vault1 = keyvalue0_vault0;
+		kvdram0[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value;  // dramoffset_kvs
+		keyvalue1_vault1 = keyvalue1_vault0;
+		kvdram0[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value;  // dramoffset_kvs
+		keyvalue2_vault1 = keyvalue2_vault0;
+		kvdram0[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value;  // dramoffset_kvs
+		keyvalue3_vault1 = keyvalue3_vault0;
+		kvdram0[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value;  // dramoffset_kvs
+		keyvalue4_vault1 = keyvalue4_vault0;
+		kvdram0[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value;  // dramoffset_kvs
+		keyvalue5_vault1 = keyvalue5_vault0;
+		kvdram0[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value;  // dramoffset_kvs
+		keyvalue6_vault1 = keyvalue6_vault0;
+		kvdram0[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value;  // dramoffset_kvs
+		keyvalue7_vault1 = keyvalue7_vault0;
+		kvdram1[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault1.value;  // dramoffset_kvs
+		keyvalue0_vault2 = keyvalue0_vault1;
+		kvdram1[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault1.value;  // dramoffset_kvs
+		keyvalue1_vault2 = keyvalue1_vault1;
+		kvdram1[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault1.value;  // dramoffset_kvs
+		keyvalue2_vault2 = keyvalue2_vault1;
+		kvdram1[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault1.value;  // dramoffset_kvs
+		keyvalue3_vault2 = keyvalue3_vault1;
+		kvdram1[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault1.value;  // dramoffset_kvs
+		keyvalue4_vault2 = keyvalue4_vault1;
+		kvdram1[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault1.value;  // dramoffset_kvs
+		keyvalue5_vault2 = keyvalue5_vault1;
+		kvdram1[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault1.value;  // dramoffset_kvs
+		keyvalue6_vault2 = keyvalue6_vault1;
+		kvdram1[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault1.value;  // dramoffset_kvs
+		keyvalue7_vault2 = keyvalue7_vault1;
+		#else 
+		kvdram0[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value; // dramoffset_kvs
+		keyvalue0_vault1 = keyvalue0_vault0;
+		kvdram0[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value; // dramoffset_kvs
+		keyvalue1_vault1 = keyvalue1_vault0;
+		kvdram0[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value; // dramoffset_kvs
+		keyvalue2_vault1 = keyvalue2_vault0;
+		kvdram0[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value; // dramoffset_kvs
+		keyvalue3_vault1 = keyvalue3_vault0;
+		kvdram0[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value; // dramoffset_kvs
+		keyvalue4_vault1 = keyvalue4_vault0;
+		kvdram0[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value; // dramoffset_kvs
+		keyvalue5_vault1 = keyvalue5_vault0;
+		kvdram0[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value; // dramoffset_kvs
+		keyvalue6_vault1 = keyvalue6_vault0;
+		kvdram0[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value; // dramoffset_kvs
+		keyvalue7_vault1 = keyvalue7_vault0;
+		kvdram1[dramoffset_kvs + i].data[0].key = keyvalue0_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[0].value = keyvalue0_vault1.value; // dramoffset_kvs
+		keyvalue0_vault2 = keyvalue0_vault1;
+		kvdram1[dramoffset_kvs + i].data[1].key = keyvalue1_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[1].value = keyvalue1_vault1.value; // dramoffset_kvs
+		keyvalue1_vault2 = keyvalue1_vault1;
+		kvdram1[dramoffset_kvs + i].data[2].key = keyvalue2_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[2].value = keyvalue2_vault1.value; // dramoffset_kvs
+		keyvalue2_vault2 = keyvalue2_vault1;
+		kvdram1[dramoffset_kvs + i].data[3].key = keyvalue3_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[3].value = keyvalue3_vault1.value; // dramoffset_kvs
+		keyvalue3_vault2 = keyvalue3_vault1;
+		kvdram1[dramoffset_kvs + i].data[4].key = keyvalue4_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[4].value = keyvalue4_vault1.value; // dramoffset_kvs
+		keyvalue4_vault2 = keyvalue4_vault1;
+		kvdram1[dramoffset_kvs + i].data[5].key = keyvalue5_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[5].value = keyvalue5_vault1.value; // dramoffset_kvs
+		keyvalue5_vault2 = keyvalue5_vault1;
+		kvdram1[dramoffset_kvs + i].data[6].key = keyvalue6_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[6].value = keyvalue6_vault1.value; // dramoffset_kvs
+		keyvalue6_vault2 = keyvalue6_vault1;
+		kvdram1[dramoffset_kvs + i].data[7].key = keyvalue7_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[7].value = keyvalue7_vault1.value; // dramoffset_kvs
+		keyvalue7_vault2 = keyvalue7_vault1;
+		#endif 
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram1[dramoffset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram1[dramoffset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		#endif
+		
+		// combined with save to vdram operation
+		#ifdef _WIDEWORD
+		vdram[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; 
+		vdram[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value; 
+		vdram[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; 
+		vdram[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value; 
+		vdram[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; 
+		vdram[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value; 
+		vdram[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; 
+		vdram[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value; 
+		vdram[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; 
+		vdram[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value; 
+		vdram[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; 
+		vdram[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value; 
+		vdram[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; 
+		vdram[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value; 
+		vdram[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; 
+		vdram[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value; 
+		#else
+		vdram[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key;
+		vdram[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value;
+		vdram[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key;
+		vdram[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value;
+		vdram[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key;
+		vdram[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value;
+		vdram[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key;
+		vdram[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value;
+		vdram[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key;
+		vdram[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value;
+		vdram[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key;
+		vdram[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value;
+		vdram[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key;
+		vdram[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value;
+		vdram[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key;
+		vdram[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value;
+		#endif 
+		
+		// combined with prepare vmask operation
+		unsigned int X = i % 16;
+		unsigned int Y = i / 16;
+	
+		#ifdef _WIDEWORD
+		tempbuffer[X][Y].range(0, 0) = vmask[i].data[0].key;
+		tempbuffer[X][Y].range(1, 1) = vmask[i].data[0].value;
+		tempbuffer[X][Y].range(2, 2) = vmask[i].data[1].key;
+		tempbuffer[X][Y].range(3, 3) = vmask[i].data[1].value;
+		tempbuffer[X][Y].range(4, 4) = vmask[i].data[2].key;
+		tempbuffer[X][Y].range(5, 5) = vmask[i].data[2].value;
+		tempbuffer[X][Y].range(6, 6) = vmask[i].data[3].key;
+		tempbuffer[X][Y].range(7, 7) = vmask[i].data[3].value;
+		tempbuffer[X][Y].range(8, 8) = vmask[i].data[4].key;
+		tempbuffer[X][Y].range(9, 9) = vmask[i].data[4].value;
+		tempbuffer[X][Y].range(10, 10) = vmask[i].data[5].key;
+		tempbuffer[X][Y].range(11, 11) = vmask[i].data[5].value;
+		tempbuffer[X][Y].range(12, 12) = vmask[i].data[6].key;
+		tempbuffer[X][Y].range(13, 13) = vmask[i].data[6].value;
+		tempbuffer[X][Y].range(14, 14) = vmask[i].data[7].key;
+		tempbuffer[X][Y].range(15, 15) = vmask[i].data[7].value;
+		tempbuffer[X][Y].range(16, 16) = vmask[i].data[8].key;
+		tempbuffer[X][Y].range(17, 17) = vmask[i].data[8].value;
+		tempbuffer[X][Y].range(18, 18) = vmask[i].data[9].key;
+		tempbuffer[X][Y].range(19, 19) = vmask[i].data[9].value;
+		tempbuffer[X][Y].range(20, 20) = vmask[i].data[10].key;
+		tempbuffer[X][Y].range(21, 21) = vmask[i].data[10].value;
+		tempbuffer[X][Y].range(22, 22) = vmask[i].data[11].key;
+		tempbuffer[X][Y].range(23, 23) = vmask[i].data[11].value;
+		tempbuffer[X][Y].range(24, 24) = vmask[i].data[12].key;
+		tempbuffer[X][Y].range(25, 25) = vmask[i].data[12].value;
+		tempbuffer[X][Y].range(26, 26) = vmask[i].data[13].key;
+		tempbuffer[X][Y].range(27, 27) = vmask[i].data[13].value;
+		tempbuffer[X][Y].range(28, 28) = vmask[i].data[14].key;
+		tempbuffer[X][Y].range(29, 29) = vmask[i].data[14].value;
+		tempbuffer[X][Y].range(30, 30) = vmask[i].data[15].key;
+		tempbuffer[X][Y].range(31, 31) = vmask[i].data[15].value;
+		#else
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[i].data[0].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[i].data[0].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[i].data[1].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[i].data[1].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[i].data[2].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[i].data[2].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[i].data[3].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[i].data[3].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[i].data[4].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[i].data[4].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[i].data[5].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[i].data[5].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[i].data[6].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[i].data[6].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[i].data[7].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[i].data[7].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[i].data[8].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[i].data[8].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[i].data[9].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[i].data[9].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[i].data[10].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[i].data[10].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[i].data[11].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[i].data[11].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[i].data[12].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[i].data[12].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[i].data[13].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[i].data[13].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[i].data[14].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[i].data[14].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[i].data[15].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[i].data[15].value);
+		#endif
+	}
+	
+	if(enable_savevmask == ON){
+	SAVEVMASKS_LOOP: for(buffer_type i=0; i<vmask_size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		#else 
+		kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		#endif 
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+		#endif
+	}
+	}
+	}
+	
+	// savevmaskp
+	if(enable_savevmaskp == ON){
+		uint32_type vmask_p = 0;
+		if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
+		#ifdef _WIDEWORD
+		kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		#else
+		kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		#endif 
+	}
+	
+	/* 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram1[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+ */
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+spreadandwrite3(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
+			globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=source
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
+	cout<<"spreadandwrite3: spread and write function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE / 16;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // prepare vmask variables
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
+	buffer_type transfsize = vmask_size_kvs * 16;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	if(enable1 == ON && enable2 == ON){
+	SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		// spread operation
+		keyvalue0_vault0 = SYNC_GETKV2(source[0][i]); 
+		keyvalue1_vault0 = SYNC_GETKV2(source[1][i]); 
+		keyvalue2_vault0 = SYNC_GETKV2(source[2][i]); 
+		keyvalue3_vault0 = SYNC_GETKV2(source[3][i]); 
+		keyvalue4_vault0 = SYNC_GETKV2(source[4][i]); 
+		keyvalue5_vault0 = SYNC_GETKV2(source[5][i]); 
+		keyvalue6_vault0 = SYNC_GETKV2(source[6][i]); 
+		keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
+		
+		#ifdef _WIDEWORD
+		kvdram0[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value;  // dramoffset_kvs
+		keyvalue0_vault1 = keyvalue0_vault0;
+		kvdram0[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value;  // dramoffset_kvs
+		keyvalue1_vault1 = keyvalue1_vault0;
+		kvdram0[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value;  // dramoffset_kvs
+		keyvalue2_vault1 = keyvalue2_vault0;
+		kvdram0[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value;  // dramoffset_kvs
+		keyvalue3_vault1 = keyvalue3_vault0;
+		kvdram0[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value;  // dramoffset_kvs
+		keyvalue4_vault1 = keyvalue4_vault0;
+		kvdram0[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value;  // dramoffset_kvs
+		keyvalue5_vault1 = keyvalue5_vault0;
+		kvdram0[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value;  // dramoffset_kvs
+		keyvalue6_vault1 = keyvalue6_vault0;
+		kvdram0[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value;  // dramoffset_kvs
+		keyvalue7_vault1 = keyvalue7_vault0;
+		kvdram1[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault1.value;  // dramoffset_kvs
+		keyvalue0_vault2 = keyvalue0_vault1;
+		kvdram1[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault1.value;  // dramoffset_kvs
+		keyvalue1_vault2 = keyvalue1_vault1;
+		kvdram1[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault1.value;  // dramoffset_kvs
+		keyvalue2_vault2 = keyvalue2_vault1;
+		kvdram1[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault1.value;  // dramoffset_kvs
+		keyvalue3_vault2 = keyvalue3_vault1;
+		kvdram1[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault1.value;  // dramoffset_kvs
+		keyvalue4_vault2 = keyvalue4_vault1;
+		kvdram1[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault1.value;  // dramoffset_kvs
+		keyvalue5_vault2 = keyvalue5_vault1;
+		kvdram1[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault1.value;  // dramoffset_kvs
+		keyvalue6_vault2 = keyvalue6_vault1;
+		kvdram1[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault1.value;  // dramoffset_kvs
+		keyvalue7_vault2 = keyvalue7_vault1;
+		kvdram2[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault2.value;  // dramoffset_kvs
+		keyvalue0_vault3 = keyvalue0_vault2;
+		kvdram2[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault2.value;  // dramoffset_kvs
+		keyvalue1_vault3 = keyvalue1_vault2;
+		kvdram2[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault2.value;  // dramoffset_kvs
+		keyvalue2_vault3 = keyvalue2_vault2;
+		kvdram2[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault2.value;  // dramoffset_kvs
+		keyvalue3_vault3 = keyvalue3_vault2;
+		kvdram2[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault2.value;  // dramoffset_kvs
+		keyvalue4_vault3 = keyvalue4_vault2;
+		kvdram2[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault2.value;  // dramoffset_kvs
+		keyvalue5_vault3 = keyvalue5_vault2;
+		kvdram2[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault2.value;  // dramoffset_kvs
+		keyvalue6_vault3 = keyvalue6_vault2;
+		kvdram2[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault2.value;  // dramoffset_kvs
+		keyvalue7_vault3 = keyvalue7_vault2;
+		#else 
+		kvdram0[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value; // dramoffset_kvs
+		keyvalue0_vault1 = keyvalue0_vault0;
+		kvdram0[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value; // dramoffset_kvs
+		keyvalue1_vault1 = keyvalue1_vault0;
+		kvdram0[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value; // dramoffset_kvs
+		keyvalue2_vault1 = keyvalue2_vault0;
+		kvdram0[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value; // dramoffset_kvs
+		keyvalue3_vault1 = keyvalue3_vault0;
+		kvdram0[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value; // dramoffset_kvs
+		keyvalue4_vault1 = keyvalue4_vault0;
+		kvdram0[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value; // dramoffset_kvs
+		keyvalue5_vault1 = keyvalue5_vault0;
+		kvdram0[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value; // dramoffset_kvs
+		keyvalue6_vault1 = keyvalue6_vault0;
+		kvdram0[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value; // dramoffset_kvs
+		keyvalue7_vault1 = keyvalue7_vault0;
+		kvdram1[dramoffset_kvs + i].data[0].key = keyvalue0_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[0].value = keyvalue0_vault1.value; // dramoffset_kvs
+		keyvalue0_vault2 = keyvalue0_vault1;
+		kvdram1[dramoffset_kvs + i].data[1].key = keyvalue1_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[1].value = keyvalue1_vault1.value; // dramoffset_kvs
+		keyvalue1_vault2 = keyvalue1_vault1;
+		kvdram1[dramoffset_kvs + i].data[2].key = keyvalue2_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[2].value = keyvalue2_vault1.value; // dramoffset_kvs
+		keyvalue2_vault2 = keyvalue2_vault1;
+		kvdram1[dramoffset_kvs + i].data[3].key = keyvalue3_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[3].value = keyvalue3_vault1.value; // dramoffset_kvs
+		keyvalue3_vault2 = keyvalue3_vault1;
+		kvdram1[dramoffset_kvs + i].data[4].key = keyvalue4_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[4].value = keyvalue4_vault1.value; // dramoffset_kvs
+		keyvalue4_vault2 = keyvalue4_vault1;
+		kvdram1[dramoffset_kvs + i].data[5].key = keyvalue5_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[5].value = keyvalue5_vault1.value; // dramoffset_kvs
+		keyvalue5_vault2 = keyvalue5_vault1;
+		kvdram1[dramoffset_kvs + i].data[6].key = keyvalue6_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[6].value = keyvalue6_vault1.value; // dramoffset_kvs
+		keyvalue6_vault2 = keyvalue6_vault1;
+		kvdram1[dramoffset_kvs + i].data[7].key = keyvalue7_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[7].value = keyvalue7_vault1.value; // dramoffset_kvs
+		keyvalue7_vault2 = keyvalue7_vault1;
+		kvdram2[dramoffset_kvs + i].data[0].key = keyvalue0_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[0].value = keyvalue0_vault2.value; // dramoffset_kvs
+		keyvalue0_vault3 = keyvalue0_vault2;
+		kvdram2[dramoffset_kvs + i].data[1].key = keyvalue1_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[1].value = keyvalue1_vault2.value; // dramoffset_kvs
+		keyvalue1_vault3 = keyvalue1_vault2;
+		kvdram2[dramoffset_kvs + i].data[2].key = keyvalue2_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[2].value = keyvalue2_vault2.value; // dramoffset_kvs
+		keyvalue2_vault3 = keyvalue2_vault2;
+		kvdram2[dramoffset_kvs + i].data[3].key = keyvalue3_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[3].value = keyvalue3_vault2.value; // dramoffset_kvs
+		keyvalue3_vault3 = keyvalue3_vault2;
+		kvdram2[dramoffset_kvs + i].data[4].key = keyvalue4_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[4].value = keyvalue4_vault2.value; // dramoffset_kvs
+		keyvalue4_vault3 = keyvalue4_vault2;
+		kvdram2[dramoffset_kvs + i].data[5].key = keyvalue5_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[5].value = keyvalue5_vault2.value; // dramoffset_kvs
+		keyvalue5_vault3 = keyvalue5_vault2;
+		kvdram2[dramoffset_kvs + i].data[6].key = keyvalue6_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[6].value = keyvalue6_vault2.value; // dramoffset_kvs
+		keyvalue6_vault3 = keyvalue6_vault2;
+		kvdram2[dramoffset_kvs + i].data[7].key = keyvalue7_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[7].value = keyvalue7_vault2.value; // dramoffset_kvs
+		keyvalue7_vault3 = keyvalue7_vault2;
+		#endif 
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram2[dramoffset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram2[dramoffset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		#endif
+		
+		// combined with save to vdram operation
+		#ifdef _WIDEWORD
+		vdram[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; 
+		vdram[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value; 
+		vdram[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; 
+		vdram[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value; 
+		vdram[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; 
+		vdram[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value; 
+		vdram[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; 
+		vdram[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value; 
+		vdram[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; 
+		vdram[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value; 
+		vdram[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; 
+		vdram[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value; 
+		vdram[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; 
+		vdram[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value; 
+		vdram[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; 
+		vdram[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value; 
+		#else
+		vdram[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key;
+		vdram[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value;
+		vdram[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key;
+		vdram[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value;
+		vdram[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key;
+		vdram[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value;
+		vdram[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key;
+		vdram[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value;
+		vdram[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key;
+		vdram[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value;
+		vdram[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key;
+		vdram[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value;
+		vdram[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key;
+		vdram[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value;
+		vdram[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key;
+		vdram[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value;
+		#endif 
+		
+		// combined with prepare vmask operation
+		unsigned int X = i % 16;
+		unsigned int Y = i / 16;
+	
+		#ifdef _WIDEWORD
+		tempbuffer[X][Y].range(0, 0) = vmask[i].data[0].key;
+		tempbuffer[X][Y].range(1, 1) = vmask[i].data[0].value;
+		tempbuffer[X][Y].range(2, 2) = vmask[i].data[1].key;
+		tempbuffer[X][Y].range(3, 3) = vmask[i].data[1].value;
+		tempbuffer[X][Y].range(4, 4) = vmask[i].data[2].key;
+		tempbuffer[X][Y].range(5, 5) = vmask[i].data[2].value;
+		tempbuffer[X][Y].range(6, 6) = vmask[i].data[3].key;
+		tempbuffer[X][Y].range(7, 7) = vmask[i].data[3].value;
+		tempbuffer[X][Y].range(8, 8) = vmask[i].data[4].key;
+		tempbuffer[X][Y].range(9, 9) = vmask[i].data[4].value;
+		tempbuffer[X][Y].range(10, 10) = vmask[i].data[5].key;
+		tempbuffer[X][Y].range(11, 11) = vmask[i].data[5].value;
+		tempbuffer[X][Y].range(12, 12) = vmask[i].data[6].key;
+		tempbuffer[X][Y].range(13, 13) = vmask[i].data[6].value;
+		tempbuffer[X][Y].range(14, 14) = vmask[i].data[7].key;
+		tempbuffer[X][Y].range(15, 15) = vmask[i].data[7].value;
+		tempbuffer[X][Y].range(16, 16) = vmask[i].data[8].key;
+		tempbuffer[X][Y].range(17, 17) = vmask[i].data[8].value;
+		tempbuffer[X][Y].range(18, 18) = vmask[i].data[9].key;
+		tempbuffer[X][Y].range(19, 19) = vmask[i].data[9].value;
+		tempbuffer[X][Y].range(20, 20) = vmask[i].data[10].key;
+		tempbuffer[X][Y].range(21, 21) = vmask[i].data[10].value;
+		tempbuffer[X][Y].range(22, 22) = vmask[i].data[11].key;
+		tempbuffer[X][Y].range(23, 23) = vmask[i].data[11].value;
+		tempbuffer[X][Y].range(24, 24) = vmask[i].data[12].key;
+		tempbuffer[X][Y].range(25, 25) = vmask[i].data[12].value;
+		tempbuffer[X][Y].range(26, 26) = vmask[i].data[13].key;
+		tempbuffer[X][Y].range(27, 27) = vmask[i].data[13].value;
+		tempbuffer[X][Y].range(28, 28) = vmask[i].data[14].key;
+		tempbuffer[X][Y].range(29, 29) = vmask[i].data[14].value;
+		tempbuffer[X][Y].range(30, 30) = vmask[i].data[15].key;
+		tempbuffer[X][Y].range(31, 31) = vmask[i].data[15].value;
+		#else
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[i].data[0].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[i].data[0].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[i].data[1].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[i].data[1].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[i].data[2].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[i].data[2].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[i].data[3].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[i].data[3].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[i].data[4].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[i].data[4].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[i].data[5].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[i].data[5].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[i].data[6].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[i].data[6].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[i].data[7].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[i].data[7].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[i].data[8].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[i].data[8].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[i].data[9].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[i].data[9].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[i].data[10].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[i].data[10].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[i].data[11].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[i].data[11].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[i].data[12].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[i].data[12].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[i].data[13].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[i].data[13].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[i].data[14].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[i].data[14].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[i].data[15].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[i].data[15].value);
+		#endif
+	}
+	
+	if(enable_savevmask == ON){
+	SAVEVMASKS_LOOP: for(buffer_type i=0; i<vmask_size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		#else 
+		kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		#endif 
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+		#endif
+	}
+	}
+	}
+	
+	// savevmaskp
+	if(enable_savevmaskp == ON){
+		uint32_type vmask_p = 0;
+		if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
+		#ifdef _WIDEWORD
+		kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram2[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		#else
+		kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram2[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		#endif 
+	}
+	
+	/* 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram1[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram2[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+ */
+	return;
+}
+void
+	#ifdef SW 
+	actssync::
+	#endif
+spreadandwrite4(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
+			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
+			globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=source
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
+	cout<<"spreadandwrite4: spread and write function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
+	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE / 16;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // prepare vmask variables
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
+	buffer_type transfsize = vmask_size_kvs * 16;
+	
+	keyvalue_t keyvalue0_vault0;
+	keyvalue_t keyvalue1_vault0;
+	keyvalue_t keyvalue2_vault0;
+	keyvalue_t keyvalue3_vault0;
+	keyvalue_t keyvalue4_vault0;
+	keyvalue_t keyvalue5_vault0;
+	keyvalue_t keyvalue6_vault0;
+	keyvalue_t keyvalue7_vault0;
+	
+	keyvalue_t keyvalue0_vault1;
+	keyvalue_t keyvalue1_vault1;
+	keyvalue_t keyvalue2_vault1;
+	keyvalue_t keyvalue3_vault1;
+	keyvalue_t keyvalue4_vault1;
+	keyvalue_t keyvalue5_vault1;
+	keyvalue_t keyvalue6_vault1;
+	keyvalue_t keyvalue7_vault1;
+	
+	keyvalue_t keyvalue0_vault2;
+	keyvalue_t keyvalue1_vault2;
+	keyvalue_t keyvalue2_vault2;
+	keyvalue_t keyvalue3_vault2;
+	keyvalue_t keyvalue4_vault2;
+	keyvalue_t keyvalue5_vault2;
+	keyvalue_t keyvalue6_vault2;
+	keyvalue_t keyvalue7_vault2;
+	
+	keyvalue_t keyvalue0_vault3;
+	keyvalue_t keyvalue1_vault3;
+	keyvalue_t keyvalue2_vault3;
+	keyvalue_t keyvalue3_vault3;
+	keyvalue_t keyvalue4_vault3;
+	keyvalue_t keyvalue5_vault3;
+	keyvalue_t keyvalue6_vault3;
+	keyvalue_t keyvalue7_vault3;
+	
+	keyvalue_t keyvalue0_vault4;
+	keyvalue_t keyvalue1_vault4;
+	keyvalue_t keyvalue2_vault4;
+	keyvalue_t keyvalue3_vault4;
+	keyvalue_t keyvalue4_vault4;
+	keyvalue_t keyvalue5_vault4;
+	keyvalue_t keyvalue6_vault4;
+	keyvalue_t keyvalue7_vault4;
+	
+	
+	if(enable1 == ON && enable2 == ON){
+	SPREADANDSAVE_COMBINEDWITH_PREPAREVMASKS_LOOP: for (buffer_type i=0; i<reducebuffersz; i++){ // 8, 16, BLOCKRAM_SIZE
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		// spread operation
+		keyvalue0_vault0 = SYNC_GETKV2(source[0][i]); 
+		keyvalue1_vault0 = SYNC_GETKV2(source[1][i]); 
+		keyvalue2_vault0 = SYNC_GETKV2(source[2][i]); 
+		keyvalue3_vault0 = SYNC_GETKV2(source[3][i]); 
+		keyvalue4_vault0 = SYNC_GETKV2(source[4][i]); 
+		keyvalue5_vault0 = SYNC_GETKV2(source[5][i]); 
+		keyvalue6_vault0 = SYNC_GETKV2(source[6][i]); 
+		keyvalue7_vault0 = SYNC_GETKV2(source[7][i]); 
+		
+		#ifdef _WIDEWORD
+		kvdram0[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value;  // dramoffset_kvs
+		keyvalue0_vault1 = keyvalue0_vault0;
+		kvdram0[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value;  // dramoffset_kvs
+		keyvalue1_vault1 = keyvalue1_vault0;
+		kvdram0[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value;  // dramoffset_kvs
+		keyvalue2_vault1 = keyvalue2_vault0;
+		kvdram0[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value;  // dramoffset_kvs
+		keyvalue3_vault1 = keyvalue3_vault0;
+		kvdram0[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value;  // dramoffset_kvs
+		keyvalue4_vault1 = keyvalue4_vault0;
+		kvdram0[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value;  // dramoffset_kvs
+		keyvalue5_vault1 = keyvalue5_vault0;
+		kvdram0[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value;  // dramoffset_kvs
+		keyvalue6_vault1 = keyvalue6_vault0;
+		kvdram0[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value;  // dramoffset_kvs
+		keyvalue7_vault1 = keyvalue7_vault0;
+		kvdram1[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault1.value;  // dramoffset_kvs
+		keyvalue0_vault2 = keyvalue0_vault1;
+		kvdram1[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault1.value;  // dramoffset_kvs
+		keyvalue1_vault2 = keyvalue1_vault1;
+		kvdram1[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault1.value;  // dramoffset_kvs
+		keyvalue2_vault2 = keyvalue2_vault1;
+		kvdram1[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault1.value;  // dramoffset_kvs
+		keyvalue3_vault2 = keyvalue3_vault1;
+		kvdram1[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault1.value;  // dramoffset_kvs
+		keyvalue4_vault2 = keyvalue4_vault1;
+		kvdram1[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault1.value;  // dramoffset_kvs
+		keyvalue5_vault2 = keyvalue5_vault1;
+		kvdram1[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault1.value;  // dramoffset_kvs
+		keyvalue6_vault2 = keyvalue6_vault1;
+		kvdram1[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault1.value;  // dramoffset_kvs
+		keyvalue7_vault2 = keyvalue7_vault1;
+		kvdram2[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault2.value;  // dramoffset_kvs
+		keyvalue0_vault3 = keyvalue0_vault2;
+		kvdram2[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault2.value;  // dramoffset_kvs
+		keyvalue1_vault3 = keyvalue1_vault2;
+		kvdram2[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault2.value;  // dramoffset_kvs
+		keyvalue2_vault3 = keyvalue2_vault2;
+		kvdram2[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault2.value;  // dramoffset_kvs
+		keyvalue3_vault3 = keyvalue3_vault2;
+		kvdram2[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault2.value;  // dramoffset_kvs
+		keyvalue4_vault3 = keyvalue4_vault2;
+		kvdram2[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault2.value;  // dramoffset_kvs
+		keyvalue5_vault3 = keyvalue5_vault2;
+		kvdram2[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault2.value;  // dramoffset_kvs
+		keyvalue6_vault3 = keyvalue6_vault2;
+		kvdram2[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault2.value;  // dramoffset_kvs
+		keyvalue7_vault3 = keyvalue7_vault2;
+		kvdram3[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault3.value;  // dramoffset_kvs
+		keyvalue0_vault4 = keyvalue0_vault3;
+		kvdram3[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault3.value;  // dramoffset_kvs
+		keyvalue1_vault4 = keyvalue1_vault3;
+		kvdram3[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault3.value;  // dramoffset_kvs
+		keyvalue2_vault4 = keyvalue2_vault3;
+		kvdram3[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault3.value;  // dramoffset_kvs
+		keyvalue3_vault4 = keyvalue3_vault3;
+		kvdram3[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault3.value;  // dramoffset_kvs
+		keyvalue4_vault4 = keyvalue4_vault3;
+		kvdram3[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault3.value;  // dramoffset_kvs
+		keyvalue5_vault4 = keyvalue5_vault3;
+		kvdram3[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault3.value;  // dramoffset_kvs
+		keyvalue6_vault4 = keyvalue6_vault3;
+		kvdram3[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault3.value;  // dramoffset_kvs
+		keyvalue7_vault4 = keyvalue7_vault3;
+		#else 
+		kvdram0[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value; // dramoffset_kvs
+		keyvalue0_vault1 = keyvalue0_vault0;
+		kvdram0[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value; // dramoffset_kvs
+		keyvalue1_vault1 = keyvalue1_vault0;
+		kvdram0[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value; // dramoffset_kvs
+		keyvalue2_vault1 = keyvalue2_vault0;
+		kvdram0[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value; // dramoffset_kvs
+		keyvalue3_vault1 = keyvalue3_vault0;
+		kvdram0[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value; // dramoffset_kvs
+		keyvalue4_vault1 = keyvalue4_vault0;
+		kvdram0[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value; // dramoffset_kvs
+		keyvalue5_vault1 = keyvalue5_vault0;
+		kvdram0[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value; // dramoffset_kvs
+		keyvalue6_vault1 = keyvalue6_vault0;
+		kvdram0[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key; // dramoffset_kvs
+		kvdram0[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value; // dramoffset_kvs
+		keyvalue7_vault1 = keyvalue7_vault0;
+		kvdram1[dramoffset_kvs + i].data[0].key = keyvalue0_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[0].value = keyvalue0_vault1.value; // dramoffset_kvs
+		keyvalue0_vault2 = keyvalue0_vault1;
+		kvdram1[dramoffset_kvs + i].data[1].key = keyvalue1_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[1].value = keyvalue1_vault1.value; // dramoffset_kvs
+		keyvalue1_vault2 = keyvalue1_vault1;
+		kvdram1[dramoffset_kvs + i].data[2].key = keyvalue2_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[2].value = keyvalue2_vault1.value; // dramoffset_kvs
+		keyvalue2_vault2 = keyvalue2_vault1;
+		kvdram1[dramoffset_kvs + i].data[3].key = keyvalue3_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[3].value = keyvalue3_vault1.value; // dramoffset_kvs
+		keyvalue3_vault2 = keyvalue3_vault1;
+		kvdram1[dramoffset_kvs + i].data[4].key = keyvalue4_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[4].value = keyvalue4_vault1.value; // dramoffset_kvs
+		keyvalue4_vault2 = keyvalue4_vault1;
+		kvdram1[dramoffset_kvs + i].data[5].key = keyvalue5_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[5].value = keyvalue5_vault1.value; // dramoffset_kvs
+		keyvalue5_vault2 = keyvalue5_vault1;
+		kvdram1[dramoffset_kvs + i].data[6].key = keyvalue6_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[6].value = keyvalue6_vault1.value; // dramoffset_kvs
+		keyvalue6_vault2 = keyvalue6_vault1;
+		kvdram1[dramoffset_kvs + i].data[7].key = keyvalue7_vault1.key; // dramoffset_kvs
+		kvdram1[dramoffset_kvs + i].data[7].value = keyvalue7_vault1.value; // dramoffset_kvs
+		keyvalue7_vault2 = keyvalue7_vault1;
+		kvdram2[dramoffset_kvs + i].data[0].key = keyvalue0_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[0].value = keyvalue0_vault2.value; // dramoffset_kvs
+		keyvalue0_vault3 = keyvalue0_vault2;
+		kvdram2[dramoffset_kvs + i].data[1].key = keyvalue1_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[1].value = keyvalue1_vault2.value; // dramoffset_kvs
+		keyvalue1_vault3 = keyvalue1_vault2;
+		kvdram2[dramoffset_kvs + i].data[2].key = keyvalue2_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[2].value = keyvalue2_vault2.value; // dramoffset_kvs
+		keyvalue2_vault3 = keyvalue2_vault2;
+		kvdram2[dramoffset_kvs + i].data[3].key = keyvalue3_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[3].value = keyvalue3_vault2.value; // dramoffset_kvs
+		keyvalue3_vault3 = keyvalue3_vault2;
+		kvdram2[dramoffset_kvs + i].data[4].key = keyvalue4_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[4].value = keyvalue4_vault2.value; // dramoffset_kvs
+		keyvalue4_vault3 = keyvalue4_vault2;
+		kvdram2[dramoffset_kvs + i].data[5].key = keyvalue5_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[5].value = keyvalue5_vault2.value; // dramoffset_kvs
+		keyvalue5_vault3 = keyvalue5_vault2;
+		kvdram2[dramoffset_kvs + i].data[6].key = keyvalue6_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[6].value = keyvalue6_vault2.value; // dramoffset_kvs
+		keyvalue6_vault3 = keyvalue6_vault2;
+		kvdram2[dramoffset_kvs + i].data[7].key = keyvalue7_vault2.key; // dramoffset_kvs
+		kvdram2[dramoffset_kvs + i].data[7].value = keyvalue7_vault2.value; // dramoffset_kvs
+		keyvalue7_vault3 = keyvalue7_vault2;
+		kvdram3[dramoffset_kvs + i].data[0].key = keyvalue0_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].data[0].value = keyvalue0_vault3.value; // dramoffset_kvs
+		keyvalue0_vault4 = keyvalue0_vault3;
+		kvdram3[dramoffset_kvs + i].data[1].key = keyvalue1_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].data[1].value = keyvalue1_vault3.value; // dramoffset_kvs
+		keyvalue1_vault4 = keyvalue1_vault3;
+		kvdram3[dramoffset_kvs + i].data[2].key = keyvalue2_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].data[2].value = keyvalue2_vault3.value; // dramoffset_kvs
+		keyvalue2_vault4 = keyvalue2_vault3;
+		kvdram3[dramoffset_kvs + i].data[3].key = keyvalue3_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].data[3].value = keyvalue3_vault3.value; // dramoffset_kvs
+		keyvalue3_vault4 = keyvalue3_vault3;
+		kvdram3[dramoffset_kvs + i].data[4].key = keyvalue4_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].data[4].value = keyvalue4_vault3.value; // dramoffset_kvs
+		keyvalue4_vault4 = keyvalue4_vault3;
+		kvdram3[dramoffset_kvs + i].data[5].key = keyvalue5_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].data[5].value = keyvalue5_vault3.value; // dramoffset_kvs
+		keyvalue5_vault4 = keyvalue5_vault3;
+		kvdram3[dramoffset_kvs + i].data[6].key = keyvalue6_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].data[6].value = keyvalue6_vault3.value; // dramoffset_kvs
+		keyvalue6_vault4 = keyvalue6_vault3;
+		kvdram3[dramoffset_kvs + i].data[7].key = keyvalue7_vault3.key; // dramoffset_kvs
+		kvdram3[dramoffset_kvs + i].data[7].value = keyvalue7_vault3.value; // dramoffset_kvs
+		keyvalue7_vault4 = keyvalue7_vault3;
+		#endif 
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 0) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 0) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 1) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 1) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 2) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 2) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 3) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 3) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 4) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 4) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 5) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 5) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 6) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 6) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKEYENTRY(kvdram3[dramoffset_kvs + i], 7) < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(GETVALUEENTRY(kvdram3[dramoffset_kvs + i], 7) < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		#endif
+		
+		// combined with save to vdram operation
+		#ifdef _WIDEWORD
+		vdram[dramoffset_kvs + i].range(31, 0) = keyvalue0_vault0.key; 
+		vdram[dramoffset_kvs + i].range(63, 32) = keyvalue0_vault0.value; 
+		vdram[dramoffset_kvs + i].range(95, 64) = keyvalue1_vault0.key; 
+		vdram[dramoffset_kvs + i].range(127, 96) = keyvalue1_vault0.value; 
+		vdram[dramoffset_kvs + i].range(159, 128) = keyvalue2_vault0.key; 
+		vdram[dramoffset_kvs + i].range(191, 160) = keyvalue2_vault0.value; 
+		vdram[dramoffset_kvs + i].range(223, 192) = keyvalue3_vault0.key; 
+		vdram[dramoffset_kvs + i].range(255, 224) = keyvalue3_vault0.value; 
+		vdram[dramoffset_kvs + i].range(287, 256) = keyvalue4_vault0.key; 
+		vdram[dramoffset_kvs + i].range(319, 288) = keyvalue4_vault0.value; 
+		vdram[dramoffset_kvs + i].range(351, 320) = keyvalue5_vault0.key; 
+		vdram[dramoffset_kvs + i].range(383, 352) = keyvalue5_vault0.value; 
+		vdram[dramoffset_kvs + i].range(415, 384) = keyvalue6_vault0.key; 
+		vdram[dramoffset_kvs + i].range(447, 416) = keyvalue6_vault0.value; 
+		vdram[dramoffset_kvs + i].range(479, 448) = keyvalue7_vault0.key; 
+		vdram[dramoffset_kvs + i].range(511, 480) = keyvalue7_vault0.value; 
+		#else
+		vdram[dramoffset_kvs + i].data[0].key = keyvalue0_vault0.key;
+		vdram[dramoffset_kvs + i].data[0].value = keyvalue0_vault0.value;
+		vdram[dramoffset_kvs + i].data[1].key = keyvalue1_vault0.key;
+		vdram[dramoffset_kvs + i].data[1].value = keyvalue1_vault0.value;
+		vdram[dramoffset_kvs + i].data[2].key = keyvalue2_vault0.key;
+		vdram[dramoffset_kvs + i].data[2].value = keyvalue2_vault0.value;
+		vdram[dramoffset_kvs + i].data[3].key = keyvalue3_vault0.key;
+		vdram[dramoffset_kvs + i].data[3].value = keyvalue3_vault0.value;
+		vdram[dramoffset_kvs + i].data[4].key = keyvalue4_vault0.key;
+		vdram[dramoffset_kvs + i].data[4].value = keyvalue4_vault0.value;
+		vdram[dramoffset_kvs + i].data[5].key = keyvalue5_vault0.key;
+		vdram[dramoffset_kvs + i].data[5].value = keyvalue5_vault0.value;
+		vdram[dramoffset_kvs + i].data[6].key = keyvalue6_vault0.key;
+		vdram[dramoffset_kvs + i].data[6].value = keyvalue6_vault0.value;
+		vdram[dramoffset_kvs + i].data[7].key = keyvalue7_vault0.key;
+		vdram[dramoffset_kvs + i].data[7].value = keyvalue7_vault0.value;
+		#endif 
+		
+		// combined with prepare vmask operation
+		unsigned int X = i % 16;
+		unsigned int Y = i / 16;
+	
+		#ifdef _WIDEWORD
+		tempbuffer[X][Y].range(0, 0) = vmask[i].data[0].key;
+		tempbuffer[X][Y].range(1, 1) = vmask[i].data[0].value;
+		tempbuffer[X][Y].range(2, 2) = vmask[i].data[1].key;
+		tempbuffer[X][Y].range(3, 3) = vmask[i].data[1].value;
+		tempbuffer[X][Y].range(4, 4) = vmask[i].data[2].key;
+		tempbuffer[X][Y].range(5, 5) = vmask[i].data[2].value;
+		tempbuffer[X][Y].range(6, 6) = vmask[i].data[3].key;
+		tempbuffer[X][Y].range(7, 7) = vmask[i].data[3].value;
+		tempbuffer[X][Y].range(8, 8) = vmask[i].data[4].key;
+		tempbuffer[X][Y].range(9, 9) = vmask[i].data[4].value;
+		tempbuffer[X][Y].range(10, 10) = vmask[i].data[5].key;
+		tempbuffer[X][Y].range(11, 11) = vmask[i].data[5].value;
+		tempbuffer[X][Y].range(12, 12) = vmask[i].data[6].key;
+		tempbuffer[X][Y].range(13, 13) = vmask[i].data[6].value;
+		tempbuffer[X][Y].range(14, 14) = vmask[i].data[7].key;
+		tempbuffer[X][Y].range(15, 15) = vmask[i].data[7].value;
+		tempbuffer[X][Y].range(16, 16) = vmask[i].data[8].key;
+		tempbuffer[X][Y].range(17, 17) = vmask[i].data[8].value;
+		tempbuffer[X][Y].range(18, 18) = vmask[i].data[9].key;
+		tempbuffer[X][Y].range(19, 19) = vmask[i].data[9].value;
+		tempbuffer[X][Y].range(20, 20) = vmask[i].data[10].key;
+		tempbuffer[X][Y].range(21, 21) = vmask[i].data[10].value;
+		tempbuffer[X][Y].range(22, 22) = vmask[i].data[11].key;
+		tempbuffer[X][Y].range(23, 23) = vmask[i].data[11].value;
+		tempbuffer[X][Y].range(24, 24) = vmask[i].data[12].key;
+		tempbuffer[X][Y].range(25, 25) = vmask[i].data[12].value;
+		tempbuffer[X][Y].range(26, 26) = vmask[i].data[13].key;
+		tempbuffer[X][Y].range(27, 27) = vmask[i].data[13].value;
+		tempbuffer[X][Y].range(28, 28) = vmask[i].data[14].key;
+		tempbuffer[X][Y].range(29, 29) = vmask[i].data[14].value;
+		tempbuffer[X][Y].range(30, 30) = vmask[i].data[15].key;
+		tempbuffer[X][Y].range(31, 31) = vmask[i].data[15].value;
+		#else
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[i].data[0].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[i].data[0].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[i].data[1].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[i].data[1].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[i].data[2].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[i].data[2].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[i].data[3].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[i].data[3].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[i].data[4].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[i].data[4].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[i].data[5].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[i].data[5].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[i].data[6].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[i].data[6].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[i].data[7].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[i].data[7].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[i].data[8].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[i].data[8].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[i].data[9].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[i].data[9].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[i].data[10].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[i].data[10].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[i].data[11].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[i].data[11].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[i].data[12].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[i].data[12].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[i].data[13].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[i].data[13].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[i].data[14].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[i].data[14].value);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[i].data[15].key);
+		SYNC_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[i].data[15].value);
+		#endif
+	}
+	
+	if(enable_savevmask == ON){
+	SAVEVMASKS_LOOP: for(buffer_type i=0; i<vmask_size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		kvdram0[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(31, 0) = tempbuffer[0][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(63, 32) = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(95, 64) = tempbuffer[2][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(127, 96) = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(159, 128) = tempbuffer[4][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(191, 160) = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(223, 192) = tempbuffer[6][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(255, 224) = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(287, 256) = tempbuffer[8][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(319, 288) = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(351, 320) = tempbuffer[10][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(383, 352) = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(415, 384) = tempbuffer[12][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(447, 416) = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(479, 448) = tempbuffer[14][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].range(511, 480) = tempbuffer[15][i];  // vmask_offset_kvs
+		#else 
+		kvdram0[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram0[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram1[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram2[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[0].key = tempbuffer[0][i]; // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[0].value = tempbuffer[1][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[1].key = tempbuffer[2][i]; // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[1].value = tempbuffer[3][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[2].key = tempbuffer[4][i]; // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[2].value = tempbuffer[5][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[3].key = tempbuffer[6][i]; // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[3].value = tempbuffer[7][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[4].key = tempbuffer[8][i]; // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[4].value = tempbuffer[9][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[5].key = tempbuffer[10][i]; // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[5].value = tempbuffer[11][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[6].key = tempbuffer[12][i]; // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[6].value = tempbuffer[13][i];  // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[7].key = tempbuffer[14][i]; // vmask_offset_kvs
+		kvdram3[vmask_offset_kvs + i].data[7].value = tempbuffer[15][i];  // vmask_offset_kvs
+		#endif 
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+		#endif
+	}
+	}
+	}
+	
+	// savevmaskp
+	if(enable_savevmaskp == ON){
+		uint32_type vmask_p = 0;
+		if(enable1 == ON && enable2 == ON){ vmask_p = vmask_p_temp[0] | vmask_p_temp[1]; }
+		#ifdef _WIDEWORD
+		kvdram0[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram2[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram3[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
+		// kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		#else
+		kvdram0[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram1[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram2[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram3[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
+		// kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		#endif 
+	}
+	
+	/* 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram1[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram2[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+	kvdram3[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
+ */
 	return;
 }
 
@@ -2662,7 +6135,7 @@ void
 	#if defined(SW) || not defined(HWIMPLFOR_ACTSSYNC)
 	actssync::
 	#endif
-topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram){
+topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram){
 #ifndef ACTS_1by1
  
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
@@ -2672,12 +6145,30 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
  
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem4
+ 
+#pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
+ 
+#pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
+ 
+#pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
+ 
+#pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
+ 
+#pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
+ 
+#pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem10
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram4 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram5 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram6 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram7 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram8 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram9 bundle = control
 #pragma HLS INTERFACE s_axilite port = vdram bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
@@ -2686,6 +6177,12 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 #pragma HLS DATA_PACK variable = kvdram1
 #pragma HLS DATA_PACK variable = kvdram2
 #pragma HLS DATA_PACK variable = kvdram3
+#pragma HLS DATA_PACK variable = kvdram4
+#pragma HLS DATA_PACK variable = kvdram5
+#pragma HLS DATA_PACK variable = kvdram6
+#pragma HLS DATA_PACK variable = kvdram7
+#pragma HLS DATA_PACK variable = kvdram8
+#pragma HLS DATA_PACK variable = kvdram9
 #pragma HLS DATA_PACK variable = vdram
 #endif 
 	
@@ -2702,12 +6199,20 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	//
 	keyvalue_vbuffer_t vbuffer0_level1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0_level1
+	keyvalue_vbuffer_t vbuffer1_level1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer1_level1
+	keyvalue_vbuffer_t vbuffer2_level1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer2_level1
 	
 	keyvalue_vbuffer_t vbuffer0_level2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0_level2
 	
 	keyvalue_vbuffer_t vbuffer0_level3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer0_level3
+	keyvalue_vbuffer_t vbuffer1_level3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer1_level3
+	keyvalue_vbuffer_t vbuffer2_level3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer2_level3
 
 	//
 	unitBRAMwidth_type vmask0_level2[BLOCKRAM_SIZE];
@@ -2715,11 +6220,17 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	
 	unitBRAMwidth_type vmask0_level3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0_level3
+	unitBRAMwidth_type vmask1_level3[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask1_level3
+	unitBRAMwidth_type vmask2_level3[BLOCKRAM_SIZE];
+	#pragma HLS DATA_PACK variable = vmask2_level3
 	
 	//
 	uint32_type vmaskptemp0_level2[2];
 	
 	uint32_type vmaskptemp0_level3[2];
+	uint32_type vmaskptemp1_level3[2];
+	uint32_type vmaskptemp2_level3[2];
 	
 	//
 	globalparams_t globalparams[NUMSYNCTHREADS];
@@ -2732,13 +6243,22 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	actsutilityobj->clearglobalvars();
 	#endif
 	
+	// initialize other variables
 	vmaskptemp0_level2[0] = 0; vmaskptemp0_level2[1] = 0;
 	vmaskptemp0_level3[0] = 0; vmaskptemp0_level3[1] = 0;
+	vmaskptemp1_level3[0] = 0; vmaskptemp1_level3[1] = 0;
+	vmaskptemp2_level3[0] = 0; vmaskptemp2_level3[1] = 0;
 
 	globalparams[0] = SYNC_getglobalparams(kvdram0);
 	globalparams[1] = globalparams[0];
 	globalparams[2] = globalparams[0];
 	globalparams[3] = globalparams[0];
+	globalparams[4] = globalparams[0];
+	globalparams[5] = globalparams[0];
+	globalparams[6] = globalparams[0];
+	globalparams[7] = globalparams[0];
+	globalparams[8] = globalparams[0];
+	globalparams[9] = globalparams[0];
 	globalparams_t _globalparams = globalparams[0];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -2787,15 +6307,26 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 	unsigned int begincol_vmask = 0;
 	unsigned int MOVEcount = 0;
 	
+	#ifdef _WIDEWORD
+	unsigned int GraphIter = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0);
+	#else 
+	unsigned int GraphIter = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;	
+	#endif
+	
 	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_iterations; iterationidx+=NUMPIPELINES_SYNC){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
-	
 		enablereduce = ON; 
 		unsigned int ntravszs = 0;
 		rtravstate[0] = SYNC_gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
 		rtravstate[1] = SYNC_gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
 		rtravstate[2] = SYNC_gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
 		rtravstate[3] = SYNC_gettravstate(ON, kvdram3, globalparams[3], currentLOP, sourcestatsmarker);
+		rtravstate[4] = SYNC_gettravstate(ON, kvdram4, globalparams[4], currentLOP, sourcestatsmarker);
+		rtravstate[5] = SYNC_gettravstate(ON, kvdram5, globalparams[5], currentLOP, sourcestatsmarker);
+		rtravstate[6] = SYNC_gettravstate(ON, kvdram6, globalparams[6], currentLOP, sourcestatsmarker);
+		rtravstate[7] = SYNC_gettravstate(ON, kvdram7, globalparams[7], currentLOP, sourcestatsmarker);
+		rtravstate[8] = SYNC_gettravstate(ON, kvdram8, globalparams[8], currentLOP, sourcestatsmarker);
+		rtravstate[9] = SYNC_gettravstate(ON, kvdram9, globalparams[9], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
@@ -2805,75 +6336,111 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uin
 		#endif
 	
 		source_partition = iterationidx / 2;
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(enablereduce==ON && _globalparams.ENABLE_SAVEVMASK==ON){ actsutilityobj->print3("### topkernelsync:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); }
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		if(enablereduce==ON && _globalparams.ENABLE_SAVEVMASK==ON){ actsutilityobj->print3("### topkernelsync:: source_partition", "iterationidx", "currentLOP", source_partition, iterationidx, currentLOP); }
 		#endif
 		
 		enablereducepp0 = enablereduce;	
-		readvdata(enablereduce, ON, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);
-		readandsynchronize(enablereduce, ON, kvdram0,kvdram1,kvdram2,kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		readvdata(enablereduce, ON, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);		
+		readandsynchronize4(enablereduce, ON, NAp, kvdram0,kvdram1,kvdram2,kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		readandsynchronize4(enablereduce, ON, NAp, kvdram4,kvdram5,kvdram6,kvdram7, vbuffer1_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		readandsynchronize2(enablereduce, ON, NAp, kvdram8,kvdram9, vbuffer2_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+	
 		#ifdef SUP1
-		spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, vbuffer0_level3, _globalparams);
-		spreadvmask(enablereducepp1, pp1en_spreadvmask, ON, vmask0_level2, vmask0_level3, _globalparams); 
+		spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, vbuffer0_level3,vbuffer1_level3,vbuffer2_level3, _globalparams);
+		spreadvmask(enablereducepp1, pp1en_spreadvmask, ON, vmask0_level2, vmask0_level3,vmask1_level3,vmask2_level3, _globalparams); 
 		if(enablereducepp1 == ON && pp1en_spreadvmask == ON){
 			vmaskptemp0_level3[0] = vmaskptemp0_level2[0]; vmaskptemp0_level3[1] = vmaskptemp0_level2[1]; 
+			vmaskptemp1_level3[0] = vmaskptemp0_level2[0]; vmaskptemp1_level3[1] = vmaskptemp0_level2[1]; 
+			vmaskptemp2_level3[0] = vmaskptemp0_level2[0]; vmaskptemp2_level3[1] = vmaskptemp0_level2[1]; 
 		}
 		#endif
 		
 		if(SWITCHcount % 2 == 0){ begincol_vmask = 0; } else { begincol_vmask = 8; };
-		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereduce, ON, vbuffer0_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
+		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereduce, ON, vbuffer0_level1,vbuffer1_level1,vbuffer2_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
 		SWITCHcount += 1;
 		#ifdef SUP1
-		spreadandwrite(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, vdram, kvdram0,kvdram1,kvdram2,kvdram3,			vbuffer0_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+		spreadandwrite4(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp,  kvdram0,kvdram1,kvdram2,kvdram3,			vbuffer0_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp0_level3,
+			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp0_level3, GraphIter + 1,
+			_globalparams);
+		spreadandwrite4(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp,  kvdram4,kvdram5,kvdram6,kvdram7,			vbuffer1_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+			vmask1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
+			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp1_level3, GraphIter + 1,
+			_globalparams);
+		spreadandwrite2(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, vdram, kvdram8,kvdram9,			vbuffer2_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+			vmask2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
+			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp2_level3, GraphIter + 1,
 			_globalparams);
 		if(pp1en_spreadandwrite == ON){ vreadoffsetpp1_kvs += reducebuffersz * NUMPIPELINES_SYNC; }
 		if(pp1en_spreadandwrite == ON){ MOVEcount += 1; if(MOVEcount % 2 == 0){ vmaskreadoffset_kvs += vmaskbuffersz_kvs; sourcestatsmarker += 1; }} 
 		#endif
 		
-		spreadvdata(enablereduce, ON, vbuffer0_level2, vbuffer0_level3, _globalparams);
-		spreadvmask(enablereduce, ON, ON, vmask0_level2, vmask0_level3, _globalparams); 
+		spreadvdata(enablereduce, ON, vbuffer0_level2, vbuffer0_level3,vbuffer1_level3,vbuffer2_level3, _globalparams);
+		spreadvmask(enablereduce, ON, ON, vmask0_level2, vmask0_level3,vmask1_level3,vmask2_level3, _globalparams); 
 		if(enablereduce == ON){ 
 			vmaskptemp0_level3[0] = vmaskptemp0_level2[0]; vmaskptemp0_level3[1] = vmaskptemp0_level2[1]; 
+			vmaskptemp1_level3[0] = vmaskptemp0_level2[0]; vmaskptemp1_level3[1] = vmaskptemp0_level2[1]; 
+			vmaskptemp2_level3[0] = vmaskptemp0_level2[0]; vmaskptemp2_level3[1] = vmaskptemp0_level2[1]; 
 		}
 		#ifdef SUP1
 		enablereducepp1 = enablereducepp0;	
 		readvdata(enablereducepp1, pp1en_readandsynchronize, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);
-		readandsynchronize(enablereducepp1, pp1en_readandsynchronize, kvdram0,kvdram1,kvdram2,kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		readandsynchronize4(enablereducepp1, pp1en_readandsynchronize, NAp, kvdram0,kvdram1,kvdram2,kvdram3, vbuffer0_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		readandsynchronize4(enablereducepp1, pp1en_readandsynchronize, NAp, kvdram4,kvdram5,kvdram6,kvdram7, vbuffer1_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		readandsynchronize2(enablereducepp1, pp1en_readandsynchronize, NAp, kvdram8,kvdram9, vbuffer2_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
 	
 		#endif
 	
-		spreadandwrite(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, vdram, kvdram0,kvdram1,kvdram2,kvdram3,	
+		spreadandwrite4(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp,  kvdram0,kvdram1,kvdram2,kvdram3,	
 			vbuffer0_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
-			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp0_level3,
+			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp0_level3, GraphIter + 1,
+			_globalparams);
+		spreadandwrite4(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp,  kvdram4,kvdram5,kvdram6,kvdram7,	
+			vbuffer1_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
+			vmask1_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
+			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp1_level3, GraphIter + 1,
+			_globalparams);
+		spreadandwrite2(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, vdram, kvdram8,kvdram9,	
+			vbuffer2_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
+			vmask2_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
+			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp2_level3, GraphIter + 1,
 			_globalparams);
 		vreadoffsetpp0_kvs += reducebuffersz * NUMPIPELINES_SYNC;
 		MOVEcount += 1; if(MOVEcount % 2 == 0){ vmaskreadoffset_kvs += vmaskbuffersz_kvs; sourcestatsmarker += 1; } 
 		#ifdef SUP1
 		if(SWITCHcount % 2 == 0){ begincol_vmask = 0; } else { begincol_vmask = 8; };
-		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereducepp1, pp1en_syncandapply, vbuffer0_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp1_kvs, _globalparams);
+		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereducepp1, pp1en_syncandapply, vbuffer0_level1,vbuffer1_level1,vbuffer2_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp1_kvs, _globalparams);
 		if(enablereducepp1 == ON && pp1en_syncandapply == ON){ SWITCHcount += 1; }
 		#endif
 	}
 	
-	// Helper: Set Graph Iteration number for next iteration // CRITICAL NEWCHANGE.
-	#ifdef _WIDEWORD
-	// kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) += 1; // CRITICAL NEWCHANGE.
+	// THE PROBLEM
+	// Helper: Set Graph Iteration number for next iteration // NEWCHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!. // CRITICAL REMOVEME.
+	/* #ifdef _WIDEWORD // globalparams.ALGORITHMINFO_GRAPHITERATIONID, MESSAGES_ALGORITHMINFO_GRAPHITERATIONID
 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
-	// kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) += 1; // CRITICAL NEWCHANGE.
 	kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
-	// kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) += 1; // CRITICAL NEWCHANGE.
 	kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
-	// kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) += 1; // CRITICAL NEWCHANGE.
 	kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
+	kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
+	kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
+	kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
+	kvdram7[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram7[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
+	kvdram8[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram8[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
+	kvdram9[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram9[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
 	#else 
 	kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
 	kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
 	kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
 	kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
-	#endif 
+	kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
+	kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
+	kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
+	kvdram7[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
+	kvdram8[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
+	kvdram9[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
+	#endif  */
 	
 	#if defined(_DEBUGMODE_KERNELPRINTS) && not defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"active partitions: ";

@@ -599,6 +599,7 @@ get_num_source_partitions(step_type currentLOP){
 	}
 	return pow;
 }
+// #ifdef XXXXX
 globalparams_t 
 	#ifdef SW 
 	actsproc::
@@ -741,6 +742,176 @@ getglobalparams(uint512_dt * kvdram){
 	#endif
 	return globalparams;
 }
+// #endif 
+#ifdef YYYYYY
+globalparams_t 
+	#ifdef SW 
+	actsproc::
+	#endif 
+getglobalparams(uint512_dt * kvdram){
+	unsigned int GP[BLOCKRAM_SIZE];
+	unsigned int noff=0;
+	
+	GETGLOBALPARAMS_LOOP: for (buffer_type i=0; i<128; i++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		GP[i] = kvdram[BASEOFFSET_MESSAGESDATA_KVS + i].range(31, 0);
+		#else 
+		GP[i] = kvdram[BASEOFFSET_MESSAGESDATA_KVS + i].data[0].key;
+		#endif
+	}
+	
+	globalparams_t globalparams;
+	globalparams.ENABLE_RUNKERNELCOMMAND = GP[noff+0];
+	globalparams.ENABLE_PROCESSCOMMAND = GP[noff+1];
+	globalparams.ENABLE_PARTITIONCOMMAND = GP[noff+2];
+	globalparams.ENABLE_APPLYUPDATESCOMMAND = GP[noff+3];
+	globalparams.ENABLE_SAVEVMASK = GP[noff+4];
+	globalparams.ENABLE_SAVEVMASKP = GP[noff+5];
+	
+	globalparams.BASEOFFSETKVS_MESSAGESDATA = GP[noff+6];
+	globalparams.BASEOFFSETKVS_EDGESDATA = GP[noff+7];
+	globalparams.BASEOFFSETKVS_VERTEXPTR = GP[noff+8];
+	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = GP[noff+9];
+	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = GP[noff+10];
+	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = GP[noff+11];
+	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = GP[noff+12];
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = GP[noff+13];
+	globalparams.BASEOFFSETKVS_STATSDRAM = GP[noff+14];
+	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = GP[noff+15];
+	globalparams.BASEOFFSETKVS_KVDRAM = GP[noff+16];
+	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = GP[noff+17];
+	
+	globalparams.SIZE_MESSAGESDRAM = GP[noff+18];
+	globalparams.SIZE_EDGES = GP[noff+19];
+	globalparams.SIZE_VERTEXPTRS = GP[noff+20];
+	globalparams.SIZE_SRCVERTICESDATA = GP[noff+21];
+	globalparams.SIZE_DESTVERTICESDATA = GP[noff+22];
+	globalparams.SIZE_ACTIVEVERTICES = GP[noff+23];
+	globalparams.SIZE_VERTICESDATAMASK = GP[noff+24];
+	globalparams.SIZE_VERTICESPARTITIONMASK = GP[noff+25];
+	globalparams.SIZE_KVSTATSDRAM = GP[noff+26];
+	globalparams.SIZE_EDGESSTATSDRAM = GP[noff+27];
+	globalparams.SIZE_KVDRAM = GP[noff+28];
+	globalparams.SIZE_KVDRAMWORKSPACE = GP[noff+29];
+	globalparams.SIZE_REDUCE = GP[noff+30];
+	globalparams.SIZE_BATCHRANGE = GP[noff+31];
+	globalparams.SIZE_RUN = GP[noff+32];
+
+	globalparams.POW_MESSAGESDRAM = GP[noff+33];
+	globalparams.POW_EDGES = GP[noff+34];
+	globalparams.POW_VERTEXPTRS = GP[noff+35];
+	globalparams.POW_SRCVERTICESDATA = GP[noff+36];
+	globalparams.POW_DESTVERTICESDATA = GP[noff+37];
+	globalparams.POW_ACTIVEVERTICES = GP[noff+38];
+	globalparams.POW_VERTICESDATAMASK = GP[noff+39];
+	globalparams.POW_KVSTATSDRAM = GP[noff+40];
+	globalparams.POW_EDGESSTATSDRAM = GP[noff+41];
+	globalparams.POW_KVDRAM = GP[noff+42];
+	globalparams.POW_KVDRAMWORKSPACE = GP[noff+43];
+	globalparams.POW_REDUCE = GP[noff+44];
+	globalparams.POW_BATCHRANGE = GP[noff+45];
+	
+	globalparams.ALGORITHMINFO_GRAPHITERATIONID = GP[noff+46];
+	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = GP[noff+47];
+
+	globalparams.ACTSPARAMS_BEGINLOP = GP[noff+48];
+	globalparams.ACTSPARAMS_NUMLOPS = GP[noff+49];
+	globalparams.ACTSPARAMS_TREEDEPTH = GP[noff+50];
+	globalparams.ACTSPARAMS_FINALNUMPARTITIONS = GP[noff+51];
+	globalparams.ACTSPARAMS_SRCVOFFSET = GP[noff+52];
+	globalparams.ACTSPARAMS_SRCVSIZE = GP[noff+53];
+	globalparams.ACTSPARAMS_DESTVOFFSET = GP[noff+54];
+	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = GP[noff+55];
+	
+	globalparams.RETURN_RETURNVALUES = GP[noff+56];
+	globalparams.VARS_WORKBATCH = 0;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printglobalparameters("actsproc::getglobalparams:: printing global parameters", globalparams);
+	#endif
+	return globalparams;
+}
+#endif 
+#ifdef ZZZZZZ // CRITICAL REMOVEME.//////////////////////////////////////////////////////////  // NEWCHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!. // CRITICAL REMOVEME.
+globalparams_t 
+	#ifdef SW 
+	actsproc::
+	#endif 
+getglobalparams(uint512_dt * kvdram){
+	globalparams_t globalparams;
+
+	globalparams.ENABLE_RUNKERNELCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].range(31, 0);
+	globalparams.ENABLE_PROCESSCOMMAND = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.ENABLE_PARTITIONCOMMAND = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.ENABLE_APPLYUPDATESCOMMAND = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.ENABLE_SAVEVMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.ENABLE_SAVEVMASKP = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	
+	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.BASEOFFSETKVS_EDGESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 17;
+	globalparams.BASEOFFSETKVS_VERTEXPTR = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.ENABLE_RUNKERNELCOMMAND + 11;
+	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 15; //
+	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.ENABLE_RUNKERNELCOMMAND + 17;
+	
+	globalparams.SIZE_MESSAGESDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.SIZE_EDGES = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.SIZE_VERTEXPTRS = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.SIZE_SRCVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 11;
+	globalparams.SIZE_DESTVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.SIZE_ACTIVEVERTICES = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.SIZE_VERTICESDATAMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.SIZE_VERTICESPARTITIONMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	globalparams.SIZE_KVSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.SIZE_EDGESSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 17; //
+	globalparams.SIZE_KVDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.SIZE_KVDRAMWORKSPACE = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.SIZE_REDUCE = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.SIZE_BATCHRANGE = globalparams.ENABLE_RUNKERNELCOMMAND + 11;
+	globalparams.SIZE_RUN = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+
+	globalparams.POW_MESSAGESDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.POW_EDGES = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.POW_VERTEXPTRS = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	globalparams.POW_SRCVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.POW_DESTVERTICESDATA = globalparams.ENABLE_RUNKERNELCOMMAND + 17;
+	globalparams.POW_ACTIVEVERTICES = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.POW_VERTICESDATAMASK = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.POW_KVSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.POW_EDGESSTATSDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 11; //
+	globalparams.POW_KVDRAM = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.POW_KVDRAMWORKSPACE = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.POW_REDUCE = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.POW_BATCHRANGE = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	
+	globalparams.ALGORITHMINFO_GRAPHITERATIONID = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = globalparams.ENABLE_RUNKERNELCOMMAND + 17;
+
+	globalparams.ACTSPARAMS_BEGINLOP = globalparams.ENABLE_RUNKERNELCOMMAND + 18;
+	globalparams.ACTSPARAMS_NUMLOPS = globalparams.ENABLE_RUNKERNELCOMMAND + 19;
+	globalparams.ACTSPARAMS_TREEDEPTH = globalparams.ENABLE_RUNKERNELCOMMAND + 10;
+	globalparams.ACTSPARAMS_FINALNUMPARTITIONS = globalparams.ENABLE_RUNKERNELCOMMAND + 11;
+	globalparams.ACTSPARAMS_SRCVOFFSET = globalparams.ENABLE_RUNKERNELCOMMAND + 12;
+	globalparams.ACTSPARAMS_SRCVSIZE = globalparams.ENABLE_RUNKERNELCOMMAND + 13;
+	globalparams.ACTSPARAMS_DESTVOFFSET = globalparams.ENABLE_RUNKERNELCOMMAND + 14;
+	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = globalparams.ENABLE_RUNKERNELCOMMAND + 15;
+	
+	globalparams.RETURN_RETURNVALUES = globalparams.ENABLE_RUNKERNELCOMMAND + 16;
+	globalparams.VARS_WORKBATCH = 0;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printglobalparameters("actsproc::getglobalparams:: printing global parameters", globalparams);
+	#endif
+	return globalparams;
+}
+#endif 
 sweepparams_t 
 	#ifdef SW 
 	actsproc::
@@ -1172,6 +1343,12 @@ retrievekvdramstats(uint512_dt * kvdram, value_t * buffer, globalparams_t global
 		// }
 		// 		// #endif
 	}
+	
+	#ifdef _WIDEWORD // globalparams.ALGORITHMINFO_GRAPHITERATIONID, MESSAGES_ALGORITHMINFO_GRAPHITERATIONID
+	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NEWCHANGE.
+	#else
+	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
+	#endif 
 	return;
 }
 

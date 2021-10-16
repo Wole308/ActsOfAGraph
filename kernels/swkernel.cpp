@@ -289,23 +289,35 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		cout<<"swkernel::runapp: applying... "<<endl;
 		kernelobjs_synchronize->topkernelsync(
 			(uint512_dt *)kvsourcedram[ind],
+			#if NUMSUBCPUTHREADS>1
 			(uint512_dt *)kvsourcedram[ind+1],
+			#if NUMSUBCPUTHREADS>2
 			(uint512_dt *)kvsourcedram[ind+2],
+			#if NUMSUBCPUTHREADS>3
 			(uint512_dt *)kvsourcedram[ind+3],
 			#if NUMSUBCPUTHREADS>4
 			(uint512_dt *)kvsourcedram[ind+4],
+			#if NUMSUBCPUTHREADS>5
 			(uint512_dt *)kvsourcedram[ind+5],
+			#if NUMSUBCPUTHREADS>6
 			(uint512_dt *)kvsourcedram[ind+6],
+			#if NUMSUBCPUTHREADS>7
 			(uint512_dt *)kvsourcedram[ind+7],
 			#if NUMSUBCPUTHREADS>8
 			(uint512_dt *)kvsourcedram[ind+8],
+			#if NUMSUBCPUTHREADS>9
 			(uint512_dt *)kvsourcedram[ind+9],
+			#if NUMSUBCPUTHREADS>10
 			(uint512_dt *)kvsourcedram[ind+10],
+			#if NUMSUBCPUTHREADS>11
 			(uint512_dt *)kvsourcedram[ind+11],
 			#if NUMSUBCPUTHREADS>12
 			(uint512_dt *)kvsourcedram[ind+12],
+			#if NUMSUBCPUTHREADS>13
 			(uint512_dt *)kvsourcedram[ind+13],
+			#if NUMSUBCPUTHREADS>14
 			(uint512_dt *)kvsourcedram[ind+14],
+			#if NUMSUBCPUTHREADS>15
 			(uint512_dt *)kvsourcedram[ind+15],
 			#if NUMSUBCPUTHREADS>16
 			(uint512_dt *)kvsourcedram[ind+16],
@@ -329,6 +341,18 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			#endif 
 			#endif
 			#endif
+			#endif
+			#endif 
+			#endif 
+			#endif
+			#endif
+			#endif
+			#endif 
+			#endif 
+			#endif
+			#endif
+			#endif
+			#endif 
 			#endif
 			(uint512_dt *)vdram
 		);
