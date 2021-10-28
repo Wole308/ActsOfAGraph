@@ -279,6 +279,14 @@ LDCLFLAGS_HBM_PROC_1by2_4and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[5]
 LDCLFLAGS_HBM_PROC_1by2_4and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[6]
 LDCLFLAGS_HBM_PROC_1by2_4and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[7]
 
+LDCLFLAGS_HBM_PROC_1by2_2and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS_HBM_PROC_1by2_2and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
+LDCLFLAGS_HBM_PROC_1by2_2and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
+LDCLFLAGS_HBM_PROC_1by2_2and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
+
+LDCLFLAGS_HBM_PROC_1by2_1and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS_HBM_PROC_1by2_1and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
+
 LDCLFLAGS_HBM_PROC_2by1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] --sp topkernelproc_1.m_axi_gmem1:HBM[1]
 LDCLFLAGS_HBM_PROC_2by1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] --sp topkernelproc_2.m_axi_gmem1:HBM[3]
 LDCLFLAGS_HBM_PROC_2by1 += --sp topkernelproc_3.m_axi_gmem0:HBM[4] --sp topkernelproc_3.m_axi_gmem1:HBM[5]
@@ -394,6 +402,13 @@ LDCLFLAGS_HBM_SYNC_1by2_4and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[5]
 LDCLFLAGS_HBM_SYNC_1by2_4and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[7]
 LDCLFLAGS_HBM_SYNC_1by2_4and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[8]
 
+LDCLFLAGS_HBM_SYNC_1by2_2and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
+LDCLFLAGS_HBM_SYNC_1by2_2and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3]
+LDCLFLAGS_HBM_SYNC_1by2_2and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[4]
+
+LDCLFLAGS_HBM_SYNC_1by2_1and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
+LDCLFLAGS_HBM_SYNC_1by2_1and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[2]
+
 # === DRAM MEMORY ===
 LDCLFLAGS_DRAM_PROC += --sp topkernelproc_1.m_axi_gmem0:bank0 
 # LDCLFLAGS_DRAM_PROC += --sp topkernelproc_2.m_axi_gmem0:bank1 
@@ -440,6 +455,8 @@ BINARY_CONTAINERS_PROCANDSYNC_10AND1 += $(XCLBIN)/topkernelprocandsync_10and1.$(
 BINARY_CONTAINERS_PROCANDSYNC_8AND1 += $(XCLBIN)/topkernelprocandsync_8and1.$(TARGET).$(DSA).xclbin
 BINARY_CONTAINERS_PROCANDSYNC_6AND1 += $(XCLBIN)/topkernelprocandsync_6and1.$(TARGET).$(DSA).xclbin
 BINARY_CONTAINERS_PROCANDSYNC_4AND1 += $(XCLBIN)/topkernelprocandsync_4and1.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINERS_PROCANDSYNC_2AND1 += $(XCLBIN)/topkernelprocandsync_2and1.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINERS_PROCANDSYNC_1AND1 += $(XCLBIN)/topkernelprocandsync_1and1.$(TARGET).$(DSA).xclbin
 BINARY_CONTAINER_topkernelprocandsync_OBJS += $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo
 BINARY_CONTAINER_topkernelprocandsync_OBJS += $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo
 
@@ -466,12 +483,12 @@ all_sync: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_SYNC) emconfig
 .PHONY: all clean cleanall docs emconfig
 all_procandsync: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC) emconfig
 all_procandsync_12and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_12AND1) emconfig
-# all_procandsync_12and1: check-devices $(BINARY_CONTAINERS_PROCANDSYNC_12AND1) emconfig
 all_procandsync_10and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_10AND1) emconfig
-# all_procandsync_10and1: check-devices $(BINARY_CONTAINERS_PROCANDSYNC_10AND1) emconfig
 all_procandsync_8and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_8AND1) emconfig
 all_procandsync_6and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_6AND1) emconfig
 all_procandsync_4and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_4AND1) emconfig
+all_procandsync_2and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_2AND1) emconfig
+all_procandsync_1and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1AND1) emconfig
 
 .PHONY: exe
 exe: $(EXECUTABLE)
@@ -519,6 +536,12 @@ $(XCLBIN)/topkernelprocandsync_6and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER
 $(XCLBIN)/topkernelprocandsync_4and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
 	mkdir -p $(XCLBIN)
 	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2_4and1) $(LDCLFLAGS_HBM_SYNC_1by2_4and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:4 --nk topkernelsync:1 -o'$@' $(+)
+$(XCLBIN)/topkernelprocandsync_2and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2_2and1) $(LDCLFLAGS_HBM_SYNC_1by2_2and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:4 --nk topkernelsync:1 -o'$@' $(+)
+$(XCLBIN)/topkernelprocandsync_1and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2_1and1) $(LDCLFLAGS_HBM_SYNC_1by2_1and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:4 --nk topkernelsync:1 -o'$@' $(+)
 
 # Building Host (***choice between CREBTREE or AWS***)
 # $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 

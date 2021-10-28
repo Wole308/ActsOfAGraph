@@ -91,7 +91,8 @@ using namespace std;
 	#define KVSOURCEDRAMSZ (1 << 25) // max HBM capacity (256MB)
 #endif 
 #ifdef USEDDRAMMEMORY
-	#define KVSOURCEDRAMSZ ((1 << 27)+ (1 << 26))
+	// #define KVSOURCEDRAMSZ ((1 << 27) + (1 << 26))
+	#define KVSOURCEDRAMSZ ((1 << 29) - 1)
 #endif 
 #define KVSOURCEDRAMSZ_KVS (KVSOURCEDRAMSZ / VECTOR_SIZE)
 #define PADDEDKVSOURCEDRAMSZ KVSOURCEDRAMSZ

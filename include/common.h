@@ -1,13 +1,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
+#define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -75,8 +72,8 @@
 
 ////////////////
 
-#define NUMSUBCPUTHREADS 10
-#define NUMSYNCTHREADS 10
+#define NUMSUBCPUTHREADS 2
+#define NUMSYNCTHREADS 2
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -86,7 +83,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 10
+#define NUMCOMPUTEUNITS 2
 #define NUMCOMPUTEUNITS_HALF (NUMCOMPUTEUNITS / 2)
 #define NUMINTSINKEYVALUETYPE 2
 #define VDATA_PACKINGSIZE_POW 4 // AUTOMATEME.
