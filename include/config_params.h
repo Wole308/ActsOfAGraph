@@ -5,7 +5,7 @@
 	DEFAULT SETTINGS: ENABLERECURSIVEPARTITIONING, HWIMPLFOR_ACTSPROC, USEHBMMEMORY, NUMSYNCTHREADS(gen.py)=NUMSUBCPUTHREADS
 	Num_procs: 16 worked
 	
-	ACTS_XbyYbyZ: X: num kernels, Y: num compute units, Z: num HBM channels per compute unit
+	ACTS_XbyYbyZbyM: X: num kernels, Y: num compute units, Z: num HBM channels per compute unit, M: num HBM channels paired in one HBM channel
 */
 
 // #define ACTS_1by1 //

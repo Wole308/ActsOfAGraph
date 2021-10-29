@@ -1253,7 +1253,7 @@ spreadandwrite{{n+1}}(bool_type enable1, bool_type enable2, bool_type enable_sav
 		{%if(n==1)%}{%for i in context['2_seq']%}uint512_dt * kvdram{{i}},{%endfor%}{%endif%}
 		{%if(n==2)%}{%for i in context['3_seq']%}uint512_dt * kvdram{{i}},{%endfor%}{%endif%}
 		{%if(n==3)%}{%for i in context['4_seq']%}uint512_dt * kvdram{{i}},{%endfor%}{%endif%}
-			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
@@ -1384,25 +1384,17 @@ spreadandwrite{{n+1}}(bool_type enable1, bool_type enable2, bool_type enable_sav
 		#ifdef _WIDEWORD
 		{%for i in context['4_seq']%}
 		{%if(i<=n)%}
-		kvdram{{i}}[vmaskp_offset_kvs].range(31, 0) = vmask_p; // vmaskp_offset_kvs
-		// kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter; /////////// NEWCHANGE. ACCELERATEME.
+		kvdram{{i}}[vmaskp_offset_kvs].range(31, 0) = vmask_p;
 		{%endif%}
 		{%endfor%}
 		#else
 		{%for i in context['4_seq']%}
 		{%if(i<=n)%}
-		kvdram{{i}}[vmaskp_offset_kvs].data[0].key = vmask_p;  // vmaskp_offset_kvs // NEWCHANGE.
-		// kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE. ACCELERATEME.
+		kvdram{{i}}[vmaskp_offset_kvs].data[0].key = vmask_p;
 		{%endif%}
 		{%endfor%}
 		#endif 
 	}
-	
-	/* {%for i in context['4_seq']%}
-	{%if(i<=n)%}
-	kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; //////////////// NEWCHANGE.
-	{%endif%}
-	{%endfor%} */
 	return;
 }
 {%endfor%}
@@ -1498,6 +1490,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	{%endfor%}
 
 	globalparams[0] = SYNC_getglobalparams(kvdram0);
+	globalparams_t _globalparamsv = SYNC_getglobalparams(vdram);
 	{%for i in context['SYNCTHREADS_seq']%}
 	{%if(i>0)%}
 	globalparams[{{i}}] = globalparams[0];
@@ -1578,7 +1571,8 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		#endif
 		
 		enablereducepp0 = enablereduce;	
-		readvdata(enablereduce, ON, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);		
+		// readvdata(enablereduce, ON, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);	
+		readvdata(enablereduce, ON, vdram, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparamsv);	// NEWCHANGE.
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
 		readandsynchronize{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereduce, ON, NAp, {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSUBCPUTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
 		{%endfor%}	
@@ -1598,7 +1592,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		#ifdef SUP1
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
 		spreadandwrite{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSUBCPUTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%}
-			vbuffer{{i}}_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+			vbuffer{{i}}_level3, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}_globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs,{%endif%} _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp{{i}}_level3, GraphIter + 1,
 			_globalparams);
@@ -1616,7 +1610,8 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		}
 		#ifdef SUP1
 		enablereducepp1 = enablereducepp0;	
-		readvdata(enablereducepp1, pp1en_readandsynchronize, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);
+		// readvdata(enablereducepp1, pp1en_readandsynchronize, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);
+		readvdata(enablereducepp1, pp1en_readandsynchronize, vdram, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, refbuffer, 0, 0, reducebuffersz, _globalparamsv); // NEWCHANGE.
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
 		readandsynchronize{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereducepp1, pp1en_readandsynchronize, NAp, {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSUBCPUTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
 		{%endfor%}	
@@ -1624,7 +1619,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 	
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
 		spreadandwrite{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSUBCPUTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%}	
-			vbuffer{{i}}_level3, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
+			vbuffer{{i}}_level3, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}_globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs,{%endif%} _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp{{i}}_level3, GraphIter + 1,
 			_globalparams);
@@ -1637,19 +1632,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		if(enablereducepp1 == ON && pp1en_syncandapply == ON){ SWITCHcount += 1; }
 		#endif
 	}
-	
-	// THE PROBLEM
-	// Helper: Set Graph Iteration number for next iteration // NEWCHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!. // CRITICAL REMOVEME.
-	/* #ifdef _WIDEWORD // globalparams.ALGORITHMINFO_GRAPHITERATIONID, MESSAGES_ALGORITHMINFO_GRAPHITERATIONID
-	{%for i in context['SYNCTHREADS_seq']%}
-	kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) + 1; // CRITICAL NEWCHANGE.
-	{%endfor%}
-	#else 
-	{%for i in context['SYNCTHREADS_seq']%}
-	kvdram{{i}}[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; // CRITICAL NEWCHANGE.
-	{%endfor%}
-	#endif  */
-	
+
 	#if defined(_DEBUGMODE_KERNELPRINTS) && not defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"active partitions: ";
 	for(unsigned int k=0; k<256; k++){ if(vmask_p[k]>0){ cout<<k<<", "; }}

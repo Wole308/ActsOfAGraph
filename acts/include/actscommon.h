@@ -92,7 +92,8 @@ using namespace std;
 #endif 
 #ifdef USEDDRAMMEMORY
 	// #define KVSOURCEDRAMSZ ((1 << 27) + (1 << 26))
-	#define KVSOURCEDRAMSZ ((1 << 29) - 1)
+	// #define KVSOURCEDRAMSZ ((1 << 29) - 1) // 2 workers
+	#define KVSOURCEDRAMSZ ((1 << 30) - 1) // 1 worker
 #endif 
 #define KVSOURCEDRAMSZ_KVS (KVSOURCEDRAMSZ / VECTOR_SIZE)
 #define PADDEDKVSOURCEDRAMSZ KVSOURCEDRAMSZ
@@ -285,6 +286,7 @@ typedef struct {
 typedef struct {
 	globalparams_t globalparamsK;
 	globalparams_t globalparamsE;
+	globalparams_t globalparamsV;
 } globalparams_TWOt;
 
 typedef struct {

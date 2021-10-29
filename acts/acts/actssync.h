@@ -23,7 +23,7 @@
 #include "../../acts/actsutility/actsutility.h"
 using namespace std;
 
-#define NUMSYNCTHREADS 2
+#define NUMSYNCTHREADS 1
 
 #define ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
 
@@ -113,28 +113,28 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 				globalparams_t globalparams);
 			
 	void spreadandwrite1(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
-uint512_dt * kvdram0,				keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+uint512_dt * kvdram0,				keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 				unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 				unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 				globalparams_t globalparams);
 	void spreadandwrite2(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
-uint512_dt * kvdram0,uint512_dt * kvdram1,				keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,				keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 				unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 				unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 				globalparams_t globalparams);
 	void spreadandwrite3(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
-uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,				keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,				keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 				unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 				unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 				globalparams_t globalparams);
 	void spreadandwrite4(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
-uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,				keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
+uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,				keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 				unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 				unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 				globalparams_t globalparams);
 	#endif 
 
-	void topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram);
+	void topkernelsync(uint512_dt * kvdram0, uint512_dt * vdram);
 
 private:
 	#ifndef FPGA_IMPL

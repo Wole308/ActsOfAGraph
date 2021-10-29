@@ -28,17 +28,13 @@ public:
 	acts();
 	~acts();
 	
-	void loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint512_dt * kvdram1,  uint512_dt * vdram);
+	void loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * vdram);
 
 	void topkernel(
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 		uint512_dt * edges0,
 		#endif 
 		uint512_dt * kvdram0,
-		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-		uint512_dt * edges1,
-		#endif 
-		uint512_dt * kvdram1,
  
 		uint512_dt * vdram);
 private:
