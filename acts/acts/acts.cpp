@@ -7047,18 +7047,30 @@ void
 	#if defined(SW) || not defined(HWIMPLFOR_ACTSSYNC)
 	actssync::
 	#endif
-topkernelsync(uint512_dt * kvdram0, uint512_dt * vdram){
+topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram){
 // #ifndef ACTS_1by1
 /*  
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem1
+ 
+#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
+ 
+#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
+ 
+#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem4
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
+#pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
 #pragma HLS INTERFACE s_axilite port = vdram bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control */
 
 #pragma HLS DATA_PACK variable = kvdram0
+#pragma HLS DATA_PACK variable = kvdram1
+#pragma HLS DATA_PACK variable = kvdram2
+#pragma HLS DATA_PACK variable = kvdram3
 #pragma HLS DATA_PACK variable = vdram
 // #endif 
 	
@@ -7109,6 +7121,9 @@ topkernelsync(uint512_dt * kvdram0, uint512_dt * vdram){
 	vmaskptemp0_level3[0] = 0; vmaskptemp0_level3[1] = 0;
 
 	globalparams[0] = SYNC_getglobalparams(kvdram0);
+	globalparams[1] = globalparams[0];
+	globalparams[2] = globalparams[0];
+	globalparams[3] = globalparams[0];
 	globalparams_t _globalparams = globalparams[0];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -7163,6 +7178,9 @@ topkernelsync(uint512_dt * kvdram0, uint512_dt * vdram){
 		enablereduce = ON; 
 		unsigned int ntravszs = 0;
 		rtravstate[0] = SYNC_gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
+		rtravstate[1] = SYNC_gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
+		rtravstate[2] = SYNC_gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
+		rtravstate[3] = SYNC_gettravstate(ON, kvdram3, globalparams[3], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
@@ -7250,7 +7268,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * vdram){
+loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint512_dt * kvdram1,  uint512_dt * edges2, uint512_dt * kvdram2,  uint512_dt * edges3, uint512_dt * kvdram3,  uint512_dt * vdram){
 	#pragma HLS INLINE
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
@@ -7260,6 +7278,9 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * vdram){
 	travstate_t rtravstate[NUMSUBCPUTHREADS];
 	
 	globalparamsK[0] = actssyncobj.SYNC_getglobalparams(kvdram0);
+	globalparamsK[1] = globalparamsK[0];
+	globalparamsK[2] = globalparamsK[0];
+	globalparamsK[3] = globalparamsK[0];
 	globalparamsE = actssyncobj.SYNC_getglobalparams(edges0);
 	
 	unsigned int BASEOFFSETKVS_VERTICESDATA_K = globalparamsK[0].BASEOFFSETKVS_DESTVERTICESDATA;
@@ -7290,6 +7311,9 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * vdram){
 	
 		unsigned int ntravszs = 0;
 		rtravstate[0] = actssyncobj.SYNC_gettravstate(ON, kvdram0, globalparamsK[0], currentLOP, sourcestatsmarker);
+		rtravstate[1] = actssyncobj.SYNC_gettravstate(ON, kvdram1, globalparamsK[1], currentLOP, sourcestatsmarker);
+		rtravstate[2] = actssyncobj.SYNC_gettravstate(ON, kvdram2, globalparamsK[2], currentLOP, sourcestatsmarker);
+		rtravstate[3] = actssyncobj.SYNC_gettravstate(ON, kvdram3, globalparamsK[3], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		// for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ cout<<"acts::loadsrcvs: rtravstate["<<i<<"].size_kvs: "<<rtravstate[i].size_kvs<<endl; } // REMOVEME.
 		// if(ntravszs > 0){ cout<<"acts::loadsrcvs: populating sourcev: partition "<<iterationidx<<", ntravszs: "<<ntravszs<<endl; } // REMOVEME.
@@ -7298,6 +7322,9 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * vdram){
 			for(unsigned int k=(iterationidx * reducebuffersz * FETFACTOR); k<((iterationidx * reducebuffersz * FETFACTOR) + reducebuffersz); k++){ 
 			#pragma HLS PIPELINE II=1
 				edges0[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram0[BASEOFFSETKVS_VERTICESDATA_K + k];
+				edges1[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram1[BASEOFFSETKVS_VERTICESDATA_K + k];
+				edges2[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram2[BASEOFFSETKVS_VERTICESDATA_K + k];
+				edges3[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram3[BASEOFFSETKVS_VERTICESDATA_K + k];
 			}
 		}
 		
@@ -7307,6 +7334,9 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * vdram){
 	/* POPULATESRC: for(unsigned int k=0; k<KVDATA_RANGE/2; k++){ // CRITICAL FIXME. OPTIMIZEME.
 	#pragma HLS PIPELINE II=1
 		edges0[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram0[BASEOFFSETKVS_VERTICESDATA_K + k];
+		edges1[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram1[BASEOFFSETKVS_VERTICESDATA_K + k];
+		edges2[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram2[BASEOFFSETKVS_VERTICESDATA_K + k];
+		edges3[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram3[BASEOFFSETKVS_VERTICESDATA_K + k];
 	} */
 	return;
 }
@@ -7321,23 +7351,56 @@ topkernel(
 	uint512_dt * edges0,
 	#endif 
 	uint512_dt * kvdram0,
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+	uint512_dt * edges1,
+	#endif 
+	uint512_dt * kvdram1,
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+	uint512_dt * edges2,
+	#endif 
+	uint512_dt * kvdram2,
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+	uint512_dt * edges3,
+	#endif 
+	uint512_dt * kvdram3,
  
 	uint512_dt * vdram){
 		
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 #pragma HLS INTERFACE m_axi port = edges0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem1
+#pragma HLS INTERFACE m_axi port = edges1 offset = slave bundle = gmem2
+#pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem3
+#pragma HLS INTERFACE m_axi port = edges2 offset = slave bundle = gmem4
+#pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem5
+#pragma HLS INTERFACE m_axi port = edges3 offset = slave bundle = gmem6
+#pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem7
 #else 
 #pragma HLS INTERFACE m_axi port = edges0 offset = slave bundle = gmem0
+#pragma HLS INTERFACE m_axi port = edges1 offset = slave bundle = gmem1
+#pragma HLS INTERFACE m_axi port = edges2 offset = slave bundle = gmem2
+#pragma HLS INTERFACE m_axi port = edges3 offset = slave bundle = gmem3
 	
 #endif 
 
-#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem2
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem8
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 #pragma HLS INTERFACE s_axilite port = edges0 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#pragma HLS INTERFACE s_axilite port = edges1 bundle = control
+#endif 
+#pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#pragma HLS INTERFACE s_axilite port = edges2 bundle = control
+#endif 
+#pragma HLS INTERFACE s_axilite port = kvdram2 bundle = control
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#pragma HLS INTERFACE s_axilite port = edges3 bundle = control
+#endif 
+#pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
 
 #pragma HLS INTERFACE s_axilite port = vdram bundle = control
 
@@ -7347,6 +7410,18 @@ topkernel(
 #pragma HLS DATA_PACK variable = edges0
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#pragma HLS DATA_PACK variable = edges1
+#endif 
+#pragma HLS DATA_PACK variable = kvdram1
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#pragma HLS DATA_PACK variable = edges2
+#endif 
+#pragma HLS DATA_PACK variable = kvdram2
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#pragma HLS DATA_PACK variable = edges3
+#endif 
+#pragma HLS DATA_PACK variable = kvdram3
 #pragma HLS DATA_PACK variable = vdram
 
 	#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(ALLVERTEXISACTIVE_ALGORITHM)
@@ -7362,22 +7437,40 @@ topkernel(
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].range(31, 0);
  
 		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
+ 
+		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
+ 
+		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
+ 
+		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
 		#else
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
  
 		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
+ 
+		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
+ 
+		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
+ 
+		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
 		#endif 
 		
 		// run acts
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 actsprocobj.topkernelproc(edges0, kvdram0);	
+actsprocobj.topkernelproc(edges1, kvdram1);	
+actsprocobj.topkernelproc(edges2, kvdram2);	
+actsprocobj.topkernelproc(edges3, kvdram3);	
 		#else 
 actsprocobj.topkernelproc(kvdram0);	
+actsprocobj.topkernelproc(kvdram1);	
+actsprocobj.topkernelproc(kvdram2);	
+actsprocobj.topkernelproc(kvdram3);	
 	
 		#endif 
-actssyncobj.topkernelsync(kvdram0, vdram);
+actssyncobj.topkernelsync(kvdram0,kvdram1,kvdram2,kvdram3, vdram);
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-		loadsrcvs( edges0, kvdram0,  vdram);
+		loadsrcvs( edges0, kvdram0,  edges1, kvdram1,  edges2, kvdram2,  edges3, kvdram3,  vdram);
 		#endif 
 		
 		// checking for exit 

@@ -23,7 +23,7 @@
 #include "../../acts/actsutility/actsutility.h"
 using namespace std;
 
-#define NUMSYNCTHREADS 1
+#define NUMSYNCTHREADS 4
 
 #define ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
 
@@ -134,7 +134,7 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 				globalparams_t globalparams);
 	#endif 
 
-	void topkernelsync(uint512_dt * kvdram0, uint512_dt * vdram);
+	void topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram);
 
 private:
 	#ifndef FPGA_IMPL

@@ -510,10 +510,10 @@ do
 		do
 		
 		# for numsubcputhreads in $NUMTHREADS_EQ0
-		for numsubcputhreads in $NUMTHREADS_EQ1 
+		# for numsubcputhreads in $NUMTHREADS_EQ1 
 		# for numsubcputhreads in $NUMTHREADS_EQ2 #
 		# for numsubcputhreads in $NUMTHREADS_EQ3
-		# for numsubcputhreads in $NUMTHREADS_EQ4 #
+		for numsubcputhreads in $NUMTHREADS_EQ4 #
 		# for numsubcputhreads in $NUMTHREADS_EQ5
 		# for numsubcputhreads in $NUMTHREADS_EQ6 
 		# for numsubcputhreads in $NUMTHREADS_EQ7
@@ -529,6 +529,7 @@ do
 		# for numsubcputhreads in $NUMTHREADS_EQ24 
 		# for numsubcputhreads in $NUMTHREADS_EQ28
 		# for numsubcputhreads in $NUMTHREADS_EQ32 
+		# for numsubcputhreads in $NUMTHREADS_EQ1 $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ4 $NUMTHREADS_EQ6
 		# for numsubcputhreads in $NUMTHREADS_EQ8 $NUMTHREADS_EQ10
 		# for numsubcputhreads in $NUMTHREADS_EQ12

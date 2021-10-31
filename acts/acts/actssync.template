@@ -1319,13 +1319,13 @@ spreadandwrite{{n+1}}(bool_type enable1, bool_type enable2, bool_type enable_sav
 		// combined with save to vdram operation
 		#ifdef _WIDEWORD
 		{%for v in context['VECTOR_SIZE_seq']%}
-		vdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue{{v}}_vault0.key; 
-		vdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue{{v}}_vault0.value; 
+		vdram[vdramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue{{v}}_vault0.key; 
+		vdram[vdramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue{{v}}_vault0.value; 
 		{%endfor%}
 		#else
 		{%for v in context['VECTOR_SIZE_seq']%}
-		vdram[dramoffset_kvs + i].data[{{v}}].key = keyvalue{{v}}_vault0.key;
-		vdram[dramoffset_kvs + i].data[{{v}}].value = keyvalue{{v}}_vault0.value;
+		vdram[vdramoffset_kvs + i].data[{{v}}].key = keyvalue{{v}}_vault0.key;
+		vdram[vdramoffset_kvs + i].data[{{v}}].value = keyvalue{{v}}_vault0.value;
 		{%endfor%}
 		#endif 
 		

@@ -2349,19 +2349,6 @@ saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuf
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
 	#endif
 	
-	// SAVEGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
-		// #ifdef _WIDEWORD
-		// kvdram[offset_kvs + i].range(31, 0) = globalstatsbuffer[i].key;
-		// kvdram[offset_kvs + i].range(63, 32) = globalstatsbuffer[i].value;
-		// #else 
-		// kvdram[offset_kvs + i].data[0].key = globalstatsbuffer[i].key;
-		// kvdram[offset_kvs + i].data[0].value = globalstatsbuffer[i].value;
-		// #endif 
-		// #ifdef _DEBUGMODE_STATS
-		// actsutilityobj->globalvar_savestats_counttotalstatswritten(VECTOR_SIZE);
-		// #endif
-	// }
-	
 	SAVEGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
 		#ifdef _WIDEWORD
  if(globalparams.VARS_WORKBATCH == 0){
@@ -4019,14 +4006,17 @@ processit(uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffe
 	batch_type tempnum_source_partitions = NUM_PARTITIONS;	
 	#endif 
 	
+	// globalparams_t globalparamsVPTRS = globalparamsK; // NEWCHANGE.
+	globalparams_t globalparamsVPTRS = globalparamsE; // NEWCHANGE.
+	globalparams_t globalparamsVDATA = globalparamsK;
+	
 	avtravstate.begin_kvs = 0;
 	avtravstate.end_kvs = avtravstate.begin_kvs + (globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE); avtravstate.size_kvs = globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
 	readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK); 
 	resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 	
-	batch_type vptrbaseoffset_kvs = globalparamsK.BASEOFFSETKVS_VERTEXPTR + (globalparamsK.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NOTE: no need to include v_chunkids[32] because source_partition handles it
-	// batch_type vdatabaseoffset_kvs = globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA + (globalparamsK.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE.
-	batch_type vdatabaseoffset_kvs = globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + (globalparamsK.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE.
+	batch_type vptrbaseoffset_kvs = globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR + (globalparamsVPTRS.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE. NOTE: no need to include v_chunkids[32] because source_partition handles it
+	batch_type vdatabaseoffset_kvs = globalparamsVDATA.BASEOFFSETKVS_SRCVERTICESDATA + (globalparamsVDATA.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE.
 	
 	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
 	
@@ -4049,8 +4039,6 @@ processit(uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffe
 		#endif
 		
 		loadvmasks(ON, kvdram, vmask, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsK); // NOTE: this should come before loadvdata because vbuffer is used as a temp buffer
-		// readvdata(ON, edges, vdatabaseoffset_kvs + voffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparamsE); 
-		// readvdata(ON, edges, vdatabaseoffset_kvs + voffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsE);
 		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparamsK);  // NEWCHANGE.
 		readvdata(ON, kvdram, vdatabaseoffset_kvs + voffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK); // NEWCHANGE.
 		vmaskoffset_kvs += vmaskbuffersz_kvs;
@@ -4061,12 +4049,19 @@ processit(uint512_dt * edges, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffe
 		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endsrcvid = beginsrcvid; }
 		if((srcvlocaloffset < globalparamsK.ACTSPARAMS_SRCVSIZE) && (srcvlocaloffset + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR) >= globalparamsK.ACTSPARAMS_SRCVSIZE)){ endsrcvid = beginsrcvid + globalparamsK.ACTSPARAMS_SRCVSIZE - srcvlocaloffset; }
 		
-		#ifdef _WIDEWORD
-		keyy_t beginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs].range(31, 0);
-		keyy_t endvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1].range(31, 0); 
+		// #ifdef _WIDEWORD
+		// keyy_t beginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs].range(31, 0);
+		// keyy_t endvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1].range(31, 0); 
+		// #else 
+		// keyy_t beginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs].data[0].key;
+		// keyy_t endvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1].data[0].key;
+		// #endif 
+		#ifdef _WIDEWORD // NEWCHANGE.
+		keyy_t beginvptr = edges[vptrbaseoffset_kvs + voffset_kvs].range(31, 0);
+		keyy_t endvptr = edges[vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1].range(31, 0); 
 		#else 
-		keyy_t beginvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs].data[0].key;
-		keyy_t endvptr = kvdram[vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1].data[0].key;
+		keyy_t beginvptr = edges[vptrbaseoffset_kvs + voffset_kvs].data[0].key;
+		keyy_t endvptr = edges[vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1].data[0].key;
 		#endif 
 		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endvptr = beginvptr; }
 		
@@ -4508,12 +4503,27 @@ topkernelproc(
 	#endif 
 	
 	unsigned int PARTITION_CHKPT[EDGESSTATSDRAMSZ];
-	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ 
+	/* for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ 
 		#ifdef _WIDEWORD
 		PARTITION_CHKPT[u] = kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 		#else
 		PARTITION_CHKPT[u] = kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 		#endif
+	} */
+	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // NEWCHANGE.
+		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+			#ifdef _WIDEWORD
+			PARTITION_CHKPT[u] = edges[globalparamsE.BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
+			#else
+			PARTITION_CHKPT[u] = edges[globalparamsE.BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
+			#endif
+		#else 
+			#ifdef _WIDEWORD
+			PARTITION_CHKPT[u] = kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
+			#else
+			PARTITION_CHKPT[u] = kvdram[globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
+			#endif
+		#endif 
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int u=0; u<globalparamsK.ACTSPARAMS_NUMEDGECHUNKSINABUFFER+1; u++){ cout<<">>> globalparamsK.ACTSPARAMS_NUMEDGECHUNKSINABUFFER: "<<globalparamsK.ACTSPARAMS_NUMEDGECHUNKSINABUFFER<<", PARTITION_CHKPT["<<u<<"]: "<<PARTITION_CHKPT[u]<<endl; }			
