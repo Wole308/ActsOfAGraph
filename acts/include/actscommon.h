@@ -89,6 +89,7 @@ using namespace std;
 
 #ifdef USEHBMMEMORY
 	#define KVSOURCEDRAMSZ (1 << 25) // max HBM capacity (256MB)
+	// #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
 #endif 
 #ifdef USEDDRAMMEMORY
 	// #define KVSOURCEDRAMSZ ((1 << 27) + (1 << 26))

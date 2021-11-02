@@ -47,6 +47,8 @@ public:
 			globalparams_t globalparams);	
 
 	void setcustomeval(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int evalid);
+	
+	globalparams_t finishglobaparams(globalparams_t globalparams);
 
 private:
 	utility * utilityobj;

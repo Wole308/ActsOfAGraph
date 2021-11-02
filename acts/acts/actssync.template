@@ -1574,7 +1574,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		// readvdata(enablereduce, ON, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);	
 		readvdata(enablereduce, ON, vdram, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparamsv);	// NEWCHANGE.
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
-		readandsynchronize{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereduce, ON, NAp, {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSUBCPUTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		readandsynchronize{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereduce, ON, NAp, {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSYNCTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
 		{%endfor%}	
 		#ifdef SUP1
 		spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, {%for j in context['NUMSYNCTHREADS_DIV_4_seq']%}vbuffer{{j}}_level3,{%endfor%} _globalparams);
@@ -1591,7 +1591,7 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		SWITCHcount += 1;
 		#ifdef SUP1
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
-		spreadandwrite{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSUBCPUTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%}
+		spreadandwrite{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSYNCTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%}
 			vbuffer{{i}}_level3, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}_globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs,{%endif%} _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp{{i}}_level3, GraphIter + 1,
@@ -1613,12 +1613,12 @@ topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%
 		// readvdata(enablereducepp1, pp1en_readandsynchronize, vdram, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, refbuffer, 0, 0, reducebuffersz, _globalparams);
 		readvdata(enablereducepp1, pp1en_readandsynchronize, vdram, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, refbuffer, 0, 0, reducebuffersz, _globalparamsv); // NEWCHANGE.
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
-		readandsynchronize{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereducepp1, pp1en_readandsynchronize, NAp, {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSUBCPUTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		readandsynchronize{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereducepp1, pp1en_readandsynchronize, NAp, {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSYNCTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%} vbuffer{{i}}_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
 		{%endfor%}	
 		#endif
 	
 		{%for i in context['NUMSYNCTHREADS_DIV_4_seq']%}
-		spreadandwrite{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSUBCPUTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%}	
+		spreadandwrite{%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}{{context['KKM']}}{%else%}4{%endif%}(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}vdram,{%endif%} {%for j in context['4_seq']%}{%if(i*4+j<context['NUMSYNCTHREADS'])%}kvdram{{i*4+j}},{%endif%}{%endfor%}	
 			vbuffer{{i}}_level3, {%if(i==context['NUMSYNCTHREADS_DIV_4']-1)%}_globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs,{%endif%} _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask{{i}}_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp{{i}}_level3, GraphIter + 1,

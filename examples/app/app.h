@@ -43,7 +43,7 @@ private:
 	uint512_vec_dt * vdram;
 	edge_t * vptrs[NUMSUBCPUTHREADS];
 	// edge_type * edges[NUMSUBCPUTHREADS];
-	uint512_vec_dt * edges[NUM_EDGE_BANKS][NUMSUBCPUTHREADS];
+	uint512_vec_dt * edges[NUMSUBCPUTHREADS];
 	
 	std::string binaryFile[2];
 };

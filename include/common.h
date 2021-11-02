@@ -1,8 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define _ORKUT_3M_106M 
@@ -26,6 +29,8 @@
 #else 
 #define RANDOMVERTEXISACTIVE_ALGORITHM
 #endif
+
+#define EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 
 #define ACTS
 ////////////////
@@ -72,8 +77,8 @@
 
 ////////////////
 
-#define NUMSUBCPUTHREADS 4
-#define NUMSYNCTHREADS 4
+#define NUMSUBCPUTHREADS 8
+#define NUMSYNCTHREADS 2
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -83,7 +88,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 4
+#define NUMCOMPUTEUNITS 8
 #define NUMCOMPUTEUNITS_HALF (NUMCOMPUTEUNITS / 2)
 #define NUMINTSINKEYVALUETYPE 2
 #define VDATA_PACKINGSIZE_POW 4 // AUTOMATEME.
@@ -144,19 +149,20 @@
 
 #ifdef ENABLERECURSIVEPARTITIONING
 	#define REDUCESZ_POW (BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW))
-#else
-	// #define REDUCESZ_POW ((BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)) - VDATA_PACKINGSIZE_POW) // NOTE: this is because for non-recursive, there is no parallelism in reduce				
+#else			
 	#define REDUCESZ_POW (SRAMSZ_POW - VDATA_PACKINGSIZE_POW) // NOTE: this is because for non-recursive, there is no parallelism in reduce
 #endif
 #define REDUCESZ (1 << REDUCESZ_POW) // 1024
 #define REDUCEBUFFERSZ (REDUCESZ / 2) // 512
 #define MAXREDUCEBUFFERSZ DOUBLE_BLOCKRAM_SIZE // AUTOMATEME.
 
-// #define VMASKBUFFERSZ_KVS ((REDUCESZ * NUM_PARTITIONS) / 512) // 32 //>>> 16384=[WidthxHeight*]=512*32
 #define VMASKBUFFERSZ_KVS ((REDUCESZ * VDATA_PACKINGSIZE) / 512) // 32 //>>> 16384=[WidthxHeight*]=512*32
 
 #define NUMLASTLEVELPARTITIONS (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))
-#define TOTALNUMPARTITIONS 273 // CRITICAL FIXME.
+
+#define NUM_EDGE_BANKS 4
+#define MAX_NUM_EDGE_BANKS 16
+#define NUMSYNCTHREADS 2
 
 ////////////////
 
@@ -489,5 +495,10 @@ typedef struct {
 	unsigned int datasize;
 	unsigned int message;
 } kvresults_t;
+
+typedef struct {
+	unsigned int A;
+    unsigned int B;
+} tuple_t;
 #endif
 

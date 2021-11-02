@@ -63,9 +63,9 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUM_EDGE_BANKS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ edges[i][j] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }}	// 2 because edge_type consist 4 bytes not 8 bytes			
+	for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ edges[j] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }	// 2 because edge_type consist 4 bytes not 8 bytes			
 	#else
-	for(unsigned int i=0; i<NUM_EDGE_BANKS; i++){ for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ edges[i][j] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }}
+	for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ edges[j] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
 	#endif
 	#endif 
 	
@@ -182,8 +182,7 @@ runsummary_t app::run_hw(){
 	
 	// edges
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	// globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)edges[0], &container, globalparams);
-	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges[0], (edge_type **)edges[0], &container, globalparams); // NEWCHANGE.
+	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, (edge_type **)edges, &container, globalparams);
 	#else 
 	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, globalparams);
 	#endif 
@@ -199,14 +198,14 @@ runsummary_t app::run_hw(){
 	globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsK.BASEOFFSETKVS_VERTEXPTR + ((globalparams.globalparamsK.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
 	globalparams.globalparamsK.SIZE_SRCVERTICESDATA = KVDATA_RANGE;
 	globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR + ((globalparams.globalparamsE.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
-	globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0; // KVDATA_RANGE;
+	globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_VERTEXPTR + ((globalparams.globalparamsV.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
 	globalparams.globalparamsV.SIZE_SRCVERTICESDATA = KVDATA_RANGE;
 	
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsV.SIZE_SRCVERTICESDATA, globalparams.globalparamsV, 0, SOURCE); // NEWCHANGE.
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsK.SIZE_SRCVERTICESDATA, globalparams.globalparamsK, 0, SOURCE); }
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM_XXX // UNUSED.
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)edges[0][i], globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsE.SIZE_SRCVERTICESDATA, globalparams.globalparamsE, 1, SOURCE); }
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)edges[i], globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsE.SIZE_SRCVERTICESDATA, globalparams.globalparamsE, 1, SOURCE); }
 	#endif 
 	
 	// dest vertices data 
@@ -214,22 +213,21 @@ runsummary_t app::run_hw(){
 	globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + ((globalparams.globalparamsK.SIZE_SRCVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.globalparamsK.SIZE_DESTVERTICESDATA = KVDATA_RANGE;
 	globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA + ((globalparams.globalparamsE.SIZE_SRCVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
-	globalparams.globalparamsE.SIZE_DESTVERTICESDATA = 0; // KVDATA_RANGE;
+	globalparams.globalparamsE.SIZE_DESTVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + ((globalparams.globalparamsV.SIZE_SRCVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.globalparamsV.SIZE_DESTVERTICESDATA = KVDATA_RANGE;
 	
 	loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)vdram, globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsV.SIZE_DESTVERTICESDATA, globalparams.globalparamsV, 0, DEST); // NEWCHANGE.
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsK.SIZE_DESTVERTICESDATA, globalparams.globalparamsK, 0, DEST); }
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM_XXX // UNUSED.
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)edges[0][i], globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsE.SIZE_DESTVERTICESDATA, globalparams.globalparamsE, 1, DEST); }
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(vertexdatabuffer, (keyvalue_t *)edges[i], globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsE.SIZE_DESTVERTICESDATA, globalparams.globalparamsE, 1, DEST); }
 	#endif 
 
 	cout<<"app::setrootvid:: setting root vid(s)... "<<endl;
-	// loadgraphobj->setrootvid((value_t *)vdram, actvvs, globalparams.globalparamsK);
-	loadgraphobj->setrootvid((value_t *)vdram, actvvs, globalparams.globalparamsV); // NEWCHANGE.
+	loadgraphobj->setrootvid((value_t *)vdram, actvvs, globalparams.globalparamsV);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)kvbuffer[i], actvvs, globalparams.globalparamsK); }
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM_XXX // UNUSED.
-	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)edges[0][i], actvvs, globalparams.globalparamsE); }
+	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid((value_t *)edges[i], actvvs, globalparams.globalparamsE); }
 	#endif 
 	
 	// active vertices & masks
@@ -242,30 +240,16 @@ runsummary_t app::run_hw(){
 	// stats info 
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparams = loadgraphobj->loadoffsetmarkers((vptr_type **)kvbuffer, (edge_type **)edges[0], (keyvalue_t **)kvbuffer, &container, globalparams); 
+	globalparams = loadgraphobj->loadoffsetmarkers((vptr_type **)edges, (edge_type **)edges, (keyvalue_t **)edges, &container, globalparams); 
 	#else 
 	globalparams = loadgraphobj->loadoffsetmarkers((vptr_type **)kvbuffer, (edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container, globalparams); 
 	#endif 
+	// exit(EXIT_SUCCESS); //
 	
 	// messages
-	/////////////////////////////////////////////////////////
-	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + ((globalparams.globalparamsV.SIZE_DESTVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
-	globalparams.globalparamsV.SIZE_ACTIVEVERTICES = 0; // ACTIVEVERTICESSZ; // NEWCHANGE.
-	globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.globalparamsV.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
-	globalparams.globalparamsV.SIZE_VERTICESDATAMASK = 0; // VERTICESDATAMASKSZ; // NEWCHANGE.
-	globalparams.globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsV.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
-	globalparams.globalparamsV.SIZE_VERTICESPARTITIONMASK = 0; // 512 * VECTOR_SIZE; // NEWCHANGE.
-	globalparams.globalparamsV.BASEOFFSETKVS_STATSDRAM = globalparams.globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + (globalparams.globalparamsV.SIZE_VERTICESPARTITIONMASK / VECTOR_SIZE);
-	globalparams.globalparamsV.SIZE_KVSTATSDRAM = 0; // KVSTATSDRAMSZ; // NEWCHANGE.
-	globalparams.globalparamsV.BASEOFFSETKVS_EDGESSTATSDRAM = globalparams.globalparamsV.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ;
-	globalparams.globalparamsV.SIZE_EDGESSTATSDRAM = 0; // EDGESSTATSDRAMSZ; // NEWCHANGE.
-	globalparams.globalparamsV.SIZE_KVDRAM = 0; 
-	globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE = globalparams.globalparamsV.SIZE_KVDRAM;
-	globalparams.globalparamsV.BASEOFFSETKVS_KVDRAM = globalparams.globalparamsV.BASEOFFSETKVS_EDGESSTATSDRAM + EDGESSTATSDRAMSZ;
-	globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.globalparamsV.BASEOFFSETKVS_KVDRAM + (globalparams.globalparamsV.SIZE_KVDRAM / VECTOR_SIZE); 
-	/////////////////////////////////////////////////////////////
+	globalparams.globalparamsV = loadgraphobj->finishglobaparams(globalparams.globalparamsV);
 	cout<<"app::loadmessages:: loading messages... "<<endl;
-	globalparams = loadgraphobj->loadmessages(vdram, edges[0], kvbuffer, &container, NumGraphIters, 
+	globalparams = loadgraphobj->loadmessages(vdram, edges, kvbuffer, &container, NumGraphIters, 
 		#ifdef PR_ALGORITHM 
 		PAGERANK,
 		#endif 
@@ -300,7 +284,7 @@ runsummary_t app::run_hw(){
 	
 	// run_hw
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
-	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)edges[0], (uint512_vec_dt **)kvbuffer, timeelapsed_totals, numValidIters);
+	long double total_time_elapsed = setupkernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)edges, (uint512_vec_dt **)kvbuffer, timeelapsed_totals, numValidIters);
 	// exit(EXIT_SUCCESS); //
 	
 	// output

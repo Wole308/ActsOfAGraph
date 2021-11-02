@@ -142,7 +142,7 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-#ifdef ACTS_1by2by1
+#ifdef ACTS_1by2by1byN // ACTS_1by2by1byN
 long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){				
 	long double total_time_elapsed = 0;
 	long double avs_proc[128][8]; //[GraphIter][CLOP]

@@ -120,13 +120,16 @@ void utility::printallparameters(){
 	std::cout<<"utility:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
 	std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	
+	std::cout<<"utility:: NUM_EDGE_BANKS: "<<NUM_EDGE_BANKS<<std::endl;
+	std::cout<<"utility:: NUMSYNCTHREADS: "<<NUMSYNCTHREADS<<std::endl;
+	
 	std::cout<<"utility:: REDUCESZ_POW: "<<REDUCESZ_POW<<std::endl;
 	std::cout<<"utility:: REDUCESZ: "<<REDUCESZ<<std::endl;
 	std::cout<<"utility:: REDUCEBUFFERSZ: "<<REDUCEBUFFERSZ<<std::endl;
 	
 	std::cout<<"utility:: VMASKBUFFERSZ_KVS: "<<VMASKBUFFERSZ_KVS<<std::endl;
 	
-	std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
+	// std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	std::cout<<"utility:: FETFACTOR: "<<FETFACTOR<<std::endl;
 	
 	std::cout<<"utility:: SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<std::endl;
@@ -135,6 +138,8 @@ void utility::printallparameters(){
 	std::cout<<"utility:: DESTBLOCKRAM_SIZE: "<<DESTBLOCKRAM_SIZE<<std::endl;
 	
 	// std::cout<<"utility:: NUM_EDGECHUNKS_IN_A_BUFFER: "<<NUM_EDGECHUNKS_IN_A_BUFFER<<std::endl;
+	
+	if(NUM_EDGE_BANKS > NUMSUBCPUTHREADS){ cout<<"utility: ERROR. NUM_EDGE_BANKS("<<NUM_EDGE_BANKS<<") > NUMSUBCPUTHREADS("<<NUMSUBCPUTHREADS<<"). exiting..."<<endl; exit(EXIT_FAILURE); }
 	
 	#ifdef ENABLE_KERNEL_PROFILING
 	std::cout<<"utility:: ENABLE_KERNEL_PROFILING DEFINED: "<<std::endl;

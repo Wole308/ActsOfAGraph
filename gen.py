@@ -35,6 +35,12 @@ context['VECTOR2_SIZE'] = 16
 context['DUMMY'] = 0
 context['NUMSUBWORKERS'] = 1 # 3#4
 
+context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1 # 0,1 CHANGE SPOT ######
+if context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] == 1:
+    context['NUM_EDGE_BANKS'] = 4
+else: 
+    context['NUM_EDGE_BANKS'] = 0
+
 ###
 
 EV_PERFORMANCEOFALGORITHM = [0, 1, 2, 3, 4]
@@ -384,14 +390,20 @@ context['NUMSUBCPUTHREADS_DIV8_seq'] = []
 for i in range (0,(context['NUMSUBCPUTHREADS']/8)):
 		context['NUMSUBCPUTHREADS_DIV8_seq'].append(i)
         
-# SYNC 
-# context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] / 2
-context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] # CRITICAL FIXME, CRITICAL REMOVEME
+# SYNC
+context['NUM_EDGE_BANKS_seq'] = []
+for i in range (0,(context['NUM_EDGE_BANKS'])):
+		context['NUM_EDGE_BANKS_seq'].append(i)
+        
+if context['NUM_EDGE_BANKS'] == 0:
+    context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS']
+else:
+    context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] / context['NUM_EDGE_BANKS']
 if context['NUMSYNCTHREADS'] == 0:
     context['NUMSYNCTHREADS'] = 1
     
-context['KKL'] = (context['NUMSUBCPUTHREADS']/4) * 4
-context['KKM'] = context['NUMSUBCPUTHREADS'] - context['KKL']
+context['KKL'] = (context['NUMSYNCTHREADS']/4) * 4
+context['KKM'] = context['NUMSYNCTHREADS'] - context['KKL']
 if context['KKM'] == 0:
     context['KKM'] = 4
 

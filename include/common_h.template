@@ -32,6 +32,10 @@
 #define RANDOMVERTEXISACTIVE_ALGORITHM
 #endif
 
+{%if(context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] == 1)%}
+#define EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+{%endif%}
+
 #define {{context['KERNELNAME']}}
 {%if(context['EVALUATION_TYPE'] == "EV_SIMPLETEST")%}
 #define TESTKERNEL
@@ -178,19 +182,20 @@
 
 #ifdef ENABLERECURSIVEPARTITIONING
 	#define REDUCESZ_POW (BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW))
-#else
-	// #define REDUCESZ_POW ((BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW)) - VDATA_PACKINGSIZE_POW) // NOTE: this is because for non-recursive, there is no parallelism in reduce				
+#else			
 	#define REDUCESZ_POW (SRAMSZ_POW - VDATA_PACKINGSIZE_POW) // NOTE: this is because for non-recursive, there is no parallelism in reduce
 #endif
 #define REDUCESZ (1 << REDUCESZ_POW) // 1024
 #define REDUCEBUFFERSZ (REDUCESZ / 2) // 512
 #define MAXREDUCEBUFFERSZ DOUBLE_BLOCKRAM_SIZE // AUTOMATEME.
 
-// #define VMASKBUFFERSZ_KVS ((REDUCESZ * NUM_PARTITIONS) / 512) // 32 //>>> 16384=[WidthxHeight*]=512*32
 #define VMASKBUFFERSZ_KVS ((REDUCESZ * VDATA_PACKINGSIZE) / 512) // 32 //>>> 16384=[WidthxHeight*]=512*32
 
 #define NUMLASTLEVELPARTITIONS (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))
-#define TOTALNUMPARTITIONS 273 // CRITICAL FIXME.
+
+#define NUM_EDGE_BANKS {{context['NUM_EDGE_BANKS']}}
+#define MAX_NUM_EDGE_BANKS 16
+#define NUMSYNCTHREADS {{context['NUMSYNCTHREADS']}}
 
 ////////////////
 
@@ -523,6 +528,11 @@ typedef struct {
 	unsigned int datasize;
 	unsigned int message;
 } kvresults_t;
+
+typedef struct {
+	unsigned int A;
+    unsigned int B;
+} tuple_t;
 #endif
 
 
