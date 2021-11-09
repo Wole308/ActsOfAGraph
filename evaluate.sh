@@ -53,9 +53,11 @@ RESULTSPATHNAME="results_acts"
 ACTS_1BY2BY1=$ON
 ACTS_2BY1BY1=$OFF
 
-ACTS_CONFIG="1by2by1by0"
+# ACTS_CONFIG="1by2by1by0"
 # ACTS_CONFIG="1by2by1by1"
-# ACTS_CONFIG="1by2by1by4"
+# ACTS_CONFIG="1by4by1by1"
+ACTS_CONFIG="1by2by1by4"
+# ACTS_CONFIG="1by2by1by5"
 
 KERNELTYPE="ACTSMODEL_LW"
 
@@ -511,14 +513,14 @@ do
 		do
 		
 		# for numsubcputhreads in $NUMTHREADS_EQ0
-		# for numsubcputhreads in $NUMTHREADS_EQ1 
+		# for numsubcputhreads in $NUMTHREADS_EQ1
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
-		# for numsubcputhreads in $NUMTHREADS_EQ4 #
-		# for numsubcputhreads in $NUMTHREADS_EQ5
+		for numsubcputhreads in $NUMTHREADS_EQ4 #
+		# for numsubcputhreads in $NUMTHREADS_EQ5 #
 		# for numsubcputhreads in $NUMTHREADS_EQ6 
 		# for numsubcputhreads in $NUMTHREADS_EQ7
-		for numsubcputhreads in $NUMTHREADS_EQ8 #
+		# for numsubcputhreads in $NUMTHREADS_EQ8 #
 		# for numsubcputhreads in $NUMTHREADS_EQ9
 		# for numsubcputhreads in $NUMTHREADS_EQ10 
 		# for numsubcputhreads in $NUMTHREADS_EQ11
@@ -1010,12 +1012,17 @@ do
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 									then
 										make all_procandsync_${ACTS_CONFIG}_6and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_5and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
 									then
 										make all_procandsync_${ACTS_CONFIG}_4and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_3and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 									then
-										echo "------------------------------------------------ FOUND --------------------------------------------------"
 										make all_procandsync_${ACTS_CONFIG}_2and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
 									then
@@ -1024,7 +1031,16 @@ do
 										echo "NOT IMPLEMENTED (654)"
 									fi
 									if test -f "host"; then
-										if [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
+										if [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
+										then	
+											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_24and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
+										then	
+											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_20and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
+										then	
+											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_16and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
 										then	
 											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_12and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
@@ -1036,12 +1052,17 @@ do
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 										then
 											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_6and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
+										then
+											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_5and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
 										then
 											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
+										then
+											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_3and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 										then
-											echo "------------------------------------------------ FOUND (2) --------------------------------------------------"
 											cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_2and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
 										then

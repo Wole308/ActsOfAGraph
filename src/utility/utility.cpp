@@ -104,6 +104,7 @@ void utility::printallparameters(){
 	std::cout<<">> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): "<<ACTIVEVERTICESSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): "<<VERTICESDATAMASKSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: KVSTATSDRAMSZ (keyvalues): "<<KVSTATSDRAMSZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: ACTIVE_KVSTATSDRAMSZ (keyvalues): "<<ACTIVE_KVSTATSDRAMSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: PADDEDVDRAMSZ (keyvalues): "<<PADDEDVDRAMSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): "<<PADDEDKVSOURCEDRAMSZ<<" keyvalues"<<std::endl;
 	

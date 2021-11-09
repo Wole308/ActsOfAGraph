@@ -557,6 +557,11 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	return total_time_elapsed;
 }
 #endif 
+#if defined(SW) & defined(ACTS_1by4by1byN) // NEWCHANGE.
+long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){
+	return 0;
+}
+#endif 
 
 #if defined(SW) & not defined(ACTS_1by1) & defined(XXXXX) // FIXME.
 long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){					

@@ -37,7 +37,7 @@ context['NUMSUBWORKERS'] = 1 # 3#4
 
 context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1 # 0,1 CHANGE SPOT ######
 if context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] == 1:
-    context['NUM_EDGE_BANKS'] = 4
+    context['NUM_EDGE_BANKS'] = 4 #1,4,5
 else: 
     context['NUM_EDGE_BANKS'] = 0
 
@@ -206,10 +206,10 @@ o_path6=relref+"include/common.h"
 o_path7=relref+"include/common.h"
 o_path8=relref+"acts/acts/actssync.cpp"
 o_path9=relref+"acts/acts/actssync.h"
-o_path10=relref+"acts/acts/actsproc.cpp"
-o_path11=relref+"acts/acts/actsproc.h"
-o_path12=relref+"acts/acts/actsproc.cpp"
-o_path13=relref+"acts/acts/actsproc.h"
+o_path10=relref+"acts/acts/actsmerge.cpp"
+o_path11=relref+"acts/acts/actsmerge.h"
+o_path12=relref+"acts/acts/actsapply.cpp"
+o_path13=relref+"acts/acts/actsapply.h"
 o_path14=relref+"acts/acts/actsproc.cpp"
 o_path15=relref+"acts/acts/actsproc.h"
 o_path16=relref+"acts/acts/actsproc.cpp"
@@ -475,10 +475,10 @@ template6 = env6.get_template('common_h.template')
 template7 = env7.get_template('common_h.template')
 template8 = env8.get_template('actssync.template')
 template9 = env9.get_template('actssync_h.template')
-template10 = env10.get_template('actsproc.template')
-template11 = env11.get_template('actsproc_h.template')
-template12 = env12.get_template('actsproc.template')
-template13 = env13.get_template('actsproc_h.template')
+template10 = env10.get_template('actsmerge.template')
+template11 = env11.get_template('actsmerge_h.template')
+template12 = env12.get_template('actsapply.template')
+template13 = env13.get_template('actsapply_h.template')
 template14 = env14.get_template('actsproc.template')
 template15 = env15.get_template('actsproc_h.template')
 template16 = env16.get_template('actsproc.template')

@@ -91,7 +91,6 @@ runsummary_t app::run(){
 	run_hw();
 	#endif
 }
-
 runsummary_t app::run_hw(){
 	cout<<"app::run_hw:: app algorithm started. "<<endl;
 	long double totaltime_ms = 0;
@@ -241,6 +240,7 @@ runsummary_t app::run_hw(){
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	globalparams = loadgraphobj->loadoffsetmarkers((vptr_type **)edges, (edge_type **)edges, (keyvalue_t **)edges, &container, globalparams); 
+	loadgraphobj->accumstats(kvbuffer, edges, globalparams); // NEWCHANGE.
 	#else 
 	globalparams = loadgraphobj->loadoffsetmarkers((vptr_type **)kvbuffer, (edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, &container, globalparams); 
 	#endif 

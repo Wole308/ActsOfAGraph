@@ -112,6 +112,12 @@ public:
 	
 	tuple_t getvptrs(uint512_dt * edges0,uint512_dt * edges1,uint512_dt * edges2,uint512_dt * edges3, uint512_dt *  kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
 	
+	void copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparamsK);
+	
+	void copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK);
+	
+	void copyallstats(uint512_dt * edges0,uint512_dt * edges1,uint512_dt * edges2,uint512_dt * edges3, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID);
+	
 	// functions (process)
 	value_t processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo);
 	
@@ -181,10 +187,6 @@ uint512_dt * edges0,uint512_dt * edges1,uint512_dt * edges2,uint512_dt * edges3,
 		
 	void reduceit(uint512_dt * edges0,uint512_dt * edges1,uint512_dt * edges2,uint512_dt * edges3, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID);					
 
-	void copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparamsK);
-	
-	void copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK);
-	
 	void dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * edges0,uint512_dt * edges1,uint512_dt * edges2,uint512_dt * edges3, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
