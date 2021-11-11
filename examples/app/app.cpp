@@ -108,7 +108,7 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 32; // 32; // 3,12,32
+	unsigned int NumGraphIters = 12; // 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
@@ -324,12 +324,12 @@ runsummary_t app::run_hw(){
 	cout<<endl<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
 	cout<<">>> app::run_hw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;			
-	// cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((total_edges_processed / total_time_elapsed) / (1000)) * (32 / NUMSUBCPUTHREADS)<<" million edges/sec)"<< RESET <<endl;
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUMSUBCPUTHREADS)<<" million edges/sec)"<< RESET <<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUM_PEs)<<" million edges/sec)"<< RESET <<endl;
 	
 	// numValidIters = 0;
 	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters);
-	verifyresults_hw(kvbuffer[0], globalparams);
+	verifyresults_hw(kvbuffer[0], globalparams.globalparamsK);
+	verifyresults_hw(vdram, globalparams.globalparamsV);
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
@@ -338,7 +338,7 @@ runsummary_t app::run_hw(){
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 
-void app::verifyresults_hw(uint512_vec_dt * kvbuffer, globalparams_TWOt globalparams){
+void app::verifyresults_hw(uint512_vec_dt * kvbuffer, globalparams_t globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"app::verifyresults_hw: verifying vertex data... "<<endl;
 	#endif
@@ -349,7 +349,7 @@ void app::verifyresults_hw(uint512_vec_dt * kvbuffer, globalparams_TWOt globalpa
 	uint512_vec_dt buff[REDUCEBUFFERSZ];
 	for(unsigned int offset_kvs=0; offset_kvs<VERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
 		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
-			buff[i] = kvbuffer[globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + i];
+			buff[i] = kvbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + i];
 		}
 		
 		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){

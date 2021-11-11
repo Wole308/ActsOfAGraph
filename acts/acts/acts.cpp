@@ -41,7 +41,7 @@ void
 	#ifdef SW 
 	acts::
 	#endif 
-loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint512_dt * kvdram1,  uint512_dt * edges2, uint512_dt * kvdram2,  uint512_dt * edges3, uint512_dt * kvdram3,  uint512_dt * vdram){
+loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint512_dt * kvdram1,  uint512_dt * edges2, uint512_dt * kvdram2,  uint512_dt * edges3, uint512_dt * kvdram3,  uint512_dt * edges4, uint512_dt * kvdram4,  uint512_dt * vdram){
 	#pragma HLS INLINE
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
@@ -51,6 +51,10 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint
 	travstate_t rtravstate[NUMSUBCPUTHREADS];
 	
 	globalparamsK[0] = SYNC_getglobalparams(kvdram0);
+	globalparamsK[1] = globalparamsK[0];
+	globalparamsK[2] = globalparamsK[0];
+	globalparamsK[3] = globalparamsK[0];
+	globalparamsK[4] = globalparamsK[0];
 	globalparamsE = SYNC_getglobalparams(edges0);
 	
 	unsigned int BASEOFFSETKVS_VERTICESDATA_K = globalparamsK[0].BASEOFFSETKVS_DESTVERTICESDATA;
@@ -84,6 +88,7 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint
 		rtravstate[1] = SYNC_gettravstate(ON, kvdram1, globalparamsK[1], currentLOP, sourcestatsmarker);
 		rtravstate[2] = SYNC_gettravstate(ON, kvdram2, globalparamsK[2], currentLOP, sourcestatsmarker);
 		rtravstate[3] = SYNC_gettravstate(ON, kvdram3, globalparamsK[3], currentLOP, sourcestatsmarker);
+		rtravstate[4] = SYNC_gettravstate(ON, kvdram4, globalparamsK[4], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		// for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ cout<<"acts::loadsrcvs: rtravstate["<<i<<"].size_kvs: "<<rtravstate[i].size_kvs<<endl; } // REMOVEME.
 		// if(ntravszs > 0){ cout<<"acts::loadsrcvs: populating sourcev: partition "<<iterationidx<<", ntravszs: "<<ntravszs<<endl; } // REMOVEME.
@@ -95,6 +100,7 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint
 				edges1[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram1[BASEOFFSETKVS_VERTICESDATA_K + k];
 				edges2[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram2[BASEOFFSETKVS_VERTICESDATA_K + k];
 				edges3[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram3[BASEOFFSETKVS_VERTICESDATA_K + k];
+				edges4[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram4[BASEOFFSETKVS_VERTICESDATA_K + k];
 			}
 		}
 		
@@ -107,6 +113,7 @@ loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint
 		edges1[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram1[BASEOFFSETKVS_VERTICESDATA_K + k];
 		edges2[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram2[BASEOFFSETKVS_VERTICESDATA_K + k];
 		edges3[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram3[BASEOFFSETKVS_VERTICESDATA_K + k];
+		edges4[BASEOFFSETKVS_VERTICESDATA_E + k] = kvdram4[BASEOFFSETKVS_VERTICESDATA_K + k];
 	} */
 	return;
 }
@@ -133,6 +140,10 @@ topkernel(
 	uint512_dt * edges3,
 	#endif 
 	uint512_dt * kvdram3,
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+	uint512_dt * edges4,
+	#endif 
+	uint512_dt * kvdram4,
  
 	uint512_dt * vdram){
 		
@@ -145,15 +156,18 @@ topkernel(
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = edges3 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem7
+#pragma HLS INTERFACE m_axi port = edges4 offset = slave bundle = gmem8
+#pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem9
 #else 
 #pragma HLS INTERFACE m_axi port = edges0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = edges1 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = edges2 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = edges3 offset = slave bundle = gmem3
+#pragma HLS INTERFACE m_axi port = edges4 offset = slave bundle = gmem4
 	
 #endif 
 
-#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem8
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem10
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 #pragma HLS INTERFACE s_axilite port = edges0 bundle = control
@@ -171,6 +185,10 @@ topkernel(
 #pragma HLS INTERFACE s_axilite port = edges3 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram3 bundle = control
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#pragma HLS INTERFACE s_axilite port = edges4 bundle = control
+#endif 
+#pragma HLS INTERFACE s_axilite port = kvdram4 bundle = control
 
 #pragma HLS INTERFACE s_axilite port = vdram bundle = control
 
@@ -192,6 +210,10 @@ topkernel(
 #pragma HLS DATA_PACK variable = edges3
 #endif 
 #pragma HLS DATA_PACK variable = kvdram3
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#pragma HLS DATA_PACK variable = edges4
+#endif 
+#pragma HLS DATA_PACK variable = kvdram4
 #pragma HLS DATA_PACK variable = vdram
 
 	#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(ALLVERTEXISACTIVE_ALGORITHM)
@@ -213,6 +235,8 @@ topkernel(
 		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
  
 		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
+ 
+		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
 		#else
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
  
@@ -223,24 +247,28 @@ topkernel(
 		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
  
 		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
+ 
+		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter;
 		#endif 
 		
 		/* // run acts
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-topkernelproc(edges0,edges1,edges2,edges3, kvdram0);	
-topkernelproc(edges0,edges1,edges2,edges3, kvdram1);	
-topkernelproc(edges0,edges1,edges2,edges3, kvdram2);	
-topkernelproc(edges0,edges1,edges2,edges3, kvdram3);	
+topkernelproc(edges0, kvdram0);	
+topkernelproc(edges0, kvdram1);	
+topkernelproc(edges0, kvdram2);	
+topkernelproc(edges0, kvdram3);	
+topkernelproc(edges0, kvdram4);	
 		#else 
 topkernelproc(kvdram0);	
 topkernelproc(kvdram1);	
 topkernelproc(kvdram2);	
 topkernelproc(kvdram3);	
+topkernelproc(kvdram4);	
 	
 		#endif 
-topkernelsync(kvdram0, vdram);
+topkernelsync(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram);
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-		loadsrcvs( edges0, kvdram0,  vdram);
+		loadsrcvs( edges0, kvdram0,  edges1, kvdram1,  edges2, kvdram2,  edges3, kvdram3,  edges4, kvdram4,  vdram);
 		#endif  */
 		
 		// checking for exit 

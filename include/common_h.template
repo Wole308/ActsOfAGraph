@@ -79,7 +79,7 @@
 #endif 
 
 #define _DEBUGMODE_HEADER //
-#if defined (FPGA_IMPL) && defined (HW)
+#if defined (FPGA_IMPL) // && defined (HW) // CRITICAL REMOVEME.
 #else
 #define _DEBUGMODE_STATS // CRITICAL ADDME
 // #define _DEBUGMODE_CHECKS
@@ -110,6 +110,7 @@
 
 ////////////////
 
+#define NUM_PEs {{context['NUM_PEs']}}
 #define NUMSUBCPUTHREADS {{context['NUMSUBCPUTHREADS']}}
 #define NUMSYNCTHREADS {{context['NUMSYNCTHREADS']}}
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?

@@ -19,6 +19,7 @@ context['NUM_PARTITIONS_POW'] = int(sys.argv[8])
 context['LOCKE'] = sys.argv[9]
 context['EVALUATION_TYPE'] = sys.argv[10]
 context['EVALUATION_PARAM0'] = int(sys.argv[11])
+context['NUM_PEs'] = int(sys.argv[12])
 path = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 isFile = os.path.isfile(path)  
 print(isFile) 
@@ -37,9 +38,23 @@ context['NUMSUBWORKERS'] = 1 # 3#4
 
 context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1 # 0,1 CHANGE SPOT ######
 if context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] == 1:
-    context['NUM_EDGE_BANKS'] = 4 #1,4,5
+    # context['NUM_EDGE_BANKS'] = 2 #5,3,2,2,1
+    if context['NUM_PEs'] == 1:
+       context['NUM_EDGE_BANKS'] = 5
+    elif context['NUM_PEs'] == 2:
+       context['NUM_EDGE_BANKS'] = 3
+    elif context['NUM_PEs'] == 3:
+       context['NUM_EDGE_BANKS'] = 2
+    elif context['NUM_PEs'] == 4:
+       context['NUM_EDGE_BANKS'] = 2
+    elif context['NUM_PEs'] == 5:
+       context['NUM_EDGE_BANKS'] = 1
+    else:
+       print ('gen.py: NOT YET IMPLEMENTED 32...')
 else: 
     context['NUM_EDGE_BANKS'] = 0
+    
+    
 
 ###
 
@@ -185,6 +200,7 @@ print ('NUMSUBCPUTHREADS: ' + str(context['NUMSUBCPUTHREADS']))
 print ('LOCKE: ' + str(context['LOCKE']))
 print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
 print ('EVALUATION_PARAM0: ' + str(context['EVALUATION_PARAM0']))
+print ('NUM_PEs: ' + str(context['NUM_PEs']))
 print ('NUMDRAMBANKS: ' + str(context['NUMDRAMBANKS']))
 print ('NUMINSTANCES: ' + str(context['NUMINSTANCES']))
 # print ('NUM_PARTITIONS: ' + str(context['NUM_PARTITIONS']))

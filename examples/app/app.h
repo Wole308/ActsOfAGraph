@@ -23,7 +23,7 @@ public:
 	runsummary_t run();
 	runsummary_t run_hw();
 	
-	void verifyresults_hw(uint512_vec_dt * kvdram, globalparams_TWOt globalparams);
+	void verifyresults_hw(uint512_vec_dt * kvdram, globalparams_t globalparams);
 	
 private:
 	graph * graphobj;

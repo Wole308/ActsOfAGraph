@@ -93,7 +93,8 @@ KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/acts/actsproc.cpp
 KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/acts/actssync.cpp
 # KERNEL_TOP_PROCANDSYNC += $(RELREF)acts/actsutility/actsutility.cpp
 
-KERNEL_UTILITY += $(RELREF)acts/actsutility/actsutility.cpp
+# CRITICAL NEWCHANGE.
+# KERNEL_UTILITY += $(RELREF)acts/actsutility/actsutility.cpp
 
 HOST_TOP += $(RELREF)examples/hostprocess.cpp
 
@@ -140,29 +141,29 @@ LDCLFLAGS += --sp topkernel_1.m_axi_gmem5:HBM[5]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem6:HBM[6]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem7:HBM[7]
 LDCLFLAGS += --sp topkernel_1.m_axi_gmem8:HBM[8]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem17:HBM[17]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem18:HBM[18]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem19:HBM[19]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem20:HBM[20]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem21:HBM[21]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem22:HBM[22]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem23:HBM[23]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem24:HBM[24]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem25:HBM[25]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem26:HBM[26]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem27:HBM[27]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem28:HBM[28]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem29:HBM[29]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem30:HBM[30]
-# LDCLFLAGS += --sp topkernel_1.m_axi_gmem31:HBM[31]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem9:HBM[9]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem10:HBM[10]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem11:HBM[11]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem12:HBM[12]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem13:HBM[13]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem14:HBM[14]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem15:HBM[15]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem16:HBM[16]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem17:HBM[17]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem18:HBM[18]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem19:HBM[19]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem20:HBM[20]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem21:HBM[21]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem22:HBM[22]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem23:HBM[23]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem24:HBM[24]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem25:HBM[25]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem26:HBM[26]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem27:HBM[27]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem28:HBM[28]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem29:HBM[29]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem30:HBM[30]
+LDCLFLAGS += --sp topkernel_1.m_axi_gmem31:HBM[31]
 
 # LDCLFLAGS_LOGICOPT += --xp param:vivado_prop:run.impl_1.{STEPS.PLACE_DESIGN.ARGS.MORE OPTIONS}={-fanout_opt}
 # LDCLFLAGS_LOGICOPT += --xp param:vivado_prop:run.impl_1.{STEPS.PLACE_DESIGN.ARGS.DIRECTIVE}={-Congestion_SpreadLogic_high}
@@ -205,7 +206,7 @@ LDCLFLAGS_HBM_PROC_1by1 += --sp topkernelproc_30.m_axi_gmem0:HBM[29]
 LDCLFLAGS_HBM_PROC_1by1 += --sp topkernelproc_31.m_axi_gmem0:HBM[30]
 LDCLFLAGS_HBM_PROC_1by1 += --sp topkernelproc_32.m_axi_gmem0:HBM[31]
 
-################################### 1by2by1by1 ###################################
+################################### 1by2by1by0 ###################################
 #proc 
 LDCLFLAGS_HBM_PROC_1by2by1by0_12and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
 LDCLFLAGS_HBM_PROC_1by2by1by0_12and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[1] 
@@ -315,395 +316,7 @@ LDCLFLAGS_HBM_SYNC_1by2by1by0_2and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[0]
 LDCLFLAGS_HBM_SYNC_1by2by1by0_1and1 += --sp topkernelsync_1.m_axi_gmem0:DDR[0] 
 LDCLFLAGS_HBM_SYNC_1by2by1by0_1and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[0]
 
-################################### 1by2by1by1 ###################################
-# proc 
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_5.m_axi_gmem0:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_5.m_axi_gmem1:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_6.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_6.m_axi_gmem1:HBM[11]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_7.m_axi_gmem0:HBM[12]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_7.m_axi_gmem1:HBM[13]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_8.m_axi_gmem0:HBM[14]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_8.m_axi_gmem1:HBM[15]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_9.m_axi_gmem0:HBM[16]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_9.m_axi_gmem1:HBM[17]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_10.m_axi_gmem0:HBM[18]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_10.m_axi_gmem1:HBM[19]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_11.m_axi_gmem0:HBM[20]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_11.m_axi_gmem1:HBM[21]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_12.m_axi_gmem0:HBM[22]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_12.m_axi_gmem1:HBM[23]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_13.m_axi_gmem0:HBM[24]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_13.m_axi_gmem1:HBM[25]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_14.m_axi_gmem0:HBM[26]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_14.m_axi_gmem1:HBM[27]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_15.m_axi_gmem0:HBM[28]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_15.m_axi_gmem1:HBM[29]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_16.m_axi_gmem0:HBM[30]
-LDCLFLAGS_HBM_PROC_1by2by1by1_16and1 += --sp topkernelproc_16.m_axi_gmem1:HBM[31]
-
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_5.m_axi_gmem0:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_5.m_axi_gmem1:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_6.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_6.m_axi_gmem1:HBM[11]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_7.m_axi_gmem0:HBM[12]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_7.m_axi_gmem1:HBM[13]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_8.m_axi_gmem0:HBM[14]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_8.m_axi_gmem1:HBM[15]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_9.m_axi_gmem0:HBM[16]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_9.m_axi_gmem1:HBM[17]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_10.m_axi_gmem0:HBM[18]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_10.m_axi_gmem1:HBM[19]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_11.m_axi_gmem0:HBM[20]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_11.m_axi_gmem1:HBM[21]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_12.m_axi_gmem0:HBM[22]
-LDCLFLAGS_HBM_PROC_1by2by1by1_12and1 += --sp topkernelproc_12.m_axi_gmem1:HBM[23]
-
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_5.m_axi_gmem0:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_5.m_axi_gmem1:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_6.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_6.m_axi_gmem1:HBM[11]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_7.m_axi_gmem0:HBM[12]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_7.m_axi_gmem1:HBM[13]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_8.m_axi_gmem0:HBM[14]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_8.m_axi_gmem1:HBM[15]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_9.m_axi_gmem0:HBM[16]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_9.m_axi_gmem1:HBM[17]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_10.m_axi_gmem0:HBM[18]
-LDCLFLAGS_HBM_PROC_1by2by1by1_10and1 += --sp topkernelproc_10.m_axi_gmem1:HBM[19]
-
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_5.m_axi_gmem0:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_5.m_axi_gmem1:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_6.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_6.m_axi_gmem1:HBM[11]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_7.m_axi_gmem0:HBM[12]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_7.m_axi_gmem1:HBM[13]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_8.m_axi_gmem0:HBM[14]
-LDCLFLAGS_HBM_PROC_1by2by1by1_8and1 += --sp topkernelproc_8.m_axi_gmem1:HBM[15]
-
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_5.m_axi_gmem0:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_5.m_axi_gmem1:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_6.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by1_6and1 += --sp topkernelproc_6.m_axi_gmem1:HBM[11]
-
-LDCLFLAGS_HBM_PROC_1by2by1by1_4and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_4and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_4and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_4and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by1_4and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by1_4and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by1_4and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by1_4and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[7]
-
-LDCLFLAGS_HBM_PROC_1by2by1by1_2and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_2and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_2and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_2and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
-
-LDCLFLAGS_HBM_PROC_1by2by1by1_1and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by1_1and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-
-# sync 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[5] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[7]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem5:HBM[11]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem6:HBM[13]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem7:HBM[15]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem8:HBM[17]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem9:HBM[19]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem10:HBM[21]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem11:HBM[23]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem12:HBM[25] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem13:HBM[27] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem14:HBM[29] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem15:HBM[31] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1 += --sp topkernelsync_1.m_axi_gmem16:HBM[32] 
-
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[5] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[7]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem5:HBM[11]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem6:HBM[13]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem7:HBM[15]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem8:HBM[17]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem9:HBM[19]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem10:HBM[21]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem11:HBM[23]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1 += --sp topkernelsync_1.m_axi_gmem12:HBM[24] 
-
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[5] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[7]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem5:HBM[11]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem6:HBM[13]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem7:HBM[15]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem8:HBM[17]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem9:HBM[19]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1 += --sp topkernelsync_1.m_axi_gmem10:HBM[20]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[5] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[7]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem5:HBM[11]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem6:HBM[13]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem7:HBM[15]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1 += --sp topkernelsync_1.m_axi_gmem8:HBM[16]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by1_6and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_6and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_6and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[5] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_6and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[7]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_6and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_6and1 += --sp topkernelsync_1.m_axi_gmem5:HBM[11]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_6and1 += --sp topkernelsync_1.m_axi_gmem6:HBM[12]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by1_4and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_4and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_4and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[5] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_4and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[7]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_4and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[8]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by1_2and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_2and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3]
-LDCLFLAGS_HBM_SYNC_1by2by1by1_2and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[4]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by1_1and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_SYNC_1by2by1by1_1and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[2]
-
-# merge and apply
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_1.m_axi_gmem0:HBM[1] 
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_1.m_axi_gmem1:HBM[3] 
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_1.m_axi_gmem2:HBM[5]
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_1.m_axi_gmem3:HBM[7]
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_2.m_axi_gmem0:HBM[9]
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_2.m_axi_gmem1:HBM[11]
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_2.m_axi_gmem2:HBM[13] 
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_2.m_axi_gmem3:HBM[15]
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_3.m_axi_gmem0:HBM[17]
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_3.m_axi_gmem1:HBM[19]
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_3.m_axi_gmem2:HBM[21] 
-# LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_3.m_axi_gmem3:HBM[23] 
-# LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem0:HBM[7] 
-# LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem1:HBM[15] 
-# LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem2:HBM[23] 
-# LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem3:HBM[23] 
-# LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem4:HBM[24]
-##---------------------------------------------------## CRITICAL REMOVEME ##---------------------------------------------------##
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_1.m_axi_gmem0:HBM[1] 
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_1.m_axi_gmem0:HBM[3] 
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_1.m_axi_gmem0:HBM[5]
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_1.m_axi_gmem0:HBM[7]
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_2.m_axi_gmem0:HBM[9]
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_2.m_axi_gmem0:HBM[11]
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_2.m_axi_gmem0:HBM[13] 
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_2.m_axi_gmem0:HBM[15]
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_3.m_axi_gmem0:HBM[17]
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_3.m_axi_gmem0:HBM[19]
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_3.m_axi_gmem0:HBM[21] 
-LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1 += --sp topkernelmerge_3.m_axi_gmem0:HBM[23] 
-LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem0:HBM[7] 
-LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem0:HBM[15] 
-LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem0:HBM[23] 
-LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem0:HBM[23] 
-LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1 += --sp topkernelapply_1.m_axi_gmem0:HBM[24]
-
-################################### 1by2by1by4 ###################################
-# proc 
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_1.m_axi_gmem3:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_1.m_axi_gmem4:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_2.m_axi_gmem2:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_2.m_axi_gmem3:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_2.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[11]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_3.m_axi_gmem2:HBM[12]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_3.m_axi_gmem3:HBM[13]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_3.m_axi_gmem4:HBM[14]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[15]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[16]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_4.m_axi_gmem2:HBM[17]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_4.m_axi_gmem3:HBM[18]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_4.m_axi_gmem4:HBM[19]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_5.m_axi_gmem0:HBM[20]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_5.m_axi_gmem1:HBM[21]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_5.m_axi_gmem2:HBM[22]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_5.m_axi_gmem3:HBM[23]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_5.m_axi_gmem4:HBM[24]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_6.m_axi_gmem0:HBM[25]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_6.m_axi_gmem1:HBM[26]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_6.m_axi_gmem2:HBM[27]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_6.m_axi_gmem3:HBM[28]
-LDCLFLAGS_HBM_PROC_1by2by1by4_24and1 += --sp topkernelproc_6.m_axi_gmem4:HBM[29]
-
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_1.m_axi_gmem3:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_1.m_axi_gmem4:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_2.m_axi_gmem2:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_2.m_axi_gmem3:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_2.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[11]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_3.m_axi_gmem2:HBM[12]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_3.m_axi_gmem3:HBM[13]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_3.m_axi_gmem4:HBM[14]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[15]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[16]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_4.m_axi_gmem2:HBM[17]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_4.m_axi_gmem3:HBM[18]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_4.m_axi_gmem4:HBM[19]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_5.m_axi_gmem0:HBM[20]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_5.m_axi_gmem1:HBM[21]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_5.m_axi_gmem2:HBM[22]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_5.m_axi_gmem3:HBM[23]
-LDCLFLAGS_HBM_PROC_1by2by1by4_20and1 += --sp topkernelproc_5.m_axi_gmem4:HBM[24]
-
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_1.m_axi_gmem3:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_1.m_axi_gmem4:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_2.m_axi_gmem2:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_2.m_axi_gmem3:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_2.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[11]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_3.m_axi_gmem2:HBM[12]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_3.m_axi_gmem3:HBM[13]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_3.m_axi_gmem4:HBM[14]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[15]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[16]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_4.m_axi_gmem2:HBM[17]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_4.m_axi_gmem3:HBM[18]
-LDCLFLAGS_HBM_PROC_1by2by1by4_16and1 += --sp topkernelproc_4.m_axi_gmem4:HBM[19]
-
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_1.m_axi_gmem3:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_1.m_axi_gmem4:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_2.m_axi_gmem2:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_2.m_axi_gmem3:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_2.m_axi_gmem4:HBM[9]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[10]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[11]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_3.m_axi_gmem2:HBM[12]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_3.m_axi_gmem3:HBM[13]
-LDCLFLAGS_HBM_PROC_1by2by1by4_12and1 += --sp topkernelproc_3.m_axi_gmem4:HBM[14]
-
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_1.m_axi_gmem3:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_1.m_axi_gmem4:HBM[4]
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[5]
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[6]
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_2.m_axi_gmem2:HBM[7]
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_2.m_axi_gmem3:HBM[8]
-LDCLFLAGS_HBM_PROC_1by2by1by4_8and1 += --sp topkernelproc_2.m_axi_gmem4:HBM[9]
-
-LDCLFLAGS_HBM_PROC_1by2by1by4_4and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_4and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_4and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2] 
-LDCLFLAGS_HBM_PROC_1by2by1by4_4and1 += --sp topkernelproc_1.m_axi_gmem3:HBM[3]
-LDCLFLAGS_HBM_PROC_1by2by1by4_4and1 += --sp topkernelproc_1.m_axi_gmem4:HBM[4]
-
-# sync 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_24and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[4] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_24and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[9] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_24and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[14]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_24and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[19]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_24and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[24]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_24and1 += --sp topkernelsync_1.m_axi_gmem5:HBM[29]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_24and1 += --sp topkernelsync_1.m_axi_gmem6:HBM[30]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by4_20and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[4] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_20and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[9] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_20and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[14]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_20and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[19]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_20and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[24]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_20and1 += --sp topkernelsync_1.m_axi_gmem5:HBM[25]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by4_16and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[4] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_16and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[9] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_16and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[14]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_16and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[19]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_16and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[20]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by4_12and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[4] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_12and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[9] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_12and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[14]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_12and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[15]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by4_8and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[4] 
-LDCLFLAGS_HBM_SYNC_1by2by1by4_8and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[9]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_8and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[10]
-
-LDCLFLAGS_HBM_SYNC_1by2by1by4_4and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[4]
-LDCLFLAGS_HBM_SYNC_1by2by1by4_4and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[5]
-
-################################### 1by2by1by5 ###################################
+#### (1 PE Workers) ####
 # proc 
 LDCLFLAGS_HBM_PROC_1by2by1by5_5and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
 LDCLFLAGS_HBM_PROC_1by2by1by5_5and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
@@ -711,10 +324,82 @@ LDCLFLAGS_HBM_PROC_1by2by1by5_5and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2]
 LDCLFLAGS_HBM_PROC_1by2by1by5_5and1 += --sp topkernelproc_1.m_axi_gmem3:HBM[3]
 LDCLFLAGS_HBM_PROC_1by2by1by5_5and1 += --sp topkernelproc_1.m_axi_gmem4:HBM[4]
 LDCLFLAGS_HBM_PROC_1by2by1by5_5and1 += --sp topkernelproc_1.m_axi_gmem5:HBM[5]
-
 # sync 
 LDCLFLAGS_HBM_SYNC_1by2by1by5_5and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[5]
 LDCLFLAGS_HBM_SYNC_1by2by1by5_5and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[6]
+
+#### (2 PE Workers) ####
+# proc 
+LDCLFLAGS_HBM_PROC_1by2by1by3_6and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS_HBM_PROC_1by2by1by3_6and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
+LDCLFLAGS_HBM_PROC_1by2by1by3_6and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2] 
+LDCLFLAGS_HBM_PROC_1by2by1by3_6and1 += --sp topkernelproc_1.m_axi_gmem3:HBM[3] 
+LDCLFLAGS_HBM_PROC_1by2by1by3_6and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[4]
+LDCLFLAGS_HBM_PROC_1by2by1by3_6and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[5]
+LDCLFLAGS_HBM_PROC_1by2by1by3_6and1 += --sp topkernelproc_2.m_axi_gmem2:HBM[6]
+LDCLFLAGS_HBM_PROC_1by2by1by3_6and1 += --sp topkernelproc_2.m_axi_gmem3:HBM[7]
+#sync 
+LDCLFLAGS_HBM_SYNC_1by2by1by3_6and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[3]
+LDCLFLAGS_HBM_SYNC_1by2by1by3_6and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[7]
+LDCLFLAGS_HBM_SYNC_1by2by1by3_6and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[8]
+
+#### (3 PE Workers) ####
+# proc 
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2]
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[3]
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[4]
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_2.m_axi_gmem2:HBM[5]
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[6]
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[7]
+LDCLFLAGS_HBM_PROC_1by2by1by2_6and1 += --sp topkernelproc_3.m_axi_gmem2:HBM[8]
+#sync 
+LDCLFLAGS_HBM_SYNC_1by2by1by2_6and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[2]
+LDCLFLAGS_HBM_SYNC_1by2by1by2_6and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[5]
+LDCLFLAGS_HBM_SYNC_1by2by1by2_6and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[8]
+LDCLFLAGS_HBM_SYNC_1by2by1by2_6and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[9]
+
+#### (4 PE Workers) ####
+# proc 
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_1.m_axi_gmem2:HBM[2]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[3]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[4]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_2.m_axi_gmem2:HBM[5]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[6]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[7]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_3.m_axi_gmem2:HBM[8]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[9]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[10]
+LDCLFLAGS_HBM_PROC_1by2by1by2_8and1 += --sp topkernelproc_4.m_axi_gmem2:HBM[11]
+#sync 
+LDCLFLAGS_HBM_SYNC_1by2by1by2_8and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[2]
+LDCLFLAGS_HBM_SYNC_1by2by1by2_8and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[5]
+LDCLFLAGS_HBM_SYNC_1by2by1by2_8and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[8]
+LDCLFLAGS_HBM_SYNC_1by2by1by2_8and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[11]
+LDCLFLAGS_HBM_SYNC_1by2by1by2_8and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[12]
+
+#### (5 PE Workers) ####
+# proc 
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_1.m_axi_gmem0:HBM[0] 
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_1.m_axi_gmem1:HBM[1] 
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_2.m_axi_gmem0:HBM[2] 
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_2.m_axi_gmem1:HBM[3]
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_3.m_axi_gmem0:HBM[4]
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_3.m_axi_gmem1:HBM[5]
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_4.m_axi_gmem0:HBM[6]
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_4.m_axi_gmem1:HBM[7]
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_5.m_axi_gmem0:HBM[8]
+LDCLFLAGS_HBM_PROC_1by2by1by1_5and1 += --sp topkernelproc_5.m_axi_gmem1:HBM[9]
+# sync 
+LDCLFLAGS_HBM_SYNC_1by2by1by1_5and1 += --sp topkernelsync_1.m_axi_gmem0:HBM[1] 
+LDCLFLAGS_HBM_SYNC_1by2by1by1_5and1 += --sp topkernelsync_1.m_axi_gmem1:HBM[3] 
+LDCLFLAGS_HBM_SYNC_1by2by1by1_5and1 += --sp topkernelsync_1.m_axi_gmem2:HBM[5] 
+LDCLFLAGS_HBM_SYNC_1by2by1by1_5and1 += --sp topkernelsync_1.m_axi_gmem3:HBM[7]
+LDCLFLAGS_HBM_SYNC_1by2by1by1_5and1 += --sp topkernelsync_1.m_axi_gmem4:HBM[9]
+LDCLFLAGS_HBM_SYNC_1by2by1by1_5and1 += --sp topkernelsync_1.m_axi_gmem5:HBM[10]
 
 ################################### xclbins ###################################
 EXECUTABLE = host
@@ -747,32 +432,11 @@ BINARY_CONTAINERS_PROCANDSYNC_1by2by1by0_4AND1 += $(XCLBIN)/topkernelprocandsync
 BINARY_CONTAINERS_PROCANDSYNC_1by2by1by0_2AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by0_2and1.$(TARGET).$(DSA).xclbin
 BINARY_CONTAINERS_PROCANDSYNC_1by2by1by0_1AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by0_1and1.$(TARGET).$(DSA).xclbin
 
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_16AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_16and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_12AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_12and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_10AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_10and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_8AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_8and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_6AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_6and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_4AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_4and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_2AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_2and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_1AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_1and1.$(TARGET).$(DSA).xclbin
-
-BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_16AND1 += $(XCLBIN)/topkernelprocandsync_1by4by1by1_16and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_12AND1 += $(XCLBIN)/topkernelprocandsync_1by4by1by1_12and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_10AND1 += $(XCLBIN)/topkernelprocandsync_1by4by1by1_10and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_8AND1 += $(XCLBIN)/topkernelprocandsync_1by4by1by1_8and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_6AND1 += $(XCLBIN)/topkernelprocandsync_1by4by1by1_6and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_4AND1 += $(XCLBIN)/topkernelprocandsync_1by4by1by1_4and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_2AND1 += $(XCLBIN)/topkernelprocandsync_1by4by1by1_2and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_1AND1 += $(XCLBIN)/topkernelprocandsync_1by4by1by1_1and1.$(TARGET).$(DSA).xclbin
-
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_24AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by4_24and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_20AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by4_20and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_16AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by4_16and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_12AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by4_12and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_8AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by4_8and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_4AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by4_4and1.$(TARGET).$(DSA).xclbin
-
 BINARY_CONTAINERS_PROCANDSYNC_1by2by1by5_5AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by5_5and1.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINERS_PROCANDSYNC_1by2by1by3_6AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by3_6and1.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINERS_PROCANDSYNC_1by2by1by2_6AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by2_6and1.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINERS_PROCANDSYNC_1by2by1by2_8AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by2_8and1.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_5AND1 += $(XCLBIN)/topkernelprocandsync_1by2by1by1_5and1.$(TARGET).$(DSA).xclbin
 
 BINARY_CONTAINER_topkernelprocandsync_OBJS += $(XCLBIN)/topkernelproc.$(TARGET).$(DSA).xo
 BINARY_CONTAINER_topkernelprocandsync_OBJS += $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xo
@@ -809,32 +473,11 @@ all_procandsync_1by2by1by0_4and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINER
 all_procandsync_1by2by1by0_2and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by0_2AND1) emconfig
 all_procandsync_1by2by1by0_1and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by0_1AND1) emconfig
 
-all_procandsync_1by2by1by1_16and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_16AND1) emconfig
-all_procandsync_1by2by1by1_12and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_12AND1) emconfig
-all_procandsync_1by2by1by1_10and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_10AND1) emconfig
-all_procandsync_1by2by1by1_8and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_8AND1) emconfig
-all_procandsync_1by2by1by1_6and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_6AND1) emconfig
-all_procandsync_1by2by1by1_4and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_4AND1) emconfig
-all_procandsync_1by2by1by1_2and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_2AND1) emconfig
-all_procandsync_1by2by1by1_1and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_1AND1) emconfig
-
-all_procandsync_1by4by1by1_16and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_16AND1) emconfig
-all_procandsync_1by4by1by1_12and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_12AND1) emconfig
-all_procandsync_1by4by1by1_10and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_10AND1) emconfig
-all_procandsync_1by4by1by1_8and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_8AND1) emconfig
-all_procandsync_1by4by1by1_6and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_6AND1) emconfig
-all_procandsync_1by4by1by1_4and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_4AND1) emconfig
-all_procandsync_1by4by1by1_2and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_2AND1) emconfig
-all_procandsync_1by4by1by1_1and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by4by1by1_1AND1) emconfig
-
-all_procandsync_1by2by1by4_24and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_24AND1) emconfig
-all_procandsync_1by2by1by4_20and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_20AND1) emconfig
-all_procandsync_1by2by1by4_16and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_16AND1) emconfig
-all_procandsync_1by2by1by4_12and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_12AND1) emconfig
-all_procandsync_1by2by1by4_8and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_8AND1) emconfig
-all_procandsync_1by2by1by4_4and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by4_4AND1) emconfig
-
 all_procandsync_1by2by1by5_5and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by5_5AND1) emconfig
+all_procandsync_1by2by1by3_6and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by3_6AND1) emconfig
+all_procandsync_1by2by1by2_6and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by2_6AND1) emconfig
+all_procandsync_1by2by1by2_8and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by2_8AND1) emconfig
+all_procandsync_1by2by1by1_5and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC_1by2by1by1_5AND1) emconfig
 
 .PHONY: exe
 exe: $(EXECUTABLE)
@@ -866,120 +509,25 @@ $(XCLBIN)/topkernelsync.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelsyn
 	mkdir -p $(XCLBIN)
 	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelsync) -l $(LDCLFLAGS_SYNC) --nk topkernelsync:1 -o'$@' $(+)	
 	
-# Building kernel (merge)
-$(XCLBIN)/topkernelmerge.$(TARGET).$(DSA).xo: $(KERNEL_TOP_MERGE) $(KERNEL_UTILITY)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelmerge) -c -k topkernelmerge -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_MERGE) $(KERNEL_UTILITY)
-$(XCLBIN)/topkernelmerge.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelmerge_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelmerge) -l $(LDCLFLAGS_MERGE) --nk topkernelmerge:1 -o'$@' $(+)
-	
-# Building kernel (apply)
-$(XCLBIN)/topkernelapply.$(TARGET).$(DSA).xo: $(KERNEL_TOP_APPLY) $(KERNEL_UTILITY)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelapply) -c -k topkernelapply -I'$(<D)' -I'$(RELREF)acts/actsutility/' -o'$@' $(KERNEL_TOP_APPLY) $(KERNEL_UTILITY)
-$(XCLBIN)/topkernelapply.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelapply) -l $(LDCLFLAGS_APPLY) --nk topkernelapply:1 -o'$@' $(+)
-	
-# Building kernel (ACTS_1by2by1by2)
-$(XCLBIN)/topkernelprocandsync_1by2by1by0_12and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by0_12and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by0_12and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:12 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by0_10and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by0_10and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by0_10and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:10 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by0_8and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by0_8and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by0_8and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:8 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by0_6and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by0_6and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by0_6and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:6 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by0_4and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by0_4and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by0_4and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:4 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by0_2and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by0_2and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by0_2and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:2 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by0_1and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by0_1and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by0_1and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:1 --nk topkernelsync:1 -o'$@' $(+)
-
-# Building kernel (ACTS_1by2by1by1)
-$(XCLBIN)/topkernelprocandsync_1by2by1by1_16and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_16and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_16and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:16 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by1_12and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_12and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_12and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:12 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by1_10and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_10and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_10and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:10 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by1_8and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_8and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_8and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:8 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by1_6and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_6and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_6and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:6 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by1_4and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_4and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_4and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:4 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by1_2and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_2and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_2and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:2 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by1_1and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_1and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_1and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:1 --nk topkernelsync:1 -o'$@' $(+)
-
-# Building kernel (ACTS_1by4by1by1) ##################################################################
-$(XCLBIN)/topkernelprocandsync_1by4by1by1_16and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelmerge_OBJS) $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_16and1) $(LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_16and1) $(LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_16and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:16 --nk topkernelmerge:4 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by4by1by1_12and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelmerge_OBJS) $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_12and1) $(LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_12and1) $(LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_12and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:12 --nk topkernelmerge:3 --nk topkernelapply:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by4by1by1_10and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelmerge_OBJS) $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_10and1) $(LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_10and1) $(LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_10and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:10 --nk topkernelmerge:NA -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by4by1by1_8and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelmerge_OBJS) $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_8and1) $(LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_8and1) $(LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_8and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:8 --nk topkernelmerge:2 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by4by1by1_6and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelmerge_OBJS) $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_6and1) $(LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_6and1) $(LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_6and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:6 --nk topkernelmerge:NA -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by4by1by1_4and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelmerge_OBJS) $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_4and1) $(LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_4and1) $(LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_4and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:4 --nk topkernelmerge:NA -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by4by1by1_2and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelmerge_OBJS) $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_2and1) $(LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_2and1) $(LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_2and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:2 --nk topkernelmerge:NA -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by4by1by1_1and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelmerge_OBJS) $(BINARY_CONTAINER_topkernelapply_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_1and1) $(LDCLFLAGS_HBM_MAS_MERGE_1by4by1by1_1and1) $(LDCLFLAGS_HBM_MAS_APPLY_1by4by1by1_16and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:1 --nk topkernelmerge:NA -o'$@' $(+)
-
-# Building kernel (ACTS_1by2by1by4)
-$(XCLBIN)/topkernelprocandsync_1by2by1by4_24and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by4_24and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by4_24and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:6 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by4_20and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by4_20and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by4_20and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:5 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by4_16and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by4_16and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by4_16and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:4 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by4_12and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by4_12and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by4_12and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:3 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by4_8and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by4_8and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by4_8and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:2 --nk topkernelsync:1 -o'$@' $(+)
-$(XCLBIN)/topkernelprocandsync_1by2by1by4_4and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
-	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by4_4and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by4_4and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:1 --nk topkernelsync:1 -o'$@' $(+)
-
+#### (1 PE Workers) ####
 $(XCLBIN)/topkernelprocandsync_1by2by1by5_5and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
 	mkdir -p $(XCLBIN)
 	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by5_5and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by5_5and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:1 --nk topkernelsync:1 -o'$@' $(+)
+
+#### (3 PE Workers) ####
+$(XCLBIN)/topkernelprocandsync_1by2by1by2_6and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by2_6and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by2_6and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:3 --nk topkernelsync:1 -o'$@' $(+)
+
+#### (4 PE Workers) ####
+$(XCLBIN)/topkernelprocandsync_1by2by1by2_8and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by2_8and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by2_8and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:4 --nk topkernelsync:1 -o'$@' $(+)
+
+#### (5 PE Workers) ####
+$(XCLBIN)/topkernelprocandsync_1by2by1by1_5and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelproc_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
+	mkdir -p $(XCLBIN)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernelprocandsync) -l $(LDCLFLAGS_HBM_PROC_1by2by1by1_5and1) $(LDCLFLAGS_HBM_SYNC_1by2by1by1_5and1) $(LDCLFLAGS_LOGICOPT) --nk topkernelproc:5 --nk topkernelsync:1 -o'$@' $(+)
 
 # Building Host (***choice between CREBTREE or AWS***)
 # $(EXECUTABLE): check-xrt $(HOST_TOP) $(HOST_OCLSRCS) $(HOST_SRCS) $(HOST_HDRS) 
@@ -1056,9 +604,11 @@ demo_acts_nthreads_debug: clean build_acts_nthreads run_nthreads_debug
 # SORTREDUCE_INCLUDE=$(RELREF)sortreduce-master/include/
 # build_acts_nthreads:
 	# g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -I$(ACTSPROC_INCLUDE) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads				
+# build_acts_nthreads:
+	# g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads							
 build_acts_nthreads:
-	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(KERNEL_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads							
-
+	g++ $(HOST_TOP) $(HOST_SRCS) $(KERNEL_TOP) $(KERNEL_TOP_PROC) $(KERNEL_TOP_SYNC) $(RELREF)acts/actsutility/actsutility.cpp $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -lsortreduce -pthread -laio -march=native -lrt -o acts_nthreads
+	
 run_nthreads:
 	./acts_nthreads
 
@@ -1081,7 +631,7 @@ run_grafboost_nthreads_debug:
 	
 ### generate source files (python)
 generatesrcs:
-	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(NUMPARTITIONS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0)
+	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(NUMPARTITIONS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0) $(NUM_PEs)
 	
 # Cleaning stuff
 clean:

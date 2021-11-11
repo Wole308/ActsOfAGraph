@@ -38,6 +38,7 @@ actsutility::actsutility(){
 }
 actsutility::~actsutility(){}
 
+#ifndef FPGA_IMPL
 void actsutility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
 }
@@ -1506,7 +1507,7 @@ void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, 
 	#endif
 	return;
 }
-
+#endif 
 
 
 

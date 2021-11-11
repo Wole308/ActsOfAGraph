@@ -57,6 +57,7 @@ void utility::printallparameters(){
 	std::cout<<"utility:: NUMWORKERS: "<<NUMWORKERS<<std::endl;
 	std::cout<<"utility:: NUMSUBWORKERS: "<<NUMSUBWORKERS<<std::endl;
 	std::cout<<"utility:: NUM_PARTITIONS: "<<NUM_PARTITIONS<<std::endl;
+	std::cout<<"utility:: NUM_PEs: "<<NUM_PEs<<std::endl;
 	std::cout<<"utility:: NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<std::endl;
 	std::cout<<"utility:: DATAWIDTH: "<<DATAWIDTH<<std::endl;
 	std::cout<<"utility:: VECTOR_SIZE: "<<VECTOR_SIZE<<std::endl;

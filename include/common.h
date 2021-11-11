@@ -46,7 +46,7 @@
 #endif 
 
 #define _DEBUGMODE_HEADER //
-#if defined (FPGA_IMPL) && defined (HW)
+#if defined (FPGA_IMPL) // && defined (HW) // CRITICAL REMOVEME.
 #else
 #define _DEBUGMODE_STATS // CRITICAL ADDME
 // #define _DEBUGMODE_CHECKS
@@ -77,8 +77,9 @@
 
 ////////////////
 
-#define NUMSUBCPUTHREADS 4
-#define NUMSYNCTHREADS 1
+#define NUM_PEs 5
+#define NUMSUBCPUTHREADS 5
+#define NUMSYNCTHREADS 5
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
 ////////////////
@@ -88,7 +89,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 4
+#define NUMCOMPUTEUNITS 5
 #define NUMCOMPUTEUNITS_HALF (NUMCOMPUTEUNITS / 2)
 #define NUMINTSINKEYVALUETYPE 2
 #define VDATA_PACKINGSIZE_POW 4 // AUTOMATEME.
@@ -160,9 +161,9 @@
 
 #define NUMLASTLEVELPARTITIONS (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))
 
-#define NUM_EDGE_BANKS 4
+#define NUM_EDGE_BANKS 1
 #define MAX_NUM_EDGE_BANKS 16
-#define NUMSYNCTHREADS 1
+#define NUMSYNCTHREADS 5
 
 ////////////////
 
