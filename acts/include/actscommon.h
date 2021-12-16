@@ -1,5 +1,6 @@
 #ifndef ACTSCOMMON_H
 #define ACTSCOMMON_H
+#ifdef SW 
 #include <string>
 #include <string.h>
 #include <iostream>
@@ -14,6 +15,7 @@
 #include <iomanip>
 #include <cmath>
 #include <fstream>
+#endif 
 #if (defined(HW) || defined(SWEMU))
 #include <string.h>
 #include <cmath>
@@ -100,6 +102,7 @@ using namespace std;
 #ifdef USEHBMMEMORY
 	#define KVSOURCEDRAMSZ (1 << 25) // max HBM capacity (256MB)
 	// #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
+	// #define KVSOURCEDRAMSZ (1 << 27) // max HBM capacity (1024MB) // CRITICAL REMOVEME.
 #endif 
 #ifdef USEDDRAMMEMORY
 	// #define KVSOURCEDRAMSZ ((1 << 27) + (1 << 26))
@@ -246,6 +249,7 @@ typedef struct {
 	unsigned int BASEOFFSETKVS_EDGESSTATSDRAM;
 	unsigned int BASEOFFSETKVS_KVDRAM;
 	unsigned int BASEOFFSETKVS_KVDRAMWORKSPACE;
+	unsigned int BASEOFFSETKVS_OTHERINFOS;
 
 	unsigned int SIZE_MESSAGESDRAM;
 	unsigned int SIZE_EDGES;
@@ -259,6 +263,7 @@ typedef struct {
 	unsigned int SIZE_EDGESSTATSDRAM;
 	unsigned int SIZE_KVDRAM;
 	unsigned int SIZE_KVDRAMWORKSPACE;
+	unsigned int SIZE_OTHERINFOS;
 	unsigned int SIZE_REDUCE;
 	unsigned int SIZE_BATCHRANGE;
 	unsigned int SIZE_RUN;

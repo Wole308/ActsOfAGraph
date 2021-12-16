@@ -1,4 +1,6 @@
 #include "../../include/config_params.h"
+#include "../include/actscommon.h"
+#include "../../include/common.h"
 #ifdef SW
 #include <chrono>
 #include <stdlib.h>
@@ -21,9 +23,7 @@
 #endif 
 #ifdef SW
 #include "../../src/utility/utility.h"
-#endif 
-#include "../include/actscommon.h"
-#include "../../include/common.h"
+#endif
 #include "actsutility.h"
 using namespace std;
 

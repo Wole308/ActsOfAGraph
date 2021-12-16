@@ -36,26 +36,44 @@ context['VECTOR2_SIZE'] = 16
 context['DUMMY'] = 0
 context['NUMSUBWORKERS'] = 1 # 3#4
 
-context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1 # 0,1 CHANGE SPOT ######
-if context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] == 1:
-    # context['NUM_EDGE_BANKS'] = 2 #5,3,2,2,1
-    if context['NUM_PEs'] == 1:
-       context['NUM_EDGE_BANKS'] = 5
-    elif context['NUM_PEs'] == 2:
-       context['NUM_EDGE_BANKS'] = 3
-    elif context['NUM_PEs'] == 3:
-       context['NUM_EDGE_BANKS'] = 2
-    elif context['NUM_PEs'] == 4:
-       context['NUM_EDGE_BANKS'] = 2
-    elif context['NUM_PEs'] == 5:
-       context['NUM_EDGE_BANKS'] = 1
-    else:
-       print ('gen.py: NOT YET IMPLEMENTED 32...')
-else: 
-    context['NUM_EDGE_BANKS'] = 0
-    
-    
+# context['NUM_EDGE_BANKS'] = 0
+# context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
 
+# context['NUM_EDGE_BANKS'] = 1
+# context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+
+if (context['NUM_PEs'] >= 0) and (context['NUM_PEs'] < 16):
+   context['NUM_EDGE_BANKS'] = 1
+   context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+elif (context['NUM_PEs'] >= 16) and (context['NUM_PEs'] < 64):
+   context['NUM_EDGE_BANKS'] = 0
+   context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
+else:
+   print ('gen.py: NOT YET IMPLEMENTED 32... EXITING...')
+   quit()
+    
+# if context['NUM_PEs'] == 1:
+   # context['NUM_EDGE_BANKS'] = 5
+   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+# elif context['NUM_PEs'] == 2:
+   # context['NUM_EDGE_BANKS'] = 3
+   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+# elif context['NUM_PEs'] == 3:
+   # context['NUM_EDGE_BANKS'] = 2
+   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+# elif context['NUM_PEs'] == 4:
+   # context['NUM_EDGE_BANKS'] = 2
+   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+# elif (context['NUM_PEs'] >= 5) and (context['NUM_PEs'] < 16):
+   # context['NUM_EDGE_BANKS'] = 1
+   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+# elif (context['NUM_PEs'] >= 16):
+   # context['NUM_EDGE_BANKS'] = 0
+   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
+# else:
+   # print ('gen.py: NOT YET IMPLEMENTED 32... EXITING...')
+   # quit()
+    
 ###
 
 EV_PERFORMANCEOFALGORITHM = [0, 1, 2, 3, 4]
@@ -222,14 +240,14 @@ o_path6=relref+"include/common.h"
 o_path7=relref+"include/common.h"
 o_path8=relref+"acts/acts/actssync.cpp"
 o_path9=relref+"acts/acts/actssync.h"
-o_path10=relref+"acts/acts/actsmerge.cpp"
-o_path11=relref+"acts/acts/actsmerge.h"
-o_path12=relref+"acts/acts/actsapply.cpp"
-o_path13=relref+"acts/acts/actsapply.h"
+o_path10=relref+"acts/acts/actsproc.cpp"
+o_path11=relref+"acts/acts/actsproc.h"
+o_path12=relref+"acts/acts/actsproc.cpp"
+o_path13=relref+"acts/acts/actsproc.h"
 o_path14=relref+"acts/acts/actsproc.cpp"
 o_path15=relref+"acts/acts/actsproc.h"
-o_path16=relref+"acts/acts/actsproc.cpp"
-o_path17=relref+"acts/acts/actsproc.h"
+o_path16=relref+"acts/acts/actsmerge.cpp"
+o_path17=relref+"acts/acts/actsmerge.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -338,6 +356,31 @@ context['15_seq'] = []
 for i in range (0,15):
 		context['15_seq'].append(i)
         
+context['T_val'] = 13
+context['T_seq'] = []
+for i in range (0,(context['T_val'])):
+		context['T_seq'].append(i)
+context['T_charseq'] = []
+for i in range (0,(context['T_val'])):
+		c = chr(ord('A') + i)
+		context['T_charseq'].append(c)
+        
+context['Tplus2_seq'] = []
+for i in range (0,(context['T_val']+2)):
+		context['Tplus2_seq'].append(i)
+context['Tplus2_charseq'] = []
+for i in range (0,(context['T_val']+2)):
+		c = chr(ord('A') + i)
+		context['Tplus2_charseq'].append(c)
+        
+context['10_seq'] = []
+for i in range (0,10):
+		context['10_seq'].append(i)
+context['10_charseq'] = []
+for i in range (0,10):
+		c = chr(ord('A') + i)
+		context['10_charseq'].append(c)
+        
 context['8_seq'] = []
 for i in range (0,8):
 		context['8_seq'].append(i)
@@ -411,12 +454,8 @@ context['NUM_EDGE_BANKS_seq'] = []
 for i in range (0,(context['NUM_EDGE_BANKS'])):
 		context['NUM_EDGE_BANKS_seq'].append(i)
         
-if context['NUM_EDGE_BANKS'] == 0:
-    context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS']
-else:
-    context['NUMSYNCTHREADS'] = context['NUMSUBCPUTHREADS'] / context['NUM_EDGE_BANKS']
-if context['NUMSYNCTHREADS'] == 0:
-    context['NUMSYNCTHREADS'] = 1
+# context['NUMSYNCTHREADS'] = 3
+context['NUMSYNCTHREADS'] = context['NUM_PEs']
     
 context['KKL'] = (context['NUMSYNCTHREADS']/4) * 4
 context['KKM'] = context['NUMSYNCTHREADS'] - context['KKL']
@@ -491,14 +530,14 @@ template6 = env6.get_template('common_h.template')
 template7 = env7.get_template('common_h.template')
 template8 = env8.get_template('actssync.template')
 template9 = env9.get_template('actssync_h.template')
-template10 = env10.get_template('actsmerge.template')
-template11 = env11.get_template('actsmerge_h.template')
-template12 = env12.get_template('actsapply.template')
-template13 = env13.get_template('actsapply_h.template')
+template10 = env10.get_template('actsproc.template')
+template11 = env11.get_template('actsproc_h.template')
+template12 = env12.get_template('actsproc.template')
+template13 = env13.get_template('actsproc_h.template')
 template14 = env14.get_template('actsproc.template')
 template15 = env15.get_template('actsproc_h.template')
-template16 = env16.get_template('actsproc.template')
-template17 = env17.get_template('actsproc_h.template')
+template16 = env16.get_template('actsmerge.template')
+template17 = env17.get_template('actsmerge_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)

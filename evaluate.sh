@@ -186,7 +186,10 @@ NUMTHREADS_EQ17=17
 NUMTHREADS_EQ18=18
 NUMTHREADS_EQ19=19
 NUMTHREADS_EQ20=20
+NUMTHREADS_EQ22=22
 NUMTHREADS_EQ24=24
+NUMTHREADS_EQ25=25
+NUMTHREADS_EQ26=26
 NUMTHREADS_EQ28=28
 NUMTHREADS_EQ32=32
 
@@ -208,7 +211,22 @@ NUM_PEs_EQ1=1
 NUM_PEs_EQ2=2
 NUM_PEs_EQ3=3
 NUM_PEs_EQ4=4
-NUM_PEs_EQ5=5			
+NUM_PEs_EQ5=5
+NUM_PEs_EQ6=6
+NUM_PEs_EQ7=7
+NUM_PEs_EQ8=8
+NUM_PEs_EQ9=9
+NUM_PEs_EQ10=10
+NUM_PEs_EQ12=12
+NUM_PEs_EQ14=14
+NUM_PEs_EQ15=15
+NUM_PEs_EQ16=16
+NUM_PEs_EQ20=20
+NUM_PEs_EQ22=22
+NUM_PEs_EQ24=24
+NUM_PEs_EQ25=25
+NUM_PEs_EQ26=26
+NUM_PEs_EQ32=32
 NUM_PEs_EQX=64
 
 _LOCKE="LOCKE"
@@ -235,8 +253,8 @@ do
 	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
 	
-	# for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
+	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
 	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
@@ -536,14 +554,14 @@ do
 		for numcputhreads in $THREADCOUNT_EQ1
 		do
 		# for numsubcputhreads in $NUMTHREADS_EQ0
-		# for numsubcputhreads in $NUMTHREADS_EQ1
+		for numsubcputhreads in $NUMTHREADS_EQ1
 		# for numsubcputhreads in $NUMTHREADS_EQ2
 		# for numsubcputhreads in $NUMTHREADS_EQ3
 		# for numsubcputhreads in $NUMTHREADS_EQ4 #
 		# for numsubcputhreads in $NUMTHREADS_EQ5 #
 		# for numsubcputhreads in $NUMTHREADS_EQ6 
 		# for numsubcputhreads in $NUMTHREADS_EQ7
-		for numsubcputhreads in $NUMTHREADS_EQ8 #
+		# for numsubcputhreads in $NUMTHREADS_EQ8 #
 		# for numsubcputhreads in $NUMTHREADS_EQ9
 		# for numsubcputhreads in $NUMTHREADS_EQ10 
 		# for numsubcputhreads in $NUMTHREADS_EQ11
@@ -605,33 +623,88 @@ do
 				# for dataset in $TWITTER_67M
 				
 				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4	
+				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M
+				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4	
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						for num_pes in $NUM_PEs_EQ5 
+						for num_pes in $NUM_PEs_EQ32
 						# for num_pes in $NUM_PEs_EQ1 $NUM_PEs_EQ2 $NUM_PEs_EQ3 $NUM_PEs_EQ4 $NUM_PEs_EQ5
+						# for num_pes in $NUM_PEs_EQ6 $NUM_PEs_EQ7 $NUM_PEs_EQ8 $NUM_PEs_EQ9 $NUM_PEs_EQ10
 						do
 							if [ $num_pes == $NUM_PEs_EQ1 ]  
-							then	
-								ACTS_CONFIG="1by2by1by5"
-								numsubcputhreads=5
+							then
+								ACTS_CONFIG="1by1by1by0"
+								numsubcputhreads=1
 							elif [ $num_pes == $NUM_PEs_EQ2 ]
 							then
 								ACTS_CONFIG="1by2by1by3"
 								numsubcputhreads=6
 							elif [ $num_pes == $NUM_PEs_EQ3 ]
 							then
-								ACTS_CONFIG="1by2by1by2"
-								numsubcputhreads=6
+								ACTS_CONFIG="1by1by1by0"
+								numsubcputhreads=3
 							elif [ $num_pes == $NUM_PEs_EQ4 ]
 							then
 								ACTS_CONFIG="1by2by1by2"
 								numsubcputhreads=8
 							elif [ $num_pes == $NUM_PEs_EQ5 ]
 							then
-								ACTS_CONFIG="1by2by1by1"
+								ACTS_CONFIG="1by1by1by0"
 								numsubcputhreads=5
+							elif [ $num_pes == $NUM_PEs_EQ6 ]
+							then
+								ACTS_CONFIG="1by2by1by1"
+								numsubcputhreads=6
+							elif [ $num_pes == $NUM_PEs_EQ7 ]
+							then
+								ACTS_CONFIG="1by2by1by1"
+								numsubcputhreads=7
+							elif [ $num_pes == $NUM_PEs_EQ8 ]
+							then
+								ACTS_CONFIG="1by1by1by0"
+								numsubcputhreads=8
+							elif [ $num_pes == $NUM_PEs_EQ9 ]
+							then
+								ACTS_CONFIG="1by2by1by1"
+								numsubcputhreads=9
+							elif [ $num_pes == $NUM_PEs_EQ10 ]
+							then
+								ACTS_CONFIG="1by2by1by1"
+								numsubcputhreads=10
+							elif [ $num_pes == $NUM_PEs_EQ12 ]
+							then
+								ACTS_CONFIG="1by1by1by1"
+								numsubcputhreads=12
+							elif [ $num_pes == $NUM_PEs_EQ14 ]
+							then
+								ACTS_CONFIG="1by1by1by1"
+								numsubcputhreads=14
+							elif [ $num_pes == $NUM_PEs_EQ16 ]
+							then
+								ACTS_CONFIG="1by2by1by0"
+								numsubcputhreads=16
+							elif [ $num_pes == $NUM_PEs_EQ20 ]
+							then
+								ACTS_CONFIG="1by1by1by0"
+								numsubcputhreads=20
+							elif [ $num_pes == $NUM_PEs_EQ22 ]
+							then
+								ACTS_CONFIG="1by1by1by0"
+								numsubcputhreads=22
+							elif [ $num_pes == $NUM_PEs_EQ24 ]
+							then
+								ACTS_CONFIG="1by1by1by0"
+								numsubcputhreads=24
+							elif [ $num_pes == $NUM_PEs_EQ25 ]
+							then
+								ACTS_CONFIG="1by1by1by0"
+								numsubcputhreads=25
+							elif [ $num_pes == $NUM_PEs_EQ32 ]
+							then
+								ACTS_CONFIG="1by1by1by0"
+								numsubcputhreads=32
 							else 
 								ACTS_CONFIG="1by2by1by0"
 								numsubcputhreads=numsubcputhreads
@@ -654,8 +727,12 @@ do
 								BACKUPDIR_NOHUPOUT2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.out"
 								
 								RESULTSBACKUP_DIR="${ROOTDIR}/outputs/${RESULTSPATHNAME}"
-								RESULT_NAME="${ALGORITHMABBRV}${num_pes}PEs${numsubcputhreads}Ws{XWARE}${synfreq}MHz"
+								RESULT_NAME="${ALGORITHMABBRV}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz"
 								PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${num_pes}PEs${numsubcputhreads}Ws_${evaluation_type}_evp${evaluation_param0}"
+								
+								SYNLOGDIR_KERNELXCLBIN="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernel${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
+								SYNLOGDIR_KERNELXCLBIN1="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelproc${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
+								SYNLOGDIR_KERNELXCLBIN2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
 								
 								if [ $dataset == $NODATASET ]  
 								then	
@@ -901,19 +978,9 @@ do
 									make cleanall
 									if [ $CRABTREE == $ON ]
 									then
-										if [ $ACTS_2BY1BY1 == $ON ]
-										then
-											echo "crabtree.ACTS_2BY1BY1 setup specified."
-											make host
-											./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2 #> $RESULTDIR_RESULT
-										elif [ $ACTS_1BY2BY1 == $ON ]
-										then
-											echo "crabtree.ACTS_1BY2BY1 setup specified."
-											make host
-											./host $BACKUPDIR_KERNELXCLBIN #> $RESULTDIR_RESULT
-										else
-											echo "not specified (7). specify ACTS_2BY1BY1 or ACTS_1BY2BY1"
-										fi
+										echo "crabtree.ACTS_1BY2BY1 setup specified.---"
+										make host
+										./host $BACKUPDIR_KERNELXCLBIN #> $RESULTDIR_RESULT
 									elif [ $AWS == $ON ]
 									then
 										echo "aws setup specified."
@@ -921,22 +988,14 @@ do
 										make host
 										# source /opt/xilinx/xrt/setup.sh 
 										# source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
-										if [ $ACTS_2BY1BY1 == $ON ]
-										then
-											./host $BACKUPDIR_AWSKERNELXCLBIN1 $BACKUPDIR_AWSKERNELXCLBIN2
-										elif [ $ACTS_1BY2BY1 == $ON ]
-										then
-											./host $BACKUPDIR_AWSKERNELXCLBIN
-										else
-											echo "not specified (7). specify ACTS_2BY1BY1 or ACTS_1BY2BY1"
-										fi
+										./host $BACKUPDIR_AWSKERNELXCLBIN
 									else
 										echo "no setup specified. specify crabtree or aws"
 									fi
 									wait 
 									if test -f "profile_summary.csv"; then
 										echo "profile_summary.csv exist"
-										# cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
+										cp profile_summary.csv $RESULTDIR_PROFILESUMMARY
 									fi	
 									
 								# ================================================ SIMULATIONS ================================================
@@ -954,26 +1013,43 @@ do
 										XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
 									elif [ $ACTS_1BY2BY1 == $ON ]
 									then
+										echo "crabtree.ACTS_1BY1BY1 setup specified. ----------------------------------- "
 										make cleanall
 										make host 
-										if [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
+										if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
+										then
+											make all_procandsync_${ACTS_CONFIG}_25and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
 										then
 											make all_procandsync_${ACTS_CONFIG}_24and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
+										then
+											echo 'awwal.sw_emu.----------------------------------- 22and1'
+											make all_procandsync_${ACTS_CONFIG}_22and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
 										then
 											make all_procandsync_${ACTS_CONFIG}_20and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
 										then
 											make all_procandsync_${ACTS_CONFIG}_16and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
+										then
+											make all_procandsync_${ACTS_CONFIG}_14and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
 										then
 											make all_procandsync_${ACTS_CONFIG}_12and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
 										then
 											make all_procandsync_${ACTS_CONFIG}_10and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
+										then
+											make all_procandsync_${ACTS_CONFIG}_9and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
 										then
 											make all_procandsync_${ACTS_CONFIG}_8and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
+										then
+											make all_procandsync_${ACTS_CONFIG}_7and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 										then
 											make all_procandsync_${ACTS_CONFIG}_6and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
@@ -997,42 +1073,57 @@ do
 											echo "NOT IMPLEMENTED (654)"
 										fi
 										if test -f "host"; then
-											if [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
+											if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
 											then	
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_24and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_25and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
+											then	
+												cp xclbin/topkernel_${ACTS_CONFIG}_24and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
+											then	
+												cp xclbin/topkernel_${ACTS_CONFIG}_22and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
 											then	
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_20and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_20and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
 											then	
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_16and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_16and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
+											then	
+												cp xclbin/topkernel_${ACTS_CONFIG}_14and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
 											then	
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_12and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_12and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_10and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_10and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
+											then
+												cp xclbin/topkernel_${ACTS_CONFIG}_9and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_8and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_8and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
+											then
+												cp xclbin/topkernel_${ACTS_CONFIG}_7and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_6and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_6and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_5and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_5and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_4and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_4and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_3and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_3and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_2and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_2and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_1and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_1and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 											else 
 												echo "NOT IMPLEMENTED (554)"
 											fi
@@ -1092,24 +1183,39 @@ do
 									then
 										make cleanall
 										rm -rf xclbin
-										if [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
+										if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
+										then
+											make all_procandsync_${ACTS_CONFIG}_25and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
 										then
 											make all_procandsync_${ACTS_CONFIG}_24and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
+										then
+											make all_procandsync_${ACTS_CONFIG}_22and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
 										then
 											make all_procandsync_${ACTS_CONFIG}_20and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
 										then
 											make all_procandsync_${ACTS_CONFIG}_16and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
+										then
+											make all_procandsync_${ACTS_CONFIG}_14and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
 										then
 											make all_procandsync_${ACTS_CONFIG}_12and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
 										then
 											make all_procandsync_${ACTS_CONFIG}_10and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
+										then
+											make all_procandsync_${ACTS_CONFIG}_9and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
 										then
 											make all_procandsync_${ACTS_CONFIG}_8and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
+										then
+											make all_procandsync_${ACTS_CONFIG}_7and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 										then
 											make all_procandsync_${ACTS_CONFIG}_6and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
@@ -1132,48 +1238,80 @@ do
 											echo "NOT IMPLEMENTED (654)"
 										fi
 										if test -f "host"; then
-											if [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
+											if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
 											then	
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_24and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_25and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_25and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
+											then	
+												cp xclbin/topkernel_${ACTS_CONFIG}_24and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_24and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
+											then	
+												cp xclbin/topkernel_${ACTS_CONFIG}_22and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_22and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
 											then	
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_20and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_20and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_20and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
 											then	
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_16and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_16and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_16and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
+											then	
+												cp xclbin/topkernel_${ACTS_CONFIG}_14and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_14and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
 											then	
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_12and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_12and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_12and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_10and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_10and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_10and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
+											then
+												cp xclbin/topkernel_${ACTS_CONFIG}_9and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_9and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_8and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_8and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_8and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
+											then
+												cp xclbin/topkernel_${ACTS_CONFIG}_7and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_7and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_6and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_6and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_6and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_5and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_5and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_5and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_4and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_3and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_3and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_3and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_2and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_2and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_2and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
 											then
-												cp xclbin/topkernelprocandsync_${ACTS_CONFIG}_1and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp xclbin/topkernel_${ACTS_CONFIG}_1and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+												cp v++_topkernel_${ACTS_CONFIG}_1and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 											else 
 												echo "NOT IMPLEMENTED (554)"
 											fi
-											# cp xclbin/topkernelprocandsync_1by2by1by2_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											# cp v++_topkernelprocandsync_1by2by1by2_4and1.hw.xilinx_u280_xdma_201920_3.log $BACKUPDIR_NOHUPOUT
-											# topkernelprocandsync_1by2by1by2_4and1.hw.xilinx_u280_xdma_201920_3.xclbin
+											# cp xclbin/topkernel_1by2by1by2_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											# cp v++_topkernel_1by2by1by2_4and1.hw.xilinx_u280_xdma_201920_3.log $BACKUPDIR_NOHUPOUT
+											# topkernel_1by2by1by2_4and1.hw.xilinx_u280_xdma_201920_3.xclbin
 											echo "kernel.xclbin saved"
 										fi
 										echo "sleeping for 5 seconds before continuing ...."

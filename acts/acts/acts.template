@@ -22,12 +22,13 @@
 #include "../../acts/actsutility/actsutility.h"
 #endif 
 #include "acts.h"
-// #ifndef FPGA_IMPL
+#ifndef FPGA_IMPL
 #include "actsproc.h"
 #include "actssync.h"
-// #endif 
+#endif 
 using namespace std;
 
+// #ifdef NOTIMPLEMENTEDXXX
 #ifdef SW
 acts::acts(){}
 acts::~acts(){}
@@ -37,6 +38,7 @@ actsproc actsprocobj;
 actssync actssyncobj;
 #endif 
 
+#ifdef SW
 void
 	#ifdef SW 
 	acts::
@@ -219,7 +221,7 @@ topkernel(
 	return;
 }
 }
-
+#endif
 
 
 

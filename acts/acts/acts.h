@@ -28,7 +28,7 @@ public:
 	acts();
 	~acts();
 	
-	void loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint512_dt * kvdram1,  uint512_dt * edges2, uint512_dt * kvdram2,  uint512_dt * edges3, uint512_dt * kvdram3,  uint512_dt * edges4, uint512_dt * kvdram4,  uint512_dt * vdram);
+	void loadsrcvs( uint512_dt * edges0, uint512_dt * kvdram0,  uint512_dt * edges1, uint512_dt * kvdram1,  uint512_dt * edges2, uint512_dt * kvdram2,  uint512_dt * vdram);
 
 	void topkernel(
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -43,14 +43,6 @@ public:
 		uint512_dt * edges2,
 		#endif 
 		uint512_dt * kvdram2,
-		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-		uint512_dt * edges3,
-		#endif 
-		uint512_dt * kvdram3,
-		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-		uint512_dt * edges4,
-		#endif 
-		uint512_dt * kvdram4,
  
 		uint512_dt * vdram);
 private:

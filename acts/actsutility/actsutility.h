@@ -1,11 +1,11 @@
 #ifndef ACTSUTILITY_H
 #define ACTSUTILITY_H
+#include "../include/actscommon.h"
+#include "../../include/common.h"
 #include "../../include/config_params.h"
 #ifdef SW
 #include "../../src/utility/utility.h"
-#endif 
-#include "../include/actscommon.h"
-#include "../../include/common.h"
+#endif
 using namespace std;
 
 #define MYSTATSYSIZE 64 // 4//8//16//64

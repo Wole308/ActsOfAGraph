@@ -13,6 +13,7 @@
 #include "../examples/app/app.h"
 #include "../src/graphs/creategraphs.h"
 #include "../src/graphs/createundirectedgraph.h"
+// #include "../src/graphs/makeundirectedgraph_orderbyindegree.h"
 #include "../src/dataset/dataset.h"
 #include "../include/common.h"
 using namespace std;
@@ -60,6 +61,9 @@ int main(int argc, char** argv){
 	createundirectedgraph * createundirectedgraphobj = new createundirectedgraph(datasetobj->getdatasetid());
 	createundirectedgraphobj->start();
 	exit(EXIT_SUCCESS);
+	// makeundirectedgraph_orderbyindegree * createundirectedgraphobj2 = new makeundirectedgraph_orderbyindegree(datasetobj->getdatasetid());
+	// createundirectedgraphobj2->start();
+	// exit(EXIT_SUCCESS);
 	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS3

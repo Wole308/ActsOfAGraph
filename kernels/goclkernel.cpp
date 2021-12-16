@@ -23,7 +23,28 @@
 #include "goclkernel.h"
 using namespace std;
 
-// other actssync impls at ActsofAGraph69 & 70 backups
+#define TESTRUN
+#ifdef TESTRUN
+#define NUMCOMPUTEUNITS_SLR1AND2 1 
+#define NUMCOMPUTEUNITS_SLR0 1 
+#else 
+	#if NUM_PEs==12
+	#define NUMCOMPUTEUNITS_SLR1AND2 5 
+	#define NUMCOMPUTEUNITS_SLR0 5
+	#endif 
+	#if NUM_PEs==22
+	#define NUMCOMPUTEUNITS_SLR1AND2 8 
+	#define NUMCOMPUTEUNITS_SLR0 6
+	#endif 
+	#if NUM_PEs==24
+	#define NUMCOMPUTEUNITS_SLR1AND2 9 
+	#define NUMCOMPUTEUNITS_SLR0 6
+	#endif 
+	#if NUM_PEs==25
+	#define NUMCOMPUTEUNITS_SLR1AND2 9 
+	#define NUMCOMPUTEUNITS_SLR0 7
+	#endif 
+#endif 
 
 //HBM Banks requirements
 #define MAX_HBM_BANKCOUNT 32
@@ -139,532 +160,74 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-#ifdef ACTS_2by1by1
-long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){
-	long double total_time_elapsed = 0;
-	long double avs_proc[128][8];
-	long double avs_sync[32];
-	
-	unsigned int _BASEOFFSETKVS_MESSAGESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_MESSAGESDATA].data[0].key;
-	unsigned int _BASEOFFSETKVS_EDGESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key;
-	unsigned int _BASEOFFSETKVS_VERTEXPTR = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
-	unsigned int _BASEOFFSETKVS_VERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
-	unsigned int _BASEOFFSETKVS_ACTIVEVERTICES = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
-	unsigned int _BASEOFFSETKVS_VERTICESDATAMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key;
-	unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-	unsigned int _BASEOFFSETKVS_STATSDRAM = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
-	unsigned int _BASEOFFSETKVS_KVDRAM = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAM].data[0].key;
-	unsigned int _BASEOFFSETKVS_KVDRAMWORKSPACE = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
-	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
-	
-	// Create tempkvbuffer
-	tempkvsourcedram_proc = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); // process
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ tempkvsourcedrams_proc[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); } // process // REMOVEME.
-	
-	cl_int err;
-    auto devices = xcl::get_xil_devices();
-    auto device = devices[0];
-
-    //Creating Context and Command Queue for selected Device
-    OCL_CHECK(err, cl::Context context(device, NULL, NULL, NULL, &err));
-    OCL_CHECK(
-        err,
-        cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err));
-    std::string device_name = device.getInfo<CL_DEVICE_NAME>();
-    std::cout << "Found Device=" << device_name.c_str() << std::endl;
-	
-	auto fileBuf_proc = xcl::read_binary_file(binaryFile[0]);
-	auto fileBuf_sync = xcl::read_binary_file(binaryFile[1]);
-
-    int vector_length = LENGTH;
-    bool match = true;
-	
-	#ifdef LOADTEMPSPACETOFPGA
-	inputdata_size_bytes = PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt);
-	#else 
-	inputdata_size_bytes = _BASEOFFSETKVS_KVDRAM * sizeof(uint512_vec_dt);
-	#endif
-	
-	for(unsigned int i=0; i<8; i++){ for(unsigned int j=0; j<128; j++){ timeelapsed_totals[i][j] = 0; }}
-	
-	unsigned int analysis_begincount;
-	unsigned int analysis_icount;
-	#ifdef ENABLE_KERNEL_PROFILING
-	analysis_icount = 3;
-		#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
-		analysis_begincount = 0;
-		#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
-		analysis_begincount = 0;
-		#elif defined(TRAD_PARTITION_AND_REDUCE_STRETEGY)
-		analysis_begincount = 2;
-		#else 
-		analysis_begincount = 0;
-		#endif 
-	#else 
-	analysis_icount = 1;
-	#endif
-	unsigned int _PROCESSCOMMAND = ON; unsigned int _PARTITIONCOMMAND = ON; unsigned int _APPLYUPDATESCOMMAND = ON;
-	
-	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-		cout<<"goclkernel::runapp2: Iteration "<<GraphIter<<endl;
-		#endif
-
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = GraphIter; }
-		
-		#ifdef ENABLE_ACTSPROC
-		{
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-			cout<<">>> goclkernel[actsproc]:: running ACTS PROCESS (Iteration "<<GraphIter<<")..."<<endl;
-			#endif 
-			
-			cl_int err;
-			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);
-			cl::Buffer buffer_kvdram;
-			cl::Kernel krnls;
-			
-			cl::Event kernel_events;
-			cl::Event write_events;
-			cl::Event read_events;
-			
-			long double kerneltimelapse_ms[8][NUMSUBCPUTHREADS];
-			
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			printf("INFO: loading vmul kernel\n");
-			#endif
-			cl::Program::Binaries vmul_bins{{fileBuf_proc.data(), fileBuf_proc.size()}};
-			devices.resize(1);
-			OCL_CHECK(err,
-					  cl::Program program(context, devices, vmul_bins, NULL, &err));
-			
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			cout<<"goclkernel:: creating kernel object..."<<endl;
-			#endif
-			std::string krnl_name = "topkernelproc"; //
-			std::string cu_id = std::to_string((1));
-					std::string krnl_name_full = krnl_name + ":{" + "topkernelproc_" + cu_id + "}"; 
-
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					printf("Creating a kernel [%s] for CU(%d)\n",
-						   krnl_name_full.c_str(),
-						   (1));
-					#endif
-
-					OCL_CHECK(err,
-							  krnls = cl::Kernel(program, krnl_name_full.c_str(), &err));
-
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			cout<<"goclkernel:: creating OCL buffers..."<<endl;
-			#endif
-			OCL_CHECK(err,
-				  buffer_kvdram =
-					  cl::Buffer(context,
-								 CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE,
-								 // sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
-								 inputdata_size_bytes,
-								 tempkvsourcedram_proc,
-								 &err));
-
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			cout<<"goclkernel:: setting kernel arguments..."<<endl;
-			#endif
-			OCL_CHECK(err, err = krnls.setArg(0, buffer_kvdram));
-			
-			for(unsigned int inst=0; inst<NUMSUBCPUTHREADS; inst++){
-				// write
-				for(unsigned int k=0; k<PADDEDKVSOURCEDRAMSZ_KVS; k++){
-					for(unsigned int v=0; v<VECTOR_SIZE; v++){
-						tempkvsourcedram_proc[k].data[v] = kvsourcedram[inst][k].data[v];
-					}
-				}
-				
-				for(unsigned int analysis_i=analysis_begincount; analysis_i<analysis_icount; analysis_i++){
-					#ifdef ENABLE_KERNEL_PROFILING
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS_XXX
-					cout<<"--- goclkernel:: setting kernel profiling information...: analysis_i: "<<analysis_i<<endl;
-					#endif
-					if(analysis_i==0){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = OFF; _APPLYUPDATESCOMMAND = OFF; }
-					if(analysis_i==1){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = ON; _APPLYUPDATESCOMMAND = OFF; }
-					if(analysis_i==2){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = ON; _APPLYUPDATESCOMMAND = ON; }
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS_XXX
-					cout<<"goclkernel::runapp: analysis_i: "<<analysis_i<<"(PROCESSCOMMAND:"<<_PROCESSCOMMAND<<", PARTITIONCOMMAND:"<<_PARTITIONCOMMAND<<", APPLYUPDATESCOMMAND:"<<_APPLYUPDATESCOMMAND<<")"<<endl;
-					#endif 
-					
-					for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-						tempkvsourcedram_proc[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key = ON;
-						tempkvsourcedram_proc[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key = _PROCESSCOMMAND; 
-						tempkvsourcedram_proc[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = _PARTITIONCOMMAND; 
-						tempkvsourcedram_proc[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = _APPLYUPDATESCOMMAND;
-					}
-					#endif 
-			
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel:: migrating workload to FPGA..."<<endl;
-					#endif
-					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram}, 0, NULL, &write_events));
-					OCL_CHECK(err, err = write_events.wait());
-					
-					// This function will execute the kernel on the FPGA
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel:: launching the kernel..."<<endl;
-					#endif
-					std::chrono::steady_clock::time_point beginkerneltime = std::chrono::steady_clock::now();	  
-					OCL_CHECK(err, err = q.enqueueTask(krnls, NULL, &kernel_events)); 
-					OCL_CHECK(err, err = kernel_events.wait());
-					long double kerneltimelapse_microsec = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime).count();			
-					kerneltimelapse_ms[analysis_i][inst] = kerneltimelapse_microsec / 1000;
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-					if(analysis_i==analysis_icount-1){ std::cout <<">>> kernel (proc) "<<inst<<" time elapsed: "<<kerneltimelapse_ms[analysis_i][inst]<<" ms, "<<kerneltimelapse_microsec<<" microsecs, "<<std::endl; }
-					#endif
-
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
-					#endif
-					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events));	
-					OCL_CHECK(err, err = read_events.wait());
-					OCL_CHECK(err, err = q.finish());
-				}
-				
-				// readback 
-				for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){
-					for(unsigned int v=0; v<VECTOR_SIZE; v++){
-						kvsourcedram[inst][i].data[v] = tempkvsourcedram_proc[i].data[v];
-					}
-				}
-			}
-			
-			for(unsigned int analysis_i=0; analysis_i<8; analysis_i++){ avs_proc[GraphIter][analysis_i] = getaveragetimeelapsed(kerneltimelapse_ms[analysis_i]); }
-			total_time_elapsed += avs_proc[GraphIter][analysis_icount-1];
-
-			std::cout <<">>> SUMMARY: kernel (proc) average time elapsed (for LOPs) for Iteration "<<GraphIter<<": ";
-			cout<<avs_proc[GraphIter][0]<<"("<<avs_proc[GraphIter][0]<<")"<<" ms, ";
-			for(unsigned int analysis_i=1; analysis_i<analysis_icount; analysis_i++){ cout<<avs_proc[GraphIter][analysis_i]<<"("<<avs_proc[GraphIter][analysis_i]-avs_proc[GraphIter][analysis_i-1]<<")"<<" ms, "; }
-			cout<<endl;
-		}
-		#endif 
-		
-		#if defined(ENABLE_ACTSSYNC) & defined(HWIMPLFOR_ACTSSYNC) & not defined(TESTKERNEL)
-		{
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-			cout<<">>> goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration "<<GraphIter<<")"<<endl;
-			#endif 
-			
-			cl_int err;
-			std::vector<cl_mem_ext_ptr_t> inoutBufExt(32);
-			std::vector<cl::Buffer> buffer_kvdram(32);
-			std::vector<cl::Buffer> buffer_vdram(2);
-			std::vector<cl::Kernel> krnls(1);
-			
-			// cl::Event kernel_events;
-			vector<cl::Event> kernel_events;
-			cl::Event write_events;
-			cl::Event read_events;
-			
-			// vector<cl::Event> kernel_events;
-			kernel_events.resize(1);
-			
-			long double kerneltimelapse_ms[1];
-			
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			printf("INFO: loading vmul kernel\n");
-			#endif
-			cl::Program::Binaries vmul_bins{{fileBuf_sync.data(), fileBuf_sync.size()}};
-			devices.resize(1);
-			OCL_CHECK(err,
-					  cl::Program program(context, devices, vmul_bins, NULL, &err));
-					  
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			cout<<"goclkernel:: creating kernel object..."<<endl;
-			#endif
-			std::string krnl_name = "topkernelsync";
-			std::string cu_id = std::to_string((1));
-			std::string krnl_name_full = krnl_name + ":{" + "topkernelsync_" + cu_id + "}"; 
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			printf("Creating a kernel [%s] for CU(%d)\n",
-				   krnl_name_full.c_str(),
-				   (1));
-			#endif
-			OCL_CHECK(err,
-					  krnls[0] = cl::Kernel(program, krnl_name_full.c_str(), &err));
-
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			cout<<"goclkernel[actssync]:: creating OCL buffers..."<<endl;
-			#endif
-			for(unsigned int i=0; i<NUMSYNCTHREADS; i++){
-				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-				cout<<"attaching bufferExt "<<i<<" to HBM bank: "<<i<<endl;
-				#endif
-				inoutBufExt[i].obj = tempkvsourcedrams_sync[i];
-				inoutBufExt[i].param = 0;
-				inoutBufExt[i].flags = bank[i];
-			}
-			inoutBufExt[NUMSYNCTHREADS].obj = tempvdram_sync;
-			inoutBufExt[NUMSYNCTHREADS].param = 0;
-			inoutBufExt[NUMSYNCTHREADS].flags = bank[NUMSYNCTHREADS];
-			for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ 
-				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-				cout<<"creating buffer for ACTS: "<<i<<endl;
-				#endif
-				OCL_CHECK(err,
-				  buffer_kvdram[i] =
-					  cl::Buffer(context,
-							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
-							 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
-							 &inoutBufExt[i],
-							 &err));
-			}
-			OCL_CHECK(err,
-			  buffer_vdram[0] =
-				  cl::Buffer(context,
-						 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
-						 sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS,
-						 &inoutBufExt[NUMSYNCTHREADS],
-						 &err));
-						 
-			#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
-			for(unsigned int k=0; k<KVSTATSDRAMSZ_KVS; k++){
-				unsigned int maxstats = 0;
-				for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ maxstats += kvsourcedram[i][_BASEOFFSETKVS_STATSDRAM + k].data[0].value; }
-				for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][_BASEOFFSETKVS_STATSDRAM + k].data[0].value = maxstats; }
-			}
-			#endif
-						 
-			#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
-			for(unsigned int k=0; k<VERTICESDATASZ_KVS; k++){
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){
-					tempvdram_sync[_BASEOFFSETKVS_VERTICESDATA + k].data[v].key = algorithmobj->vertex_initdata();
-					tempvdram_sync[_BASEOFFSETKVS_VERTICESDATA + k].data[v].value = algorithmobj->vertex_initdata();
-				}
-			}
-			#endif 
-			
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-			cout<<"goclkernel[actssync]:: setting kernel arguments: ind: "<<ind<<"..."<<endl;
-			#endif
-			for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ OCL_CHECK(err, err = krnls[0].setArg(i, buffer_kvdram[i])); }
-			OCL_CHECK(err, err = krnls[0].setArg(NUMSYNCTHREADS, buffer_vdram[0]));
-			
-			for(unsigned int inst=0; inst<3; inst++){
-				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-				cout<<"goclkernel[actssync]:: inst: "<<inst<<endl;
-				#endif
-				
-				unsigned int _BOOL;
-				if(inst==2){ _BOOL = ON; } else { _BOOL = OFF; }
-				
-				#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-				cout<<"swkernel::runapp: setting savevmask and savevmaskp... "<<endl;
-				#endif 
-				for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-					kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASK].data[0].key = _BOOL;
-					kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASKP].data[0].key = _BOOL;
-				}
-				
-				if(inst==2){ memcpy(tempvdram_sync, vdram, sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
-				
-				for(unsigned int ind=0; ind<32; ind+=NUMSYNCTHREADS){
-					// copy 
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel[actssync]:: copying kvsourcedram to tempkvsourcedrams_sync..."<<endl;
-					#endif
-					for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ memcpy(tempkvsourcedrams_sync[i], kvsourcedram[ind+i], sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
-					
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel[actssync]:: migrating workload to FPGA..."<<endl;
-					#endif
-					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0], buffer_kvdram[1], buffer_kvdram[2], buffer_kvdram[3], buffer_kvdram[4], buffer_kvdram[5], buffer_kvdram[6], buffer_kvdram[7],				
-																		buffer_kvdram[8], buffer_kvdram[9], buffer_kvdram[10], buffer_kvdram[11], buffer_kvdram[12], buffer_kvdram[13], buffer_kvdram[14], buffer_kvdram[15], 				
-																			buffer_vdram[0]},
-																					0, NULL, &write_events));
-					OCL_CHECK(err, err = write_events.wait());
-																				
-					// This function will execute the kernel on the FPGA
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel[actssync]:: launching the kernel..."<<endl;
-					#endif
-					std::chrono::steady_clock::time_point beginkerneltime = std::chrono::steady_clock::now();	  
-					OCL_CHECK(err, err = q.enqueueTask(krnls[0], NULL, &kernel_events[0])); 
-					OCL_CHECK(err, err = kernel_events[0].wait());
-					// if(inst==2 && ind==0){
-						long double kerneltimelapse_microsec = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime).count();			
-						kerneltimelapse_ms[0] = kerneltimelapse_microsec / 1000;
-					// }
-					// #ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					std::cout <<">>> kernel (sync) time elapsed: "<<kerneltimelapse_ms[0]<<" ms, "<<(kerneltimelapse_ms[0] * 1000)<<" microsecs, "<<std::endl;
-					// #endif
-					
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel[actssync]:: migrating workload back to HOST..."<<endl;
-					#endif
-					OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0], buffer_kvdram[1], buffer_kvdram[2], buffer_kvdram[3], buffer_kvdram[4], buffer_kvdram[5], buffer_kvdram[6], buffer_kvdram[7],				
-																		buffer_kvdram[8], buffer_kvdram[9], buffer_kvdram[10], buffer_kvdram[11], buffer_kvdram[12], buffer_kvdram[13], buffer_kvdram[14], buffer_kvdram[15], 				
-																			buffer_vdram[0]},
-																					CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events));
-					OCL_CHECK(err, err = read_events.wait());
-					OCL_CHECK(err, err = q.finish());
-					
-					// copy back
-					#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS
-					cout<<"goclkernel[actssync]:: copying tempkvsourcedrams_sync backto kvsourcedram..."<<endl;
-					#endif
-					for(unsigned int i=0; i<NUMSYNCTHREADS; i++){ memcpy(kvsourcedram[ind+i], tempkvsourcedrams_sync[i], sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
-				}
-				
-				// copy back
-				if(inst==2){ memcpy(vdram, tempvdram_sync, sizeof(uint512_vec_dt) * PADDEDKVSOURCEDRAMSZ_KVS); }
-			}
-			
-			#if NUMSYNCTHREADS<NUMSUBCPUTHREADS
-			for(unsigned int i=1; i<NUMSUBCPUTHREADS; i++){
-				memcpy(&kvsourcedram[i][_BASEOFFSETKVS_VERTICESDATAMASK], &kvsourcedram[0][_BASEOFFSETKVS_VERTICESDATAMASK], (VERTICESDATAMASKSZ/VECTOR_SIZE) * sizeof(uint512_vec_dt));
-				memcpy(&kvsourcedram[i][_BASEOFFSETKVS_VERTICESPARTITIONMASK], &kvsourcedram[0][_BASEOFFSETKVS_VERTICESPARTITIONMASK], 512 * sizeof(uint512_vec_dt));
-			}
-			#endif 
-			
-			// avs_sync[GraphIter] = 0; // kerneltimelapse_ms[0]; // FIXME. unwanted latency
-			avs_sync[GraphIter] = kerneltimelapse_ms[0] / 2; // NEWCHANGE. FIXME. (/ 2 because our sync pipeline should be double)
-			total_time_elapsed += avs_sync[GraphIter];
-			// std::cout <<">>> SUMMARY: kernel (sync) average time elapsed for Iteration "<<GraphIter<<": "<<avs_sync[GraphIter]<<" ms"<<std::endl;
-		}
-		#endif
-		
-		#if defined(ENABLE_ACTSSYNC) & not defined(HWIMPLFOR_ACTSSYNC) & not defined(TESTKERNEL)
-		{
-			#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-			cout<<"--------------- goclkernel[actssync]:: running ACTS SYNCHRONZE (Iteration "<<GraphIter<<") ---------------"<<endl;
-			#endif 
-			
-			kernelobjs_synchronize->topkernelsync(
-				(uint512_dt *)kvsourcedram[0],
-				(uint512_dt *)kvsourcedram[1],
-				#if NUMCOMPUTEUNITS>2
-				(uint512_dt *)kvsourcedram[2],
-				(uint512_dt *)kvsourcedram[3],
-				#if NUMCOMPUTEUNITS>4
-				(uint512_dt *)kvsourcedram[4],
-				(uint512_dt *)kvsourcedram[5],
-				(uint512_dt *)kvsourcedram[6],
-				(uint512_dt *)kvsourcedram[7],
-				#if NUMCOMPUTEUNITS>8
-				(uint512_dt *)kvsourcedram[8],
-				(uint512_dt *)kvsourcedram[9],
-				(uint512_dt *)kvsourcedram[10],
-				(uint512_dt *)kvsourcedram[11],
-				#if NUMCOMPUTEUNITS>12
-				(uint512_dt *)kvsourcedram[12],
-				(uint512_dt *)kvsourcedram[13],
-				(uint512_dt *)kvsourcedram[14],
-				(uint512_dt *)kvsourcedram[15],
-				#if NUMCOMPUTEUNITS>16
-				(uint512_dt *)kvsourcedram[16],
-				(uint512_dt *)kvsourcedram[17],
-				(uint512_dt *)kvsourcedram[18],
-				(uint512_dt *)kvsourcedram[19],
-				#if NUMCOMPUTEUNITS>20
-				(uint512_dt *)kvsourcedram[20],
-				(uint512_dt *)kvsourcedram[21],
-				(uint512_dt *)kvsourcedram[22],
-				(uint512_dt *)kvsourcedram[23],
-				#if NUMCOMPUTEUNITS>24
-				(uint512_dt *)kvsourcedram[24],
-				(uint512_dt *)kvsourcedram[25],
-				(uint512_dt *)kvsourcedram[26],
-				(uint512_dt *)kvsourcedram[27],
-				#if NUMCOMPUTEUNITS>28
-				(uint512_dt *)kvsourcedram[28],
-				(uint512_dt *)kvsourcedram[29],
-				(uint512_dt *)kvsourcedram[30],
-				(uint512_dt *)kvsourcedram[31],
-				#endif
-				#endif
-				#endif
-				#endif
-				#endif
-				#endif
-				#endif
-				#endif 
-				(uint512_dt *)vdram
-			);
-		}
-		#endif
-		
-		if(ExitCheck(kvsourcedram[0], GraphIter) == 1){ cout<<"goclkernel::runapp2: no more active vertices to process. exiting... "<<endl; break; }
-	}
-
-	std::cout << TIMINGRESULTSCOLOR <<">>> SUMMARY: Total kernel time: "<<total_time_elapsed<<" ms"<< RESET << std::endl;
-	
-	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
-		timeelapsed_totals[GraphIter][0] = avs_proc[GraphIter][0];
-		for(unsigned int analysis_i=1; analysis_i<3; analysis_i++){ timeelapsed_totals[GraphIter][analysis_i] = avs_proc[GraphIter][analysis_i]-avs_proc[GraphIter][analysis_i-1]; }
-		timeelapsed_totals[GraphIter][2] += avs_sync[GraphIter]; //////////////////
-	}
-		
-	return total_time_elapsed;
-}
-#endif 
-#ifdef ACTS_1by2by1byN
 long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){				
-	long double total_time_elapsed = 0;
-	long double avs_proc[128][8]; //[GraphIter][CLOP]
-	long double avs_sync[32];
-	for(unsigned int i=0; i<128; i++){ for(unsigned int j=0; j<8; j++){ avs_proc[i][j] = 0; }}
-	for(unsigned int i=0; i<32; i++){ avs_sync[i] = 0; }
-	for(unsigned int i=0; i<128; i++){ for(unsigned int j=0; j<8; j++){ timeelapsed_totals[i][j] = 0; }}
+	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
+	unsigned int index_count = 0;
+	unsigned int edgessz_kvs = 0;
+	unsigned int kvdramsz_kvs = 0;
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	unsigned int A = edges[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	unsigned int B = edges[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
+	edgessz_kvs = A + B;
+	#endif 
 	unsigned int C = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	unsigned int D = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
+	
+	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; } // reset
+	
+	unsigned int hybridmodeoffset_kvs = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_OTHERINFOS].data[0].key;
+	for(unsigned int it=0; it<64; it++){ vdram[hybridmodeoffset_kvs + it].data[0].key = OFF; } // hybrid-mode enables
+	// vdram[hybridmodeoffset_kvs + 0].data[0].key = ON; // CRITICAL FIXME.
+	// vdram[hybridmodeoffset_kvs + 1].data[0].key = ON;
+	// vdram[hybridmodeoffset_kvs + 2].data[0].key = ON;
+	// vdram[hybridmodeoffset_kvs + 3].data[0].key = ON;
+	// vdram[hybridmodeoffset_kvs + 4].data[0].key = OFF;
+	// vdram[hybridmodeoffset_kvs + 5].data[0].key = OFF;
+	// vdram[hybridmodeoffset_kvs + 6].data[0].key = OFF;
+	// vdram[hybridmodeoffset_kvs + 7].data[0].key = ON;
+	
 	unsigned int baseoffsetkvs_verticesdata = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
-	// unsigned int edgessz_kvs = A + B;
-	// unsigned int kvdramsz_kvs = C + D;
-	unsigned int edgessz_kvs = KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
-	unsigned int kvdramsz_kvs = KVSOURCEDRAMSZ_KVS;
-	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes)"<<endl;							
+	kvdramsz_kvs = C + D;
+	edgessz_kvs = PADDEDKVSOURCEDRAMSZ_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
+	kvdramsz_kvs = PADDEDKVSOURCEDRAMSZ_KVS; // KVSOURCEDRAMSZ_KVS;
+	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<endl;
 	
-	unsigned int analysis_i = 0;
-	unsigned int analysis_begincount;
-	unsigned int analysis_icount;
-	#ifdef ENABLE_KERNEL_PROFILING
-	analysis_icount = 1;//3;
-		#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
-		analysis_begincount = 0;
-		#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
-		analysis_begincount = 0;
-		#elif defined(TRAD_PARTITION_AND_REDUCE_STRETEGY)
-		analysis_begincount = 2;
-		#else 
-		analysis_begincount = 0;
-		#endif 
-	#else 
-	analysis_icount = 1;
+	uint512_vec_dt * vdramtemp[3];
+	#ifndef SW_IMPL 
+	#ifdef FPGA_IMPL			
+	vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
+	vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
+	vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
+	#else
+	vdramtemp[0] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+	vdramtemp[1] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+	vdramtemp[2] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	#endif
-	unsigned int _PROCESSCOMMAND = ON; unsigned int _PARTITIONCOMMAND = ON; unsigned int _APPLYUPDATESCOMMAND = ON;
-	
+	#endif 
+	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdramtemp[0][i] = vdram[i]; vdramtemp[1][i] = vdram[i]; vdramtemp[2][i] = vdram[i]; }
+
 	cl_int err;
     auto devices = xcl::get_xil_devices();
     auto device = devices[0];
 
     //Creating Context and Command Queue for selected Device
     OCL_CHECK(err, cl::Context context(device, NULL, NULL, NULL, &err));
-	/* OCL_CHECK(err,
+	OCL_CHECK(err,
               cl::CommandQueue q(context,
                                  device,
                                  CL_QUEUE_PROFILING_ENABLE |
                                      CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE,
-                                 &err)); */
-	OCL_CHECK( // CRITICAL RESTOREME.
+                                 &err));
+	/* OCL_CHECK( // CRITICAL RESTOREME.
         err,
-        cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err));
+        cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); */
     std::string device_name = device.getInfo<CL_DEVICE_NAME>();
     std::cout << "Found Device=" << device_name.c_str() << std::endl;
-	
-	auto fileBuf_proc = xcl::read_binary_file(binaryFile[0]);
-	// auto fileBuf_sync = xcl::read_binary_file(binaryFile[1]);
+
+	auto fileBuf_procandsync = xcl::read_binary_file(binaryFile[0]);
 
     int vector_length = LENGTH;
     bool match = true;
@@ -674,132 +237,114 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	#endif 
 	
 	// cl_int err;
-	std::vector<cl_mem_ext_ptr_t> inoutBufExt_edges(32);
-	std::vector<cl_mem_ext_ptr_t> inoutBufExt_kvdram(32);
-	cl_mem_ext_ptr_t inoutBufExt_vdram;
-	std::vector<cl::Buffer> buffer_kvdram(32);
-	std::vector<cl::Buffer> buffer_edgesdram(32);
-	cl::Buffer buffer_vdram;
-	std::vector<cl::Kernel> krnls_proc(32);
+	std::vector<cl_mem_ext_ptr_t> inoutBufExt_edges[3]; for(unsigned int i=0; i<3; i++){ inoutBufExt_edges[i] = std::vector<cl_mem_ext_ptr_t>(32); }
+	std::vector<cl_mem_ext_ptr_t> inoutBufExt_kvdram[3]; for(unsigned int i=0; i<3; i++){ inoutBufExt_kvdram[i] = std::vector<cl_mem_ext_ptr_t>(32); }
+	std::vector<cl_mem_ext_ptr_t> inoutBufExt_kvdramTTT(32);
+	cl_mem_ext_ptr_t inoutBufExt_vdram[4];
+	std::vector<cl::Buffer> buffer_kvdram[3]; for(unsigned int i=0; i<3; i++){ buffer_kvdram[i] = std::vector<cl::Buffer>(32); }
+	std::vector<cl::Buffer> buffer_edgesdram[3]; for(unsigned int i=0; i<3; i++){ buffer_edgesdram[i] = std::vector<cl::Buffer>(32); }
+	cl::Buffer buffer_vdram[4];
+	std::vector<cl::Kernel> krnls_proc(3);
 	cl::Kernel krnls_sync;
-	std::vector<cl::Event> kernel_events(32);
-	std::vector<cl::Event> write_events(32);
-	std::vector<cl::Event> read_events(32);
+	std::vector<cl::Event> kernel_events(48);
+	std::vector<cl::Event> write_events(48);
+	std::vector<cl::Event> read_events(48);
 	
-	long double prockerneltimelapses_ms[NUMSUBCPUTHREADS]; for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ prockerneltimelapses_ms[i] = 0; }
-	long double prockerneltimelapse_ms = 0;
-	long double synkerneltimelapse_ms = 0;
-	long double procandsynkerneltimelapse_ms = 0;
 	long double WALLprocandsynkerneltimelapse_ms = 0;
-	long double totalprocandsynkerneltimelapse_ms = 0;
-	long double totalWALLprocandsynkerneltimelapse_ms = 0;
-	long double endtoendWALLkerneltimelapse_ms = 0;
 
-	/* unsigned int kvindex = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=NUM_EDGE_BANKS){ 
-		for(unsigned int j=0; j<NUM_EDGE_BANKS; j++){ 
-			inoutBufExt_edges[i*NUM_EDGE_BANKS + j].obj = edges[i*NUM_EDGE_BANKS + j];
-			inoutBufExt_edges[i*NUM_EDGE_BANKS + j].param = 0;
-			inoutBufExt_edges[i*NUM_EDGE_BANKS + j].flags = bank[i*NUM_EDGE_BANKS + j];
-			cout<<"attaching inoutBufExt_edges["<<i*NUM_EDGE_BANKS + j<<"] to Edges["<<i*NUM_EDGE_BANKS + j<<"] to HBM["<<i*NUM_EDGE_BANKS + j<<"]: "<<endl;
-		}
-		inoutBufExt_kvdram[kvindex].obj = kvsourcedram[kvindex];
-		inoutBufExt_kvdram[kvindex].param = 0;
-		inoutBufExt_kvdram[kvindex].flags = bank[i*NUM_EDGE_BANKS + NUM_EDGE_BANKS];
-		cout<<"attaching inoutBufExt_kvdram["<<kvindex<<"] to Kvdram["<<kvindex<<"] to HBM["<<i*NUM_EDGE_BANKS + NUM_EDGE_BANKS<<"]: "<<endl;
-		kvindex += 1;
-	}
-	inoutBufExt_vdram.obj = vdram;
-	inoutBufExt_vdram.param = 0;
-	inoutBufExt_vdram.flags = bank[NUMSUBCPUTHREADS + 1];
-	cout<<"attaching inoutBufExt_vdram to vdram to HBM["<<NUMSUBCPUTHREADS + 1<<"]: "<<endl; */
-	
-	/* unsigned int kvindex = 0;
-	unsigned int hbmindex = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=NUM_EDGE_BANKS){ 
-		for(unsigned int j=0; j<NUM_EDGE_BANKS; j++){ 
-			inoutBufExt_edges[i*NUM_EDGE_BANKS + j].obj = edges[i*NUM_EDGE_BANKS + j];
-			inoutBufExt_edges[i*NUM_EDGE_BANKS + j].param = 0;
-			inoutBufExt_edges[i*NUM_EDGE_BANKS + j].flags = bank[hbmindex];
-			cout<<"attaching inoutBufExt_edges["<<i*NUM_EDGE_BANKS + j<<"] to Edges["<<i*NUM_EDGE_BANKS + j<<"] to HBM["<<hbmindex<<"]: "<<endl;
-			hbmindex += 1;
-		}
-		inoutBufExt_kvdram[kvindex].obj = kvsourcedram[kvindex];
-		inoutBufExt_kvdram[kvindex].param = 0;
-		inoutBufExt_kvdram[kvindex].flags = bank[hbmindex];
-		cout<<"attaching inoutBufExt_kvdram["<<kvindex<<"] to Kvdram["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
-		kvindex += 1;
-		hbmindex += 1;
-	}
-	inoutBufExt_vdram.obj = vdram;
-	inoutBufExt_vdram.param = 0;
-	inoutBufExt_vdram.flags = bank[hbmindex];
-	cout<<"attaching inoutBufExt_vdram to vdram to HBM["<<hbmindex<<"]: "<<endl; */
-	
 	unsigned int kvindex = 0;
 	unsigned int edgesindex = 0;
 	unsigned int hbmindex = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=NUM_EDGE_BANKS){ 
-		for(unsigned int j=0; j<NUM_EDGE_BANKS; j++){ 
-			inoutBufExt_edges[edgesindex].obj = edges[edgesindex];
-			inoutBufExt_edges[edgesindex].param = 0;
-			inoutBufExt_edges[edgesindex].flags = bank[hbmindex];
-			cout<<"attaching inoutBufExt_edges["<<edgesindex<<"] to Edges["<<edgesindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
-			edgesindex += 1;
+	unsigned int numI = 0;
+	for(unsigned int s=0; s<3; s+=1){
+		if(s==0){ numI = NUMCOMPUTEUNITS_SLR1AND2; } // SLR 2
+		if(s==1){ numI = NUMCOMPUTEUNITS_SLR1AND2; } // SLR 1
+		if(s==2){ numI = NUMCOMPUTEUNITS_SLR0; } // SLR 0
+		for(unsigned int i=0; i<numI; i+=1){ 
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
+			for(unsigned int j=0; j<NUM_EDGE_BANKS; j++){ 
+				inoutBufExt_edges[s][edgesindex].obj = edges[edgesindex];
+				inoutBufExt_edges[s][edgesindex].param = 0;
+				inoutBufExt_edges[s][edgesindex].flags = bank[hbmindex];
+				cout<<"attaching inoutBufExt_edges["<<s<<"]["<<edgesindex<<"] to Edges["<<edgesindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
+				edgesindex += 1;
+				hbmindex += 1;
+			}
+			#endif 
+			inoutBufExt_kvdram[s][i].obj = kvsourcedram[kvindex];
+			inoutBufExt_kvdram[s][i].param = 0;
+			inoutBufExt_kvdram[s][i].flags = bank[hbmindex];
+			cout<<"attaching inoutBufExt_kvdram["<<s<<"]["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
+			kvindex += 1;
 			hbmindex += 1;
 		}
-		inoutBufExt_kvdram[kvindex].obj = kvsourcedram[kvindex];
-		inoutBufExt_kvdram[kvindex].param = 0;
-		inoutBufExt_kvdram[kvindex].flags = bank[hbmindex];
-		cout<<"attaching inoutBufExt_kvdram["<<kvindex<<"] to Kvdram["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
-		kvindex += 1;
+		inoutBufExt_vdram[s].obj = vdramtemp[s];
+		inoutBufExt_vdram[s].param = 0;
+		inoutBufExt_vdram[s].flags = bank[hbmindex];
+		cout<<"attaching inoutBufExt_vdram["<<s<<"] to vdramtemp to HBM["<<hbmindex<<"]: "<<endl;
 		hbmindex += 1;
 	}
-	inoutBufExt_vdram.obj = vdram;
-	inoutBufExt_vdram.param = 0;
-	inoutBufExt_vdram.flags = bank[hbmindex];
-	cout<<"attaching inoutBufExt_vdram to vdram to HBM["<<hbmindex<<"]: "<<endl;
-	// exit(EXIT_SUCCESS);
+	inoutBufExt_vdram[3].obj = vdram;
+	inoutBufExt_vdram[3].param = 0;
+	inoutBufExt_vdram[3].flags = bank[hbmindex];
+	cout<<"attaching inoutBufExt_vdram[3] to vdram to HBM["<<hbmindex<<"]: "<<endl;
 	
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel:: creating OCL buffers..."<<endl;
 	#endif
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		OCL_CHECK(err,
-			  buffer_edgesdram[i] =
-				  cl::Buffer(context,
-							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
-							 sizeof(uint512_vec_dt) * edgessz_kvs,
-							 &inoutBufExt_edges[i], 
-							 &err));
-		cout<<"+++ goclkernel: created buffer_edgesdram["<<i<<"] "<<endl;
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
+	for(unsigned int s=0; s<3; s+=1){ 
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+			OCL_CHECK(err,
+				  buffer_edgesdram[s][i] =
+					  cl::Buffer(context,
+								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+										 CL_MEM_USE_HOST_PTR,
+								 sizeof(uint512_vec_dt) * edgessz_kvs,
+								 &inoutBufExt_edges[s][i], 
+								 &err));
+			cout<<"+++ goclkernel: created buffer_edgesdram["<<s<<"]["<<i<<"] "<<endl;
+		}
 	}
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS / NUM_EDGE_BANKS; i++){						 
+	#endif 
+	unsigned int NUM = 0;
+	for(unsigned int s=0; s<3; s+=1){
+		if(s==0 || s==1){ NUM=NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=NUMCOMPUTEUNITS_SLR0; }
+		for(unsigned int i=0; i<NUM; i++){ 
+			OCL_CHECK(err,
+				  buffer_kvdram[s][i] =
+					  cl::Buffer(context,
+								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+										 CL_MEM_USE_HOST_PTR,
+								 sizeof(uint512_vec_dt) * kvdramsz_kvs,
+								 &inoutBufExt_kvdram[s][i], 
+								 &err));
+			cout<<"+++ goclkernel: created buffer_kvdram["<<s<<"]["<<i<<"] "<<endl;
+		}
 		OCL_CHECK(err,
-			  buffer_kvdram[i] =
+			  buffer_vdram[s] =
 				  cl::Buffer(context,
 							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
 									 CL_MEM_USE_HOST_PTR,
 							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
-							 &inoutBufExt_kvdram[i], 
+							 &inoutBufExt_vdram[s], 
 							 &err));
-		cout<<"+++ goclkernel: created buffer_kvdram["<<i<<"] "<<endl;
+		cout<<"+++ goclkernel: created buffer_vdram["<<s<<"] "<<endl;
 	}
 	OCL_CHECK(err,
-			  buffer_vdram =
-				  cl::Buffer(context,
-							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
-							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
-							 &inoutBufExt_vdram, 
-							 &err));
-	cout<<"+++ goclkernel: created buffer_vdram "<<endl;
-	
+		  buffer_vdram[3] =
+			  cl::Buffer(context,
+						 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+								 CL_MEM_USE_HOST_PTR,
+						 sizeof(uint512_vec_dt) * kvdramsz_kvs,
+						 &inoutBufExt_vdram[3], 
+						 &err));
+	cout<<"+++ goclkernel: created buffer_vdram[3] "<<endl;
+
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	printf("INFO: loading vmul kernel\n");
 	#endif
-	cl::Program::Binaries vmul_bins{{fileBuf_proc.data(), fileBuf_proc.size()}};
+	cl::Program::Binaries vmul_bins{{fileBuf_procandsync.data(), fileBuf_procandsync.size()}};
 	devices.resize(1);
 	OCL_CHECK(err,
 			  cl::Program program(context, devices, vmul_bins, NULL, &err));
@@ -808,233 +353,168 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel:: creating kernel object..."<<endl;
 	#endif
-	for (int i = 0; i < NUMSUBCPUTHREADS / NUM_EDGE_BANKS; i++) {
-		std::string krnl_name = "topkernelproc"; //
+	std::string krnl1and2_name = "topkernelP"+std::to_string(NUMCOMPUTEUNITS_SLR1AND2);
+	std::string krnl3_name = "topkernelP"+std::to_string(NUMCOMPUTEUNITS_SLR0);	
+	#ifdef TESTRUN
+	unsigned int _C = 2;
+	#else
+	unsigned int _C = 0;
+	#endif 
+	for (int i = 0; i < 2; i++) {
+		std::string krnl_name = krnl1and2_name; 
+		std::string krnl_name_ = krnl_name + "_";
 		std::string cu_id = std::to_string((i+1));
-		std::string krnl_name_full = krnl_name + ":{" + "topkernelproc_" + cu_id + "}"; 
+		std::string krnl_name_full = krnl_name + ":{" + krnl_name_ + cu_id + "}"; 
 		#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-		printf("Creating a kernel [%s] for CU(%d)\n",
-			   krnl_name_full.c_str(),
-			   (i+1));
+		printf("Creating a kernel [%s] for CU(%d)\n", krnl_name_full.c_str(), (i+1));
 		#endif
 		OCL_CHECK(err, krnls_proc[i] = cl::Kernel(program, krnl_name_full.c_str(), &err));
 	}
+	std::string krnl_name = krnl3_name;
+	std::string krnl_name_ = krnl_name + "_"; 
+	std::string cu_id = std::to_string((_C+1));
+	std::string krnl_name_full = krnl_name + ":{" + krnl_name_ + cu_id + "}"; 
+	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
+	printf("Creating a kernel [%s] for CU(%d)\n", krnl_name_full.c_str(), (_C+1));
+	#endif
+	OCL_CHECK(err, krnls_proc[2] = cl::Kernel(program, krnl_name_full.c_str(), &err));
 	
-	std::string krnl_name = "topkernelsync";
-	std::string cu_id = std::to_string((1));
+	krnl_name = "topkernelsync";
+	cu_id = std::to_string((1));
 	std::string krnl2_name_full = krnl_name + ":{" + "topkernelsync_" + cu_id + "}"; 
 	OCL_CHECK(err, krnls_sync = cl::Kernel(program, krnl2_name_full.c_str(), &err));
 	
-	/* // Setting kernel arguments...
-	cout<<"goclkernel:: Setting kernel (proc) arguments..."<<endl;
-	kvindex = 0;
-	argindex = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=NUM_EDGE_BANKS){ 
-		for(unsigned int j=0; j<NUM_EDGE_BANKS; j+=1){ 
-			OCL_CHECK(err, err = krnls_proc[kvindex].setArg(i+j, buffer_edgesdram[i+j]));
-			cout<<"setting argument krnls_proc["<<kvindex<<"].setArg("<<i+j<<", buffer_edgesdram["<<i+j<<"])"<<endl;
-		}
-		OCL_CHECK(err, err = krnls_proc[kvindex].setArg(i+NUM_EDGE_BANKS, buffer_kvdram[kvindex]));
-		cout<<"setting argument krnls_proc["<<kvindex<<"].setArg("<<i+NUM_EDGE_BANKS<<", buffer_kvdram["<<kvindex<<"])"<<endl;
-		kvindex += 1;
-		// OCL_CHECK(err, err = q.finish()); // CRITICAL NEWCHANGE.
-	}
-	OCL_CHECK(err, err = q.finish()); */
-	
 	// Setting kernel arguments...
 	cout<<"goclkernel:: Setting kernel (proc) arguments..."<<endl;
-	kvindex = 0;
-	unsigned int argindex = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=NUM_EDGE_BANKS){ 
-		for(unsigned int j=0; j<NUM_EDGE_BANKS; j+=1){ 
-			OCL_CHECK(err, err = krnls_proc[kvindex].setArg(argindex, buffer_edgesdram[i+j]));
-			cout<<"setting argument krnls_proc["<<kvindex<<"].setArg("<<argindex<<", buffer_edgesdram["<<i+j<<"])"<<endl;
-			argindex += 1;
+	for(unsigned int s=0; s<3; s+=1){
+		if(s==0 || s==1){ NUM=NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=NUMCOMPUTEUNITS_SLR0; }
+		for(unsigned int i=0; i<NUM; i+=1){
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
+			for(unsigned int j=0; j<NUM_EDGE_BANKS; j+=1){ 
+				OCL_CHECK(err, err = krnls_proc[s].setArg(i, buffer_edgesdram[i+j]));
+				cout<<"setting argument krnls_proc["<<s<<"].setArg("<<i<<", buffer_edgesdram["<<i+j<<"])"<<endl;
+			}
+			#endif 
+			OCL_CHECK(err, err = krnls_proc[s].setArg(i, buffer_kvdram[s][i]));
+			cout<<"setting argument krnls_proc["<<s<<"].setArg("<<i<<", buffer_kvdram["<<s<<"]["<<i<<"])"<<endl;
 		}
-		OCL_CHECK(err, err = krnls_proc[kvindex].setArg(argindex, buffer_kvdram[kvindex]));
-		cout<<"setting argument krnls_proc["<<kvindex<<"].setArg("<<argindex<<", buffer_kvdram["<<kvindex<<"])"<<endl;
-		kvindex += 1;
-		argindex = 0;
-		// OCL_CHECK(err, err = q.finish()); // CRITICAL NEWCHANGE.
+		OCL_CHECK(err, err = krnls_proc[s].setArg(NUM, buffer_vdram[s]));
+		cout<<"setting argument krnls_proc["<<s<<"].setArg("<<NUM<<", buffer_vdram["<<s<<"])"<<endl;
 	}
 	OCL_CHECK(err, err = q.finish());
 	
 	// Setting kernel arguments...
 	cout<<"goclkernel:: Setting kernel (sync) arguments..."<<endl;
-	for(unsigned int index=0; index<NUMSUBCPUTHREADS / NUM_EDGE_BANKS; index++){ 
-		OCL_CHECK(err, err = krnls_sync.setArg(index, buffer_kvdram[index]));
-		cout<<"setting argument krnls_sync.setArg("<<index<<", buffer_kvdram["<<index<<"])"<<endl;
+	for(unsigned int s=0; s<4; s++){ 
+		OCL_CHECK(err, err = krnls_sync.setArg(s, buffer_vdram[s]));
+		cout<<"setting argument krnls_sync.setArg("<<s<<", buffer_vdram["<<s<<"])"<<endl;
 	}
-	OCL_CHECK(err, err = krnls_sync.setArg(NUMSUBCPUTHREADS / NUM_EDGE_BANKS, buffer_vdram));
-	cout<<"setting argument krnls_sync.setArg("<<NUMSUBCPUTHREADS / NUM_EDGE_BANKS<<", buffer_vdram)"<<endl;
 	OCL_CHECK(err, err = q.finish());
 	
 	// Migrating input data to device global memory...
 	cout<<"goclkernel:: Migrating input data to device global memory..."<<endl;
-	kvindex = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=NUM_EDGE_BANKS){
-		#if NUM_EDGE_BANKS==1
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_kvdram[kvindex]}, 0, NULL, &write_events[kvindex]));
+	#ifdef TESTRUN
+	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
+													buffer_kvdram[1][0], buffer_vdram[1],
+													buffer_kvdram[2][0], buffer_vdram[2],
+													buffer_vdram[3]}, 
+													0, NULL, &write_events[0]));
+	#else 
+		#if NUM_PEs==12
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														0, NULL, &write_events[0]));
+		#elif NUM_PEs==22
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														0, NULL, &write_events[0]));
+		#elif NUM_PEs==24
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_kvdram[0][8], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_kvdram[1][8], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														0, NULL, &write_events[0]));
+		#elif NUM_PEs==25
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_kvdram[0][8], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_kvdram[1][8], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_kvdram[2][6], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														0, NULL, &write_events[0]));
+		#else 
+		NOT IMPLEMENTED
 		#endif
-		#if NUM_EDGE_BANKS==2
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_kvdram[kvindex]}, 0, NULL, &write_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==3
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_kvdram[kvindex]}, 0, NULL, &write_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==4
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_edgesdram[i+3], buffer_kvdram[kvindex], buffer_vdram}, 0, NULL, &write_events[kvindex]));
-		/* OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0]}, 0, NULL, &write_events[kvindex]));
-		OCL_CHECK(err, err = write_events[kvindex].wait());
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+1]}, 0, NULL, &write_events[kvindex]));
-		OCL_CHECK(err, err = write_events[kvindex].wait());
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+2]}, 0, NULL, &write_events[kvindex]));
-		OCL_CHECK(err, err = write_events[kvindex].wait());
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+3]}, 0, NULL, &write_events[kvindex]));
-		OCL_CHECK(err, err = write_events[kvindex].wait());
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[kvindex]}, 0, NULL, &write_events[kvindex]));
-		OCL_CHECK(err, err = write_events[kvindex].wait()); */
-		/* OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0]}, 0)); // CRITICAL REMOVEME.
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+1]}, 0));
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+2]}, 0));
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+3]}, 0));
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[kvindex]}, 0)); */
-		// OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_vdram}, 0));
-		#endif
-		#if NUM_EDGE_BANKS==5
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_edgesdram[i+3], buffer_edgesdram[i+4], buffer_kvdram[kvindex]}, 0, NULL, &write_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==6
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_edgesdram[i+3], buffer_edgesdram[i+4], buffer_edgesdram[i+5], buffer_kvdram[kvindex]}, 0, NULL, &write_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==7
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_edgesdram[i+3], buffer_edgesdram[i+4], buffer_edgesdram[i+5], buffer_edgesdram[i+6], buffer_kvdram[kvindex]}, 0, NULL, &write_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS>7
-		cout<<"goclkernel:enqueueMigrateMemObjects: ERROR. NOT YET IMPLEMENTED. exiting...."<<endl; exit(EXIT_FAILURE);
-		#endif 
-		OCL_CHECK(err, err = write_events[kvindex].wait()); // CRITICAL RESTOREME.
-		// OCL_CHECK(err, err = q.finish());
-		kvindex += 1;
-	}
-	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_vdram}, 0));
-	OCL_CHECK(err, err = q.finish());
-	
-	std::chrono::steady_clock::time_point beginkerneltime4 = std::chrono::steady_clock::now();
-	for(unsigned int GraphIter=0; GraphIter<numValidIters; GraphIter++){ // numIters, numValidIters
-		
-		// Processing phase started...
-		cout<< TIMINGRESULTSCOLOR << "goclkernel:: Processing phase (Iteration: "<<GraphIter<<" of "<<numValidIters<<") started..."<< RESET <<endl;
-		std::chrono::steady_clock::time_point beginkerneltime3 = std::chrono::steady_clock::now();
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS / NUM_EDGE_BANKS; i++){
-			std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
-
-			// Launch the kernel
-			OCL_CHECK(err, err = q.enqueueTask(krnls_proc[i], NULL, &kernel_events[i])); 
-			
-			#ifdef _DEBUGMODE_TIMERS2
-			OCL_CHECK(err, err = kernel_events[i].wait()); // REMOVEME.
-			prockerneltimelapses_ms[i] = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime1).count()) / 1000;			
-			std::cout <<">>> kernel (proc["<<i<<"]) time elapsed for iteration "<<GraphIter<<": "<<prockerneltimelapses_ms[i]<<" ms, "<<(prockerneltimelapses_ms[i] * 1000)<<" microsecs, "<<std::endl;
-			#endif
-		}
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS / NUM_EDGE_BANKS; i++){ OCL_CHECK(err, err = kernel_events[i].wait()); }
-		#ifdef _DEBUGMODE_TIMERS2
-		prockerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime3).count()) / 1000;	
-		std::cout <<">>> kernel (proc[1 to "<<NUMSUBCPUTHREADS / NUM_EDGE_BANKS<<"]) time elapsed for " << TIMINGRESULTSCOLOR <<" iteration "<<GraphIter<<": "<<prockerneltimelapse_ms<<" ms, " <<(prockerneltimelapse_ms * 1000)<<" microsecs, " << RESET << std::endl;
-		#endif 
-		
-		// Apply phase started...
-		cout<<"goclkernel:: Apply phase (Iteration: "<<GraphIter<<" of "<<numValidIters<<") started..."<<endl;
-		std::chrono::steady_clock::time_point beginkerneltime2 = std::chrono::steady_clock::now();	
-		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[0])); 
-		OCL_CHECK(err, err = kernel_events[0].wait());
-		#ifdef _DEBUGMODE_TIMERS2
-		synkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime2).count()) / 1000;			
-		std::cout <<">>> kernel (sync) time elapsed for iteration "<<GraphIter<<": "<<synkerneltimelapse_ms<<" ms, "<<(synkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
-		#endif
-		
-		#ifdef _DEBUGMODE_TIMERS2
-		procandsynkerneltimelapse_ms = prockerneltimelapses_ms[(NUMSUBCPUTHREADS / NUM_EDGE_BANKS)-1];// + (synkerneltimelapse_ms / 2); /// FIXME.
-		WALLprocandsynkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime3).count()) / 1000;	
-		std::cout <<"### kernel (proc & syn) time elapsed for iteration "<<GraphIter<<": "<<procandsynkerneltimelapse_ms<<" ms, "<<(procandsynkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
-		#endif 
-		#ifdef _DEBUGMODE_TIMERS2
-		totalprocandsynkerneltimelapse_ms += procandsynkerneltimelapse_ms;
-		totalWALLprocandsynkerneltimelapse_ms += WALLprocandsynkerneltimelapse_ms;
-		#endif 
-	}
-	
-	#ifdef _DEBUGMODE_TIMERS2
-	endtoendWALLkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime4).count()) / 1000;			
-	std::cout <<"+++ total kernel time elapsed for all iterations: "<<totalprocandsynkerneltimelapse_ms<<" ms, "<<(totalprocandsynkerneltimelapse_ms * 1000)<<" microsecs "<<std::endl;
-	std::cout <<"+++ total kernel time elapsed for all iterations: "<<totalWALLprocandsynkerneltimelapse_ms<<" ms, "<<(totalWALLprocandsynkerneltimelapse_ms * 1000)<<" microsecs "<<std::endl;
-	std::cout <<"+++ total kernel time elapsed (end-to-end) for all iterations: "<<endtoendWALLkerneltimelapse_ms<<" ms, "<<(endtoendWALLkerneltimelapse_ms * 1000)<<" microsecs "<<std::endl;
 	#endif 
-	
-	// Finish
+	OCL_CHECK(err, err = write_events[0].wait());
 	OCL_CHECK(err, err = q.finish());
 	
-	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-	cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
-	#endif
-	kvindex = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=NUM_EDGE_BANKS){
-		// OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i], buffer_kvdram[i]},					
-																	// CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[i]));
-		#if NUM_EDGE_BANKS==1
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==2
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==3
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==4
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_edgesdram[i+3], buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		/* OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		OCL_CHECK(err, err = read_events[kvindex].wait());
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+1]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		OCL_CHECK(err, err = read_events[kvindex].wait());
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+2]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		OCL_CHECK(err, err = read_events[kvindex].wait());
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+3]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		OCL_CHECK(err, err = read_events[kvindex].wait());
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		OCL_CHECK(err, err = read_events[kvindex].wait()); */
-		/* OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0]}, CL_MIGRATE_MEM_OBJECT_HOST)); // CRITICAL REMOVEME.
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+1]}, CL_MIGRATE_MEM_OBJECT_HOST));
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+2]}, CL_MIGRATE_MEM_OBJECT_HOST));
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+3]}, CL_MIGRATE_MEM_OBJECT_HOST));
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST)); */
-		// OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_vdram}, CL_MIGRATE_MEM_OBJECT_HOST));
-		#endif
-		#if NUM_EDGE_BANKS==5
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_edgesdram[i+3], buffer_edgesdram[i+4], buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==6
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_edgesdram[i+3], buffer_edgesdram[i+4], buffer_edgesdram[i+5], buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));
-		#endif
-		#if NUM_EDGE_BANKS==7
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[i+0], buffer_edgesdram[i+1], buffer_edgesdram[i+2], buffer_edgesdram[i+3], buffer_edgesdram[i+4], buffer_edgesdram[i+5], buffer_edgesdram[i+6], buffer_kvdram[kvindex]}, CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[kvindex]));					
-		#endif
-		#if NUM_EDGE_BANKS>7
-		cout<<"goclkernel:enqueueMigrateMemObjects: ERROR. NOT YET IMPLEMENTED. exiting...."<<endl; exit(EXIT_FAILURE);
-		#endif 
-		OCL_CHECK(err, err = read_events[kvindex].wait()); // CRITICAL RESTOREME.
-		// OCL_CHECK(err, err = q.finish());
-		kvindex += 1;
+	std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
+	#ifdef TESTRUN // CRITICAL REMOVEME
+	OCL_CHECK(err, err = q.enqueueTask(krnls_proc[0], NULL, &kernel_events[0])); // CRITICAL REMOVEME.
+	OCL_CHECK(err, err = kernel_events[0].wait());
+	#else 
+	for(unsigned int GraphIter=0; GraphIter<numValidIters; GraphIter++){ //
+		for (unsigned int s = 0; s < 3; s++){ 
+			std::cout <<">>> goclkernel: processing krnls_proc["<<s<<"] in iteration "<<GraphIter<<"..."<<endl;
+			OCL_CHECK(err, err = q.enqueueTask(krnls_proc[s], NULL, &kernel_events[s])); 
+			#ifdef TESTRUN
+			
+			#endif 
+		}
+		for (unsigned int s = 0; s < 3; s++){ OCL_CHECK(err, err = kernel_events[s].wait()); }
+		std::cout <<">>> goclkernel: processing krnls_sync in iteration "<<GraphIter<<"..."<<endl;
+		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
+		OCL_CHECK(err, err = kernel_events[3].wait());
 	}
-	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_vdram}, CL_MIGRATE_MEM_OBJECT_HOST));
+	#endif 
+	WALLprocandsynkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime1).count()) / 1000;			
+	std::cout <<">>> kernel time elapsed for all iterations : "<<WALLprocandsynkerneltimelapse_ms<<" ms, "<<(WALLprocandsynkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
 	OCL_CHECK(err, err = q.finish());
 	
-	timeelapsed_totals[0][0] = totalprocandsynkerneltimelapse_ms;
-	// timeelapsed_totals[0][0] = endtoendWALLkerneltimelapse_ms; 
-	total_time_elapsed = timeelapsed_totals[0][0];
-	return total_time_elapsed;
+	cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
+	#ifdef TESTRUN
+	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
+													buffer_kvdram[1][0], buffer_vdram[1],
+													buffer_kvdram[2][0], buffer_vdram[2],
+													buffer_vdram[3]}, 
+													CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+	#else 
+		#if NUM_PEs==12
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+		#elif NUM_PEs==22
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+		#elif NUM_PEs==24
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_kvdram[0][8], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_kvdram[1][8], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+		#elif NUM_PEs==25
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_kvdram[0][8], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_kvdram[1][8], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_kvdram[2][6], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+		#else 
+		NOT IMPLEMENTED
+		#endif
+	#endif
+	
+	OCL_CHECK(err, err = read_events[0].wait());
+	OCL_CHECK(err, err = q.finish());
+	return WALLprocandsynkerneltimelapse_ms;
 }
-#endif
 #endif
 
 unsigned int goclkernel::ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter){
