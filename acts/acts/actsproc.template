@@ -23,6 +23,7 @@
 #ifdef SW 
 #include "../../acts/actsutility/actsutility.h" // CRITICAL NEWCHANGE.
 #endif 
+#include "acts.h"
 #include "actsproc.h"
 using namespace std;
 
@@ -447,7 +448,7 @@ buffer_type
 getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	buffer_type size_kvs = 0;
 	
-	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES // DESTBLOCKRAM_SIZE
+	/* #ifdef ENABLE_APPROXIMATEPARTITIONWRITES // DESTBLOCKRAM_SIZE
 		{% set my_variable = 2 %}
 		{% set my_base = 0 %} // SECOND SET:: (my_variable): {{my_variable}}, (my_base): {{my_base}}
 		
@@ -493,9 +494,9 @@ getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 		#if defined(SW) || defined(SWEMU) || defined(HW) 
 		if((bramoffset_kvs + size_kvs) >= DESTBLOCKRAM_SIZE){ size_kvs = DESTBLOCKRAM_SIZE - bramoffset_kvs - 1; } 
 		#endif
-	#else 
+	#else  */
 		size_kvs = realsize_kvs;
-	#endif
+	// #endif
 	return size_kvs;
 }
 void 
@@ -922,6 +923,7 @@ resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
 		#ifdef _WIDEWORD
 		{%for v in context['8_seq']%}
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = 0; 
@@ -2367,7 +2369,7 @@ reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Grap
 	if(GraphAlgo == PAGERANK){
 		temp = vtemp + res;
 	} else if(GraphAlgo == BFS){
-		temp = amin(vtemp, GraphIter);
+		temp = amin(vtemp, GraphIter); // CRITICAL REMOVEME.
 	} else if(GraphAlgo == SSSP){
 		temp = amin(vtemp, res);
 	} else {
@@ -2382,6 +2384,7 @@ void
 	#endif
 reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS PIPELINE II=3 // CRITICAL NEWCHANGE.	
+	// #pragma HLS PIPELINE II=2 // CRITICAL NEWCHANGE.	
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 	
 	keyvalue_t mykeyvalue = GETKV(kvdata);
@@ -3101,6 +3104,7 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	return;
 }
 
+#ifdef ORIGINAL_XXXXXXXXXXXXXXXX
 void 
 	#ifdef SW 
 	actsproc::
@@ -3145,7 +3149,7 @@ actit(bool_type enable, unsigned int mode,
 	
 	if(resetenv == ON){ resetenvbuffers(capsule_so1, capsule_so8); } else { itercount = 64; } // FIXME. '64' is just some number greater than 2
 	if(flush == ON){ flushsz = 1*SRCBUFFER_SIZE; } else { flushsz = 0; }
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	if(resetenv == ON){ cout<<"actit: reset is ON"<<endl; } else { cout<<"actit: reset is OFF"<<endl;  }
 	if(flush == ON){ cout<<"actit: flush is ON"<<endl; } else { cout<<"actit: flush is OFF"<<endl;  }
 	#endif 
@@ -3179,6 +3183,97 @@ actit(bool_type enable, unsigned int mode,
 		ptravstatepp1.i_kvs = offset_kvs;
 		fetchmessagepp1 = fetchkeyvalues(ON, mode, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams, edgebankID);
 		if(mode == PROCESSMODE && fetchmessagepp1.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp1.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
+		#endif
+		
+		commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalparams); 
+		#ifdef PUP1
+		preparekeyvalues(pp1partitionen, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
+		#endif
+		
+		itercount += NUMPIPELINES_PARTITIONUPDATES;
+	}
+	return;
+}
+#endif 
+void 
+	#ifdef SW 
+	actsproc::
+	#endif
+actit(bool_type enable, unsigned int mode,
+		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
+		bool_type resetenv, bool_type flush, unsigned int edgebankID){
+	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
+	if(enable == OFF){ return; }
+	
+	//////
+	// edgebankID = includeme_func(mode, edgebankID); // CRITICAL REMOVEME.
+	
+	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE]; // REMOVEME.-SWX
+	#pragma HLS array_partition variable = buffer_setof1
+	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = buffer_setof8
+	
+	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS];
+	#pragma HLS array_partition variable = capsule_so1
+
+	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS];
+	
+	travstate_t ptravstatepp0 = ptravstate;
+	travstate_t ptravstatepp1 = ptravstate;
+	
+	bool_type pp0readen = ON;
+	bool_type pp1readen = ON;
+	bool_type pp0runpipelineen = ON;
+	bool_type pp1runpipelineen = ON;
+	bool_type pp0partitionen = ON;
+	bool_type pp1partitionen = ON;
+	bool_type pp0writeen = ON;
+	bool_type pp1writeen = ON;
+	{%if(context['XWARE'] == "SW")%}static {%endif%}buffer_type pp0cutoffs[VECTOR_SIZE];
+	{%if(context['XWARE'] == "SW")%}static {%endif%}buffer_type pp1cutoffs[VECTOR_SIZE];
+	batch_type itercount = 0;
+	batch_type flushsz = 0;
+	
+	fetchmessage_t fetchmessagepp0;
+	fetchmessage_t fetchmessagepp1;
+	fetchmessagepp0.chunksize_kvs = -1; fetchmessagepp0.nextoffset_kvs = -1;
+	fetchmessagepp1.chunksize_kvs = -1; fetchmessagepp1.nextoffset_kvs = -1;
+	
+	if(resetenv == ON){ resetenvbuffers(capsule_so1, capsule_so8); } else { itercount = 64; } // FIXME. '64' is just some number greater than 2
+	if(flush == ON){ flushsz = 1*SRCBUFFER_SIZE; } else { flushsz = 0; }
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	if(resetenv == ON){ cout<<"actit: reset is ON"<<endl; } else { cout<<"actit: reset is OFF"<<endl;  }
+	if(flush == ON){ cout<<"actit: flush is ON"<<endl; } else { cout<<"actit: flush is OFF"<<endl;  }
+	#endif 
+	
+	batch_type offset_kvs = ptravstate.begin_kvs;
+
+	ACTIT_MAINLOOP: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + flushsz; offset_kvs+=WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
+		#ifdef PUP1
+		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
+		if(itercount >= 1){ pp1writeen = ON; } else { pp1writeen = OFF; }
+		if(itercount >= 1){ pp1runpipelineen = ON; } else { pp1runpipelineen = OFF; }
+		#else 
+		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
+		#endif
+		
+		ptravstatepp0.i_kvs = offset_kvs;
+		fetchmessagepp0 = fetchkeyvalues(ON, mode, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
+		#ifdef PUP1 // CRITICAL REMOVEME.
+		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
+		#endif 
+		
+		preparekeyvalues(ON, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
+		#ifdef PUP1
+		commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp1.chunksize_kvs, sweepparams, globalparams); 
+		#endif 
+		
+		actspipeline(ON, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
+		#ifdef PUP1
+		ptravstatepp1.i_kvs = offset_kvs + WORKBUFFER_SIZE;
+		fetchmessagepp1 = fetchkeyvalues(ON, mode, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams, edgebankID);
 		#endif
 		
 		commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalparams); 
@@ -3378,10 +3473,6 @@ processit({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%en
 		vertex_t endsrcvid = beginsrcvid + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR);
 		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endsrcvid = beginsrcvid; }
 		if((srcvlocaloffset < globalparamsK.ACTSPARAMS_SRCVSIZE) && (srcvlocaloffset + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR) >= globalparamsK.ACTSPARAMS_SRCVSIZE)){ endsrcvid = beginsrcvid + globalparamsK.ACTSPARAMS_SRCVSIZE - srcvlocaloffset; }
-		
-		// tuple_t tup = getvptrs({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, vptrbaseoffset_kvs + voffset_kvs, vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1, edgebankID);
-		// keyy_t beginvptr = tup.A;
-		// keyy_t endvptr = tup.B; 
 		
 		tuple_t tup = getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, vptrbaseoffset_kvs, voffset_kvs * VECTOR2_SIZE, (voffset_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
 		keyy_t beginvptr = tup.A;
@@ -3689,8 +3780,7 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 	return;
 } 
 
-// top 
-extern "C" {
+// top
 void 
 	#ifdef SW 
 	actsproc:: 
@@ -3698,34 +3788,10 @@ void
 topkernelproc_embedded(
 	{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%}	
 	uint512_dt * kvdram){
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-{%for n in context['NUM_EDGE_BANKS_seq']%}
-#pragma HLS INTERFACE m_axi port = edges{{n}} offset = slave bundle = gmem{{n}}	
-{%endfor%}	
-#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem{{context['NUM_EDGE_BANKS']}}	
-#else 
-#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0		
-#endif 
-	
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-{%for n in context['NUM_EDGE_BANKS_seq']%}
-#pragma HLS INTERFACE s_axilite port = edges{{n}} bundle = control
-{%endfor%}	
-#endif 
-#pragma HLS INTERFACE s_axilite port = kvdram bundle = control
-
-#pragma HLS INTERFACE s_axilite port=return bundle=control
-
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-{%for n in context['NUM_EDGE_BANKS_seq']%}
-#pragma HLS DATA_PACK variable = edges{{n}}
-{%endfor%}	
-#endif 
-#pragma HLS DATA_PACK variable = kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> Light weight ACTS (PR: 1 ACTS IN 1 COMPUTEUNITS) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -3808,7 +3874,7 @@ topkernelproc_embedded(
 			// process & partition
 			#ifdef PROCESSMODULE
 			if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-				#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: processing instance ... "<<endl;
 				#endif
 				dispatch(ON, OFF, OFF, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, edgebankID);
@@ -3818,7 +3884,7 @@ topkernelproc_embedded(
 			// partition
 			#ifdef PARTITIONMODULE
 			if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){
-				#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: partitioning instance ... "<<endl;
 				#endif
 				dispatch(OFF, ON, OFF, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, NAp);
@@ -3828,7 +3894,7 @@ topkernelproc_embedded(
 			// reduce & partition
 			#if defined(REDUCEMODULE)
 			if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
-				#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: reducing instance ... "<<endl;
 				#endif
 				dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, NAp);
@@ -3858,11 +3924,10 @@ topkernelproc_embedded(
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
 	#endif 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
 	return;
-}
 }
 
 {%for n in context['T_seq']%}
@@ -3929,7 +3994,7 @@ topkernelP{{n}}(
 {%endfor%}
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -4310,7 +4375,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#if defined(_DEBUGMODE_KERNELPRINTS) //|| defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR: 1 ACTS IN 1 COMPUTEUNITS) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -4341,7 +4406,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	// process & partition
 	#ifdef PROCESSMODULE
 	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON && en_process == ON){
-		#if defined(_DEBUGMODE_KERNELPRINTS2)// || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
 		dispatch(globalposition.EN_PROCESS, OFF, OFF, {%for k in context['NUM_EDGE_BANKS_seq']%}edges{{k}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, globalposition.edgebankID, hybridmode); // PARTITION_CHKPT[0], 0, 0);
@@ -4351,7 +4416,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	// partition
 	#ifdef PARTITIONMODULE
 	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON && en_partition == ON){
-		#if defined(_DEBUGMODE_KERNELPRINTS2)// || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
 		dispatch(OFF, globalposition.EN_PARTITION, OFF, {%for k in context['NUM_EDGE_BANKS_seq']%}edges{{k}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
@@ -4361,7 +4426,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	// reduce & partition
 	#if defined(REDUCEMODULE)
 	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON && en_reduce == ON){ 
-		#if defined(_DEBUGMODE_KERNELPRINTS2)// || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
 		dispatch_reduce(globalposition.EN_REDUCE, {%for k in context['NUM_EDGE_BANKS_seq']%}edges{{k}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
@@ -4453,7 +4518,7 @@ topkernelP{{n}}(
 {%endfor%}
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	

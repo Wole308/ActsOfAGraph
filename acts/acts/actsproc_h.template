@@ -163,9 +163,6 @@ public:
 	
 	tuple_t getvptrs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt *  kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
 	
-	// keyvalue_t getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset);
-	// tuple_t getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt *  kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
-	
 	unsigned int getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset);
 	tuple_t getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt *  kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
 	

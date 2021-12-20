@@ -5,7 +5,8 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
-#include "../../examples/helperfunctions/loadgraph_sw.h"
+#include "../../examples/helperfunctions/loadedges.h"
+#include "../../examples/helperfunctions/loadedges_splitvertices.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
 #include "../../kernels/swkernel.h"
@@ -29,7 +30,8 @@ private:
 	graph * graphobj;
 	utility * utilityobj;
 	loadgraph * loadgraphobj;
-	loadgraph_sw * loadgraphswobj;
+	loadedges * loadedgesobj;
+	loadedges_splitvertices * loadedgessplitvssobj;
 	setupkernel * setupkernelobj;
 	swkernel * swkernelobj;
 	stats * statsobj;

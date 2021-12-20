@@ -22,7 +22,8 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
-#include "../../examples/helperfunctions/loadgraph_sw.h"
+#include "../../examples/helperfunctions/loadedges.h"
+#include "../../examples/helperfunctions/loadedges_splitvertices.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
 #include "../../kernels/swkernel.h"
@@ -47,7 +48,8 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	algorithmobj = new algorithm();
 	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj);
-	loadgraphswobj = new loadgraph_sw(graphobj, statsobj);
+	loadedgesobj = new loadedges(graphobj, statsobj);
+	loadedgessplitvssobj = new loadedges_splitvertices(graphobj, statsobj);
 	setupkernelobj = new setupkernel(graphobj, thisalgorithmobj, statsobj); 
 	swkernelobj = new swkernel(graphobj, thisalgorithmobj, statsobj);
 
@@ -108,7 +110,7 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 8; // 32; // 3,12,32
+	unsigned int NumGraphIters = 4; // 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
@@ -181,17 +183,17 @@ runsummary_t app::run_hw(){
 	
 	// edges
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, (edge_type **)edges, &container, globalparams);
+	globalparams = loadedgesobj->loadedges(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, (edge_type **)edges, &container, globalparams);
 	#else 
-	globalparams = loadgraphobj->loadedges_rowblockwise(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, globalparams);
+	// globalparams = loadedgesobj->loadedges(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, globalparams);
+	globalparams = loadedgessplitvssobj->loadedges(0, graphobj, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, &container, globalparams);
 	#endif 
-	////////////////////////////////////////////////////////////////////////////////
 	globalparams.globalparamsV.SIZE_EDGES = 0; 
 	globalparams.globalparamsV.SIZE_VERTEXPTRS = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_EDGESDATA = MESSAGES_BASEOFFSETKVS_MESSAGESDATA + MESSAGESDRAMSZ;
 	globalparams.globalparamsV.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsV.BASEOFFSETKVS_EDGESDATA + globalparams.globalparamsV.SIZE_EDGES;
-	////////////////////////////////////////////////////////////////////////////////////
-
+	exit(EXIT_SUCCESS);
+	
 	// src vertices data 
 	cout<<"app::loadvertexdata:: loading source vertex datas... "<<endl;
 	globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsK.BASEOFFSETKVS_VERTEXPTR + ((globalparams.globalparamsK.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;

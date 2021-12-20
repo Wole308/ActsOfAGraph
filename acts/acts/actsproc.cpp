@@ -23,6 +23,7 @@
 #ifdef SW 
 #include "../../acts/actsutility/actsutility.h" // CRITICAL NEWCHANGE.
 #endif 
+#include "acts.h"
 #include "actsproc.h"
 using namespace std;
 
@@ -447,7 +448,7 @@ buffer_type
 getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	buffer_type size_kvs = 0;
 	
-	#ifdef ENABLE_APPROXIMATEPARTITIONWRITES // DESTBLOCKRAM_SIZE
+	/* #ifdef ENABLE_APPROXIMATEPARTITIONWRITES // DESTBLOCKRAM_SIZE
  // SECOND SET:: (my_variable): 2, (my_base): 0
 		
 if(realsize_kvs >= 0 && realsize_kvs < 2){ size_kvs = 2; }
@@ -557,9 +558,9 @@ else if(realsize_kvs >= 62 && realsize_kvs < 64){ size_kvs = 64; }
 		#if defined(SW) || defined(SWEMU) || defined(HW) 
 		if((bramoffset_kvs + size_kvs) >= DESTBLOCKRAM_SIZE){ size_kvs = DESTBLOCKRAM_SIZE - bramoffset_kvs - 1; } 
 		#endif
-	#else 
+	#else  */
 		size_kvs = realsize_kvs;
-	#endif
+	// #endif
 	return size_kvs;
 }
 void 
@@ -1043,6 +1044,7 @@ resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = 0; 
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(127, 96) = 0; 
@@ -12139,7 +12141,7 @@ tuple_t
 	#ifdef SW 
 	actsproc::
 	#endif
-getvptrs(uint512_dt * edges0, uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+getvptrs( uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -12340,7 +12342,7 @@ tuple_t
 	#ifdef SW 
 	actsproc::
 	#endif
-getvptrs_opt(uint512_dt * edges0, uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -12485,16 +12487,10 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-copyallstats(uint512_dt * edges0, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
+copyallstats( uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 
-	if(edgebankID == 0){
-		COPYSTATS_LOOP0: for(unsigned int k=0; k<globalparamsK.SIZE_KVSTATSDRAM; k++){
-		#pragma HLS PIPELINE II=1
-			kvdram[globalparamsK.BASEOFFSETKVS_STATSDRAM + k] = edges0[globalparamsE.BASEOFFSETKVS_STATSDRAM + k];
-		}
-	}
 	return;
 }
 
@@ -13170,7 +13166,7 @@ reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Grap
 	if(GraphAlgo == PAGERANK){
 		temp = vtemp + res;
 	} else if(GraphAlgo == BFS){
-		temp = amin(vtemp, GraphIter);
+		temp = amin(vtemp, GraphIter); // CRITICAL REMOVEME.
 	} else if(GraphAlgo == SSSP){
 		temp = amin(vtemp, res);
 	} else {
@@ -13185,6 +13181,7 @@ void
 	#endif
 reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS PIPELINE II=3 // CRITICAL NEWCHANGE.	
+	// #pragma HLS PIPELINE II=2 // CRITICAL NEWCHANGE.	
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 	
 	keyvalue_t mykeyvalue = GETKV(kvdata);
@@ -21582,7 +21579,7 @@ fetchmessage_t
 	#ifdef SW 
 	actsproc::
 	#endif 
-fetchkeyvalues(bool_type enable, unsigned int mode, uint512_dt * edges0, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams,
 		unsigned int edgebankID){
 	fetchmessage_t fetchmessage;
@@ -21861,12 +21858,13 @@ actspipeline(bool_type enable1, bool_type enable2, keyvalue_buffer_t buffer_seto
 	return;
 }
 
+#ifdef ORIGINAL_XXXXXXXXXXXXXXXX
 void 
 	#ifdef SW 
 	actsproc::
 	#endif
 actit(bool_type enable, unsigned int mode,
-uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+ uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -21905,7 +21903,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 	
 	if(resetenv == ON){ resetenvbuffers(capsule_so1, capsule_so8); } else { itercount = 64; } // FIXME. '64' is just some number greater than 2
 	if(flush == ON){ flushsz = 1*SRCBUFFER_SIZE; } else { flushsz = 0; }
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS2
 	if(resetenv == ON){ cout<<"actit: reset is ON"<<endl; } else { cout<<"actit: reset is OFF"<<endl;  }
 	if(flush == ON){ cout<<"actit: flush is ON"<<endl; } else { cout<<"actit: flush is OFF"<<endl;  }
 	#endif 
@@ -21923,7 +21921,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		#endif
 		
 		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp0 = fetchkeyvalues(ON, mode, edges0, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
+		fetchmessagepp0 = fetchkeyvalues(ON, mode,  kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
 		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#ifdef PUP1
 		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
@@ -21937,8 +21935,99 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		actspipeline(ON, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
 		#ifdef PUP1
 		ptravstatepp1.i_kvs = offset_kvs;
-		fetchmessagepp1 = fetchkeyvalues(ON, mode, edges0, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams, edgebankID);
+		fetchmessagepp1 = fetchkeyvalues(ON, mode,  kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams, edgebankID);
 		if(mode == PROCESSMODE && fetchmessagepp1.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp1.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
+		#endif
+		
+		commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalparams); 
+		#ifdef PUP1
+		preparekeyvalues(pp1partitionen, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
+		#endif
+		
+		itercount += NUMPIPELINES_PARTITIONUPDATES;
+	}
+	return;
+}
+#endif 
+void 
+	#ifdef SW 
+	actsproc::
+	#endif
+actit(bool_type enable, unsigned int mode,
+ uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
+		bool_type resetenv, bool_type flush, unsigned int edgebankID){
+	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
+	if(enable == OFF){ return; }
+	
+	//////
+	// edgebankID = includeme_func(mode, edgebankID); // CRITICAL REMOVEME.
+	
+static keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE]; // REMOVEME.-SWX
+	#pragma HLS array_partition variable = buffer_setof1
+static keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = buffer_setof8
+	
+static keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS];
+	#pragma HLS array_partition variable = capsule_so1
+
+static keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS];
+	
+	travstate_t ptravstatepp0 = ptravstate;
+	travstate_t ptravstatepp1 = ptravstate;
+	
+	bool_type pp0readen = ON;
+	bool_type pp1readen = ON;
+	bool_type pp0runpipelineen = ON;
+	bool_type pp1runpipelineen = ON;
+	bool_type pp0partitionen = ON;
+	bool_type pp1partitionen = ON;
+	bool_type pp0writeen = ON;
+	bool_type pp1writeen = ON;
+static buffer_type pp0cutoffs[VECTOR_SIZE];
+static buffer_type pp1cutoffs[VECTOR_SIZE];
+	batch_type itercount = 0;
+	batch_type flushsz = 0;
+	
+	fetchmessage_t fetchmessagepp0;
+	fetchmessage_t fetchmessagepp1;
+	fetchmessagepp0.chunksize_kvs = -1; fetchmessagepp0.nextoffset_kvs = -1;
+	fetchmessagepp1.chunksize_kvs = -1; fetchmessagepp1.nextoffset_kvs = -1;
+	
+	if(resetenv == ON){ resetenvbuffers(capsule_so1, capsule_so8); } else { itercount = 64; } // FIXME. '64' is just some number greater than 2
+	if(flush == ON){ flushsz = 1*SRCBUFFER_SIZE; } else { flushsz = 0; }
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	if(resetenv == ON){ cout<<"actit: reset is ON"<<endl; } else { cout<<"actit: reset is OFF"<<endl;  }
+	if(flush == ON){ cout<<"actit: flush is ON"<<endl; } else { cout<<"actit: flush is OFF"<<endl;  }
+	#endif 
+	
+	batch_type offset_kvs = ptravstate.begin_kvs;
+
+	ACTIT_MAINLOOP: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + flushsz; offset_kvs+=WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
+		#ifdef PUP1
+		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
+		if(itercount >= 1){ pp1writeen = ON; } else { pp1writeen = OFF; }
+		if(itercount >= 1){ pp1runpipelineen = ON; } else { pp1runpipelineen = OFF; }
+		#else 
+		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
+		#endif
+		
+		ptravstatepp0.i_kvs = offset_kvs;
+		fetchmessagepp0 = fetchkeyvalues(ON, mode,  kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
+		#ifdef PUP1 // CRITICAL REMOVEME.
+		actspipeline(pp1runpipelineen, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
+		#endif 
+		
+		preparekeyvalues(ON, ON, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
+		#ifdef PUP1
+		commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp1.chunksize_kvs, sweepparams, globalparams); 
+		#endif 
+		
+		actspipeline(ON, ON, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
+		#ifdef PUP1
+		ptravstatepp1.i_kvs = offset_kvs + WORKBUFFER_SIZE;
+		fetchmessagepp1 = fetchkeyvalues(ON, mode,  kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams, edgebankID);
 		#endif
 		
 		commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalparams); 
@@ -21956,7 +22045,7 @@ void
 	actsproc::
 	#endif
 priorit(bool_type enable, unsigned int mode,
-uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+ uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -22002,13 +22091,13 @@ static keyvalue_capsule_t capsulepp1_so8[MAX_NUM_PARTITIONS];
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 
 		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp0 = fetchkeyvalues(ON, mode, edges0, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
+		fetchmessagepp0 = fetchkeyvalues(ON, mode,  kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
 		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		
 		priorpartitionkeyvalues(ON, ON, sourcebuffer, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, globalparams);
 		#ifdef PUP1
 		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp1 = fetchkeyvalues(ON, mode, edges0, kvdram, vbuffer, vmask, vmask_subp, sourcebufferpp1, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
+		fetchmessagepp1 = fetchkeyvalues(ON, mode,  kvdram, vbuffer, vmask, vmask_subp, sourcebufferpp1, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
 		if(mode == PROCESSMODE && fetchmessagepp1.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp1.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		#endif 
 		
@@ -22029,7 +22118,7 @@ void
 	actsproc::
 	#endif
 tradit(bool_type enable, unsigned int mode,
-uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+ uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -22053,7 +22142,7 @@ uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
 
 		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp0 = fetchkeyvalues(ON, mode, edges0, kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
+		fetchmessagepp0 = fetchkeyvalues(ON, mode,  kvdram, vbuffer, vmask, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
 		if(mode == PROCESSMODE && fetchmessagepp0.nextoffset_kvs != -1){ offset_kvs = fetchmessagepp0.nextoffset_kvs; } else { offset_kvs+=WORKBUFFER_SIZE; } 
 		
 		tradreduceandbuffer(ON, kvdram, sourcebuffer, fetchmessagepp0.chunksize_kvs, globalstatsbuffer, sweepparams, globalparams);
@@ -22067,7 +22156,7 @@ void
 	#ifdef SW
 	actsproc::
 	#endif 
-processit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -22139,11 +22228,7 @@ processit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuff
 		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endsrcvid = beginsrcvid; }
 		if((srcvlocaloffset < globalparamsK.ACTSPARAMS_SRCVSIZE) && (srcvlocaloffset + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR) >= globalparamsK.ACTSPARAMS_SRCVSIZE)){ endsrcvid = beginsrcvid + globalparamsK.ACTSPARAMS_SRCVSIZE - srcvlocaloffset; }
 		
-		// tuple_t tup = getvptrs(edges0, kvdram, vptrbaseoffset_kvs + voffset_kvs, vptrbaseoffset_kvs + voffset_kvs + (reducebuffersz * FETFACTOR) + 1, edgebankID);
-		// keyy_t beginvptr = tup.A;
-		// keyy_t endvptr = tup.B; 
-		
-		tuple_t tup = getvptrs_opt(edges0, kvdram, vptrbaseoffset_kvs, voffset_kvs * VECTOR2_SIZE, (voffset_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
+		tuple_t tup = getvptrs_opt( kvdram, vptrbaseoffset_kvs, voffset_kvs * VECTOR2_SIZE, (voffset_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
 		keyy_t beginvptr = tup.A;
 		keyy_t endvptr = tup.B; 
 	
@@ -22193,7 +22278,7 @@ processit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuff
 		#endif 
 		(
 			ON, PROCESSMODE,
-edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
+ kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
 			globalparamsK, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE,
 			resetenv, flush, edgebankID);
 		
@@ -22218,7 +22303,7 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-partitionit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], globalparams_t globalparams, unsigned int edgebankID){
+partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], globalparams_t globalparams, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -22284,7 +22369,7 @@ partitionit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebu
 			tradit
 			#endif
 			(config.enablepartition, PARTITIONMODE,
-edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
+ kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
 					globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 					ON, ON, NAp);
 					
@@ -22320,7 +22405,7 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-reduceit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
+reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -22357,7 +22442,7 @@ reduceit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffe
 	tradit
 	#endif
 	(config.enablereduce, REDUCEMODE,
-edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
+ kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp); // REMOVEME.
 	return;
@@ -22367,12 +22452,12 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
-	if(en_process == ON){ processit(edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
-	if(en_partition == ON){ partitionit(edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalparamsK, NAp); } 
-	if(en_reduce == ON){ reduceit(edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
+	if(en_process == ON){ processit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
+	if(en_partition == ON){ partitionit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalparamsK, NAp); } 
+	if(en_reduce == ON){ reduceit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
 	return;
 }
 
@@ -22380,7 +22465,7 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-dispatch_reduce(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -22437,7 +22522,7 @@ dispatch_reduce(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sour
 		readvdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
 		
 		// reduce
-		dispatch(OFF, OFF, enablereduce, edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
+		dispatch(OFF, OFF, enablereduce,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
 		
 		// writeback vertices
 		savevdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer, 0, 0, reducebuffersz, globalparamsK);
@@ -22449,40 +22534,18 @@ dispatch_reduce(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sour
 	return;
 } 
 
-// top 
-extern "C" {
+// top
 void 
 	#ifdef SW 
 	actsproc:: 
 	#endif
 topkernelproc_embedded(
-uint512_dt * edges0,	
+	
 	uint512_dt * kvdram){
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges0 offset = slave bundle = gmem0	
-	
-#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem1	
-#else 
-#pragma HLS INTERFACE m_axi port = kvdram offset = slave bundle = gmem0		
-#endif 
-	
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges0 bundle = control
-	
-#endif 
-#pragma HLS INTERFACE s_axilite port = kvdram bundle = control
-
-#pragma HLS INTERFACE s_axilite port=return bundle=control
-
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges0
-	
-#endif 
-#pragma HLS DATA_PACK variable = kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#if defined(_DEBUGMODE_KERNELPRINTS) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> Light weight ACTS (PR: 1 ACTS IN 1 COMPUTEUNITS) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -22499,7 +22562,6 @@ uint512_dt * edges0,
 	globalparams_t globalparamsK = getglobalparams(kvdram);
 	globalparams_t globalparamsE[MAX_NUM_EDGE_BANKS];
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsE[0] = getglobalparams(edges0);
 	
 	#else 
 	globalparamsE[0] = globalparamsK;
@@ -22524,10 +22586,8 @@ uint512_dt * edges0,
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges0[globalparamsE[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges0[globalparamsE[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -22562,30 +22622,30 @@ uint512_dt * edges0,
 			// process & partition
 			#ifdef PROCESSMODULE
 			if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){
-				#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: processing instance ... "<<endl;
 				#endif
-				dispatch(ON, OFF, OFF, edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, edgebankID);
+				dispatch(ON, OFF, OFF,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, edgebankID);
 			}
 			#endif
 			
 			// partition
 			#ifdef PARTITIONMODULE
 			if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){
-				#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: partitioning instance ... "<<endl;
 				#endif
-				dispatch(OFF, ON, OFF, edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, NAp);
+				dispatch(OFF, ON, OFF,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, NAp);
 			}
 			#endif
 			
 			// reduce & partition
 			#if defined(REDUCEMODULE)
 			if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
-				#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: reducing instance ... "<<endl;
 				#endif
-				dispatch_reduce(edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, NAp);
+				dispatch_reduce( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, _globalparamsE, globalparamsK, PARTITION_CHKPT[edgebankID], v_chunkid, NAp);
 			}
 			#endif
 			
@@ -22612,11 +22672,10 @@ uint512_dt * edges0,
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	actsutilityobj->printglobalvars();
 	#endif 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
+	#if defined(_DEBUGMODE_KERNELPRINTS3) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
 	#endif
 	return;
-}
 }
 
 extern "C" {
@@ -22625,7 +22684,7 @@ void
 	actsproc:: 
 	#endif
 topkernelP1(
-uint512_dt * edges00,	uint512_dt * kvdram0,
+	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -22652,7 +22711,7 @@ uint512_dt * edges00,	uint512_dt * kvdram0,
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -22696,8 +22755,8 @@ void
 	actsproc:: 
 	#endif
 topkernelP2(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -22731,7 +22790,7 @@ uint512_dt * edges10,	uint512_dt * kvdram1,
 #pragma HLS DATA_PACK variable = kvdram1
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -22779,9 +22838,9 @@ void
 	actsproc:: 
 	#endif
 topkernelP3(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -22822,7 +22881,7 @@ uint512_dt * edges20,	uint512_dt * kvdram2,
 #pragma HLS DATA_PACK variable = kvdram2
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -22874,10 +22933,10 @@ void
 	actsproc:: 
 	#endif
 topkernelP4(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -22925,7 +22984,7 @@ uint512_dt * edges30,	uint512_dt * kvdram3,
 #pragma HLS DATA_PACK variable = kvdram3
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -22981,11 +23040,11 @@ void
 	actsproc:: 
 	#endif
 topkernelP5(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -23040,7 +23099,7 @@ uint512_dt * edges40,	uint512_dt * kvdram4,
 #pragma HLS DATA_PACK variable = kvdram4
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -23100,12 +23159,12 @@ void
 	actsproc:: 
 	#endif
 topkernelP6(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -23167,7 +23226,7 @@ uint512_dt * edges50,	uint512_dt * kvdram5,
 #pragma HLS DATA_PACK variable = kvdram5
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -23231,13 +23290,13 @@ void
 	actsproc:: 
 	#endif
 topkernelP7(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -23306,7 +23365,7 @@ uint512_dt * edges60,	uint512_dt * kvdram6,
 #pragma HLS DATA_PACK variable = kvdram6
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -23374,14 +23433,14 @@ void
 	actsproc:: 
 	#endif
 topkernelP8(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -23457,7 +23516,7 @@ uint512_dt * edges70,	uint512_dt * kvdram7,
 #pragma HLS DATA_PACK variable = kvdram7
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -23529,15 +23588,15 @@ void
 	actsproc:: 
 	#endif
 topkernelP9(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -23620,7 +23679,7 @@ uint512_dt * edges80,	uint512_dt * kvdram8,
 #pragma HLS DATA_PACK variable = kvdram8
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -23696,16 +23755,16 @@ void
 	actsproc:: 
 	#endif
 topkernelP10(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -23795,7 +23854,7 @@ uint512_dt * edges90,	uint512_dt * kvdram9,
 #pragma HLS DATA_PACK variable = kvdram9
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -23875,17 +23934,17 @@ void
 	actsproc:: 
 	#endif
 topkernelP11(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
-uint512_dt * edges100,	uint512_dt * kvdram10,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -23982,7 +24041,7 @@ uint512_dt * edges100,	uint512_dt * kvdram10,
 #pragma HLS DATA_PACK variable = kvdram10
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -24066,18 +24125,18 @@ void
 	actsproc:: 
 	#endif
 topkernelP12(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
-uint512_dt * edges100,	uint512_dt * kvdram10,
-uint512_dt * edges110,	uint512_dt * kvdram11,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
+	uint512_dt * kvdram11,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -24181,7 +24240,7 @@ uint512_dt * edges110,	uint512_dt * kvdram11,
 #pragma HLS DATA_PACK variable = kvdram11
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -24271,7 +24330,7 @@ void
 	#ifdef SW
 	actsproc::
 	#endif 
-processit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -24344,7 +24403,7 @@ processit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuff
 			if(mask_subp == 0){ continue; }
 		}
 		
-		tuple_t tup = getvptrs_opt(edges0, kvdram, vptrbaseoffset_kvs, (voffset_kvs + lvid_kvs) * VECTOR2_SIZE, (voffset_kvs + lvid_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
+		tuple_t tup = getvptrs_opt( kvdram, vptrbaseoffset_kvs, (voffset_kvs + lvid_kvs) * VECTOR2_SIZE, (voffset_kvs + lvid_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
 		keyy_t beginvptr = tup.A;
 		keyy_t endvptr = tup.B; 
 		
@@ -24394,7 +24453,7 @@ processit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuff
 		#endif 
 		(
 			ON, PROCESSMODE,
-edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
+ kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
 			globalparamsK, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE,
 			resetenv, flush, edgebankID);
 	}
@@ -24419,7 +24478,7 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-partitionit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){
+partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -24474,7 +24533,7 @@ partitionit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebu
 	tradit
 	#endif
 	(config.enablepartition, PARTITIONMODE,
-edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
+ kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp);
 			
@@ -24504,7 +24563,7 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-reduceit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){	
+reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -24538,7 +24597,7 @@ reduceit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffe
 	tradit
 	#endif
 	(config.enablereduce, REDUCEMODE,
-edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
+ kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp); // REMOVEME.
 	return;
@@ -24548,12 +24607,12 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],
 			globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
-	if(en_process == ON){ processit(edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID, hybridmode); } 
-	if(en_partition == ON){ partitionit(edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, globalparamsK, globalposition, NAp); } 
-	if(en_reduce == ON){ reduceit(edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, globalparamsK, globalposition, NAp); } 
+	if(en_process == ON){ processit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID, hybridmode); } 
+	if(en_partition == ON){ partitionit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, globalparamsK, globalposition, NAp); } 
+	if(en_reduce == ON){ reduceit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, globalparamsK, globalposition, NAp); } 
 	return;
 }
 
@@ -24561,7 +24620,7 @@ void
 	#ifdef SW 
 	actsproc::
 	#endif 
-dispatch_reduce(bool_type en_reduce, uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,	
+dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -24580,7 +24639,7 @@ dispatch_reduce(bool_type en_reduce, uint512_dt * edges0, uint512_dt * kvdram, k
 	travstate_t rtravstate = gettravstate(ON, kvdram, globalparamsK, globalposition.currentLOP, globalposition.sourcestatsmarker);
 	if(rtravstate.size_kvs == 0){ return; }
 	
-	dispatch(OFF, OFF, en_reduce, edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp, hybridmode);
+	dispatch(OFF, OFF, en_reduce,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp, hybridmode);
 	return;
 } 
 
@@ -24589,12 +24648,12 @@ void
 	#ifdef SW 
 	actsproc:: 
 	#endif
-topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * edges0, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalposition_t globalposition, unsigned int hybridmode){
+topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsigned int en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalposition_t globalposition, unsigned int hybridmode){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
-	#if defined(_DEBUGMODE_KERNELPRINTS) //|| defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR: 1 ACTS IN 1 COMPUTEUNITS) Launched... size: "<<GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
@@ -24607,7 +24666,6 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	
 	globalparamsK = getglobalparams(kvdram); // CRITICAL OPTIMIZEME. MOVETOBASE?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges0); // CRITICAL OPTIMIZEME. MOVETOBASE?
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -24624,30 +24682,30 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	// process & partition
 	#ifdef PROCESSMODULE
 	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON && en_process == ON){
-		#if defined(_DEBUGMODE_KERNELPRINTS2)// || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
-		dispatch(globalposition.EN_PROCESS, OFF, OFF, edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, globalposition.edgebankID, hybridmode); // PARTITION_CHKPT[0], 0, 0);
+		dispatch(globalposition.EN_PROCESS, OFF, OFF,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, globalposition.edgebankID, hybridmode); // PARTITION_CHKPT[0], 0, 0);
 	}
 	#endif
 	
 	// partition
 	#ifdef PARTITIONMODULE
 	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON && en_partition == ON){
-		#if defined(_DEBUGMODE_KERNELPRINTS2)// || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
-		dispatch(OFF, globalposition.EN_PARTITION, OFF, edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
+		dispatch(OFF, globalposition.EN_PARTITION, OFF,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
 	}
 	#endif
 	
 	// reduce & partition
 	#if defined(REDUCEMODULE)
 	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON && en_reduce == ON){ 
-		#if defined(_DEBUGMODE_KERNELPRINTS2)// || defined(ALLVERTEXISACTIVE_ALGORITHM)
+		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
-		dispatch_reduce(globalposition.EN_REDUCE, edges0, kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
+		dispatch_reduce(globalposition.EN_REDUCE,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
 	}
 	#endif
 	
@@ -24677,7 +24735,7 @@ void
 	actsproc:: 
 	#endif
 topkernelP1(
-uint512_dt * edges00,	uint512_dt * kvdram0,
+	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -24707,7 +24765,7 @@ uint512_dt * edges00,	uint512_dt * kvdram0,
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -24741,7 +24799,6 @@ uint512_dt * edges00,	uint512_dt * kvdram0,
 globalparamsKs[0] = getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -24752,10 +24809,8 @@ globalparamsKs[0] = getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURC
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -24898,7 +24953,7 @@ globalparamsKs[0] = getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURC
 						readandreplicate1vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge1andsavevdata(ON, vdram, vbuffer0, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -24944,8 +24999,8 @@ void
 	actsproc:: 
 	#endif
 topkernelP2(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -24982,7 +25037,7 @@ uint512_dt * edges10,	uint512_dt * kvdram1,
 #pragma HLS DATA_PACK variable = kvdram1
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -25024,7 +25079,6 @@ uint512_dt * edges10,	uint512_dt * kvdram1,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -25035,10 +25089,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -25182,8 +25234,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate2vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge2andsavevdata(ON, vdram, vbuffer0,vbuffer1, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -25229,9 +25281,9 @@ void
 	actsproc:: 
 	#endif
 topkernelP3(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -25275,7 +25327,7 @@ uint512_dt * edges20,	uint512_dt * kvdram2,
 #pragma HLS DATA_PACK variable = kvdram2
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -25325,7 +25377,6 @@ uint512_dt * edges20,	uint512_dt * kvdram2,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -25336,10 +25387,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -25484,9 +25533,9 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate3vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge3andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -25532,10 +25581,10 @@ void
 	actsproc:: 
 	#endif
 topkernelP4(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -25586,7 +25635,7 @@ uint512_dt * edges30,	uint512_dt * kvdram3,
 #pragma HLS DATA_PACK variable = kvdram3
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -25644,7 +25693,6 @@ uint512_dt * edges30,	uint512_dt * kvdram3,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -25655,10 +25703,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -25804,10 +25850,10 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate4vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge4andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -25853,11 +25899,11 @@ void
 	actsproc:: 
 	#endif
 topkernelP5(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -25915,7 +25961,7 @@ uint512_dt * edges40,	uint512_dt * kvdram4,
 #pragma HLS DATA_PACK variable = kvdram4
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -25981,7 +26027,6 @@ uint512_dt * edges40,	uint512_dt * kvdram4,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3);globalparamsKs[4] = getglobalparams(kvdram4); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -25992,10 +26037,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -26142,11 +26185,11 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate5vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges40, kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge5andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -26192,12 +26235,12 @@ void
 	actsproc:: 
 	#endif
 topkernelP6(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -26262,7 +26305,7 @@ uint512_dt * edges50,	uint512_dt * kvdram5,
 #pragma HLS DATA_PACK variable = kvdram5
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -26336,7 +26379,6 @@ uint512_dt * edges50,	uint512_dt * kvdram5,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3);globalparamsKs[4] = getglobalparams(kvdram4);globalparamsKs[5] = getglobalparams(kvdram5); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -26347,10 +26389,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -26498,12 +26538,12 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate6vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges40, kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges50, kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge6andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -26549,13 +26589,13 @@ void
 	actsproc:: 
 	#endif
 topkernelP7(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -26627,7 +26667,7 @@ uint512_dt * edges60,	uint512_dt * kvdram6,
 #pragma HLS DATA_PACK variable = kvdram6
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -26709,7 +26749,6 @@ uint512_dt * edges60,	uint512_dt * kvdram6,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3);globalparamsKs[4] = getglobalparams(kvdram4);globalparamsKs[5] = getglobalparams(kvdram5);globalparamsKs[6] = getglobalparams(kvdram6); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -26720,10 +26759,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -26872,13 +26909,13 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate7vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges40, kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges50, kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges60, kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge7andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -26924,14 +26961,14 @@ void
 	actsproc:: 
 	#endif
 topkernelP8(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -27010,7 +27047,7 @@ uint512_dt * edges70,	uint512_dt * kvdram7,
 #pragma HLS DATA_PACK variable = kvdram7
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -27100,7 +27137,6 @@ uint512_dt * edges70,	uint512_dt * kvdram7,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3);globalparamsKs[4] = getglobalparams(kvdram4);globalparamsKs[5] = getglobalparams(kvdram5);globalparamsKs[6] = getglobalparams(kvdram6);globalparamsKs[7] = getglobalparams(kvdram7); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -27111,10 +27147,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -27264,14 +27298,14 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate8vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges40, kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges50, kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges60, kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges70, kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge8andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -27317,15 +27351,15 @@ void
 	actsproc:: 
 	#endif
 topkernelP9(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -27411,7 +27445,7 @@ uint512_dt * edges80,	uint512_dt * kvdram8,
 #pragma HLS DATA_PACK variable = kvdram8
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -27509,7 +27543,6 @@ uint512_dt * edges80,	uint512_dt * kvdram8,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3);globalparamsKs[4] = getglobalparams(kvdram4);globalparamsKs[5] = getglobalparams(kvdram5);globalparamsKs[6] = getglobalparams(kvdram6);globalparamsKs[7] = getglobalparams(kvdram7);globalparamsKs[8] = getglobalparams(kvdram8); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -27520,10 +27553,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -27674,15 +27705,15 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate9vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges40, kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges50, kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges60, kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges70, kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges80, kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge9andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -27728,16 +27759,16 @@ void
 	actsproc:: 
 	#endif
 topkernelP10(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -27830,7 +27861,7 @@ uint512_dt * edges90,	uint512_dt * kvdram9,
 #pragma HLS DATA_PACK variable = kvdram9
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -27936,7 +27967,6 @@ uint512_dt * edges90,	uint512_dt * kvdram9,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3);globalparamsKs[4] = getglobalparams(kvdram4);globalparamsKs[5] = getglobalparams(kvdram5);globalparamsKs[6] = getglobalparams(kvdram6);globalparamsKs[7] = getglobalparams(kvdram7);globalparamsKs[8] = getglobalparams(kvdram8);globalparamsKs[9] = getglobalparams(kvdram9); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -27947,10 +27977,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -28102,16 +28130,16 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate10vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges40, kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges50, kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges60, kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges70, kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges80, kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges90, kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge10andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -28157,17 +28185,17 @@ void
 	actsproc:: 
 	#endif
 topkernelP11(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
-uint512_dt * edges100,	uint512_dt * kvdram10,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -28267,7 +28295,7 @@ uint512_dt * edges100,	uint512_dt * kvdram10,
 #pragma HLS DATA_PACK variable = kvdram10
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -28381,7 +28409,6 @@ uint512_dt * edges100,	uint512_dt * kvdram10,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3);globalparamsKs[4] = getglobalparams(kvdram4);globalparamsKs[5] = getglobalparams(kvdram5);globalparamsKs[6] = getglobalparams(kvdram6);globalparamsKs[7] = getglobalparams(kvdram7);globalparamsKs[8] = getglobalparams(kvdram8);globalparamsKs[9] = getglobalparams(kvdram9);globalparamsKs[10] = getglobalparams(kvdram10); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -28392,10 +28419,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -28548,17 +28573,17 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate11vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges40, kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges50, kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges60, kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges70, kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges80, kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges90, kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges100, kvdram10, vbuffer10, vmask10_p, vmask10_subp, vmask10, globalstatsbuffer10, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram10, vbuffer10, vmask10_p, vmask10_subp, vmask10, globalstatsbuffer10, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge11andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -28604,18 +28629,18 @@ void
 	actsproc:: 
 	#endif
 topkernelP12(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
-uint512_dt * edges100,	uint512_dt * kvdram10,
-uint512_dt * edges110,	uint512_dt * kvdram11,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
+	uint512_dt * kvdram11,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -28722,7 +28747,7 @@ uint512_dt * edges110,	uint512_dt * kvdram11,
 #pragma HLS DATA_PACK variable = kvdram11
 #pragma HLS DATA_PACK variable = vdram
 
-	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
@@ -28844,7 +28869,6 @@ uint512_dt * edges110,	uint512_dt * kvdram11,
 globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams(kvdram1);globalparamsKs[2] = getglobalparams(kvdram2);globalparamsKs[3] = getglobalparams(kvdram3);globalparamsKs[4] = getglobalparams(kvdram4);globalparamsKs[5] = getglobalparams(kvdram5);globalparamsKs[6] = getglobalparams(kvdram6);globalparamsKs[7] = getglobalparams(kvdram7);globalparamsKs[8] = getglobalparams(kvdram8);globalparamsKs[9] = getglobalparams(kvdram9);globalparamsKs[10] = getglobalparams(kvdram10);globalparamsKs[11] = getglobalparams(kvdram11); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	globalparams_t globalparamsK = globalparamsKs[0]; // getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsEs[0] = getglobalparams(edges00);
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
@@ -28855,10 +28879,8 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITION_CHKPT[0][u] = edges00[globalparamsEs[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -29012,18 +29034,18 @@ globalparamsKs[0] = getglobalparams(kvdram0);globalparamsKs[1] = getglobalparams
 						readandreplicate12vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges00, kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges10, kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges20, kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges30, kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges40, kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges50, kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges60, kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges70, kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges80, kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges90, kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges100, kvdram10, vbuffer10, vmask10_p, vmask10_subp, vmask10, globalstatsbuffer10, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce, edges110, kvdram11, vbuffer11, vmask11_p, vmask11_subp, vmask11, globalstatsbuffer11, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram10, vbuffer10, vmask10_p, vmask10_subp, vmask10, globalstatsbuffer10, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram11, vbuffer11, vmask11_p, vmask11_subp, vmask11, globalstatsbuffer11, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ merge12andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }

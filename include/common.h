@@ -389,6 +389,11 @@ typedef struct {
 	keyy_t key;
 } vptr_type;
 
+typedef struct {
+	keyy_t key;
+	unsigned int count;
+} vptr2_type;
+
 #ifdef _WIDEWORD
 typedef ap_uint<1024> uint1024_dt;
 #else
