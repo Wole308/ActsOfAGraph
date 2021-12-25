@@ -36,21 +36,21 @@ context['VECTOR2_SIZE'] = 16
 context['DUMMY'] = 0
 context['NUMSUBWORKERS'] = 1 # 3#4
 
-# context['NUM_EDGE_BANKS'] = 0
-# context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
+context['NUM_EDGE_BANKS'] = 0
+context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
 
 # context['NUM_EDGE_BANKS'] = 1
 # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
 
-if (context['NUM_PEs'] >= 0) and (context['NUM_PEs'] < 16):
-   context['NUM_EDGE_BANKS'] = 1
-   context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-elif (context['NUM_PEs'] >= 16) and (context['NUM_PEs'] < 64):
-   context['NUM_EDGE_BANKS'] = 0
-   context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
-else:
-   print ('gen.py: NOT YET IMPLEMENTED 32... EXITING...')
-   quit()
+# if (context['NUM_PEs'] >= 0) and (context['NUM_PEs'] < 16):
+   # context['NUM_EDGE_BANKS'] = 1
+   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+# elif (context['NUM_PEs'] >= 16) and (context['NUM_PEs'] < 64):
+   # context['NUM_EDGE_BANKS'] = 0
+   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
+# else:
+   # print ('gen.py: NOT YET IMPLEMENTED 32... EXITING...')
+   # quit()
     
 # if context['NUM_PEs'] == 1:
    # context['NUM_EDGE_BANKS'] = 5
@@ -240,14 +240,29 @@ o_path6=relref+"include/common.h"
 o_path7=relref+"include/common.h"
 o_path8=relref+"acts/acts/actssync.cpp"
 o_path9=relref+"acts/acts/actssync.h"
-o_path10=relref+"acts/acts/actsproc.cpp"
-o_path11=relref+"acts/acts/actsproc.h"
-o_path12=relref+"acts/acts/actsproc.cpp"
-o_path13=relref+"acts/acts/actsproc.h"
-o_path14=relref+"acts/acts/actsproc.cpp"
-o_path15=relref+"acts/acts/actsproc.h"
-o_path16=relref+"acts/acts/actsmerge.cpp"
-o_path17=relref+"acts/acts/actsmerge.h"
+
+o_path10=relref+"acts/acts/top_unifiedvts.cpp"
+o_path11=relref+"acts/acts/top_unifiedvts.h"
+o_path12=relref+"acts/acts/top_nonunifiedvts.cpp"
+o_path13=relref+"acts/acts/top_nonunifiedvts.h"
+o_path14=relref+"acts/acts/processedges_slicedgraph.cpp"
+o_path15=relref+"acts/acts/processedges_slicedgraph.h"
+o_path16=relref+"acts/acts/processedges_unslicedgraph.cpp"
+o_path17=relref+"acts/acts/processedges_unslicedgraph.h"
+o_path18=relref+"acts/acts/reduceupdates.cpp"
+o_path19=relref+"acts/acts/reduceupdates.h"
+o_path20=relref+"acts/acts/acts_util.cpp"
+o_path21=relref+"acts/acts/acts_util.h"
+o_path22=relref+"acts/acts/mem_access.cpp"
+o_path23=relref+"acts/acts/mem_access.h"
+o_path24=relref+"acts/acts/merge_vtxs.cpp"
+o_path25=relref+"acts/acts/merge_vtxs.h"
+o_path26=relref+"acts/acts/partitionupdates.cpp"
+o_path27=relref+"acts/acts/partitionupdates.h"
+o_path28=relref+"acts/acts/acts_merge.cpp"
+o_path29=relref+"acts/acts/acts_merge.h"
+o_path30=relref+"acts/acts/actsproc.cpp"
+o_path31=relref+"acts/acts/actsproc.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -267,25 +282,53 @@ out_path14=os.path.abspath(o_path14)
 out_path15=os.path.abspath(o_path15)
 out_path16=os.path.abspath(o_path16)
 out_path17=os.path.abspath(o_path17)
+out_path18=os.path.abspath(o_path18)
+out_path19=os.path.abspath(o_path19)
+out_path20=os.path.abspath(o_path20)
+out_path21=os.path.abspath(o_path21)
+out_path22=os.path.abspath(o_path22)
+out_path23=os.path.abspath(o_path23)
+out_path24=os.path.abspath(o_path24)
+out_path25=os.path.abspath(o_path25)
+out_path26=os.path.abspath(o_path26)
+out_path27=os.path.abspath(o_path27)
+out_path28=os.path.abspath(o_path28)
+out_path29=os.path.abspath(o_path29)
+out_path30=os.path.abspath(o_path30)
+out_path31=os.path.abspath(o_path31)
 
-templ_path0=relref+"acts/acts/"
-templ_path1=relref+"acts/acts/"
-templ_path2=relref+"acts/acts/"
-templ_path3=relref+"acts/acts/"
+templ_path0=relref+"acts/acts_templates"
+templ_path1=relref+"acts/acts_templates"
+templ_path2=relref+"acts/acts_templates"
+templ_path3=relref+"acts/acts_templates"
 templ_path4=relref+"include/"
 templ_path5=relref+"include/"
 templ_path6=relref+"include/"
 templ_path7=relref+"include/"
-templ_path8=relref+"acts/acts/"
-templ_path9=relref+"acts/acts/"
-templ_path10=relref+"acts/acts/"
-templ_path11=relref+"acts/acts/"
-templ_path12=relref+"acts/acts/"
-templ_path13=relref+"acts/acts/"
-templ_path14=relref+"acts/acts/"
-templ_path15=relref+"acts/acts/"
-templ_path16=relref+"acts/acts/"
-templ_path17=relref+"acts/acts/"
+templ_path8=relref+"acts/acts_templates"
+templ_path9=relref+"acts/acts_templates"
+templ_path10=relref+"acts/acts_templates"
+templ_path11=relref+"acts/acts_templates"
+templ_path12=relref+"acts/acts_templates"
+templ_path13=relref+"acts/acts_templates"
+templ_path14=relref+"acts/acts_templates"
+templ_path15=relref+"acts/acts_templates"
+templ_path16=relref+"acts/acts_templates"
+templ_path17=relref+"acts/acts_templates"
+templ_path18=relref+"acts/acts_templates"
+templ_path19=relref+"acts/acts_templates"
+templ_path20=relref+"acts/acts_templates"
+templ_path21=relref+"acts/acts_templates"
+templ_path22=relref+"acts/acts_templates"
+templ_path23=relref+"acts/acts_templates"
+templ_path24=relref+"acts/acts_templates"
+templ_path25=relref+"acts/acts_templates"
+templ_path26=relref+"acts/acts_templates"
+templ_path27=relref+"acts/acts_templates"
+templ_path28=relref+"acts/acts_templates"
+templ_path29=relref+"acts/acts_templates"
+templ_path30=relref+"acts/acts_templates"
+templ_path31=relref+"acts/acts_templates"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -500,6 +543,20 @@ env14 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path14)), trim
 env15 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path15)), trim_blocks=True, lstrip_blocks=True)
 env16 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path16)), trim_blocks=True, lstrip_blocks=True)
 env17 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path17)), trim_blocks=True, lstrip_blocks=True)
+env18 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path18)), trim_blocks=True, lstrip_blocks=True)
+env19 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path19)), trim_blocks=True, lstrip_blocks=True)
+env20 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path20)), trim_blocks=True, lstrip_blocks=True)
+env21 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path21)), trim_blocks=True, lstrip_blocks=True)
+env22 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path22)), trim_blocks=True, lstrip_blocks=True)
+env23 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path23)), trim_blocks=True, lstrip_blocks=True)
+env24 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path24)), trim_blocks=True, lstrip_blocks=True)
+env25 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path25)), trim_blocks=True, lstrip_blocks=True)
+env26 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path26)), trim_blocks=True, lstrip_blocks=True)
+env27 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path27)), trim_blocks=True, lstrip_blocks=True)
+env28 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path28)), trim_blocks=True, lstrip_blocks=True)
+env29 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path29)), trim_blocks=True, lstrip_blocks=True)
+env30 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path30)), trim_blocks=True, lstrip_blocks=True)
+env31 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path31)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -519,6 +576,20 @@ env14.globals.update(zip=zip)
 env15.globals.update(zip=zip)
 env16.globals.update(zip=zip)
 env17.globals.update(zip=zip)
+env18.globals.update(zip=zip)
+env19.globals.update(zip=zip)
+env20.globals.update(zip=zip)
+env21.globals.update(zip=zip)
+env22.globals.update(zip=zip)
+env23.globals.update(zip=zip)
+env24.globals.update(zip=zip)
+env25.globals.update(zip=zip)
+env26.globals.update(zip=zip)
+env27.globals.update(zip=zip)
+env28.globals.update(zip=zip)
+env29.globals.update(zip=zip)
+env30.globals.update(zip=zip)
+env31.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
@@ -530,14 +601,28 @@ template6 = env6.get_template('common_h.template')
 template7 = env7.get_template('common_h.template')
 template8 = env8.get_template('actssync.template')
 template9 = env9.get_template('actssync_h.template')
-template10 = env10.get_template('actsproc.template')
-template11 = env11.get_template('actsproc_h.template')
-template12 = env12.get_template('actsproc.template')
-template13 = env13.get_template('actsproc_h.template')
-template14 = env14.get_template('actsproc.template')
-template15 = env15.get_template('actsproc_h.template')
-template16 = env16.get_template('actsmerge.template')
-template17 = env17.get_template('actsmerge_h.template')
+template10 = env10.get_template('top_unifiedvts.template')
+template11 = env11.get_template('top_unifiedvts_h.template')
+template12 = env12.get_template('top_nonunifiedvts.template')
+template13 = env13.get_template('top_nonunifiedvts_h.template')
+template14 = env14.get_template('processedges_slicedgraph.template')
+template15 = env15.get_template('processedges_slicedgraph_h.template')
+template16 = env16.get_template('processedges_unslicedgraph.template')
+template17 = env17.get_template('processedges_unslicedgraph_h.template')
+template18 = env18.get_template('reduceupdates.template')
+template19 = env19.get_template('reduceupdates_h.template')
+template20 = env20.get_template('acts_util.template')
+template21 = env21.get_template('acts_util_h.template')
+template22 = env22.get_template('mem_access.template')
+template23 = env23.get_template('mem_access_h.template')
+template24 = env24.get_template('merge_vtxs.template')
+template25 = env25.get_template('merge_vtxs_h.template')
+template26 = env26.get_template('partitionupdates.template')
+template27 = env27.get_template('partitionupdates_h.template')
+template28 = env28.get_template('acts_merge.template')
+template29 = env29.get_template('acts_merge_h.template')
+template30 = env30.get_template('actsproc.template')
+template31 = env31.get_template('actsproc_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -557,6 +642,20 @@ rendered_file14 = template14.render(context=context)
 rendered_file15 = template15.render(context=context)
 rendered_file16 = template16.render(context=context)
 rendered_file17 = template17.render(context=context)
+rendered_file18 = template18.render(context=context)
+rendered_file19 = template19.render(context=context)
+rendered_file20 = template20.render(context=context)
+rendered_file21 = template21.render(context=context)
+rendered_file22 = template22.render(context=context)
+rendered_file23 = template23.render(context=context)
+rendered_file24 = template24.render(context=context)
+rendered_file25 = template25.render(context=context)
+rendered_file26 = template26.render(context=context)
+rendered_file27 = template27.render(context=context)
+rendered_file28 = template28.render(context=context)
+rendered_file29 = template29.render(context=context)
+rendered_file30 = template30.render(context=context)
+rendered_file31 = template31.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -594,6 +693,46 @@ with open(out_path16, 'w') as outFile16:
 	outFile16.write(rendered_file16)
 with open(out_path17, 'w') as outFile17:
 	outFile17.write(rendered_file17)
+with open(out_path18, 'w') as outFile18:
+	outFile18.write(rendered_file18)
+with open(out_path19, 'w') as outFile19:
+	outFile19.write(rendered_file19)
+with open(out_path20, 'w') as outFile20:
+	outFile20.write(rendered_file20)
+with open(out_path21, 'w') as outFile21:
+	outFile21.write(rendered_file21)
+with open(out_path22, 'w') as outFile22:
+	outFile22.write(rendered_file22)
+with open(out_path23, 'w') as outFile23:
+	outFile23.write(rendered_file23)
+with open(out_path24, 'w') as outFile24:
+	outFile24.write(rendered_file24)
+with open(out_path25, 'w') as outFile25:
+	outFile25.write(rendered_file25)
+with open(out_path26, 'w') as outFile26:
+	outFile26.write(rendered_file26)
+with open(out_path27, 'w') as outFile27:
+	outFile27.write(rendered_file27)
+with open(out_path28, 'w') as outFile28:
+	outFile28.write(rendered_file28)
+with open(out_path29, 'w') as outFile29:
+	outFile29.write(rendered_file29)
+with open(out_path30, 'w') as outFile30:
+	outFile30.write(rendered_file30)
+with open(out_path31, 'w') as outFile31:
+	outFile31.write(rendered_file31)
+# with open(out_path32, 'w') as outFile32:
+	# outFile32.write(rendered_file32)
+# with open(out_path33, 'w') as outFile33:
+	# outFile33.write(rendered_file33)
+# with open(out_path34, 'w') as outFile34:
+	# outFile34.write(rendered_file34)
+# with open(out_path35, 'w') as outFile35:
+	# outFile35.write(rendered_file35)
+# with open(out_path36, 'w') as outFile36:
+	# outFile36.write(rendered_file36)
+# with open(out_path37, 'w') as outFile37:
+	# outFile37.write(rendered_file37)
 
 print ("successful!")
 print ("...")

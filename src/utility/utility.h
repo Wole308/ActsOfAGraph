@@ -45,6 +45,7 @@ public:
 	void printkeyvalues(string message, keyvalue_t * keyvalues[VECTOR_SIZE], unsigned int size);
 	void printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size);
 	void printkeyvalues(string message, keyvalue_vec_bittype keyvalues[NUM_PARTITIONS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size);
+	void printtriples(string message, triple_t * triples, unsigned int size);
 	void printedges(string message, edge2_type * edges, unsigned int size);
 	void printmessages(string message, uint512_vec_dt * keyvalues);
 	void printallparameters();

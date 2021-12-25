@@ -26,7 +26,7 @@
 using namespace std;
 
 // #define _DEBUGMODE_KERNELPRINTS_TRACE
-// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 // #define _DEBUGMODE_SUBPMASKING_TRACE
 
 #define PROCESSMODULE
@@ -37,6 +37,28 @@ using namespace std;
 #define PROCESSMODE 0
 #define PARTITIONMODE 1
 #define REDUCEMODE 2
+
+// acts-main parameters 
+#ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
+#define NUMPIPELINES_PARTITIONUPDATES 2 // REMOVEME.
+#else 
+#define NUMPIPELINES_PARTITIONUPDATES 2 //1 // REMOVEME.
+#endif 
+#if NUMPIPELINES_PARTITIONUPDATES==1
+#define PUP0
+#endif 
+#if NUMPIPELINES_PARTITIONUPDATES==2
+#define PUP0
+#define PUP1
+#endif
+
+#define ACTSPROC_AUTOMATE_ACROSSDATASETS
+
+#define REDUCEBUFFERFACTOR 8 // CONSTANT
+
+// #define ENABLE_SUBVMASKING
+#define SUBPMASKFACTOR_POW 4
+#define SUBPMASKFACTOR 16 // NOTE: CONSTANT
 
 // buffer parameters
 #define BLOCKRAM_SIZE 512
@@ -100,8 +122,8 @@ using namespace std;
 #define EDGESSTATSDRAMSZ 64
 
 #ifdef USEHBMMEMORY
-	#define KVSOURCEDRAMSZ (1 << 25) // max HBM capacity (256MB)
-	// #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
+	// #define KVSOURCEDRAMSZ (1 << 25) // max HBM capacity (256MB)
+	#define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
 	// #define KVSOURCEDRAMSZ (1 << 27) // max HBM capacity (1024MB) // CRITICAL REMOVEME.
 #endif 
 #ifdef USEDDRAMMEMORY
@@ -340,6 +362,28 @@ typedef struct {
 	int nextoffset_kvs;
 	int chunksize_kvs;
 } fetchmessage_t;
+
+typedef struct {
+	unsigned int first;
+	unsigned int last;
+	unsigned int edgebankID;
+	unsigned int v_chunkid;
+	unsigned int stage;
+	unsigned int laststage;
+	unsigned int currentLOP;
+	unsigned int lastLOP;
+	unsigned int source_partition;
+	unsigned int first_source_partition;
+	unsigned int last_source_partition;
+	unsigned int num_source_partitions;
+	unsigned int sourcestatsmarker;
+	unsigned int deststatsmarker;
+	unsigned int EN_PROCESS; 
+	unsigned int EN_PARTITION; 
+	unsigned int EN_REDUCE;
+	unsigned int EN_PROCESSANDREDUCE;
+	unsigned int EN_PROCESSANDPARTITION;
+} globalposition_t;
 #endif 
 
 

@@ -35,7 +35,8 @@
 #define USEHBMMEMORY
 // #define USEDDRAMMEMORY
 
-// #define UNIFIED_VDRAM //
+// #define CONFIG_UNIFIED_VDRAM //
+#define CONFIG_SPLIT_DESTVTXS
 
 #endif
 

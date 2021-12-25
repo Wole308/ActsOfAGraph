@@ -2,16 +2,25 @@
 #define SWKERNEL_H
 #include <mutex>
 #include <thread>
+#include <chrono>
+#include <stdlib.h>
+#include <ctime>
+#include <map>
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <vector>
 #include "../include/config_params.h"
 #include "../include/common.h"
 #include "../src/stats/stats.h"
 #include "../src/graphs/graph.h"
-// #include "../acts/acts/acts.h"
 #include "../acts/acts/actsproc.h"
 #include "../acts/acts/actssync.h"
-#include "../acts/acts/actsmerge.h"
+#include "../acts/acts/merge_vtxs.h"
 #include "../src/utility/utility.h"
 #include "../src/algorithm/algorithm.h"
+#include "../acts/acts/top_unifiedvts.h"
+#include "../acts/acts/top_nonunifiedvts.h"
 
 class swkernel {
 public:
@@ -39,9 +48,11 @@ private:
 	algorithm * algorithmobj;
 	
 	#ifdef SW
-	actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
+	// actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
+	// top_unifiedvts * kernelobjs_process[NUMSUBCPUTHREADS];
+	top_nonunifiedvts * kernelobjs_process[NUMSUBCPUTHREADS];
 	actssync * kernelobjs_synchronize;
-	// actsmerge * kernelobjs_synchronize;
+	merge_vtxs * merge_vtxsobj;
 	#endif
 };
 #endif

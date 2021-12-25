@@ -73,14 +73,25 @@ HOST_OCLSRCS += $(xcl2_SRCS)
 CXXFLAGS += $(opencl_CXXFLAGS) -Wall -O0 -g -std=c++14
 LDFLAGS += $(opencl_LDFLAGS)
 
-KERNEL_TOP += $(RELREF)acts/acts/acts.cpp
+# KERNEL_ACTS += $(RELREF)acts/acts/acts.cpp
 # KERNEL_TOP += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/top_unifiedvts.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/top_nonunifiedvts.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/processedges_unslicedgraph.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/processedges_slicedgraph.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/partitionupdates.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/reduceupdates.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/mem_access.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_util.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/merge_vtxs.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/acts.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
 #CRITICAL REMOVEME.
-KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync.cpp
+# KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge.cpp
 # KERNEL_TOP_SYNC += $(RELREF)acts/acts/actsmerge.cpp
 # KERNEL_TOP_SYNC += $(RELREF)acts/acts/actsapply.cpp
 # KERNEL_TOP_SYNC += $(RELREF)acts/actsutility/actsutility.cpp
@@ -102,7 +113,8 @@ HOST_TOP += $(RELREF)examples/hostprocess.cpp
 
 HOST_SRCS += $(RELREF)src/algorithm/algorithm.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/loadgraph.cpp
-HOST_SRCS += $(RELREF)examples/helperfunctions/loadgraph_sw.cpp
+HOST_SRCS += $(RELREF)examples/helperfunctions/loadedges.cpp
+HOST_SRCS += $(RELREF)examples/helperfunctions/loadedges_splitvertices.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/setupkernel.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/evalparams.cpp
 HOST_SRCS += $(RELREF)examples/app/app.cpp
@@ -514,7 +526,8 @@ all_sync: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_SYNC) emconfig
 all_procandsync: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_PROCANDSYNC) emconfig
 
 all_procandsync_1by1by1by0_1and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_1by1by1by0_1AND1) emconfig
-all_procandsync_1by1by1by0_3and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_1by1by1by0_3AND1) emconfig
+# all_procandsync_1by1by1by0_3and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_1by1by1by0_3AND1) emconfig
+all_procandsync_1by1by1by0_3and1: check-devices $(BINARY_CONTAINERS_1by1by1by0_3AND1) emconfig
 all_procandsync_1by1by1by0_8and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_1by1by1by0_8AND1) emconfig
 all_procandsync_1by1by1by0_16and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_1by1by1by0_16AND1) emconfig
 all_procandsync_1by1by1by0_20and1: check-devices $(EXECUTABLE) $(BINARY_CONTAINERS_1by1by1by0_20AND1) emconfig
@@ -532,9 +545,9 @@ exe: $(EXECUTABLE)
 build: $(BINARY_CONTAINERS)
 
 # Building kernel (ACTS 1 by 1: all proc & sync in 1 kernel)
-$(XCLBIN)/topkernelP1.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
+$(XCLBIN)/topkernelP1.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROC) $(KERNEL_UTILITY) $(KERNEL_ACTS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernelP1 -I'$(<D)' -o'$@' $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
+	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernelP1 -I'$(<D)' -o'$@' $(KERNEL_TOP_PROC) $(KERNEL_ACTS) $(KERNEL_UTILITY)
 $(XCLBIN)/topkernelP2.$(TARGET).$(DSA).xo: $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
 	mkdir -p $(XCLBIN)
 	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -c -k topkernelP2 -I'$(<D)' -o'$@' $(KERNEL_TOP_PROC) $(KERNEL_UTILITY)
@@ -583,13 +596,18 @@ $(XCLBIN)/topkernel_1by1by1by0_1and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER
 	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS_HBM_1by1by1by0_1and1) $(LDCLFLAGS_SLR) $(LDCLFLAGS_LOGICOPT) --nk topkernel:3 -o'$@' $(+)
 
 ## (1by1by1byN: 3 PE Workers) ##
-LDCLFLAGS_SLR_1BY1BY1BYN_3PEs += --slr topkernelP1_1:SLR2
-LDCLFLAGS_SLR_1BY1BY1BYN_3PEs += --slr topkernelP1_2:SLR1
-LDCLFLAGS_SLR_1BY1BY1BYN_3PEs += --slr topkernelP1_3:SLR0
-LDCLFLAGS_SLR_1BY1BY1BYN_3PEs += --slr topkernelsync_1:SLR0
-$(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelP1_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
+# LDCLFLAGS_SLR_1BY1BY1BYN_3PEs += --slr topkernelP1_1:SLR2
+# LDCLFLAGS_SLR_1BY1BY1BYN_3PEs += --slr topkernelP1_2:SLR1
+# LDCLFLAGS_SLR_1BY1BY1BYN_3PEs += --slr topkernelP1_3:SLR0
+# LDCLFLAGS_SLR_1BY1BY1BYN_3PEs += --slr topkernelsync_1:SLR0
+# $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelP1_OBJS) $(BINARY_CONTAINER_topkernelsync_OBJS)
+	# mkdir -p $(XCLBIN)
+	# $(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS_HBM_PROC_1by1by1by0_3and1) $(LDCLFLAGS_HBM_SYNC_1by1by1by0_3and1) $(LDCLFLAGS_SLR_1BY1BY1BYN_3PEs) $(LDCLFLAGS_LOGICOPT) --nk topkernelP1:3 --nk topkernelsync:1 -o'$@' $(+)
+	
+## (1by1by1byN: 3 PE Workers) ## REMOVEMEEEEEEEEEEEEEEEEEEEEEEE
+$(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_topkernelP1_OBJS)
 	mkdir -p $(XCLBIN)
-	$(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS_HBM_PROC_1by1by1by0_3and1) $(LDCLFLAGS_HBM_SYNC_1by1by1by0_3and1) $(LDCLFLAGS_SLR_1BY1BY1BYN_3PEs) $(LDCLFLAGS_LOGICOPT) --nk topkernelP1:3 --nk topkernelsync:1 -o'$@' $(+)
+	# $(XOCC) $(CLFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(BUILD_DIR_topkernel) -l $(LDCLFLAGS_HBM_PROC_1by1by1by0_3and1) $(LDCLFLAGS_HBM_SYNC_1by1by1by0_3and1) $(LDCLFLAGS_SLR_1BY1BY1BYN_3PEs) $(LDCLFLAGS_LOGICOPT) --nk topkernelP1:3 --nk topkernelsync:1 -o'$@' $(+)
 	
 ## (1by1by1byN: 8 PE Workers) ##
 LDCLFLAGS_SLR_1BY1BY1BYN_8PEs += --slr topkernelP8_1:SLR2

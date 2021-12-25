@@ -116,6 +116,7 @@
 	#define NUM_PARTITIONS_POW (BATCH_RANGE_POW - SRAMSZ_POW) // FIXME. CRITICAL AUTOMATEME.
 #endif 
 #define NUM_PARTITIONS (1 << NUM_PARTITIONS_POW)
+#define MAX_NUM_PARTITIONS NUM_PARTITIONS 
 
 #define MAXNUMVERTEXBANKS 1
 #define MAXNUMEDGEBANKS 1
@@ -242,6 +243,10 @@
 
 #define MESSAGES_RETURN_RETURNVALUES (MESSAGES_ACTSPARAMS_NUMEDGECHUNKSINABUFFER + 1)
 // #define MESSAGES_BASEOFFSET_OTHERINFOS (MESSAGES_RETURN_RETURNVALUES + 128)
+
+////////////////
+
+#define MAX_NUM_UNIQ_EDGES_PER_VEC 8
 
 ////////////////
 
@@ -386,6 +391,12 @@ typedef struct {
 } edge2_type;
 
 typedef struct {
+	keyy_t srcvid;
+	keyy_t dstvid;
+	keyy_t status;
+} edge3_type;
+
+typedef struct {
 	keyy_t key;
 } vptr_type;
 
@@ -510,5 +521,11 @@ typedef struct {
 	unsigned int A;
     unsigned int B;
 } tuple_t;
+
+typedef struct {
+	unsigned int A;
+    unsigned int B;
+	unsigned int C;
+} triple_t;
 #endif
 

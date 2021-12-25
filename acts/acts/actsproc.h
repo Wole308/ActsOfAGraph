@@ -42,7 +42,7 @@ using namespace std;
 	#define MAX_NUM_PARTITIONS NUM_PARTITIONS
 #endif
 
-typedef struct {
+/* typedef struct {
 	unsigned int first;
 	unsigned int last;
 	unsigned int edgebankID;
@@ -62,7 +62,7 @@ typedef struct {
 	unsigned int EN_REDUCE;
 	unsigned int EN_PROCESSANDREDUCE;
 	unsigned int EN_PROCESSANDPARTITION;
-} globalposition_t;
+} globalposition_t; */
 
 class actsproc {
 public:
@@ -284,7 +284,7 @@ public:
 			globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 			bool_type resetenv, bool_type flush, unsigned int edgebankID);
 
-	#ifndef UNIFIED_VDRAM
+	#ifndef CONFIG_UNIFIED_VDRAM
 	// dispatch
 	void processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);							
@@ -421,7 +421,7 @@ public:
 		);
 	#endif 
 	
-	#ifdef UNIFIED_VDRAM
+	#ifdef CONFIG_UNIFIED_VDRAM
 	// dispatch
 	void processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode);							

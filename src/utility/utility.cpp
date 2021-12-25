@@ -217,6 +217,14 @@ void utility::printkeyvalues(string message, keyvalue_vec_bittype keyvalues[NUM_
 		cout<<".."<<endl;
 	}
 }
+void utility::printtriples(string message, triple_t * triples, unsigned int size){
+	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
+	unsigned int totalAs = 0;
+	unsigned int totalBs = 0;
+	unsigned int totalCs = 0;
+	for(unsigned int i=0; i<size; i++){ cout<<"triples["<<i<<"].A: "<<triples[i].A<<", triples["<<i<<"].B: "<<triples[i].B<<", triples["<<i<<"].C: "<<triples[i].C<<endl; totalAs+=triples[i].A; totalBs+=triples[i].B; totalCs+=triples[i].C; }
+	cout<<"total As: "<<totalAs<<", total Bs: "<<totalBs<<", total Cs: "<<totalCs<<endl;
+}
 void utility::printedges(string message, edge2_type * edges, unsigned int size){
 	cout<<endl<<"utility::printedges:"<<message<<endl;
 	for(unsigned int i=0; i<size; i++){ cout<<"edges["<<i<<"].srcvid: "<<edges[i].srcvid<<", edges["<<i<<"].dstvid: "<<edges[i].dstvid<<endl; }

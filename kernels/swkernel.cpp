@@ -1,22 +1,3 @@
-#include <chrono>
-#include <stdlib.h>
-#include <ctime>
-#include <map>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <vector>
-#include <mutex>
-#include <thread>
-// #include "../acts/acts/acts.h"
-#include "../acts/acts/actsproc.h"
-#include "../acts/acts/actssync.h"
-#include "../acts/acts/actsmerge.h"
-#include "../src/stats/stats.h"
-#include "../src/algorithm/algorithm.h"
-#include "../src/graphs/graph.h"
-#include "../src/utility/utility.h"
-#include "../include/common.h"
 #include "swkernel.h"
 using namespace std;
 
@@ -31,7 +12,8 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 	
 	#ifdef SW
 	// for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(); }
-	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new actsproc(); }
+	// for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new actsproc(); }
+	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new top_nonunifiedvts(); }
 	kernelobjs_synchronize = new actssync();
 	// kernelobjs_synchronize = new actsmerge();
 	// kernelobjs = new acts();
@@ -121,7 +103,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			NOT DEFINED.
 			#endif
 
-			#ifdef UNIFIED_VDRAM
+			#ifdef CONFIG_UNIFIED_VDRAM
 			kernelobjs_synchronize->topkernelsync(
 				(uint512_dt *)vdramA,
 				(uint512_dt *)vdramB,
@@ -232,11 +214,12 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 		}
 		
-		#ifdef UNIFIED_VDRAM
+		/* #ifdef CONFIG_UNIFIED_VDRAM
 		uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
 		#else 
 		uint512_vec_dt * ref = (uint512_vec_dt *)kvsourcedram[0];	
-		#endif 
+		#endif  */
+		uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = ref[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
 		unsigned int totalactvvp = 0;
@@ -814,7 +797,7 @@ void swkernel::run32(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 	#endif
 }
 
-#ifndef UNIFIED_VDRAM
+#ifndef CONFIG_UNIFIED_VDRAM
 void swkernel::run_sync(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_vec_dt * vdramC, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]){
 	cout<<"swkernel::runapp: applying... "<<endl;
 	kernelobjs_synchronize->topkernelsync(

@@ -30,8 +30,11 @@ private:
 	graph * graphobj;
 	utility * utilityobj;
 	loadgraph * loadgraphobj;
+	#ifdef CONFIG_SPLIT_DESTVTXS
+	loadedges_splitvertices * loadedgesobj;
+	#else 
 	loadedges * loadedgesobj;
-	loadedges_splitvertices * loadedgessplitvssobj;
+	#endif 
 	setupkernel * setupkernelobj;
 	swkernel * swkernelobj;
 	stats * statsobj;

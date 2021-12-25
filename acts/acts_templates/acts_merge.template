@@ -1,0 +1,232 @@
+#include "acts_merge.h"
+using namespace std;
+
+#define NUMWS 16//NUM_PARTITIONS // CRITICAL FIXME.
+
+#ifdef SW
+actssync::actssync(){ 
+	actsutilityobj = new actsutility(); 
+	acts_utilobj = new acts_util(); 
+	processedges_unslicedgraphobj = new processedges_unslicedgraph();
+	processedges_slicedgraphobj = new processedges_slicedgraph();
+	partitionupdatesobj = new partitionupdates();
+	reduceupdatesobj = new reduceupdates();
+	mem_accessobj = new mem_access();
+	actsobj = new acts();
+	mergeobj = new merge_vtxs();
+}
+actssync::~actssync(){}
+#endif
+
+value_t 
+	#ifdef SW 
+	actssync::
+	#endif 
+MERGE_applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+	value_t temp = 0;
+	if(GraphAlgo == PAGERANK){
+		// temp = vtemp + res;
+		// temp = 0.5 + (1 - 0.5)*res / vdeg; // IDEAL
+		temp = res;
+	} else if(GraphAlgo == BFS){
+		temp = res;
+	} else if(GraphAlgo == SSSP){
+		temp = acts_utilobj->UTIL_amin(vtemp, res);
+	} else {
+		temp = NAp;
+	}
+	return temp;
+}
+
+void // 
+	#ifdef SW 
+	actssync::
+	#endif 
+MERGE_readvdata(bool_type enable1, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs){
+	#pragma HLS function_instantiate variable=kvdram
+	if(enable1 == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
+		
+	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue{{v}};
+		{%endfor%}
+		
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue{{v}}.key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		mykeyvalue{{v}}.value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue{{v}}.key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
+		mykeyvalue{{v}}.value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
+		{%endfor%}
+		#endif
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer[{{v}}][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue{{v}});
+		{%endfor%}
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+
+void // 
+	#ifdef SW 
+	actssync::
+	#endif 
+MERGE_writevdata(bool_type enable1, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs){
+	#pragma HLS function_instantiate variable=kvdram
+	if(enable1 == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
+
+	WRITEVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		#pragma HLS PIPELINE II=1
+			{%for v in context['VECTOR_SIZE_seq']%}
+			keyvalue_t keyvalue{{v}} = acts_utilobj->UTIL_GETKV2(buffer[{{v}}][i]); 
+			{%endfor%}
+			
+			#ifdef _WIDEWORD
+			{%for v in context['VECTOR_SIZE_seq']%}
+			kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = keyvalue{{v}}.key;
+			kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = keyvalue{{v}}.value;
+			{%endfor%}
+			#else
+			{%for v in context['VECTOR_SIZE_seq']%}
+			kvdram[dramoffset_kvs + i].data[{{v}}].key = keyvalue{{v}}.key; // dramoffset_kvs
+			kvdram[dramoffset_kvs + i].data[{{v}}].value = keyvalue{{v}}.value; // dramoffset_kvs
+			{%endfor%}
+			#endif
+	}
+	return;
+}
+
+extern "C" {
+void
+	#if defined(SW)
+	actssync::
+	#endif
+topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram){
+#ifndef ACTS_1by1
+{%for i in context['SYNCTHREADS_seq']%} 
+#pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
+{%endfor%}
+#pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{context['NUMSYNCTHREADS']}}
+
+{%for i in context['SYNCTHREADS_seq']%}
+#pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control
+{%endfor%}
+#pragma HLS INTERFACE s_axilite port = vdram bundle = control
+
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+
+{%for i in context['SYNCTHREADS_seq']%}
+#pragma HLS DATA_PACK variable = kvdram{{i}}
+{%endfor%}
+#pragma HLS DATA_PACK variable = vdram
+#endif 
+	
+	#if defined(_DEBUGMODE_KERNELPRINTS2) //& defined(ALLVERTEXISACTIVE_ALGORITHM)
+	cout<<">>> ====================== ACTS MERGE Launched... size: "<<SYNC_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
+	#endif
+	
+	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
+	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
+	batch_type num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparams.ACTSPARAMS_TREEDEPTH); //??????????
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	{%for i in context['SYNCTHREADS_seq']%}
+	keyvalue_vbuffer_t vbuffer{{i}}[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = vbuffer{{i}}
+	{%endfor%}
+	keyvalue_vbuffer_t refbuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = refbuffer
+	keyvalue_vbuffer_t merge_buffer[VECTOR_SIZE][BLOCKRAM_SIZE];
+	#pragma HLS array_partition variable = merge_buffer
+	
+	unsigned int vreadoffsetpp0_kvs = 0;
+	unsigned int vwriteoffsetpp0_kvs = 0;
+	
+	unsigned int total_num_blocks = (globalparams.SIZE_BATCHRANGE / NUMWS) / BLOCKRAM_SIZE;
+	cout<<">>> ACTS MERGE: globalparams.SIZE_BATCHRANGE: "<<globalparams.SIZE_BATCHRANGE<<endl; 
+	cout<<">>> ACTS MERGE: NUMWS: "<<NUMWS<<endl; 
+	cout<<">>> ACTS MERGE: BLOCKRAM_SIZE: "<<BLOCKRAM_SIZE<<endl; 
+	cout<<">>> ACTS MERGE: total_num_blocks: "<<total_num_blocks<<endl; 
+	
+	TOPKERNELSYNC_MAINLOOP: for(batch_type iterationidx=0; iterationidx<total_num_blocks; iterationidx+=1){
+		#if defined(_DEBUGMODE_KERNELPRINTS3)
+		cout<<">>> ACTS MERGE: merging block: "<<iterationidx<<" (of "<<total_num_blocks<<" total blocks)"<<endl; 
+		#endif
+	
+		{%for i in context['16_seq']%}
+		MERGE_readvdata(ON, kvdram{{i}}, globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, vbuffer{{i}}, 0, reducebuffersz);
+		{%endfor%}
+		MERGE_readvdata(ON, vdram, globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, reducebuffersz);
+		
+		unsigned int merge_buffer_index = 0;
+		unsigned int v_buffer_index = 0;
+		for(unsigned int k=0; k<reducebuffersz / NUMWS; k++){
+			
+			{%for i in context['16_seq']%}
+				{%for v in context['VECTOR_SIZE_seq']%} 
+				keyvalue_t udata{{i}}{{v}} = acts_utilobj->UTIL_GETKV2(refbuffer[{{v}}][merge_buffer_index]);
+				keyvalue_t vdata{{i}}{{v}} = acts_utilobj->UTIL_GETKV2(vbuffer{{i}}[{{v}}][v_buffer_index]);
+				
+				// merge_buffer[{{v}}][merge_buffer_index] = vbuffer{{i}}[{{v}}][v_buffer_index];	 
+				merge_buffer[{{v}}][merge_buffer_index] = acts_utilobj->UTIL_GETKV2(vdata{{i}}{{v}});
+				
+				keyvalue_t res{{i}}{{v}}; 
+				res{{i}}{{v}}.key = MERGE_applyfunc(udata{{i}}{{v}}.key, vdata{{i}}{{v}}.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+				res{{i}}{{v}}.value = MERGE_applyfunc(udata{{i}}{{v}}.value, vdata{{i}}{{v}}.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS	
+				if(vbuffer{{i}}[{{v}}][v_buffer_index].key < 9999){ cout<<"SYNC AND APPLY FUNC SEEN @ vbuffer{{i}}[{{v}}]["<<v_buffer_index<<"].key: "<<vbuffer{{i}}[{{v}}][v_buffer_index].key<<endl; }
+				if(vbuffer{{i}}[{{v}}][v_buffer_index].value < 9999){ cout<<"SYNC AND APPLY FUNC SEEN @ vbuffer{{i}}[{{v}}]["<<v_buffer_index<<"].value: "<<vbuffer{{i}}[{{v}}][v_buffer_index].value<<endl; }			
+				#endif 	
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+				if(res{{v}}.key < 9999){ cout<<"SYNC AND APPLY FUNC SEEN @ vbuffer{{i}}[{{v}}]["<<v_buffer_index<<"].key: "<<vbuffer{{i}}[{{v}}][v_buffer_index].key<<endl; }
+				if(res{{v}}.value < 9999){ cout<<"SYNC AND APPLY FUNC SEEN @ vbuffer{{i}}[{{v}}]["<<v_buffer_index<<"].value: "<<vbuffer{{i}}[{{v}}][v_buffer_index].value<<endl; }			
+				#endif 	
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+				if(res{{i}}{{v}}.key != udata{{i}}{{v}}.key){ cout<<"acts_merge::ACTIVE VTX SEEN: vid: "<<(vwriteoffsetpp0_kvs*VECTOR_SIZE*2 + (({{v}}*globalparams.SIZE_REDUCE) + k*2))<<", vbuffer{{i}}[{{v}}]["<<v_buffer_index<<"].key: "<<vbuffer{{i}}[{{v}}][v_buffer_index].key<<endl; }
+				if(res{{i}}{{v}}.value != udata{{i}}{{v}}.value){ cout<<"acts_merge::ACTIVE VTX SEEN: vid: "<<(vwriteoffsetpp0_kvs*VECTOR_SIZE*2 + (({{v}}*globalparams.SIZE_REDUCE) + k*2 + 1))<<", vbuffer{{i}}[{{v}}]["<<v_buffer_index<<"].value: "<<vbuffer{{i}}[{{v}}][v_buffer_index].value<<endl; }			
+				#endif 
+				{%endfor%}
+			merge_buffer_index += 1;
+			{%endfor%}
+			v_buffer_index += 1;
+			// if(v_buffer_index>8){ exit(EXIT_SUCCESS); }////////////////////
+		}
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		for(unsigned int k=0; k<reducebuffersz; k++){
+			{%for v in context['VECTOR_SIZE_seq']%} 
+			if(merge_buffer[{{v}}][k].key < 999){ cout<<"SYNC AND APPLY FUNC SEEN @ (vid1: "<<({{v}} * globalparams.SIZE_REDUCE) + k<<", merge_buffer[{{v}}]["<<k<<"].key: "<<merge_buffer[{{v}}][k].key<<endl; }
+			if(merge_buffer[{{v}}][k].value < 999){ cout<<"SYNC AND APPLY FUNC SEEN @ (vid1: "<<({{v+1}} * globalparams.SIZE_REDUCE) + k<<", merge_buffer[{{v}}]["<<k<<"].value: "<<merge_buffer[{{v}}][k].value<<endl; }
+			{%endfor%}
+		}
+		#endif
+		// exit(EXIT_SUCCESS); ////////////////////
+		
+		MERGE_writevdata(ON, vdram, globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vwriteoffsetpp0_kvs, merge_buffer, 0, reducebuffersz);
+		vwriteoffsetpp0_kvs += merge_buffer_index;
+		vreadoffsetpp0_kvs += v_buffer_index;
+		cout<<">>> ACTS MERGE: merging finished: vreadoffsetpp0_kvs: "<<vreadoffsetpp0_kvs<<", v_buffer_index: "<<v_buffer_index<<", vwriteoffsetpp0_kvs: "<<vwriteoffsetpp0_kvs<<", merge_buffer_index: "<<merge_buffer_index<<endl;
+		// exit(EXIT_SUCCESS); //////////////////// CRITICAL REMOVEME.
+	}
+	#if defined(_DEBUGMODE_KERNELPRINTS3)
+	cout<<">>> ACTS MERGE: merging finished: vreadoffsetpp0_kvs: "<<vreadoffsetpp0_kvs<<", vwriteoffsetpp0_kvs: "<<vwriteoffsetpp0_kvs<<endl;
+	#endif 
+	return;
+}
+}
+
+
