@@ -26,10 +26,6 @@
 #include "acts_util.h"
 using namespace std;
 
-#define NUMSYNCTHREADS 32
-
-#define ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
-
 class processedges_slicedgraph {
 public:
 	processedges_slicedgraph();

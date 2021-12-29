@@ -76,10 +76,36 @@
 
 ////////////////
 
-#define NUM_PEs 32
-#define NUMSUBCPUTHREADS 32
-#define NUMSYNCTHREADS 32
+#define NUM_PEs 24
+#define NUMSUBCPUTHREADS 24
+#define NUMSYNCTHREADS 3
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
+#define CONFIGSPLITDESTVTXS_NUMWs 24
+
+////////////////
+
+// #define TESTRUN
+#ifdef TESTRUN
+#define NUMCOMPUTEUNITS_SLR1AND2 1 
+#define NUMCOMPUTEUNITS_SLR0 1 
+#else 
+	#if NUM_PEs==12
+	#define NUMCOMPUTEUNITS_SLR1AND2 5 
+	#define NUMCOMPUTEUNITS_SLR0 5
+	#endif 
+	#if NUM_PEs==22
+	#define NUMCOMPUTEUNITS_SLR1AND2 8 
+	#define NUMCOMPUTEUNITS_SLR0 6
+	#endif 
+	#if NUM_PEs==24
+	#define NUMCOMPUTEUNITS_SLR1AND2 9 
+	#define NUMCOMPUTEUNITS_SLR0 6
+	#endif 
+	#if NUM_PEs==25
+	#define NUMCOMPUTEUNITS_SLR1AND2 9 
+	#define NUMCOMPUTEUNITS_SLR0 7
+	#endif 
+#endif 
 
 ////////////////
 
@@ -88,7 +114,7 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 32
+#define NUMCOMPUTEUNITS 24
 #define NUMCOMPUTEUNITS_HALF (NUMCOMPUTEUNITS / 2)
 #define NUMINTSINKEYVALUETYPE 2
 #define VDATA_PACKINGSIZE_POW 4 // AUTOMATEME.
@@ -163,7 +189,7 @@
 
 #define NUM_EDGE_BANKS 0
 #define MAX_NUM_EDGE_BANKS 16
-#define NUMSYNCTHREADS 32
+#define NUMSYNCTHREADS 3
 
 #define VPTR_SHRINK_RATIO 16384 // 1, 16, 16384
 
@@ -246,7 +272,7 @@
 
 ////////////////
 
-#define MAX_NUM_UNIQ_EDGES_PER_VEC 8
+#define MAX_NUM_UNIQ_EDGES_PER_VEC 8 // 8
 
 ////////////////
 
@@ -394,6 +420,7 @@ typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid;
 	keyy_t status;
+	keyy_t metadata;
 } edge3_type;
 
 typedef struct {
@@ -526,6 +553,7 @@ typedef struct {
 	unsigned int A;
     unsigned int B;
 	unsigned int C;
+	unsigned int D;
 } triple_t;
 #endif
 

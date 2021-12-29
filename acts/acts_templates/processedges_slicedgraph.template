@@ -94,18 +94,26 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		{%endfor%}
 		#endif
 		
+		vertex_t srcvid_head = E[0][0];
+		vertex_t lvid_head = srcvid_head - travstate.i2;
+		
 		bool_type en = ON;
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		bool_type ens{{v}} = ON; if(E[0][{{v}}] == INVALIDDATA || E[0][{{v}}] >= validbound){ ens{{v}} = OFF; }
 		{%endfor%}
+		if(lvid_head >= validbound){ {%for v in context['VECTOR2_SIZE_seq']%} ens{{v}} = OFF; {%endfor%} lvid_head = 0; } // CRITICAL NEWCHANGE WITH SLICED.
 		
-		vertex_t srcvid_head = E[0][0];
-		vertex_t lvid_head = srcvid_head - travstate.i2;
+		// vertex_t srcvid_head = E[0][0];
+		// vertex_t lvid_head = srcvid_head - travstate.i2;
+		// if(lvid_head >= validbound){ lvid_head = 0; } // CRITICAL REMOVEME.
 			#ifdef _DEBUGMODE_CHECKS2
-			if(srcvid_head < travstate.i2){ cout<<"readandprocess: INVALID srcvid_head. this is an error. i: "<<i<<", srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<" offset_kvs: "<<offset_kvs<<". exiting..."<<endl; 
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<", E[1]["<<v<<"]: "<<E[1][v]<<endl; }
+			if(srcvid_head < travstate.i2){ cout<<"readandprocess: INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<" offset_kvs: "<<offset_kvs<<". exiting..."<<endl;					 
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
 				exit(EXIT_FAILURE); }
-			actsutilityobj->checkoutofbounds("readandprocess.1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, NAp);
+			if(lvid_head >= (reducebuffersz*FETFACTOR*VECTOR2_SIZE)){ cout<<"readandprocess: INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), lvid_head: "<<lvid_head<<", reducebuffersz*FETFACTOR*VECTOR2_SIZE: "<<reducebuffersz*FETFACTOR*VECTOR2_SIZE<<". exiting..."<<endl;					 
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
+				exit(EXIT_FAILURE); }
+			actsutilityobj->checkoutofbounds("readandprocess.1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, i);
 			#endif
 		
 		{%for r in context['8_seq']%} // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
@@ -132,8 +140,8 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		unsigned int mask{{v}}; // OPTIMIZEME. bittype_t
 		{%endfor%}
-		if(GraphAlgo == PAGERANK){ {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = 1; {%endfor%} mask0 == 0; } 
-		else { {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = masks[incr{{v}}]; {%endfor%} mask0 == 0; }
+		if(GraphAlgo == PAGERANK){ {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = 1; {%endfor%} mask0 = 0; } 
+		else { {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = masks[incr{{v}}]; {%endfor%} mask0 = 0; }
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR2_SIZE_seq']%}
 			if(ens{{v}} == ON && mask{{v}} > 2){ 
@@ -144,6 +152,10 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			}
 			{%endfor%}
 			#endif
+		
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		if(mask{{v}}==1){cout<<"--- i: "<<i<<", mask{{v}}: "<<mask{{v}}<<endl;}
+		{%endfor%}
 		
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		value_t res{{v}} = PROCESS_processfunc(udatas[incr{{v}}], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 

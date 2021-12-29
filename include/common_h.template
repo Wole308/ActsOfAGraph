@@ -117,6 +117,32 @@
 #define NUMSUBCPUTHREADS {{context['NUMSUBCPUTHREADS']}}
 #define NUMSYNCTHREADS {{context['NUMSYNCTHREADS']}}
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
+#define CONFIGSPLITDESTVTXS_NUMWs {{context['CONFIGSPLITDESTVTXS_NUMWs']}}
+
+////////////////
+
+// #define TESTRUN
+#ifdef TESTRUN
+#define NUMCOMPUTEUNITS_SLR1AND2 1 
+#define NUMCOMPUTEUNITS_SLR0 1 
+#else 
+	#if NUM_PEs==12
+	#define NUMCOMPUTEUNITS_SLR1AND2 5 
+	#define NUMCOMPUTEUNITS_SLR0 5
+	#endif 
+	#if NUM_PEs==22
+	#define NUMCOMPUTEUNITS_SLR1AND2 8 
+	#define NUMCOMPUTEUNITS_SLR0 6
+	#endif 
+	#if NUM_PEs==24
+	#define NUMCOMPUTEUNITS_SLR1AND2 9 
+	#define NUMCOMPUTEUNITS_SLR0 6
+	#endif 
+	#if NUM_PEs==25
+	#define NUMCOMPUTEUNITS_SLR1AND2 9 
+	#define NUMCOMPUTEUNITS_SLR0 7
+	#endif 
+#endif 
 
 ////////////////
 
@@ -283,7 +309,7 @@
 
 ////////////////
 
-#define MAX_NUM_UNIQ_EDGES_PER_VEC 8
+#define MAX_NUM_UNIQ_EDGES_PER_VEC 8 // 8
 
 ////////////////
 
@@ -431,6 +457,7 @@ typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid;
 	keyy_t status;
+	keyy_t metadata;
 } edge3_type;
 
 typedef struct {
@@ -563,6 +590,7 @@ typedef struct {
 	unsigned int A;
     unsigned int B;
 	unsigned int C;
+	unsigned int D;
 } triple_t;
 #endif
 

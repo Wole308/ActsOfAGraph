@@ -10,6 +10,7 @@ top_nonunifiedvts::top_nonunifiedvts(){
 	partitionupdatesobj = new partitionupdates();
 	reduceupdatesobj = new reduceupdates();
 	mem_accessobj = new mem_access();
+	acts_mergeobj = new acts_merge();
 	actsobj = new acts();
 }
 top_nonunifiedvts::~top_nonunifiedvts(){}
@@ -358,16 +359,15 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
 	#else 
-	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
+	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH + 1;
 	#endif 
 	
 	#ifdef ENABLERECURSIVEPARTITIONING
-	batch_type num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP); // NEWCHANGE.
+	batch_type num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);
 	#else 
 	batch_type num_source_partitions = NUM_PARTITIONS;	
 	#endif
 
-	// for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; } // vmask_subp[k] = 0; // CRITICAL NEWCHANGE.
 	bool_type enablereduce = ON;
 	
 	DISPATCHREDUCE_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
@@ -621,44 +621,16 @@ topkernelP{{n}}(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
-	cout<<"--------------***************------------------------------------ topkernelP{{n}}: processing instance {{i}}"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP{{n}}: processing instance {{i}} ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram{{i}});
 	{%endif%}
 	{%endfor%}
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL{{n}}_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL{{n}}_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		{%for i in context['T_seq']%}
-		{%if(i<n)%}
-		rtravstates[{{i}}] = acts_utilobj->UTIL_gettravstate(ON, kvdram{{i}}, globalparamsK, currentLOP, sourcestatsmarker);
-		{%endif%}
-		{%endfor%}
-		for(unsigned int i = 0; i < {{n}}; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		{%for i in context['T_seq']%}{%if(i<n)%}
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer{{i}}, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer{{i}}, 8, 0, reducebuffersz, globalparamsV); 
-		{%endif%}{%endfor%}
-		
-		// merge 
-		merge{{n}}andsavevdata(enablereduce, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer{{i}},{%endif%}{%endfor%} 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge{{n}}andsavevdata(enablereduce, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer{{i}},{%endif%}{%endfor%} 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);	
 	return;
 }
 }

@@ -629,7 +629,7 @@ do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						for num_pes in $NUM_PEs_EQ32
+						for num_pes in $NUM_PEs_EQ24
 						# for num_pes in $NUM_PEs_EQ1 $NUM_PEs_EQ2 $NUM_PEs_EQ3 $NUM_PEs_EQ4 $NUM_PEs_EQ5
 						# for num_pes in $NUM_PEs_EQ6 $NUM_PEs_EQ7 $NUM_PEs_EQ8 $NUM_PEs_EQ9 $NUM_PEs_EQ10
 						do

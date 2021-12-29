@@ -10,6 +10,7 @@ top_nonunifiedvts::top_nonunifiedvts(){
 	partitionupdatesobj = new partitionupdates();
 	reduceupdatesobj = new reduceupdates();
 	mem_accessobj = new mem_access();
+	acts_mergeobj = new acts_merge();
 	actsobj = new acts();
 }
 top_nonunifiedvts::~top_nonunifiedvts(){}
@@ -358,16 +359,15 @@ dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE
 	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
 	#else 
-	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH + 1; // NEWCHANGE.	
+	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH + 1;
 	#endif 
 	
 	#ifdef ENABLERECURSIVEPARTITIONING
-	batch_type num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP); // NEWCHANGE.
+	batch_type num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);
 	#else 
 	batch_type num_source_partitions = NUM_PARTITIONS;	
 	#endif
 
-	// for(unsigned int k=0; k<num_source_partitions; k++){ vmask_p[k] = 0; } // vmask_subp[k] = 0; // CRITICAL NEWCHANGE.
 	bool_type enablereduce = ON;
 	
 	DISPATCHREDUCE_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
@@ -584,34 +584,12 @@ topkernelP1(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP1: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP1: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL1_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL1_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 1; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge1andsavevdata(enablereduce, vdram, vbuffer0, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge1andsavevdata(enablereduce, vdram, vbuffer0, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge1(kvdram0, vdram);	
 	return;
 }
 }
@@ -665,39 +643,16 @@ topkernelP2(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP2: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP2: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP2: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP2: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL2_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL2_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 2; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge2andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge2andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge2(kvdram0,kvdram1, vdram);	
 	return;
 }
 }
@@ -759,44 +714,20 @@ topkernelP3(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP3: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP3: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP3: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP3: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP3: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP3: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL3_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL3_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 3; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge3andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge3andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge3(kvdram0,kvdram1,kvdram2, vdram);	
 	return;
 }
 }
@@ -866,49 +797,24 @@ topkernelP4(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP4: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP4: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP4: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP4: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP4: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP4: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP4: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP4: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL4_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL4_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 4; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge4andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge4andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge4(kvdram0,kvdram1,kvdram2,kvdram3, vdram);	
 	return;
 }
 }
@@ -986,54 +892,28 @@ topkernelP5(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP5: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP5: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP5: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP5: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP5: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP5: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP5: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP5: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	cout<<"--------------***************------------------------------------ topkernelP5: processing instance 4"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP5: processing instance 4 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram4);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL5_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL5_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[4] = acts_utilobj->UTIL_gettravstate(ON, kvdram4, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 5; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge5andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge5andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram);	
 	return;
 }
 }
@@ -1119,59 +999,32 @@ topkernelP6(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP6: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP6: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP6: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP6: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP6: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP6: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP6: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP6: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	cout<<"--------------***************------------------------------------ topkernelP6: processing instance 4"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP6: processing instance 4 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram4);
-	cout<<"--------------***************------------------------------------ topkernelP6: processing instance 5"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP6: processing instance 5 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram5);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL6_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL6_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[4] = acts_utilobj->UTIL_gettravstate(ON, kvdram4, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[5] = acts_utilobj->UTIL_gettravstate(ON, kvdram5, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 6; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge6andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge6andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram);	
 	return;
 }
 }
@@ -1265,64 +1118,36 @@ topkernelP7(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP7: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP7: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP7: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP7: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP7: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP7: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP7: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP7: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	cout<<"--------------***************------------------------------------ topkernelP7: processing instance 4"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP7: processing instance 4 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram4);
-	cout<<"--------------***************------------------------------------ topkernelP7: processing instance 5"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP7: processing instance 5 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram5);
-	cout<<"--------------***************------------------------------------ topkernelP7: processing instance 6"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP7: processing instance 6 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram6);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL7_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL7_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[4] = acts_utilobj->UTIL_gettravstate(ON, kvdram4, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[5] = acts_utilobj->UTIL_gettravstate(ON, kvdram5, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[6] = acts_utilobj->UTIL_gettravstate(ON, kvdram6, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 7; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer6, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge7andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge7andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram);	
 	return;
 }
 }
@@ -1424,69 +1249,40 @@ topkernelP8(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP8: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP8: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP8: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP8: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP8: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP8: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP8: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP8: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	cout<<"--------------***************------------------------------------ topkernelP8: processing instance 4"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP8: processing instance 4 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram4);
-	cout<<"--------------***************------------------------------------ topkernelP8: processing instance 5"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP8: processing instance 5 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram5);
-	cout<<"--------------***************------------------------------------ topkernelP8: processing instance 6"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP8: processing instance 6 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram6);
-	cout<<"--------------***************------------------------------------ topkernelP8: processing instance 7"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP8: processing instance 7 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram7);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL8_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL8_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[4] = acts_utilobj->UTIL_gettravstate(ON, kvdram4, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[5] = acts_utilobj->UTIL_gettravstate(ON, kvdram5, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[6] = acts_utilobj->UTIL_gettravstate(ON, kvdram6, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[7] = acts_utilobj->UTIL_gettravstate(ON, kvdram7, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 8; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer6, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer7, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge8andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge8andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram);	
 	return;
 }
 }
@@ -1596,74 +1392,44 @@ topkernelP9(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 4"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 4 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram4);
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 5"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 5 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram5);
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 6"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 6 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram6);
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 7"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 7 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram7);
-	cout<<"--------------***************------------------------------------ topkernelP9: processing instance 8"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP9: processing instance 8 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram8);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL9_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL9_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[4] = acts_utilobj->UTIL_gettravstate(ON, kvdram4, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[5] = acts_utilobj->UTIL_gettravstate(ON, kvdram5, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[6] = acts_utilobj->UTIL_gettravstate(ON, kvdram6, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[7] = acts_utilobj->UTIL_gettravstate(ON, kvdram7, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[8] = acts_utilobj->UTIL_gettravstate(ON, kvdram8, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 9; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer6, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer7, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer8, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer8, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge9andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge9andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram);	
 	return;
 }
 }
@@ -1781,79 +1547,48 @@ topkernelP10(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 4"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 4 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram4);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 5"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 5 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram5);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 6"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 6 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram6);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 7"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 7 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram7);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 8"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 8 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram8);
-	cout<<"--------------***************------------------------------------ topkernelP10: processing instance 9"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP10: processing instance 9 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram9);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL10_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL10_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[4] = acts_utilobj->UTIL_gettravstate(ON, kvdram4, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[5] = acts_utilobj->UTIL_gettravstate(ON, kvdram5, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[6] = acts_utilobj->UTIL_gettravstate(ON, kvdram6, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[7] = acts_utilobj->UTIL_gettravstate(ON, kvdram7, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[8] = acts_utilobj->UTIL_gettravstate(ON, kvdram8, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[9] = acts_utilobj->UTIL_gettravstate(ON, kvdram9, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 10; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer6, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer7, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer8, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer8, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer9, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer9, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge10andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge10andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram);	
 	return;
 }
 }
@@ -1979,84 +1714,52 @@ topkernelP11(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 4"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 4 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram4);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 5"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 5 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram5);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 6"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 6 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram6);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 7"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 7 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram7);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 8"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 8 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram8);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 9"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 9 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram9);
-	cout<<"--------------***************------------------------------------ topkernelP11: processing instance 10"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP11: processing instance 10 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram10);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL11_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL11_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[4] = acts_utilobj->UTIL_gettravstate(ON, kvdram4, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[5] = acts_utilobj->UTIL_gettravstate(ON, kvdram5, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[6] = acts_utilobj->UTIL_gettravstate(ON, kvdram6, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[7] = acts_utilobj->UTIL_gettravstate(ON, kvdram7, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[8] = acts_utilobj->UTIL_gettravstate(ON, kvdram8, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[9] = acts_utilobj->UTIL_gettravstate(ON, kvdram9, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[10] = acts_utilobj->UTIL_gettravstate(ON, kvdram10, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 11; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer6, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer7, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer8, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer8, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer9, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer9, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer10, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer10, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge11andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge11andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram);	
 	return;
 }
 }
@@ -2190,89 +1893,56 @@ topkernelP12(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	// run acts
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 0"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 0 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram0);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 1"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 1 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram1);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 2"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 2 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram2);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 3"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 3 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram3);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 4"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 4 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram4);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 5"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 5 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram5);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 6"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 6 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram6);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 7"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 7 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram7);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 8"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 8 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram8);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 9"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 9 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram9);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 10"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 10 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram10);
-	cout<<"--------------***************------------------------------------ topkernelP12: processing instance 11"<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"--- topkernelP12: processing instance 11 ---"<<endl;
+	#endif 
 	topkernelproc_embedded(kvdram11);
-	exit(EXIT_SUCCESS); //
 	
-	/** TOPKERNEL12_BASELOOP1: for(batch_type source_partition=0; source_partition<256; source_partition+=1){ // AUTOMATEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print3("### TOPKERNEL12_BASELOOP1:: source_partition", "currentLOP", "NAp", source_partition, currentLOP, NAp); 							
-		#endif
-		
-		bool_type enablereduce = OFF; 
-		unsigned int ntravszs = 0;
-		rtravstates[0] = acts_utilobj->UTIL_gettravstate(ON, kvdram0, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[1] = acts_utilobj->UTIL_gettravstate(ON, kvdram1, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[2] = acts_utilobj->UTIL_gettravstate(ON, kvdram2, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[3] = acts_utilobj->UTIL_gettravstate(ON, kvdram3, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[4] = acts_utilobj->UTIL_gettravstate(ON, kvdram4, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[5] = acts_utilobj->UTIL_gettravstate(ON, kvdram5, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[6] = acts_utilobj->UTIL_gettravstate(ON, kvdram6, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[7] = acts_utilobj->UTIL_gettravstate(ON, kvdram7, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[8] = acts_utilobj->UTIL_gettravstate(ON, kvdram8, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[9] = acts_utilobj->UTIL_gettravstate(ON, kvdram9, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[10] = acts_utilobj->UTIL_gettravstate(ON, kvdram10, globalparamsK, currentLOP, sourcestatsmarker);
-		rtravstates[11] = acts_utilobj->UTIL_gettravstate(ON, kvdram11, globalparamsK, currentLOP, sourcestatsmarker);
-		for(unsigned int i = 0; i < 12; i++){ ntravszs += rtravstates[i].size_kvs; }
-		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		
-		// read vertices
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer6, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer7, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer8, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer8, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer9, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer9, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer10, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer10, 8, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer11, 0, 0, reducebuffersz, globalparamsV); 
-		readvdata(enablereduce, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer11, 8, 0, reducebuffersz, globalparamsV); 
-		
-		// merge 
-		merge12andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); 
-		merge12andsavevdata(enablereduce, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 8, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz); 
-		
-		// update stats
-		if(enablereduce == ON){ buffer[source_partition] += 64; } 
-		else { buffer[source_partition] += 0; }
-	}	 */		
+	acts_mergeobj->MERGE_merge12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram);	
 	return;
 }
 }

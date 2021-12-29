@@ -87,11 +87,13 @@ KERNEL_TOP_PROC += $(RELREF)acts/acts/mem_access.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_util.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/merge_vtxs.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
 #CRITICAL REMOVEME.
-# KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync.cpp
-KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge.cpp
+KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync.cpp
+KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync_slicedgraph.cpp
+# KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge.cpp
 # KERNEL_TOP_SYNC += $(RELREF)acts/acts/actsmerge.cpp
 # KERNEL_TOP_SYNC += $(RELREF)acts/acts/actsapply.cpp
 # KERNEL_TOP_SYNC += $(RELREF)acts/actsutility/actsutility.cpp

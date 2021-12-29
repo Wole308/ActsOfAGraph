@@ -118,6 +118,9 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		E[0][15] = edges[offset_kvs + i].data[7].value; 
 		#endif
 		
+		vertex_t srcvid_head = E[0][0];
+		vertex_t lvid_head = srcvid_head - travstate.i2;
+		
 		bool_type en = ON;
 		bool_type ens0 = ON; if(E[0][0] == INVALIDDATA || E[0][0] >= validbound){ ens0 = OFF; }
 		bool_type ens1 = ON; if(E[0][1] == INVALIDDATA || E[0][1] >= validbound){ ens1 = OFF; }
@@ -135,14 +138,19 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		bool_type ens13 = ON; if(E[0][13] == INVALIDDATA || E[0][13] >= validbound){ ens13 = OFF; }
 		bool_type ens14 = ON; if(E[0][14] == INVALIDDATA || E[0][14] >= validbound){ ens14 = OFF; }
 		bool_type ens15 = ON; if(E[0][15] == INVALIDDATA || E[0][15] >= validbound){ ens15 = OFF; }
+		if(lvid_head >= validbound){  ens0 = OFF;  ens1 = OFF;  ens2 = OFF;  ens3 = OFF;  ens4 = OFF;  ens5 = OFF;  ens6 = OFF;  ens7 = OFF;  ens8 = OFF;  ens9 = OFF;  ens10 = OFF;  ens11 = OFF;  ens12 = OFF;  ens13 = OFF;  ens14 = OFF;  ens15 = OFF;  lvid_head = 0; } // CRITICAL NEWCHANGE WITH SLICED.
 		
-		vertex_t srcvid_head = E[0][0];
-		vertex_t lvid_head = srcvid_head - travstate.i2;
+		// vertex_t srcvid_head = E[0][0];
+		// vertex_t lvid_head = srcvid_head - travstate.i2;
+		// if(lvid_head >= validbound){ lvid_head = 0; } // CRITICAL REMOVEME.
 			#ifdef _DEBUGMODE_CHECKS2
-			if(srcvid_head < travstate.i2){ cout<<"readandprocess: INVALID srcvid_head. this is an error. i: "<<i<<", srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<" offset_kvs: "<<offset_kvs<<". exiting..."<<endl; 
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<", E[1]["<<v<<"]: "<<E[1][v]<<endl; }
+			if(srcvid_head < travstate.i2){ cout<<"readandprocess: INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<" offset_kvs: "<<offset_kvs<<". exiting..."<<endl;					 
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
 				exit(EXIT_FAILURE); }
-			actsutilityobj->checkoutofbounds("readandprocess.1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, NAp);
+			if(lvid_head >= (reducebuffersz*FETFACTOR*VECTOR2_SIZE)){ cout<<"readandprocess: INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), lvid_head: "<<lvid_head<<", reducebuffersz*FETFACTOR*VECTOR2_SIZE: "<<reducebuffersz*FETFACTOR*VECTOR2_SIZE<<". exiting..."<<endl;					 
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
+				exit(EXIT_FAILURE); }
+			actsutilityobj->checkoutofbounds("readandprocess.1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, i);
 			#endif
 		
  // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
@@ -263,8 +271,8 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		unsigned int mask13; // OPTIMIZEME. bittype_t
 		unsigned int mask14; // OPTIMIZEME. bittype_t
 		unsigned int mask15; // OPTIMIZEME. bittype_t
-		if(GraphAlgo == PAGERANK){  mask0 = 1;  mask1 = 1;  mask2 = 1;  mask3 = 1;  mask4 = 1;  mask5 = 1;  mask6 = 1;  mask7 = 1;  mask8 = 1;  mask9 = 1;  mask10 = 1;  mask11 = 1;  mask12 = 1;  mask13 = 1;  mask14 = 1;  mask15 = 1;  mask0 == 0; } 
-		else {  mask0 = masks[incr0];  mask1 = masks[incr1];  mask2 = masks[incr2];  mask3 = masks[incr3];  mask4 = masks[incr4];  mask5 = masks[incr5];  mask6 = masks[incr6];  mask7 = masks[incr7];  mask8 = masks[incr8];  mask9 = masks[incr9];  mask10 = masks[incr10];  mask11 = masks[incr11];  mask12 = masks[incr12];  mask13 = masks[incr13];  mask14 = masks[incr14];  mask15 = masks[incr15];  mask0 == 0; }
+		if(GraphAlgo == PAGERANK){  mask0 = 1;  mask1 = 1;  mask2 = 1;  mask3 = 1;  mask4 = 1;  mask5 = 1;  mask6 = 1;  mask7 = 1;  mask8 = 1;  mask9 = 1;  mask10 = 1;  mask11 = 1;  mask12 = 1;  mask13 = 1;  mask14 = 1;  mask15 = 1;  mask0 = 0; } 
+		else {  mask0 = masks[incr0];  mask1 = masks[incr1];  mask2 = masks[incr2];  mask3 = masks[incr3];  mask4 = masks[incr4];  mask5 = masks[incr5];  mask6 = masks[incr6];  mask7 = masks[incr7];  mask8 = masks[incr8];  mask9 = masks[incr9];  mask10 = masks[incr10];  mask11 = masks[incr11];  mask12 = masks[incr12];  mask13 = masks[incr13];  mask14 = masks[incr14];  mask15 = masks[incr15];  mask0 = 0; }
 			#ifdef _DEBUGMODE_CHECKS2
 			if(ens0 == ON && mask0 > 2){ 
 				cout<<"ERROR @ readandprocess.mask0.2. mask0: "<<mask0<<", incr0: "<<incr0<<endl; 
@@ -363,6 +371,23 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 				exit(EXIT_FAILURE); 
 			}
 			#endif
+		
+		if(mask0==1){cout<<"--- i: "<<i<<", mask0: "<<mask0<<endl;}
+		if(mask1==1){cout<<"--- i: "<<i<<", mask1: "<<mask1<<endl;}
+		if(mask2==1){cout<<"--- i: "<<i<<", mask2: "<<mask2<<endl;}
+		if(mask3==1){cout<<"--- i: "<<i<<", mask3: "<<mask3<<endl;}
+		if(mask4==1){cout<<"--- i: "<<i<<", mask4: "<<mask4<<endl;}
+		if(mask5==1){cout<<"--- i: "<<i<<", mask5: "<<mask5<<endl;}
+		if(mask6==1){cout<<"--- i: "<<i<<", mask6: "<<mask6<<endl;}
+		if(mask7==1){cout<<"--- i: "<<i<<", mask7: "<<mask7<<endl;}
+		if(mask8==1){cout<<"--- i: "<<i<<", mask8: "<<mask8<<endl;}
+		if(mask9==1){cout<<"--- i: "<<i<<", mask9: "<<mask9<<endl;}
+		if(mask10==1){cout<<"--- i: "<<i<<", mask10: "<<mask10<<endl;}
+		if(mask11==1){cout<<"--- i: "<<i<<", mask11: "<<mask11<<endl;}
+		if(mask12==1){cout<<"--- i: "<<i<<", mask12: "<<mask12<<endl;}
+		if(mask13==1){cout<<"--- i: "<<i<<", mask13: "<<mask13<<endl;}
+		if(mask14==1){cout<<"--- i: "<<i<<", mask14: "<<mask14<<endl;}
+		if(mask15==1){cout<<"--- i: "<<i<<", mask15: "<<mask15<<endl;}
 		
 		value_t res0 = PROCESS_processfunc(udatas[incr0], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
 		value_t res1 = PROCESS_processfunc(udatas[incr1], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 

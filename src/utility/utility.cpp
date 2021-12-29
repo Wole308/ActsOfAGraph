@@ -218,12 +218,13 @@ void utility::printkeyvalues(string message, keyvalue_vec_bittype keyvalues[NUM_
 	}
 }
 void utility::printtriples(string message, triple_t * triples, unsigned int size){
-	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
+	cout<<endl<<"utility::printtriples:"<<message<<endl;
 	unsigned int totalAs = 0;
 	unsigned int totalBs = 0;
 	unsigned int totalCs = 0;
-	for(unsigned int i=0; i<size; i++){ cout<<"triples["<<i<<"].A: "<<triples[i].A<<", triples["<<i<<"].B: "<<triples[i].B<<", triples["<<i<<"].C: "<<triples[i].C<<endl; totalAs+=triples[i].A; totalBs+=triples[i].B; totalCs+=triples[i].C; }
-	cout<<"total As: "<<totalAs<<", total Bs: "<<totalBs<<", total Cs: "<<totalCs<<endl;
+	unsigned int totalDs = 0;
+	for(unsigned int i=0; i<size; i++){ cout<<"triples["<<i<<"].A: "<<triples[i].A<<", triples["<<i<<"].B: "<<triples[i].B<<", triples["<<i<<"].C: "<<triples[i].C<<", triples["<<i<<"].D: "<<triples[i].D<<endl; totalAs+=triples[i].A; totalBs+=triples[i].B; totalCs+=triples[i].C; totalDs+=triples[i].D; }					
+	cout<<"total As: "<<totalAs<<", total Bs: "<<totalBs<<", total Cs: "<<totalCs<<", total Ds: "<<totalDs<<endl;
 }
 void utility::printedges(string message, edge2_type * edges, unsigned int size){
 	cout<<endl<<"utility::printedges:"<<message<<endl;

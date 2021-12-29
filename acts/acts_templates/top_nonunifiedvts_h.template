@@ -29,6 +29,7 @@
 #include "reduceupdates.h"
 #include "mem_access.h"
 #include "acts_util.h"
+#include "acts_merge.h"
 #include "acts.h"
 using namespace std;
 
@@ -78,6 +79,7 @@ private:
 	partitionupdates * partitionupdatesobj;
 	reduceupdates * reduceupdatesobj;
 	mem_access * mem_accessobj;
+	acts_merge * acts_mergeobj;
 	acts * actsobj;
 	#endif
 };

@@ -73,6 +73,11 @@ context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
 # else:
    # print ('gen.py: NOT YET IMPLEMENTED 32... EXITING...')
    # quit()
+   
+context['CONFIGSPLITDESTVTXS_NUMWs'] = context['NUM_PEs'] #16 # CRITICAL FIXME.
+context['CONFIGSPLITDESTVTXS_NUMWs_seq'] = []
+for i in range (0,context['CONFIGSPLITDESTVTXS_NUMWs']):
+		context['CONFIGSPLITDESTVTXS_NUMWs_seq'].append(i)
     
 ###
 
@@ -263,6 +268,8 @@ o_path28=relref+"acts/acts/acts_merge.cpp"
 o_path29=relref+"acts/acts/acts_merge.h"
 o_path30=relref+"acts/acts/actsproc.cpp"
 o_path31=relref+"acts/acts/actsproc.h"
+o_path32=relref+"acts/acts/actssync_slicedgraph.cpp"
+o_path33=relref+"acts/acts/actssync_slicedgraph.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -296,6 +303,8 @@ out_path28=os.path.abspath(o_path28)
 out_path29=os.path.abspath(o_path29)
 out_path30=os.path.abspath(o_path30)
 out_path31=os.path.abspath(o_path31)
+out_path32=os.path.abspath(o_path32)
+out_path33=os.path.abspath(o_path33)
 
 templ_path0=relref+"acts/acts_templates"
 templ_path1=relref+"acts/acts_templates"
@@ -329,6 +338,8 @@ templ_path28=relref+"acts/acts_templates"
 templ_path29=relref+"acts/acts_templates"
 templ_path30=relref+"acts/acts_templates"
 templ_path31=relref+"acts/acts_templates"
+templ_path32=relref+"acts/acts_templates"
+templ_path33=relref+"acts/acts_templates"
 
 context['1_seq'] = []
 for i in range (0,1):
@@ -497,8 +508,8 @@ context['NUM_EDGE_BANKS_seq'] = []
 for i in range (0,(context['NUM_EDGE_BANKS'])):
 		context['NUM_EDGE_BANKS_seq'].append(i)
         
-# context['NUMSYNCTHREADS'] = 3
-context['NUMSYNCTHREADS'] = context['NUM_PEs']
+context['NUMSYNCTHREADS'] = 3
+# context['NUMSYNCTHREADS'] = context['NUM_PEs']
     
 context['KKL'] = (context['NUMSYNCTHREADS']/4) * 4
 context['KKM'] = context['NUMSYNCTHREADS'] - context['KKL']
@@ -557,6 +568,8 @@ env28 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path28)), trim
 env29 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path29)), trim_blocks=True, lstrip_blocks=True)
 env30 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path30)), trim_blocks=True, lstrip_blocks=True)
 env31 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path31)), trim_blocks=True, lstrip_blocks=True)
+env32 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path32)), trim_blocks=True, lstrip_blocks=True)
+env33 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path33)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -590,6 +603,8 @@ env28.globals.update(zip=zip)
 env29.globals.update(zip=zip)
 env30.globals.update(zip=zip)
 env31.globals.update(zip=zip)
+env32.globals.update(zip=zip)
+env33.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
@@ -623,6 +638,8 @@ template28 = env28.get_template('acts_merge.template')
 template29 = env29.get_template('acts_merge_h.template')
 template30 = env30.get_template('actsproc.template')
 template31 = env31.get_template('actsproc_h.template')
+template32 = env32.get_template('actssync_slicedgraph.template')
+template33 = env33.get_template('actssync_slicedgraph_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -656,6 +673,8 @@ rendered_file28 = template28.render(context=context)
 rendered_file29 = template29.render(context=context)
 rendered_file30 = template30.render(context=context)
 rendered_file31 = template31.render(context=context)
+rendered_file32 = template32.render(context=context)
+rendered_file33 = template33.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -721,10 +740,10 @@ with open(out_path30, 'w') as outFile30:
 	outFile30.write(rendered_file30)
 with open(out_path31, 'w') as outFile31:
 	outFile31.write(rendered_file31)
-# with open(out_path32, 'w') as outFile32:
-	# outFile32.write(rendered_file32)
-# with open(out_path33, 'w') as outFile33:
-	# outFile33.write(rendered_file33)
+with open(out_path32, 'w') as outFile32:
+	outFile32.write(rendered_file32)
+with open(out_path33, 'w') as outFile33:
+	outFile33.write(rendered_file33)
 # with open(out_path34, 'w') as outFile34:
 	# outFile34.write(rendered_file34)
 # with open(out_path35, 'w') as outFile35:

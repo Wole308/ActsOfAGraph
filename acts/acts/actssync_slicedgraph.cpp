@@ -1,52 +1,25 @@
-#ifdef SW 
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <vector>
-#include <string.h>
-#include <stdio.h>
-#include <ctime>
-#include <functional>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-#include <iomanip>
-#include <cmath>
-#include <fstream>
-#endif 
-#include "../../include/config_params.h"
-#include "../../include/common.h"
-#include "../include/actscommon.h"
-#ifdef SW 
-#include "../../src/utility/utility.h"
-#endif 
-#ifdef SW 
-#include "../../acts/actsutility/actsutility.h" // CRITICAL NEWCHANGE.
-#endif 
-#include "actssync.h"
+#include "actssync_slicedgraph.h"
 using namespace std;
 
-#define NUMPIPELINES_SYNC 1 // 2 // CRITICAL FIXME. CORRECTME.
-#if NUMPIPELINES_SYNC==1
-#define SUP0
-#endif 
-#if NUMPIPELINES_SYNC==2
-#define SUP0
-#define SUP1
-#endif
-
 #ifdef SW
-actssync::actssync(){ actsutilityobj = new actsutility(); }
-actssync::~actssync(){}
+actssync_slicedgraph::actssync_slicedgraph(){ 
+	actsutilityobj = new actsutility(); 
+	acts_utilobj = new acts_util(); 
+	processedges_unslicedgraphobj = new processedges_unslicedgraph();
+	processedges_slicedgraphobj = new processedges_slicedgraph();
+	partitionupdatesobj = new partitionupdates();
+	reduceupdatesobj = new reduceupdates();
+	mem_accessobj = new mem_access();
+	acts_mergeobj = new acts_merge();
+	actsobj = new acts();
+}
+actssync_slicedgraph::~actssync_slicedgraph(){}
 #endif
-#ifdef FPGA_IMPL
-// actsutility * actsutilityobj = new actsutility();
-#endif 
 
 // functions (basic)
 unsigned int
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
@@ -54,7 +27,7 @@ SYNC_amin(unsigned int val1, unsigned int val2){
 }
 unsigned int
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
@@ -63,7 +36,7 @@ SYNC_aplus(unsigned int val1, unsigned int val2){
 // functions (bit manipulation)
 unsigned int 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
 SYNC_GETMASK_UINT(unsigned int index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
@@ -72,14 +45,14 @@ SYNC_GETMASK_UINT(unsigned int index, unsigned int size){
 }
 unsigned int 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
 SYNC_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
 	return (((data) & SYNC_GETMASK_UINT((index), (size))) >> (index)); 
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
 SYNC_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
@@ -103,7 +76,7 @@ SYNC_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, un
 // functions (converters)
 keyvalue_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
@@ -119,7 +92,7 @@ SYNC_GETKV(keyvalue_buffer_t data){
 }
 keyvalue_buffer_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETKV(keyvalue_t data){
 	#pragma HLS INLINE
@@ -135,7 +108,7 @@ SYNC_GETKV(keyvalue_t data){
 }
 keyy_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETK(uint32_type data){
 	#pragma HLS INLINE
@@ -147,7 +120,7 @@ SYNC_GETK(uint32_type data){
 }
 value_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETV(uint32_type data){
 	#pragma HLS INLINE
@@ -159,7 +132,7 @@ SYNC_GETV(uint32_type data){
 }
 keyvalue_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETKV2(keyvalue_vbuffer_t data){
 	#pragma HLS INLINE
@@ -175,7 +148,7 @@ SYNC_GETKV2(keyvalue_vbuffer_t data){
 }
 keyvalue_vbuffer_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETKV2(keyvalue_t data){
 	#pragma HLS INLINE
@@ -191,7 +164,7 @@ SYNC_GETKV2(keyvalue_t data){
 }
 keyy_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETK2(uint32_type data){
 	#pragma HLS INLINE
@@ -203,7 +176,7 @@ SYNC_GETK2(uint32_type data){
 }
 value_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETV2(uint32_type data){
 	#pragma HLS INLINE
@@ -215,7 +188,7 @@ SYNC_GETV2(uint32_type data){
 }
 uint32_type 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index){
 	uint32_type res;
@@ -290,7 +263,7 @@ convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index
 }
 keyy_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_GETKEYENTRY(uint512_dt data, unsigned int v){
 	#pragma HLS INLINE
@@ -302,7 +275,7 @@ SYNC_GETKEYENTRY(uint512_dt data, unsigned int v){
 }
 value_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 GETVALUEENTRY(uint512_dt data, unsigned int v){
 	#pragma HLS INLINE
@@ -313,10 +286,10 @@ GETVALUEENTRY(uint512_dt data, unsigned int v){
 	#endif
 }
 
-// functions (actssync utilities)
+// functions (actssync_slicedgraph utilities)
 batch_type
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_get_num_source_partitions(step_type currentLOP){
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -331,7 +304,7 @@ SYNC_get_num_source_partitions(step_type currentLOP){
 }
 globalparams_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_getglobalparams(uint512_dt * kvdram){
 	globalparams_t globalparams;
@@ -465,13 +438,13 @@ SYNC_getglobalparams(uint512_dt * kvdram){
 	globalparams.RETURN_RETURNVALUES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].data[0].key;
 	#endif  
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	actsutilityobj->printglobalparameters("actssync::SYNC_getglobalparams:: printing global parameters", globalparams);
+	actsutilityobj->printglobalparameters("actssync_slicedgraph::SYNC_getglobalparams:: printing global parameters", globalparams);
 	#endif
 	return globalparams;
 }
 travstate_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
 SYNC_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
 	travstate_t travstate;
@@ -508,9 +481,9 @@ SYNC_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalpa
 // functions (accessors)
 void // 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
-readvdata(bool_type enable1, bool_type enable2, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+SYNC_readvdata(bool_type enable1, bool_type enable2, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=kvdram
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
@@ -577,11 +550,11 @@ readvdata(bool_type enable1, bool_type enable2, uint512_dt * kvdram, batch_type 
 		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	cout<< TIMINGRESULTSCOLOR<<"SYNC_readvdata:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"SYNC_readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"SYNC_readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
 	#endif
 	return;
 }
@@ -589,9 +562,9 @@ readvdata(bool_type enable1, bool_type enable2, uint512_dt * kvdram, batch_type 
 // functions (synchronize)
 value_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
-applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+SYNC_applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
 	
 	if(GraphAlgo == PAGERANK){
@@ -610,9 +583,9 @@ applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int Graph
 
 value_t 
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif 
-mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+SYNC_mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	value_t res = 0;
 	
 	if(GraphAlgo == PAGERANK){
@@ -627,16 +600,16 @@ mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	return res;
 }
 
-void
+/** void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-readandsynchronize1(bool_type enable1, bool_type enable2, unsigned int nk, 
+SYNC_readandsynchronize1(bool_type enable1, bool_type enable2, unsigned int nk, 
 uint512_dt * kvdram0,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=res
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
+	cout<<"SYNC_readandsynchronize: SYNC_readandsynchronize function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	
@@ -812,14 +785,14 @@ uint512_dt * kvdram0,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-readandsynchronize2(bool_type enable1, bool_type enable2, unsigned int nk, 
+SYNC_readandsynchronize2(bool_type enable1, bool_type enable2, unsigned int nk, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=res
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
+	cout<<"SYNC_readandsynchronize: SYNC_readandsynchronize function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	
@@ -998,22 +971,22 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t res[VDATA_PACKIN
 		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].data[7].key; 
 		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].data[7].value; 
 		#endif
-		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.key = SYNC_mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = SYNC_mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.key = SYNC_mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = SYNC_mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.key = SYNC_mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = SYNC_mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.key = SYNC_mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = SYNC_mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.key = SYNC_mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = SYNC_mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.key = SYNC_mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = SYNC_mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.key = SYNC_mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = SYNC_mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.key = SYNC_mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = SYNC_mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 
@@ -1049,14 +1022,14 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t res[VDATA_PACKIN
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-readandsynchronize3(bool_type enable1, bool_type enable2, unsigned int nk, 
+SYNC_readandsynchronize3(bool_type enable1, bool_type enable2, unsigned int nk, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=res
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
+	cout<<"SYNC_readandsynchronize: SYNC_readandsynchronize function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	
@@ -1235,22 +1208,22 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuff
 		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].data[7].key; 
 		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].data[7].value; 
 		#endif
-		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.key = SYNC_mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = SYNC_mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.key = SYNC_mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = SYNC_mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.key = SYNC_mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = SYNC_mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.key = SYNC_mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = SYNC_mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.key = SYNC_mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = SYNC_mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.key = SYNC_mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = SYNC_mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.key = SYNC_mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = SYNC_mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.key = SYNC_mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = SYNC_mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 		
@@ -1289,22 +1262,22 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuff
 		mykeyvalue27.key = kvdram2[dramoffsets_kvs[2] + i].data[7].key; 
 		mykeyvalue27.value = kvdram2[dramoffsets_kvs[2] + i].data[7].value; 
 		#endif
-		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, mykeyvalue20.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, mykeyvalue20.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, mykeyvalue21.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, mykeyvalue21.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, mykeyvalue22.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, mykeyvalue22.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, mykeyvalue23.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, mykeyvalue23.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, mykeyvalue24.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, mykeyvalue24.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, mykeyvalue25.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, mykeyvalue25.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, mykeyvalue26.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, mykeyvalue26.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, mykeyvalue27.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, mykeyvalue27.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.key = SYNC_mergefunc(keyvalue0_vault2.key, mykeyvalue20.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.value = SYNC_mergefunc(keyvalue0_vault2.value, mykeyvalue20.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.key = SYNC_mergefunc(keyvalue1_vault2.key, mykeyvalue21.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.value = SYNC_mergefunc(keyvalue1_vault2.value, mykeyvalue21.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.key = SYNC_mergefunc(keyvalue2_vault2.key, mykeyvalue22.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.value = SYNC_mergefunc(keyvalue2_vault2.value, mykeyvalue22.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.key = SYNC_mergefunc(keyvalue3_vault2.key, mykeyvalue23.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.value = SYNC_mergefunc(keyvalue3_vault2.value, mykeyvalue23.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.key = SYNC_mergefunc(keyvalue4_vault2.key, mykeyvalue24.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.value = SYNC_mergefunc(keyvalue4_vault2.value, mykeyvalue24.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.key = SYNC_mergefunc(keyvalue5_vault2.key, mykeyvalue25.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.value = SYNC_mergefunc(keyvalue5_vault2.value, mykeyvalue25.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.key = SYNC_mergefunc(keyvalue6_vault2.key, mykeyvalue26.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.value = SYNC_mergefunc(keyvalue6_vault2.value, mykeyvalue26.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.key = SYNC_mergefunc(keyvalue7_vault2.key, mykeyvalue27.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.value = SYNC_mergefunc(keyvalue7_vault2.value, mykeyvalue27.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 
@@ -1340,14 +1313,14 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuff
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-readandsynchronize4(bool_type enable1, bool_type enable2, unsigned int nk, 
+SYNC_readandsynchronize4(bool_type enable1, bool_type enable2, unsigned int nk, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=res
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"readandsynchronize: readandsynchronize function called."<<endl;
+	cout<<"SYNC_readandsynchronize: SYNC_readandsynchronize function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	
@@ -1526,22 +1499,22 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 		mykeyvalue17.key = kvdram1[dramoffsets_kvs[1] + i].data[7].key; 
 		mykeyvalue17.value = kvdram1[dramoffsets_kvs[1] + i].data[7].value; 
 		#endif
-		keyvalue0_vault2.key = mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue0_vault2.value = mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault2.key = mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault2.value = mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault2.key = mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault2.value = mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault2.key = mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault2.value = mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault2.key = mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault2.value = mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault2.key = mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault2.value = mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault2.key = mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault2.value = mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault2.key = mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault2.value = mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.key = SYNC_mergefunc(keyvalue0_vault1.key, mykeyvalue10.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault2.value = SYNC_mergefunc(keyvalue0_vault1.value, mykeyvalue10.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.key = SYNC_mergefunc(keyvalue1_vault1.key, mykeyvalue11.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault2.value = SYNC_mergefunc(keyvalue1_vault1.value, mykeyvalue11.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.key = SYNC_mergefunc(keyvalue2_vault1.key, mykeyvalue12.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault2.value = SYNC_mergefunc(keyvalue2_vault1.value, mykeyvalue12.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.key = SYNC_mergefunc(keyvalue3_vault1.key, mykeyvalue13.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault2.value = SYNC_mergefunc(keyvalue3_vault1.value, mykeyvalue13.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.key = SYNC_mergefunc(keyvalue4_vault1.key, mykeyvalue14.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault2.value = SYNC_mergefunc(keyvalue4_vault1.value, mykeyvalue14.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.key = SYNC_mergefunc(keyvalue5_vault1.key, mykeyvalue15.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault2.value = SYNC_mergefunc(keyvalue5_vault1.value, mykeyvalue15.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.key = SYNC_mergefunc(keyvalue6_vault1.key, mykeyvalue16.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault2.value = SYNC_mergefunc(keyvalue6_vault1.value, mykeyvalue16.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.key = SYNC_mergefunc(keyvalue7_vault1.key, mykeyvalue17.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault2.value = SYNC_mergefunc(keyvalue7_vault1.value, mykeyvalue17.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 		
@@ -1580,22 +1553,22 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 		mykeyvalue27.key = kvdram2[dramoffsets_kvs[2] + i].data[7].key; 
 		mykeyvalue27.value = kvdram2[dramoffsets_kvs[2] + i].data[7].value; 
 		#endif
-		keyvalue0_vault3.key = mergefunc(keyvalue0_vault2.key, mykeyvalue20.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue0_vault3.value = mergefunc(keyvalue0_vault2.value, mykeyvalue20.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault3.key = mergefunc(keyvalue1_vault2.key, mykeyvalue21.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault3.value = mergefunc(keyvalue1_vault2.value, mykeyvalue21.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault3.key = mergefunc(keyvalue2_vault2.key, mykeyvalue22.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault3.value = mergefunc(keyvalue2_vault2.value, mykeyvalue22.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault3.key = mergefunc(keyvalue3_vault2.key, mykeyvalue23.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault3.value = mergefunc(keyvalue3_vault2.value, mykeyvalue23.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault3.key = mergefunc(keyvalue4_vault2.key, mykeyvalue24.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault3.value = mergefunc(keyvalue4_vault2.value, mykeyvalue24.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault3.key = mergefunc(keyvalue5_vault2.key, mykeyvalue25.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault3.value = mergefunc(keyvalue5_vault2.value, mykeyvalue25.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault3.key = mergefunc(keyvalue6_vault2.key, mykeyvalue26.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault3.value = mergefunc(keyvalue6_vault2.value, mykeyvalue26.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault3.key = mergefunc(keyvalue7_vault2.key, mykeyvalue27.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault3.value = mergefunc(keyvalue7_vault2.value, mykeyvalue27.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.key = SYNC_mergefunc(keyvalue0_vault2.key, mykeyvalue20.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault3.value = SYNC_mergefunc(keyvalue0_vault2.value, mykeyvalue20.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.key = SYNC_mergefunc(keyvalue1_vault2.key, mykeyvalue21.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault3.value = SYNC_mergefunc(keyvalue1_vault2.value, mykeyvalue21.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.key = SYNC_mergefunc(keyvalue2_vault2.key, mykeyvalue22.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault3.value = SYNC_mergefunc(keyvalue2_vault2.value, mykeyvalue22.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.key = SYNC_mergefunc(keyvalue3_vault2.key, mykeyvalue23.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault3.value = SYNC_mergefunc(keyvalue3_vault2.value, mykeyvalue23.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.key = SYNC_mergefunc(keyvalue4_vault2.key, mykeyvalue24.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault3.value = SYNC_mergefunc(keyvalue4_vault2.value, mykeyvalue24.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.key = SYNC_mergefunc(keyvalue5_vault2.key, mykeyvalue25.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault3.value = SYNC_mergefunc(keyvalue5_vault2.value, mykeyvalue25.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.key = SYNC_mergefunc(keyvalue6_vault2.key, mykeyvalue26.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault3.value = SYNC_mergefunc(keyvalue6_vault2.value, mykeyvalue26.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.key = SYNC_mergefunc(keyvalue7_vault2.key, mykeyvalue27.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault3.value = SYNC_mergefunc(keyvalue7_vault2.value, mykeyvalue27.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 		
@@ -1634,22 +1607,22 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 		mykeyvalue37.key = kvdram3[dramoffsets_kvs[3] + i].data[7].key; 
 		mykeyvalue37.value = kvdram3[dramoffsets_kvs[3] + i].data[7].value; 
 		#endif
-		keyvalue0_vault4.key = mergefunc(keyvalue0_vault3.key, mykeyvalue30.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue0_vault4.value = mergefunc(keyvalue0_vault3.value, mykeyvalue30.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault4.key = mergefunc(keyvalue1_vault3.key, mykeyvalue31.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue1_vault4.value = mergefunc(keyvalue1_vault3.value, mykeyvalue31.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault4.key = mergefunc(keyvalue2_vault3.key, mykeyvalue32.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue2_vault4.value = mergefunc(keyvalue2_vault3.value, mykeyvalue32.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault4.key = mergefunc(keyvalue3_vault3.key, mykeyvalue33.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue3_vault4.value = mergefunc(keyvalue3_vault3.value, mykeyvalue33.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault4.key = mergefunc(keyvalue4_vault3.key, mykeyvalue34.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue4_vault4.value = mergefunc(keyvalue4_vault3.value, mykeyvalue34.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault4.key = mergefunc(keyvalue5_vault3.key, mykeyvalue35.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue5_vault4.value = mergefunc(keyvalue5_vault3.value, mykeyvalue35.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault4.key = mergefunc(keyvalue6_vault3.key, mykeyvalue36.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue6_vault4.value = mergefunc(keyvalue6_vault3.value, mykeyvalue36.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault4.key = mergefunc(keyvalue7_vault3.key, mykeyvalue37.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		keyvalue7_vault4.value = mergefunc(keyvalue7_vault3.value, mykeyvalue37.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault4.key = SYNC_mergefunc(keyvalue0_vault3.key, mykeyvalue30.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue0_vault4.value = SYNC_mergefunc(keyvalue0_vault3.value, mykeyvalue30.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault4.key = SYNC_mergefunc(keyvalue1_vault3.key, mykeyvalue31.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue1_vault4.value = SYNC_mergefunc(keyvalue1_vault3.value, mykeyvalue31.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault4.key = SYNC_mergefunc(keyvalue2_vault3.key, mykeyvalue32.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue2_vault4.value = SYNC_mergefunc(keyvalue2_vault3.value, mykeyvalue32.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault4.key = SYNC_mergefunc(keyvalue3_vault3.key, mykeyvalue33.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue3_vault4.value = SYNC_mergefunc(keyvalue3_vault3.value, mykeyvalue33.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault4.key = SYNC_mergefunc(keyvalue4_vault3.key, mykeyvalue34.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue4_vault4.value = SYNC_mergefunc(keyvalue4_vault3.value, mykeyvalue34.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault4.key = SYNC_mergefunc(keyvalue5_vault3.key, mykeyvalue35.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue5_vault4.value = SYNC_mergefunc(keyvalue5_vault3.value, mykeyvalue35.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault4.key = SYNC_mergefunc(keyvalue6_vault3.key, mykeyvalue36.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue6_vault4.value = SYNC_mergefunc(keyvalue6_vault3.value, mykeyvalue36.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault4.key = SYNC_mergefunc(keyvalue7_vault3.key, mykeyvalue37.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		keyvalue7_vault4.value = SYNC_mergefunc(keyvalue7_vault3.value, mykeyvalue37.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	
 		
 
@@ -1683,12 +1656,218 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 	}
 	return;
 }
+ */
+void
+	#ifdef SW 
+	actssync_slicedgraph::
+	#endif
+SYNC_readandsynchronize3(bool_type enable1, bool_type enable2, unsigned int nk, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, globalparams_t globalparams){
+	#pragma HLS function_instantiate variable=res
+	if(enable1 == OFF || enable2 == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"SYNC_readandsynchronize: SYNC_readandsynchronize function called."<<endl;
+	#endif 
+	analysis_type analysis_loopcount = REDUCESZ / 2;
+	
+	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
+	
+	keyvalue_t mykeyvalue00;
+	keyvalue_t mykeyvalue01;
+	keyvalue_t mykeyvalue02;
+	keyvalue_t mykeyvalue03;
+	keyvalue_t mykeyvalue04;
+	keyvalue_t mykeyvalue05;
+	keyvalue_t mykeyvalue06;
+	keyvalue_t mykeyvalue07;
+	
+	keyvalue_t mykeyvalue10;
+	keyvalue_t mykeyvalue11;
+	keyvalue_t mykeyvalue12;
+	keyvalue_t mykeyvalue13;
+	keyvalue_t mykeyvalue14;
+	keyvalue_t mykeyvalue15;
+	keyvalue_t mykeyvalue16;
+	keyvalue_t mykeyvalue17;
+	
+	keyvalue_t mykeyvalue20;
+	keyvalue_t mykeyvalue21;
+	keyvalue_t mykeyvalue22;
+	keyvalue_t mykeyvalue23;
+	keyvalue_t mykeyvalue24;
+	keyvalue_t mykeyvalue25;
+	keyvalue_t mykeyvalue26;
+	keyvalue_t mykeyvalue27;
+	
+	keyvalue_t mykeyvalue30;
+	keyvalue_t mykeyvalue31;
+	keyvalue_t mykeyvalue32;
+	keyvalue_t mykeyvalue33;
+	keyvalue_t mykeyvalue34;
+	keyvalue_t mykeyvalue35;
+	keyvalue_t mykeyvalue36;
+	keyvalue_t mykeyvalue37;
+	
+	
+	for (buffer_type i=0; i<reducebuffersz; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		mykeyvalue00.key = kvdram0[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue00.value = kvdram0[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue01.key = kvdram0[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue01.value = kvdram0[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue02.key = kvdram0[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue02.value = kvdram0[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue03.key = kvdram0[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue03.value = kvdram0[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue04.key = kvdram0[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue04.value = kvdram0[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue05.key = kvdram0[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue05.value = kvdram0[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue06.key = kvdram0[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue06.value = kvdram0[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue07.key = kvdram0[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue07.value = kvdram0[dramoffset_kvs + i].range(511, 480); 
+		mykeyvalue10.key = kvdram1[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue10.value = kvdram1[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue11.key = kvdram1[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue11.value = kvdram1[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue12.key = kvdram1[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue12.value = kvdram1[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue13.key = kvdram1[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue13.value = kvdram1[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue14.key = kvdram1[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue14.value = kvdram1[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue15.key = kvdram1[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue15.value = kvdram1[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue16.key = kvdram1[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue16.value = kvdram1[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue17.key = kvdram1[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue17.value = kvdram1[dramoffset_kvs + i].range(511, 480); 
+		mykeyvalue20.key = kvdram2[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue20.value = kvdram2[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue21.key = kvdram2[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue21.value = kvdram2[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue22.key = kvdram2[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue22.value = kvdram2[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue23.key = kvdram2[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue23.value = kvdram2[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue24.key = kvdram2[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue24.value = kvdram2[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue25.key = kvdram2[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue25.value = kvdram2[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue26.key = kvdram2[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue26.value = kvdram2[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue27.key = kvdram2[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue27.value = kvdram2[dramoffset_kvs + i].range(511, 480); 
+		#else 
+		mykeyvalue00.key = kvdram0[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue00.value = kvdram0[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue01.key = kvdram0[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue01.value = kvdram0[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue02.key = kvdram0[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue02.value = kvdram0[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue03.key = kvdram0[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue03.value = kvdram0[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue04.key = kvdram0[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue04.value = kvdram0[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue05.key = kvdram0[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue05.value = kvdram0[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue06.key = kvdram0[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue06.value = kvdram0[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue07.key = kvdram0[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue07.value = kvdram0[dramoffset_kvs + i].data[7].value; 
+		mykeyvalue10.key = kvdram1[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue10.value = kvdram1[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue11.key = kvdram1[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue11.value = kvdram1[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue12.key = kvdram1[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue12.value = kvdram1[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue13.key = kvdram1[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue13.value = kvdram1[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue14.key = kvdram1[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue14.value = kvdram1[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue15.key = kvdram1[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue15.value = kvdram1[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue16.key = kvdram1[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue16.value = kvdram1[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue17.key = kvdram1[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue17.value = kvdram1[dramoffset_kvs + i].data[7].value; 
+		mykeyvalue20.key = kvdram2[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue20.value = kvdram2[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue21.key = kvdram2[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue21.value = kvdram2[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue22.key = kvdram2[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue22.value = kvdram2[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue23.key = kvdram2[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue23.value = kvdram2[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue24.key = kvdram2[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue24.value = kvdram2[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue25.key = kvdram2[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue25.value = kvdram2[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue26.key = kvdram2[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue26.value = kvdram2[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue27.key = kvdram2[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue27.value = kvdram2[dramoffset_kvs + i].data[7].value; 
+		#endif
+		
+		if(i%CONFIGSPLITDESTVTXS_NUMWs>=0 && i%CONFIGSPLITDESTVTXS_NUMWs<NUMCOMPUTEUNITS_SLR1AND2){ // CRITICAL AUTOMATEME.
+			res[0][i] = SYNC_GETKV2(mykeyvalue00);
+			res[1][i] = SYNC_GETKV2(mykeyvalue01);
+			res[2][i] = SYNC_GETKV2(mykeyvalue02);
+			res[3][i] = SYNC_GETKV2(mykeyvalue03);
+			res[4][i] = SYNC_GETKV2(mykeyvalue04);
+			res[5][i] = SYNC_GETKV2(mykeyvalue05);
+			res[6][i] = SYNC_GETKV2(mykeyvalue06);
+			res[7][i] = SYNC_GETKV2(mykeyvalue07);
+		} else if(i%CONFIGSPLITDESTVTXS_NUMWs>=NUMCOMPUTEUNITS_SLR1AND2 && i%CONFIGSPLITDESTVTXS_NUMWs<NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2){
+			res[0][i] = SYNC_GETKV2(mykeyvalue10);
+			res[1][i] = SYNC_GETKV2(mykeyvalue11);
+			res[2][i] = SYNC_GETKV2(mykeyvalue12);
+			res[3][i] = SYNC_GETKV2(mykeyvalue13);
+			res[4][i] = SYNC_GETKV2(mykeyvalue14);
+			res[5][i] = SYNC_GETKV2(mykeyvalue15);
+			res[6][i] = SYNC_GETKV2(mykeyvalue16);
+			res[7][i] = SYNC_GETKV2(mykeyvalue17);
+		} else if(i%CONFIGSPLITDESTVTXS_NUMWs>=NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2 && i%CONFIGSPLITDESTVTXS_NUMWs<NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR0){
+			res[0][i] = SYNC_GETKV2(mykeyvalue20);
+			res[1][i] = SYNC_GETKV2(mykeyvalue21);
+			res[2][i] = SYNC_GETKV2(mykeyvalue22);
+			res[3][i] = SYNC_GETKV2(mykeyvalue23);
+			res[4][i] = SYNC_GETKV2(mykeyvalue24);
+			res[5][i] = SYNC_GETKV2(mykeyvalue25);
+			res[6][i] = SYNC_GETKV2(mykeyvalue26);
+			res[7][i] = SYNC_GETKV2(mykeyvalue27);
+		}
+	
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		if(SYNC_GETKV2(res[0][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[0][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(0*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[1][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[1][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(1*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[2][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[2][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(2*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[3][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[3][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(3*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[4][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[4][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(4*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[5][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[5][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(5*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[6][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[6][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(6*REDUCESZ + 2*i + 1)<<endl; } 
+		if(SYNC_GETKV2(res[7][i]).key < SYNC_GETK2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i)<<endl; } 
+		if(SYNC_GETKV2(res[7][i]).value < SYNC_GETV2(0xFFFFFFFF)){ cout<<"actvvid: "<<(7*REDUCESZ + 2*i + 1)<<endl; } 
+		#endif
+	}
+	exit(EXIT_SUCCESS); /////
+	return;
+}
 
 uint32_type
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
+SYNC_synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t res[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int colindex, batch_type voffset_kvs, globalparams_t globalparams){					
 	uint32_type cummvmask_sp = 0;
 	
 	#ifndef SW_IMPL
@@ -1772,43 +1951,43 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 
 	
 		keyvalue_t mykeyvalue0;
-		mykeyvalue0.key = mergefunc(udata0.key, keyvalue0_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue0.value = mergefunc(udata0.value, keyvalue0_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue0.key = SYNC_mergefunc(udata0.key, keyvalue0_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue0.value = SYNC_mergefunc(udata0.value, keyvalue0_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[0][i] = SYNC_GETKV2(mykeyvalue0);
 	
 		keyvalue_t mykeyvalue1;
-		mykeyvalue1.key = mergefunc(udata1.key, keyvalue1_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue1.value = mergefunc(udata1.value, keyvalue1_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue1.key = SYNC_mergefunc(udata1.key, keyvalue1_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue1.value = SYNC_mergefunc(udata1.value, keyvalue1_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[1][i] = SYNC_GETKV2(mykeyvalue1);
 	
 		keyvalue_t mykeyvalue2;
-		mykeyvalue2.key = mergefunc(udata2.key, keyvalue2_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue2.value = mergefunc(udata2.value, keyvalue2_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue2.key = SYNC_mergefunc(udata2.key, keyvalue2_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue2.value = SYNC_mergefunc(udata2.value, keyvalue2_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[2][i] = SYNC_GETKV2(mykeyvalue2);
 	
 		keyvalue_t mykeyvalue3;
-		mykeyvalue3.key = mergefunc(udata3.key, keyvalue3_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue3.value = mergefunc(udata3.value, keyvalue3_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue3.key = SYNC_mergefunc(udata3.key, keyvalue3_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue3.value = SYNC_mergefunc(udata3.value, keyvalue3_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[3][i] = SYNC_GETKV2(mykeyvalue3);
 	
 		keyvalue_t mykeyvalue4;
-		mykeyvalue4.key = mergefunc(udata4.key, keyvalue4_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue4.value = mergefunc(udata4.value, keyvalue4_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue4.key = SYNC_mergefunc(udata4.key, keyvalue4_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue4.value = SYNC_mergefunc(udata4.value, keyvalue4_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[4][i] = SYNC_GETKV2(mykeyvalue4);
 	
 		keyvalue_t mykeyvalue5;
-		mykeyvalue5.key = mergefunc(udata5.key, keyvalue5_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue5.value = mergefunc(udata5.value, keyvalue5_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue5.key = SYNC_mergefunc(udata5.key, keyvalue5_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue5.value = SYNC_mergefunc(udata5.value, keyvalue5_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[5][i] = SYNC_GETKV2(mykeyvalue5);
 	
 		keyvalue_t mykeyvalue6;
-		mykeyvalue6.key = mergefunc(udata6.key, keyvalue6_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue6.value = mergefunc(udata6.value, keyvalue6_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue6.key = SYNC_mergefunc(udata6.key, keyvalue6_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue6.value = SYNC_mergefunc(udata6.value, keyvalue6_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[6][i] = SYNC_GETKV2(mykeyvalue6);
 	
 		keyvalue_t mykeyvalue7;
-		mykeyvalue7.key = mergefunc(udata7.key, keyvalue7_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		mykeyvalue7.value = mergefunc(udata7.value, keyvalue7_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue7.key = SYNC_mergefunc(udata7.key, keyvalue7_vault1.key, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		mykeyvalue7.value = SYNC_mergefunc(udata7.value, keyvalue7_vault1.value, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		res[7][i] = SYNC_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS //
@@ -1861,22 +2040,22 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 		keyvalue_t data7 = keyvalue7_vault1;
 	
 	
-		res0.key = applyfunc(udata0.key, data0.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res1.key = applyfunc(udata1.key, data1.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res2.key = applyfunc(udata2.key, data2.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res3.key = applyfunc(udata3.key, data3.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res4.key = applyfunc(udata4.key, data4.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res5.key = applyfunc(udata5.key, data5.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res6.key = applyfunc(udata6.key, data6.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res7.key = applyfunc(udata7.key, data7.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res0.value = applyfunc(udata0.value, data0.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res1.value = applyfunc(udata1.value, data1.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res2.value = applyfunc(udata2.value, data2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res3.value = applyfunc(udata3.value, data3.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res4.value = applyfunc(udata4.value, data4.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res5.value = applyfunc(udata5.value, data5.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res6.value = applyfunc(udata6.value, data6.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-		res7.value = applyfunc(udata7.value, data7.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res0.key = SYNC_applyfunc(udata0.key, data0.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res1.key = SYNC_applyfunc(udata1.key, data1.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res2.key = SYNC_applyfunc(udata2.key, data2.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res3.key = SYNC_applyfunc(udata3.key, data3.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res4.key = SYNC_applyfunc(udata4.key, data4.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res5.key = SYNC_applyfunc(udata5.key, data5.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res6.key = SYNC_applyfunc(udata6.key, data6.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res7.key = SYNC_applyfunc(udata7.key, data7.key, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res0.value = SYNC_applyfunc(udata0.value, data0.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res1.value = SYNC_applyfunc(udata1.value, data1.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res2.value = SYNC_applyfunc(udata2.value, data2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res3.value = SYNC_applyfunc(udata3.value, data3.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res4.value = SYNC_applyfunc(udata4.value, data4.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res5.value = SYNC_applyfunc(udata5.value, data5.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res6.value = SYNC_applyfunc(udata6.value, data6.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+		res7.value = SYNC_applyfunc(udata7.value, data7.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 		
 		if(res0.key != udata0.key){ vmask[i].data[colindex + 0].key = 1; } else { vmask[i].data[colindex + 0].key = 0; }
 		if(res0.value != udata0.value){ vmask[i].data[colindex + 0].value = 1; } else { vmask[i].data[colindex + 0].value = 0; }
@@ -1949,13 +2128,13 @@ synchronizeandapply(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t buf
 
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+SYNC_spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	if(enable1 == OFF || enable2 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"spreadvdata: spread (vdata) function called."<<endl;
+	cout<<"SYNC_spreadvdata: spread (vdata) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	
@@ -2034,13 +2213,13 @@ spreadvdata(bool_type enable1, bool_type enable2, keyvalue_vbuffer_t source[VDAT
 
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], globalparams_t globalparams){
+SYNC_spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], globalparams_t globalparams){
 	#pragma HLS INLINE OFF //
 	if(enable1 == OFF || enable2 == OFF || enable3 == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	cout<<"spreadvmask: spread (vmask) function called."<<endl;
+	cout<<"SYNC_spreadvmask: spread (vmask) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 	
@@ -2063,16 +2242,16 @@ spreadvmask(bool_type enable1, bool_type enable2, bool_type enable3, unitBRAMwid
 
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadandwrite1(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
+SYNC_spreadandwrite1(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
 uint512_dt * kvdram0,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
-	cout<<"spreadandwrite1: spread (vdata) function called."<<endl;
+	cout<<"SYNC_spreadandwrite1: spread (vdata) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -2355,16 +2534,16 @@ uint512_dt * kvdram0,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SI
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadandwrite2(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
+SYNC_spreadandwrite2(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
-	cout<<"spreadandwrite2: spread (vdata) function called."<<endl;
+	cout<<"SYNC_spreadandwrite2: spread (vdata) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -2732,16 +2911,16 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t source[VDATA_PAC
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadandwrite3(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
+SYNC_spreadandwrite3(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
-	cout<<"spreadandwrite3: spread (vdata) function called."<<endl;
+	cout<<"SYNC_spreadandwrite3: spread (vdata) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -3194,16 +3373,16 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuff
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadandwrite4(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
+SYNC_spreadandwrite4(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
-	cout<<"spreadandwrite4: spread (vdata) function called."<<endl;
+	cout<<"SYNC_spreadandwrite4: spread (vdata) function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -3742,16 +3921,16 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadandwrite1(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
+SYNC_spreadandwrite1(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
 uint512_dt * kvdram0,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
-	cout<<"spreadandwrite1: spread and write function called."<<endl;
+	cout<<"SYNC_spreadandwrite1: spread and write function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -4109,16 +4288,16 @@ uint512_dt * kvdram0,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SI
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadandwrite2(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
+SYNC_spreadandwrite2(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
-	cout<<"spreadandwrite2: spread and write function called."<<endl;
+	cout<<"SYNC_spreadandwrite2: spread and write function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -4558,16 +4737,16 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,			keyvalue_vbuffer_t source[VDATA_PAC
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadandwrite3(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
+SYNC_spreadandwrite3(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
-	cout<<"spreadandwrite3: spread and write function called."<<endl;
+	cout<<"SYNC_spreadandwrite3: spread and write function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -5089,16 +5268,16 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,			keyvalue_vbuff
 }
 void
 	#ifdef SW 
-	actssync::
+	actssync_slicedgraph::
 	#endif
-spreadandwrite4(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
+SYNC_spreadandwrite4(bool_type enable1, bool_type enable2, bool_type enable_savevmask, bool_type enable_savevmaskp, unsigned int nk, uint512_dt * vdram, 
 uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,			keyvalue_vbuffer_t source[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vdramoffset_kvs, batch_type dramoffset_kvs, buffer_type vbuffer_size_kvs, 
 			unitBRAMwidth_type vmask[BLOCKRAM_SIZE], batch_type vmask_offset_kvs, buffer_type vmask_size_kvs, 
 			unsigned int vmaskp_offset_kvs, uint32_type vmask_p_temp[2], unsigned int GraphIter,
 			globalparams_t globalparams){
 	#pragma HLS function_instantiate variable=source
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE2
-	cout<<"spreadandwrite4: spread and write function called."<<endl;
+	cout<<"SYNC_spreadandwrite4: spread and write function called."<<endl;
 	#endif 
 	analysis_type analysis_loopcount = REDUCESZ / 2;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE;
@@ -5703,8 +5882,8 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 
 extern "C" {
 void
-	#if defined(SW) || not defined(HWIMPLFOR_ACTSSYNC)
-	actssync::
+	#ifdef SW
+	actssync_slicedgraph::
 	#endif
 topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram){
 #ifndef ACTS_1by1
@@ -5730,7 +5909,7 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, ui
 #endif 
 	
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// & defined(ALLVERTEXISACTIVE_ALGORITHM)
-	cout<<">>> ====================== Light weight ACTS (SYNC: NACTS_IN_NSYNCTHREADS) Launched... size: "<<SYNC_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
+	cout<<">>> ====================== Light weight ACTS (SYNC: SLICEDGRAPH) Launched... size: "<<SYNC_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl; 
 	#endif
 	
 	keyvalue_vbuffer_t refbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -5838,12 +6017,12 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, ui
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		enablereduce = ON; 
 		unsigned int ntravszs = 0;
-		rtravstate[0] = SYNC_gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker); // CRITICAL FIXME. ALWAYS ON.
-		rtravstate[1] = SYNC_gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker); // CRITICAL FIXME. ALWAYS ON.
-		rtravstate[2] = SYNC_gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker); // CRITICAL FIXME. ALWAYS ON.
+		rtravstate[0] = SYNC_gettravstate(ON, kvdram0, globalparams[0], currentLOP, sourcestatsmarker);
+		rtravstate[1] = SYNC_gettravstate(ON, kvdram1, globalparams[1], currentLOP, sourcestatsmarker);
+		rtravstate[2] = SYNC_gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker);
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		// cout<<"---- actssync:: iterationidx: "<<iterationidx<<", enablereduce: "<<enablereduce<<", ntravszs: "<<ntravszs<<endl;
+		cout<<"---- actssync_slicedgraph:: iterationidx: "<<iterationidx<<", enablereduce: "<<enablereduce<<", ntravszs: "<<ntravszs<<endl;
 		
 		#ifdef SUP1
 		if(iterationidx > 0){ pp1en_spreadvdata = ON; pp1en_spreadvmask = ON; pp1en_spreadandwrite = ON; } 
@@ -5856,22 +6035,22 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, ui
 		#endif
 		
 		enablereducepp0 = enablereduce;
-		readvdata(enablereduce, ON, vdram, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparamsv);
-		readandsynchronize3(enablereduce, ON, NAp, kvdram0,kvdram1,kvdram2, vbuffer0_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
+		SYNC_readvdata(enablereduce, ON, vdram, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, refbuffer, 0, 0, reducebuffersz, _globalparamsv);
+		SYNC_readandsynchronize3(enablereduce, ON, NAp, kvdram0,kvdram1,kvdram2, vbuffer0_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams);
 	
 		#ifdef SUP1
-		spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, vbuffer0_level3, _globalparams);
-		spreadvmask(enablereducepp1, pp1en_spreadvmask, ON, vmask0_level2, vmask0_level3, _globalparams); 
+		SYNC_spreadvdata(enablereducepp1, pp1en_spreadvdata, vbuffer0_level2, vbuffer0_level3, _globalparams);
+		SYNC_spreadvmask(enablereducepp1, pp1en_spreadvmask, ON, vmask0_level2, vmask0_level3, _globalparams); 
 		if(enablereducepp1 == ON && pp1en_spreadvmask == ON){
 			vmaskptemp0_level3[0] = vmaskptemp0_level2[0]; vmaskptemp0_level3[1] = vmaskptemp0_level2[1]; 
 		}
 		#endif
 		
 		if(SWITCHcount % 2 == 0){ begincol_vmask = 0; } else { begincol_vmask = 8; };
-		vmaskptemp0_level2[SWITCHcount % 2] = synchronizeandapply(enablereduce, ON, vbuffer0_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
+		vmaskptemp0_level2[SWITCHcount % 2] = SYNC_synchronizeandapply(enablereduce, ON, vbuffer0_level1, vbuffer0_level2, refbuffer, vmask0_level2, begincol_vmask, vreadoffsetpp0_kvs, _globalparams);
 		SWITCHcount += 1;
 		#ifdef SUP1
-		spreadandwrite3(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, vdram, kvdram0,kvdram1,kvdram2,			vbuffer0_level3, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
+		SYNC_spreadandwrite3(enablereducepp1, pp1en_spreadandwrite, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, vdram, kvdram0,kvdram1,kvdram2,			vbuffer0_level3, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, reducebuffersz,
 			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp0_level3, GraphIter + 1,
 			_globalparams);
@@ -5879,19 +6058,19 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, ui
 		if(pp1en_spreadandwrite == ON){ MOVEcount += 1; if(MOVEcount % 2 == 0){ vmaskreadoffset_kvs += vmaskbuffersz_kvs; sourcestatsmarker += 1; }} 
 		#endif
 		
-		spreadvdata(enablereduce, ON, vbuffer0_level2, vbuffer0_level3, _globalparams);
-		spreadvmask(enablereduce, ON, ON, vmask0_level2, vmask0_level3, _globalparams); 
+		SYNC_spreadvdata(enablereduce, ON, vbuffer0_level2, vbuffer0_level3, _globalparams);
+		SYNC_spreadvmask(enablereduce, ON, ON, vmask0_level2, vmask0_level3, _globalparams); 
 		if(enablereduce == ON){ 
 			vmaskptemp0_level3[0] = vmaskptemp0_level2[0]; vmaskptemp0_level3[1] = vmaskptemp0_level2[1]; 
 		}
 		#ifdef SUP1
 		enablereducepp1 = enablereducepp0;	
-		readvdata(enablereducepp1, pp1en_readandsynchronize, vdram, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, refbuffer, 0, 0, reducebuffersz, _globalparamsv); // NEWCHANGE.
-		readandsynchronize3(enablereducepp1, pp1en_readandsynchronize, NAp, kvdram0,kvdram1,kvdram2, vbuffer0_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
+		SYNC_readvdata(enablereducepp1, pp1en_readandsynchronize, vdram, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, refbuffer, 0, 0, reducebuffersz, _globalparamsv); // NEWCHANGE.
+		SYNC_readandsynchronize3(enablereducepp1, pp1en_readandsynchronize, NAp, kvdram0,kvdram1,kvdram2, vbuffer0_level1, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp1_kvs, _globalparams);
 	
 		#endif
 	
-		spreadandwrite3(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, vdram, kvdram0,kvdram1,kvdram2,	
+		SYNC_spreadandwrite3(enablereduce, ON, _globalparams.ENABLE_SAVEVMASK, _globalparams.ENABLE_SAVEVMASKP, NAp, vdram, kvdram0,kvdram1,kvdram2,	
 			vbuffer0_level3, _globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, _globalparams.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffsetpp0_kvs, reducebuffersz,
 			vmask0_level3, _globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmaskreadoffset_kvs, vmaskbuffersz_kvs,
 			_globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, vmaskptemp0_level3, GraphIter + 1,

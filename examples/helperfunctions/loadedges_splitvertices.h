@@ -32,8 +32,8 @@ public:
 	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 
 	unsigned int gethash(unsigned int vid);
-	unsigned int getreal(unsigned int vid);
 	unsigned int allignlower(unsigned int val, unsigned int V_SIZE);
+	unsigned int allignhigher(unsigned int val, unsigned int V_SIZE);
 	
 	globalparams_TWOt loadedges(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[NUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);					
 	

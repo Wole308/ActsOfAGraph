@@ -23,29 +23,6 @@
 #include "goclkernel.h"
 using namespace std;
 
-#define TESTRUN
-#ifdef TESTRUN
-#define NUMCOMPUTEUNITS_SLR1AND2 1 
-#define NUMCOMPUTEUNITS_SLR0 1 
-#else 
-	#if NUM_PEs==12
-	#define NUMCOMPUTEUNITS_SLR1AND2 5 
-	#define NUMCOMPUTEUNITS_SLR0 5
-	#endif 
-	#if NUM_PEs==22
-	#define NUMCOMPUTEUNITS_SLR1AND2 8 
-	#define NUMCOMPUTEUNITS_SLR0 6
-	#endif 
-	#if NUM_PEs==24
-	#define NUMCOMPUTEUNITS_SLR1AND2 9 
-	#define NUMCOMPUTEUNITS_SLR0 6
-	#endif 
-	#if NUM_PEs==25
-	#define NUMCOMPUTEUNITS_SLR1AND2 9 
-	#define NUMCOMPUTEUNITS_SLR0 7
-	#endif 
-#endif 
-
 //HBM Banks requirements
 #define MAX_HBM_BANKCOUNT 32
 #define BANK_NAME(n) n | XCL_MEM_TOPOLOGY
