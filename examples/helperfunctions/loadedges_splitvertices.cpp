@@ -27,7 +27,7 @@ using namespace std;
 // workspace area {kvdram, kvdram workspace}
 
 #define TWOO 2
-// #define CONFIGSPLITDESTVTXS_NUMWs 16//NUM_PARTITIONS
+// #define NUM_PEs 16//NUM_PARTITIONS
 // #define _VECTOR2_SIZE VECTOR2_SIZE
 // #define MAX_NUM_UNIQ_EDGES_PER_VEC 8//4 // FIXME.
 #define BITMAPCODE 0b10000000000000000000000000000000
@@ -90,7 +90,7 @@ void loadedges_splitvertices::WRITETO_UINT(unsigned int * data, unsigned int ind
 }
 
 unsigned int loadedges_splitvertices::gethash(unsigned int vid){
-	return vid % CONFIGSPLITDESTVTXS_NUMWs;
+	return vid % NUM_PEs;
 }
 unsigned int loadedges_splitvertices::allignlower(unsigned int val, unsigned int V_SIZE){
 	unsigned int fac = val / V_SIZE;
@@ -133,8 +133,8 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 		counts_dummyedgeslots_for_channel[i] = 0;
 		for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ counts_validedges_for_channel[i][vid] = 0; counts_alledges_for_channel[i][vid] = 0; }
 	}
-	unsigned int counts_totalvalidedges_for_channel[NUMSUBCPUTHREADS]; for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ counts_totalvalidedges_for_channel[i] = 0; }
-	unsigned int counts_totalalledges_for_channel[NUMSUBCPUTHREADS]; for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ counts_totalalledges_for_channel[i] = 0; }
+	unsigned int counts_totalvalidedges_for_channel[NUMSUBCPUTHREADS]; for(unsigned int i=0; i<NUM_PEs; i++){ counts_totalvalidedges_for_channel[i] = 0; }
+	unsigned int counts_totalalledges_for_channel[NUMSUBCPUTHREADS]; for(unsigned int i=0; i<NUM_PEs; i++){ counts_totalalledges_for_channel[i] = 0; }
 	unsigned int totalcount_validedges_for_all_channels = 0;
 	unsigned int totalcount_alledges_for_all_channels = 0;
 	unsigned int isFirst = 0;
@@ -157,10 +157,10 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 		}
 	}
 	
-	edge2_type dummyedge; dummyedge.srcvid = INVALIDDATA; dummyedge.dstvid = INVALIDDATA;
+	edge2_type dummyedge; // dummyedge.srcvid = INVALIDDATA; dummyedge.dstvid = INVALIDDATA;
 	unsigned int gap = 0;
 	unsigned int totalgap = 0;
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		gap = 0;
 		edgedatabuffers_temp2[i].push_back(edgedatabuffers_temp[i][0]);
 		for(unsigned int k=1; k<edgedatabuffers_temp[i].size(); k++){
@@ -188,13 +188,13 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 		cout<<"### loadedges_splitvertices::loadedges:: number of empty vertices filled for memory channel "<<i<<": "<<gap<<endl;
 	}
 	cout<<"### loadedges_splitvertices::loadedges:: total number of empty vertices filled for all memory channels: "<<totalgap<<endl;
-	if(debug2==true){ for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ cout<<"edgedatabuffers_temp["<<i<<"].size(): "<<edgedatabuffers_temp[i].size()<<endl; }}
-	if(debug2==true){ for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ cout<<"edgedatabuffers_temp2["<<i<<"].size(): "<<edgedatabuffers_temp2[i].size()<<endl; }}
+	if(debug2==true){ for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"edgedatabuffers_temp["<<i<<"].size(): "<<edgedatabuffers_temp[i].size()<<endl; }}
+	if(debug2==true){ for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"edgedatabuffers_temp2["<<i<<"].size(): "<<edgedatabuffers_temp2[i].size()<<endl; }}
 	// exit(EXIT_SUCCESS); //
 	
 	// CHECK 1: ensure all vertices are represented
 	#ifdef CHECK1_ENSUREALLVERTICESAREREPRESENTED
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int k=1; k<edgedatabuffers_temp2[i].size(); k++){
 			unsigned int currsrcvid = edgedatabuffers_temp2[i][k].srcvid;
 			unsigned int prevsrcvid = edgedatabuffers_temp2[i][k-1].srcvid;
@@ -212,11 +212,11 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	cout<<"### loadedges_splitvertices::loadedges:: loading edges into memory channels according to edge representation format..."<<endl;
 	unsigned int tempe_index = 0; 
 	unsigned int index = 0;
-	unsigned int counts_alldatas[CONFIGSPLITDESTVTXS_NUMWs]; for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ counts_alldatas[i] = 0; }
+	unsigned int counts_alldatas[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ counts_alldatas[i] = 0; }
 	unsigned int counts_alldata = 0;
 	unsigned int srcvid_lastvechead = 0xFFFFFFFF;
 	unsigned int srcvid_lastseen = 0;
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		tempe_index = 0; 
 		index = 0;
 		srcvid_lastvechead = 0xFFFFFFFF;
@@ -277,13 +277,13 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 		utilityobj->printtriples("loadedges_splitvertices::[insert.edges] printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
 		cout<<"### loadedges_splitvertices::[insert.edges] memory channel "<<i<<": tempe_index: "<<tempe_index<<", index: "<<index<<endl;
 	}
-	utilityobj->printvalues(">>> loadedges_splitvertices:[insert.edges] total number of edges in channels[0-N]", (value_t *)&counts_alldatas[0], CONFIGSPLITDESTVTXS_NUMWs);
+	utilityobj->printvalues(">>> loadedges_splitvertices:[insert.edges] total number of edges in channels[0-N]", (value_t *)&counts_alldatas[0], NUM_PEs);
 	cout<<">>> loadedges_splitvertices::[insert.edges] total number of edges in all memory channels: counts_alldata: "<<counts_alldata<<", NAp: "<<NAp<<endl;
 	// exit(EXIT_SUCCESS); //
 	
 	// CHECK 2: ensure all vertices are represented
 	#ifdef CHECK2_ENSUREALLVERTICESAREREPRESENTED
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int j=0; j<edges_temp[i].size(); j+=VECTOR2_SIZE){
 			for(unsigned int v=2; v<VECTOR2_SIZE; v++){
 				if(j+v >= edges_temp[i].size()){ continue; }
@@ -305,7 +305,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	// CHECK 3: check to make sure no vector has more than 4 distinct srcvids
 	#ifdef CHECK3_CHECKFORNUMUNIQUESRCVIDSINVECTOR
 	edge3_type temp[VECTOR2_SIZE];
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int j=0; j<edges_temp[i].size(); j+=VECTOR2_SIZE){
 			unsigned int num_uniq_scrvids = 0;
 			unsigned int v_cnt = 0;
@@ -333,9 +333,9 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	
 	// calculate local edge dstvids 
 	#ifdef CALCULATELOCALDSTVIDS
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int k=0; k<edges_temp[i].size(); k++){
-			if(edges_temp[i][k].status == EDGESTATUS_VALIDEDGE){ edges_temp[i][k].dstvid = (edges_temp[i][k].dstvid - i) / CONFIGSPLITDESTVTXS_NUMWs; }
+			if(edges_temp[i][k].status == EDGESTATUS_VALIDEDGE){ edges_temp[i][k].dstvid = (edges_temp[i][k].dstvid - i) / NUM_PEs; }
 		}
 		utilityobj->printtriples("loadedges_splitvertices::[insert.local.edge.dstvids] printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
 	}
@@ -345,13 +345,13 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	// insert bitmap 
 	#ifdef INSERTBITMAP
 	cout<<"### loadedges_splitvertices::insert.bitmap:: inserting bitmap..."<<endl;
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		if(debug2==true){ utilityobj->printtriples("loadedges_splitvertices::insert.bitmap::[before.insert.bitmap]: printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8); }
 		for(unsigned int j=0; j<edges_temp[i].size(); j+=VECTOR2_SIZE){
 			unsigned int srcvid_head = edges_temp[i][j].srcvid;
 			for(unsigned int v=1; v<VECTOR2_SIZE; v++){
 				if(j+v >= edges_temp[i].size()){ continue; }
-				if(edges_temp[i][j].status == EDGESTATUS_DUMMYEDGE){ continue; }
+				if(edges_temp[i][j+v].status == EDGESTATUS_DUMMYEDGE){ continue; }
 				
 				unsigned int incr = edges_temp[i][j+v].srcvid - srcvid_head;
 				unsigned int loc = v;
@@ -365,11 +365,11 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 		utilityobj->printtriples("loadedges_splitvertices::insert.bitmap::[after.insert.bitmap]: printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
 	}
 	cout<<"### loadedges_splitvertices::insert.bitmap::[insert.bitmap] bitmap inserted successfully"<<endl;
-	#endif 
+	#endif
 	
 	// load edges 
 	#ifdef LOADEDGES
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int k=0; k<edges_temp[i].size(); k++){
 			edges[i][TWOO*_BASEOFFSET_EDGESDATA + k].dstvid = edges_temp[i][k].dstvid;
 		}
@@ -377,8 +377,8 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	}
 	#endif 
 	
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ counts_totalalledges_for_channel[i] += counts_alledges_for_channel[i][vid]; totalcount_alledges_for_all_channels += counts_alledges_for_channel[i][vid]; }}
-	unsigned int max_totalalledges_for_channel=0; for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ if(max_totalalledges_for_channel < counts_totalalledges_for_channel[i]){ max_totalalledges_for_channel = counts_totalalledges_for_channel[i]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ counts_totalalledges_for_channel[i] += counts_alledges_for_channel[i][vid]; totalcount_alledges_for_all_channels += counts_alledges_for_channel[i][vid]; }}
+	unsigned int max_totalalledges_for_channel=0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max_totalalledges_for_channel < counts_totalalledges_for_channel[i]){ max_totalalledges_for_channel = counts_totalalledges_for_channel[i]; }}
 	cout<<"loadedges_splitvertices::loadedges: max_totalalledges_for_channel: "<<max_totalalledges_for_channel<<endl;
 
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -452,8 +452,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 		}
 	}
 	cout<<"### loadedges_splitvertices::loadedges:: CHECK 4(a&b): ERROR CHECKING SUCCESSFUL."<<endl;
-	#endif 
-	// exit(EXIT_SUCCESS); //
+	#endif
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		container->srcvoffset[i] = 0;
@@ -463,15 +462,14 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 		container->destvoffset[i] = 0;
 		container->actvvsize[i] = 0;
 	}
-	// exit(EXIT_SUCCESS); //
 	
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ counts_totalvalidedges_for_channel[i] += counts_validedges_for_channel[i][vid]; totalcount_validedges_for_all_channels += counts_validedges_for_channel[i][vid]; }}
-	utilityobj->printvalues(">>> loadedges_splitvertices::loadedges: printing counts_totalvalidedges_for_channel", (value_t *)&counts_totalvalidedges_for_channel[0], CONFIGSPLITDESTVTXS_NUMWs);
-	utilityobj->printvalues(">>> loadedges_splitvertices::loadedges: printing counts_totalalledges_for_channel", (value_t *)&counts_totalalledges_for_channel[0], CONFIGSPLITDESTVTXS_NUMWs);
-	utilityobj->printvalues(">>> loadedges_splitvertices::loadedges: printing counts_alldatas[0-N]", (value_t *)&counts_alldatas[0], CONFIGSPLITDESTVTXS_NUMWs);
-	utilityobj->printvalues("loadedges_splitvertices::loadedges: printing counts_srcvslots_for_channel", (value_t *)&counts_srcvslots_for_channel[0], CONFIGSPLITDESTVTXS_NUMWs);
-	utilityobj->printvalues("loadedges_splitvertices::loadedges: printing counts_bitmapslots_for_channel", (value_t *)&counts_bitmapslots_for_channel[0], CONFIGSPLITDESTVTXS_NUMWs);
-	utilityobj->printvalues("loadedges_splitvertices::loadedges: printing counts_dummyedgeslots_for_channel", (value_t *)&counts_dummyedgeslots_for_channel[0], CONFIGSPLITDESTVTXS_NUMWs);
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ counts_totalvalidedges_for_channel[i] += counts_validedges_for_channel[i][vid]; totalcount_validedges_for_all_channels += counts_validedges_for_channel[i][vid]; }}
+	utilityobj->printvalues(">>> loadedges_splitvertices::loadedges: printing counts_totalvalidedges_for_channel", (value_t *)&counts_totalvalidedges_for_channel[0], NUM_PEs);
+	utilityobj->printvalues(">>> loadedges_splitvertices::loadedges: printing counts_totalalledges_for_channel", (value_t *)&counts_totalalledges_for_channel[0], NUM_PEs);
+	utilityobj->printvalues(">>> loadedges_splitvertices::loadedges: printing counts_alldatas[0-N]", (value_t *)&counts_alldatas[0], NUM_PEs);
+	utilityobj->printvalues("loadedges_splitvertices::loadedges: printing counts_srcvslots_for_channel", (value_t *)&counts_srcvslots_for_channel[0], NUM_PEs);
+	utilityobj->printvalues("loadedges_splitvertices::loadedges: printing counts_bitmapslots_for_channel", (value_t *)&counts_bitmapslots_for_channel[0], NUM_PEs);
+	utilityobj->printvalues("loadedges_splitvertices::loadedges: printing counts_dummyedgeslots_for_channel", (value_t *)&counts_dummyedgeslots_for_channel[0], NUM_PEs);
 	for(unsigned int i=0; i<0; i++){ utilityobj->printvalues("loadedges_splitvertices[after]::loadedges: printing counts_validedges_for_channel["+std::to_string(i)+"][~]", (value_t *)&counts_validedges_for_channel[i][0], 4); } 
 	for(unsigned int i=0; i<0; i++){ utilityobj->printvalues("loadedges_splitvertices[after]::loadedges: printing counts_alledges_for_channel["+std::to_string(i)+"][~]", (value_t *)&counts_alledges_for_channel[i][0], 4); } 
 	for(unsigned int i=0; i<0; i++){ utilityobj->printkeyvalues("loadedges_splitvertices[after]::loadedges: printing edgedatabuffers_temp["+std::to_string(i)+"][~]", (keyvalue_t *)&edgedatabuffers_temp[i][0], 4); }
@@ -479,9 +477,9 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	cout<<"loadedges_splitvertices::loadedges: totalcount_validedges_for_all_channels: "<<totalcount_validedges_for_all_channels<<", totalcount_alledges_for_all_channels: "<<totalcount_alledges_for_all_channels<<", *counts_alldata: "<<counts_alldata<<endl;
 	// exit(EXIT_SUCCESS); //
 	
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ edgedatabuffers_temp[i].clear(); }
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ edgedatabuffers_temp2[i].clear(); }
-	for(unsigned int i=0; i<CONFIGSPLITDESTVTXS_NUMWs; i++){ delete tempvptrs[i]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ edgedatabuffers_temp[i].clear(); }
+	for(unsigned int i=0; i<NUM_PEs; i++){ edgedatabuffers_temp2[i].clear(); }
+	for(unsigned int i=0; i<NUM_PEs; i++){ delete tempvptrs[i]; }
 	
 	return globalparams;
 }
@@ -489,7 +487,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 unsigned int loadedges_splitvertices::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth){
 	unsigned int partition = ((keyvalue.key - upperlimit) >> (BATCH_RANGE_POW - (NUM_PARTITIONS_POW * treedepth)));
 	
-	#ifdef _DEBUGMODE_CHECKS
+	#ifdef _DEBUGMODE_CHECKS3
 	utilityobj->checkoutofbounds("loadedges_splitvertices::getglobalpartition", partition, (1 << (NUM_PARTITIONS_POW * treedepth)), keyvalue.key, upperlimit, NAp);
 	#endif
 	return partition;
@@ -594,9 +592,8 @@ globalparams_TWOt loadedges_splitvertices::loadoffsetmarkers(vptr_type * vptrs[N
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"loadedges_splitvertices::loadoffsetmarkers:: edgessize["<<i<<"]: "<<container->edgessize[i]<<endl;
 		#endif 
-		if(i >= CONFIGSPLITDESTVTXS_NUMWs){ continue; }
+		if(i >= NUM_PEs){ continue; }
 		
-		// edge3_type * edgesptr = (edge3_type *)&edges_temp[i][0]; // NEWCHANGE.
 		keyvalue_t * statsptr = (keyvalue_t *)&stats[i][_BASEOFFSET_STATSDRAM];
 		for(unsigned int u=0; u<_NUM_EDGECHUNKS_IN_A_BUFFER; u++){ for(unsigned int k=0; k<KVSTATSDRAMSZ; k++){ tempstats[u][k].key = 0; tempstats[u][k].value = 0; }}
 		
@@ -617,7 +614,8 @@ globalparams_TWOt loadedges_splitvertices::loadoffsetmarkers(vptr_type * vptrs[N
 			#endif
 		}
 		SRC_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = KVDATA_RANGE-1;
-		PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = (1 << (NUM_PARTITIONS_POW * (TREE_DEPTH-1))); // 256
+		// PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = (1 << (NUM_PARTITIONS_POW * (TREE_DEPTH-1))); // 256
+		PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = KVDATA_RANGE / REDUCEPARTITIONSZ;
 		
 		for(unsigned int k=0; k<container->edgessize[i]; k++){
 			#ifdef _DEBUGMODE_HOSTPRINTS
@@ -659,7 +657,6 @@ globalparams_TWOt loadedges_splitvertices::loadoffsetmarkers(vptr_type * vptrs[N
 				#endif 
 			}
 		}
-		// exit(EXIT_SUCCESS); ////////////////////
 		
 		for(unsigned int CLOP=1; CLOP<=TREE_DEPTH; CLOP++){
 			unsigned int offset = 0;
@@ -673,7 +670,7 @@ globalparams_TWOt loadedges_splitvertices::loadoffsetmarkers(vptr_type * vptrs[N
 		for(unsigned int u=0; u<_NUM_EDGECHUNKS_IN_A_BUFFER; u++){
 			for(unsigned int k=0; k<_KVSTATSSZ; k++){
 				statsptrVec[k].data[u].key = tempstats[u][k].key;
-				statsptrVec[k].data[u].value = 0; // CRITICAL REMOVEME.
+				statsptrVec[k].data[u].value = 0;
 				// statsptrVec[k].data[u].value = tempstats[u][k].value; // CRITICAL REMOVEME.
 			}
 		}
@@ -698,12 +695,12 @@ globalparams_TWOt loadedges_splitvertices::loadoffsetmarkers(vptr_type * vptrs[N
 		#endif 
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
-		utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats, totalnumpb4llop);
-		utilityobj->printkeyvalues("loadoffsetmarkers: printing statsptr [after]", (keyvalue_t *)statsptrVec, totalnumpb4llop * VECTOR_SIZE, VECTOR_SIZE);
-		cout<<"tempstats["<<totalnumpb4llop-1<<"].key: "<<tempstats[totalnumpb4llop-1].key<<", tempstats["<<totalnumpb4llop-1<<"].value: "<<tempstats[totalnumpb4llop-1].value<<endl;
+		utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats[i], totalnumpb4llop);
+		utilityobj->printkeyvalues("loadoffsetmarkers: printing statsptrVec [after]", (keyvalue_t *)statsptrVec, totalnumpb4llop * VECTOR_SIZE, VECTOR_SIZE);
+		cout<<"tempstats["<<i<<"]["<<totalnumpb4llop-1<<"].key: "<<tempstats[i][totalnumpb4llop-1].key<<", tempstats["<<i<<"]["<<totalnumpb4llop-1<<"].value: "<<tempstats[i][totalnumpb4llop-1].value<<endl;
 		#endif
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		for(unsigned int u=0; u<_NUM_EDGECHUNKS_IN_A_BUFFER; u++){ cout<<"loadoffsetmarkers: u:"<<u<<endl; utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats[u] [after]", tempstats[u], 17); } //280
+		#ifdef _DEBUGMODE_HOSTPRINTS3
+		if(i==0){ for(unsigned int u=0; u<_NUM_EDGECHUNKS_IN_A_BUFFER; u++){ cout<<"loadoffsetmarkers: u:"<<u<<endl; utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats[u] [after]", tempstats[u], 17); } }
 		#endif
 	}
 	// exit(EXIT_SUCCESS); ////

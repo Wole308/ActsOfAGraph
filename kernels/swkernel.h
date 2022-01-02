@@ -21,8 +21,8 @@
 #include "../acts/acts/merge_vtxs.h"
 #include "../src/utility/utility.h"
 #include "../src/algorithm/algorithm.h"
-#include "../acts/acts/top_unifiedvts.h"
-#include "../acts/acts/top_nonunifiedvts.h"
+#include "../acts/acts/top_usrcv_udstv.h"
+#include "../acts/acts/top_nusrcv_nudstv.h"
 
 class swkernel {
 public:
@@ -49,9 +49,10 @@ private:
 	
 	#ifdef SW
 	// actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
-	// top_unifiedvts * kernelobjs_process[NUMSUBCPUTHREADS];
-	top_nonunifiedvts * kernelobjs_process[NUMSUBCPUTHREADS];
+	// top_usrcv_udstv * kernelobjs_process[NUMSUBCPUTHREADS];
+	top_nusrcv_nudstv * kernelobjs_process[NUMSUBCPUTHREADS];
 	actssync * kernelobjs_synchronize;
+	acts_merge * kernelobjs_merge;
 	actssync_slicedgraph * kernelobjs_synchronize_slicedgraph;
 	merge_vtxs * merge_vtxsobj;
 	#endif

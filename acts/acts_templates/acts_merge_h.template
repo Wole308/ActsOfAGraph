@@ -38,6 +38,8 @@ public:
 	acts_merge();
 	~acts_merge();
 	
+	unsigned int MERGE_getchannelvsize_kvs(globalparams_t globalparams);
+	unsigned int MERGE_getchannelnumpartitions(globalparams_t globalparams);
 	value_t MERGE_applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	uint32_type MERGE_convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index);
 
@@ -46,11 +48,17 @@ public:
 	
 	{%for n in context['T_seq']%}
 	{%if(n>=1)%}
-	void MERGE_merge{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
+	void MERGE_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
 	{%endif%}
 	{%endfor%}
 	
-	void topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
+	{%for n in context['T_seq']%}
+	{%if(n>=1)%}
+	void MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
+	{%endif%}
+	{%endfor%}
+	
+	void MERGE_syncVsAcrossSLRs(uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdramA);
 
 private:
 	#ifdef SW

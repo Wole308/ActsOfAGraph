@@ -10,7 +10,7 @@ void
 	#ifdef SW 
 	partitionupdates::
 	#endif
-PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
+PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_loop1 = WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
@@ -81,21 +81,21 @@ PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer
 		if(mykeyvalue7.key != acts_utilobj->UTIL_GETK(INVALIDDATA) && mykeyvalue7.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ valid7 = ON; } else { valid7 = OFF; }
 		
 		partition_type p0 = 0;
-		if(valid0 == ON){ p0 = acts_utilobj->UTIL_getpartition(ON, keyvalue0, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid0 == ON){ p0 = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue0, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		partition_type p1 = 0;
-		if(valid1 == ON){ p1 = acts_utilobj->UTIL_getpartition(ON, keyvalue1, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid1 == ON){ p1 = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue1, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		partition_type p2 = 0;
-		if(valid2 == ON){ p2 = acts_utilobj->UTIL_getpartition(ON, keyvalue2, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid2 == ON){ p2 = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue2, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		partition_type p3 = 0;
-		if(valid3 == ON){ p3 = acts_utilobj->UTIL_getpartition(ON, keyvalue3, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid3 == ON){ p3 = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue3, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		partition_type p4 = 0;
-		if(valid4 == ON){ p4 = acts_utilobj->UTIL_getpartition(ON, keyvalue4, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid4 == ON){ p4 = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue4, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		partition_type p5 = 0;
-		if(valid5 == ON){ p5 = acts_utilobj->UTIL_getpartition(ON, keyvalue5, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid5 == ON){ p5 = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue5, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		partition_type p6 = 0;
-		if(valid6 == ON){ p6 = acts_utilobj->UTIL_getpartition(ON, keyvalue6, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid6 == ON){ p6 = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue6, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		partition_type p7 = 0;
-		if(valid7 == ON){ p7 = acts_utilobj->UTIL_getpartition(ON, keyvalue7, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid7 == ON){ p7 = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue7, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		
 		if(valid0 == ON){
 			if(localcapsule[0][p0].value == 0){ 
@@ -314,7 +314,7 @@ void
 	#ifdef SW 
 	partitionupdates::
 	#endif
-PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams){				
+PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams){				
 	#ifdef ENABLERECURSIVEPARTITIONING
 	if(currentLOP == globalparams.ACTSPARAMS_TREEDEPTH){ return; } /// NEWCHANGE.
 	#else 
@@ -354,7 +354,7 @@ PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue
 		#pragma HLS PIPELINE II=2
 			keyvalue_buffer_t kv = sourcebuffer[v][i];
 			
-			partition_type p = acts_utilobj->UTIL_getpartition(ON, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			partition_type p = acts_utilobj->UTIL_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
 			if(acts_utilobj->UTIL_GETKV(kv).key != acts_utilobj->UTIL_GETV(INVALIDDATA) && acts_utilobj->UTIL_GETKV(kv).value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ localcapsule[p].value += 1; }
 		}
 	}
@@ -368,7 +368,7 @@ PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, keyvalue
 		#pragma HLS PIPELINE II=2
 			keyvalue_buffer_t kv = sourcebuffer[v][i];
 			// cout<<"--- priorpartitionkeyvalues: kv.key: "<<kv.key<<endl; // REMOVEME.
-			partition_type p = acts_utilobj->UTIL_getpartition(ON, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			partition_type p = acts_utilobj->UTIL_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
 			buffer_type pos = localcapsule[p].key + localcapsule[p].value;
 			
 			if(acts_utilobj->UTIL_GETKV(kv).key != acts_utilobj->UTIL_GETV(INVALIDDATA) && acts_utilobj->UTIL_GETKV(kv).value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ destbuffer[pos % VECTOR_SIZE][pos / VECTOR_SIZE] = kv; } // NOTE: could this be the cause of slight imperfection in results?

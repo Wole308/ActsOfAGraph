@@ -754,16 +754,58 @@ UTIL_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalpa
 	#endif
 	return;	
 }
-partition_type
+/** partition_type
 	#ifdef SW 
 	acts_util::
 	#endif 
 UTIL_getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTIL_GETKV(keyvalue);
-
+	
 	if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }	
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	if(partition >= MAX_NUM_PARTITIONS){ actsutilityobj->globalstats_counterrorsingetpartition(1); }
+	#endif 
+	#ifdef _DEBUGMODE_CHECKS2
+	if(partition >= MAX_NUM_PARTITIONS){ 
+		#ifdef ENABLE_VOICEOUTKERNELERRORS
+		cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<endl; 
+		#endif 
+		#ifdef ENABLE_PERFECTACCURACY
+		exit(EXIT_FAILURE); 
+		#endif 
+	}
+	#endif
+	#ifndef ENABLE_PERFECTACCURACY
+		if(partition >= MAX_NUM_PARTITIONS){ partition = (((1 << NUM_PARTITIONS_POW) - 1) & (partition >> (1 - 1))); } // FIXME. REMOVEME. PERFECTIONTEST.
+	#endif
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("acts_util::getpartition 2", partition, MAX_NUM_PARTITIONS, thiskeyvalue.key, upperlimit, currentLOP);
+	#endif
+	return partition;
+} */
+partition_type
+	#ifdef SW 
+	acts_util::
+	#endif 
+UTIL_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
+	partition_type partition;
+	keyvalue_t thiskeyvalue = UTIL_GETKV(keyvalue);
+	
+	#ifdef CONFIG_SPLIT_DESTVTXS
+	if(mode == REDUCEMODE){
+		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+		else { partition = ((thiskeyvalue.key - upperlimit) % NUM_PARTITIONS); }
+	} else {
+		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+		else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	}
+	#else 
+		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+		else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	#endif 
 	
 	#ifdef _DEBUGMODE_CHECKS2
 	if(partition >= MAX_NUM_PARTITIONS){ actsutilityobj->globalstats_counterrorsingetpartition(1); }

@@ -5843,7 +5843,11 @@ topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, ui
 		rtravstate[2] = SYNC_gettravstate(ON, kvdram2, globalparams[2], currentLOP, sourcestatsmarker); // CRITICAL FIXME. ALWAYS ON.
 		for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ ntravszs += rtravstate[i].size_kvs; }
 		if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
+		cout<<"---- actssync:: printing rtravstates "<<endl; for(unsigned int i = 0; i < NUMSYNCTHREADS; i++){ cout<<rtravstate[i].size_kvs<<", "; } cout<<endl;
+		cout<<"---- actssync:: iterationidx: "<<iterationidx<<", enablereduce: "<<enablereduce<<", ntravszs: "<<ntravszs<<endl;
 		// cout<<"---- actssync:: iterationidx: "<<iterationidx<<", enablereduce: "<<enablereduce<<", ntravszs: "<<ntravszs<<endl;
+		// continue; // CRITICAL REMOVEME.
+		// if(iterationidx > 7){ cout<<"actssync::: STOPPPPING....."<<endl; exit(EXIT_SUCCESS); }
 		
 		#ifdef SUP1
 		if(iterationidx > 0){ pp1en_spreadvdata = ON; pp1en_spreadvmask = ON; pp1en_spreadandwrite = ON; } 

@@ -24,7 +24,7 @@ REDUCE_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned i
 	return temp;
 }
 
-void 
+/** void 
 	#ifdef SW 
 	reduceupdates::
 	#endif
@@ -50,26 +50,137 @@ REDUCE_reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOC
 	vertex_t rowindex = loc / 2;
 	vertex_t colindex = loc % 2;
 	
-	keyvalue_t myvprop;
-	if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ myvprop = acts_utilobj->UTIL_GETKV2(destbuffer[destoffset + rowindex]); }
+	keyvalue_t curr_vprop;
+	if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ curr_vprop = acts_utilobj->UTIL_GETKV2(destbuffer[destoffset + rowindex]); }
 	
 	value_t temp;
-	if(colindex == 0){ temp = myvprop.key; }
-	else { temp = myvprop.value; }
+	if(colindex == 0){ temp = curr_vprop.key; }
+	else { temp = curr_vprop.value; }
 	
-	value_t rettemp = REDUCE_reducefunc(temp, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	value_t new_vprop = REDUCE_reducefunc(temp, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ cout<<"REDUCEFUNC RESULT @ REDUCE_reducevector:: rettemp: "<<rettemp<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
+	if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ cout<<"REDUCEFUNC RESULT @ REDUCE_reducevector:: new_vprop: "<<new_vprop<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
-	if(colindex == 0){ myvprop.key = rettemp; }
-	else { myvprop.value = rettemp; }
+	if(colindex == 0){ curr_vprop.key = new_vprop; }
+	else { curr_vprop.value = new_vprop; }
 	
-	if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(myvprop); }
+	if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1);
 	if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	#endif
+	return;
+} */
+/* void 
+	#ifdef SW 
+	reduceupdates::
+	#endif
+REDUCE_reducevector(keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+	#pragma HLS PIPELINE II=3 // CRITICAL NEWCHANGE.	
+	// #pragma HLS PIPELINE II=2 // CRITICAL NEWCHANGE.	
+	analysis_type analysis_loop1 = VECTOR_SIZE;
+	
+	keyvalue_t mykeyvalue = acts_utilobj->UTIL_GETKV(kvdata);
+	
+	vertex_t loc = mykeyvalue.key - upperlimit;
+	
+	bool en = true; if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ en = true; } else { en = false; }
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(mykeyvalue.key != acts_utilobj->UTIL_GETK(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ cout<<"REDUCE SEEN @ REDUCE_reducevector:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
+	#endif 
+	
+	if(loc >= globalparams.SIZE_REDUCE && mykeyvalue.key != acts_utilobj->UTIL_GETK(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ 
+		#ifdef _DEBUGMODE_CHECKS2
+		actsutilityobj->reducehelper_checkreduceloc(0, loc, mykeyvalue, sweepparams, globalparams); 
+		#endif 
+		loc = 0; }
+
+	vertex_t rowindex = loc / 2;
+	vertex_t colindex = loc % 2;
+	
+	keyvalue_t curr_vprop;
+	if(en == true){ curr_vprop = acts_utilobj->UTIL_GETKV2(destbuffer[destoffset + rowindex]); }
+	
+	value_t temp;
+	if(colindex == 0){ temp = curr_vprop.key; }
+	else { temp = curr_vprop.value; }
+	
+	value_t new_vprop = REDUCE_reducefunc(temp, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(en == true){ cout<<"REDUCEFUNC RESULT @ REDUCE_reducevector:: new_vprop: "<<new_vprop<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
+	#endif 
+	
+	if(colindex == 0){ curr_vprop.key = new_vprop; }
+	else { curr_vprop.value = new_vprop; }
+	
+	if(en == true){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
+	
+	#ifdef _DEBUGMODE_STATS
+	actsutilityobj->globalstats_countkvsreduced(1);
+	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	#endif
+	return;
+} */
+
+void 
+	#ifdef SW 
+	reduceupdates::
+	#endif
+REDUCE_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+	#pragma HLS PIPELINE II=3
+	analysis_type analysis_loop1 = VECTOR_SIZE;
+	
+	keyvalue_t mykeyvalue = acts_utilobj->UTIL_GETKV(kvdata);
+	
+	#ifdef CONFIG_SPLIT_DESTVTXS
+	// vertex_t loc = ((mykeyvalue.key - upperlimit) - col) / NUM_PARTITIONS;
+	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
+	#else 
+	vertex_t loc = mykeyvalue.key - upperlimit;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"REDUCE_reducevector:: col: "<<col<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<endl;
+	#endif 
+	
+	bool en = true; if(mykeyvalue.key != acts_utilobj->UTIL_GETV(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ en = true; } else { en = false; }
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(mykeyvalue.key != acts_utilobj->UTIL_GETK(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ cout<<"REDUCE SEEN @ REDUCE_reducevector:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
+	#endif 
+	
+	if(loc >= globalparams.SIZE_REDUCE && mykeyvalue.key != acts_utilobj->UTIL_GETK(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ 
+		if(true){ cout<<"REDUCE_reducevector::ERROR SEEN: loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+		#ifdef _DEBUGMODE_CHECKS2
+		actsutilityobj->reducehelper_checkreduceloc(0, loc, mykeyvalue, sweepparams, globalparams); 
+		#endif 
+		loc = 0; }
+
+	vertex_t rowindex = loc / 2;
+	vertex_t colindex = loc % 2;
+	
+	keyvalue_t curr_vprop;
+	if(en == true){ curr_vprop = acts_utilobj->UTIL_GETKV2(destbuffer[destoffset + rowindex]); }
+	
+	value_t temp;
+	if(colindex == 0){ temp = curr_vprop.key; }
+	else { temp = curr_vprop.value; }
+	
+	value_t new_vprop = REDUCE_reducefunc(temp, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(en == true){ cout<<"REDUCEFUNC RESULT @ REDUCE_reducevector:: new_vprop: "<<new_vprop<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
+	#endif 
+	
+	if(colindex == 0){ curr_vprop.key = new_vprop; }
+	else { curr_vprop.value = new_vprop; }
+	
+	if(en == true){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
+	
+	#ifdef _DEBUGMODE_STATS
+	actsutilityobj->globalstats_countkvsreduced(1);
+	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
 	#endif
 	return;
 }
@@ -99,7 +210,7 @@ REDUCE_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][D
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
-	#endif 
+	#endif
 
 	unsigned int tmplloprange = 0;
 	#if REDUCEBUFFERFACTOR==8
@@ -127,9 +238,15 @@ REDUCE_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][D
 				kvdata{{p}} = buffer[v][bramoffset_kvs[{{p}}] + i]; 	
 				{%endfor%}	
 
+				#ifdef CONFIG_SPLIT_DESTVTXS
 				{%for p in context['8_seq']%}
-				if(i< size_kvs[{{p}}]){ REDUCE_reducevector(kvdata{{p}}, vbuffer[it+{{p}}], 0, upperlimits[{{p}}], sweepparams, globalparams); }
+				if(i< size_kvs[{{p}}]){ REDUCE_reducevector(it+{{p}}, kvdata{{p}}, vbuffer[it+{{p}}], 0, sweepparams.upperlimit, sweepparams, globalparams); }
 				{%endfor%}
+				#else 
+				{%for p in context['8_seq']%}
+				if(i< size_kvs[{{p}}]){ REDUCE_reducevector(it+{{p}}, kvdata{{p}}, vbuffer[it+{{p}}], 0, upperlimits[{{p}}], sweepparams, globalparams); }
+				{%endfor%}
+				#endif 
 			}
 		}
 	}
@@ -159,11 +276,12 @@ REDUCE_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][D
 			{%endfor%}	
 
 			{%for p in context['BRAMwidth_seq']%}
-			if(i< size_kvs[{{p}}]){ REDUCE_reducevector(kvdata{{p}}, vbuffer[{{p}}], 0, upperlimits[{{p}}], sweepparams, globalparams); }
+			if(i< size_kvs[{{p}}]){ REDUCE_reducevector(it+{{p}}, kvdata{{p}}, vbuffer[{{p}}], 0, upperlimits[{{p}}], sweepparams, globalparams); }
 			{%endfor%}
 		}
 	}
 	#endif 
+	// exit(EXIT_SUCCESS); ////
 	return;
 }
 
@@ -195,7 +313,7 @@ REDUCE_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SI
 			cout<<"priorreduceandbuffer: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
 			#endif 
 			
-			if(p < VDATA_PACKINGSIZE){ REDUCE_reducevector(kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); } // REMOVEME.
+			if(p < VDATA_PACKINGSIZE){ REDUCE_reducevector(p, kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); } // REMOVEME.
 		}
 	}
 	return;
@@ -252,10 +370,10 @@ REDUCE_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffe
 				if(localpos % 2 == 0){ temp = vdata.data[localcol].key; }
 				else { temp = vdata.data[localcol].value; }
 				
-				value_t rettemp = REDUCE_reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+				value_t new_vprop = REDUCE_reducefunc(temp, kv2.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 				
-				if(localpos % 2 == 0){ vdata.data[localcol].key = rettemp; }
-				else { vdata.data[localcol].value = rettemp; }
+				if(localpos % 2 == 0){ vdata.data[localcol].key = new_vprop; }
+				else { vdata.data[localcol].value = new_vprop; }
 				
 				#ifdef _WIDEWORD
 				{%for v in context['VECTOR_SIZE_seq']%}
@@ -269,7 +387,7 @@ REDUCE_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffe
 				{%endfor%}
 				#endif
 				
-				partition_type p = acts_utilobj->UTIL_getpartition(ON, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
+				partition_type p = acts_utilobj->UTIL_getpartition(ON, REDUCEMODE, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
 				globalstatsbuffer[p].value += 1;
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3

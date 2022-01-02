@@ -1811,7 +1811,7 @@ SYNC_readandsynchronize3(bool_type enable1, bool_type enable2, unsigned int nk, 
 		mykeyvalue27.value = kvdram2[dramoffset_kvs + i].data[7].value; 
 		#endif
 		
-		if(i%CONFIGSPLITDESTVTXS_NUMWs>=0 && i%CONFIGSPLITDESTVTXS_NUMWs<NUMCOMPUTEUNITS_SLR1AND2){ // CRITICAL AUTOMATEME.
+		if(i%NUM_PEs>=0 && i%NUM_PEs<NUMCOMPUTEUNITS_SLR1AND2){ // CRITICAL AUTOMATEME.
 			res[0][i] = SYNC_GETKV2(mykeyvalue00);
 			res[1][i] = SYNC_GETKV2(mykeyvalue01);
 			res[2][i] = SYNC_GETKV2(mykeyvalue02);
@@ -1820,7 +1820,7 @@ SYNC_readandsynchronize3(bool_type enable1, bool_type enable2, unsigned int nk, 
 			res[5][i] = SYNC_GETKV2(mykeyvalue05);
 			res[6][i] = SYNC_GETKV2(mykeyvalue06);
 			res[7][i] = SYNC_GETKV2(mykeyvalue07);
-		} else if(i%CONFIGSPLITDESTVTXS_NUMWs>=NUMCOMPUTEUNITS_SLR1AND2 && i%CONFIGSPLITDESTVTXS_NUMWs<NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2){
+		} else if(i%NUM_PEs>=NUMCOMPUTEUNITS_SLR1AND2 && i%NUM_PEs<NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2){
 			res[0][i] = SYNC_GETKV2(mykeyvalue10);
 			res[1][i] = SYNC_GETKV2(mykeyvalue11);
 			res[2][i] = SYNC_GETKV2(mykeyvalue12);
@@ -1829,7 +1829,7 @@ SYNC_readandsynchronize3(bool_type enable1, bool_type enable2, unsigned int nk, 
 			res[5][i] = SYNC_GETKV2(mykeyvalue15);
 			res[6][i] = SYNC_GETKV2(mykeyvalue16);
 			res[7][i] = SYNC_GETKV2(mykeyvalue17);
-		} else if(i%CONFIGSPLITDESTVTXS_NUMWs>=NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2 && i%CONFIGSPLITDESTVTXS_NUMWs<NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR0){
+		} else if(i%NUM_PEs>=NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2 && i%NUM_PEs<NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR1AND2+NUMCOMPUTEUNITS_SLR0){
 			res[0][i] = SYNC_GETKV2(mykeyvalue20);
 			res[1][i] = SYNC_GETKV2(mykeyvalue21);
 			res[2][i] = SYNC_GETKV2(mykeyvalue22);

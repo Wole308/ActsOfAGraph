@@ -39,7 +39,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	analysis_type analysis_loop1 = SUBPMASKFACTOR;
 	analysis_type analysis_loop2 = 16384 / SUBPMASKFACTOR;
 	
-	value_t E[2][VECTOR2_SIZE];
+	value_t E[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete
 	bool_type en = ON;
 	bool_type ens[VECTOR2_SIZE];
@@ -70,6 +70,8 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	fetchmessage.chunksize_kvs = edgessize_kvs;
 	fetchmessage.nextoffset_kvs = -1;
 	buffer_type loadcount = 0;
+	buffer_type activeloadcount = 0;
+	buffer_type inactiveloadcount = 0;
 	
 	unsigned int found = 0;
 	unsigned int found1 = 0;
@@ -77,49 +79,71 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	int subpidx = -1;
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	
+	// cout<<"----------------------------------------- readandprocess: chunk_size: "<<chunk_size<<endl;
+	/* cout<<">>> readandprocess: size_kvs: "<<size_kvs<<endl;
+	cout<<">>> readandprocess: edgessize_kvs: "<<edgessize_kvs<<endl;
+	cout<<">>> readandprocess: travstate.begin_kvs: "<<travstate.begin_kvs<<endl;
+	cout<<">>> readandprocess: travstate.size_kvs: "<<travstate.size_kvs<<endl;
+	cout<<">>> readandprocess: travstate.end_kvs: "<<travstate.end_kvs<<endl;
+	cout<<">>> readandprocess: travstate.skip_kvs: "<<travstate.skip_kvs<<endl;
+	cout<<">>> readandprocess: travstate.i_kvs: "<<travstate.i_kvs<<endl; */
+	// travstate_t etravstate;
+	// etravstate.begin_kvs = localbeginvptr_kvs;
+	// etravstate.size_kvs = numedges_kvs;
+	// etravstate.end_kvs = etravstate.begin_kvs + etravstate.size_kvs;
+	// etravstate.skip_kvs = SRCBUFFER_SIZE;
+	// etravstate.i_kvs = etravstate.begin_kvs;
+	
 	buffer_type chunk_size = acts_utilobj->UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
+	// cout<<"----------------------------------------- readandprocess: chunk_size: "<<chunk_size<<", INVALIDDATA: "<<INVALIDDATA<<endl;
 	READANDPROCESS_LOOP1: for (buffer_type i=0; i<chunk_size; i++){
+	// cout<<"--- readandprocess: i: "<<i<<endl;
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 	#pragma HLS PIPELINE II=1
 
 		#ifdef _WIDEWORD
 		{%for v in context['VECTOR_SIZE_seq']%}
-		E[0][{{2*v}}] = edges[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-		E[0][{{2*v+1}}] = edges[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		E[{{2*v}}] = edges[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		E[{{2*v+1}}] = edges[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		E[0][{{2*v}}] = edges[offset_kvs + i].data[{{v}}].key; 
-		E[0][{{2*v+1}}] = edges[offset_kvs + i].data[{{v}}].value; 
+		E[{{2*v}}] = edges[offset_kvs + i].data[{{v}}].key; 
+		E[{{2*v+1}}] = edges[offset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
 		#endif
+		/* // #ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+		// {%for v in context['VECTOR_SIZE _seq']%}
+		// cout<<"readandprocess: E["<<v<<"]: "<<E[v]<<endl;
+		// {%endfor%}	
+		cout<<"readandprocess: i: "<<i<<endl;
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<E[v]<<", "; }
+		cout<<endl;
+		// #endif  */
 		
-		vertex_t srcvid_head = E[0][0];
+		vertex_t srcvid_head = E[0];
 		vertex_t lvid_head = srcvid_head - travstate.i2;
 		
 		bool_type en = ON;
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		bool_type ens{{v}} = ON; if(E[0][{{v}}] == INVALIDDATA || E[0][{{v}}] >= validbound){ ens{{v}} = OFF; }
-		{%endfor%}
-		if(lvid_head >= validbound){ {%for v in context['VECTOR2_SIZE_seq']%} ens{{v}} = OFF; {%endfor%} lvid_head = 0; } // CRITICAL NEWCHANGE WITH SLICED.
-		
-		// vertex_t srcvid_head = E[0][0];
-		// vertex_t lvid_head = srcvid_head - travstate.i2;
+		// if(lvid_head >= validbound){ {%for v in context['VECTOR2_SIZE_seq']%} ens{{v}} = OFF; {%endfor%} lvid_head = 0; } // CRITICAL NEWCHANGE WITH SLICED.
 		// if(lvid_head >= validbound){ lvid_head = 0; } // CRITICAL REMOVEME.
-			#ifdef _DEBUGMODE_CHECKS2
+			#ifdef _DEBUGMODE_CHECKS // FIXME.
 			if(srcvid_head < travstate.i2){ cout<<"readandprocess: INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<" offset_kvs: "<<offset_kvs<<". exiting..."<<endl;					 
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E["<<v<<"]: "<<E[v]<<endl; }
 				exit(EXIT_FAILURE); }
 			if(lvid_head >= (reducebuffersz*FETFACTOR*VECTOR2_SIZE)){ cout<<"readandprocess: INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), lvid_head: "<<lvid_head<<", reducebuffersz*FETFACTOR*VECTOR2_SIZE: "<<reducebuffersz*FETFACTOR*VECTOR2_SIZE<<". exiting..."<<endl;					 
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E[0]["<<v<<"]: "<<E[0][v]<<endl; }
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess: E["<<v<<"]: "<<E[v]<<endl; }
 				exit(EXIT_FAILURE); }
 			actsutilityobj->checkoutofbounds("readandprocess.1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, i);
 			#endif
 		
 		{%for r in context['8_seq']%} // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
 		udatas[{{r}}] = acts_utilobj->UTIL_GETVTXDATA(vbuffer, lvid_head + {{r}}, globalparams);
-		masks[{{r}}] = acts_utilobj->UTIL_GETVTXMASK(vmask, lvid_head + {{r}}, globalparams); 
 		{%endfor%}
+		{%for r in context['8_seq']%}
+		masks[{{r}}] = acts_utilobj->UTIL_GETVTXMASK(vmask, lvid_head + {{r}}, globalparams);
+		{%endfor%}
+		if(GraphAlgo == PAGERANK){ {%for r in context['8_seq']%} masks[{{r}}] = 1; {%endfor%} }
 			#ifdef _DEBUGMODE_CHECKS
 			{%for r in context['8_seq']%}
 			if(masks[{{r}}] > 2){ cout<<"ERROR @ readandprocess.masks[{{r}}].1. masks[{{r}}]: "<<masks[{{r}}]<<endl; for(unsigned int n=0; n<8; n++){ cout<<">>> readandprocess.mask: masks["<<n<<"]: "<<masks[n]<<", lvid + {{r}}: "<<lvid + {{r}}<<endl; } exit(EXIT_FAILURE); }
@@ -127,9 +151,12 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			#endif
 		
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		unsigned int incr{{v}} = acts_utilobj->UTIL_READFROM_UINT(E[0][{{v}}], 28, 4);
+		unsigned int incr{{v}} = acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 28, 4);
 		unsigned int lsrcvids{{v}} = lvid_head + incr{{v}};
-		unsigned int ldstvids{{v}} = acts_utilobj->UTIL_READFROM_UINT(E[0][{{v}}], 0, 28);
+		unsigned int ldstvids{{v}} = acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 0, 28);
+		{%endfor%}
+		{%for v in context['VECTOR2_SIZE_seq']%}	
+		bool_type ens{{v}} = ON; if(E[{{v}}] == INVALIDDATA || lsrcvids{{v}} >= validbound){ ens{{v}} = OFF; }
 		{%endfor%}
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR2_SIZE_seq']%}
@@ -140,46 +167,65 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		unsigned int mask{{v}}; // OPTIMIZEME. bittype_t
 		{%endfor%}
-		if(GraphAlgo == PAGERANK){ {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = 1; {%endfor%} mask0 = 0; } 
-		else { {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = masks[incr{{v}}]; {%endfor%} mask0 = 0; }
+		if(GraphAlgo == PAGERANK){ {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = 1; {%endfor%} mask0 = 0; ens0 = OFF; } 
+		else { {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = masks[incr{{v}}]; {%endfor%} mask0 = 0; ens0 = OFF; }
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR2_SIZE_seq']%}
 			if(ens{{v}} == ON && mask{{v}} > 2){ 
 				cout<<"ERROR @ readandprocess.mask{{v}}.2. mask{{v}}: "<<mask{{v}}<<", incr{{v}}: "<<incr{{v}}<<endl; 
 				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess.mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess.mask: E[0]["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[0][n], 0, 28)<<", E[0]["<<n<<"].incr: "<<acts_utilobj->UTIL_READFROM_UINT(E[0][{{v}}], 28, 4)<<endl; } 
+				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess.mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", E["<<n<<"].incr: "<<acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 28, 4)<<endl; } 
 				exit(EXIT_FAILURE); 
 			}
 			{%endfor%}
 			#endif
 		
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		if(mask{{v}}==1){cout<<"--- i: "<<i<<", mask{{v}}: "<<mask{{v}}<<endl;}
-		{%endfor%}
-		
-		{%for v in context['VECTOR2_SIZE_seq']%}
 		value_t res{{v}} = PROCESS_processfunc(udatas[incr{{v}}], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
 		{%endfor%}
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		keyvalue_t mykeyvalue{{v}}; if(ens{{v}} == ON && mask{{v}} == 1){ mykeyvalue{{v}}.key = ldstvids{{v}}; mykeyvalue{{v}}.value = res{{v}}; } else { mykeyvalue{{v}}.key = INVALIDDATA; mykeyvalue{{v}}.value = INVALIDDATA;  }
+		{%endfor%}
+		mykeyvalue0.key = INVALIDDATA;
+		mykeyvalue0.value = INVALIDDATA;
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			{%for v in context['VECTOR2_SIZE_seq']%}
 			if(ens{{v}} == ON && mask{{v}} == 1){ cout<<"readandprocess: [lsrcvids{{v}}: "<<lsrcvids{{v}}<<", ldstvids{{v}}: "<<ldstvids{{v}}<<", udata: "<<udatas[incr{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
 			{%endfor%}
 			#endif
 		
+		/* ////////////////////////////////
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{v}}; if(ens{{v}} == ON && mask{{v}} == 1){ mykeyvalue{{v}}.key = ldstvids{{v}}; mykeyvalue{{v}}.value = res{{v}}; } else { mykeyvalue{{v}}.key = INVALIDDATA; mykeyvalue{{v}}.value = INVALIDDATA;  }
+		cout<<"["<<mykeyvalue{{v}}.key<<", "<<mykeyvalue{{v}}.value<<"], ";
 		{%endfor%}
-		mykeyvalue0.key = INVALIDDATA;
-		mykeyvalue0.value = INVALIDDATA;
-		
+		cout<<endl;
 		{%for v in context['VECTOR2_SIZE_seq']%}
+		cout<<""<<ens{{v}}<<", ";
+		{%endfor%}
+		cout<<endl;
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		cout<<""<<mask{{v}}<<", ";
+		{%endfor%}
+		cout<<endl;
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		cout<<""<<lsrcvids{{v}}<<", ";
+		{%endfor%}
+		cout<<endl;
+		cout<<endl;
+		////////////////////// */
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
 		buffer[{{v}}][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue{{v}});
 		{%endfor%}
-		if(
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		{%if(v>0)%}||{%endif%}(ens{{v}} == ON && mask{{v}} == 1)
-		{%endfor%} )
-		{ loadcount += 2; } // mask0? FIXME. CRITICAL OPTIMIZEME
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer[{{v}}][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue{{8+v}});
+		{%endfor%}
+		if(ens1 == ON && mask1 == 1){ loadcount += 2; } 
+			#ifdef _DEBUGMODE_CHECKS3
+			{%for v in context['VECTOR2_SIZE_seq']%}
+			if(mykeyvalue{{v}}.key == INVALIDDATA || mykeyvalue{{v}}.value == INVALIDDATA){ inactiveloadcount += 1; } else { activeloadcount += 1; } 
+			{%endfor%}
+			#endif 
 		
 			#ifdef _DEBUGMODE_STATS
 			{%for v in context['VECTOR2_SIZE_seq']%}
@@ -188,6 +234,8 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			{%endfor%}
 			#endif 
 	}
+	// cout<<">>> readandprocess: loadcount: "<<loadcount<<", activeloadcount: "<<activeloadcount<<", inactiveloadcount: "<<inactiveloadcount<<endl;
+	// exit(EXIT_SUCCESS); ///
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
 }

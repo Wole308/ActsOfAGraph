@@ -11,7 +11,7 @@
 // #define ACTS_1by2by1byN
 #define ACTS_1by1by1byN // (everything merged in one compute unit)
 
-// #define ENABLE_PERFECTACCURACY //
+#define ENABLE_PERFECTACCURACY //
 // #define ENABLE_VOICEOUTREDUCEERRORS //
 // #define ENABLE_VOICEOUTKERNELERRORS //
 // #define ENABLE_VOICEOUTPROCESSEDGESERRORS //
@@ -38,7 +38,7 @@
 // #define CONFIG_UNIFIED_VDRAM //
 // #define CONFIG_UNIFIED_SRCVDRAM
 // #define CONFIG_UNIFIED_DESTVDRAM
-#define CONFIG_SPLIT_DESTVTXS
+#define CONFIG_SPLIT_DESTVTXS // {reduceupdates.cpp, }
 
 #endif
 

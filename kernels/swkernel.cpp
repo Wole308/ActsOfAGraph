@@ -13,8 +13,9 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 	#ifdef SW
 	// for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(); }
 	// for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new actsproc(); }
-	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new top_nonunifiedvts(); }
+	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new top_nusrcv_nudstv(); }
 	kernelobjs_synchronize = new actssync();
+	kernelobjs_merge = new acts_merge();
 	kernelobjs_synchronize_slicedgraph = new actssync_slicedgraph();
 	// kernelobjs = new acts();
 	#endif
@@ -54,18 +55,21 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	uint512_vec_dt * vdramA; // NEWCHANGE.
 	uint512_vec_dt * vdramB; 
 	uint512_vec_dt * vdramC; 
+	uint512_vec_dt * vdramD; 
 	#ifndef SW_IMPL 
 	#ifdef FPGA_IMPL			
 	vdramA = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
 	vdramB = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
 	vdramC = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
+	vdramD = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
 	#else
 	vdramA = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	vdramB = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	vdramC = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+	vdramD = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	#endif
 	#endif 
-	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; }
+	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; vdramD[i] = vdram[i]; }
 	
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){ // numIters // CRITICAL REMOVEME.
 		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<", numIters: "<<numIters<<endl;
@@ -102,16 +106,27 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			#else 
 			NOT DEFINED.
 			#endif
+			
+			kernelobjs_merge->MERGE_syncVsAcrossSLRs((uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdramA);
+			
+			//////////////////////////////////////////////// FIXME.
+			unsigned int _SIZE_SRCVERTICESDATA_D = vdramB[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_SRCVERTICESDATA].data[0].key;
+			unsigned int _BASEOFFSETKVS_DESTVERTICESDATA_D = vdramB[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
+			for(unsigned int k=0; k<PADDEDKVSOURCEDRAMSZ_KVS; k++){ 
+				vdramB[k] = vdramD[k];
+				vdramC[k] = vdramD[k];
+			}
+			kernelobjs_synchronize->topkernelsync((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);
+			////////////////////////////////////////////////
 
 			// kernelobjs_synchronize->topkernelsync
-			kernelobjs_synchronize_slicedgraph->topkernelsync
+			/* kernelobjs_synchronize_slicedgraph->topkernelsync
 			(
 				(uint512_dt *)vdramA,
 				(uint512_dt *)vdramB,
 				(uint512_dt *)vdramC,
 				(uint512_dt *)vdram
-			);
-			
+			); */
 			/* #ifdef CONFIG_UNIFIED_VDRAM
 			kernelobjs_synchronize->topkernelsync(
 				(uint512_dt *)vdramA,

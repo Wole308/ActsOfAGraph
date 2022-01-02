@@ -104,6 +104,8 @@ public:
 	
 	void MEMACCESS_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset);
 	
+	void MEMACCESS_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size);
+	
 private:
 	#ifdef SW
 	actsutility * actsutilityobj;

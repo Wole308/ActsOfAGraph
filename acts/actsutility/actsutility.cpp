@@ -38,7 +38,7 @@ actsutility::actsutility(){
 }
 actsutility::~actsutility(){}
 
-#ifndef FPGA_IMPL
+#ifdef SW
 void actsutility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
 }
@@ -1491,11 +1491,12 @@ void actsutility::reducehelper_checkreduceloc(unsigned int i, unsigned int loc, 
 	
 	#ifdef ENABLE_PERFECTACCURACY
 	if(globalstats_getcounterrorsinreduce() > 0){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-	#endif 
+	#endif
 	
-	// #ifdef ENABLE_PERFECTACCURACY
-	// if(globalstats_getcounterrorsinreduce() > 128){ cout<<"too many ("<<globalstats_getcounterrorsinreduce()<<") reduce errors. EXITING"<<endl; exit(EXIT_FAILURE); } // REMOVEME. // FIXME. ENSURE PERFECTION.
-	// #endif 
+	// if(globalstats_getcounterrorsinreduce() > 1024){ 
+		// cout<<"ERROR SEEN @ reduce:: i: "<<i<<", loc: "<<loc<<", keyvalue.key: "<<keyvalue.key<<", keyvalue.value: "<<keyvalue.value<<", upperlimit: "<<sweepparams.upperlimit<<", APPLYVERTEXBUFFERSZ: "<<globalparams.SIZE_REDUCE<<endl; 
+		// exit(EXIT_FAILURE); 
+	// } 
 	
 	#ifdef _DEBUGMODE_CHECKS2 // REMOVEME.
 	if(globalstats_getcounterrorsinreduce() > (40000 * NUMSUBCPUTHREADS)){ 

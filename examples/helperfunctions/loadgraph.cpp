@@ -51,14 +51,17 @@ unsigned int loadgraph::getglobalpartition(keyvalue_t keyvalue, vertex_t upperli
 }
 
 globalparams_t loadgraph::loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer, vertex_t kvbufferoffset, vertex_t size, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest){
-	#ifdef _DEBUGMODE_HOSTPRINTS2
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadgraph::loadvertexdata:: loading vertex datas... kvbufferoffset: "<<kvbufferoffset<<", size: "<<size<<endl;
 	#endif
 	#ifdef _DEBUGMODE_CHECKS3
 	utilityobj->checkoutofbounds("loadvertexdata.BASEOFFSETKVS_DESTVERTICESDATA", globalparams.BASEOFFSETKVS_DESTVERTICESDATA, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
 	#endif
 	
-	memcpy(&kvbuffer[kvbufferoffset], &vertexdatabuffer[0], size * sizeof(value_t));
+	value_t * KV = (value_t *)&kvbuffer[kvbufferoffset];
+	for(unsigned int k=0; k<size; k++){
+		KV[k] = algorithmobj->vertex_initdata(); 
+	} 
 	return globalparams;
 }
 

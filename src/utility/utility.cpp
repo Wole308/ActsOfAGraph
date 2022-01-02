@@ -567,8 +567,11 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 			skipspacing[p] = skipspacing[p] * 2;
 		#else 
 			#ifdef ALLVERTEXISACTIVE_ALGORITHM
-			skipspacing[p] = 0; // skipspacing[p] * 2; // CRITICAL FIXME.
-			// skipspacing[p] = skipspacing[p] * 2; // CRITICAL FIXME.
+				#ifdef CONFIG_SPLIT_DESTVTXS
+				skipspacing[p] = skipspacing[p] * 2; // FIXME.
+				#else 
+				skipspacing[p] = 0;	
+				#endif 
 			#else 
 			skipspacing[p] = 0; // CRITICAL FIXME
 			#endif 

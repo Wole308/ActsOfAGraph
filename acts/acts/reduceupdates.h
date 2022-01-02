@@ -35,7 +35,7 @@ public:
 	// functions (reduce)
 	value_t REDUCE_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	
-	void REDUCE_reducevector(keyvalue_buffer_t kvdata, 
+	void REDUCE_reducevector(unsigned int col, keyvalue_buffer_t kvdata, 
 			keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], 
 			buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams);
 
