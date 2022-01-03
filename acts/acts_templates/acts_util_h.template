@@ -55,7 +55,7 @@ public:
 	value_t UTIL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
 	value_t UTIL_GETVTXMASK(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
 	value_t UTIL_GETVTXMASK_SUBP(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
-	keyvalue1_type UTIL_GETVTXMASK_SUBPP(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
+	uint32_type UTIL_CONVERTVMASKTOUINT32(unit1width_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int index);
 	
 	// functions (actsproc utilities)
 	batch_type UTIL_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
@@ -77,6 +77,7 @@ public:
 	void UTIL_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval);
 	void UTIL_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void UTIL_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams);
+	void UTIL_reset(unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]);
 	void UTIL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 	void UTIL_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);
 	void UTIL_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);

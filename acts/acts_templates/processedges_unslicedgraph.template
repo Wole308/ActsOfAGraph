@@ -2,7 +2,11 @@
 using namespace std;
 
 #ifdef SW
-processedges_unslicedgraph::processedges_unslicedgraph(){ actsutilityobj = new actsutility(); acts_utilobj = new acts_util(); }
+processedges_unslicedgraph::processedges_unslicedgraph(){ 
+	actsutilityobj = new actsutility(); 
+	acts_utilobj = new acts_util();
+	mem_accessobj = new mem_access();
+}
 processedges_unslicedgraph::~processedges_unslicedgraph(){}
 #endif
 
@@ -186,8 +190,6 @@ PROCESSU_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdra
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
 }
-
-
 
 
 

@@ -304,6 +304,57 @@ MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 	return;
 }
 
+////////////////////////
+#ifdef KKKKKKKKKKKKKKKKKK
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_readvdata_slicedgraph(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
+		
+	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keyvalue_t mykeyvalue{{v}};
+		{%endfor%}
+		
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue{{v}}.key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		mykeyvalue{{v}}.value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue{{v}}.key = kvdram[dramoffset_kvs + i].data[{{v}}].key; 
+		mykeyvalue{{v}}.value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
+		{%endfor%}
+		#endif 
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		buffer[begincol + {{v}}][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue{{v}});
+		{%endfor%}
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }				
+	#endif
+	return;
+}
+
+
+#endif 
+//////////////////////
+
 void
 	#ifdef SW 
 	mem_access::
@@ -374,6 +425,63 @@ MEMACCESS_loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type v
 		
 		vmask[i] = tempvmask;	
 	}
+	return;
+}
+
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1width_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vmask_offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MEMACCESS_savemasks:: saving vmask saved: vmask_offset_kvs: "<<vmask_offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
+	#endif
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type cummvmask_sp = 0;
+	
+	for(buffer_type k=0; k<globalparams.SIZEKVS_REDUCEPARTITION; k++){
+	#pragma HLS PIPELINE II=1
+		unsigned int X = k % 16;
+		unsigned int Y = k / 16;
+		#ifdef _WIDEWORD
+		{%for v in context['16_seq']%}
+		tempbuffer[X][Y].range({{1 * ((v * 2) + 1) - 1}}, {{(v * 2) * 1}}) = vmask[{{v}}][k].data[0];
+		tempbuffer[X][Y].range({{1 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 1}}) = vmask[{{v}}][k].data[1];
+		{%endfor%}
+		#else
+		{%for v in context['16_seq']%}
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{v*2}}, 1, vmask[{{v}}][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{v*2+1}}, 1, vmask[{{v}}][k].data[1]);
+		{%endfor%}
+		#endif
+		
+		uint32_type mask = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmask, k);
+		cummvmask_sp = cummvmask_sp | mask;
+	}
+	
+	for(buffer_type k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[vmask_offset_kvs + k].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = tempbuffer[{{2*v}}][k];
+		kvdram[vmask_offset_kvs + k].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = tempbuffer[{{2*v+1}}][k];
+		{%endfor%}
+		#else
+		{%for v in context['VECTOR_SIZE_seq']%}
+		kvdram[vmask_offset_kvs + k].data[{{v}}].key = tempbuffer[{{2*v}}][k];
+		kvdram[vmask_offset_kvs + k].data[{{v}}].value = tempbuffer[{{2*v+1}}][k];
+		{%endfor%}
+		#endif
+	}
+	
+	#ifdef _WIDEWORD
+	kvdram[vmaskp_offset_kvs].range(31, 0) = cummvmask_sp;
+	#else
+	kvdram[vmaskp_offset_kvs].data[0].key = cummvmask_sp;
+	#endif
 	return;
 }
 
@@ -1029,4 +1137,19 @@ MEMACCESS_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t g
 		#endif
 	}
 	return;
+}
+
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+	for(unsigned int k=0; k<size; k++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		buffer[k] = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32); 
+		#else
+		buffer[k] = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].data[0].value; 
+		#endif
+	}
 }

@@ -38,8 +38,7 @@ public:
 	acts_merge();
 	~acts_merge();
 	
-	unsigned int MERGE_getchannelvsize_kvs(globalparams_t globalparams);
-	unsigned int MERGE_getchannelnumpartitions(globalparams_t globalparams);
+	unsigned int MERGE_actvpstatsoffset(globalparams_t globalparams);
 	value_t MERGE_applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	uint32_type MERGE_convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index);
 
@@ -72,7 +71,7 @@ public:
 	void MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram);
 	void MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram);
 	
-	void MERGE_syncVsAcrossSLRs(uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdramA);
+	void MERGE_mergeVsAcrossSLRs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC);
 
 private:
 	#ifdef SW

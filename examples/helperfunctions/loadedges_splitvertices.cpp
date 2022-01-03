@@ -34,6 +34,7 @@ using namespace std;
 #define BITMAPCODE_WITHHEADSRCV 0b11000000000000000000000000000000
 
 #define CHECK1_ENSUREALLVERTICESAREREPRESENTED
+#define LOADSLICEDEDGES
 #define CHECK2_ENSUREALLVERTICESAREREPRESENTED
 #define CHECK3_CHECKFORNUMUNIQUESRCVIDSINVECTOR // CRITICAL FIXME.
 #define CHECK4_VERIFYOFFSETS
@@ -209,6 +210,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	// exit(EXIT_SUCCESS); //
 
 	// load edges into memory channels according to edge representation format
+	#ifdef LOADSLICEDEDGES
 	cout<<"### loadedges_splitvertices::loadedges:: loading edges into memory channels according to edge representation format..."<<endl;
 	unsigned int tempe_index = 0; 
 	unsigned int index = 0;
@@ -226,10 +228,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 			edge2_type edge = edgedatabuffers_temp2[i][tempe_index];
 			edge2_type last_edge; if(tempe_index==0){ last_edge = edge; } else { last_edge = edgedatabuffers_temp2[i][tempe_index-1]; }
 			if(debug2==true){ cout<<">>> edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<" [-]"<<endl; }
-			// bool newrow; if(edge.srcvid % VPTR_SHRINK_RATIO == 0){ newrow = true; } else { newrow = false; } // REDUCESZ*VDATA_PACKINGSIZE
-			// bool newrow; if(edge.srcvid % 1000000000 == 0){ newrow = true; } else { newrow = false; } // REDUCESZ*VDATA_PACKINGSIZE
-			// unsigned int newrow; if(edge.srcvid % VPTR_SHRINK_RATIO == 0){ newrow = 1; } else { newrow = 0; } // REDUCESZ*VDATA_PACKINGSIZE
-			
+		
 			if(index%VECTOR2_SIZE == 0){
 				// insert source at head
 				edge3_type edge_temp; edge_temp.srcvid = edge.srcvid; edge_temp.dstvid = edge.srcvid; edge_temp.status = EDGESTATUS_SOURCEV; edge_temp.metadata = 0, edges_temp[i].push_back(edge_temp);
@@ -240,19 +239,11 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 				counts_alledges_for_channel[i][edge_temp.srcvid] += 1;
 				counts_srcvslots_for_channel[i] += 1;
 			} else {
-				unsigned int numuniqsrcvssincehead = 0;
-				for(unsigned int k=allignlower(index, VECTOR2_SIZE); k<index; k++){ if(edges_temp[i][k].srcvid != edges_temp[i][k+1].srcvid){ 
-					if(debug3==true){ cout<<">ccc:: index: "<<index<<", edges_temp["<<i<<"]["<<k<<"].srcvid: "<<edges_temp[i][k].srcvid<<", edges_temp["<<i<<"]["<<k<<"].dstvid: "<<edges_temp[i][k].dstvid<<", numuniqsrcvssincehead: "<<numuniqsrcvssincehead<<endl; }
-					numuniqsrcvssincehead += 1; }} 
-			
-				// if(numuniqsrcvssincehead < MAX_NUM_UNIQ_EDGES_PER_VEC && newrow == false){ // NEWCHANGE.
-				// if(numuniqsrcvssincehead < MAX_NUM_UNIQ_EDGES_PER_VEC && newrow == 0){ // NEWCHANGE.
-				// if(numuniqsrcvssincehead < MAX_NUM_UNIQ_EDGES_PER_VEC & (edge.srcvid % VPTR_SHRINK_RATIO != 0)){ // NEWCHANGE.
-				if(numuniqsrcvssincehead < MAX_NUM_UNIQ_EDGES_PER_VEC){
-				// if((numuniqsrcvssincehead < MAX_NUM_UNIQ_EDGES_PER_VEC-1) || (numuniqsrcvssincehead == MAX_NUM_UNIQ_EDGES_PER_VEC-1 && edges_temp[i][index].srcvid == edge.srcvid)){
+				unsigned int incr = edge.srcvid - edges_temp[i][allignlower(index, VECTOR2_SIZE)].srcvid;
+				if(incr < MAX_NUM_UNIQ_EDGES_PER_VEC){
 					// insert edge
 					edge3_type edge_temp; edge_temp.srcvid = edge.srcvid; edge_temp.dstvid = edge.dstvid; edge_temp.status = EDGESTATUS_VALIDEDGE; edge_temp.metadata = 0, edges_temp[i].push_back(edge_temp);
-					if(debug==true){ cout<<">>> edge_temp.srcvid: "<<edge_temp.srcvid<<", edge_temp.dstvid: "<<edge_temp.dstvid<<", numuniqsrcvssincehead: "<<numuniqsrcvssincehead<<" [3]"<<endl; }
+					if(debug==true){ cout<<">>> edge_temp.srcvid: "<<edge_temp.srcvid<<", edge_temp.dstvid: "<<edge_temp.dstvid<<", incr: "<<incr<<" [3]"<<endl; }
 					srcvid_lastseen = edge_temp.srcvid;
 					tempe_index += 1;
 					index += 1;
@@ -262,7 +253,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 					// fill with dummy edges
 					for(unsigned int k=index; k<allignhigher(index, VECTOR2_SIZE); k++){
 						edge3_type edge_temp; edge_temp.srcvid = srcvid_lastseen; edge_temp.dstvid = INVALIDDATA; edge_temp.status = EDGESTATUS_DUMMYEDGE; edge_temp.metadata = 0, edges_temp[i].push_back(edge_temp);
-						if(debug==true){ cout<<">>> edge_temp.srcvid: "<<edge_temp.srcvid<<", edge_temp.dstvid: "<<edge_temp.dstvid<<", numuniqsrcvssincehead: "<<numuniqsrcvssincehead<<" [4]"<<endl; }
+						if(debug==true){ cout<<">>> edge_temp.srcvid: "<<edge_temp.srcvid<<", edge_temp.dstvid: "<<edge_temp.dstvid<<", incr: "<<incr<<" [4]"<<endl; }
 						index += 1;
 						counts_alledges_for_channel[i][edge_temp.srcvid] += 1;
 						counts_dummyedgeslots_for_channel[i] += 1;
@@ -279,7 +270,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	}
 	utilityobj->printvalues(">>> loadedges_splitvertices:[insert.edges] total number of edges in channels[0-N]", (value_t *)&counts_alldatas[0], NUM_PEs);
 	cout<<">>> loadedges_splitvertices::[insert.edges] total number of edges in all memory channels: counts_alldata: "<<counts_alldata<<", NAp: "<<NAp<<endl;
-	// exit(EXIT_SUCCESS); //
+	#endif 
 	
 	// CHECK 2: ensure all vertices are represented
 	#ifdef CHECK2_ENSUREALLVERTICESAREREPRESENTED
@@ -302,7 +293,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	cout<<"### loadedges_splitvertices::check2:: CHECK 2: ERROR CHECKING SUCCESSFUL."<<endl;
 	#endif 
 	
-	// CHECK 3: check to make sure no vector has more than 4 distinct srcvids
+	// CHECK 3: check to make sure no vector has more than MAX_NUM_UNIQ_EDGES_PER_VEC distinct srcvids
 	#ifdef CHECK3_CHECKFORNUMUNIQUESRCVIDSINVECTOR
 	edge3_type temp[VECTOR2_SIZE];
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -318,7 +309,7 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 			}
 			for(unsigned int v=1; v<v_cnt; v++){
 				if(temp[v].srcvid != temp[v-1].srcvid){ num_uniq_scrvids += 1; }
-				if(num_uniq_scrvids > MAX_NUM_UNIQ_EDGES_PER_VEC){
+				if(num_uniq_scrvids >= MAX_NUM_UNIQ_EDGES_PER_VEC){ // NEWCHANGE.
 					cout<<"### loadedges_splitvertices::check3:: CHECK 3: ERROR CHECKING FAILED: num_uniq_scrvids("<<num_uniq_scrvids<<") > MAX_NUM_UNIQ_EDGES_PER_VEC("<<MAX_NUM_UNIQ_EDGES_PER_VEC<<"). index:"<<j+v<<", i: "<<i<<". EXITING..."<<endl;
 					for(unsigned int v=0; v<VECTOR2_SIZE; v++){
 						cout<<""<<v<<": edges_temp["<<i<<"]["<<j+v<<"].srcvid: "<<edges_temp[i][j+v].srcvid<<", edges_temp["<<i<<"]["<<j+v<<"].dstvid: "<<edges_temp[i][j+v].dstvid<<", edges_temp["<<i<<"]["<<j+v<<"].status: "<<edges_temp[i][j+v].status<<", edges_temp["<<i<<"]["<<j+v<<"].metadata: "<<edges_temp[i][j+v].metadata<<endl;						
@@ -480,7 +471,6 @@ globalparams_TWOt loadedges_splitvertices::loadedges(unsigned int col, graph * g
 	for(unsigned int i=0; i<NUM_PEs; i++){ edgedatabuffers_temp[i].clear(); }
 	for(unsigned int i=0; i<NUM_PEs; i++){ edgedatabuffers_temp2[i].clear(); }
 	for(unsigned int i=0; i<NUM_PEs; i++){ delete tempvptrs[i]; }
-	
 	return globalparams;
 }
 

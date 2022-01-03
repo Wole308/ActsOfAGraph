@@ -493,6 +493,91 @@ MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 	return;
 }
 
+////////////////////////
+#ifdef KKKKKKKKKKKKKKKKKK
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_readvdata_slicedgraph(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
+		
+	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		keyvalue_t mykeyvalue0;
+		keyvalue_t mykeyvalue1;
+		keyvalue_t mykeyvalue2;
+		keyvalue_t mykeyvalue3;
+		keyvalue_t mykeyvalue4;
+		keyvalue_t mykeyvalue5;
+		keyvalue_t mykeyvalue6;
+		keyvalue_t mykeyvalue7;
+		
+		#ifdef _WIDEWORD
+		mykeyvalue0.key = kvdram[dramoffset_kvs + i].range(31, 0); 
+		mykeyvalue0.value = kvdram[dramoffset_kvs + i].range(63, 32); 
+		mykeyvalue1.key = kvdram[dramoffset_kvs + i].range(95, 64); 
+		mykeyvalue1.value = kvdram[dramoffset_kvs + i].range(127, 96); 
+		mykeyvalue2.key = kvdram[dramoffset_kvs + i].range(159, 128); 
+		mykeyvalue2.value = kvdram[dramoffset_kvs + i].range(191, 160); 
+		mykeyvalue3.key = kvdram[dramoffset_kvs + i].range(223, 192); 
+		mykeyvalue3.value = kvdram[dramoffset_kvs + i].range(255, 224); 
+		mykeyvalue4.key = kvdram[dramoffset_kvs + i].range(287, 256); 
+		mykeyvalue4.value = kvdram[dramoffset_kvs + i].range(319, 288); 
+		mykeyvalue5.key = kvdram[dramoffset_kvs + i].range(351, 320); 
+		mykeyvalue5.value = kvdram[dramoffset_kvs + i].range(383, 352); 
+		mykeyvalue6.key = kvdram[dramoffset_kvs + i].range(415, 384); 
+		mykeyvalue6.value = kvdram[dramoffset_kvs + i].range(447, 416); 
+		mykeyvalue7.key = kvdram[dramoffset_kvs + i].range(479, 448); 
+		mykeyvalue7.value = kvdram[dramoffset_kvs + i].range(511, 480); 
+		#else 
+		mykeyvalue0.key = kvdram[dramoffset_kvs + i].data[0].key; 
+		mykeyvalue0.value = kvdram[dramoffset_kvs + i].data[0].value; 
+		mykeyvalue1.key = kvdram[dramoffset_kvs + i].data[1].key; 
+		mykeyvalue1.value = kvdram[dramoffset_kvs + i].data[1].value; 
+		mykeyvalue2.key = kvdram[dramoffset_kvs + i].data[2].key; 
+		mykeyvalue2.value = kvdram[dramoffset_kvs + i].data[2].value; 
+		mykeyvalue3.key = kvdram[dramoffset_kvs + i].data[3].key; 
+		mykeyvalue3.value = kvdram[dramoffset_kvs + i].data[3].value; 
+		mykeyvalue4.key = kvdram[dramoffset_kvs + i].data[4].key; 
+		mykeyvalue4.value = kvdram[dramoffset_kvs + i].data[4].value; 
+		mykeyvalue5.key = kvdram[dramoffset_kvs + i].data[5].key; 
+		mykeyvalue5.value = kvdram[dramoffset_kvs + i].data[5].value; 
+		mykeyvalue6.key = kvdram[dramoffset_kvs + i].data[6].key; 
+		mykeyvalue6.value = kvdram[dramoffset_kvs + i].data[6].value; 
+		mykeyvalue7.key = kvdram[dramoffset_kvs + i].data[7].key; 
+		mykeyvalue7.value = kvdram[dramoffset_kvs + i].data[7].value; 
+		#endif 
+		
+		buffer[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
+		buffer[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
+		buffer[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
+		buffer[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
+		buffer[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
+		buffer[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
+		buffer[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
+		buffer[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }				
+	#endif
+	return;
+}
+
+
+#endif 
+//////////////////////
+
 void
 	#ifdef SW 
 	mem_access::
@@ -668,6 +753,143 @@ MEMACCESS_loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type v
 		
 		vmask[i] = tempvmask;	
 	}
+	return;
+}
+
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1width_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vmask_offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MEMACCESS_savemasks:: saving vmask saved: vmask_offset_kvs: "<<vmask_offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
+	#endif
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type cummvmask_sp = 0;
+	
+	for(buffer_type k=0; k<globalparams.SIZEKVS_REDUCEPARTITION; k++){
+	#pragma HLS PIPELINE II=1
+		unsigned int X = k % 16;
+		unsigned int Y = k / 16;
+		#ifdef _WIDEWORD
+		tempbuffer[X][Y].range(0, 0) = vmask[0][k].data[0];
+		tempbuffer[X][Y].range(1, 1) = vmask[0][k].data[1];
+		tempbuffer[X][Y].range(2, 2) = vmask[1][k].data[0];
+		tempbuffer[X][Y].range(3, 3) = vmask[1][k].data[1];
+		tempbuffer[X][Y].range(4, 4) = vmask[2][k].data[0];
+		tempbuffer[X][Y].range(5, 5) = vmask[2][k].data[1];
+		tempbuffer[X][Y].range(6, 6) = vmask[3][k].data[0];
+		tempbuffer[X][Y].range(7, 7) = vmask[3][k].data[1];
+		tempbuffer[X][Y].range(8, 8) = vmask[4][k].data[0];
+		tempbuffer[X][Y].range(9, 9) = vmask[4][k].data[1];
+		tempbuffer[X][Y].range(10, 10) = vmask[5][k].data[0];
+		tempbuffer[X][Y].range(11, 11) = vmask[5][k].data[1];
+		tempbuffer[X][Y].range(12, 12) = vmask[6][k].data[0];
+		tempbuffer[X][Y].range(13, 13) = vmask[6][k].data[1];
+		tempbuffer[X][Y].range(14, 14) = vmask[7][k].data[0];
+		tempbuffer[X][Y].range(15, 15) = vmask[7][k].data[1];
+		tempbuffer[X][Y].range(16, 16) = vmask[8][k].data[0];
+		tempbuffer[X][Y].range(17, 17) = vmask[8][k].data[1];
+		tempbuffer[X][Y].range(18, 18) = vmask[9][k].data[0];
+		tempbuffer[X][Y].range(19, 19) = vmask[9][k].data[1];
+		tempbuffer[X][Y].range(20, 20) = vmask[10][k].data[0];
+		tempbuffer[X][Y].range(21, 21) = vmask[10][k].data[1];
+		tempbuffer[X][Y].range(22, 22) = vmask[11][k].data[0];
+		tempbuffer[X][Y].range(23, 23) = vmask[11][k].data[1];
+		tempbuffer[X][Y].range(24, 24) = vmask[12][k].data[0];
+		tempbuffer[X][Y].range(25, 25) = vmask[12][k].data[1];
+		tempbuffer[X][Y].range(26, 26) = vmask[13][k].data[0];
+		tempbuffer[X][Y].range(27, 27) = vmask[13][k].data[1];
+		tempbuffer[X][Y].range(28, 28) = vmask[14][k].data[0];
+		tempbuffer[X][Y].range(29, 29) = vmask[14][k].data[1];
+		tempbuffer[X][Y].range(30, 30) = vmask[15][k].data[0];
+		tempbuffer[X][Y].range(31, 31) = vmask[15][k].data[1];
+		#else
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmask[0][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmask[0][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmask[1][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmask[1][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmask[2][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmask[2][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmask[3][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmask[3][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmask[4][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmask[4][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmask[5][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmask[5][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmask[6][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmask[6][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmask[7][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmask[7][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmask[8][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmask[8][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmask[9][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmask[9][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmask[10][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmask[10][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmask[11][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmask[11][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmask[12][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmask[12][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmask[13][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmask[13][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmask[14][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmask[14][k].data[1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmask[15][k].data[0]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmask[15][k].data[1]);
+		#endif
+		
+		uint32_type mask = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmask, k);
+		cummvmask_sp = cummvmask_sp | mask;
+	}
+	
+	for(buffer_type k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		kvdram[vmask_offset_kvs + k].range(31, 0) = tempbuffer[0][k];
+		kvdram[vmask_offset_kvs + k].range(63, 32) = tempbuffer[1][k];
+		kvdram[vmask_offset_kvs + k].range(95, 64) = tempbuffer[2][k];
+		kvdram[vmask_offset_kvs + k].range(127, 96) = tempbuffer[3][k];
+		kvdram[vmask_offset_kvs + k].range(159, 128) = tempbuffer[4][k];
+		kvdram[vmask_offset_kvs + k].range(191, 160) = tempbuffer[5][k];
+		kvdram[vmask_offset_kvs + k].range(223, 192) = tempbuffer[6][k];
+		kvdram[vmask_offset_kvs + k].range(255, 224) = tempbuffer[7][k];
+		kvdram[vmask_offset_kvs + k].range(287, 256) = tempbuffer[8][k];
+		kvdram[vmask_offset_kvs + k].range(319, 288) = tempbuffer[9][k];
+		kvdram[vmask_offset_kvs + k].range(351, 320) = tempbuffer[10][k];
+		kvdram[vmask_offset_kvs + k].range(383, 352) = tempbuffer[11][k];
+		kvdram[vmask_offset_kvs + k].range(415, 384) = tempbuffer[12][k];
+		kvdram[vmask_offset_kvs + k].range(447, 416) = tempbuffer[13][k];
+		kvdram[vmask_offset_kvs + k].range(479, 448) = tempbuffer[14][k];
+		kvdram[vmask_offset_kvs + k].range(511, 480) = tempbuffer[15][k];
+		#else
+		kvdram[vmask_offset_kvs + k].data[0].key = tempbuffer[0][k];
+		kvdram[vmask_offset_kvs + k].data[0].value = tempbuffer[1][k];
+		kvdram[vmask_offset_kvs + k].data[1].key = tempbuffer[2][k];
+		kvdram[vmask_offset_kvs + k].data[1].value = tempbuffer[3][k];
+		kvdram[vmask_offset_kvs + k].data[2].key = tempbuffer[4][k];
+		kvdram[vmask_offset_kvs + k].data[2].value = tempbuffer[5][k];
+		kvdram[vmask_offset_kvs + k].data[3].key = tempbuffer[6][k];
+		kvdram[vmask_offset_kvs + k].data[3].value = tempbuffer[7][k];
+		kvdram[vmask_offset_kvs + k].data[4].key = tempbuffer[8][k];
+		kvdram[vmask_offset_kvs + k].data[4].value = tempbuffer[9][k];
+		kvdram[vmask_offset_kvs + k].data[5].key = tempbuffer[10][k];
+		kvdram[vmask_offset_kvs + k].data[5].value = tempbuffer[11][k];
+		kvdram[vmask_offset_kvs + k].data[6].key = tempbuffer[12][k];
+		kvdram[vmask_offset_kvs + k].data[6].value = tempbuffer[13][k];
+		kvdram[vmask_offset_kvs + k].data[7].key = tempbuffer[14][k];
+		kvdram[vmask_offset_kvs + k].data[7].value = tempbuffer[15][k];
+		#endif
+	}
+	
+	#ifdef _WIDEWORD
+	kvdram[vmaskp_offset_kvs].range(31, 0) = cummvmask_sp;
+	#else
+	kvdram[vmaskp_offset_kvs].data[0].key = cummvmask_sp;
+	#endif
 	return;
 }
 
@@ -11373,4 +11595,19 @@ MEMACCESS_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t g
 		#endif
 	}
 	return;
+}
+
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+	for(unsigned int k=0; k<size; k++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		buffer[k] = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32); 
+		#else
+		buffer[k] = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].data[0].value; 
+		#endif
+	}
 }

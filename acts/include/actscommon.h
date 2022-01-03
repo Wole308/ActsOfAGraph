@@ -26,13 +26,18 @@
 using namespace std;
 
 // #define _DEBUGMODE_KERNELPRINTS_TRACE
-// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#ifndef ALLVERTEXISACTIVE_ALGORITHM
+#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#endif 
 // #define _DEBUGMODE_SUBPMASKING_TRACE
 
 #define PROCESSMODULE
 #define PARTITIONMODULE
 #define REDUCEMODULE //
 #define SYNCHRONIZEMODULE //
+#ifdef CONFIG_SPLIT_DESTVTXS
+#define COLLECTMASKINFOS
+#endif 
 
 #define PROCESSMODE 0
 #define PARTITIONMODE 1
@@ -287,7 +292,10 @@ typedef struct {
 	unsigned int SIZE_KVDRAM;
 	unsigned int SIZE_KVDRAMWORKSPACE;
 	unsigned int SIZE_OTHERINFOS;
+	unsigned int SIZEKVS_PROCESSEDGESPARTITION;
 	unsigned int SIZE_REDUCE;
+	unsigned int SIZEKVS_REDUCEPARTITION;
+	unsigned int SIZEKVS_VMASKBUFFER;
 	unsigned int SIZE_BATCHRANGE;
 	unsigned int SIZE_RUN;
 
@@ -304,6 +312,9 @@ typedef struct {
 	unsigned int POW_KVDRAMWORKSPACE;
 	unsigned int POW_REDUCE;
 	unsigned int POW_BATCHRANGE;
+	
+	unsigned int NUM_PROCESSEDGESPARTITIONS;
+	unsigned int NUM_REDUCEPARTITIONS;
 
 	unsigned int ALGORITHMINFO_GRAPHITERATIONID;
 	unsigned int ALGORITHMINFO_GRAPHALGORITHMID;

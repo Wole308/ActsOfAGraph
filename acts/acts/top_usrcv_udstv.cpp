@@ -25,7 +25,7 @@ void
 	#ifdef SW
 	top_usrcv_udstv::
 	#endif 
-processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -148,7 +148,7 @@ processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOUR
 		#endif 
 		(
 			ON, PROCESSMODE,
- kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, 
+ kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, globalstatsbuffer, 
 			globalparamsK, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE,
 			resetenv, flush, edgebankID);
 	}
@@ -173,7 +173,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv::
 	#endif 
-partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){
+partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -228,7 +228,7 @@ partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SO
 	actsobj->ACTS_tradit
 	#endif
 	(config.enablepartition, PARTITIONMODE,
- kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
+ kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp);
 			
@@ -258,7 +258,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv::
 	#endif 
-reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){	
+reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -292,7 +292,7 @@ reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 	actsobj->ACTS_tradit
 	#endif
 	(config.enablereduce, REDUCEMODE,
- kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
+ kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp); // REMOVEME.
 	return;
@@ -302,12 +302,12 @@ void
 	#ifdef SW 
 	top_usrcv_udstv::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],
 			globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
-	if(en_process == ON){ processit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID, hybridmode); } 
-	if(en_partition == ON){ partitionit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, globalparamsK, globalposition, NAp); } 
-	if(en_reduce == ON){ reduceit( kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, globalstatsbuffer, globalparamsK, globalposition, NAp); } 
+	if(en_process == ON){ processit( kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID, hybridmode); } 
+	if(en_partition == ON){ partitionit( kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, globalstatsbuffer, globalparamsK, globalposition, NAp); } 
+	if(en_reduce == ON){ reduceit( kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, globalstatsbuffer, globalparamsK, globalposition, NAp); } 
 	return;
 }
 
@@ -315,7 +315,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv::
 	#endif 
-dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,	
+dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -334,7 +334,7 @@ dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sou
 	travstate_t rtravstate = acts_utilobj->UTIL_gettravstate(ON, kvdram, globalparamsK, globalposition.currentLOP, globalposition.sourcestatsmarker);
 	if(rtravstate.size_kvs == 0){ return; }
 	
-	dispatch(OFF, OFF, en_reduce,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp, hybridmode);
+	dispatch(OFF, OFF, en_reduce,  kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp, hybridmode);
 	return;
 } 
 
@@ -343,7 +343,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv:: 
 	#endif
-topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsigned int en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalposition_t globalposition, unsigned int hybridmode){
+topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsigned int en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalposition_t globalposition, unsigned int hybridmode){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -380,7 +380,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
 		#endif
-		dispatch(globalposition.EN_PROCESS, OFF, OFF,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, globalposition.edgebankID, hybridmode); // PARTITION_CHKPT[0], 0, 0);
+		dispatch(globalposition.EN_PROCESS, OFF, OFF,  kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, globalposition.edgebankID, hybridmode); // PARTITION_CHKPT[0], 0, 0);
 	}
 	#endif
 	
@@ -390,7 +390,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
 		#endif
-		dispatch(OFF, globalposition.EN_PARTITION, OFF,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
+		dispatch(OFF, globalposition.EN_PARTITION, OFF,  kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
 	}
 	#endif
 	
@@ -400,7 +400,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;
 		#endif
-		dispatch_reduce(globalposition.EN_REDUCE,  kvdram, sourcebuffer, vbuffer, vmask, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
+		dispatch_reduce(globalposition.EN_REDUCE,  kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, vmask_p, globalstatsbuffer, _globalparamsE, globalparamsK, globalposition, PARTITION_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp, hybridmode); // PARTITION_CHKPT[0], 0, NAp);
 	}
 	#endif
 	
@@ -471,6 +471,8 @@ topkernelP1(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[1];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -648,7 +650,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOT
 						mergeobj->MERGE_readandreplicate1vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge1andsavevdata(ON, vdram, vbuffer0, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -743,6 +745,8 @@ topkernelP2(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -751,6 +755,8 @@ topkernelP2(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[2];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -929,8 +935,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate2vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge2andsavevdata(ON, vdram, vbuffer0,vbuffer1, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -1033,6 +1039,8 @@ topkernelP3(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -1041,6 +1049,8 @@ topkernelP3(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -1049,6 +1059,8 @@ topkernelP3(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[3];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -1228,9 +1240,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate3vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge3andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -1341,6 +1353,8 @@ topkernelP4(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -1349,6 +1363,8 @@ topkernelP4(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -1357,6 +1373,8 @@ topkernelP4(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -1365,6 +1383,8 @@ topkernelP4(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[4];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -1545,10 +1565,10 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate4vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge4andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -1667,6 +1687,8 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -1675,6 +1697,8 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -1683,6 +1707,8 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -1691,6 +1717,8 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
@@ -1699,6 +1727,8 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
+	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[5];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -1880,11 +1910,11 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate5vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, vmaskBITS4, globalstatsbuffer4, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge5andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -2011,6 +2041,8 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -2019,6 +2051,8 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -2027,6 +2061,8 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -2035,6 +2071,8 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
@@ -2043,6 +2081,8 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
+	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
@@ -2051,6 +2091,8 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
+	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[6];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -2233,12 +2275,12 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate6vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, vmaskBITS4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, vmaskBITS5, globalstatsbuffer5, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge6andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -2373,6 +2415,8 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -2381,6 +2425,8 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -2389,6 +2435,8 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -2397,6 +2445,8 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
@@ -2405,6 +2455,8 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
+	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
@@ -2413,6 +2465,8 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
+	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
@@ -2421,6 +2475,8 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
+	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[7];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -2604,13 +2660,13 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate7vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, vmaskBITS4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, vmaskBITS5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, vmaskBITS6, globalstatsbuffer6, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge7andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -2753,6 +2809,8 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -2761,6 +2819,8 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -2769,6 +2829,8 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -2777,6 +2839,8 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
@@ -2785,6 +2849,8 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
+	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
@@ -2793,6 +2859,8 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
+	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
@@ -2801,6 +2869,8 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
+	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
@@ -2809,6 +2879,8 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
+	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[8];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -2993,14 +3065,14 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate8vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, vmaskBITS4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, vmaskBITS5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, vmaskBITS6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, vmaskBITS7, globalstatsbuffer7, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge8andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -3151,6 +3223,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -3159,6 +3233,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -3167,6 +3243,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -3175,6 +3253,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
@@ -3183,6 +3263,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
+	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
@@ -3191,6 +3273,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
+	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
@@ -3199,6 +3283,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
+	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
@@ -3207,6 +3293,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
+	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
@@ -3215,6 +3303,8 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask8_subp
 	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
+	unit1width_type vmaskBITS8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS8
 	keyvalue_t globalstatsbuffer8[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[9];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -3400,15 +3490,15 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate9vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, vmaskBITS4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, vmaskBITS5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, vmaskBITS6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, vmaskBITS7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, vmaskBITS8, globalstatsbuffer8, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge9andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -3567,6 +3657,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -3575,6 +3667,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -3583,6 +3677,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -3591,6 +3687,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
@@ -3599,6 +3697,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
+	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
@@ -3607,6 +3707,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
+	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
@@ -3615,6 +3717,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
+	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
@@ -3623,6 +3727,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
+	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
@@ -3631,6 +3737,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask8_subp
 	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
+	unit1width_type vmaskBITS8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS8
 	keyvalue_t globalstatsbuffer8[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
@@ -3639,6 +3747,8 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask9_subp
 	unitBRAMwidth_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
+	unit1width_type vmaskBITS9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS9
 	keyvalue_t globalstatsbuffer9[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[10];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -3825,16 +3935,16 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate10vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, vmaskBITS4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, vmaskBITS5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, vmaskBITS6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, vmaskBITS7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, vmaskBITS8, globalstatsbuffer8, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, vmaskBITS9, globalstatsbuffer9, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge10andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -4001,6 +4111,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -4009,6 +4121,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -4017,6 +4131,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -4025,6 +4141,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
@@ -4033,6 +4151,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
+	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
@@ -4041,6 +4161,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
+	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
@@ -4049,6 +4171,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
+	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
@@ -4057,6 +4181,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
+	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
@@ -4065,6 +4191,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask8_subp
 	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
+	unit1width_type vmaskBITS8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS8
 	keyvalue_t globalstatsbuffer8[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
@@ -4073,6 +4201,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask9_subp
 	unitBRAMwidth_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
+	unit1width_type vmaskBITS9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS9
 	keyvalue_t globalstatsbuffer9[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
@@ -4081,6 +4211,8 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask10_subp
 	unitBRAMwidth_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
+	unit1width_type vmaskBITS10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS10
 	keyvalue_t globalstatsbuffer10[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[11];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -4268,17 +4400,17 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate11vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram10, vbuffer10, vmask10_p, vmask10_subp, vmask10, globalstatsbuffer10, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, vmaskBITS4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, vmaskBITS5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, vmaskBITS6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, vmaskBITS7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, vmaskBITS8, globalstatsbuffer8, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, vmaskBITS9, globalstatsbuffer9, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram10, vbuffer10, vmask10_p, vmask10_subp, vmask10, vmaskBITS10, globalstatsbuffer10, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge11andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }
@@ -4453,6 +4585,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
+	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
@@ -4461,6 +4595,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
+	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
@@ -4469,6 +4605,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
+	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
@@ -4477,6 +4615,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
+	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
@@ -4485,6 +4625,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
+	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
@@ -4493,6 +4635,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
+	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
@@ -4501,6 +4645,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
+	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
@@ -4509,6 +4655,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
+	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
@@ -4517,6 +4665,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask8_subp
 	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
+	unit1width_type vmaskBITS8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS8
 	keyvalue_t globalstatsbuffer8[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
@@ -4525,6 +4675,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask9_subp
 	unitBRAMwidth_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
+	unit1width_type vmaskBITS9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS9
 	keyvalue_t globalstatsbuffer9[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
@@ -4533,6 +4685,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask10_subp
 	unitBRAMwidth_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
+	unit1width_type vmaskBITS10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS10
 	keyvalue_t globalstatsbuffer10[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer11[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer11
@@ -4541,6 +4695,8 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask11_subp
 	unitBRAMwidth_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
+	unit1width_type vmaskBITS11[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	#pragma HLS DATA_PACK variable = vmaskBITS11
 	keyvalue_t globalstatsbuffer11[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[12];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -4729,18 +4885,18 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						mergeobj->MERGE_readandreplicate12vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 8, 0, reducebuffersz, globalparamsV); 
 						
 						// proc 
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, globalstatsbuffer0, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, globalstatsbuffer1, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, globalstatsbuffer2, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, globalstatsbuffer3, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, globalstatsbuffer4, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, globalstatsbuffer5, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, globalstatsbuffer6, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, globalstatsbuffer7, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, globalstatsbuffer8, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, globalstatsbuffer9, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram10, vbuffer10, vmask10_p, vmask10_subp, vmask10, globalstatsbuffer10, globalposition, hybridmode);	
-						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram11, vbuffer11, vmask11_p, vmask11_subp, vmask11, globalstatsbuffer11, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram0, vbuffer0, vmask0_p, vmask0_subp, vmask0, vmaskBITS0, globalstatsbuffer0, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram1, vbuffer1, vmask1_p, vmask1_subp, vmask1, vmaskBITS1, globalstatsbuffer1, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram2, vbuffer2, vmask2_p, vmask2_subp, vmask2, vmaskBITS2, globalstatsbuffer2, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram3, vbuffer3, vmask3_p, vmask3_subp, vmask3, vmaskBITS3, globalstatsbuffer3, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram4, vbuffer4, vmask4_p, vmask4_subp, vmask4, vmaskBITS4, globalstatsbuffer4, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram5, vbuffer5, vmask5_p, vmask5_subp, vmask5, vmaskBITS5, globalstatsbuffer5, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram6, vbuffer6, vmask6_p, vmask6_subp, vmask6, vmaskBITS6, globalstatsbuffer6, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram7, vbuffer7, vmask7_p, vmask7_subp, vmask7, vmaskBITS7, globalstatsbuffer7, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram8, vbuffer8, vmask8_p, vmask8_subp, vmask8, vmaskBITS8, globalstatsbuffer8, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram9, vbuffer9, vmask9_p, vmask9_subp, vmask9, vmaskBITS9, globalstatsbuffer9, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram10, vbuffer10, vmask10_p, vmask10_subp, vmask10, vmaskBITS10, globalstatsbuffer10, globalposition, hybridmode);	
+						topkernelproc_embedded(enableprocess, ON, enablereduce,  kvdram11, vbuffer11, vmask11_p, vmask11_subp, vmask11, vmaskBITS11, globalstatsbuffer11, globalposition, hybridmode);	
 						
 						// merge 
 						if(globalposition.EN_REDUCE == ON && enablereduce == ON){ mergeobj->MERGE_merge12andsavevdata(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 0, 0, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs); }

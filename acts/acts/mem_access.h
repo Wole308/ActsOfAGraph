@@ -45,6 +45,8 @@ public:
 	
 	void MEMACCESS_loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 	
+	void MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1width_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vmask_offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams);
+	
 	void MEMACCESS_loadmany1vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);					
 	void MEMACCESS_loadmany2vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);					
 	void MEMACCESS_loadmany3vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams);					
@@ -106,6 +108,8 @@ public:
 	
 	void MEMACCESS_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size);
 	
+	void MEMACCESS_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size);
+
 private:
 	#ifdef SW
 	actsutility * actsutilityobj;

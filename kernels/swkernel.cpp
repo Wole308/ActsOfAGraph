@@ -107,7 +107,8 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			NOT DEFINED.
 			#endif
 			
-			kernelobjs_merge->MERGE_syncVsAcrossSLRs((uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdramA);
+			kernelobjs_merge->MERGE_mergeVsAcrossSLRs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC);
+			exit(EXIT_SUCCESS); //
 			
 			//////////////////////////////////////////////// FIXME.
 			unsigned int _SIZE_SRCVERTICESDATA_D = vdramB[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_SRCVERTICESDATA].data[0].key;

@@ -364,6 +364,49 @@ UTIL_GETVTXMASK_SUBP(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, 
 
 	return data;
 }
+uint32_type 
+	#ifdef SW 
+	acts_util::
+	#endif 
+UTIL_CONVERTVMASKTOUINT32(unit1width_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int index){
+	uint32_type res;
+	#ifdef _WIDEWORD
+	res.range(0, 0) = vmask[0][index].data[0];
+	res.range(1, 1) = vmask[0][index].data[1];
+	res.range(2, 2) = vmask[1][index].data[0];
+	res.range(3, 3) = vmask[1][index].data[1];
+	res.range(4, 4) = vmask[2][index].data[0];
+	res.range(5, 5) = vmask[2][index].data[1];
+	res.range(6, 6) = vmask[3][index].data[0];
+	res.range(7, 7) = vmask[3][index].data[1];
+	res.range(8, 8) = vmask[4][index].data[0];
+	res.range(9, 9) = vmask[4][index].data[1];
+	res.range(10, 10) = vmask[5][index].data[0];
+	res.range(11, 11) = vmask[5][index].data[1];
+	res.range(12, 12) = vmask[6][index].data[0];
+	res.range(13, 13) = vmask[6][index].data[1];
+	res.range(14, 14) = vmask[7][index].data[0];
+	res.range(15, 15) = vmask[7][index].data[1];
+	#else 
+	UTIL_WRITETO_UINT(&res, 0, 1, vmask[0][index].data[0]);
+	UTIL_WRITETO_UINT(&res, 1, 1, vmask[0][index].data[1]);
+	UTIL_WRITETO_UINT(&res, 2, 1, vmask[1][index].data[0]);
+	UTIL_WRITETO_UINT(&res, 3, 1, vmask[1][index].data[1]);
+	UTIL_WRITETO_UINT(&res, 4, 1, vmask[2][index].data[0]);
+	UTIL_WRITETO_UINT(&res, 5, 1, vmask[2][index].data[1]);
+	UTIL_WRITETO_UINT(&res, 6, 1, vmask[3][index].data[0]);
+	UTIL_WRITETO_UINT(&res, 7, 1, vmask[3][index].data[1]);
+	UTIL_WRITETO_UINT(&res, 8, 1, vmask[4][index].data[0]);
+	UTIL_WRITETO_UINT(&res, 9, 1, vmask[4][index].data[1]);
+	UTIL_WRITETO_UINT(&res, 10, 1, vmask[5][index].data[0]);
+	UTIL_WRITETO_UINT(&res, 11, 1, vmask[5][index].data[1]);
+	UTIL_WRITETO_UINT(&res, 12, 1, vmask[6][index].data[0]);
+	UTIL_WRITETO_UINT(&res, 13, 1, vmask[6][index].data[1]);
+	UTIL_WRITETO_UINT(&res, 14, 1, vmask[7][index].data[0]);
+	UTIL_WRITETO_UINT(&res, 15, 1, vmask[7][index].data[1]);
+	#endif
+	return res;
+}
 
 // utilities
 batch_type
@@ -504,7 +547,10 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].range(31, 0);
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].range(31, 0);
 	globalparams.SIZE_OTHERINFOS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_OTHERINFOS].range(31, 0);
+	globalparams.SIZEKVS_PROCESSEDGESPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].range(31, 0); // NEWCHANGE
 	globalparams.SIZE_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].range(31, 0);
+	globalparams.SIZEKVS_REDUCEPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].range(31, 0); // NEWCHANGE
+	globalparams.SIZEKVS_VMASKBUFFER = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].range(31, 0); // NEWCHANGE
 	globalparams.SIZE_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].range(31, 0);
 	globalparams.SIZE_RUN = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0);
 
@@ -521,6 +567,9 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.POW_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVDRAMWORKSPACE].range(31, 0);
 	globalparams.POW_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_REDUCE].range(31, 0);
 	globalparams.POW_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_BATCHRANGE].range(31, 0);
+	
+	globalparams.NUM_PROCESSEDGESPARTITIONS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_PROCESSEDGESPARTITIONS].range(31, 0); // NEWCHANGE
+	globalparams.NUM_REDUCEPARTITIONS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].range(31, 0); // NEWCHANGE
 	
 	globalparams.ALGORITHMINFO_GRAPHITERATIONID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0);
 	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHALGORITHMID].range(31, 0);
@@ -570,7 +619,10 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key;
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key;
 	globalparams.SIZE_OTHERINFOS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_OTHERINFOS].data[0].key;
+	globalparams.SIZEKVS_PROCESSEDGESPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].data[0].key; // NEWCHANGE
 	globalparams.SIZE_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key;
+	globalparams.SIZEKVS_REDUCEPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].data[0].key; // NEWCHANGE
+	globalparams.SIZEKVS_VMASKBUFFER = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].data[0].key; // NEWCHANGE
 	globalparams.SIZE_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].data[0].key;
 	globalparams.SIZE_RUN = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key;
 
@@ -587,6 +639,9 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.POW_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVDRAMWORKSPACE].data[0].key;
 	globalparams.POW_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_REDUCE].data[0].key;
 	globalparams.POW_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_BATCHRANGE].data[0].key;
+	
+	globalparams.NUM_PROCESSEDGESPARTITIONS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_PROCESSEDGESPARTITIONS].data[0].key;
+	globalparams.NUM_REDUCEPARTITIONS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].data[0].key;
 	
 	globalparams.ALGORITHMINFO_GRAPHITERATIONID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHALGORITHMID].data[0].key;
@@ -795,12 +850,18 @@ UTIL_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalu
 	keyvalue_t thiskeyvalue = UTIL_GETKV(keyvalue);
 	
 	#ifdef CONFIG_SPLIT_DESTVTXS
-	if(mode == REDUCEMODE){
+	/* if(mode == REDUCEMODE){
 		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 		else { partition = ((thiskeyvalue.key - upperlimit) % NUM_PARTITIONS); }
 	} else {
 		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 		else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	} */
+	if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	else {
+		keyy_t lkey = thiskeyvalue.key - upperlimit;
+		if(mode == REDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
+		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	}
 	#else 
 		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
@@ -899,6 +960,21 @@ UTIL_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[6].value = 0; 
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[7].value = 0; 
 		#endif
+	}
+	return;
+}
+void
+	#ifdef SW 
+	acts_util::
+	#endif 
+UTIL_reset(unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]){
+	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
+		for(unsigned int i=0; i<VDATA_PACKINGSIZE; i++){
+		#pragma HLS UNROLL
+			vmaskBITS[i][k].data[0] = 0;
+			vmaskBITS[i][k].data[1] = 0;
+		}
 	}
 	return;
 }
@@ -1016,4 +1092,3 @@ UTIL_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	}
 	return;
 }
-

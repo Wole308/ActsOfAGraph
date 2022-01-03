@@ -364,6 +364,25 @@ UTIL_GETVTXMASK_SUBP(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, 
 
 	return data;
 }
+uint32_type 
+	#ifdef SW 
+	acts_util::
+	#endif 
+UTIL_CONVERTVMASKTOUINT32(unit1width_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int index){
+	uint32_type res;
+	#ifdef _WIDEWORD
+	{%for v in context['8_seq']%}
+	res.range({{1 * ((v * 2) + 1) - 1}}, {{(v * 2) * 1}}) = vmask[{{v}}][index].data[0];
+	res.range({{1 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 1}}) = vmask[{{v}}][index].data[1];
+	{%endfor%}
+	#else 
+	{%for v in context['8_seq']%}
+	UTIL_WRITETO_UINT(&res, {{v*2}}, 1, vmask[{{v}}][index].data[0]);
+	UTIL_WRITETO_UINT(&res, {{v*2+1}}, 1, vmask[{{v}}][index].data[1]);
+	{%endfor%}
+	#endif
+	return res;
+}
 
 // utilities
 batch_type
@@ -499,7 +518,10 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].range(31, 0);
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].range(31, 0);
 	globalparams.SIZE_OTHERINFOS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_OTHERINFOS].range(31, 0);
+	globalparams.SIZEKVS_PROCESSEDGESPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].range(31, 0); // NEWCHANGE
 	globalparams.SIZE_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].range(31, 0);
+	globalparams.SIZEKVS_REDUCEPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].range(31, 0); // NEWCHANGE
+	globalparams.SIZEKVS_VMASKBUFFER = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].range(31, 0); // NEWCHANGE
 	globalparams.SIZE_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].range(31, 0);
 	globalparams.SIZE_RUN = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0);
 
@@ -516,6 +538,9 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.POW_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVDRAMWORKSPACE].range(31, 0);
 	globalparams.POW_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_REDUCE].range(31, 0);
 	globalparams.POW_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_BATCHRANGE].range(31, 0);
+	
+	globalparams.NUM_PROCESSEDGESPARTITIONS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_PROCESSEDGESPARTITIONS].range(31, 0); // NEWCHANGE
+	globalparams.NUM_REDUCEPARTITIONS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].range(31, 0); // NEWCHANGE
 	
 	globalparams.ALGORITHMINFO_GRAPHITERATIONID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0);
 	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHALGORITHMID].range(31, 0);
@@ -565,7 +590,10 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key;
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key;
 	globalparams.SIZE_OTHERINFOS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_OTHERINFOS].data[0].key;
+	globalparams.SIZEKVS_PROCESSEDGESPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].data[0].key; // NEWCHANGE
 	globalparams.SIZE_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key;
+	globalparams.SIZEKVS_REDUCEPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].data[0].key; // NEWCHANGE
+	globalparams.SIZEKVS_VMASKBUFFER = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].data[0].key; // NEWCHANGE
 	globalparams.SIZE_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].data[0].key;
 	globalparams.SIZE_RUN = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key;
 
@@ -582,6 +610,9 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.POW_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_KVDRAMWORKSPACE].data[0].key;
 	globalparams.POW_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_REDUCE].data[0].key;
 	globalparams.POW_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_POW_BATCHRANGE].data[0].key;
+	
+	globalparams.NUM_PROCESSEDGESPARTITIONS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_PROCESSEDGESPARTITIONS].data[0].key;
+	globalparams.NUM_REDUCEPARTITIONS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].data[0].key;
 	
 	globalparams.ALGORITHMINFO_GRAPHITERATIONID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHALGORITHMID].data[0].key;
@@ -738,12 +769,18 @@ UTIL_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalu
 	keyvalue_t thiskeyvalue = UTIL_GETKV(keyvalue);
 	
 	#ifdef CONFIG_SPLIT_DESTVTXS
-	if(mode == REDUCEMODE){
+	/* if(mode == REDUCEMODE){
 		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 		else { partition = ((thiskeyvalue.key - upperlimit) % NUM_PARTITIONS); }
 	} else {
 		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 		else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	} */
+	if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	else {
+		keyy_t lkey = thiskeyvalue.key - upperlimit;
+		if(mode == REDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
+		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	}
 	#else 
 		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
@@ -839,6 +876,21 @@ void
 	#ifdef SW 
 	acts_util::
 	#endif 
+UTIL_reset(unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]){
+	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
+		for(unsigned int i=0; i<VDATA_PACKINGSIZE; i++){
+		#pragma HLS UNROLL
+			vmaskBITS[i][k].data[0] = 0;
+			vmaskBITS[i][k].data[1] = 0;
+		}
+	}
+	return;
+}
+void
+	#ifdef SW 
+	acts_util::
+	#endif 
 UTIL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
@@ -899,5 +951,4 @@ UTIL_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	}
 	return;
 }
-
 

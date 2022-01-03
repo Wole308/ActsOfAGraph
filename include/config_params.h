@@ -38,7 +38,7 @@
 // #define CONFIG_UNIFIED_VDRAM //
 // #define CONFIG_UNIFIED_SRCVDRAM
 // #define CONFIG_UNIFIED_DESTVDRAM
-#define CONFIG_SPLIT_DESTVTXS // {reduceupdates.cpp, }
+#define CONFIG_SPLIT_DESTVTXS // {reduceupdates.cpp, acts_util.cpp, app.cpp, loadgraph.cpp, top_nusrcv_nudstv.cpp, reduceupdates.h, actscommon.h}
 
 #endif
 
