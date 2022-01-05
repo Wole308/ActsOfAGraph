@@ -57,7 +57,7 @@ public:
 	{%endif%}
 	{%endfor%}
 	
-	void MERGE_mergeVsAcrossSLRs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC);
+	void MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC);
 
 private:
 	#ifdef SW

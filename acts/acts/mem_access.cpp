@@ -493,90 +493,30 @@ MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 	return;
 }
 
-////////////////////////
-#ifdef KKKKKKKKKKKKKKKKKK
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_readvdata_slicedgraph(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
-		
-	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue0;
-		keyvalue_t mykeyvalue1;
-		keyvalue_t mykeyvalue2;
-		keyvalue_t mykeyvalue3;
-		keyvalue_t mykeyvalue4;
-		keyvalue_t mykeyvalue5;
-		keyvalue_t mykeyvalue6;
-		keyvalue_t mykeyvalue7;
-		
-		#ifdef _WIDEWORD
-		mykeyvalue0.key = kvdram[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue0.value = kvdram[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue1.key = kvdram[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue1.value = kvdram[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue2.key = kvdram[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue2.value = kvdram[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue3.key = kvdram[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue3.value = kvdram[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue4.key = kvdram[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue4.value = kvdram[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue5.key = kvdram[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue5.value = kvdram[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue6.key = kvdram[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue6.value = kvdram[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue7.key = kvdram[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue7.value = kvdram[dramoffset_kvs + i].range(511, 480); 
-		#else 
-		mykeyvalue0.key = kvdram[dramoffset_kvs + i].data[0].key; 
-		mykeyvalue0.value = kvdram[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue1.key = kvdram[dramoffset_kvs + i].data[1].key; 
-		mykeyvalue1.value = kvdram[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue2.key = kvdram[dramoffset_kvs + i].data[2].key; 
-		mykeyvalue2.value = kvdram[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue3.key = kvdram[dramoffset_kvs + i].data[3].key; 
-		mykeyvalue3.value = kvdram[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue4.key = kvdram[dramoffset_kvs + i].data[4].key; 
-		mykeyvalue4.value = kvdram[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue5.key = kvdram[dramoffset_kvs + i].data[5].key; 
-		mykeyvalue5.value = kvdram[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue6.key = kvdram[dramoffset_kvs + i].data[6].key; 
-		mykeyvalue6.value = kvdram[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue7.key = kvdram[dramoffset_kvs + i].data[7].key; 
-		mykeyvalue7.value = kvdram[dramoffset_kvs + i].data[7].value; 
-		#endif 
-		
-		buffer[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
-		#endif
+MEMACCESS_readallvdatas(bool_type enable, uint512_dt * kvdram, batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type voffsets_kvs[NUM_PEs], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
+	unsigned int uppersz = (globalparams.SIZEKVS2_REDUCEPARTITION+(NUM_PEs-1)) / NUM_PEs;
+	unsigned int lowersz = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+	unsigned int sz;
+	unsigned int totalsz = 0;
+	unsigned int cut = globalparams.SIZEKVS2_REDUCEPARTITION % NUM_PEs;
+	
+	for(unsigned int s=0; s<NUM_PEs / 2; s++){ 
+		if(s < cut){ sz = uppersz; } else { sz = lowersz; } totalsz += sz;
+		MEMACCESS_readvdata(enable, kvdram, (vbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + (voffset_kvs / NUM_PEs)), buffer, 0, 0, sz, globalparams); 
+		voffsets_kvs[s] += sz;
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readvdata:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }				
-	#endif
-	return;
+	for(unsigned int s=NUM_PEs / 2; s<NUM_PEs; s++){ 
+		if(s < cut){ sz = uppersz; } else { sz = lowersz; } totalsz += sz;
+		MEMACCESS_readvdata(enable, kvdram, (vbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + (voffset_kvs / NUM_PEs)), buffer, 8, 0, sz, globalparams); 
+	}
+	// cout<<"-------------------- MEMACCESS_readallvdatas:: totalsz: "<<totalsz<<endl;
+	// exit(EXIT_SUCCESS);///
+	return;	
 }
-
-
-#endif 
-//////////////////////
 
 void
 	#ifdef SW 
@@ -756,11 +696,11 @@ MEMACCESS_loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type v
 	return;
 }
 
-void
+/** void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1width_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vmask_offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vmask_offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MEMACCESS_savemasks:: saving vmask saved: vmask_offset_kvs: "<<vmask_offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
@@ -770,7 +710,7 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1width_type vmask
 	#pragma HLS array_partition variable = tempbuffer
 	uint32_type cummvmask_sp = 0;
 	
-	for(buffer_type k=0; k<globalparams.SIZEKVS_REDUCEPARTITION; k++){
+	for(buffer_type k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 	#pragma HLS PIPELINE II=1
 		unsigned int X = k % 16;
 		unsigned int Y = k / 16;
@@ -891,6 +831,198 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1width_type vmask
 	kvdram[vmaskp_offset_kvs].data[0].key = cummvmask_sp;
 	#endif
 	return;
+}
+ */
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type vmask_offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MEMACCESS_savemasks:: saving vmask saved: vmask_offset_kvs: "<<vmask_offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
+	#endif
+	
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
+	#pragma HLS array_partition variable = tempbuffer
+	uint32_type cummvmask_sp = 0;
+	
+	unsigned int processpartitionsz = globalparams.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE;
+	unsigned int vpmasks_i = 0;
+	unsigned int realvid = 0;
+	uint32_type vpmasks[BLOCKRAM_SIZE];
+	unsigned int index = 0;
+	unsigned int next_chpt = processpartitionsz;
+	
+	for(buffer_type k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k+=2){
+	#pragma HLS PIPELINE II=1
+		unsigned int X = index % 16;
+		unsigned int Y = index / 16;
+		
+		unsigned int n_i = 2 * k;
+		unsigned int n_iplus1 = (2 * k) + 1;
+		
+		#ifdef _WIDEWORD
+		tempbuffer[X][Y].range(0, 0) = vmaskBITS[0][n_i].data;
+		tempbuffer[X][Y].range(1, 1) = vmaskBITS[1][n_i].data;
+		tempbuffer[X][Y].range(2, 2) = vmaskBITS[2][n_i].data;
+		tempbuffer[X][Y].range(3, 3) = vmaskBITS[3][n_i].data;
+		tempbuffer[X][Y].range(4, 4) = vmaskBITS[4][n_i].data;
+		tempbuffer[X][Y].range(5, 5) = vmaskBITS[5][n_i].data;
+		tempbuffer[X][Y].range(6, 6) = vmaskBITS[6][n_i].data;
+		tempbuffer[X][Y].range(7, 7) = vmaskBITS[7][n_i].data;
+		tempbuffer[X][Y].range(8, 8) = vmaskBITS[8][n_i].data;
+		tempbuffer[X][Y].range(9, 9) = vmaskBITS[9][n_i].data;
+		tempbuffer[X][Y].range(10, 10) = vmaskBITS[10][n_i].data;
+		tempbuffer[X][Y].range(11, 11) = vmaskBITS[11][n_i].data;
+		tempbuffer[X][Y].range(12, 12) = vmaskBITS[12][n_i].data;
+		tempbuffer[X][Y].range(13, 13) = vmaskBITS[13][n_i].data;
+		tempbuffer[X][Y].range(14, 14) = vmaskBITS[14][n_i].data;
+		tempbuffer[X][Y].range(15, 15) = vmaskBITS[15][n_i].data;
+		tempbuffer[X][Y].range(16, 16) = vmaskBITS[0][n_iplus1].data;
+		tempbuffer[X][Y].range(17, 17) = vmaskBITS[1][n_iplus1].data;
+		tempbuffer[X][Y].range(18, 18) = vmaskBITS[2][n_iplus1].data;
+		tempbuffer[X][Y].range(19, 19) = vmaskBITS[3][n_iplus1].data;
+		tempbuffer[X][Y].range(20, 20) = vmaskBITS[4][n_iplus1].data;
+		tempbuffer[X][Y].range(21, 21) = vmaskBITS[5][n_iplus1].data;
+		tempbuffer[X][Y].range(22, 22) = vmaskBITS[6][n_iplus1].data;
+		tempbuffer[X][Y].range(23, 23) = vmaskBITS[7][n_iplus1].data;
+		tempbuffer[X][Y].range(24, 24) = vmaskBITS[8][n_iplus1].data;
+		tempbuffer[X][Y].range(25, 25) = vmaskBITS[9][n_iplus1].data;
+		tempbuffer[X][Y].range(26, 26) = vmaskBITS[10][n_iplus1].data;
+		tempbuffer[X][Y].range(27, 27) = vmaskBITS[11][n_iplus1].data;
+		tempbuffer[X][Y].range(28, 28) = vmaskBITS[12][n_iplus1].data;
+		tempbuffer[X][Y].range(29, 29) = vmaskBITS[13][n_iplus1].data;
+		tempbuffer[X][Y].range(30, 30) = vmaskBITS[14][n_iplus1].data;
+		tempbuffer[X][Y].range(31, 31) = vmaskBITS[15][n_iplus1].data;
+		#else
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmaskBITS[0][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmaskBITS[1][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmaskBITS[2][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmaskBITS[3][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmaskBITS[4][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmaskBITS[5][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmaskBITS[6][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmaskBITS[7][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmaskBITS[8][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmaskBITS[9][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmaskBITS[10][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmaskBITS[11][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmaskBITS[12][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmaskBITS[13][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmaskBITS[14][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmaskBITS[15][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmaskBITS[0][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmaskBITS[1][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmaskBITS[2][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmaskBITS[3][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmaskBITS[4][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmaskBITS[5][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmaskBITS[6][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmaskBITS[7][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmaskBITS[8][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmaskBITS[9][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmaskBITS[10][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmaskBITS[11][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmaskBITS[12][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmaskBITS[13][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmaskBITS[14][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmaskBITS[15][n_iplus1].data);
+		#endif
+		index += 1;
+		
+		uint32_type maskA = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
+		uint32_type maskB = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
+		cummvmask_sp = cummvmask_sp | maskA | maskB;
+		
+		realvid = acts_utilobj->UTIL_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
+		#ifdef _DEBUGMODE_KERNELPRINTS2
+		if(realvid >= next_chpt){ cout<<"--- MEMACCESS_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl; }
+		#endif 
+		if(realvid >= next_chpt){ vpmasks[vpmasks_i] = cummvmask_sp; vpmasks_i += 1; next_chpt += processpartitionsz; } // CRITICAL FIXME. TOO EXPENSIVE. CRITICAL FIXME.
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	cout<<"--- MEMACCESS_savemasks:: FINISHED. realvid: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_CHECKS3
+	if(vpmasks_i != NUM_PEs){ cout<<"--- MEMACCESS_savemasks:: ERROR: vpmasks_i("<<vpmasks_i<<") != NUM_PEs("<<NUM_PEs<<"). EXITING...."<<endl; exit(EXIT_FAILURE); }
+	#endif 
+	
+	for(buffer_type k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		kvdram[vmask_offset_kvs + k].range(31, 0) = tempbuffer[0][k];
+		kvdram[vmask_offset_kvs + k].range(63, 32) = tempbuffer[1][k];
+		kvdram[vmask_offset_kvs + k].range(95, 64) = tempbuffer[2][k];
+		kvdram[vmask_offset_kvs + k].range(127, 96) = tempbuffer[3][k];
+		kvdram[vmask_offset_kvs + k].range(159, 128) = tempbuffer[4][k];
+		kvdram[vmask_offset_kvs + k].range(191, 160) = tempbuffer[5][k];
+		kvdram[vmask_offset_kvs + k].range(223, 192) = tempbuffer[6][k];
+		kvdram[vmask_offset_kvs + k].range(255, 224) = tempbuffer[7][k];
+		kvdram[vmask_offset_kvs + k].range(287, 256) = tempbuffer[8][k];
+		kvdram[vmask_offset_kvs + k].range(319, 288) = tempbuffer[9][k];
+		kvdram[vmask_offset_kvs + k].range(351, 320) = tempbuffer[10][k];
+		kvdram[vmask_offset_kvs + k].range(383, 352) = tempbuffer[11][k];
+		kvdram[vmask_offset_kvs + k].range(415, 384) = tempbuffer[12][k];
+		kvdram[vmask_offset_kvs + k].range(447, 416) = tempbuffer[13][k];
+		kvdram[vmask_offset_kvs + k].range(479, 448) = tempbuffer[14][k];
+		kvdram[vmask_offset_kvs + k].range(511, 480) = tempbuffer[15][k];
+		#else
+		kvdram[vmask_offset_kvs + k].data[0].key = tempbuffer[0][k];
+		kvdram[vmask_offset_kvs + k].data[0].value = tempbuffer[1][k];
+		kvdram[vmask_offset_kvs + k].data[1].key = tempbuffer[2][k];
+		kvdram[vmask_offset_kvs + k].data[1].value = tempbuffer[3][k];
+		kvdram[vmask_offset_kvs + k].data[2].key = tempbuffer[4][k];
+		kvdram[vmask_offset_kvs + k].data[2].value = tempbuffer[5][k];
+		kvdram[vmask_offset_kvs + k].data[3].key = tempbuffer[6][k];
+		kvdram[vmask_offset_kvs + k].data[3].value = tempbuffer[7][k];
+		kvdram[vmask_offset_kvs + k].data[4].key = tempbuffer[8][k];
+		kvdram[vmask_offset_kvs + k].data[4].value = tempbuffer[9][k];
+		kvdram[vmask_offset_kvs + k].data[5].key = tempbuffer[10][k];
+		kvdram[vmask_offset_kvs + k].data[5].value = tempbuffer[11][k];
+		kvdram[vmask_offset_kvs + k].data[6].key = tempbuffer[12][k];
+		kvdram[vmask_offset_kvs + k].data[6].value = tempbuffer[13][k];
+		kvdram[vmask_offset_kvs + k].data[7].key = tempbuffer[14][k];
+		kvdram[vmask_offset_kvs + k].data[7].value = tempbuffer[15][k];
+		#endif
+	}
+	
+	for(buffer_type n=0; n<NUM_PEs; n++){
+		#ifdef _WIDEWORD
+		kvdram[vmaskp_offset_kvs + n]
+			#ifdef _WIDEWORD
+			.range(31, 0)
+			#else
+			.data[0].key
+			#endif
+		= vpmasks[n];
+		#endif
+	}
+	// exit(EXIT_SUCCESS); //////////////
+	return;
+}
+
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_loadallvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vbaseoffset_kvs, batch_type vmaskoffset_kvs, globalparams_t globalparams){
+	unsigned int uppersz = (globalparams.SIZEKVS_VMASKBUFFER+(NUM_PEs-1)) / NUM_PEs;
+	unsigned int lowersz = globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs;
+	unsigned int sz;
+	unsigned int totalsz = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs / 2; s++){ 
+		if(s < (globalparams.SIZEKVS_VMASKBUFFER % NUM_PEs)){ sz = uppersz; } else { sz = lowersz; } totalsz += sz;
+		MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, (globalparams.BASEOFFSETKVS_VERTICESDATAMASK + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER) + (vmaskoffset_kvs / NUM_PEs)), sz, globalparams); 
+	}
+	for(unsigned int s=NUM_PEs / 2; s<NUM_PEs; s++){ 
+		if(s < (globalparams.SIZEKVS_VMASKBUFFER % NUM_PEs)){ sz = uppersz; } else { sz = lowersz; } totalsz += sz;
+		MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, (globalparams.BASEOFFSETKVS_VERTICESDATAMASK + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER) + (vmaskoffset_kvs / NUM_PEs)), sz, globalparams); 
+	}
+	// cout<<"-------------------- MEMACCESS_loadallvmasks:: totalsz: "<<totalsz<<endl;
+	// exit(EXIT_SUCCESS);///
+	return;	
 }
 
 void

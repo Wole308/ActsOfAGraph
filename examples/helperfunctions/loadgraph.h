@@ -31,6 +31,7 @@ public:
 	
 	globalparams_TWOt loadmessages(uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphIter, unsigned int GraphAlgo, globalparams_TWOt globalparams);
 	globalparams_t createmessages(
+			unsigned int id,
 			uint512_vec_dt * kvstats,
 			unsigned int srcvoffset,
 			unsigned int srcvsize,

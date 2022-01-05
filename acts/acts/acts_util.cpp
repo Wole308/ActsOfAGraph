@@ -368,44 +368,60 @@ uint32_type
 	#ifdef SW 
 	acts_util::
 	#endif 
-UTIL_CONVERTVMASKTOUINT32(unit1width_type vmask[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int index){
+UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int index){
 	uint32_type res;
 	#ifdef _WIDEWORD
-	res.range(0, 0) = vmask[0][index].data[0];
-	res.range(1, 1) = vmask[0][index].data[1];
-	res.range(2, 2) = vmask[1][index].data[0];
-	res.range(3, 3) = vmask[1][index].data[1];
-	res.range(4, 4) = vmask[2][index].data[0];
-	res.range(5, 5) = vmask[2][index].data[1];
-	res.range(6, 6) = vmask[3][index].data[0];
-	res.range(7, 7) = vmask[3][index].data[1];
-	res.range(8, 8) = vmask[4][index].data[0];
-	res.range(9, 9) = vmask[4][index].data[1];
-	res.range(10, 10) = vmask[5][index].data[0];
-	res.range(11, 11) = vmask[5][index].data[1];
-	res.range(12, 12) = vmask[6][index].data[0];
-	res.range(13, 13) = vmask[6][index].data[1];
-	res.range(14, 14) = vmask[7][index].data[0];
-	res.range(15, 15) = vmask[7][index].data[1];
+	res.range(0, 0) = vmaskBITS[0][index].data;
+	res.range(1, 1) = vmaskBITS[1][index].data;
+	res.range(2, 2) = vmaskBITS[2][index].data;
+	res.range(3, 3) = vmaskBITS[3][index].data;
+	res.range(4, 4) = vmaskBITS[4][index].data;
+	res.range(5, 5) = vmaskBITS[5][index].data;
+	res.range(6, 6) = vmaskBITS[6][index].data;
+	res.range(7, 7) = vmaskBITS[7][index].data;
+	res.range(8, 8) = vmaskBITS[8][index].data;
+	res.range(9, 9) = vmaskBITS[9][index].data;
+	res.range(10, 10) = vmaskBITS[10][index].data;
+	res.range(11, 11) = vmaskBITS[11][index].data;
+	res.range(12, 12) = vmaskBITS[12][index].data;
+	res.range(13, 13) = vmaskBITS[13][index].data;
+	res.range(14, 14) = vmaskBITS[14][index].data;
+	res.range(15, 15) = vmaskBITS[15][index].data;
 	#else 
-	UTIL_WRITETO_UINT(&res, 0, 1, vmask[0][index].data[0]);
-	UTIL_WRITETO_UINT(&res, 1, 1, vmask[0][index].data[1]);
-	UTIL_WRITETO_UINT(&res, 2, 1, vmask[1][index].data[0]);
-	UTIL_WRITETO_UINT(&res, 3, 1, vmask[1][index].data[1]);
-	UTIL_WRITETO_UINT(&res, 4, 1, vmask[2][index].data[0]);
-	UTIL_WRITETO_UINT(&res, 5, 1, vmask[2][index].data[1]);
-	UTIL_WRITETO_UINT(&res, 6, 1, vmask[3][index].data[0]);
-	UTIL_WRITETO_UINT(&res, 7, 1, vmask[3][index].data[1]);
-	UTIL_WRITETO_UINT(&res, 8, 1, vmask[4][index].data[0]);
-	UTIL_WRITETO_UINT(&res, 9, 1, vmask[4][index].data[1]);
-	UTIL_WRITETO_UINT(&res, 10, 1, vmask[5][index].data[0]);
-	UTIL_WRITETO_UINT(&res, 11, 1, vmask[5][index].data[1]);
-	UTIL_WRITETO_UINT(&res, 12, 1, vmask[6][index].data[0]);
-	UTIL_WRITETO_UINT(&res, 13, 1, vmask[6][index].data[1]);
-	UTIL_WRITETO_UINT(&res, 14, 1, vmask[7][index].data[0]);
-	UTIL_WRITETO_UINT(&res, 15, 1, vmask[7][index].data[1]);
+	UTIL_WRITETO_UINT(&res, 0, 1, vmaskBITS[0][index].data);
+	UTIL_WRITETO_UINT(&res, 2, 1, vmaskBITS[1][index].data);
+	UTIL_WRITETO_UINT(&res, 4, 1, vmaskBITS[2][index].data);
+	UTIL_WRITETO_UINT(&res, 6, 1, vmaskBITS[3][index].data);
+	UTIL_WRITETO_UINT(&res, 8, 1, vmaskBITS[4][index].data);
+	UTIL_WRITETO_UINT(&res, 10, 1, vmaskBITS[5][index].data);
+	UTIL_WRITETO_UINT(&res, 12, 1, vmaskBITS[6][index].data);
+	UTIL_WRITETO_UINT(&res, 14, 1, vmaskBITS[7][index].data);
+	UTIL_WRITETO_UINT(&res, 16, 1, vmaskBITS[8][index].data);
+	UTIL_WRITETO_UINT(&res, 18, 1, vmaskBITS[9][index].data);
+	UTIL_WRITETO_UINT(&res, 20, 1, vmaskBITS[10][index].data);
+	UTIL_WRITETO_UINT(&res, 22, 1, vmaskBITS[11][index].data);
+	UTIL_WRITETO_UINT(&res, 24, 1, vmaskBITS[12][index].data);
+	UTIL_WRITETO_UINT(&res, 26, 1, vmaskBITS[13][index].data);
+	UTIL_WRITETO_UINT(&res, 28, 1, vmaskBITS[14][index].data);
+	UTIL_WRITETO_UINT(&res, 30, 1, vmaskBITS[15][index].data);
 	#endif
 	return res;
+}
+unsigned int 
+	#ifdef SW 
+	acts_util::
+	#endif 
+UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){ // for CONFIG_SPLIT_DESTVTXS
+	#pragma HLS INLINE
+	return (vid - instid) / NUM_PEs;
+}
+unsigned int 
+	#ifdef SW 
+	acts_util::
+	#endif 
+UTIL_GETREALVID(unsigned int lvid, unsigned int instid){ // for CONFIG_SPLIT_DESTVTXS
+	#pragma HLS INLINE
+	return (lvid * NUM_PEs) + instid;
 }
 
 // utilities
@@ -547,9 +563,9 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].range(31, 0);
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].range(31, 0);
 	globalparams.SIZE_OTHERINFOS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_OTHERINFOS].range(31, 0);
-	globalparams.SIZEKVS_PROCESSEDGESPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].range(31, 0); // NEWCHANGE
+	globalparams.SIZEKVS2_PROCESSEDGESPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].range(31, 0); // NEWCHANGE
 	globalparams.SIZE_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].range(31, 0);
-	globalparams.SIZEKVS_REDUCEPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].range(31, 0); // NEWCHANGE
+	globalparams.SIZEKVS2_REDUCEPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].range(31, 0); // NEWCHANGE
 	globalparams.SIZEKVS_VMASKBUFFER = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].range(31, 0); // NEWCHANGE
 	globalparams.SIZE_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].range(31, 0);
 	globalparams.SIZE_RUN = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].range(31, 0);
@@ -582,6 +598,7 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.ACTSPARAMS_SRCVSIZE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVSIZE].range(31, 0);
 	globalparams.ACTSPARAMS_DESTVOFFSET = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_DESTVOFFSET].range(31, 0);
 	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_NUMEDGECHUNKSINABUFFER].range(31, 0);
+	globalparams.ACTSPARAMS_INSTID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_INSTID].range(31, 0); // NEWCHANGE
 	
 	globalparams.RETURN_RETURNVALUES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].range(31, 0);
 	#else 
@@ -619,9 +636,9 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.SIZE_KVDRAM = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key;
 	globalparams.SIZE_KVDRAMWORKSPACE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key;
 	globalparams.SIZE_OTHERINFOS = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_OTHERINFOS].data[0].key;
-	globalparams.SIZEKVS_PROCESSEDGESPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].data[0].key; // NEWCHANGE
+	globalparams.SIZEKVS2_PROCESSEDGESPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].data[0].key; // NEWCHANGE
 	globalparams.SIZE_REDUCE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key;
-	globalparams.SIZEKVS_REDUCEPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].data[0].key; // NEWCHANGE
+	globalparams.SIZEKVS2_REDUCEPARTITION = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].data[0].key; // NEWCHANGE
 	globalparams.SIZEKVS_VMASKBUFFER = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].data[0].key; // NEWCHANGE
 	globalparams.SIZE_BATCHRANGE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].data[0].key;
 	globalparams.SIZE_RUN = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key;
@@ -654,8 +671,9 @@ UTIL_getglobalparams(uint512_dt * kvdram){
 	globalparams.ACTSPARAMS_SRCVSIZE = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVSIZE].data[0].key;
 	globalparams.ACTSPARAMS_DESTVOFFSET = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_DESTVOFFSET].data[0].key;
 	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_NUMEDGECHUNKSINABUFFER].data[0].key;
+	globalparams.ACTSPARAMS_INSTID = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_INSTID].data[0].key;
 	
-	globalparams.RETURN_RETURNVALUES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].data[0].key;
+	globalparams.RETURN_RETURNVALUES = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].data[0].key; // NEWCHANGE
 	#endif  
 	globalparams.VARS_WORKBATCH = 0;
 	
@@ -967,13 +985,12 @@ void
 	#ifdef SW 
 	acts_util::
 	#endif 
-UTIL_reset(unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]){
-	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){
+UTIL_reset(unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]){
+	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<DOUBLE_BLOCKRAM_SIZE; k++){
 	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
 		for(unsigned int i=0; i<VDATA_PACKINGSIZE; i++){
 		#pragma HLS UNROLL
-			vmaskBITS[i][k].data[0] = 0;
-			vmaskBITS[i][k].data[1] = 0;
+			vmaskBITS[i][k].data = 0;
 		}
 	}
 	return;

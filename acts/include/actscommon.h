@@ -292,9 +292,9 @@ typedef struct {
 	unsigned int SIZE_KVDRAM;
 	unsigned int SIZE_KVDRAMWORKSPACE;
 	unsigned int SIZE_OTHERINFOS;
-	unsigned int SIZEKVS_PROCESSEDGESPARTITION;
+	unsigned int SIZEKVS2_PROCESSEDGESPARTITION;
 	unsigned int SIZE_REDUCE;
-	unsigned int SIZEKVS_REDUCEPARTITION;
+	unsigned int SIZEKVS2_REDUCEPARTITION;
 	unsigned int SIZEKVS_VMASKBUFFER;
 	unsigned int SIZE_BATCHRANGE;
 	unsigned int SIZE_RUN;
@@ -327,6 +327,7 @@ typedef struct {
 	unsigned int ACTSPARAMS_SRCVSIZE;
 	unsigned int ACTSPARAMS_DESTVOFFSET;
 	unsigned int ACTSPARAMS_NUMEDGECHUNKSINABUFFER;
+	unsigned int ACTSPARAMS_INSTID;
 
 	unsigned int RETURN_RETURNVALUES;
 	

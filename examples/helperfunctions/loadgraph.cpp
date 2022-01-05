@@ -445,6 +445,7 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt
 	#endif
 
 	createmessages(
+			0,
 			vdram, // uint512_vec_dt * kvstats,
 			container->srcvoffset[0], // unsigned int srcvoffset,
 			container->srcvsize[0], // unsigned int srcvsize,
@@ -463,6 +464,7 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ 
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 		createmessages(
+			i,
 			edges[i], // uint512_vec_dt * kvstats,
 			0, // unsigned int srcvoffset,
 			0, // unsigned int srcvsize,
@@ -474,6 +476,7 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt
 			0,
 			globalparams.globalparamsE); // unsigned int runsize
 		createmessages(
+			i,
 			kvbuffer[i], // uint512_vec_dt * kvstats,
 			container->srcvoffset[i], // unsigned int srcvoffset,
 			container->srcvsize[i], // unsigned int srcvsize,
@@ -486,6 +489,7 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt
 			globalparams.globalparamsK); // unsigned int runsize
 		#else 
 		createmessages(
+			i,
 			kvbuffer[i], // uint512_vec_dt * kvstats,
 			container->srcvoffset[i], // unsigned int srcvoffset,
 			container->srcvsize[i], // unsigned int srcvsize,
@@ -511,6 +515,7 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * vdram, uint512_vec_dt
 	return globalparams;
 }
 globalparams_t loadgraph::createmessages(
+			unsigned int id,
 			uint512_vec_dt * kvbuffer,
 			unsigned int srcvoffset,
 			unsigned int srcvsize,
@@ -558,9 +563,9 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key = globalparams.SIZE_KVDRAM; // KVDRAMSZ;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key = globalparams.SIZE_KVDRAMWORKSPACE; 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_OTHERINFOS].data[0].key = globalparams.SIZE_OTHERINFOS; 
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].data[0].key = PROCESSPARTITIONSZ_KVS; //
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].data[0].key = PROCESSPARTITIONSZ_KVS2; //
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key = REDUCESZ; //
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].data[0].key = REDUCEPARTITIONSZ_KVS; //
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].data[0].key = REDUCEPARTITIONSZ_KVS2; //
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].data[0].key = VMASKBUFFERSZ_KVS; //
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].data[0].key = BATCH_RANGE; //
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key = runsize; //
@@ -587,8 +592,8 @@ globalparams_t loadgraph::createmessages(
 		#endif 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_PROCESSEDGESPARTITIONS].data[0].key =
 		#ifdef CONFIG_SPLIT_DESTVTXS
-		kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].data[0].key*NUMCOMPUTEUNITS_SLR1AND2 
-			+ kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].data[0].key*NUMCOMPUTEUNITS_SLR1AND2
+		kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].data[0].key*NUMCOMPUTEUNITS_SLR2
+			+ kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].data[0].key*NUMCOMPUTEUNITS_SLR1
 				+ kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_NUM_REDUCEPARTITIONS].data[0].key*NUMCOMPUTEUNITS_SLR0; // 264
 		#else 
 		KVDATA_RANGE / PROCESSPARTITIONSZ;	
@@ -604,7 +609,8 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVOFFSET].data[0].key = srcvoffset;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVSIZE].data[0].key = srcvsize;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_DESTVOFFSET].data[0].key = destvoffset;
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_NUMEDGECHUNKSINABUFFER].data[0].key = globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER;//NUM_EDGECHUNKS_IN_A_BUFFER; // CRITICAL REMOVEME.
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_NUMEDGECHUNKSINABUFFER].data[0].key = globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_INSTID].data[0].key = id; 
 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURN_RETURNVALUES].data[0].key = MESSAGES_RETURN_RETURNVALUES;
 	

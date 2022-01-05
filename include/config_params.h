@@ -42,6 +42,14 @@
 
 #endif
 
+/*
+- AUTOMATE FOR LARGER GRAPHS: MERGE_mergeVs
+- CRITICAL FIXME. mem_access.cpp
+- CRITICAL FIXME. TOO EXPENSIVE. mem_access.cpp
+
+
+
+*/
 
 
 

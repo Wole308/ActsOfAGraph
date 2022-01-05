@@ -25,7 +25,7 @@ void
 	#ifdef SW
 	top_usrcv_udstv::
 	#endif 
-processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -173,7 +173,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv::
 	#endif 
-partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){
+partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -258,7 +258,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv::
 	#endif 
-reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){	
+reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -302,7 +302,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv::
 	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],
+dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],
 			globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	if(en_process == ON){ processit( kvdram, sourcebuffer, vbuffer, vmask, vmaskBITS, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID, hybridmode); } 
@@ -315,7 +315,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv::
 	#endif 
-dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,	
+dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -343,7 +343,7 @@ void
 	#ifdef SW 
 	top_usrcv_udstv:: 
 	#endif
-topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsigned int en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1width_type vmaskBITS[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalposition_t globalposition, unsigned int hybridmode){
+topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsigned int en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], unitBRAMwidth_type vmask_subp[BLOCKRAM_SIZE], unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalposition_t globalposition, unsigned int hybridmode){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -471,7 +471,7 @@ topkernelP1(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[1];
@@ -745,7 +745,7 @@ topkernelP2(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -755,7 +755,7 @@ topkernelP2(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[2];
@@ -1039,7 +1039,7 @@ topkernelP3(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1049,7 +1049,7 @@ topkernelP3(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1059,7 +1059,7 @@ topkernelP3(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[3];
@@ -1353,7 +1353,7 @@ topkernelP4(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1363,7 +1363,7 @@ topkernelP4(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1373,7 +1373,7 @@ topkernelP4(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1383,7 +1383,7 @@ topkernelP4(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[4];
@@ -1687,7 +1687,7 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1697,7 +1697,7 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1707,7 +1707,7 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1717,7 +1717,7 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -1727,7 +1727,7 @@ topkernelP5(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
-	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS4[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[5];
@@ -2041,7 +2041,7 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2051,7 +2051,7 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2061,7 +2061,7 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2071,7 +2071,7 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2081,7 +2081,7 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
-	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS4[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2091,7 +2091,7 @@ topkernelP6(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
-	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS5[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[6];
@@ -2415,7 +2415,7 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2425,7 +2425,7 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2435,7 +2435,7 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2445,7 +2445,7 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2455,7 +2455,7 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
-	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS4[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2465,7 +2465,7 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
-	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS5[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2475,7 +2475,7 @@ topkernelP7(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
-	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS6[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[7];
@@ -2809,7 +2809,7 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2819,7 +2819,7 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2829,7 +2829,7 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2839,7 +2839,7 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2849,7 +2849,7 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
-	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS4[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2859,7 +2859,7 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
-	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS5[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2869,7 +2869,7 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
-	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS6[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -2879,7 +2879,7 @@ topkernelP8(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
-	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS7[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[8];
@@ -3223,7 +3223,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3233,7 +3233,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3243,7 +3243,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3253,7 +3253,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3263,7 +3263,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
-	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS4[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3273,7 +3273,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
-	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS5[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3283,7 +3283,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
-	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS6[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3293,7 +3293,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
-	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS7[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3303,7 +3303,7 @@ topkernelP9(
 	#pragma HLS DATA_PACK variable = vmask8_subp
 	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
-	unit1width_type vmaskBITS8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS8[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS8
 	keyvalue_t globalstatsbuffer8[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[9];
@@ -3657,7 +3657,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3667,7 +3667,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3677,7 +3677,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3687,7 +3687,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3697,7 +3697,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
-	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS4[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3707,7 +3707,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
-	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS5[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3717,7 +3717,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
-	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS6[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3727,7 +3727,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
-	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS7[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3737,7 +3737,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask8_subp
 	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
-	unit1width_type vmaskBITS8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS8[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS8
 	keyvalue_t globalstatsbuffer8[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -3747,7 +3747,7 @@ topkernelP10(
 	#pragma HLS DATA_PACK variable = vmask9_subp
 	unitBRAMwidth_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
-	unit1width_type vmaskBITS9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS9[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS9
 	keyvalue_t globalstatsbuffer9[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[10];
@@ -4111,7 +4111,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4121,7 +4121,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4131,7 +4131,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4141,7 +4141,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4151,7 +4151,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
-	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS4[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4161,7 +4161,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
-	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS5[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4171,7 +4171,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
-	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS6[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4181,7 +4181,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
-	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS7[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4191,7 +4191,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask8_subp
 	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
-	unit1width_type vmaskBITS8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS8[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS8
 	keyvalue_t globalstatsbuffer8[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4201,7 +4201,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask9_subp
 	unitBRAMwidth_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
-	unit1width_type vmaskBITS9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS9[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS9
 	keyvalue_t globalstatsbuffer9[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4211,7 +4211,7 @@ topkernelP11(
 	#pragma HLS DATA_PACK variable = vmask10_subp
 	unitBRAMwidth_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
-	unit1width_type vmaskBITS10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS10[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS10
 	keyvalue_t globalstatsbuffer10[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[11];
@@ -4585,7 +4585,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask0_subp
 	unitBRAMwidth_type vmask0[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask0
-	unit1width_type vmaskBITS0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS0[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS0
 	keyvalue_t globalstatsbuffer0[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4595,7 +4595,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask1_subp
 	unitBRAMwidth_type vmask1[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask1
-	unit1width_type vmaskBITS1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS1[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS1
 	keyvalue_t globalstatsbuffer1[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4605,7 +4605,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask2_subp
 	unitBRAMwidth_type vmask2[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask2
-	unit1width_type vmaskBITS2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS2[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS2
 	keyvalue_t globalstatsbuffer2[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4615,7 +4615,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask3_subp
 	unitBRAMwidth_type vmask3[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask3
-	unit1width_type vmaskBITS3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS3[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS3
 	keyvalue_t globalstatsbuffer3[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4625,7 +4625,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask4_subp
 	unitBRAMwidth_type vmask4[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask4
-	unit1width_type vmaskBITS4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS4[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS4
 	keyvalue_t globalstatsbuffer4[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4635,7 +4635,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask5_subp
 	unitBRAMwidth_type vmask5[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask5
-	unit1width_type vmaskBITS5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS5[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS5
 	keyvalue_t globalstatsbuffer5[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4645,7 +4645,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask6_subp
 	unitBRAMwidth_type vmask6[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask6
-	unit1width_type vmaskBITS6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS6[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS6
 	keyvalue_t globalstatsbuffer6[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4655,7 +4655,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask7_subp
 	unitBRAMwidth_type vmask7[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask7
-	unit1width_type vmaskBITS7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS7[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS7
 	keyvalue_t globalstatsbuffer7[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4665,7 +4665,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask8_subp
 	unitBRAMwidth_type vmask8[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask8
-	unit1width_type vmaskBITS8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS8[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS8
 	keyvalue_t globalstatsbuffer8[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4675,7 +4675,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask9_subp
 	unitBRAMwidth_type vmask9[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask9
-	unit1width_type vmaskBITS9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS9[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS9
 	keyvalue_t globalstatsbuffer9[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4685,7 +4685,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask10_subp
 	unitBRAMwidth_type vmask10[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask10
-	unit1width_type vmaskBITS10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS10[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS10
 	keyvalue_t globalstatsbuffer10[MAX_NUM_PARTITIONS];
 	keyvalue_vbuffer_t vbuffer11[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
@@ -4695,7 +4695,7 @@ topkernelP12(
 	#pragma HLS DATA_PACK variable = vmask11_subp
 	unitBRAMwidth_type vmask11[BLOCKRAM_SIZE];
 	#pragma HLS DATA_PACK variable = vmask11
-	unit1width_type vmaskBITS11[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // NEWCHANGE.
+	unit1_type vmaskBITS11[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
 	#pragma HLS DATA_PACK variable = vmaskBITS11
 	keyvalue_t globalstatsbuffer11[MAX_NUM_PARTITIONS];
 	travstate_t rtravstates[12];
