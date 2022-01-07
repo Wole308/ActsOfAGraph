@@ -526,3 +526,139 @@ void loadedges::accumstats(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], uint512_
 	}
 	return;
 }
+
+void loadedges::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue_vec_bittype vmask[VMASK_PACKINGSIZE][REDUCEBUFFERSZ], batch_type offset_kvs, buffer_type size_kvs){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"loadedges::savevmasks:: saving vmask... "<<endl;
+	#endif
+	unsigned int bitsbuffer[REDUCEBUFFERSZ];
+	keyvalue_t tempbuffer[VECTOR_SIZE][BLOCKRAM_SIZE];
+	
+	for (buffer_type i=0; i<REDUCEBUFFERSZ; i++){
+		for(unsigned int k=0; k<VMASK_PACKINGSIZE; k++){
+			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k, 1, vmask[k][i].key);
+			utilityobj->WRITETO_UINT(&bitsbuffer[i], 2*k+1, 1, vmask[k][i].value);
+		}
+	}
+	
+	unsigned int index = 0;
+	for (buffer_type i=0; i<VMASKBUFFERSZ_KVS; i++){
+		for (vector_type v=0; v<VECTOR_SIZE; v++){
+			#ifdef _DEBUGMODE_CHECKS2
+			utilityobj->checkoutofbounds("loadedges::savevmasks_h 1.1", index, REDUCEBUFFERSZ, NAp, NAp, NAp);
+			utilityobj->checkoutofbounds("loadedges::savevmasks_h 1.2", i, VMASKBUFFERSZ_KVS, NAp, NAp, NAp);
+			#endif
+			tempbuffer[v][i].key = bitsbuffer[index]; 
+			tempbuffer[v][i].value = bitsbuffer[index+1]; 
+			index += 2;
+		}
+	}
+	
+	for (buffer_type i=0; i<size_kvs; i++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvbuffer[offset_kvs + i].data[v] = tempbuffer[v][i];
+		}
+	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	utilityobj->printvalues("savevmasks.bitsbuffer", bitsbuffer, 4);
+	utilityobj->printkeyvalues("savevmasks.vmask", vmask, VMASK_PACKINGSIZE, 4);
+	utilityobj->printkeyvalues("savevmasks.tempbuffer", tempbuffer, 8, 4);
+	utilityobj->printkeyvalues("savevmasks.kvbuffer[0]", (keyvalue_t *)&kvbuffer[offset_kvs], 4);
+	#endif
+	return;
+}
+globalparams_TWOt loadedges::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * vdram, globalparams_TWOt globalparams){ 
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	cout<<"loadedges::generatevmaskdata:: generating vmask... "<<endl;
+	#endif
+	
+	globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.globalparamsK.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
+	globalparams.globalparamsK.SIZE_VERTICESDATAMASK = VERTICESDATAMASKSZ;
+	
+	globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsK.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
+	// globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK = 512 * VECTOR_SIZE;
+	globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK = (NUMPROCESSEDGESPARTITIONS * 2) * VECTOR_SIZE; // '*2' is padding value. AUTOMATEME.
+	
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+	globalparams.globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.globalparamsE.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
+	globalparams.globalparamsE.SIZE_VERTICESDATAMASK = 0;
+	
+	globalparams.globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsE.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
+	globalparams.globalparamsE.SIZE_VERTICESPARTITIONMASK = 0;
+	#endif 
+	
+	globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.globalparamsV.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
+	globalparams.globalparamsV.SIZE_VERTICESDATAMASK = VERTICESDATAMASKSZ;
+	
+	globalparams.globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsV.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
+	// globalparams.globalparamsV.SIZE_VERTICESPARTITIONMASK = 512 * VECTOR_SIZE;
+	globalparams.globalparamsV.SIZE_VERTICESPARTITIONMASK = (NUMPROCESSEDGESPARTITIONS * 2) * VECTOR_SIZE;
+	
+	unsigned int _BASEOFFSET_VERTICESDATAMASK_KVS = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK;
+	unsigned int _BASEOFFSET_VERTICESPARTITIONMASK_KVS = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK;
+	unsigned int _BASEOFFSETV_VERTICESDATAMASK_KVS = globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK;
+	unsigned int _BASEOFFSETV_VERTICESPARTITIONMASK_KVS = globalparams.globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK; // NEWCHANGE.
+	
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("generatevmaskdata.BASEOFFSETKVS_VERTICESDATAMASK", globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	utilityobj->checkoutofbounds("generatevmaskdata.BASEOFFSETKVS_VERTICESPARTITIONMASK", globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
+	#endif 
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	cout<<"[globalparams.globalparamsK.BASEOFFSET_VERTICESDATAMASK: "<<globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK * VECTOR_SIZE<<"]"<<endl;
+	cout<<"[globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK: "<<globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK<<"]"<<endl;
+	#endif
+	
+	keyvalue_vec_bittype vmask[VMASK_PACKINGSIZE][REDUCEBUFFERSZ];
+	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int k=0; k<VERTICESDATAMASKSZ_KVS; k++){ 
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				#ifdef _DEBUGMODE_CHECKS3
+				utilityobj->checkoutofbounds("loadedges::generatevmaskdata 2._BASEOFFSET_VERTICESDATAMASK_KVS", _BASEOFFSET_VERTICESDATAMASK_KVS + k, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
+				#endif
+				kvbuffer[i][_BASEOFFSET_VERTICESDATAMASK_KVS + k].data[v].key = 0;
+				kvbuffer[i][_BASEOFFSET_VERTICESDATAMASK_KVS + k].data[v].value = 0;
+				
+				vdram[_BASEOFFSETV_VERTICESDATAMASK_KVS + k].data[v].key = 0;
+				vdram[_BASEOFFSETV_VERTICESDATAMASK_KVS + k].data[v].value = 0; // NEWCHANGE.
+			}
+		}
+	}
+	
+	unsigned int vmaskoffset_kvs = 0;
+	for(unsigned int offset=0; offset<BATCH_RANGE; offset+=REDUCESZ * VMASK_PACKINGSIZE){
+		for(unsigned int i=0; i<VMASK_PACKINGSIZE; i++){
+			unsigned int * V = (unsigned int *)vmask[i]; 
+			for(unsigned int k=0; k<REDUCESZ; k++){
+				unsigned int vid = offset + (i*REDUCESZ) + k;
+				if(vid==activevertices[0]){ V[k] = 1; }
+				else{ V[k] = 0; }
+			}
+		}
+		
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ savevmasks(ON, kvbuffer[i], vmask, _BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs, VMASKBUFFERSZ_KVS); }
+		savevmasks(ON, vdram, vmask, _BASEOFFSETV_VERTICESDATAMASK_KVS + vmaskoffset_kvs, VMASKBUFFERSZ_KVS); // NEWCHANGE.
+		vmaskoffset_kvs += VMASKBUFFERSZ_KVS;
+	}
+	
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ 
+			#ifdef _DEBUGMODE_CHECKS3
+			utilityobj->checkoutofbounds("loadedges::generatevmaskdata 2._BASEOFFSET_VERTICESPARTITIONMASK_KVS", _BASEOFFSET_VERTICESPARTITIONMASK_KVS + k, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
+			#endif
+			kvbuffer[i][_BASEOFFSET_VERTICESPARTITIONMASK_KVS + k].data[0].key = 0;
+			vdram[_BASEOFFSETV_VERTICESPARTITIONMASK_KVS + k].data[0].key = 0; // NEWCHANGE.
+		}
+		kvbuffer[i][_BASEOFFSET_VERTICESPARTITIONMASK_KVS].data[0].key = 1; // CRITICAL AUTOMATEME.
+		vdram[_BASEOFFSETV_VERTICESPARTITIONMASK_KVS].data[0].key = 1; // NEWCHANGE
+	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	utilityobj->printkeyvalues("generatevmaskdata.vmask", vmask, VMASK_PACKINGSIZE, 4);
+	utilityobj->printkeyvalues("generatevmaskdata.kvbuffer[0]", (keyvalue_t *)&kvbuffer[0][_BASEOFFSET_VERTICESDATAMASK_KVS], 4);
+	cout<<"loadedges::generatevmaskdata:: end. "<<endl;
+	#endif
+	
+	return globalparams;
+}

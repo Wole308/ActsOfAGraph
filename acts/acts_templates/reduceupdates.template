@@ -45,13 +45,12 @@ REDUCE_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer
 	
 	bool en = true; if(mykeyvalue.key != acts_utilobj->UTIL_GETK(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ en = true; } else { en = false; }
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	// if(mykeyvalue.key != acts_utilobj->UTIL_GETK(INVALIDDATA) && mykeyvalue.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ cout<<"REDUCE SEEN @ REDUCE_reducevector:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
-	if(en == true){ cout<<"REDUCE SEEN @ REDUCE_reducevector:: vid: "<<upperlimit + loc<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 // upperlimit + loc
+	if(en == true){ cout<<"REDUCE_reducevector:: REDUCE SEEN @ vid: "<<acts_utilobj->UTIL_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
 	#endif 
 	
 	if(loc >= globalparams.SIZE_REDUCE && en == true){ 
-		if(true){ cout<<"REDUCE_reducevector::ERROR SEEN: loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+		if(true){ cout<<"REDUCE_reducevector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->reducehelper_checkreduceloc(0, loc, mykeyvalue, sweepparams, globalparams); 
 		#endif 
@@ -69,7 +68,7 @@ REDUCE_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer
 	
 	value_t new_vprop = REDUCE_reducefunc(temp, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(en == true){ cout<<"REDUCEFUNC RESULT @ REDUCE_reducevector:: new_vprop: "<<new_vprop<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
+	if(en == true){ cout<<"REDUCE_reducevector:: REDUCEFUNC RESULT @ new_vprop: "<<new_vprop<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
 	if(colindex == 0){ curr_vprop.key = new_vprop; }
@@ -80,7 +79,7 @@ REDUCE_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer
 	#ifdef COLLECTMASKINFOS // mask information
 	if(en == true && mykeyvalue.value != temp){ vmaskBITS[loc].data = 1; } // vmaskBITS[rowindex].data[colindex] = 1; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true && mykeyvalue.value != temp){ cout<<"REDUCE SEEN @ REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
+	if(en == true && mykeyvalue.value != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
 	#endif 
 	#endif
 	

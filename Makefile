@@ -77,8 +77,8 @@ LDFLAGS += $(opencl_LDFLAGS)
 # KERNEL_TOP += $(RELREF)acts/actsutility/actsutility.cpp
 
 KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc.cpp
-KERNEL_TOP_PROC += $(RELREF)acts/acts/top_unifiedvts.cpp
-KERNEL_TOP_PROC += $(RELREF)acts/acts/top_nonunifiedvts.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/top_usrcv_udstv.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/top_nusrcv_nudstv.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/processedges_unslicedgraph.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/processedges_slicedgraph.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/partitionupdates.cpp
@@ -116,7 +116,7 @@ HOST_TOP += $(RELREF)examples/hostprocess.cpp
 HOST_SRCS += $(RELREF)src/algorithm/algorithm.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/loadgraph.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/loadedges.cpp
-HOST_SRCS += $(RELREF)examples/helperfunctions/loadedges_splitvertices.cpp
+HOST_SRCS += $(RELREF)examples/helperfunctions/loadedges_splitdstvxs.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/setupkernel.cpp
 HOST_SRCS += $(RELREF)examples/helperfunctions/evalparams.cpp
 HOST_SRCS += $(RELREF)examples/app/app.cpp
@@ -129,9 +129,6 @@ HOST_SRCS += $(RELREF)kernels/swkernel.cpp
 HOST_SRCS += $(RELREF)kernels/goclkernel.cpp
 HOST_SRCS += $(RELREF)src/graphs/creategraphs.cpp
 HOST_SRCS += $(RELREF)src/graphs/createundirectedgraph.cpp
-# HOST_SRCS += $(RELREF)src/graphs/makeundirectedgraph_orderbyindegree.cpp
-HOST_SRCS += $(RELREF)src/graphs/mysort.cpp
-HOST_SRCS += $(RELREF)acts/sortreduce/sr.cpp
 
 # sort-reduce files
 SORTREDUCE_INCLUDE=$(RELREF)sortreduce-master/include/

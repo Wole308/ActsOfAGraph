@@ -518,7 +518,7 @@ void goclkernel::verifyresults_hw(uint512_vec_dt * kvbuffer, unsigned int baseof
 	for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
 	
 	uint512_vec_dt buff[REDUCEBUFFERSZ];
-	for(unsigned int offset_kvs=0; offset_kvs<VERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
+	for(unsigned int offset_kvs=0; offset_kvs<SRCVERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
 		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
 			buff[i] = kvbuffer[baseoffsetkvs_verticesdata + offset_kvs + i];
 		}

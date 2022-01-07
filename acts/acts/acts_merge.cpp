@@ -1070,14 +1070,12 @@ MERGE_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 	
 	unsigned int psizes_kvs[1][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -1090,9 +1088,6 @@ MERGE_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -1166,7 +1161,7 @@ MERGE_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs1: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs1: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -1183,14 +1178,12 @@ MERGE_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
 	
 	unsigned int psizes_kvs[2][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -1203,9 +1196,6 @@ MERGE_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -1318,7 +1308,7 @@ MERGE_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs2: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs2: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -1335,14 +1325,12 @@ MERGE_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, u
 	
 	unsigned int psizes_kvs[3][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -1355,9 +1343,6 @@ MERGE_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, u
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -1509,7 +1494,7 @@ MERGE_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, u
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs3: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs3: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -1526,14 +1511,12 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	unsigned int psizes_kvs[4][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -1546,9 +1529,6 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -1739,7 +1719,7 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs4: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs4: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -1756,14 +1736,12 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	unsigned int psizes_kvs[5][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -1776,9 +1754,6 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -2008,7 +1983,7 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs5: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs5: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -2025,14 +2000,12 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	unsigned int psizes_kvs[6][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -2045,9 +2018,6 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -2316,7 +2286,7 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs6: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs6: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -2333,14 +2303,12 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	unsigned int psizes_kvs[7][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -2353,9 +2321,6 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -2663,7 +2628,7 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs7: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs7: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -2680,14 +2645,12 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	unsigned int psizes_kvs[8][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -2700,9 +2663,6 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -3049,7 +3009,7 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs8: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs8: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -3066,14 +3026,12 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	unsigned int psizes_kvs[9][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -3086,9 +3044,6 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -3474,7 +3429,7 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs9: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs9: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -3491,14 +3446,12 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	
 	unsigned int psizes_kvs[10][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -3511,9 +3464,6 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -3938,7 +3888,7 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs10: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs10: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -3955,14 +3905,12 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	
 	unsigned int psizes_kvs[11][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -3975,9 +3923,6 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -4441,7 +4386,7 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs11: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs11: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -4458,14 +4403,12 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	
 	unsigned int psizes_kvs[12][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
-	unsigned int partitionmasks[BLOCKRAM_SIZE];
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ partitionmasks[k] = 0; }
+	unsigned int partitionmasks[NUM_PEs];
+	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
 	
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	
-	// unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 	
 	unsigned int voffset_kvs2;
 	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
@@ -4478,9 +4421,6 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vpmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vpmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * 1; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vpmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * 1; }
 
 	// stats
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -4983,7 +4923,7 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE_mergeVs12: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<endl;
+	cout<<"MERGE_mergeVs12: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", vmoffset: "<<vmoffset_kvs * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
 	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
@@ -5154,6 +5094,39 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC){
 			partitionoffseti += 1;
 			vmoffsetC_kvs += globalparamsvC.SIZEKVS_VMASKBUFFER;
 		}
+	}
+	
+	// vertices partition masks
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"merging vertices partition masks across vdramA, vdramB & vdramC."<<endl; 
+	#endif
+	unsigned int pA = 0; unsigned int pB = 0; unsigned int pC = 0; 
+	MERGE_EXCHANGEVPMS_LOOP1: for(unsigned int partition=0; partition<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; partition++){
+		#ifdef _WIDEWORD
+		pA = vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0);
+		pB = vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0);
+		pC = vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0);
+		#else 
+		pA = vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
+		pB = vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
+		pC = vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
+		#endif 
+		
+		unsigned int p = pA | pB | pC;
+		
+		#ifdef _WIDEWORD
+		vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0) = p;
+		vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0) = p;
+		vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0) = p;
+		#else 
+		vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key = p;
+		vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key = p;
+		vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key = p;
+		#endif 
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"--- MERGE_exchangeVs: vdramA["<<partition<<"]: "<<p<<endl; 
+		#endif
 	}
 
 	#ifdef _DEBUGMODE_KERNELPRINTS3

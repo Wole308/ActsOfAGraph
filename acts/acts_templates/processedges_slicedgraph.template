@@ -116,25 +116,20 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
 		E[{{2*v}}] = edges[offset_kvs + i].data[{{v}}].key; 
-		E[{{2*v+1}}] = edges[offset_kvs + i].data[{{v}}].value; 
+		E[{{2*v+1}}] = edges[offset_kvs + i].data[{{v}}].value;
 		{%endfor%}
 		#endif
-		/* // #ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-		// {%for v in context['VECTOR_SIZE _seq']%}
-		// cout<<"readandprocess: E["<<v<<"]: "<<E[v]<<endl;
-		// {%endfor%}	
-		cout<<"readandprocess: i: "<<i<<endl;
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<E[v]<<", "; }
-		cout<<endl;
-		// #endif  */
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			{%for v in context['VECTOR2_SIZE_seq']%}
+			cout<<"readandprocess(1-2): E[{{v}}]: "<<E[{{v}}]<<endl;
+			{%endfor%}
+			#endif
 		
 		vertex_t srcvid_head = E[0];
 		vertex_t lvid_head = srcvid_head - travstate.i2;
 		
 		bool_type en = ON;
-		// if(lvid_head >= validbound){ {%for v in context['VECTOR2_SIZE_seq']%} ens{{v}} = OFF; {%endfor%} lvid_head = 0; } // CRITICAL NEWCHANGE WITH SLICED.
-		// if(lvid_head >= validbound){ lvid_head = 0; } // CRITICAL REMOVEME.
-			#ifdef _DEBUGMODE_CHECKS // FIXME.
+			#ifdef _DEBUGMODE_CHECKS
 			if(srcvid_head < travstate.i2){ cout<<"readandprocess(12): INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<" offset_kvs: "<<offset_kvs<<". exiting..."<<endl;					 
 				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess(12): E["<<v<<"]: "<<E[v]<<endl; }
 				exit(EXIT_FAILURE); }
@@ -178,17 +173,6 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		
 		if(GraphAlgo == PAGERANK){ {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = 1; {%endfor%} mask0 = 0; ens0 = OFF; } 
 		else { {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = masks[incr{{v}}]; {%endfor%} mask0 = 0; ens0 = OFF; }
-			/* #ifdef _DEBUGMODE_CHECKS2
-			{%for v in context['VECTOR2_SIZE_seq']%}
-			if(ens{{v}} == ON && mask{{v}} > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask{{v}}.2. mask{{v}}: "<<mask{{v}}<<", incr{{v}}: "<<incr{{v}}<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids{{v}}: "<<lsrcvids{{v}}<<", ldstvids{{v}}: "<<ldstvids{{v}}<<", incr{{v}}: "<<incr{{v}}<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			{%endfor%}
-			#endif */
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR2_SIZE_seq']%}
 			if(ens{{v}} == ON && mask{{v}} > 2){ 
@@ -210,7 +194,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		mykeyvalue0.value = INVALIDDATA;
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			if(ens{{v}} == ON && mask{{v}} == 1){ cout<<"readandprocess(15): [lsrcvids{{v}}: "<<lsrcvids{{v}}<<", ldstvids{{v}}: "<<ldstvids{{v}}<<", udata: "<<udatas[incr{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens{{v}} == ON && mask{{v}} == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids{{v}}: "<<lsrcvids{{v}}<<", ldstvids{{v}}: "<<ldstvids{{v}}<<", udata: "<<udatas[incr{{v}}]<<"], [ens{{v}}: "<<ens{{v}}<<", mask{{v}}: "<<mask{{v}}<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
 			{%endfor%}
 			#endif
 		
@@ -253,6 +237,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			if(ens{{v}} == ON && mask{{v}} == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
 			{%endfor%}
 			#endif 
+		// exit(EXIT_SUCCESS); ///
 	}
 	// cout<<">>> readandprocess: loadcount: "<<loadcount<<", activeloadcount: "<<activeloadcount<<", inactiveloadcount: "<<inactiveloadcount<<endl;
 	// exit(EXIT_SUCCESS); ///

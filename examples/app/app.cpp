@@ -23,7 +23,7 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/loadedges.h"
-#include "../../examples/helperfunctions/loadedges_splitvertices.h"
+#include "../../examples/helperfunctions/loadedges_splitdstvxs.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
 #include "../../kernels/swkernel.h"
@@ -49,7 +49,7 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj);
 	#ifdef CONFIG_SPLIT_DESTVTXS
-	loadedgesobj = new loadedges_splitvertices(graphobj, statsobj);
+	loadedgesobj = new loadedges_splitdstvxs(graphobj, statsobj);
 	#else 
 	loadedgesobj = new loadedges(graphobj, statsobj);
 	#endif 
@@ -257,7 +257,8 @@ runsummary_t app::run_hw(){
 	cout<<"app::loadactvvertices:: loading active vertices... "<<endl;
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ globalparams = loadgraphobj->loadactvvertices(actvvs, (keyy_t *)&kvbuffer[i], &container, globalparams); }
 	cout<<"app::generatevmaskdata:: generating vmask... "<<endl;
-	globalparams = loadgraphobj->generatevmaskdata(actvvs, kvbuffer, vdram, globalparams);
+	globalparams = loadedgesobj->generatevmaskdata(actvvs, kvbuffer, vdram, globalparams);
+	// exit(EXIT_SUCCESS); //
 	
 	// stats info 
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
@@ -371,7 +372,7 @@ void app::verifyresults_hw(uint512_vec_dt * kvbuffer, globalparams_t globalparam
 	for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
 	
 	uint512_vec_dt buff[REDUCEBUFFERSZ];
-	for(unsigned int offset_kvs=0; offset_kvs<VERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
+	for(unsigned int offset_kvs=0; offset_kvs<SRCVERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
 		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
 			buff[i] = kvbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + i];
 		}

@@ -108,133 +108,8 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			#endif
 			
 			kernelobjs_merge->MERGE_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC);
-			exit(EXIT_SUCCESS); //
-			
-			/* //////////////////////////////////////////////// FIXME.
-			unsigned int _SIZE_SRCVERTICESDATA_D = vdramB[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_SRCVERTICESDATA].data[0].key;
-			unsigned int _BASEOFFSETKVS_DESTVERTICESDATA_D = vdramB[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
-			for(unsigned int k=0; k<PADDEDKVSOURCEDRAMSZ_KVS; k++){ 
-				vdramB[k] = vdramD[k];
-				vdramC[k] = vdramD[k];
-			}
-			kernelobjs_synchronize->topkernelsync((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);
-			//////////////////////////////////////////////// */
-
-			// kernelobjs_synchronize->topkernelsync
-			/* kernelobjs_synchronize_slicedgraph->topkernelsync
-			(
-				(uint512_dt *)vdramA,
-				(uint512_dt *)vdramB,
-				(uint512_dt *)vdramC,
-				(uint512_dt *)vdram
-			); */
-			/* #ifdef CONFIG_UNIFIED_VDRAM
-			kernelobjs_synchronize->topkernelsync(
-				(uint512_dt *)vdramA,
-				(uint512_dt *)vdramB,
-				(uint512_dt *)vdramC,
-				(uint512_dt *)vdram
-			);
-			#else 
-			kernelobjs_synchronize->topkernelsync(
-				(uint512_dt *)kvsourcedram[0],
-				#if NUM_PEs>1
-				(uint512_dt *)kvsourcedram[1],
-				#if NUM_PEs>2
-				(uint512_dt *)kvsourcedram[2],
-				#if NUM_PEs>3
-				(uint512_dt *)kvsourcedram[3],
-				#if NUM_PEs>4
-				(uint512_dt *)kvsourcedram[4],
-				#if NUM_PEs>5
-				(uint512_dt *)kvsourcedram[5],
-				#if NUM_PEs>6
-				(uint512_dt *)kvsourcedram[6],
-				#if NUM_PEs>7
-				(uint512_dt *)kvsourcedram[7],
-				#if NUM_PEs>8
-				(uint512_dt *)kvsourcedram[8],
-				#if NUM_PEs>9
-				(uint512_dt *)kvsourcedram[9],
-				#if NUM_PEs>10
-				(uint512_dt *)kvsourcedram[10],
-				#if NUM_PEs>11
-				(uint512_dt *)kvsourcedram[11],
-				#if NUM_PEs>12
-				(uint512_dt *)kvsourcedram[12],
-				#if NUM_PEs>13
-				(uint512_dt *)kvsourcedram[13],
-				#if NUM_PEs>14
-				(uint512_dt *)kvsourcedram[14],
-				#if NUM_PEs>15
-				(uint512_dt *)kvsourcedram[15],
-				#if NUM_PEs>16
-				(uint512_dt *)kvsourcedram[16],
-				#if NUM_PEs>17
-				(uint512_dt *)kvsourcedram[17],
-				#if NUM_PEs>18
-				(uint512_dt *)kvsourcedram[18],
-				#if NUM_PEs>19
-				(uint512_dt *)kvsourcedram[19],
-				#if NUM_PEs>20
-				(uint512_dt *)kvsourcedram[20],
-				#if NUM_PEs>21
-				(uint512_dt *)kvsourcedram[21],
-				#if NUM_PEs>22
-				(uint512_dt *)kvsourcedram[22],
-				#if NUM_PEs>23
-				(uint512_dt *)kvsourcedram[23],
-				#if NUM_PEs>24
-				(uint512_dt *)kvsourcedram[24],
-				#if NUM_PEs>25
-				(uint512_dt *)kvsourcedram[25],
-				#if NUM_PEs>26
-				(uint512_dt *)kvsourcedram[26],
-				#if NUM_PEs>27
-				(uint512_dt *)kvsourcedram[27],
-				#if NUM_PEs>28
-				(uint512_dt *)kvsourcedram[28],
-				#if NUM_PEs>29
-				(uint512_dt *)kvsourcedram[29],
-				#if NUM_PEs>30
-				(uint512_dt *)kvsourcedram[30],
-				#if NUM_PEs>31
-				(uint512_dt *)kvsourcedram[31],
-				#endif 
-				#endif 
-				#endif
-				#endif
-				#endif
-				#endif 
-				#endif 
-				#endif
-				#endif
-				#endif
-				#endif 
-				#endif 
-				#endif
-				#endif
-				#endif
-				#endif 
-				#endif
-				#endif 
-				#endif
-				#endif
-				#endif
-				#endif 
-				#endif 
-				#endif
-				#endif
-				#endif
-				#endif 
-				#endif
-				#endif 
-				#endif
-				#endif
-				(uint512_dt *)vdram
-			);
-			#endif  */
-			
+			// exit(EXIT_SUCCESS); //
+		
 			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 		}
@@ -256,6 +131,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		}
 		cout<<""<<endl;
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
+		exit(EXIT_SUCCESS); //
 	}
 	
 	#ifdef _DEBUGMODE_TIMERS3

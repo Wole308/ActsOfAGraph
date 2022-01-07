@@ -140,36 +140,46 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		E[15] = edges[offset_kvs + i].range(511, 480); 
 		#else 
 		E[0] = edges[offset_kvs + i].data[0].key; 
-		E[1] = edges[offset_kvs + i].data[0].value; 
+		E[1] = edges[offset_kvs + i].data[0].value;
 		E[2] = edges[offset_kvs + i].data[1].key; 
-		E[3] = edges[offset_kvs + i].data[1].value; 
+		E[3] = edges[offset_kvs + i].data[1].value;
 		E[4] = edges[offset_kvs + i].data[2].key; 
-		E[5] = edges[offset_kvs + i].data[2].value; 
+		E[5] = edges[offset_kvs + i].data[2].value;
 		E[6] = edges[offset_kvs + i].data[3].key; 
-		E[7] = edges[offset_kvs + i].data[3].value; 
+		E[7] = edges[offset_kvs + i].data[3].value;
 		E[8] = edges[offset_kvs + i].data[4].key; 
-		E[9] = edges[offset_kvs + i].data[4].value; 
+		E[9] = edges[offset_kvs + i].data[4].value;
 		E[10] = edges[offset_kvs + i].data[5].key; 
-		E[11] = edges[offset_kvs + i].data[5].value; 
+		E[11] = edges[offset_kvs + i].data[5].value;
 		E[12] = edges[offset_kvs + i].data[6].key; 
-		E[13] = edges[offset_kvs + i].data[6].value; 
+		E[13] = edges[offset_kvs + i].data[6].value;
 		E[14] = edges[offset_kvs + i].data[7].key; 
-		E[15] = edges[offset_kvs + i].data[7].value; 
+		E[15] = edges[offset_kvs + i].data[7].value;
 		#endif
-		/* // #ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-		// 	
-		cout<<"readandprocess: i: "<<i<<endl;
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<E[v]<<", "; }
-		cout<<endl;
-		// #endif  */
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			cout<<"readandprocess(1-2): E[0]: "<<E[0]<<endl;
+			cout<<"readandprocess(1-2): E[1]: "<<E[1]<<endl;
+			cout<<"readandprocess(1-2): E[2]: "<<E[2]<<endl;
+			cout<<"readandprocess(1-2): E[3]: "<<E[3]<<endl;
+			cout<<"readandprocess(1-2): E[4]: "<<E[4]<<endl;
+			cout<<"readandprocess(1-2): E[5]: "<<E[5]<<endl;
+			cout<<"readandprocess(1-2): E[6]: "<<E[6]<<endl;
+			cout<<"readandprocess(1-2): E[7]: "<<E[7]<<endl;
+			cout<<"readandprocess(1-2): E[8]: "<<E[8]<<endl;
+			cout<<"readandprocess(1-2): E[9]: "<<E[9]<<endl;
+			cout<<"readandprocess(1-2): E[10]: "<<E[10]<<endl;
+			cout<<"readandprocess(1-2): E[11]: "<<E[11]<<endl;
+			cout<<"readandprocess(1-2): E[12]: "<<E[12]<<endl;
+			cout<<"readandprocess(1-2): E[13]: "<<E[13]<<endl;
+			cout<<"readandprocess(1-2): E[14]: "<<E[14]<<endl;
+			cout<<"readandprocess(1-2): E[15]: "<<E[15]<<endl;
+			#endif
 		
 		vertex_t srcvid_head = E[0];
 		vertex_t lvid_head = srcvid_head - travstate.i2;
 		
 		bool_type en = ON;
-		// if(lvid_head >= validbound){  ens0 = OFF;  ens1 = OFF;  ens2 = OFF;  ens3 = OFF;  ens4 = OFF;  ens5 = OFF;  ens6 = OFF;  ens7 = OFF;  ens8 = OFF;  ens9 = OFF;  ens10 = OFF;  ens11 = OFF;  ens12 = OFF;  ens13 = OFF;  ens14 = OFF;  ens15 = OFF;  lvid_head = 0; } // CRITICAL NEWCHANGE WITH SLICED.
-		// if(lvid_head >= validbound){ lvid_head = 0; } // CRITICAL REMOVEME.
-			#ifdef _DEBUGMODE_CHECKS // FIXME.
+			#ifdef _DEBUGMODE_CHECKS
 			if(srcvid_head < travstate.i2){ cout<<"readandprocess(12): INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<" offset_kvs: "<<offset_kvs<<". exiting..."<<endl;					 
 				for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess(12): E["<<v<<"]: "<<E[v]<<endl; }
 				exit(EXIT_FAILURE); }
@@ -396,120 +406,6 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		
 		if(GraphAlgo == PAGERANK){  mask0 = 1;  mask1 = 1;  mask2 = 1;  mask3 = 1;  mask4 = 1;  mask5 = 1;  mask6 = 1;  mask7 = 1;  mask8 = 1;  mask9 = 1;  mask10 = 1;  mask11 = 1;  mask12 = 1;  mask13 = 1;  mask14 = 1;  mask15 = 1;  mask0 = 0; ens0 = OFF; } 
 		else {  mask0 = masks[incr0];  mask1 = masks[incr1];  mask2 = masks[incr2];  mask3 = masks[incr3];  mask4 = masks[incr4];  mask5 = masks[incr5];  mask6 = masks[incr6];  mask7 = masks[incr7];  mask8 = masks[incr8];  mask9 = masks[incr9];  mask10 = masks[incr10];  mask11 = masks[incr11];  mask12 = masks[incr12];  mask13 = masks[incr13];  mask14 = masks[incr14];  mask15 = masks[incr15];  mask0 = 0; ens0 = OFF; }
-			/* #ifdef _DEBUGMODE_CHECKS2
-			if(ens0 == ON && mask0 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask0.2. mask0: "<<mask0<<", incr0: "<<incr0<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens1 == ON && mask1 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask1.2. mask1: "<<mask1<<", incr1: "<<incr1<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens2 == ON && mask2 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask2.2. mask2: "<<mask2<<", incr2: "<<incr2<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens3 == ON && mask3 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask3.2. mask3: "<<mask3<<", incr3: "<<incr3<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens4 == ON && mask4 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask4.2. mask4: "<<mask4<<", incr4: "<<incr4<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens5 == ON && mask5 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask5.2. mask5: "<<mask5<<", incr5: "<<incr5<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens6 == ON && mask6 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask6.2. mask6: "<<mask6<<", incr6: "<<incr6<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens7 == ON && mask7 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask7.2. mask7: "<<mask7<<", incr7: "<<incr7<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens8 == ON && mask8 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask8.2. mask8: "<<mask8<<", incr8: "<<incr8<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens9 == ON && mask9 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask9.2. mask9: "<<mask9<<", incr9: "<<incr9<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens10 == ON && mask10 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask10.2. mask10: "<<mask10<<", incr10: "<<incr10<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens11 == ON && mask11 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask11.2. mask11: "<<mask11<<", incr11: "<<incr11<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens12 == ON && mask12 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask12.2. mask12: "<<mask12<<", incr12: "<<incr12<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens13 == ON && mask13 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask13.2. mask13: "<<mask13<<", incr13: "<<incr13<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens14 == ON && mask14 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask14.2. mask14: "<<mask14<<", incr14: "<<incr14<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			if(ens15 == ON && mask15 > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask15.2. mask15: "<<mask15<<", incr15: "<<incr15<<endl; 
-				for(unsigned int n=0; n<MAX_NUM_UNIQ_EDGES_PER_VEC; n++){ cout<<">>> readandprocess(14).mask: masks["<<n<<"]: "<<masks[n]<<endl; } 
-				for(unsigned int n=0; n<16; n++){ cout<<">>> readandprocess(14).mask: E["<<n<<"].dstvid: "<<acts_utilobj->UTIL_READFROM_UINT(E[n], 0, 28)<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl; } 
-				for(unsigned int r=0; r<8; r++){ cout<<">>> readandprocess(14).mask: udatas["<<r<<"]: "<<udatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
-				exit(EXIT_FAILURE); 
-			}
-			#endif */
 			#ifdef _DEBUGMODE_CHECKS2
 			if(ens0 == ON && mask0 > 2){ 
 				cout<<"ERROR @ readandprocess(14).mask0.2. i: "<<i<<", mask0: "<<mask0<<", incr0: "<<incr0<<endl;
@@ -644,22 +540,22 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		mykeyvalue0.key = INVALIDDATA;
 		mykeyvalue0.value = INVALIDDATA;
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			if(ens0 == ON && mask0 == 1){ cout<<"readandprocess(15): [lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", udata: "<<udatas[incr0]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens1 == ON && mask1 == 1){ cout<<"readandprocess(15): [lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", udata: "<<udatas[incr1]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens2 == ON && mask2 == 1){ cout<<"readandprocess(15): [lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", udata: "<<udatas[incr2]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens3 == ON && mask3 == 1){ cout<<"readandprocess(15): [lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", udata: "<<udatas[incr3]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens4 == ON && mask4 == 1){ cout<<"readandprocess(15): [lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", udata: "<<udatas[incr4]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens5 == ON && mask5 == 1){ cout<<"readandprocess(15): [lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", udata: "<<udatas[incr5]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens6 == ON && mask6 == 1){ cout<<"readandprocess(15): [lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", udata: "<<udatas[incr6]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens7 == ON && mask7 == 1){ cout<<"readandprocess(15): [lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", udata: "<<udatas[incr7]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens8 == ON && mask8 == 1){ cout<<"readandprocess(15): [lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", udata: "<<udatas[incr8]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens9 == ON && mask9 == 1){ cout<<"readandprocess(15): [lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", udata: "<<udatas[incr9]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens10 == ON && mask10 == 1){ cout<<"readandprocess(15): [lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", udata: "<<udatas[incr10]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens11 == ON && mask11 == 1){ cout<<"readandprocess(15): [lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", udata: "<<udatas[incr11]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens12 == ON && mask12 == 1){ cout<<"readandprocess(15): [lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", udata: "<<udatas[incr12]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens13 == ON && mask13 == 1){ cout<<"readandprocess(15): [lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", udata: "<<udatas[incr13]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens14 == ON && mask14 == 1){ cout<<"readandprocess(15): [lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", udata: "<<udatas[incr14]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
-			if(ens15 == ON && mask15 == 1){ cout<<"readandprocess(15): [lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", udata: "<<udatas[incr15]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens0 == ON && mask0 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", udata: "<<udatas[incr0]<<"], [ens0: "<<ens0<<", mask0: "<<mask0<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens1 == ON && mask1 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", udata: "<<udatas[incr1]<<"], [ens1: "<<ens1<<", mask1: "<<mask1<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens2 == ON && mask2 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", udata: "<<udatas[incr2]<<"], [ens2: "<<ens2<<", mask2: "<<mask2<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens3 == ON && mask3 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", udata: "<<udatas[incr3]<<"], [ens3: "<<ens3<<", mask3: "<<mask3<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens4 == ON && mask4 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", udata: "<<udatas[incr4]<<"], [ens4: "<<ens4<<", mask4: "<<mask4<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens5 == ON && mask5 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", udata: "<<udatas[incr5]<<"], [ens5: "<<ens5<<", mask5: "<<mask5<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens6 == ON && mask6 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", udata: "<<udatas[incr6]<<"], [ens6: "<<ens6<<", mask6: "<<mask6<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens7 == ON && mask7 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", udata: "<<udatas[incr7]<<"], [ens7: "<<ens7<<", mask7: "<<mask7<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens8 == ON && mask8 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", udata: "<<udatas[incr8]<<"], [ens8: "<<ens8<<", mask8: "<<mask8<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens9 == ON && mask9 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", udata: "<<udatas[incr9]<<"], [ens9: "<<ens9<<", mask9: "<<mask9<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens10 == ON && mask10 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", udata: "<<udatas[incr10]<<"], [ens10: "<<ens10<<", mask10: "<<mask10<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens11 == ON && mask11 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", udata: "<<udatas[incr11]<<"], [ens11: "<<ens11<<", mask11: "<<mask11<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens12 == ON && mask12 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", udata: "<<udatas[incr12]<<"], [ens12: "<<ens12<<", mask12: "<<mask12<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens13 == ON && mask13 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", udata: "<<udatas[incr13]<<"], [ens13: "<<ens13<<", mask13: "<<mask13<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens14 == ON && mask14 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", udata: "<<udatas[incr14]<<"], [ens14: "<<ens14<<", mask14: "<<mask14<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
+			if(ens15 == ON && mask15 == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", udata: "<<udatas[incr15]<<"], [ens15: "<<ens15<<", mask15: "<<mask15<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }
 			#endif
 		
 		/* ////////////////////////////////
@@ -804,6 +700,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			actsutilityobj->globalstats_countkvsprocessed(1);
 			if(ens15 == ON && mask15 == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
 			#endif 
+		// exit(EXIT_SUCCESS); ///
 	}
 	// cout<<">>> readandprocess: loadcount: "<<loadcount<<", activeloadcount: "<<activeloadcount<<", inactiveloadcount: "<<inactiveloadcount<<endl;
 	// exit(EXIT_SUCCESS); ///

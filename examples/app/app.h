@@ -6,7 +6,7 @@
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/loadedges.h"
-#include "../../examples/helperfunctions/loadedges_splitvertices.h"
+#include "../../examples/helperfunctions/loadedges_splitdstvxs.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
 #include "../../kernels/swkernel.h"
@@ -31,7 +31,7 @@ private:
 	utility * utilityobj;
 	loadgraph * loadgraphobj;
 	#ifdef CONFIG_SPLIT_DESTVTXS
-	loadedges_splitvertices * loadedgesobj;
+	loadedges_splitdstvxs * loadedgesobj;
 	#else 
 	loadedges * loadedgesobj;
 	#endif 

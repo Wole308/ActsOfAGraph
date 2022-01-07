@@ -94,8 +94,10 @@ void utility::printallparameters(){
 	std::cout<<"utility:: MESSAGESDRAMSZ: "<<MESSAGESDRAMSZ<<std::endl;
 	std::cout<<"utility:: VERTEXPTRSSZ: "<<VERTEXPTRSSZ<<std::endl;
 	std::cout<<"utility:: VERTEXPTRSSZ_KVS: "<<VERTEXPTRSSZ_KVS<<std::endl;
-	std::cout<<"utility:: VERTICESDATASZ: "<<VERTICESDATASZ<<std::endl;
-	std::cout<<"utility:: VERTICESDATASZ_KVS: "<<VERTICESDATASZ_KVS<<std::endl;
+	std::cout<<"utility:: SRCVERTICESDATASZ: "<<SRCVERTICESDATASZ<<std::endl;
+	std::cout<<"utility:: SRCVERTICESDATASZ_KVS: "<<SRCVERTICESDATASZ_KVS<<std::endl;
+	std::cout<<"utility:: DESTVERTICESDATASZ: "<<DESTVERTICESDATASZ<<std::endl;
+	std::cout<<"utility:: DESTVERTICESDATASZ_KVS: "<<DESTVERTICESDATASZ_KVS<<std::endl;
 
 	// >>>
 	std::cout<<">> host[baseoffsets]:: BASEOFFSET_MESSAGESDATA: "<<BASEOFFSET_MESSAGESDATA<<std::endl;
@@ -113,7 +115,7 @@ void utility::printallparameters(){
 	// >>>
 	std::cout<<">> host[sizes]:: MESSAGESDRAMSZ (keyvalues): "<<MESSAGESDRAMSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: VERTEXPTRSSZ (keyvalues): "<<VERTEXPTRSSZ<<" keyvalues"<<std::endl;
-	std::cout<<">> host[sizes]:: VERTICESDATASZ (keyvalues): "<<VERTICESDATASZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: SRCVERTICESDATASZ (keyvalues): "<<SRCVERTICESDATASZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: ACTIVEVERTICESSZ (keyvalues): "<<ACTIVEVERTICESSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: VERTICESDATAMASKSZ (keyvalues): "<<VERTICESDATAMASKSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: KVSTATSDRAMSZ (keyvalues): "<<KVSTATSDRAMSZ<<" keyvalues"<<std::endl;
@@ -125,7 +127,7 @@ void utility::printallparameters(){
 	std::cout<<">> host[bytes]:: MESSAGESDRAMSZ (bytes): "<<MESSAGESDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: KVSTATSDRAMSZ (bytes): "<<KVSTATSDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: VERTEXPTRSSZ (bytes): "<<VERTEXPTRSSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host[bytes]:: VERTICESDATASZ (bytes): "<<VERTICESDATASZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: SRCVERTICESDATASZ (bytes): "<<SRCVERTICESDATASZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: ACTIVEVERTICESSZ (bytes): "<<ACTIVEVERTICESSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: VERTICESDATAMASKSZ (bytes): "<<VERTICESDATAMASKSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
@@ -142,6 +144,13 @@ void utility::printallparameters(){
 	std::cout<<"utility:: REDUCEBUFFERSZ: "<<REDUCEBUFFERSZ<<std::endl;
 	
 	std::cout<<"utility:: VMASKBUFFERSZ_KVS: "<<VMASKBUFFERSZ_KVS<<std::endl;
+	
+	std::cout<<"utility:: REDUCEPARTITIONSZ: "<<REDUCEPARTITIONSZ<<std::endl;
+	std::cout<<"utility:: REDUCEPARTITIONSZ_KVS2: "<<REDUCEPARTITIONSZ_KVS2<<std::endl;
+	std::cout<<"utility:: PROCESSPARTITIONSZ: "<<PROCESSPARTITIONSZ<<std::endl;
+	std::cout<<"utility:: PROCESSPARTITIONSZ_KVS2: "<<PROCESSPARTITIONSZ_KVS2<<std::endl;
+	std::cout<<"utility:: NUMREDUCEPARTITIONS: "<<NUMREDUCEPARTITIONS<<std::endl;
+	std::cout<<"utility:: NUMPROCESSEDGESPARTITIONS: "<<NUMPROCESSEDGESPARTITIONS<<std::endl;
 	
 	// std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	std::cout<<"utility:: FETFACTOR: "<<FETFACTOR<<std::endl;

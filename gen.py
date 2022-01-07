@@ -73,11 +73,10 @@ context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
 # else:
    # print ('gen.py: NOT YET IMPLEMENTED 32... EXITING...')
    # quit()
-   
-context['CONFIGSPLITDESTVTXS_NUMWs'] = context['NUM_PEs'] #16 # CRITICAL FIXME.
-context['CONFIGSPLITDESTVTXS_NUMWs_seq'] = []
-for i in range (0,context['CONFIGSPLITDESTVTXS_NUMWs']):
-		context['CONFIGSPLITDESTVTXS_NUMWs_seq'].append(i)
+
+context['NUM_PEs_seq'] = []
+for i in range (0,context['NUM_PEs']):
+		context['NUM_PEs_seq'].append(i)
     
 ###
 
@@ -246,10 +245,10 @@ o_path7=relref+"include/common.h"
 o_path8=relref+"acts/acts/actssync.cpp"
 o_path9=relref+"acts/acts/actssync.h"
 
-o_path10=relref+"acts/acts/top_unifiedvts.cpp"
-o_path11=relref+"acts/acts/top_unifiedvts.h"
-o_path12=relref+"acts/acts/top_nonunifiedvts.cpp"
-o_path13=relref+"acts/acts/top_nonunifiedvts.h"
+o_path10=relref+"acts/acts/top_usrcv_udstv.cpp"
+o_path11=relref+"acts/acts/top_usrcv_udstv.h"
+o_path12=relref+"acts/acts/top_nusrcv_nudstv.cpp"
+o_path13=relref+"acts/acts/top_nusrcv_nudstv.h"
 o_path14=relref+"acts/acts/processedges_slicedgraph.cpp"
 o_path15=relref+"acts/acts/processedges_slicedgraph.h"
 o_path16=relref+"acts/acts/processedges_unslicedgraph.cpp"
@@ -616,10 +615,10 @@ template6 = env6.get_template('common_h.template')
 template7 = env7.get_template('common_h.template')
 template8 = env8.get_template('actssync.template')
 template9 = env9.get_template('actssync_h.template')
-template10 = env10.get_template('top_unifiedvts.template')
-template11 = env11.get_template('top_unifiedvts_h.template')
-template12 = env12.get_template('top_nonunifiedvts.template')
-template13 = env13.get_template('top_nonunifiedvts_h.template')
+template10 = env10.get_template('top_usrcv_udstv.template')
+template11 = env11.get_template('top_usrcv_udstv_h.template')
+template12 = env12.get_template('top_nusrcv_nudstv.template')
+template13 = env13.get_template('top_nusrcv_nudstv_h.template')
 template14 = env14.get_template('processedges_slicedgraph.template')
 template15 = env15.get_template('processedges_slicedgraph_h.template')
 template16 = env16.get_template('processedges_unslicedgraph.template')
