@@ -51,7 +51,7 @@ unsigned int loadgraph::getglobalpartition(keyvalue_t keyvalue, vertex_t upperli
 }
 
 globalparams_t loadgraph::loadvertexdata(value_t * vertexdatabuffer, keyvalue_t * kvbuffer, vertex_t kvbufferoffset, vertex_t size, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"loadgraph::loadvertexdata:: loading vertex datas... kvbufferoffset: "<<kvbufferoffset<<", size: "<<size<<endl;
 	#endif
 	#ifdef _DEBUGMODE_CHECKS3
@@ -63,19 +63,6 @@ globalparams_t loadgraph::loadvertexdata(value_t * vertexdatabuffer, keyvalue_t 
 		KV[k] = algorithmobj->vertex_initdata(); 
 	} 
 	return globalparams;
-}
-
-void loadgraph::setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams){
-	#ifdef _DEBUGMODE_HOSTPRINTS2
-	cout<<"loadgraph::setrootvid:: setting root vid(s)... "<<endl;
-	#endif 
-	
-	for(unsigned int i = 0; i < activevertices.size(); i++){
-		unsigned int vid = activevertices[i];
-		kvbuffer[2*(globalparams.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE) + vid] = 0;
-		// kvbuffer[2*(globalparams.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE) + vid] = 0;
-	}
-	return;
 }
 
 globalparams_TWOt loadgraph::loadactvvertices(vector<vertex_t> &activevertices, keyy_t * kvbuffer, container_t * container, globalparams_TWOt globalparams){
@@ -392,9 +379,10 @@ globalparams_t loadgraph::createmessages(
 			unsigned int GraphAlgo,
 			unsigned int runsize,
 			globalparams_t globalparams){
-
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"--- loadgraph::createmessages: ACTIVE_KVSTATSDRAMSZ: "<<ACTIVE_KVSTATSDRAMSZ<<", globalparams.SIZE_KVSTATSDRAM: "<<globalparams.SIZE_KVSTATSDRAM<<endl;
-	 
+	#endif 
+	
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key = ON;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key = ON;//ON,OFF // CRITICAL REMOVEME.
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = ON;//ON,OFF  // CRITICAL REMOVEME. 

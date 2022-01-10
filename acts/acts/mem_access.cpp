@@ -6,6 +6,7 @@ mem_access::mem_access(){ actsutilityobj = new actsutility(); acts_utilobj = new
 mem_access::~mem_access(){}
 #endif
 
+// -------------------- key values -------------------- //
 fetchmessage_t
 	#ifdef SW 
 	mem_access::
@@ -344,8 +345,9 @@ MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramof
 	return;
 }
 
+// -------------------- vdata -------------------- //
 void
-	#ifdef SW //
+	#ifdef SW
 	mem_access::
 	#endif 
 MEMACCESS_readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
@@ -422,6 +424,160 @@ MEMACCESS_readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 	#endif
 	return;
 }
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_readvdata_splitdstvxs(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount =  REDUCESZ / 2;
+	
+	unsigned int readsz_kvs2 = size_kvs * 2;
+	unsigned int index = 0;
+	keyvalue_t mykeyvalue0; mykeyvalue0.key = 777; mykeyvalue0.value = 777;
+	keyvalue_t mykeyvalue1; mykeyvalue1.key = 777; mykeyvalue1.value = 777;
+	keyvalue_t mykeyvalue2; mykeyvalue2.key = 777; mykeyvalue2.value = 777;
+	keyvalue_t mykeyvalue3; mykeyvalue3.key = 777; mykeyvalue3.value = 777;
+	keyvalue_t mykeyvalue4; mykeyvalue4.key = 777; mykeyvalue4.value = 777;
+	keyvalue_t mykeyvalue5; mykeyvalue5.key = 777; mykeyvalue5.value = 777;
+	keyvalue_t mykeyvalue6; mykeyvalue6.key = 777; mykeyvalue6.value = 777;
+	keyvalue_t mykeyvalue7; mykeyvalue7.key = 777; mykeyvalue7.value = 777;
+	keyvalue_t mykeyvalue8; mykeyvalue8.key = 777; mykeyvalue8.value = 777;
+	keyvalue_t mykeyvalue9; mykeyvalue9.key = 777; mykeyvalue9.value = 777;
+	keyvalue_t mykeyvalue10; mykeyvalue10.key = 777; mykeyvalue10.value = 777;
+	keyvalue_t mykeyvalue11; mykeyvalue11.key = 777; mykeyvalue11.value = 777;
+	keyvalue_t mykeyvalue12; mykeyvalue12.key = 777; mykeyvalue12.value = 777;
+	keyvalue_t mykeyvalue13; mykeyvalue13.key = 777; mykeyvalue13.value = 777;
+	keyvalue_t mykeyvalue14; mykeyvalue14.key = 777; mykeyvalue14.value = 777;
+	keyvalue_t mykeyvalue15; mykeyvalue15.key = 777; mykeyvalue15.value = 777;
+	
+	SAVEVDATA_LOOP: for (buffer_type i=0; i<readsz_kvs2; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		if(i%2==0){
+			mykeyvalue0.key = kvdram[baseoffset_kvs + offset_kvs + i].range(31, 0); 
+			mykeyvalue1.key = kvdram[baseoffset_kvs + offset_kvs + i].range(63, 32); 
+			mykeyvalue2.key = kvdram[baseoffset_kvs + offset_kvs + i].range(95, 64); 
+			mykeyvalue3.key = kvdram[baseoffset_kvs + offset_kvs + i].range(127, 96); 
+			mykeyvalue4.key = kvdram[baseoffset_kvs + offset_kvs + i].range(159, 128); 
+			mykeyvalue5.key = kvdram[baseoffset_kvs + offset_kvs + i].range(191, 160); 
+			mykeyvalue6.key = kvdram[baseoffset_kvs + offset_kvs + i].range(223, 192); 
+			mykeyvalue7.key = kvdram[baseoffset_kvs + offset_kvs + i].range(255, 224); 
+			mykeyvalue8.key = kvdram[baseoffset_kvs + offset_kvs + i].range(287, 256); 
+			mykeyvalue9.key = kvdram[baseoffset_kvs + offset_kvs + i].range(319, 288); 
+			mykeyvalue10.key = kvdram[baseoffset_kvs + offset_kvs + i].range(351, 320); 
+			mykeyvalue11.key = kvdram[baseoffset_kvs + offset_kvs + i].range(383, 352); 
+			mykeyvalue12.key = kvdram[baseoffset_kvs + offset_kvs + i].range(415, 384); 
+			mykeyvalue13.key = kvdram[baseoffset_kvs + offset_kvs + i].range(447, 416); 
+			mykeyvalue14.key = kvdram[baseoffset_kvs + offset_kvs + i].range(479, 448); 
+			mykeyvalue15.key = kvdram[baseoffset_kvs + offset_kvs + i].range(511, 480); 
+		} else {
+			mykeyvalue0.value = kvdram[baseoffset_kvs + offset_kvs + i].range(31, 0); 
+			mykeyvalue1.value = kvdram[baseoffset_kvs + offset_kvs + i].range(63, 32); 
+			mykeyvalue2.value = kvdram[baseoffset_kvs + offset_kvs + i].range(95, 64); 
+			mykeyvalue3.value = kvdram[baseoffset_kvs + offset_kvs + i].range(127, 96); 
+			mykeyvalue4.value = kvdram[baseoffset_kvs + offset_kvs + i].range(159, 128); 
+			mykeyvalue5.value = kvdram[baseoffset_kvs + offset_kvs + i].range(191, 160); 
+			mykeyvalue6.value = kvdram[baseoffset_kvs + offset_kvs + i].range(223, 192); 
+			mykeyvalue7.value = kvdram[baseoffset_kvs + offset_kvs + i].range(255, 224); 
+			mykeyvalue8.value = kvdram[baseoffset_kvs + offset_kvs + i].range(287, 256); 
+			mykeyvalue9.value = kvdram[baseoffset_kvs + offset_kvs + i].range(319, 288); 
+			mykeyvalue10.value = kvdram[baseoffset_kvs + offset_kvs + i].range(351, 320); 
+			mykeyvalue11.value = kvdram[baseoffset_kvs + offset_kvs + i].range(383, 352); 
+			mykeyvalue12.value = kvdram[baseoffset_kvs + offset_kvs + i].range(415, 384); 
+			mykeyvalue13.value = kvdram[baseoffset_kvs + offset_kvs + i].range(447, 416); 
+			mykeyvalue14.value = kvdram[baseoffset_kvs + offset_kvs + i].range(479, 448); 
+			mykeyvalue15.value = kvdram[baseoffset_kvs + offset_kvs + i].range(511, 480); 
+		}
+		#else 
+		if(i%2==0){
+			mykeyvalue0.key = kvdram[baseoffset_kvs + offset_kvs + i].data[0].key;
+			mykeyvalue1.key = kvdram[baseoffset_kvs + offset_kvs + i].data[0].value;
+			mykeyvalue2.key = kvdram[baseoffset_kvs + offset_kvs + i].data[1].key;
+			mykeyvalue3.key = kvdram[baseoffset_kvs + offset_kvs + i].data[1].value;
+			mykeyvalue4.key = kvdram[baseoffset_kvs + offset_kvs + i].data[2].key;
+			mykeyvalue5.key = kvdram[baseoffset_kvs + offset_kvs + i].data[2].value;
+			mykeyvalue6.key = kvdram[baseoffset_kvs + offset_kvs + i].data[3].key;
+			mykeyvalue7.key = kvdram[baseoffset_kvs + offset_kvs + i].data[3].value;
+			mykeyvalue8.key = kvdram[baseoffset_kvs + offset_kvs + i].data[4].key;
+			mykeyvalue9.key = kvdram[baseoffset_kvs + offset_kvs + i].data[4].value;
+			mykeyvalue10.key = kvdram[baseoffset_kvs + offset_kvs + i].data[5].key;
+			mykeyvalue11.key = kvdram[baseoffset_kvs + offset_kvs + i].data[5].value;
+			mykeyvalue12.key = kvdram[baseoffset_kvs + offset_kvs + i].data[6].key;
+			mykeyvalue13.key = kvdram[baseoffset_kvs + offset_kvs + i].data[6].value;
+			mykeyvalue14.key = kvdram[baseoffset_kvs + offset_kvs + i].data[7].key;
+			mykeyvalue15.key = kvdram[baseoffset_kvs + offset_kvs + i].data[7].value;
+		} else {
+			mykeyvalue0.value = kvdram[baseoffset_kvs + offset_kvs + i].data[0].key;
+			mykeyvalue1.value = kvdram[baseoffset_kvs + offset_kvs + i].data[0].value;
+			mykeyvalue2.value = kvdram[baseoffset_kvs + offset_kvs + i].data[1].key;
+			mykeyvalue3.value = kvdram[baseoffset_kvs + offset_kvs + i].data[1].value;
+			mykeyvalue4.value = kvdram[baseoffset_kvs + offset_kvs + i].data[2].key;
+			mykeyvalue5.value = kvdram[baseoffset_kvs + offset_kvs + i].data[2].value;
+			mykeyvalue6.value = kvdram[baseoffset_kvs + offset_kvs + i].data[3].key;
+			mykeyvalue7.value = kvdram[baseoffset_kvs + offset_kvs + i].data[3].value;
+			mykeyvalue8.value = kvdram[baseoffset_kvs + offset_kvs + i].data[4].key;
+			mykeyvalue9.value = kvdram[baseoffset_kvs + offset_kvs + i].data[4].value;
+			mykeyvalue10.value = kvdram[baseoffset_kvs + offset_kvs + i].data[5].key;
+			mykeyvalue11.value = kvdram[baseoffset_kvs + offset_kvs + i].data[5].value;
+			mykeyvalue12.value = kvdram[baseoffset_kvs + offset_kvs + i].data[6].key;
+			mykeyvalue13.value = kvdram[baseoffset_kvs + offset_kvs + i].data[6].value;
+			mykeyvalue14.value = kvdram[baseoffset_kvs + offset_kvs + i].data[7].key;
+			mykeyvalue15.value = kvdram[baseoffset_kvs + offset_kvs + i].data[7].value;
+		}
+		#endif
+		
+		if(i%2==1){
+			buffer[0][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);		
+			buffer[1][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);		
+			buffer[2][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);		
+			buffer[3][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);		
+			buffer[4][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);		
+			buffer[5][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);		
+			buffer[6][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);		
+			buffer[7][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);		
+			buffer[8][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue8);		
+			buffer[9][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue9);		
+			buffer[10][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue10);		
+			buffer[11][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue11);		
+			buffer[12][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue12);		
+			buffer[13][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue13);		
+			buffer[14][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue14);		
+			buffer[15][bufferoffset_kvs + index] = acts_utilobj->UTIL_GETKV2(mykeyvalue15);		
+			index += 1;
+		}
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+		#endif
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"savevdata:: vertices saved: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<dramoffset_kvs-globalparams.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE<<"-"<<((dramoffset_kvs + size_kvs)-globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
+	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_DESTVERTICESDATA && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<(dramoffset_kvs-globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<((dramoffset_kvs-globalparams.BASEOFFSETKVS_DESTVERTICESDATA) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }					
+	#endif
+	return;
+}
+void
+	#ifdef SW
+	mem_access::
+	#endif 
+MEMACCESS_readvdatachunks_splitdstvxs(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_readvdatachunks_splitdstvxs:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl; // batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs
+		#endif 
+		MEMACCESS_readvdata_splitdstvxs(enable, kvdram, buffer, vbaseoffset_kvs, (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + voffset_kvs, (s * vsz_kvs) / 2, vsz_kvs / 2, globalparams); 
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_readvdatachunks_splitdstvxs:: total size loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE<<endl;
+	#endif
+	// exit(EXIT_SUCCESS);
+	return;	
+}
 
 void
 	#ifdef SW 
@@ -492,101 +648,179 @@ MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 	#endif
 	return;
 }
-
 void
-	#ifdef SW //
+	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_readallvdatas_sliceddstvtxs(bool_type enable, uint512_dt * kvdram, batch_type vbaseoffset_kvs, batch_type vreadoffset_kvs2, batch_type vreadsz_kvs2, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparams){
-	/* for(unsigned int s=0; s<NUM_PEs / 2; s++){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"MEMACCESS_readallvdatas_sliceddstvtxs:: size loaded @ s("<<s<<"): offset: "<<vreadoffset_kvs2 * VECTOR2_SIZE<<", sz: "<<vreadsz_kvs2 * VECTOR2_SIZE<<endl;
-		#endif 
-		MEMACCESS_readvdata(enable, kvdram, (vbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + vreadoffset_kvs2), buffer, 0, (s * vreadsz_kvs2), vreadsz_kvs2, globalparams); 
-	}
-	for(unsigned int s=NUM_PEs / 2; s<NUM_PEs; s++){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"MEMACCESS_readallvdatas_sliceddstvtxs:: size loaded @ s("<<s<<"): offset: "<<vreadoffset_kvs2 * VECTOR2_SIZE<<", sz: "<<vreadsz_kvs2 * VECTOR2_SIZE<<endl;
-		#endif 
-		MEMACCESS_readvdata(enable, kvdram, (vbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + vreadoffset_kvs2), buffer, 8, (s * vreadsz_kvs2), vreadsz_kvs2, globalparams); 
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"+++ MEMACCESS_readallvdatas_sliceddstvtxs:: total size loaded: "<<vreadsz_kvs2 * NUM_PEs * VECTOR2_SIZE<<endl;
-	#endif  */
+MEMACCESS_savevdata_splitdstvxs(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
-	for(unsigned int s=0; s<NUM_PEs / 2; s++){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_readallvdatas_sliceddstvtxs:: size loaded @ s("<<s<<"): offset: "<<vreadoffset_kvs2 * VECTOR2_SIZE<<", sz: "<<vreadsz_kvs2 * VECTOR2_SIZE<<endl;
-		#endif 
-		MEMACCESS_readvdata(enable, kvdram, (vbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + vreadoffset_kvs2), buffer, 0, (s * vreadsz_kvs2), vreadsz_kvs2, globalparams); 
-	}
-	for(unsigned int s=0; s<NUM_PEs / 2; s++){
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_readallvdatas_sliceddstvtxs:: size loaded @ s("<<s + (NUM_PEs / 2)<<"): offset: "<<vreadoffset_kvs2 * VECTOR2_SIZE<<", sz: "<<vreadsz_kvs2 * VECTOR2_SIZE<<endl;
-		#endif 
-		MEMACCESS_readvdata(enable, kvdram, (vbaseoffset_kvs + ((s + (NUM_PEs / 2)) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + vreadoffset_kvs2), buffer, 8, (s * vreadsz_kvs2), vreadsz_kvs2, globalparams); 
+	SAVEVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		keyvalue_t mykeyvalue0 = acts_utilobj->UTIL_GETKV2(buffer[0][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue1 = acts_utilobj->UTIL_GETKV2(buffer[1][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue2 = acts_utilobj->UTIL_GETKV2(buffer[2][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue3 = acts_utilobj->UTIL_GETKV2(buffer[3][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue4 = acts_utilobj->UTIL_GETKV2(buffer[4][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue5 = acts_utilobj->UTIL_GETKV2(buffer[5][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue6 = acts_utilobj->UTIL_GETKV2(buffer[6][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue7 = acts_utilobj->UTIL_GETKV2(buffer[7][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue8 = acts_utilobj->UTIL_GETKV2(buffer[8][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue9 = acts_utilobj->UTIL_GETKV2(buffer[9][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(buffer[10][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(buffer[11][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(buffer[12][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(buffer[13][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(buffer[14][bufferoffset_kvs + (i/2)]);
+		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(buffer[15][bufferoffset_kvs + (i/2)]);
+	
+		#ifdef _WIDEWORD
+		if(i%2==0){
+			kvdram[baseoffset_kvs + offset_kvs + i].range(31, 0) = mykeyvalue0.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(63, 32) = mykeyvalue1.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(95, 64) = mykeyvalue2.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(127, 96) = mykeyvalue3.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(159, 128) = mykeyvalue4.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(191, 160) = mykeyvalue5.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(223, 192) = mykeyvalue6.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(255, 224) = mykeyvalue7.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(287, 256) = mykeyvalue8.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(319, 288) = mykeyvalue9.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(351, 320) = mykeyvalue10.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(383, 352) = mykeyvalue11.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(415, 384) = mykeyvalue12.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(447, 416) = mykeyvalue13.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(479, 448) = mykeyvalue14.key; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(511, 480) = mykeyvalue15.key; 
+		} else {
+			kvdram[baseoffset_kvs + offset_kvs + i].range(31, 0) = mykeyvalue0.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(63, 32) = mykeyvalue1.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(95, 64) = mykeyvalue2.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(127, 96) = mykeyvalue3.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(159, 128) = mykeyvalue4.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(191, 160) = mykeyvalue5.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(223, 192) = mykeyvalue6.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(255, 224) = mykeyvalue7.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(287, 256) = mykeyvalue8.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(319, 288) = mykeyvalue9.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(351, 320) = mykeyvalue10.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(383, 352) = mykeyvalue11.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(415, 384) = mykeyvalue12.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(447, 416) = mykeyvalue13.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(479, 448) = mykeyvalue14.value; 
+			kvdram[baseoffset_kvs + offset_kvs + i].range(511, 480) = mykeyvalue15.value; 
+		}
+		#else 
+		if(i%2==0){
+			kvdram[baseoffset_kvs + offset_kvs + i].data[0].key = mykeyvalue0.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[0].value = mykeyvalue1.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[1].key = mykeyvalue2.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[1].value = mykeyvalue3.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[2].key = mykeyvalue4.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[2].value = mykeyvalue5.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[3].key = mykeyvalue6.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[3].value = mykeyvalue7.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[4].key = mykeyvalue8.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[4].value = mykeyvalue9.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[5].key = mykeyvalue10.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[5].value = mykeyvalue11.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[6].key = mykeyvalue12.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[6].value = mykeyvalue13.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[7].key = mykeyvalue14.key;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[7].value = mykeyvalue15.key;
+		} else {
+			kvdram[baseoffset_kvs + offset_kvs + i].data[0].key = mykeyvalue0.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[0].value = mykeyvalue1.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[1].key = mykeyvalue2.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[1].value = mykeyvalue3.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[2].key = mykeyvalue4.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[2].value = mykeyvalue5.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[3].key = mykeyvalue6.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[3].value = mykeyvalue7.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[4].key = mykeyvalue8.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[4].value = mykeyvalue9.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[5].key = mykeyvalue10.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[5].value = mykeyvalue11.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[6].key = mykeyvalue12.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[6].value = mykeyvalue13.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[7].key = mykeyvalue14.value;
+			kvdram[baseoffset_kvs + offset_kvs + i].data[7].value = mykeyvalue15.value;
+		}
+		#endif
+	
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_readallvdatas_sliceddstvtxs:: total size loaded: "<<vreadsz_kvs2 * NUM_PEs * VECTOR2_SIZE<<endl;
-	#endif 
-	
-	// exit(EXIT_SUCCESS);///
-	return;	
+	cout<<"savevdata:: vertices saved: offset: "<<(offset_kvs) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
+	#endif
+	return;
 }
 
+// -------------------- vmasks -------------------- //
 void
-	#ifdef SW //
+	#ifdef SW
 	mem_access::
 	#endif 
-MEMACCESS_loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readvmasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
 	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE;
 	
-	buffer_type transfsize = size_kvs * 16;
-	buffer_type transfoffset = bufferoffset * 16;
-	uint32_type bitsbuffer[DOUBLE_BLOCKRAM_SIZE]; // AUTOMATEME.
+	// vmask is essentially vdata shrinked
+	unsigned int rlbaseoffset_kvs = lbaseoffset_kvs / FACTOR_REDUCEPARTITIONSZ_VMASKSZ;
+	unsigned int roffset_kvs = offset_kvs / FACTOR_REDUCEPARTITIONSZ_VMASKSZ; // AUTOMATEME. 'FACTOR_REDUCEPARTITIONSZ_VMASKSZ' changes with dataset
+	unsigned int rbufferoffset = bufferoffset / FACTOR_REDUCEPARTITIONSZ_VMASKSZ;
+	unsigned int rsize_kvs = size_kvs / FACTOR_REDUCEPARTITIONSZ_VMASKSZ; // 32
+	
+	uint32_type bitsbuffer[BLOCKRAM_SIZE];
 
 	// read 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<rsize_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempbuffer[0][i] = kvdram[offset_kvs + i].range(31, 0); 
-		tempbuffer[1][i] = kvdram[offset_kvs + i].range(63, 32); 
-		tempbuffer[2][i] = kvdram[offset_kvs + i].range(95, 64); 
-		tempbuffer[3][i] = kvdram[offset_kvs + i].range(127, 96); 
-		tempbuffer[4][i] = kvdram[offset_kvs + i].range(159, 128); 
-		tempbuffer[5][i] = kvdram[offset_kvs + i].range(191, 160); 
-		tempbuffer[6][i] = kvdram[offset_kvs + i].range(223, 192); 
-		tempbuffer[7][i] = kvdram[offset_kvs + i].range(255, 224); 
-		tempbuffer[8][i] = kvdram[offset_kvs + i].range(287, 256); 
-		tempbuffer[9][i] = kvdram[offset_kvs + i].range(319, 288); 
-		tempbuffer[10][i] = kvdram[offset_kvs + i].range(351, 320); 
-		tempbuffer[11][i] = kvdram[offset_kvs + i].range(383, 352); 
-		tempbuffer[12][i] = kvdram[offset_kvs + i].range(415, 384); 
-		tempbuffer[13][i] = kvdram[offset_kvs + i].range(447, 416); 
-		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
-		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
+		tempbuffer[0][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(31, 0); 
+		tempbuffer[0][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(63, 32); 
+		tempbuffer[1][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(95, 64); 
+		tempbuffer[1][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(127, 96); 
+		tempbuffer[2][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(159, 128); 
+		tempbuffer[2][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(191, 160); 
+		tempbuffer[3][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(223, 192); 
+		tempbuffer[3][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(255, 224); 
+		tempbuffer[4][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(287, 256); 
+		tempbuffer[4][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(319, 288); 
+		tempbuffer[5][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(351, 320); 
+		tempbuffer[5][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(383, 352); 
+		tempbuffer[6][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(415, 384); 
+		tempbuffer[6][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(447, 416); 
+		tempbuffer[7][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(479, 448); 
+		tempbuffer[7][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[0].key;
+		tempbuffer[0][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[0].value; 
+		tempbuffer[1][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[1].key;
+		tempbuffer[1][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[1].value; 
+		tempbuffer[2][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[2].key;
+		tempbuffer[2][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[2].value; 
+		tempbuffer[3][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[3].key;
+		tempbuffer[3][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[3].value; 
+		tempbuffer[4][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[4].key;
+		tempbuffer[4][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[4].value; 
+		tempbuffer[5][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[5].key;
+		tempbuffer[5][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[5].value; 
+		tempbuffer[6][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[6].key;
+		tempbuffer[6][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[6].value; 
+		tempbuffer[7][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].key;
+		tempbuffer[7][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].value; 
 		#endif 
+		#ifdef _DEBUGMODE_CHECKS2
+		actsutilityobj->checkoutofbounds("MEMACCESS_readvmasks:", rlbaseoffset_kvs + roffset_kvs, NUMPROCESSEDGESPARTITIONS * VMASKBUFFERSZ_KVS, baseoffset_kvs, rlbaseoffset_kvs, roffset_kvs);
+		#endif
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
@@ -594,7 +828,7 @@ MEMACCESS_loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type v
 	
 	// u512 => u32s
 	buffer_type index = 0;
-	LOADVMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){
+	LOADVMASKS_LOOP1: for (buffer_type i=0; i<rsize_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount2 avg=analysis_loopcount2
 	#pragma HLS PIPELINE II=8
 		bitsbuffer[index + 0] = tempbuffer[0][i].key;
@@ -617,93 +851,108 @@ MEMACCESS_loadvmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type v
 		index += VECTOR_SIZE * 2;
 	}
 
-	// u32 => u32bits
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask			
-	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
+	// u32 => u16bits
+	buffer_type i = 0;
+	LOADVMASKS_LOOP2: for (i=0; i<size_kvs; i+=2){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS[0][bufferoffset + i].data = bitsbuffer[i/2].range(0, 0);
+		vmaskBITS[1][bufferoffset + i].data = bitsbuffer[i/2].range(1, 1);
+		vmaskBITS[2][bufferoffset + i].data = bitsbuffer[i/2].range(2, 2);
+		vmaskBITS[3][bufferoffset + i].data = bitsbuffer[i/2].range(3, 3);
+		vmaskBITS[4][bufferoffset + i].data = bitsbuffer[i/2].range(4, 4);
+		vmaskBITS[5][bufferoffset + i].data = bitsbuffer[i/2].range(5, 5);
+		vmaskBITS[6][bufferoffset + i].data = bitsbuffer[i/2].range(6, 6);
+		vmaskBITS[7][bufferoffset + i].data = bitsbuffer[i/2].range(7, 7);
+		vmaskBITS[8][bufferoffset + i].data = bitsbuffer[i/2].range(8, 8);
+		vmaskBITS[9][bufferoffset + i].data = bitsbuffer[i/2].range(9, 9);
+		vmaskBITS[10][bufferoffset + i].data = bitsbuffer[i/2].range(10, 10);
+		vmaskBITS[11][bufferoffset + i].data = bitsbuffer[i/2].range(11, 11);
+		vmaskBITS[12][bufferoffset + i].data = bitsbuffer[i/2].range(12, 12);
+		vmaskBITS[13][bufferoffset + i].data = bitsbuffer[i/2].range(13, 13);
+		vmaskBITS[14][bufferoffset + i].data = bitsbuffer[i/2].range(14, 14);
+		vmaskBITS[15][bufferoffset + i].data = bitsbuffer[i/2].range(15, 15);
+		vmaskBITS[0][bufferoffset + i + 1].data = bitsbuffer[i/2].range(16, 16);
+		vmaskBITS[1][bufferoffset + i + 1].data = bitsbuffer[i/2].range(17, 17);
+		vmaskBITS[2][bufferoffset + i + 1].data = bitsbuffer[i/2].range(18, 18);
+		vmaskBITS[3][bufferoffset + i + 1].data = bitsbuffer[i/2].range(19, 19);
+		vmaskBITS[4][bufferoffset + i + 1].data = bitsbuffer[i/2].range(20, 20);
+		vmaskBITS[5][bufferoffset + i + 1].data = bitsbuffer[i/2].range(21, 21);
+		vmaskBITS[6][bufferoffset + i + 1].data = bitsbuffer[i/2].range(22, 22);
+		vmaskBITS[7][bufferoffset + i + 1].data = bitsbuffer[i/2].range(23, 23);
+		vmaskBITS[8][bufferoffset + i + 1].data = bitsbuffer[i/2].range(24, 24);
+		vmaskBITS[9][bufferoffset + i + 1].data = bitsbuffer[i/2].range(25, 25);
+		vmaskBITS[10][bufferoffset + i + 1].data = bitsbuffer[i/2].range(26, 26);
+		vmaskBITS[11][bufferoffset + i + 1].data = bitsbuffer[i/2].range(27, 27);
+		vmaskBITS[12][bufferoffset + i + 1].data = bitsbuffer[i/2].range(28, 28);
+		vmaskBITS[13][bufferoffset + i + 1].data = bitsbuffer[i/2].range(29, 29);
+		vmaskBITS[14][bufferoffset + i + 1].data = bitsbuffer[i/2].range(30, 30);
+		vmaskBITS[15][bufferoffset + i + 1].data = bitsbuffer[i/2].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS[0][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 0, 1);
+		vmaskBITS[1][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 1, 1);
+		vmaskBITS[2][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 2, 1);
+		vmaskBITS[3][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 3, 1);
+		vmaskBITS[4][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 4, 1);
+		vmaskBITS[5][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 5, 1);
+		vmaskBITS[6][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 6, 1);
+		vmaskBITS[7][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 7, 1);
+		vmaskBITS[8][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 8, 1);
+		vmaskBITS[9][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 9, 1);
+		vmaskBITS[10][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 10, 1);
+		vmaskBITS[11][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 11, 1);
+		vmaskBITS[12][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 12, 1);
+		vmaskBITS[13][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 13, 1);
+		vmaskBITS[14][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 14, 1);
+		vmaskBITS[15][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 15, 1);
+		vmaskBITS[0][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 16, 1);
+		vmaskBITS[1][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 17, 1);
+		vmaskBITS[2][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 18, 1);
+		vmaskBITS[3][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 19, 1);
+		vmaskBITS[4][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 20, 1);
+		vmaskBITS[5][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 21, 1);
+		vmaskBITS[6][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 22, 1);
+		vmaskBITS[7][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 23, 1);
+		vmaskBITS[8][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 24, 1);
+		vmaskBITS[9][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 25, 1);
+		vmaskBITS[10][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 26, 1);
+		vmaskBITS[11][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 27, 1);
+		vmaskBITS[12][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 28, 1);
+		vmaskBITS[13][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 29, 1);
+		vmaskBITS[14][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 30, 1);
+		vmaskBITS[15][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 31, 1);
 		#endif
-		
-		vmask[transfoffset + i] = tempvmask;	
 	}
 	return;
+}
+void
+	#ifdef SW
+	mem_access::
+	#endif 
+MEMACCESS_readvmaskschunks_splitdstvxs(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_readvmaskschunks_splitdstvxs:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_readvmasks(enable, kvdram, vmaskBITS, buffer, basevoffset_kvs, (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION), voffset_kvs, (s * vsz_kvs), vsz_kvs); 
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_readvmaskschunks_splitdstvxs:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif 
+	// exit(EXIT_SUCCESS);
+	return;	
 }
 
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type vmask_offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"MEMACCESS_savemasks:: saving vmask saved: vmask_offset_kvs: "<<vmask_offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
+	cout<<"MEMACCESS_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
 	#endif
 	
 	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
@@ -722,8 +971,6 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[
 		unsigned int X = index % 16;
 		unsigned int Y = index / 16;
 		
-		// unsigned int n_i = 2 * k;
-		// unsigned int n_iplus1 = (2 * k) + 1;
 		unsigned int n_i = k;
 		unsigned int n_iplus1 = k + 1;
 		
@@ -799,12 +1046,13 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[
 		uint32_type maskA = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
 		uint32_type maskB = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
 		cummvmask_sp = cummvmask_sp | maskA | maskB;
+		// cout<<"MEMACCESS_savemasks:: maskA: "<<maskA<<", maskB: "<<maskB<<", cummvmask_sp: "<<cummvmask_sp<<endl;
 		
 		realvid = acts_utilobj->UTIL_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
-		#ifdef _DEBUGMODE_KERNELPRINTS2
-		if(realvid >= next_chpt){ cout<<"--- MEMACCESS_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl; }
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(realvid >= next_chpt){ cout<<"--- MEMACCESS_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		#endif 
-		if(realvid >= next_chpt){ vpmasks[vpmasks_i] = cummvmask_sp; vpmasks_i += 1; next_chpt += processpartitionsz; } // CRITICAL FIXME. TOO EXPENSIVE. CRITICAL FIXME.
+		if(realvid >= next_chpt){ vpmasks[vpmasks_i] = cummvmask_sp; cummvmask_sp = 0; vpmasks_i += 1; next_chpt += processpartitionsz; } // CRITICAL FIXME. TOO EXPENSIVE. CRITICAL FIXME.
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"--- MEMACCESS_savemasks:: FINISHED. realvid: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl;
@@ -812,43 +1060,44 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[
 	#ifdef _DEBUGMODE_CHECKS3
 	if(vpmasks_i != NUM_PEs){ cout<<"--- MEMACCESS_savemasks:: ERROR: vpmasks_i("<<vpmasks_i<<") != NUM_PEs("<<NUM_PEs<<"). EXITING...."<<endl; exit(EXIT_FAILURE); }
 	#endif 
+	// exit(EXIT_SUCCESS); //////////////
 	
 	for(buffer_type k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		kvdram[vmask_offset_kvs + k].range(31, 0) = tempbuffer[0][k];
-		kvdram[vmask_offset_kvs + k].range(63, 32) = tempbuffer[1][k];
-		kvdram[vmask_offset_kvs + k].range(95, 64) = tempbuffer[2][k];
-		kvdram[vmask_offset_kvs + k].range(127, 96) = tempbuffer[3][k];
-		kvdram[vmask_offset_kvs + k].range(159, 128) = tempbuffer[4][k];
-		kvdram[vmask_offset_kvs + k].range(191, 160) = tempbuffer[5][k];
-		kvdram[vmask_offset_kvs + k].range(223, 192) = tempbuffer[6][k];
-		kvdram[vmask_offset_kvs + k].range(255, 224) = tempbuffer[7][k];
-		kvdram[vmask_offset_kvs + k].range(287, 256) = tempbuffer[8][k];
-		kvdram[vmask_offset_kvs + k].range(319, 288) = tempbuffer[9][k];
-		kvdram[vmask_offset_kvs + k].range(351, 320) = tempbuffer[10][k];
-		kvdram[vmask_offset_kvs + k].range(383, 352) = tempbuffer[11][k];
-		kvdram[vmask_offset_kvs + k].range(415, 384) = tempbuffer[12][k];
-		kvdram[vmask_offset_kvs + k].range(447, 416) = tempbuffer[13][k];
-		kvdram[vmask_offset_kvs + k].range(479, 448) = tempbuffer[14][k];
-		kvdram[vmask_offset_kvs + k].range(511, 480) = tempbuffer[15][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(31, 0) = tempbuffer[0][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(63, 32) = tempbuffer[1][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(95, 64) = tempbuffer[2][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(127, 96) = tempbuffer[3][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(159, 128) = tempbuffer[4][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(191, 160) = tempbuffer[5][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(223, 192) = tempbuffer[6][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(255, 224) = tempbuffer[7][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(287, 256) = tempbuffer[8][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(319, 288) = tempbuffer[9][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(351, 320) = tempbuffer[10][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(383, 352) = tempbuffer[11][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(415, 384) = tempbuffer[12][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(447, 416) = tempbuffer[13][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(479, 448) = tempbuffer[14][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].range(511, 480) = tempbuffer[15][k];
 		#else
-		kvdram[vmask_offset_kvs + k].data[0].key = tempbuffer[0][k];
-		kvdram[vmask_offset_kvs + k].data[0].value = tempbuffer[1][k];
-		kvdram[vmask_offset_kvs + k].data[1].key = tempbuffer[2][k];
-		kvdram[vmask_offset_kvs + k].data[1].value = tempbuffer[3][k];
-		kvdram[vmask_offset_kvs + k].data[2].key = tempbuffer[4][k];
-		kvdram[vmask_offset_kvs + k].data[2].value = tempbuffer[5][k];
-		kvdram[vmask_offset_kvs + k].data[3].key = tempbuffer[6][k];
-		kvdram[vmask_offset_kvs + k].data[3].value = tempbuffer[7][k];
-		kvdram[vmask_offset_kvs + k].data[4].key = tempbuffer[8][k];
-		kvdram[vmask_offset_kvs + k].data[4].value = tempbuffer[9][k];
-		kvdram[vmask_offset_kvs + k].data[5].key = tempbuffer[10][k];
-		kvdram[vmask_offset_kvs + k].data[5].value = tempbuffer[11][k];
-		kvdram[vmask_offset_kvs + k].data[6].key = tempbuffer[12][k];
-		kvdram[vmask_offset_kvs + k].data[6].value = tempbuffer[13][k];
-		kvdram[vmask_offset_kvs + k].data[7].key = tempbuffer[14][k];
-		kvdram[vmask_offset_kvs + k].data[7].value = tempbuffer[15][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[0].key = tempbuffer[0][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[0].value = tempbuffer[1][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[1].key = tempbuffer[2][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[1].value = tempbuffer[3][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[2].key = tempbuffer[4][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[2].value = tempbuffer[5][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[3].key = tempbuffer[6][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[3].value = tempbuffer[7][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[4].key = tempbuffer[8][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[4].value = tempbuffer[9][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[5].key = tempbuffer[10][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[5].value = tempbuffer[11][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[6].key = tempbuffer[12][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[6].value = tempbuffer[13][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[7].key = tempbuffer[14][k];
+		kvdram[baseoffset_kvs + offset_kvs + k].data[7].value = tempbuffer[15][k];
 		#endif
 	}
 	
@@ -868,65 +1117,10 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[
 }
 
 void
-	#ifdef SW //
-	mem_access::
-	#endif 
-MEMACCESS_loadallvmasks_sliceddstvtxs(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask[BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vmbaseoffset_kvs, batch_type vmreadoffset_kvs, batch_type vmreadsz_kvs, globalparams_t globalparams){
-	
-	
-	
-	// MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, vmbaseoffset_kvs + 0 + vmreadoffset_kvs, 0, NUM_PEs * vmreadsz_kvs, globalparams); 
-
-
-	// cout<<"MEMACCESS_loadallvmasks_sliceddstvtxs:: vmreadoffset_kvs: "<<vmreadoffset_kvs<<", vmreadsz_kvs: "<<vmreadsz_kvs<<endl;
-	// MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, vmbaseoffset_kvs + 0 + vmreadoffset_kvs, 0, vmreadsz_kvs, globalparams); 
-	// MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, vmbaseoffset_kvs + (1 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER) + vmreadoffset_kvs, (1 * 16 * vmreadsz_kvs), (vmreadsz_kvs * 16), globalparams); 
-	
-	// unsigned int vmreadsz = vmreadsz_kvs * 16;
-	for(unsigned int s=0; s<NUM_PEs / 2; s++){
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_loadallvmasks_sliceddstvtxs:: size loaded @ s("<<s<<"): vmreadoffset_kvs: "<<vmreadoffset_kvs<<", sz: "<<(vmreadsz_kvs * VECTOR2_SIZE)<<endl;
-		#endif 
-		MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, vmbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER) + vmreadoffset_kvs, (s * vmreadsz_kvs), vmreadsz_kvs, globalparams); 
-	}
-	for(unsigned int s=NUM_PEs / 2; s<NUM_PEs; s++){
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_loadallvmasks_sliceddstvtxs:: size loaded @ s("<<s<<"): vmreadoffset_kvs: "<<vmreadoffset_kvs<<", sz: "<<(vmreadsz_kvs * VECTOR2_SIZE)<<endl;
-		#endif 
-		MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, vmbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER) + vmreadoffset_kvs, (s * vmreadsz_kvs), vmreadsz_kvs, globalparams); 
-	}
-	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
-		for(unsigned int v=0; v<16; v++){
-			if(vmask[i].data[v].key != 0){ cout<<"MEMACCESS_loadallvmasks_sliceddstvtxs: ERROR: vmask["<<i<<"].data["<<v<<"].key: "<<vmask[i].data[v].key<<endl; }
-			if(vmask[i].data[v].value != 0){ cout<<"MEMACCESS_loadallvmasks_sliceddstvtxs: ERROR: vmask["<<i<<"].data["<<v<<"].value: "<<vmask[i].data[v].value<<endl; }
-		}
-	} */
-	
-	/* for(unsigned int s=0; s<NUM_PEs / 2; s++){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"MEMACCESS_loadallvmasks_sliceddstvtxs:: size loaded @ s("<<s<<"): vmreadoffset_kvs: "<<vmreadoffset_kvs<<", sz: "<<vmreadsz_kvs * VECTOR_SIZE<<endl;
-		#endif 
-		MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, vmbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER) + vmreadoffset_kvs, (s * vmreadsz_kvs), vmreadsz_kvs, globalparams); 
-	} */
-	/* for(unsigned int s=NUM_PEs / 2; s<NUM_PEs; s++){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"MEMACCESS_loadallvmasks_sliceddstvtxs:: size loaded @ s("<<s<<"): vmreadoffset_kvs: "<<vmreadoffset_kvs<<", sz: "<<vmreadsz_kvs * VECTOR2_SIZE<<endl;
-		#endif 
-		MEMACCESS_loadvmasks(enable, kvdram, vmask, buffer, vmbaseoffset_kvs + (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER) + vmreadoffset_kvs, (s * vmreadsz_kvs), vmreadsz_kvs, globalparams); 
-	} */
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_loadallvmasks_sliceddstvtxs:: total size (bits) loaded: "<<vmreadsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
-	#endif 
-	// exit(EXIT_SUCCESS);///
-	return;	
-}
-
-void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany1vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks1(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -935,7 +1129,7 @@ MEMACCESS_loadmany1vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -1038,81 +1232,80 @@ MEMACCESS_loadmany1vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -1120,7 +1313,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany2vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1129,7 +1322,7 @@ MEMACCESS_loadmany2vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -1232,82 +1425,147 @@ MEMACCESS_loadmany2vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -1315,7 +1573,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany3vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1324,7 +1582,7 @@ MEMACCESS_loadmany3vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -1427,83 +1685,214 @@ MEMACCESS_loadmany3vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -1511,7 +1900,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany4vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1520,7 +1909,7 @@ MEMACCESS_loadmany4vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -1623,84 +2012,281 @@ MEMACCESS_loadmany4vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -1708,7 +2294,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany5vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1717,7 +2303,7 @@ MEMACCESS_loadmany5vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -1820,85 +2406,348 @@ MEMACCESS_loadmany5vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS4[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS4[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS4[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS4[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS4[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS4[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS4[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS4[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS4[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS4[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS4[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS4[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS4[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS4[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS4[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS4[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS4[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS4[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS4[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS4[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS4[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS4[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS4[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS4[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS4[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS4[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS4[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS4[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS4[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS4[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS4[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS4[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS4[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
-		vmask4[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -1906,7 +2755,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany6vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1915,7 +2764,7 @@ MEMACCESS_loadmany6vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -2018,86 +2867,415 @@ MEMACCESS_loadmany6vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS4[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS4[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS4[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS4[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS4[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS4[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS4[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS4[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS4[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS4[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS4[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS4[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS4[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS4[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS4[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS4[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS4[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS4[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS4[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS4[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS4[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS4[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS4[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS4[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS4[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS4[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS4[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS4[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS4[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS4[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS4[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS4[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS4[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS5[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS5[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS5[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS5[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS5[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS5[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS5[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS5[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS5[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS5[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS5[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS5[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS5[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS5[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS5[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS5[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS5[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS5[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS5[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS5[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS5[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS5[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS5[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS5[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS5[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS5[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS5[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS5[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS5[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS5[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS5[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS5[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS5[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
-		vmask4[i] = tempvmask;	
-		vmask5[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -2105,7 +3283,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany7vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -2114,7 +3292,7 @@ MEMACCESS_loadmany7vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -2217,87 +3395,482 @@ MEMACCESS_loadmany7vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS4[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS4[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS4[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS4[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS4[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS4[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS4[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS4[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS4[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS4[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS4[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS4[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS4[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS4[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS4[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS4[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS4[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS4[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS4[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS4[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS4[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS4[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS4[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS4[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS4[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS4[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS4[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS4[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS4[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS4[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS4[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS4[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS4[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS5[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS5[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS5[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS5[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS5[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS5[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS5[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS5[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS5[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS5[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS5[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS5[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS5[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS5[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS5[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS5[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS5[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS5[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS5[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS5[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS5[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS5[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS5[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS5[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS5[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS5[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS5[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS5[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS5[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS5[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS5[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS5[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS5[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS6[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS6[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS6[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS6[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS6[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS6[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS6[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS6[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS6[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS6[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS6[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS6[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS6[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS6[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS6[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS6[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS6[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS6[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS6[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS6[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS6[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS6[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS6[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS6[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS6[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS6[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS6[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS6[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS6[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS6[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS6[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS6[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS6[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
-		vmask4[i] = tempvmask;	
-		vmask5[i] = tempvmask;	
-		vmask6[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -2305,7 +3878,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany8vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -2314,7 +3887,7 @@ MEMACCESS_loadmany8vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -2417,88 +3990,549 @@ MEMACCESS_loadmany8vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS4[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS4[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS4[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS4[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS4[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS4[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS4[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS4[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS4[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS4[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS4[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS4[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS4[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS4[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS4[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS4[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS4[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS4[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS4[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS4[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS4[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS4[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS4[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS4[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS4[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS4[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS4[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS4[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS4[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS4[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS4[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS4[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS4[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS5[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS5[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS5[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS5[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS5[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS5[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS5[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS5[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS5[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS5[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS5[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS5[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS5[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS5[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS5[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS5[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS5[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS5[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS5[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS5[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS5[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS5[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS5[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS5[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS5[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS5[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS5[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS5[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS5[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS5[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS5[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS5[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS5[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS6[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS6[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS6[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS6[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS6[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS6[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS6[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS6[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS6[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS6[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS6[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS6[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS6[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS6[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS6[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS6[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS6[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS6[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS6[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS6[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS6[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS6[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS6[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS6[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS6[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS6[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS6[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS6[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS6[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS6[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS6[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS6[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS6[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS7[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS7[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS7[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS7[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS7[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS7[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS7[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS7[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS7[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS7[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS7[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS7[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS7[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS7[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS7[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS7[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS7[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS7[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS7[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS7[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS7[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS7[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS7[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS7[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS7[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS7[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS7[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS7[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS7[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS7[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS7[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS7[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS7[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
-		vmask4[i] = tempvmask;	
-		vmask5[i] = tempvmask;	
-		vmask6[i] = tempvmask;	
-		vmask7[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -2506,7 +4540,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany9vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -2515,7 +4549,7 @@ MEMACCESS_loadmany9vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -2618,89 +4652,616 @@ MEMACCESS_loadmany9vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_t
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS4[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS4[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS4[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS4[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS4[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS4[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS4[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS4[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS4[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS4[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS4[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS4[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS4[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS4[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS4[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS4[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS4[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS4[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS4[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS4[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS4[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS4[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS4[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS4[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS4[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS4[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS4[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS4[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS4[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS4[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS4[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS4[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS4[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS5[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS5[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS5[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS5[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS5[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS5[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS5[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS5[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS5[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS5[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS5[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS5[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS5[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS5[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS5[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS5[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS5[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS5[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS5[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS5[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS5[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS5[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS5[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS5[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS5[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS5[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS5[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS5[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS5[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS5[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS5[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS5[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS5[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS6[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS6[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS6[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS6[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS6[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS6[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS6[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS6[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS6[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS6[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS6[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS6[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS6[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS6[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS6[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS6[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS6[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS6[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS6[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS6[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS6[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS6[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS6[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS6[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS6[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS6[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS6[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS6[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS6[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS6[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS6[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS6[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS6[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS7[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS7[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS7[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS7[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS7[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS7[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS7[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS7[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS7[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS7[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS7[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS7[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS7[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS7[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS7[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS7[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS7[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS7[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS7[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS7[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS7[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS7[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS7[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS7[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS7[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS7[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS7[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS7[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS7[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS7[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS7[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS7[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS7[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS8[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS8[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS8[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS8[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS8[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS8[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS8[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS8[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS8[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS8[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS8[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS8[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS8[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS8[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS8[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS8[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS8[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS8[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS8[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS8[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS8[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS8[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS8[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS8[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS8[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS8[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS8[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS8[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS8[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS8[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS8[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS8[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS8[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS8[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS8[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS8[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS8[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS8[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS8[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS8[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS8[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS8[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS8[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS8[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS8[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS8[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS8[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS8[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS8[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS8[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS8[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS8[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS8[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS8[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS8[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS8[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS8[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS8[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS8[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS8[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS8[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS8[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS8[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS8[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
-		vmask4[i] = tempvmask;	
-		vmask5[i] = tempvmask;	
-		vmask6[i] = tempvmask;	
-		vmask7[i] = tempvmask;	
-		vmask8[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -2708,7 +5269,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany10vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8[BLOCKRAM_SIZE],unitBRAMwidth_type vmask9[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -2717,7 +5278,7 @@ MEMACCESS_loadmany10vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -2820,90 +5381,683 @@ MEMACCESS_loadmany10vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS4[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS4[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS4[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS4[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS4[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS4[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS4[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS4[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS4[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS4[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS4[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS4[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS4[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS4[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS4[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS4[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS4[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS4[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS4[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS4[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS4[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS4[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS4[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS4[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS4[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS4[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS4[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS4[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS4[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS4[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS4[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS4[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS4[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS5[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS5[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS5[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS5[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS5[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS5[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS5[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS5[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS5[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS5[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS5[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS5[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS5[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS5[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS5[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS5[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS5[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS5[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS5[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS5[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS5[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS5[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS5[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS5[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS5[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS5[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS5[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS5[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS5[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS5[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS5[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS5[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS5[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS6[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS6[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS6[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS6[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS6[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS6[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS6[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS6[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS6[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS6[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS6[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS6[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS6[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS6[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS6[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS6[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS6[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS6[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS6[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS6[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS6[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS6[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS6[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS6[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS6[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS6[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS6[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS6[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS6[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS6[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS6[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS6[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS6[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS7[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS7[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS7[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS7[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS7[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS7[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS7[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS7[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS7[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS7[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS7[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS7[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS7[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS7[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS7[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS7[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS7[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS7[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS7[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS7[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS7[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS7[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS7[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS7[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS7[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS7[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS7[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS7[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS7[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS7[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS7[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS7[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS7[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS8[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS8[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS8[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS8[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS8[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS8[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS8[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS8[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS8[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS8[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS8[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS8[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS8[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS8[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS8[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS8[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS8[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS8[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS8[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS8[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS8[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS8[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS8[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS8[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS8[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS8[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS8[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS8[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS8[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS8[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS8[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS8[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS8[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS8[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS8[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS8[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS8[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS8[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS8[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS8[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS8[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS8[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS8[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS8[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS8[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS8[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS8[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS8[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS8[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS8[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS8[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS8[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS8[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS8[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS8[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS8[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS8[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS8[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS8[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS8[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS8[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS8[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS8[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS8[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS9[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS9[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS9[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS9[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS9[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS9[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS9[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS9[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS9[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS9[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS9[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS9[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS9[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS9[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS9[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS9[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS9[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS9[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS9[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS9[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS9[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS9[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS9[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS9[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS9[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS9[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS9[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS9[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS9[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS9[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS9[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS9[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS9[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS9[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS9[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS9[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS9[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS9[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS9[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS9[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS9[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS9[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS9[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS9[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS9[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS9[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS9[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS9[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS9[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS9[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS9[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS9[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS9[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS9[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS9[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS9[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS9[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS9[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS9[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS9[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS9[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS9[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS9[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS9[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
-		vmask4[i] = tempvmask;	
-		vmask5[i] = tempvmask;	
-		vmask6[i] = tempvmask;	
-		vmask7[i] = tempvmask;	
-		vmask8[i] = tempvmask;	
-		vmask9[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -2911,7 +6065,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany11vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8[BLOCKRAM_SIZE],unitBRAMwidth_type vmask9[BLOCKRAM_SIZE],unitBRAMwidth_type vmask10[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -2920,7 +6074,7 @@ MEMACCESS_loadmany11vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -3023,91 +6177,750 @@ MEMACCESS_loadmany11vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS4[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS4[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS4[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS4[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS4[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS4[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS4[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS4[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS4[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS4[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS4[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS4[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS4[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS4[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS4[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS4[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS4[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS4[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS4[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS4[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS4[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS4[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS4[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS4[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS4[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS4[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS4[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS4[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS4[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS4[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS4[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS4[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS4[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS5[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS5[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS5[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS5[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS5[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS5[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS5[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS5[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS5[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS5[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS5[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS5[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS5[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS5[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS5[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS5[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS5[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS5[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS5[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS5[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS5[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS5[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS5[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS5[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS5[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS5[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS5[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS5[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS5[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS5[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS5[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS5[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS5[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS6[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS6[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS6[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS6[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS6[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS6[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS6[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS6[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS6[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS6[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS6[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS6[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS6[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS6[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS6[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS6[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS6[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS6[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS6[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS6[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS6[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS6[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS6[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS6[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS6[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS6[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS6[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS6[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS6[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS6[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS6[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS6[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS6[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS7[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS7[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS7[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS7[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS7[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS7[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS7[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS7[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS7[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS7[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS7[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS7[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS7[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS7[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS7[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS7[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS7[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS7[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS7[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS7[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS7[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS7[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS7[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS7[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS7[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS7[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS7[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS7[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS7[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS7[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS7[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS7[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS7[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS8[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS8[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS8[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS8[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS8[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS8[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS8[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS8[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS8[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS8[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS8[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS8[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS8[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS8[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS8[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS8[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS8[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS8[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS8[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS8[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS8[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS8[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS8[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS8[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS8[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS8[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS8[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS8[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS8[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS8[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS8[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS8[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS8[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS8[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS8[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS8[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS8[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS8[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS8[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS8[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS8[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS8[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS8[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS8[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS8[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS8[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS8[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS8[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS8[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS8[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS8[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS8[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS8[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS8[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS8[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS8[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS8[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS8[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS8[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS8[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS8[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS8[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS8[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS8[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS9[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS9[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS9[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS9[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS9[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS9[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS9[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS9[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS9[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS9[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS9[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS9[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS9[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS9[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS9[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS9[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS9[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS9[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS9[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS9[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS9[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS9[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS9[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS9[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS9[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS9[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS9[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS9[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS9[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS9[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS9[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS9[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS9[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS9[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS9[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS9[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS9[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS9[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS9[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS9[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS9[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS9[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS9[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS9[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS9[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS9[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS9[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS9[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS9[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS9[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS9[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS9[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS9[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS9[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS9[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS9[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS9[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS9[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS9[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS9[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS9[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS9[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS9[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS9[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS10[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS10[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS10[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS10[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS10[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS10[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS10[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS10[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS10[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS10[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS10[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS10[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS10[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS10[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS10[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS10[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS10[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS10[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS10[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS10[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS10[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS10[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS10[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS10[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS10[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS10[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS10[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS10[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS10[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS10[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS10[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS10[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS10[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS10[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS10[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS10[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS10[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS10[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS10[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS10[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS10[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS10[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS10[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS10[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS10[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS10[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS10[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS10[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS10[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS10[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS10[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS10[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS10[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS10[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS10[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS10[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS10[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS10[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS10[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS10[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS10[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS10[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS10[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS10[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
-		vmask4[i] = tempvmask;	
-		vmask5[i] = tempvmask;	
-		vmask6[i] = tempvmask;	
-		vmask7[i] = tempvmask;	
-		vmask8[i] = tempvmask;	
-		vmask9[i] = tempvmask;	
-		vmask10[i] = tempvmask;	
+		index2 += 2;
 	}
 	return;
 }
@@ -3115,7 +6928,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany12vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8[BLOCKRAM_SIZE],unitBRAMwidth_type vmask9[BLOCKRAM_SIZE],unitBRAMwidth_type vmask10[BLOCKRAM_SIZE],unitBRAMwidth_type vmask11[BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -3124,7 +6937,7 @@ MEMACCESS_loadmany12vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_
 	buffer_type transfsize = size_kvs * 16;
 	uint32_type bitsbuffer[MAXREDUCEBUFFERSZ];
 
-	LOADVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	READVMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -3227,92 +7040,833 @@ MEMACCESS_loadmany12vmasks(bool_type enable, uint512_dt * kvdram, unitBRAMwidth_
 		index += VECTOR_SIZE * 2;
 	}
 
-	unitBRAMwidth_type tempvmask;
-	#pragma HLS DATA_PACK variable = tempvmask	
+	// u32 => u16bits	
+	buffer_type index2 = 0;
 	LOADVMASKS_LOOP2: for (buffer_type i=0; i<transfsize; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		tempvmask.data[0].key = bitsbuffer[i].range(0, 0);
-		tempvmask.data[0].value = bitsbuffer[i].range(1, 1);
-		tempvmask.data[1].key = bitsbuffer[i].range(2, 2);
-		tempvmask.data[1].value = bitsbuffer[i].range(3, 3);
-		tempvmask.data[2].key = bitsbuffer[i].range(4, 4);
-		tempvmask.data[2].value = bitsbuffer[i].range(5, 5);
-		tempvmask.data[3].key = bitsbuffer[i].range(6, 6);
-		tempvmask.data[3].value = bitsbuffer[i].range(7, 7);
-		tempvmask.data[4].key = bitsbuffer[i].range(8, 8);
-		tempvmask.data[4].value = bitsbuffer[i].range(9, 9);
-		tempvmask.data[5].key = bitsbuffer[i].range(10, 10);
-		tempvmask.data[5].value = bitsbuffer[i].range(11, 11);
-		tempvmask.data[6].key = bitsbuffer[i].range(12, 12);
-		tempvmask.data[6].value = bitsbuffer[i].range(13, 13);
-		tempvmask.data[7].key = bitsbuffer[i].range(14, 14);
-		tempvmask.data[7].value = bitsbuffer[i].range(15, 15);
-		tempvmask.data[8].key = bitsbuffer[i].range(16, 16);
-		tempvmask.data[8].value = bitsbuffer[i].range(17, 17);
-		tempvmask.data[9].key = bitsbuffer[i].range(18, 18);
-		tempvmask.data[9].value = bitsbuffer[i].range(19, 19);
-		tempvmask.data[10].key = bitsbuffer[i].range(20, 20);
-		tempvmask.data[10].value = bitsbuffer[i].range(21, 21);
-		tempvmask.data[11].key = bitsbuffer[i].range(22, 22);
-		tempvmask.data[11].value = bitsbuffer[i].range(23, 23);
-		tempvmask.data[12].key = bitsbuffer[i].range(24, 24);
-		tempvmask.data[12].value = bitsbuffer[i].range(25, 25);
-		tempvmask.data[13].key = bitsbuffer[i].range(26, 26);
-		tempvmask.data[13].value = bitsbuffer[i].range(27, 27);
-		tempvmask.data[14].key = bitsbuffer[i].range(28, 28);
-		tempvmask.data[14].value = bitsbuffer[i].range(29, 29);
-		tempvmask.data[15].key = bitsbuffer[i].range(30, 30);
-		tempvmask.data[15].value = bitsbuffer[i].range(31, 31);
+		vmaskBITS0[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS0[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS0[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS0[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS0[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS0[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS0[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS0[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS0[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS0[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS0[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS0[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS0[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS0[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS0[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS0[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS0[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS0[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS0[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS0[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS0[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS0[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS0[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS0[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS0[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS0[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS0[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS0[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS0[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS0[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS0[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS0[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
 		#else 
-		tempvmask.data[0].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		tempvmask.data[0].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		tempvmask.data[1].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		tempvmask.data[1].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		tempvmask.data[2].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		tempvmask.data[2].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		tempvmask.data[3].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		tempvmask.data[3].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		tempvmask.data[4].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		tempvmask.data[4].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		tempvmask.data[5].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		tempvmask.data[5].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		tempvmask.data[6].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		tempvmask.data[6].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		tempvmask.data[7].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		tempvmask.data[7].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		tempvmask.data[8].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		tempvmask.data[8].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		tempvmask.data[9].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		tempvmask.data[9].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		tempvmask.data[10].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		tempvmask.data[10].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		tempvmask.data[11].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		tempvmask.data[11].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		tempvmask.data[12].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		tempvmask.data[12].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		tempvmask.data[13].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		tempvmask.data[13].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		tempvmask.data[14].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		tempvmask.data[14].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		tempvmask.data[15].key = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		tempvmask.data[15].value = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS1[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS1[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS1[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS1[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS1[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS1[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS1[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS1[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS1[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS1[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS1[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS1[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS1[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS1[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS1[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS1[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS1[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS1[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS1[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS1[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS1[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS1[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS1[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS1[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS1[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS1[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS1[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS1[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS1[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS1[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS1[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS1[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS1[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS2[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS2[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS2[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS2[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS2[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS2[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS2[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS2[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS2[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS2[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS2[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS2[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS2[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS2[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS2[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS2[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS2[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS2[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS2[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS2[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS2[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS2[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS2[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS2[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS2[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS2[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS2[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS2[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS2[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS2[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS2[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS2[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS2[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS3[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS3[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS3[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS3[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS3[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS3[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS3[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS3[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS3[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS3[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS3[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS3[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS3[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS3[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS3[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS3[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS3[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS3[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS3[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS3[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS3[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS3[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS3[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS3[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS3[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS3[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS3[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS3[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS3[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS3[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS3[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS3[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS3[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS4[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS4[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS4[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS4[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS4[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS4[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS4[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS4[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS4[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS4[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS4[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS4[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS4[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS4[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS4[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS4[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS4[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS4[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS4[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS4[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS4[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS4[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS4[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS4[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS4[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS4[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS4[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS4[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS4[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS4[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS4[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS4[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS4[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS5[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS5[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS5[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS5[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS5[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS5[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS5[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS5[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS5[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS5[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS5[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS5[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS5[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS5[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS5[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS5[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS5[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS5[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS5[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS5[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS5[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS5[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS5[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS5[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS5[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS5[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS5[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS5[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS5[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS5[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS5[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS5[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS5[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS6[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS6[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS6[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS6[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS6[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS6[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS6[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS6[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS6[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS6[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS6[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS6[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS6[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS6[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS6[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS6[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS6[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS6[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS6[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS6[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS6[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS6[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS6[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS6[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS6[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS6[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS6[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS6[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS6[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS6[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS6[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS6[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS6[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS7[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS7[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS7[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS7[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS7[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS7[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS7[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS7[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS7[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS7[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS7[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS7[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS7[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS7[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS7[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS7[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS7[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS7[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS7[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS7[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS7[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS7[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS7[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS7[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS7[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS7[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS7[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS7[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS7[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS7[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS7[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS7[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS7[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS8[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS8[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS8[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS8[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS8[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS8[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS8[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS8[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS8[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS8[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS8[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS8[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS8[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS8[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS8[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS8[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS8[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS8[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS8[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS8[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS8[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS8[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS8[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS8[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS8[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS8[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS8[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS8[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS8[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS8[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS8[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS8[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS8[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS8[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS8[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS8[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS8[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS8[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS8[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS8[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS8[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS8[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS8[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS8[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS8[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS8[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS8[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS8[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS8[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS8[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS8[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS8[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS8[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS8[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS8[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS8[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS8[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS8[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS8[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS8[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS8[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS8[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS8[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS8[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS9[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS9[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS9[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS9[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS9[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS9[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS9[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS9[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS9[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS9[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS9[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS9[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS9[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS9[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS9[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS9[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS9[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS9[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS9[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS9[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS9[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS9[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS9[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS9[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS9[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS9[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS9[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS9[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS9[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS9[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS9[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS9[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS9[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS9[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS9[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS9[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS9[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS9[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS9[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS9[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS9[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS9[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS9[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS9[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS9[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS9[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS9[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS9[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS9[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS9[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS9[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS9[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS9[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS9[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS9[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS9[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS9[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS9[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS9[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS9[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS9[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS9[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS9[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS9[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS10[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS10[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS10[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS10[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS10[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS10[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS10[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS10[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS10[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS10[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS10[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS10[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS10[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS10[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS10[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS10[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS10[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS10[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS10[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS10[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS10[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS10[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS10[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS10[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS10[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS10[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS10[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS10[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS10[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS10[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS10[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS10[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS10[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS10[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS10[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS10[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS10[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS10[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS10[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS10[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS10[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS10[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS10[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS10[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS10[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS10[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS10[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS10[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS10[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS10[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS10[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS10[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS10[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS10[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS10[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS10[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS10[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS10[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS10[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS10[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS10[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS10[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS10[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS10[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		#endif
+		#ifdef _WIDEWORD
+		vmaskBITS11[0][index2].data = bitsbuffer[i].range(0, 0);
+		vmaskBITS11[1][index2].data = bitsbuffer[i].range(1, 1);
+		vmaskBITS11[2][index2].data = bitsbuffer[i].range(2, 2);
+		vmaskBITS11[3][index2].data = bitsbuffer[i].range(3, 3);
+		vmaskBITS11[4][index2].data = bitsbuffer[i].range(4, 4);
+		vmaskBITS11[5][index2].data = bitsbuffer[i].range(5, 5);
+		vmaskBITS11[6][index2].data = bitsbuffer[i].range(6, 6);
+		vmaskBITS11[7][index2].data = bitsbuffer[i].range(7, 7);
+		vmaskBITS11[8][index2].data = bitsbuffer[i].range(8, 8);
+		vmaskBITS11[9][index2].data = bitsbuffer[i].range(9, 9);
+		vmaskBITS11[10][index2].data = bitsbuffer[i].range(10, 10);
+		vmaskBITS11[11][index2].data = bitsbuffer[i].range(11, 11);
+		vmaskBITS11[12][index2].data = bitsbuffer[i].range(12, 12);
+		vmaskBITS11[13][index2].data = bitsbuffer[i].range(13, 13);
+		vmaskBITS11[14][index2].data = bitsbuffer[i].range(14, 14);
+		vmaskBITS11[15][index2].data = bitsbuffer[i].range(15, 15);
+		vmaskBITS11[0][index2 + 1].data = bitsbuffer[i].range(16, 16);
+		vmaskBITS11[1][index2 + 1].data = bitsbuffer[i].range(17, 17);
+		vmaskBITS11[2][index2 + 1].data = bitsbuffer[i].range(18, 18);
+		vmaskBITS11[3][index2 + 1].data = bitsbuffer[i].range(19, 19);
+		vmaskBITS11[4][index2 + 1].data = bitsbuffer[i].range(20, 20);
+		vmaskBITS11[5][index2 + 1].data = bitsbuffer[i].range(21, 21);
+		vmaskBITS11[6][index2 + 1].data = bitsbuffer[i].range(22, 22);
+		vmaskBITS11[7][index2 + 1].data = bitsbuffer[i].range(23, 23);
+		vmaskBITS11[8][index2 + 1].data = bitsbuffer[i].range(24, 24);
+		vmaskBITS11[9][index2 + 1].data = bitsbuffer[i].range(25, 25);
+		vmaskBITS11[10][index2 + 1].data = bitsbuffer[i].range(26, 26);
+		vmaskBITS11[11][index2 + 1].data = bitsbuffer[i].range(27, 27);
+		vmaskBITS11[12][index2 + 1].data = bitsbuffer[i].range(28, 28);
+		vmaskBITS11[13][index2 + 1].data = bitsbuffer[i].range(29, 29);
+		vmaskBITS11[14][index2 + 1].data = bitsbuffer[i].range(30, 30);
+		vmaskBITS11[15][index2 + 1].data = bitsbuffer[i].range(31, 31);
+		#else 
+		vmaskBITS11[0][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS11[1][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS11[2][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS11[3][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS11[4][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS11[5][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS11[6][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS11[7][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS11[8][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS11[9][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS11[10][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS11[11][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS11[12][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS11[13][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS11[14][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS11[15][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS11[0][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS11[1][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS11[2][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS11[3][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS11[4][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS11[5][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS11[6][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS11[7][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS11[8][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS11[9][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS11[10][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS11[11][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS11[12][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS11[13][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS11[14][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS11[15][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
-		// mask 
-		vmask0[i] = tempvmask;	
-		vmask1[i] = tempvmask;	
-		vmask2[i] = tempvmask;	
-		vmask3[i] = tempvmask;	
-		vmask4[i] = tempvmask;	
-		vmask5[i] = tempvmask;	
-		vmask6[i] = tempvmask;	
-		vmask7[i] = tempvmask;	
-		vmask8[i] = tempvmask;	
-		vmask9[i] = tempvmask;	
-		vmask10[i] = tempvmask;	
-		vmask11[i] = tempvmask;	
+		index2 += 2;
+	}
+	return;
+}
+
+// -------------------- pmasks -------------------- //
+void
+	#ifdef SW 
+	mem_access::
+	#endif 
+MEMACCESS_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+		#ifdef _WIDEWORD
+		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		#else
+		vmask_p[i] = kvdram[offset_kvs + i].data[0].key;
+		#endif 
 	}
 	return;
 }
@@ -3321,7 +7875,10 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany1vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask1(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -3476,86 +8033,20 @@ MEMACCESS_loadmany1vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany2vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask2(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -3745,121 +8236,20 @@ MEMACCESS_loadmany2vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany3vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask3(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -4084,156 +8474,20 @@ MEMACCESS_loadmany3vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany4vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask4(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -4493,191 +8747,20 @@ MEMACCESS_loadmany4vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany5vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask5(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -4972,226 +9055,20 @@ MEMACCESS_loadmany5vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany6vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask6(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -5521,261 +9398,20 @@ MEMACCESS_loadmany6vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany7vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask7(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -6140,296 +9776,20 @@ MEMACCESS_loadmany7vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany8vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask8(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -6829,331 +10189,20 @@ MEMACCESS_loadmany8vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany9vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask9(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -7588,366 +10637,20 @@ MEMACCESS_loadmany9vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCK
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask8_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask8_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany10vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask9_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask10(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -8417,401 +11120,20 @@ MEMACCESS_loadmany10vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOC
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask8_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask8_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask9_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask9_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany11vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask9_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask10_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask11(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -9316,436 +11638,20 @@ MEMACCESS_loadmany11vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOC
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask8_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask8_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask9_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask9_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask10_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask10_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany12vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOCKRAM_SIZE], unitBRAMwidth_type vmask0_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask1_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask2_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask3_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask4_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask5_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask6_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask7_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask8_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask9_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask10_subp[BLOCKRAM_SIZE],unitBRAMwidth_type vmask11_subp[BLOCKRAM_SIZE], buffer_type size_kvs){
+MEMACCESS_readmanyspmask12(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask11_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+	
+	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
+	
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -10285,464 +12191,10 @@ MEMACCESS_loadmany12vmasks_subp(bool_type enable, unitBRAMwidth_type vmask0[BLOC
 			tempvSUBmask.data[15].key = 0;
 			tempvSUBmask.data[15].value = 0;
 		}
-		
-		/* if(i % SUBPMASKFACTOR == SUBPMASKFACTOR-1){ // CRITICAL AUTOMATEME.
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask0_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask0_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask1_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask1_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask2_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask2_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask3_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask3_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask4_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask4_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask5_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask5_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask6_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask6_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask7_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask7_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask8_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask8_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask8_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask9_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask9_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask9_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask10_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask10_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask10_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			if(i%16==7){  // CRITICAL AUTOMATEME.
-				vmask11_subp[i/SUBPMASKFACTOR].data[0].key = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[1].key = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[2].key = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[3].key = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[4].key = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[5].key = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[6].key = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[7].key = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[8].key = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[9].key = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[10].key = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[11].key = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[12].key = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[13].key = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[14].key = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[15].key = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			} else {
-				vmask11_subp[i/SUBPMASKFACTOR].data[0].value = tempvSUBmask.data[0].key | tempvSUBmask.data[0].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[1].value = tempvSUBmask.data[1].key | tempvSUBmask.data[1].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[2].value = tempvSUBmask.data[2].key | tempvSUBmask.data[2].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[3].value = tempvSUBmask.data[3].key | tempvSUBmask.data[3].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[4].value = tempvSUBmask.data[4].key | tempvSUBmask.data[4].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[5].value = tempvSUBmask.data[5].key | tempvSUBmask.data[5].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[6].value = tempvSUBmask.data[6].key | tempvSUBmask.data[6].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[7].value = tempvSUBmask.data[7].key | tempvSUBmask.data[7].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[8].value = tempvSUBmask.data[8].key | tempvSUBmask.data[8].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[9].value = tempvSUBmask.data[9].key | tempvSUBmask.data[9].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[10].value = tempvSUBmask.data[10].key | tempvSUBmask.data[10].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[11].value = tempvSUBmask.data[11].key | tempvSUBmask.data[11].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[12].value = tempvSUBmask.data[12].key | tempvSUBmask.data[12].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[13].value = tempvSUBmask.data[13].key | tempvSUBmask.data[13].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[14].value = tempvSUBmask.data[14].key | tempvSUBmask.data[14].value; 
-				vmask11_subp[i/SUBPMASKFACTOR].data[15].value = tempvSUBmask.data[15].key | tempvSUBmask.data[15].value; 
-			}
-			
-			tempvSUBmask.data[0].key = 0;
-			tempvSUBmask.data[0].value = 0;
-			tempvSUBmask.data[1].key = 0;
-			tempvSUBmask.data[1].value = 0;
-			tempvSUBmask.data[2].key = 0;
-			tempvSUBmask.data[2].value = 0;
-			tempvSUBmask.data[3].key = 0;
-			tempvSUBmask.data[3].value = 0;
-			tempvSUBmask.data[4].key = 0;
-			tempvSUBmask.data[4].value = 0;
-			tempvSUBmask.data[5].key = 0;
-			tempvSUBmask.data[5].value = 0;
-			tempvSUBmask.data[6].key = 0;
-			tempvSUBmask.data[6].value = 0;
-			tempvSUBmask.data[7].key = 0;
-			tempvSUBmask.data[7].value = 0;
-			tempvSUBmask.data[8].key = 0;
-			tempvSUBmask.data[8].value = 0;
-			tempvSUBmask.data[9].key = 0;
-			tempvSUBmask.data[9].value = 0;
-			tempvSUBmask.data[10].key = 0;
-			tempvSUBmask.data[10].value = 0;
-			tempvSUBmask.data[11].key = 0;
-			tempvSUBmask.data[11].value = 0;
-			tempvSUBmask.data[12].key = 0;
-			tempvSUBmask.data[12].value = 0;
-			tempvSUBmask.data[13].key = 0;
-			tempvSUBmask.data[13].value = 0;
-			tempvSUBmask.data[14].key = 0;
-			tempvSUBmask.data[14].value = 0;
-			tempvSUBmask.data[15].key = 0;
-			tempvSUBmask.data[15].value = 0;
-		} */
 		#endif 
 	}
+	
+	#endif 
 	return;
 }
 
@@ -10750,22 +12202,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadvmask_p(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-		#ifdef _WIDEWORD
-		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		#else
-		vmask_p[i] = kvdram[offset_kvs + i].data[0].key;
-		#endif 
-	}
-	return;
-}
-
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_loadmany1vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10779,7 +12216,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany2vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10795,7 +12232,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany3vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10813,7 +12250,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany4vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10833,7 +12270,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany5vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10855,7 +12292,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany6vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10879,7 +12316,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany7vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10905,7 +12342,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany8vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10933,7 +12370,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany9vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10963,7 +12400,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany10vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -10995,7 +12432,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany11vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -11029,7 +12466,7 @@ void
 	#ifdef SW 
 	mem_access::
 	#endif 
-MEMACCESS_loadmany12vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+MEMACCESS_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -11062,6 +12499,7 @@ MEMACCESS_loadmany12vmask_p(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_S
 	return;
 }
 
+// -------------------- others -------------------- //
 void
 	#ifdef SW 
 	mem_access::

@@ -612,7 +612,7 @@ globalparams_TWOt loadedges::generatevmaskdata(vector<vertex_t> &activevertices,
 	keyvalue_vec_bittype vmask[VMASK_PACKINGSIZE][REDUCEBUFFERSZ];
 	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		for(unsigned int k=0; k<VERTICESDATAMASKSZ_KVS; k++){ 
+		for(unsigned int k=0; k<VERTICESDATAMASKSZ_KVS2; k++){ 
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 				#ifdef _DEBUGMODE_CHECKS3
 				utilityobj->checkoutofbounds("loadedges::generatevmaskdata 2._BASEOFFSET_VERTICESDATAMASK_KVS", _BASEOFFSET_VERTICESDATAMASK_KVS + k, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
@@ -662,3 +662,18 @@ globalparams_TWOt loadedges::generatevmaskdata(vector<vertex_t> &activevertices,
 	
 	return globalparams;
 }
+
+void loadedges::setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams){
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	cout<<"loadgraph::setrootvid:: setting root vid(s)... "<<endl;
+	#endif 
+	
+	for(unsigned int i = 0; i < activevertices.size(); i++){
+		unsigned int vid = activevertices[i];
+		kvbuffer[2*(globalparams.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE) + vid] = 0;
+		// kvbuffer[2*(globalparams.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE) + vid] = 0;
+	}
+	return;
+}
+
+

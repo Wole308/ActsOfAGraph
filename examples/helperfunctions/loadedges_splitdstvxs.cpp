@@ -186,7 +186,9 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 				exit(EXIT_FAILURE);
 			}
 		}
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"### loadedges_splitdstvxs::loadedges:: number of empty vertices filled for memory channel "<<i<<": "<<gap<<endl;
+		#endif 
 	}
 	cout<<"### loadedges_splitdstvxs::loadedges:: total number of empty vertices filled for all memory channels: "<<totalgap<<endl;
 	if(debug2==true){ for(unsigned int i=0; i<NUM_PEs; i++){ cout<<"edgedatabuffers_temp["<<i<<"].size(): "<<edgedatabuffers_temp[i].size()<<endl; }}
@@ -219,6 +221,7 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	unsigned int srcvid_lastvechead = 0xFFFFFFFF;
 	unsigned int srcvid_lastseen = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
+		cout<<"### loadedges_splitdstvxs::loadedges:: loading edges into PE: "<<i<<"..."<<endl;
 		tempe_index = 0; 
 		index = 0;
 		srcvid_lastvechead = 0xFFFFFFFF;
@@ -265,11 +268,15 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 		counts_alldatas[i] += index;
 		counts_alldata += index;
 		
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printtriples("loadedges_splitdstvxs::[insert.edges] printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
 		cout<<"### loadedges_splitdstvxs::[insert.edges] memory channel "<<i<<": tempe_index: "<<tempe_index<<", index: "<<index<<endl;
+		#endif 
 	}
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printvalues(">>> loadedges_splitdstvxs:[insert.edges] total number of edges in channels[0-N]", (value_t *)&counts_alldatas[0], NUM_PEs);
 	cout<<">>> loadedges_splitdstvxs::[insert.edges] total number of edges in all memory channels: counts_alldata: "<<counts_alldata<<", NAp: "<<NAp<<endl;
+	#endif 
 	#endif 
 	
 	// CHECK 2: ensure all vertices are represented
@@ -324,13 +331,16 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	
 	// calculate local edge dstvids 
 	#ifdef CALCULATELOCALDSTVIDS
+	cout<<"### loadedges_splitdstvxs::insert.bitmap:: calculating local edge dstvids..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int k=0; k<edges_temp[i].size(); k++){
 			if(edges_temp[i][k].status == EDGESTATUS_VALIDEDGE){ edges_temp[i][k].dstvid = (edges_temp[i][k].dstvid - i) / NUM_PEs; }
 		}
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printtriples("loadedges_splitdstvxs::[insert.local.edge.dstvids] printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
+		#endif 
 	}
-	if(debug2==true){ cout<<"### loadedges_splitdstvxs::[insert.local.edge.dstvids] calculating local edge dstvids inserted successfully"<<endl; }
+	cout<<"### loadedges_splitdstvxs::[insert.local.edge.dstvids] calculating local edge dstvids inserted successfully"<<endl;
 	#endif 
 	
 	// insert bitmap 
@@ -353,19 +363,23 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 				edges_temp[i][j+v].metadata = incr; 
 			}
 		}
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printtriples("loadedges_splitdstvxs::insert.bitmap::[after.insert.bitmap]: printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
+		#endif 
 	}
 	cout<<"### loadedges_splitdstvxs::insert.bitmap::[insert.bitmap] bitmap inserted successfully"<<endl;
 	#endif
 	
 	// load edges 
 	#ifdef LOADEDGES
+	cout<<"### loadedges_splitdstvxs::insert.bitmap:: loading edges..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int k=0; k<edges_temp[i].size(); k++){
 			edges[i][TWOO*_BASEOFFSET_EDGESDATA + k].dstvid = edges_temp[i][k].dstvid;
 		}
 		if(debug2==true){ utilityobj->printvalues("loadedges_splitdstvxs[after]::loadedges: printing edges["+std::to_string(i)+"][~]", (value_t *)&edges[i][TWOO*_BASEOFFSET_EDGESDATA], 8); }
 	}
+	cout<<"### loadedges_splitdstvxs::insert.bitmap::[insert.bitmap] loading edges completed successfully"<<endl;
 	#endif 
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ counts_totalalledges_for_channel[i] += counts_alledges_for_channel[i][vid]; totalcount_alledges_for_all_channels += counts_alledges_for_channel[i][vid]; }}
@@ -413,6 +427,7 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	
 	// CHECK 4: check vptrs against edges
 	#ifdef CHECK4_VERIFYOFFSETS
+	cout<<"### loadedges_splitdstvxs::insert.bitmap:: checking vptrs against edges (CHECK 4(a&b))..."<<endl;
 	unsigned int vptr_offset = 0;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 		for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid+=VPTR_SHRINK_RATIO){	
@@ -454,6 +469,7 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 		container->actvvsize[i] = 0;
 	}
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ counts_totalvalidedges_for_channel[i] += counts_validedges_for_channel[i][vid]; totalcount_validedges_for_all_channels += counts_validedges_for_channel[i][vid]; }}
 	utilityobj->printvalues(">>> loadedges_splitdstvxs::loadedges: printing counts_totalvalidedges_for_channel", (value_t *)&counts_totalvalidedges_for_channel[0], NUM_PEs);
 	utilityobj->printvalues(">>> loadedges_splitdstvxs::loadedges: printing counts_totalalledges_for_channel", (value_t *)&counts_totalalledges_for_channel[0], NUM_PEs);
@@ -466,6 +482,7 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	for(unsigned int i=0; i<0; i++){ utilityobj->printkeyvalues("loadedges_splitdstvxs[after]::loadedges: printing edgedatabuffers_temp["+std::to_string(i)+"][~]", (keyvalue_t *)&edgedatabuffers_temp[i][0], 4); }
 	for(unsigned int i=0; i<0; i++){ utilityobj->printvalues("loadedges_splitdstvxs::loadedges: printing vptrs["+std::to_string(i)+"][~]", (value_t *)&vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE)], 8); } 
 	cout<<"loadedges_splitdstvxs::loadedges: totalcount_validedges_for_all_channels: "<<totalcount_validedges_for_all_channels<<", totalcount_alledges_for_all_channels: "<<totalcount_alledges_for_all_channels<<", *counts_alldata: "<<counts_alldata<<endl;
+	#endif 
 	// exit(EXIT_SUCCESS); //
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ edgedatabuffers_temp[i].clear(); }
@@ -599,7 +616,7 @@ globalparams_TWOt loadedges_splitdstvxs::loadoffsetmarkers(vptr_type * vptrs[NUM
 			srC = (srC / (REDUCESZ * VDATA_PACKINGSIZE)) * (REDUCESZ * VDATA_PACKINGSIZE); // round down
 			SRC_CHKPT[k] = srC;
 			PARTITION_CHKPT[k] = srC / (REDUCESZ * VDATA_PACKINGSIZE);
-			#ifdef _DEBUGMODE_HOSTPRINTS3
+			#ifdef _DEBUGMODE_HOSTPRINTS
 			cout<<"loadedges_splitdstvxs::loadoffsetmarkers: k: "<<k<<", index: "<<index<<", srC: "<<srC<<", SRC_CHKPT["<<k<<"]: "<<SRC_CHKPT[k]<<", PARTITION_CHKPT["<<k<<"]: "<<PARTITION_CHKPT[k]<<", _NUM_EDGECHUNKS_IN_A_BUFFER: "<<_NUM_EDGECHUNKS_IN_A_BUFFER<<endl; 
 			#endif
 		}
@@ -727,42 +744,6 @@ globalparams_TWOt loadedges_splitdstvxs::loadoffsetmarkers(vptr_type * vptrs[NUM
 	return globalparams;
 }
 
-void loadedges_splitdstvxs::savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, unsigned int vmask[VMASK_PACKINGSIZE][REDUCEPARTITIONSZ_KVS2], batch_type offset_kvs, buffer_type size_kvs){
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<"loadedges_splitdstvxs::savevmasks:: saving vmask... "<<endl;
-	#endif
-	
-	unsigned int tempbuffer[VMASK_PACKINGSIZE][BLOCKRAM_SIZE]; 
-	unsigned int index = 0;
-	
-	for(unsigned int k=0; k<REDUCEPARTITIONSZ_KVS2; k+=2){
-	#pragma HLS PIPELINE II=1
-		unsigned int X = index % 16;
-		unsigned int Y = index / 16;
-		
-		// unsigned int n_i = 2 * k;
-		// unsigned int n_iplus1 = (2 * k) + 1;
-		unsigned int n_i = k;
-		unsigned int n_iplus1 = k + 1;
-		
-		for(unsigned int v=0; v<VMASK_PACKINGSIZE; v++){
-			utilityobj->WRITETO_UINT(&tempbuffer[X][Y], v, 1, vmask[v][n_i]);
-		}
-		for(unsigned int v=0; v<VMASK_PACKINGSIZE; v++){
-			utilityobj->WRITETO_UINT(&tempbuffer[X][Y], 16+v, 1, vmask[v][n_iplus1]);
-		}
-		index += 1;
-	}
-	
-	for(unsigned int k=0; k<VMASKBUFFERSZ_KVS; k++){
-	#pragma HLS PIPELINE II=1
-		for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			kvbuffer[offset_kvs + k].data[v].key = tempbuffer[2*v][k];
-			kvbuffer[offset_kvs + k].data[v].value = tempbuffer[2*v+1][k];
-		}
-	}
-	return;
-}
 globalparams_TWOt loadedges_splitdstvxs::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * vdram, globalparams_TWOt globalparams){ 
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"loadedges_splitdstvxs::generatevmaskdata:: generating vmask... "<<endl;
@@ -771,21 +752,21 @@ globalparams_TWOt loadedges_splitdstvxs::generatevmaskdata(vector<vertex_t> &act
 	globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.globalparamsK.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.globalparamsK.SIZE_VERTICESDATAMASK = VERTICESDATAMASKSZ;
 	
-	globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsK.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
+	globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsK.SIZE_VERTICESDATAMASK / VECTOR2_SIZE);
 	globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK = (NUMPROCESSEDGESPARTITIONS * 2) * VECTOR_SIZE; // '*2' is padding value. AUTOMATEME.
 	
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	globalparams.globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.globalparamsE.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.globalparamsE.SIZE_VERTICESDATAMASK = 0;
 	
-	globalparams.globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsE.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
+	globalparams.globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsE.SIZE_VERTICESDATAMASK / VECTOR2_SIZE);
 	globalparams.globalparamsE.SIZE_VERTICESPARTITIONMASK = 0;
 	#endif 
 	
 	globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.globalparamsV.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.globalparamsV.SIZE_VERTICESDATAMASK = VERTICESDATAMASKSZ;
 	
-	globalparams.globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsV.SIZE_VERTICESDATAMASK / VECTOR_SIZE);
+	globalparams.globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsV.SIZE_VERTICESDATAMASK / VECTOR2_SIZE);
 	globalparams.globalparamsV.SIZE_VERTICESPARTITIONMASK = (NUMPROCESSEDGESPARTITIONS * 2) * VECTOR_SIZE;
 	
 	unsigned int _BASEOFFSET_VERTICESDATAMASK_KVS = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK;
@@ -816,41 +797,6 @@ globalparams_TWOt loadedges_splitdstvxs::generatevmaskdata(vector<vertex_t> &act
 		}
 	}
 	
-	unsigned int vmask[VMASK_PACKINGSIZE][REDUCEPARTITIONSZ_KVS2];
-	unsigned int vmaskoffset_kvs = 0;
-	for(unsigned int partition=0; partition<NUMPROCESSEDGESPARTITIONS; partition++){
-		for(unsigned int k=0; k<REDUCEPARTITIONSZ_KVS2; k++){
-			for(unsigned int v=0; v<VMASK_PACKINGSIZE; v++){
-				vmask[v][k] = 0;
-				if(((partition * REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE) + (k * VMASK_PACKINGSIZE) + v) == activevertices[0]){ vmask[v][k] = 1; } // root. 
-				// if(partition==0 && k==0 && v==1){ vmask[v][k] = 1; } // root. FIXME.
-			}
-		}
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ savevmasks(ON, kvbuffer[i], vmask, _BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs, VMASKBUFFERSZ_KVS); }
-		vmaskoffset_kvs += VMASKBUFFERSZ_KVS;
-		#ifdef _DEBUGMODE_CHECKS3
-		utilityobj->checkoutofbounds("loadgraph::generatevmaskdata 3._BASEOFFSET_VERTICESDATAMASK_KVS", _BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
-		#endif
-	}
-	
-	#ifdef XXX
-	unsigned int vmaskoffset_kvs = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		for(unsigned int partition=0; partition<NUMPROCESSEDGESPARTITIONS; partition++){
-			for(unsigned int k=0; k<VMASKBUFFERSZ_KVS; k++){
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){
-					kvbuffer[i][_BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs + k].data[v].key = 0;
-					kvbuffer[i][_BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs + k].data[v].value = 0;
-				}
-			}
-			vmaskoffset_kvs += VMASKBUFFERSZ_KVS;
-			#ifdef _DEBUGMODE_CHECKS3
-			utilityobj->checkoutofbounds("loadgraph::generatevmaskdata 3._BASEOFFSET_VERTICESDATAMASK_KVS", _BASEOFFSET_VERTICESDATAMASK_KVS + vmaskoffset_kvs, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
-			#endif
-		}
-	}
-	#endif 
-	
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 		for(unsigned int k=0; k<globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK; k++){
 			#ifdef _DEBUGMODE_CHECKS3
@@ -862,5 +808,91 @@ globalparams_TWOt loadedges_splitdstvxs::generatevmaskdata(vector<vertex_t> &act
 	}
 	return globalparams;
 }
+
+void loadedges_splitdstvxs::savevdata(uint512_vec_dt * kvdram, unsigned int buffer[VDATA_PACKINGSIZE][REDUCEPARTITIONSZ_KVS2], batch_type vbaseoffset_kvs, batch_type voffset_kvs){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"loadedges_splitdstvxs::savemasks:: saving vdata: voffset_kvs: "<<voffset_kvs<<endl;
+	#endif 
+	for(unsigned int i=0; i<REDUCEPARTITIONSZ_KVS2; i++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram[vbaseoffset_kvs + voffset_kvs + i].data[v].key = buffer[2*v][i];
+			kvdram[vbaseoffset_kvs + voffset_kvs + i].data[v].value = buffer[2*v+1][i];
+		}
+	}
+	return;
+}
+void loadedges_splitdstvxs::savemasks(uint512_vec_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][REDUCEPARTITIONSZ_KVS2], batch_type vmask_baseoffset_kvs, batch_type vmask_offset_kvs){			
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"loadedges_splitdstvxs::savemasks:: saving vmasks: vmask_offset_kvs: "<<vmask_offset_kvs<<endl;
+	#endif
+	/** WRITETO_UINT(&data, 28, 4, 1) => 010000000000000000000000000000
+	WRITETO_UINT(&data, 28, 4, 2) => 100000000000000000000000000000
+	WRITETO_UINT(&data, 28, 4, 3) => 110000000000000000000000000000 */
+	
+	vmask_offset_kvs = vmask_offset_kvs / FACTOR_REDUCEPARTITIONSZ_VMASKSZ; // convert
+	
+	uint32_type tempbuffer[REDUCEPARTITIONSZ_KVS2];
+	unsigned int indexx = 0;
+	
+	for(buffer_type k=0; k<REDUCEPARTITIONSZ_KVS2; k+=2){
+		unsigned int n_i = k;
+		unsigned int n_iplus1 = k + 1;
+		
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			utilityobj->WRITETO_UINT(&tempbuffer[indexx], v, 1, vmaskBITS[v][n_i].data);
+		}
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			utilityobj->WRITETO_UINT(&tempbuffer[indexx], 16+v, 1, vmaskBITS[v][n_iplus1].data);
+		}
+		indexx += 1;
+	}
+	
+	indexx = 0;
+	for(buffer_type k=0; k<VMASKBUFFERSZ_KVS; k++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram[vmask_baseoffset_kvs + vmask_offset_kvs + k].data[v].key = tempbuffer[indexx];
+			kvdram[vmask_baseoffset_kvs + vmask_offset_kvs + k].data[v].value = tempbuffer[indexx + 1];
+			indexx += 2;
+		}
+	}
+	
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadedges_splitdstvxs::savemasks", vmask_offset_kvs + VMASKBUFFERSZ_KVS - 1, VERTICESDATAMASKSZ_KVS2, vmask_baseoffset_kvs, vmask_offset_kvs, VMASKBUFFERSZ_KVS);
+	#endif
+	return;
+}
+void loadedges_splitdstvxs::setrootvid(uint512_vec_dt * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams){
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<"loadgraph::setrootvid:: setting root vid(s)... "<<endl;
+	#endif 
+
+	unsigned int vbuffer[VDATA_PACKINGSIZE][REDUCEPARTITIONSZ_KVS2];
+	unit1_type vmask[VDATA_PACKINGSIZE][REDUCEPARTITIONSZ_KVS2];
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<NUMREDUCEPARTITIONS; partition++){
+			for(unsigned int k=0; k<REDUCEPARTITIONSZ_KVS2; k++){
+				for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
+					// unsigned int lvid = (i * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2 * VDATA_PACKINGSIZE) + (partition * REDUCEPARTITIONSZ_KVS2 * VDATA_PACKINGSIZE) + (k * VDATA_PACKINGSIZE) + v;
+					unsigned int lvid = (partition * REDUCEPARTITIONSZ_KVS2 * VDATA_PACKINGSIZE) + (k * VDATA_PACKINGSIZE) + v;
+					unsigned int vid = utilityobj->UTIL_GETREALVID(lvid, i);
+					if(vid == 1){
+						#ifdef _DEBUGMODE_HOSTPRINTS
+						cout<<"loadedges_splitdstvxs::setrootvid::(1) vid == 1 seen. i: "<<i<<", partition: "<<partition<<", k: "<<k<<", v: "<<v<<", lvid: "<<lvid<<", vid: "<<vid<<endl;
+						#endif 
+						vbuffer[v][k] = 0;
+						vmask[v][k].data = 1;
+					} else {
+						vbuffer[v][k] = algorithmobj->vertex_initdata();
+						vmask[v][k].data = 0;
+					}
+				}
+			}
+			savevdata(kvbuffer, vbuffer, globalparams.BASEOFFSETKVS_SRCVERTICESDATA, (i * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2) + (partition * REDUCEPARTITIONSZ_KVS2));
+			savemasks(kvbuffer, vmask, globalparams.BASEOFFSETKVS_VERTICESDATAMASK, (i * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2) + (partition * REDUCEPARTITIONSZ_KVS2));
+		}
+	}
+	return;
+}
+
 
 

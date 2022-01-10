@@ -43,12 +43,13 @@
 #endif
 
 /*
-- AUTOMATE FOR LARGER GRAPHS: MERGE_mergeVs, mem_access.cpp
+- AUTOMATE FOR LARGER GRAPHS: mem_access.cpp, acts_merge.cpp, mem_access.cpp->MEMACCESS_readvmasks
 - CRITICAL FIXME. mem_access.cpp
 - CRITICAL FIXME. TOO EXPENSIVE. mem_access.cpp
 - CRITICAL OPTIMIZEME: acts_merge.cpp
-- TOO EXPENSIVE. top_nusrcv_nudstv.cpp
-
+- TOO EXPENSIVE. top_nusrcv_nudstv.cpp, processedges_slicedgraph.cpp
+- FIXME FOR DIFFERENT PARAMETERS: loadedges_splitdstvxs.cpp
+- NOT IMPLEMENTED. mem_access.cpp
 
 */
 

@@ -79,20 +79,18 @@ LDFLAGS += $(opencl_LDFLAGS)
 KERNEL_TOP_PROC += $(RELREF)acts/acts/actsproc.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/top_usrcv_udstv.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/top_nusrcv_nudstv.cpp
-KERNEL_TOP_PROC += $(RELREF)acts/acts/processedges_unslicedgraph.cpp
-KERNEL_TOP_PROC += $(RELREF)acts/acts/processedges_slicedgraph.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/processedgesu.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/processedges_splitdstvxs.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/partitionupdates.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/reduceupdates.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/mem_access.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_util.cpp
-KERNEL_TOP_PROC += $(RELREF)acts/acts/merge_vtxs.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
 #CRITICAL REMOVEME.
 KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync.cpp
-KERNEL_TOP_SYNC += $(RELREF)acts/acts/actssync_slicedgraph.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge.cpp
 # KERNEL_TOP_SYNC += $(RELREF)acts/acts/actsmerge.cpp
 # KERNEL_TOP_SYNC += $(RELREF)acts/acts/actsapply.cpp

@@ -684,6 +684,14 @@ void utility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned
 	return WRITETO_ULONG(data, index, size, value);
 	return; 
 }
+unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
+	#pragma HLS INLINE
+	return (vid - instid) / NUM_PEs;
+}
+unsigned int utility::UTIL_GETREALVID(unsigned int lvid, unsigned int instid){
+	#pragma HLS INLINE
+	return (lvid * NUM_PEs) + instid;
+}
 
 #ifdef FPGA_IMPL
 void event_cb(cl_event event, cl_int cmd_status, void *data) {

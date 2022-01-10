@@ -23,14 +23,13 @@
 #include "../../src/utility/utility.h"
 #include "../../acts/actsutility/actsutility.h"
 #endif
-#include "processedges_unslicedgraph.h"
-#include "processedges_slicedgraph.h"
+#include "processedgesu.h"
+#include "processedges_splitdstvxs.h"
 #include "partitionupdates.h"
 #include "reduceupdates.h"
 #include "mem_access.h"
 #include "acts_util.h"
 #include "acts.h"
-#include "merge_vtxs.h"
 using namespace std;
 
 class acts_merge {
@@ -38,6 +37,23 @@ public:
 	acts_merge();
 	~acts_merge();
 	
+	// for usrcv udstv 
+	unsigned int MERGE_amin(unsigned int val1, unsigned int val2);
+	value_t MERGE_mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
+	
+	{%for n in context['T_seq']%}
+	{%if(n>=1)%}
+	void MERGE_readandreplicate{{n}}vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],{%endif%}{%endfor%} unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
+	{%endif%}
+	{%endfor%}
+	
+	{%for n in context['T_seq']%}
+	{%if(n>=1)%}
+	void MERGE_merge{{n}}andsavevdata(bool_type enable, uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t vbuffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],{%endif%}{%endfor%} unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs); 
+	{%endif%}
+	{%endfor%}
+	
+	//
 	unsigned int MERGE_actvpstatsoffset(globalparams_t globalparams);
 	value_t MERGE_applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	uint32_type MERGE_convertvmasktouint32(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int index);
@@ -57,19 +73,18 @@ public:
 	{%endif%}
 	{%endfor%}
 	
-	void MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC);
+	void MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram);
 
 private:
 	#ifdef SW
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
-	processedges_unslicedgraph * processedges_unslicedgraphobj;
-	processedges_slicedgraph * processedges_slicedgraphobj;
+	processedgesu * processedgesobj;
+	processedges_splitdstvxs * processedges_splitdstvxsobj;
 	partitionupdates * partitionupdatesobj;
 	reduceupdates * reduceupdatesobj;
 	mem_access * mem_accessobj;
 	acts * actsobj;
-	merge_vtxs * mergeobj;
 	#endif
 };
 #endif 

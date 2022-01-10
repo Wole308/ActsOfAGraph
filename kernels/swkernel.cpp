@@ -16,8 +16,6 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new top_nusrcv_nudstv(); }
 	kernelobjs_synchronize = new actssync();
 	kernelobjs_merge = new acts_merge();
-	kernelobjs_synchronize_slicedgraph = new actssync_slicedgraph();
-	// kernelobjs = new acts();
 	#endif
 }
 swkernel::~swkernel(){}
@@ -72,7 +70,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; vdramD[i] = vdram[i]; }
 	
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){ // numIters // CRITICAL REMOVEME.
-		cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<", numIters: "<<numIters<<endl;
+		cout<< TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<numIters<<" iterations"<< RESET <<endl;
 		
 		for(unsigned int analysis_i=0; analysis_i<analysis_icount; analysis_i++){
 			#ifdef ENABLE_KERNEL_PROFILING
@@ -106,22 +104,24 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			#else 
 			NOT DEFINED.
 			#endif
-			
-			kernelobjs_merge->MERGE_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC);
-			// exit(EXIT_SUCCESS); //
+			kernelobjs_merge->MERGE_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);
 		
 			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 		}
 		
-		/* #ifdef CONFIG_UNIFIED_VDRAM
-		uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
+		// #ifdef CONFIG_UNIFIED_VDRAM
+		// uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
+		// #else 
+		// uint512_vec_dt * ref = (uint512_vec_dt *)kvsourcedram[0];	
+		// #endif
+		// uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
+		#ifdef CONFIG_SPLIT_DESTVTXS
+		uint512_vec_dt * ref = (uint512_vec_dt *)vdramA;
 		#else 
-		uint512_vec_dt * ref = (uint512_vec_dt *)kvsourcedram[0];	
-		#endif  */
-		uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
+		uint512_vec_dt * ref = (uint512_vec_dt *)vdram;	
+		#endif 
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = ref[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-		unsigned int BLOP = pow(NUM_PARTITIONS, (TREE_DEPTH-1));
 		unsigned int totalactvvp = 0;
 		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
 		for(unsigned int i=0; i<256; i++){
@@ -131,8 +131,12 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		}
 		cout<<""<<endl;
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
-		exit(EXIT_SUCCESS); //
+		// exit(EXIT_SUCCESS); //
 	}
+	
+	#ifdef CONFIG_SPLIT_DESTVTXS
+	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdram[i] = vdramA[i]; }
+	#endif
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();

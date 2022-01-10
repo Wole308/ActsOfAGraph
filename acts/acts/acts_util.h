@@ -52,10 +52,8 @@ public:
 	keyy_t UTIL_GETK2(uint32_type data);
 	value_t UTIL_GETV2(uint32_type data);
 	keyy_t UTIL_GETKEYENTRY(uint512_dt data, unsigned int v);
-	value_t UTIL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
-	value_t UTIL_GETVTXMASK(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
-	value_t UTIL_GETVTXMASK_SUBP(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);
-	uint32_type UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int index);
+	value_t UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);	
+	uint32_type UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int index);	
 	unsigned int UTIL_GETLOCALVID(unsigned int vid, unsigned int instid);
 	unsigned int UTIL_GETREALVID(unsigned int lvid, unsigned int instid);
 	
@@ -79,7 +77,7 @@ public:
 	void UTIL_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval);
 	void UTIL_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void UTIL_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams);
-	void UTIL_reset(unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]);
+	void UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]);
 	void UTIL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 	void UTIL_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);
 	void UTIL_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);

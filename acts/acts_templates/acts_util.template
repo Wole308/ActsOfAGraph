@@ -227,106 +227,13 @@ UTIL_GETKEYENTRY(uint512_dt data, unsigned int v){
 	#else 
 	return data.data[v].key;	
 	#endif
-}
+}	
 value_t 
 	#ifdef SW 
 	acts_util::
 	#endif 
-UTIL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
-	value_t data = 0;
-	
-	#ifdef ACTSPROC_AUTOMATE_ACROSSDATASETS
-	unsigned int col = loc >> globalparams.POW_REDUCE;
-	unsigned int row;
-	if(globalparams.POW_REDUCE == 11){
-		row = loc % (1 << 11);
-	} else if(globalparams.POW_REDUCE == 10){
-		row = loc % (1 << 10);
-	} else if(globalparams.POW_REDUCE == 9){
-		row = loc % (1 << 9);
-	} else if(globalparams.POW_REDUCE == 8){
-		row = loc % (1 << 8);
-	} else if(globalparams.POW_REDUCE == 7){
-		row = loc % (1 << 7);
-	} else {
-		row = 0;
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"GETVTXDATA: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	row = row / 2;
-	#else 
-	unsigned int col = loc / REDUCESZ; 
-	unsigned int row = loc % REDUCESZ;
-	row = row / 2;
-	#endif 
-	
-	#ifdef CONFIG_SPLIT_DESTVTXS
-		if(col >= NUM_PARTITIONS || row >= BLOCKRAM_SIZE){ data = 0; } // AUTOMATEME. for pagerank and sssp
-		else { if(loc % 2 == 0){ data = UTIL_GETKV2(vbuffer[col][row]).key; } else { data = UTIL_GETKV2(vbuffer[col][row]).value; }}
-	#else 
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("GETVTXDATA.col", col, NUM_PARTITIONS, loc, NAp, NAp); 
-		actsutilityobj->checkoutofbounds("GETVTXDATA.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
-		#endif 
-		if(loc % 2 == 0){ data = UTIL_GETKV2(vbuffer[col][row]).key; } else { data = UTIL_GETKV2(vbuffer[col][row]).value; }
-	#endif 
-	return data;
-}
-value_t 
-	#ifdef SW 
-	acts_util::
-	#endif 
-UTIL_GETVTXMASK(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	value_t data = 0;
-	
-	#ifdef ACTSPROC_AUTOMATE_ACROSSDATASETS
-	unsigned int col = loc >> globalparams.POW_REDUCE; // CRITICAL FIXME. TOO EXPENSIVE?
-	unsigned int row;
-	if(globalparams.POW_REDUCE == 11){ 
-		row = loc % (1 << 11);
-	} else if(globalparams.POW_REDUCE == 10){
-		row = loc % (1 << 10);
-	} else if(globalparams.POW_REDUCE == 9){
-		row = loc % (1 << 9);
-	} else if(globalparams.POW_REDUCE == 8){
-		row = loc % (1 << 8);
-	} else {
-		row = 0;
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"GETVTXMASK: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	row = row / 2;
-	#else 
-	unsigned int col = loc / REDUCESZ;
-	unsigned int row = loc % REDUCESZ;
-	row = row / 2;
-	#endif
-
-	#ifdef CONFIG_SPLIT_DESTVTXS
-		if(col >= NUM_PARTITIONS || row >= BLOCKRAM_SIZE){ data = 0; } // AUTOMATEME. for pagerank and sssp
-		else { if(loc % 2 == 0){ data = vmask[row].data[col].key; } else { data = vmask[row].data[col].value; }}
-	#else 
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("GETVTXMASK.col", col, NUM_PARTITIONS, loc, NAp, NAp);
-		actsutilityobj->checkoutofbounds("GETVTXMASK.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
-	#endif 
-		if(loc % 2 == 0){ data = vmask[row].data[col].key; } else { data = vmask[row].data[col].value; }
-	#endif 
-	return data;
-}
-value_t 
-	#ifdef SW 
-	acts_util::
-	#endif 
-UTIL_GETVTXMASK_SUBP(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	value_t data = 0;
 	loc = loc / SUBPMASKFACTOR; // convert-to-appropriate-skip-format // NEWCHANGE.
 
 	#ifdef ACTSPROC_AUTOMATE_ACROSSDATASETS
@@ -347,11 +254,9 @@ UTIL_GETVTXMASK_SUBP(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, 
 		exit(EXIT_FAILURE);
 		#endif 
 	}
-	row = row / 2;
 	#else 
 	unsigned int col = loc / (REDUCESZ/SUBPMASKFACTOR); 
 	unsigned int row = loc % (REDUCESZ/SUBPMASKFACTOR);
-	row = row / 2;
 	#endif
 	
 	#ifdef _DEBUGMODE_CHECKS2
@@ -359,28 +264,27 @@ UTIL_GETVTXMASK_SUBP(unitBRAMwidth_type vmask[BLOCKRAM_SIZE], unsigned int loc, 
 	actsutilityobj->checkoutofbounds("GETVTXMASK_SUBP.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
 	#endif 
 	
-	if(loc % 2 == 0){ data = vmask[row].data[col].key; } 
-	else { data = vmask[row].data[col].value; }
-
+	value_t data = vmask[col][row].data;
 	return data;
 }
 uint32_type 
 	#ifdef SW 
 	acts_util::
 	#endif 
-UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int index){
-	uint32_type res;
+UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int index){
+	#pragma HLS INLINE
+	uint32_type res = 0;
 	#ifdef _WIDEWORD
 	{%for v in context['16_seq']%}
 	res.range({{1 * ((v * 1) + 1) - 1}}, {{(v * 1) * 1}}) = vmaskBITS[{{v}}][index].data;
 	{%endfor%}
 	#else 
 	{%for v in context['16_seq']%}
-	UTIL_WRITETO_UINT(&res, {{v*2}}, 1, vmaskBITS[{{v}}][index].data);
+	UTIL_WRITETO_UINT(&res, {{v}}, 1, vmaskBITS[{{v}}][index].data);
 	{%endfor%}
 	#endif
 	return res;
-}
+}	
 unsigned int 
 	#ifdef SW 
 	acts_util::
@@ -892,10 +796,10 @@ void
 	#ifdef SW 
 	acts_util::
 	#endif 
-UTIL_reset(unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]){
+UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]){
 	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<DOUBLE_BLOCKRAM_SIZE; k++){
-	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
-		for(unsigned int i=0; i<VDATA_PACKINGSIZE; i++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int i=0; i<VMASK_PACKINGSIZE; i++){
 		#pragma HLS UNROLL
 			vmaskBITS[i][k].data = 0;
 		}

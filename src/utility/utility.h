@@ -107,6 +107,8 @@ public:
 	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);
 	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
+	unsigned int UTIL_GETLOCALVID(unsigned int vid, unsigned int instid);
+	unsigned int UTIL_GETREALVID(unsigned int lvid, unsigned int instid);
 
 	unsigned int runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters, long double edgesprocessed_totals[128], unsigned int * numValidIters);
 	

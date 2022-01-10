@@ -26,6 +26,8 @@ public:
 	void savevmasks(bool_type enable, uint512_vec_dt * kvbuffer, keyvalue_vec_bittype vmask[VMASK_PACKINGSIZE][REDUCEBUFFERSZ], batch_type offset_kvs, buffer_type size_kvs);
 	globalparams_TWOt generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * vdram, globalparams_TWOt globalparams);
 	
+	void setrootvid(value_t * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams);
+	
 private:
 	utility * utilityobj;
 	graph * graphobj;
