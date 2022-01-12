@@ -278,100 +278,6 @@ MERGE_writevdata(bool_type enable1, uint512_dt * kvdram, batch_type basedramoffs
 	return;
 }
 
-#ifdef XXX
-{%for n in context['T_seq']%}
-{%if(n>=1)%}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[{{n}}][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	{%for i in context['T_seq']%}
-	{%if(i<n)%}
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram{{i}}, psizes_kvs[{{i}}], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	{%endif%}
-	{%endfor%}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram{{n}}]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<{{n}}; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST{{n}}:: Merging vertices:: instance {{i}}, partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				{%for i in context['T_seq']%}
-				{%if(i<n)%}
-				kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram{{i}}["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram{{i}}["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				{%endif%}
-				{%endfor%}
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<{{n}}; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST{{n}}:: Merging vertices masks:: instance {{i}}, partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				{%for i in context['T_seq']%}
-				{%if(i<n)%}
-				kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				{%endif%}
-				{%endfor%}
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		{%for i in context['T_seq']%}
-		{%if(i<n)%}
-		kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		{%endif%}
-		{%endfor%}
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-{%endif%}
-{%endfor%}
-#endif 
-// #ifdef XXX
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
 void
@@ -389,8 +295,10 @@ MERGE_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdr
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -399,54 +307,75 @@ MERGE_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdr
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
+	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram{{n}}]."<<endl; 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST{{n}}:: Merging vertices:: instance {{i}}, partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				{%for i in context['T_seq']%}
-				{%if(i<n)%}
-				kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
 				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram{{i}}["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram{{i}}["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					{%for i in context['T_seq']%}
+					{%if(i<n)%}
+					kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					{%endif%}
+					{%endfor%}
 				}
-				/////////////////////////
-				
-				{%endif%}
-				{%endfor%}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST{{n}}:: Merging vertices masks:: instance {{i}}, partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				{%for i in context['T_seq']%}
-				{%if(i<n)%}
-				kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				{%endif%}
-				{%endfor%}
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			{%for i in context['T_seq']%}
+			{%if(i<n)%}
+			kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			{%endif%}
+			{%endfor%}
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					{%for i in context['T_seq']%}
+					{%if(i<n)%}
+					kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					{%endif%}
+					{%endfor%}
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
 			}
 		}
 	}
-	
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 			 
 	#endif
@@ -463,7 +392,6 @@ MERGE_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdr
 }
 {%endif%}
 {%endfor%}
-// #endif 
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
@@ -486,27 +414,34 @@ MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram{{i}}, psizes_kvs[{{i}}], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	{%endif%}
 	{%endfor%}	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<{{n}}; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[{{i}}], globalparamsv, actvpstats_beginoffset + {{i}} * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -515,44 +450,55 @@ MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP{{i}}: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices {{n}}:: [instance {{i}}, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[{{i}}]["<<partition<<"]: "<<psizes_kvs[{{i}}][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[{{i}}][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices {{n}}:: [instance {{i}}, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[{{i}}]["<<partition<<"]: "<<psizes_kvs[{{i}}][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices {{n}}:: [instance {{i}}, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[{{i}}]["<<partition<<"]: "<<psizes_kvs[{{i}}][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram{{i}}[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram{{i}}[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
 	{%endif%}
 	{%endfor%}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP{{i}}: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks {{n}}:: [instance {{i}}, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[{{i}}]["<<partition<<"]: "<<psizes_kvs[{{i}}][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[{{i}}][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks {{n}}:: [instance {{i}}, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[{{i}}]["<<partition<<"]: "<<psizes_kvs[{{i}}][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks {{n}}:: [instance {{i}}, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[{{i}}]["<<partition<<"]: "<<psizes_kvs[{{i}}][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -560,10 +506,13 @@ MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{
 	}
 	{%endif%}
 	{%endfor%}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -622,18 +571,27 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 
 	unsigned int psizes_kvs[3][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
+	unsigned int partitionoffseti = 0;
 	
 	globalparams_t globalparamsvA = acts_utilobj->UTIL_getglobalparams(vdramA);
 	globalparams_t globalparamsvB = acts_utilobj->UTIL_getglobalparams(vdramB);
 	globalparams_t globalparamsvC = acts_utilobj->UTIL_getglobalparams(vdramC);
+	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsvA);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::EXCHANGE:: retrieving stats from vdramA, vdramB & vdramC. "<<endl; 
 	#endif 
-	mem_accessobj->MEMACCESS_retreievekvstats(vdramA, psizes_kvs[0], globalparamsvA, actvpstats_beginoffset, globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2);
-	mem_accessobj->MEMACCESS_retreievekvstats(vdramB, psizes_kvs[1], globalparamsvB, actvpstats_beginoffset, globalparamsvB.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2);
+	mem_accessobj->MEMACCESS_retreievekvstats(vdramA, psizes_kvs[0], globalparamsvA, actvpstats_beginoffset, globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR2);
+	mem_accessobj->MEMACCESS_retreievekvstats(vdramB, psizes_kvs[1], globalparamsvB, actvpstats_beginoffset, globalparamsvB.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1);
 	mem_accessobj->MEMACCESS_retreievekvstats(vdramC, psizes_kvs[2], globalparamsvC, actvpstats_beginoffset, globalparamsvC.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR0);
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[0][i] = 1;
+		psizes_kvs[1][i] = 1;
+		psizes_kvs[2][i] = 1;
+	} */
+	/////////////////////////////////////////////////////////
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::EXCHANGE:: transferring stats from vdramA, vdramB & vdramC to vdramA. "<<endl; 
@@ -641,13 +599,13 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 	mem_accessobj->MEMACCESS_commitkvstats2(vdramA, psizes_kvs[0], globalparamsvA, actvpstats_beginoffset + 0, (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2));
 	mem_accessobj->MEMACCESS_commitkvstats2(vdramA, psizes_kvs[1], globalparamsvA, actvpstats_beginoffset + (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2), (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2));
 	mem_accessobj->MEMACCESS_commitkvstats2(vdramA, psizes_kvs[2], globalparamsvA, actvpstats_beginoffset + (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2) + (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2), (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR0));
-	
+
 	// vertices
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramA to vdramB & vdramC."<<endl; 
-	#endif
-	unsigned int partitionoffseti = 0;
+	partitionoffseti = 0;
 	unsigned int voffsetA_kvs = 0;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramA to vdramB & vdramC. [begin offset: "<<voffsetA_kvs<<"]"<<endl; 
+	#endif
 	MERGE_EXCHANGEVS_LOOP1A: for(unsigned int i=0; i<NUMCOMPUTEUNITS_SLR2; i++){
 		for(unsigned int partition=0; partition<globalparamsvA.NUM_REDUCEPARTITIONS; partition++){
 			if(psizes_kvs[0][partitionoffseti] > 0){
@@ -658,18 +616,22 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 				#pragma HLS PIPELINE II=1
 					vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k] = vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k];
 					vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k] = vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k];
+					vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k] = vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k];
 				}
 			}
 			partitionoffseti += 1;
 			voffsetA_kvs += globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 		}
 	}
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramB to vdramA & vdramC."<<endl; 
+	cout<<"MERGE::EXCHANGE:: FINISHED transferring vertices from vdramA to vdramB & vdramC. [end offset: "<<voffsetA_kvs<<"]"<<endl; 
 	#endif
+	
 	partitionoffseti = 0;
 	unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramB to vdramA & vdramC. [begin offset: "<<voffsetB_kvs<<"]"<<endl; 
+	#endif
 	MERGE_EXCHANGEVS_LOOP2A: for(unsigned int i=0; i<NUMCOMPUTEUNITS_SLR1; i++){
 		for(unsigned int partition=0; partition<globalparamsvB.NUM_REDUCEPARTITIONS; partition++){
 			if(psizes_kvs[1][partitionoffseti] > 0){
@@ -680,19 +642,23 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 				#pragma HLS PIPELINE II=1
 					vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k] = vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k];
 					vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k] = vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k];
+					vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k] = vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k];
 				}
 			}
 			partitionoffseti += 1;
 			voffsetB_kvs += globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 		}
 	}
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramC to vdramA & vdramB."<<endl; 
+	cout<<"MERGE::EXCHANGE:: FINISHED transferring vertices from vdramB to vdramA & vdramC. [end offset: "<<voffsetB_kvs<<"]"<<endl; 
 	#endif
+	
 	partitionoffseti = 0;
-	unsigned int voffsetC_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR0) * globalparamsvC.NUM_REDUCEPARTITIONS * globalparamsvC.SIZEKVS2_REDUCEPARTITION;
-	MERGE_EXCHANGEVS_LOOP3A: for(unsigned int i=0; i<NUMCOMPUTEUNITS_SLR1AND2; i++){
+	unsigned int voffsetC_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparamsvC.NUM_REDUCEPARTITIONS * globalparamsvC.SIZEKVS2_REDUCEPARTITION;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramC to vdramA & vdramB. [begin offset: "<<voffsetC_kvs<<"]"<<endl; 
+	#endif
+	MERGE_EXCHANGEVS_LOOP3A: for(unsigned int i=0; i<NUMCOMPUTEUNITS_SLR0; i++){ // NUMCOMPUTEUNITS_SLR1AND2
 		for(unsigned int partition=0; partition<globalparamsvC.NUM_REDUCEPARTITIONS; partition++){
 			if(psizes_kvs[2][partitionoffseti] > 0){
 				#ifdef _DEBUGMODE_KERNELPRINTS
@@ -700,14 +666,18 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 				#endif
 				MERGE_EXCHANGEVS_LOOP3B: for(unsigned int k=0; k<globalparamsvC.SIZEKVS2_REDUCEPARTITION; k++){
 				#pragma HLS PIPELINE II=1
-					vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramA[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
-					vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramA[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
+					vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
+					vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
+					vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
 				}
 			}
 			partitionoffseti += 1;
 			voffsetC_kvs += globalparamsvC.SIZEKVS2_REDUCEPARTITION;
 		}
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::EXCHANGE:: FINISHED transferring vertices from vdramC to vdramA & vdramB. [end offset: "<<voffsetC_kvs<<"]"<<endl; 
+	#endif
 	
 	// vertices masks
 	#ifdef _DEBUGMODE_KERNELPRINTS3
@@ -767,8 +737,8 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 				#endif
 				MERGE_EXCHANGEVMS_LOOP3B: for(unsigned int k=0; k<globalparamsvC.SIZEKVS_VMASKBUFFER; k++){
 				#pragma HLS PIPELINE II=1
-					vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k] = vdramA[globalparamsvC.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k];
-					vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k] = vdramA[globalparamsvC.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k];
+					vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k];
+					vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k];
 				}
 			}
 			partitionoffseti += 1;
@@ -793,6 +763,9 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 		#endif 
 		
 		unsigned int p = pA | pB | pC;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(p > 0){ cout<<"MERGE_exchangeVs:: partition mask: "<<partition<<" is active: pA: "<<pA<<", pB: "<<pB<<", pC: "<<pC<<endl; }
+		#endif
 		// cout<<"MERGE_exchangeVs:: partition: "<<partition<<": pA: "<<pA<<", pB: "<<pB<<", pC: "<<pC<<endl;
 		
 		#ifdef _WIDEWORD
@@ -809,7 +782,7 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 		cout<<"--- MERGE_exchangeVs: vdramA["<<partition<<"]: "<<p<<endl; 
 		#endif
 	}
-
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE_exchangeVs{{n}}: Finished. voffsetA: "<<voffsetA_kvs * VECTOR_SIZE<<", voffsetB: "<<voffsetB_kvs * VECTOR_SIZE<<", voffsetC: "<<voffsetC_kvs * VECTOR_SIZE<<endl;
 	cout<<"MERGE_exchangeVs{{n}}: Finished. vmoffsetA: "<<vmoffsetA_kvs * VECTOR_SIZE<<", vmoffsetB: "<<vmoffsetB_kvs * VECTOR_SIZE<<", vmoffsetC: "<<vmoffsetC_kvs * VECTOR_SIZE<<endl;

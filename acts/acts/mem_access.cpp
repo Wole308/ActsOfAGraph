@@ -432,7 +432,6 @@ MEMACCESS_readvdata_splitdstvxs(bool_type enable, uint512_dt * kvdram, keyvalue_
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
-	unsigned int readsz_kvs2 = size_kvs * 2;
 	unsigned int index = 0;
 	keyvalue_t mykeyvalue0; mykeyvalue0.key = 777; mykeyvalue0.value = 777;
 	keyvalue_t mykeyvalue1; mykeyvalue1.key = 777; mykeyvalue1.value = 777;
@@ -451,7 +450,7 @@ MEMACCESS_readvdata_splitdstvxs(bool_type enable, uint512_dt * kvdram, keyvalue_
 	keyvalue_t mykeyvalue14; mykeyvalue14.key = 777; mykeyvalue14.value = 777;
 	keyvalue_t mykeyvalue15; mykeyvalue15.key = 777; mykeyvalue15.value = 777;
 	
-	SAVEVDATA_LOOP: for (buffer_type i=0; i<readsz_kvs2; i++){
+	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD

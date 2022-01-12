@@ -71,17 +71,61 @@ REDUCE_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer
 	if(en == true){ cout<<"REDUCE_reducevector:: REDUCEFUNC RESULT @ new_vprop: "<<new_vprop<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
-	if(colindex == 0){ curr_vprop.key = new_vprop; }
-	else { curr_vprop.value = new_vprop; }
+	/* if(en == true && new_vprop != temp){
+		if(colindex == 0){ curr_vprop.key = new_vprop; }
+		else { curr_vprop.value = new_vprop; }
+	} */
+	if(en == true && new_vprop != temp){ // CORRECT ONE.
+		if(colindex == 0){ curr_vprop.key = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
+		else { curr_vprop.value = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
+	}
+	/* if(en == true){
+		if(colindex == 0){ curr_vprop.key = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
+		else { curr_vprop.value = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
+	} */
+	/* if(en == true && temp > 64 && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){
+		if(colindex == 0){ curr_vprop.key = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
+		else { curr_vprop.value = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
+	} */
 	
-	if(en == true){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
+	// if(en == true){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
+	// if(en == true && new_vprop == globalparams.ALGORITHMINFO_GRAPHITERATIONID && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
+	// destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); v
+	// if(en == true && new_vprop == globalparams.ALGORITHMINFO_GRAPHITERATIONID){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
+	if(en == true && new_vprop != temp){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); } // CORRECT ONE.
+	// if(en == true && temp > 64 && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
 	
-	#ifdef COLLECTMASKINFOS // mask information
-	if(en == true && mykeyvalue.value != temp){ vmaskBITS[loc].data = 1; } // vmaskBITS[rowindex].data[colindex] = 1; }
+	// new_vprop == globalparams.ALGORITHMINFO_GRAPHITERATIONID
+	/* #ifdef COLLECTMASKINFOS // mask information
+	if(en == true && mykeyvalue.value != temp){ vmaskBITS[loc].data = 1; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	if(en == true && mykeyvalue.value != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
 	#endif 
+	#endif */	
+	/* #ifdef COLLECTMASKINFOS // mask information
+	if(en == true && new_vprop != temp){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); vmaskBITS[loc].data = 1; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(en == true && new_vprop != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
+	#endif 
+	#endif	 */
+	/* #ifdef COLLECTMASKINFOS // mask information
+	if(en == true && new_vprop != temp){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); vmaskBITS[loc].data = 1; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(en == true && new_vprop != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
+	#endif 
+	#endif	 */	
+	#ifdef COLLECTMASKINFOS // mask information CORRECT ONE.
+	if(en == true && new_vprop != temp){ vmaskBITS[loc].data = 1; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(en == true && new_vprop != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
+	#endif 
 	#endif
+	/* #ifdef COLLECTMASKINFOS // mask information
+	if(en == true && temp > 64 && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){ vmaskBITS[loc].data = 1; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(en == true && temp > 64 && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
+	#endif 
+	#endif */
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1);

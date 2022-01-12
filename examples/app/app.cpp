@@ -114,7 +114,7 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 2; // 32; // 3,12,32
+	unsigned int NumGraphIters = 8; // 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;
@@ -350,7 +350,7 @@ runsummary_t app::run_hw(){
 
 	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters);
 	#ifdef CONFIG_SPLIT_DESTVTXS
-	verifyresults_splitdstvtxs(vdram, globalparams.globalparamsV);
+	verifyresults_splitdstvtxs(vdram, kvbuffer, globalparams.globalparamsV);
 	#else 
 	verifyresults(vdram, globalparams.globalparamsV);
 	#endif 
@@ -402,44 +402,79 @@ void app::verifyresults(uint512_vec_dt * kvbuffer, globalparams_t globalparams){
 	utilityobj->printvalues("app::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
 	return;
 }
-void app::verifyresults_splitdstvtxs(uint512_vec_dt * vbuffer, globalparams_t globalparams){
+void app::verifyresults_splitdstvtxs(uint512_vec_dt * vbuffer, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], globalparams_t globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<endl<<"app::verifyresults_splitdstvtxs: verifying vertex data... "<<endl;
 	#endif
 	
-	unsigned int vdatas[64];
-	for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
-	unsigned int voffset_kvs = 0;
+	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		for(unsigned int partition=0; partition<NUMREDUCEPARTITIONS; partition++){
-			for(unsigned int k=0; k<REDUCEPARTITIONSZ_KVS2; k++){
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){
-					unsigned int vdata1 = vbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs + k].data[v].key;
-					unsigned int vdata2 = vbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs + k].data[v].value;
-					
-					unsigned int lvid1 = (partition * REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE) + (k * VMASK_PACKINGSIZE) + v;
-					unsigned int lvid2 = lvid1 + 1;
-					unsigned int vid1 = utilityobj->UTIL_GETREALVID(lvid1, i);
-					unsigned int vid2 = utilityobj->UTIL_GETREALVID(lvid2, i);
-					
-					if(vdata1 < 64){
-						#ifdef _DEBUGMODE_HOSTPRINTS
-						cout<<"app:verifyresults: vid1: "<<vid1<<",vdata1: "<<vdata1<<endl;
-						#endif
-						vdatas[vdata1] += 1; 
-					}
-					if(vdata2 < 64){
-						#ifdef _DEBUGMODE_HOSTPRINTS
-						cout<<"app:verifyresults: vid2: "<<vid2<<",vdata2: "<<vdata2<<endl;
-						#endif
-						vdatas[vdata2] += 1; 
-					}
+		unsigned int _BASEOFFSETKVS_DESTVERTICESDATA = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
+		for(unsigned int k=0; k<NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2; k++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				unsigned int vdata1 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
+				unsigned int vdata2 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
+				if(vdata1 < 64){
+					vdatas[vdata1] += 1; 
+				}
+				if(vdata2 < 64){
+					vdatas[vdata2] += 1; 
 				}
 			}
-			voffset_kvs += REDUCEPARTITIONSZ_KVS2;
 		}
 	}
 	utilityobj->printvalues("app::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
+	
+	// unsigned int vdatas[64];
+	// for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
+	// for(unsigned int k=0; k<NUM_PEs * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2; k++){
+		// for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			// unsigned int vdata1 = vbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
+			// unsigned int vdata2 = vbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
+			
+			// if(vdata1 < 64){
+				// vdatas[vdata1] += 1; 
+			// }
+			// if(vdata2 < 64){
+				// vdatas[vdata2] += 1; 
+			// }
+		// }
+	// }
+	// utilityobj->printvalues("app::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
+	
+	// unsigned int vdatas[64];
+	// for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
+	// unsigned int voffset_kvs = 0;
+	// for(unsigned int i=0; i<NUM_PEs; i++){
+		// for(unsigned int partition=0; partition<NUMREDUCEPARTITIONS; partition++){
+			// for(unsigned int k=0; k<REDUCEPARTITIONSZ_KVS2; k++){
+				// for(unsigned int v=0; v<VECTOR_SIZE; v++){
+					// unsigned int vdata1 = vbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs + k].data[v].key;
+					// unsigned int vdata2 = vbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs + k].data[v].value;
+					
+					// unsigned int lvid1 = (partition * REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE) + (k * VMASK_PACKINGSIZE) + v;
+					// unsigned int lvid2 = lvid1 + 1;
+					// unsigned int vid1 = utilityobj->UTIL_GETREALVID(lvid1, i);
+					// unsigned int vid2 = utilityobj->UTIL_GETREALVID(lvid2, i);
+					
+					// if(vdata1 < 64){
+						// #ifdef _DEBUGMODE_HOSTPRINTS
+						// cout<<"app:verifyresults: vid1: "<<vid1<<",vdata1: "<<vdata1<<endl;
+						// #endif
+						// vdatas[vdata1] += 1; 
+					// }
+					// if(vdata2 < 64){
+						// #ifdef _DEBUGMODE_HOSTPRINTS
+						// cout<<"app:verifyresults: vid2: "<<vid2<<",vdata2: "<<vdata2<<endl;
+						// #endif
+						// vdatas[vdata2] += 1; 
+					// }
+				// }
+			// }
+			// voffset_kvs += REDUCEPARTITIONSZ_KVS2;
+		// }
+	// }
+	// utilityobj->printvalues("app::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
 	return;
 }
 

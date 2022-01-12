@@ -536,11 +536,8 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 		enablereduce = ON;
 		travstate_t rtravstate = acts_utilobj->UTIL_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		batch_type voffset_kvs2 = source_partition * reducebuffersz * FETFACTOR;
 		
 		// read vertices
-		// mem_accessobj->MEMACCESS_readvdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs2, vbuffer, 0, 0, reducebuffersz, globalparamsK);
-		// mem_accessobj->MEMACCESS_readvdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs2 + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
 		mem_accessobj->MEMACCESS_readvdata_splitdstvxs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		#ifdef COLLECTMASKINFOS
 		acts_utilobj->UTIL_reset(vmaskWRITE);
@@ -550,9 +547,7 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 		dispatch(OFF, OFF, enablereduce, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
 		
 		// writeback vertices
-		// mem_accessobj->MEMACCESS_savevdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs2, vbuffer, 0, 0, reducebuffersz, globalparamsK);
-		// mem_accessobj->MEMACCESS_savevdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs2 + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
-		mem_accessobj->MEMACCESS_savevdata_splitdstvxs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		mem_accessobj->MEMACCESS_savevdata_splitdstvxs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); 
 		#ifdef COLLECTMASKINFOS
 		mem_accessobj->MEMACCESS_savemasks(enablereduce, kvdram, vmaskWRITE, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vmask_offset_kvs, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs, globalparamsK); // NEW
 		#endif 
@@ -564,10 +559,8 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 		vmaskp_offset_kvs += NUM_PEs;
 		#else 
 		vmaskp_offset_kvs += 1;	
-		#endif 
-		// cout<<"----->>>>>>>>>>>>>>>-- dispatch_reduce:: source_partition: "<<source_partition<<", vmask_offset_kvs: "<<vmask_offset_kvs<<endl;
+		#endif
 	}
-	// cout<<"-----++++++++++++++++++++-- dispatch_reduce:: vmask_offset_kvs: "<<vmask_offset_kvs<<endl;
 	return;
 } 
 
@@ -792,7 +785,7 @@ topkernelP{{n}}(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -818,8 +811,9 @@ topkernelP{{n}}(
 	{%endif%}
 	{%endif%}
 	{%endfor%} */
-	
-	acts_mergeobj->MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);		
+
+	acts_mergeobj->MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }

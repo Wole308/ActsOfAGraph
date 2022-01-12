@@ -536,11 +536,8 @@ dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE
 		enablereduce = ON;
 		travstate_t rtravstate = acts_utilobj->UTIL_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
-		batch_type voffset_kvs2 = source_partition * reducebuffersz * FETFACTOR;
 		
 		// read vertices
-		// mem_accessobj->MEMACCESS_readvdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs2, vbuffer, 0, 0, reducebuffersz, globalparamsK);
-		// mem_accessobj->MEMACCESS_readvdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs2 + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
 		mem_accessobj->MEMACCESS_readvdata_splitdstvxs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		#ifdef COLLECTMASKINFOS
 		acts_utilobj->UTIL_reset(vmaskWRITE);
@@ -550,9 +547,7 @@ dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE
 		dispatch(OFF, OFF, enablereduce,  kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
 		
 		// writeback vertices
-		// mem_accessobj->MEMACCESS_savevdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs2, vbuffer, 0, 0, reducebuffersz, globalparamsK);
-		// mem_accessobj->MEMACCESS_savevdata(enablereduce, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs2 + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
-		mem_accessobj->MEMACCESS_savevdata_splitdstvxs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		mem_accessobj->MEMACCESS_savevdata_splitdstvxs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); 
 		#ifdef COLLECTMASKINFOS
 		mem_accessobj->MEMACCESS_savemasks(enablereduce, kvdram, vmaskWRITE, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vmask_offset_kvs, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs, globalparamsK); // NEW
 		#endif 
@@ -564,10 +559,8 @@ dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE
 		vmaskp_offset_kvs += NUM_PEs;
 		#else 
 		vmaskp_offset_kvs += 1;	
-		#endif 
-		// cout<<"----->>>>>>>>>>>>>>>-- dispatch_reduce:: source_partition: "<<source_partition<<", vmask_offset_kvs: "<<vmask_offset_kvs<<endl;
+		#endif
 	}
-	// cout<<"-----++++++++++++++++++++-- dispatch_reduce:: vmask_offset_kvs: "<<vmask_offset_kvs<<endl;
 	return;
 } 
 
@@ -755,7 +748,7 @@ topkernelP1(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -770,8 +763,9 @@ topkernelP1(
 	cout<<">>> topkernelP1: processing instance 0"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs1(kvdram0, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs1(kvdram0, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -822,7 +816,7 @@ topkernelP2(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -844,8 +838,9 @@ topkernelP2(
 	cout<<">>> topkernelP2: processing instance 1"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs2(kvdram0,kvdram1, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs2(kvdram0,kvdram1, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -904,7 +899,7 @@ topkernelP3(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -935,8 +930,9 @@ topkernelP3(
 	topkernelproc_embedded(kvdram2);	
 	exit(EXIT_SUCCESS); //	
  */
-	
-	acts_mergeobj->MERGE_mergeVs3(kvdram0,kvdram1,kvdram2, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs3(kvdram0,kvdram1,kvdram2, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -1003,7 +999,7 @@ topkernelP4(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -1041,8 +1037,9 @@ topkernelP4(
 	cout<<">>> topkernelP4: processing instance 3"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -1117,7 +1114,7 @@ topkernelP5(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -1162,8 +1159,9 @@ topkernelP5(
 	cout<<">>> topkernelP5: processing instance 4"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -1246,7 +1244,7 @@ topkernelP6(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -1298,8 +1296,9 @@ topkernelP6(
 	cout<<">>> topkernelP6: processing instance 5"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -1390,7 +1389,7 @@ topkernelP7(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -1449,8 +1448,9 @@ topkernelP7(
 	cout<<">>> topkernelP7: processing instance 6"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -1549,7 +1549,7 @@ topkernelP8(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -1615,8 +1615,9 @@ topkernelP8(
 	cout<<">>> topkernelP8: processing instance 7"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -1723,7 +1724,7 @@ topkernelP9(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -1796,8 +1797,9 @@ topkernelP9(
 	cout<<">>> topkernelP9: processing instance 8"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -1912,7 +1914,7 @@ topkernelP10(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -1992,8 +1994,9 @@ topkernelP10(
 	cout<<">>> topkernelP10: processing instance 9"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -2116,7 +2119,7 @@ topkernelP11(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -2203,8 +2206,9 @@ topkernelP11(
 	cout<<">>> topkernelP11: processing instance 10"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -2335,7 +2339,7 @@ topkernelP12(
 	#endif
 	
 	unsigned int GraphIter = acts_utilobj->UTIL_GETKEYENTRY(kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID], 0);
-	#ifdef _DEBUGMODE_KERNELPRINTS2
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
@@ -2429,8 +2433,9 @@ topkernelP12(
 	cout<<">>> topkernelP12: processing instance 11"<<endl;
 	#endif 
  */
-	
-	acts_mergeobj->MERGE_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram);		
+
+	acts_mergeobj->MERGE_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram);
+
 	// exit(EXIT_SUCCESS); //
 	return;
 }

@@ -47,7 +47,7 @@
 - CRITICAL FIXME. mem_access.cpp
 - CRITICAL FIXME. TOO EXPENSIVE. mem_access.cpp
 - CRITICAL OPTIMIZEME: acts_merge.cpp
-- TOO EXPENSIVE. top_nusrcv_nudstv.cpp, processedges_slicedgraph.cpp
+- TOO EXPENSIVE. top_nusrcv_nudstv.cpp, processedges_slicedgraph.cpp, acts_merge.cpp
 - FIXME FOR DIFFERENT PARAMETERS: loadedges_splitdstvxs.cpp
 - NOT IMPLEMENTED. mem_access.cpp
 

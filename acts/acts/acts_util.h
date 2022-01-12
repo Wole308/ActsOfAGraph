@@ -77,6 +77,7 @@ public:
 	void UTIL_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval);
 	void UTIL_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 	void UTIL_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams);
+	void UTIL_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams);
 	void UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]);
 	void UTIL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 	void UTIL_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);

@@ -8187,1653 +8187,6 @@ MERGE_writevdata(bool_type enable1, uint512_dt * kvdram, batch_type basedramoffs
 	return;
 }
 
-#ifdef XXX
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[1][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram1]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<1; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST1:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram1]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<1; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST1:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram1]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[2][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram2]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<2; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST2:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram2]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<2; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST2:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram2]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[3][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram3]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<3; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST3:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram3]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<3; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST3:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram3]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[4][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram4]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<4; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST4:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram4]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<4; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST4:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram4]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[5][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram5]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<5; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST5:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram5]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<5; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST5:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram5]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[6][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram6]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<6; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST6:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram6]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<6; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST6:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram6]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[7][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram7]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<7; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST7:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram7]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<7; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST7:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram7]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram6[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[8][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram8]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<8; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST8:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram8]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<8; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST8:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram8]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram6[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram7[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[9][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram8, psizes_kvs[8], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram9]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<9; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST9:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram9]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<9; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST9:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram9]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram6[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram7[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram8[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[10][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram8, psizes_kvs[8], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram9, psizes_kvs[9], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram10]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<10; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST10:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram10]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<10; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST10:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram10]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram6[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram7[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram8[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram9[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[11][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram8, psizes_kvs[8], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram9, psizes_kvs[9], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram10, psizes_kvs[10], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram11]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<11; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST11:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram10["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram10["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram11]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<11; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST11:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram11]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram6[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram7[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram8[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram9[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram10[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-void
-	#ifdef SW
-	acts_merge::
-	#endif
-MERGE_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[12][BLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = psizes_kvs
-	
-	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
-	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
-	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram8, psizes_kvs[8], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram9, psizes_kvs[9], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram10, psizes_kvs[10], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	mem_accessobj->MEMACCESS_retreievekvstats(kvdram11, psizes_kvs[11], globalparams, actvpstats_beginoffset, globalparams.NUM_PROCESSEDGESPARTITIONS);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram12]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<12; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST12:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram10["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram10["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram11["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram11["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram12]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		bool en = false; for(unsigned int i=0; i<12; i++){ if(psizes_kvs[i][partition] > 0){ en = true; break; }}
-		if(en == true){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST12:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram11[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-			}
-		}
-	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram12]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram6[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram7[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram8[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram9[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram10[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		kvdram11[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-	}
-	// exit(EXIT_SUCCESS); //
-	return;
-}
-#endif 
-// #ifdef XXX
 void
 	#ifdef SW
 	acts_merge::
@@ -9849,8 +8202,10 @@ MERGE_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -9859,46 +8214,63 @@ MERGE_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
+	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram1]."<<endl; 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram1]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST1:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
 				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
 				}
-				/////////////////////////
-				
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram1]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram1]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST1:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
 			}
 		}
 	}
-	
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram1]."<<endl; 			 
 	#endif
@@ -9924,8 +8296,10 @@ MERGE_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -9934,56 +8308,67 @@ MERGE_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram2]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST2:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram2]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram2]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST2:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram2]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram2]."<<endl; 			 
 	#endif
@@ -10010,8 +8395,10 @@ MERGE_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -10020,66 +8407,71 @@ MERGE_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram3]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST3:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram3]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram3]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST3:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram3]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram3]."<<endl; 			 
 	#endif
@@ -10107,8 +8499,10 @@ MERGE_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -10117,76 +8511,75 @@ MERGE_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram4]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST4:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram4]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram4]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST4:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram4]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram4]."<<endl; 			 
 	#endif
@@ -10215,8 +8608,10 @@ MERGE_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -10225,86 +8620,79 @@ MERGE_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram5]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST5:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram5]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram5]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST5:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram5]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram5]."<<endl; 			 
 	#endif
@@ -10334,8 +8722,10 @@ MERGE_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -10344,96 +8734,83 @@ MERGE_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram6]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST6:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram6]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram6]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST6:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram6]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram6]."<<endl; 			 
 	#endif
@@ -10464,8 +8841,10 @@ MERGE_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -10474,106 +8853,87 @@ MERGE_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram7]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST7:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram7]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram7]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST7:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram7]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram7]."<<endl; 			 
 	#endif
@@ -10605,8 +8965,10 @@ MERGE_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -10615,116 +8977,91 @@ MERGE_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram8]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST8:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram8]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram8]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST8:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram8]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram8]."<<endl; 			 
 	#endif
@@ -10757,8 +9094,10 @@ MERGE_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -10767,126 +9106,95 @@ MERGE_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram9]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST9:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram9]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram9]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST9:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram9]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram9]."<<endl; 			 
 	#endif
@@ -10920,8 +9228,10 @@ MERGE_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdra
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -10930,136 +9240,99 @@ MERGE_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdra
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram10]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST10:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram10]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram10]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST10:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram10]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram10]."<<endl; 			 
 	#endif
@@ -11094,8 +9367,10 @@ MERGE_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdra
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -11104,146 +9379,103 @@ MERGE_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdra
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram11]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST11:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram10["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram10["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram11]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram11]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST11:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram11]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram11]."<<endl; 			 
 	#endif
@@ -11279,8 +9511,10 @@ MERGE_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdra
 	globalparams_t globalparams = acts_utilobj->UTIL_getglobalparams(kvdram0);
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
-	unsigned int offset_kvs = 0;
-	
+	unsigned int lbasevoffset_kvs2 = 0;
+	unsigned int offseti_kvs = 0;
+	unsigned int _CHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
+
 	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -11289,156 +9523,107 @@ MERGE_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdra
 		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
 		#endif 
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices from vdram to [kvdram0:kvdram12]."<<endl; 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST12:: Merging vertices:: instance , partition "<<partition<<" is active: ... "<<endl;
-			#endif 
-			MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS2_PROCESSEDGESPARTITION; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram0["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram1["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram2["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram3["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram4["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram5["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram6["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram7["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram8["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram9["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram10["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram10["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-				kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + k];
-				
-				/////////////////////////
-				for(unsigned int u=0; u<VECTOR_SIZE; u++){
-					if(kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key < 64){ cout<<"))))))))))))))))) kvdram11["<<offset_kvs + k<<"].data["<<u<<"].key: "<<kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].key<<endl; }
-					if(kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value < 64){ cout<<"))))))))))))))))) kvdram11["<<offset_kvs + k<<"].data["<<u<<"].value: "<<kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + k].data[u].value<<endl; }
-				}
-				/////////////////////////
-				
-			}
-		}
-		offset_kvs += globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[i] = 1;
 	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram12]."<<endl; 			 
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram12]."<<endl; 	
 	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		if(psizes_kvs[partition] > 0){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"MERGE::BROADCAST12:: Merging vertices masks:: instance , partition "<<partition<<" is active ..."<<endl;
-			#endif 
-			MERGE_BROADCASTMASKS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
-			#pragma HLS PIPELINE II=1
-				kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
-				kvdram11[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + k];
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += _CHUNKSZ_KVS2; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_CHUNKSZ_KVS2; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram8[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram9[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram10[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+					kvdram11[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + offseti_kvs + k];
+				}
+				offseti_kvs += _CHUNKSZ_KVS2; // TOO EXPENSIVE.
 			}
 		}
 	}
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram12]."<<endl; 	
+	#endif
+	/////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int k=0; k<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; k++){
+	#pragma HLS PIPELINE II=1
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+			kvdram11[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].key = 0;
+			kvdram11[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + k].data[v].value = 0;
+		}
+	}
+	///////////////////////////////////////////////////////
+	offseti_kvs = 0;
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+			for(unsigned int s=0; s<NUM_PEs; s++){
+				if(psizes_kvs[(partition * NUM_PEs) + s] == 0){ offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; continue; } // TOO EXPENSIVE.
+				#ifdef _DEBUGMODE_KERNELPRINTS
+				cout<<"MERGE::BROADCAST VMASKS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
+				#endif 
+				
+				MERGE_BROADCASTVTXMS_LOOP: for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; k++){
+				#pragma HLS PIPELINE II=1
+					kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+					kvdram11[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + offseti_kvs + k];
+				}
+				offseti_kvs += globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs; // TOO EXPENSIVE.
+			}
+		}
+	}
+
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram12]."<<endl; 			 
 	#endif
@@ -11460,7 +9645,6 @@ MERGE_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdra
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-// #endif 
 
 void
 	#ifdef SW 
@@ -11481,69 +9665,90 @@ MERGE_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<1; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 1:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 1:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 1:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 1:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 1:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 1:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -11602,76 +9807,97 @@ MERGE_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<2; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 2:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 2:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 2:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 2:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 2:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 2:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 2:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 2:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 2:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -11679,22 +9905,28 @@ MERGE_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 2:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 2:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 2:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -11762,92 +9994,116 @@ MERGE_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, u
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<3; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 3:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 3:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 3:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 3:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -11855,13 +10111,16 @@ MERGE_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 3:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 3:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 3:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -11869,22 +10128,28 @@ MERGE_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 3:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 3:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 3:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -11961,27 +10226,34 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<4; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -11989,80 +10261,100 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 4:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 4:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 4:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 4:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12070,13 +10362,16 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 4:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 4:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 4:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12084,13 +10379,16 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 4:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 4:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 4:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12098,22 +10396,28 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 4:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 4:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 4:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -12199,28 +10503,35 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<5; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -12229,94 +10540,117 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 4, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 4, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 5:: [instance 4, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 5:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12324,13 +10658,16 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 5:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12338,13 +10675,16 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 5:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12352,13 +10692,16 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 5:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12366,22 +10709,28 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 5:: [instance 4, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 5:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -12476,22 +10825,22 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -12499,6 +10848,13 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<6; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -12508,108 +10864,134 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 4, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 4, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 4, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 5, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 5, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 6:: [instance 5, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 6:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12617,13 +10999,16 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 6:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12631,13 +11016,16 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 6:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12645,13 +11033,16 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 6:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12659,13 +11050,16 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 6:: [instance 4, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12673,22 +11067,28 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 6:: [instance 5, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 6:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -12792,22 +11192,22 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -12816,6 +11216,13 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<7; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -12826,122 +11233,151 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 4, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 4, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 4, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 5, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 5, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 5, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 6, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 6, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 7:: [instance 6, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 7:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12949,13 +11385,16 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 7:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12963,13 +11402,16 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 7:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12977,13 +11419,16 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 7:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -12991,13 +11436,16 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 7:: [instance 4, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13005,13 +11453,16 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 7:: [instance 5, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13019,22 +11470,28 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 7:: [instance 6, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 7:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -13147,22 +11604,22 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -13172,6 +11629,13 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<8; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -13183,136 +11647,168 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 4, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 4, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 4, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 5, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 5, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 5, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 6, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 6, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 6, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 7, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 7, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 8:: [instance 7, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 8:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13320,13 +11816,16 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 8:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13334,13 +11833,16 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 8:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13348,13 +11850,16 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 8:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13362,13 +11867,16 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 8:: [instance 4, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13376,13 +11884,16 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 8:: [instance 5, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13390,13 +11901,16 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 8:: [instance 6, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13404,22 +11918,28 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 8:: [instance 7, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 8:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -13541,22 +12061,22 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -13567,6 +12087,13 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram8, psizes_kvs[8], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<9; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -13579,150 +12106,185 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 4, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 4, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 4, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 5, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 5, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 5, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 6, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 6, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 6, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 7, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 7, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 7, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP8: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 8, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[8][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 8, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 9:: [instance 8, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram8[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram8[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13730,13 +12292,16 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13744,13 +12309,16 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13758,13 +12326,16 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13772,13 +12343,16 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 4, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13786,13 +12360,16 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 5, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13800,13 +12377,16 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 6, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13814,13 +12394,16 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 7, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -13828,22 +12411,28 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP8: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 9:: [instance 8, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[8][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 8, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 9:: [instance 8, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -13974,22 +12563,22 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -14001,6 +12590,13 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram8, psizes_kvs[8], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram9, psizes_kvs[9], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<10; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -14014,164 +12610,202 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 4, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 4, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 4, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 5, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 5, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 5, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 6, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 6, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 6, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 7, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 7, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 7, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP8: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 8, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[8][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 8, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 8, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram8[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram8[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP9: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 9, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[9][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 9, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 10:: [instance 9, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram9[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram9[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14179,13 +12813,16 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14193,13 +12830,16 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14207,13 +12847,16 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14221,13 +12864,16 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 4, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14235,13 +12881,16 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 5, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14249,13 +12898,16 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 6, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14263,13 +12915,16 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 7, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14277,13 +12932,16 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP8: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 8, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[8][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 8, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 8, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14291,22 +12949,28 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP9: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 10:: [instance 9, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[9][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 9, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 10:: [instance 9, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -14446,22 +13110,22 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -14474,6 +13138,13 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram9, psizes_kvs[9], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram10, psizes_kvs[10], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<11; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -14488,178 +13159,219 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 4, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 4, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 4, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 5, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 5, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 5, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 6, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 6, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 6, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 7, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 7, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 7, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP8: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 8, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[8][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 8, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 8, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram8[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram8[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP9: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 9, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[9][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 9, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 9, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram9[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram9[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP10: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 10, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[10][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 10, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 11:: [instance 10, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram10[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram10[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14667,13 +13379,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14681,13 +13396,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14695,13 +13413,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14709,13 +13430,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 4, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14723,13 +13447,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 5, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14737,13 +13464,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 6, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14751,13 +13481,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 7, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14765,13 +13498,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP8: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 8, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[8][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 8, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 8, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14779,13 +13515,16 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP9: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 9, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[9][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 9, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 9, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -14793,22 +13532,28 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP10: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 11:: [instance 10, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[10][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 10, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 11:: [instance 10, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -14957,22 +13702,22 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsv);
 	
-	unsigned int voffset_kvs2;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ voffset_kvs2 = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ voffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ voffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
+	unsigned int lbasevoffset_kvs2;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevoffset_kvs2 = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	unsigned int vmoffset_kvs = 0;
-	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ vmoffset_kvs = 0; }
-	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ vmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
-	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ vmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	unsigned int lbasevmoffset_kvs = 0;
+	if(globalparams.ACTSPARAMS_INSTID >= 0 && globalparams.ACTSPARAMS_INSTID < NUMCOMPUTEUNITS_SLR2){ lbasevmoffset_kvs = 0; }
+	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevmoffset_kvs = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
+	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevmoffset_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; }
 
 	unsigned int vpmoffset_kvs = 0;
-
+	
 	// stats
-	// #ifdef _DEBUGMODE_KERNELPRINTS3
-	// cout<<"MERGE::MERGE:: merging stats."<<endl; 
-	// #endif	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: merging stats."<<endl; 
+	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
@@ -14986,6 +13731,13 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram10, psizes_kvs[10], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram11, psizes_kvs[11], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int j=0; j<12; j++){
+			psizes_kvs[j][i] = 1;
+		}
+	} */
+	/////////////////////////////////////////////////////////	
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -15001,192 +13753,236 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	
 	// vertices
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
-	unsigned int voffseti_kvs = 0;
-	voffseti_kvs = 0;
+	unsigned int voffset_kvs2 = 0;
+	unsigned int voffseti_kvs2 = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 0, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 0, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 0, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram0[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 1, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 1, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 1, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram1[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 2, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 2, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 2, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram2[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 3, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 3, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 3, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram3[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 4, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 4, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 4, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram4[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 5, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 5, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 5, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram5[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 6, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 6, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 6, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram6[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 7, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 7, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 7, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram7[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP8: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 8, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[8][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 8, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 8, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram8[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram8[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP9: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 9, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[9][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 9, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 9, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram9[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram9[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP10: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 10, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[10][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 10, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 10, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram10[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram10[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	voffseti_kvs = 0;
+	voffseti_kvs2 = 0;
 	MERGE_MERGEVSLOOP11: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 11, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[11]["<<partition<<"]: "<<psizes_kvs[11][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[11][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 11, partition "<<partition<<"] is active: [offset: "<<voffset_kvs2*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[11]["<<partition<<"]: "<<psizes_kvs[11][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Vertices 12:: [instance 11, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[11]["<<partition<<"]: "<<psizes_kvs[11][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs2 + k] = kvdram11[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram11[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
-		voffseti_kvs += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
+	#endif
 	
 	// masks 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging vertices masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging vertices masks. [begin offset: "<<lbasevmoffset_kvs<<"]"<<endl; 
 	#endif
+	unsigned int vmoffset_kvs = 0;
 	unsigned int vmoffseti_kvs = 0;
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP0: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 0, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[0][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 0, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[0]["<<partition<<"]: "<<psizes_kvs[0][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15194,13 +13990,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP1: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 1, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[1][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 1, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[1]["<<partition<<"]: "<<psizes_kvs[1][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram1[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15208,13 +14007,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 2, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[2][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 2, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[2]["<<partition<<"]: "<<psizes_kvs[2][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram2[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15222,13 +14024,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP3: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 3, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[3][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 3, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[3]["<<partition<<"]: "<<psizes_kvs[3][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram3[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15236,13 +14041,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP4: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 4, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[4][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 4, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[4]["<<partition<<"]: "<<psizes_kvs[4][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram4[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15250,13 +14058,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP5: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 5, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[5][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 5, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[5]["<<partition<<"]: "<<psizes_kvs[5][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram5[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15264,13 +14075,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP6: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 6, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[6][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 6, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[6]["<<partition<<"]: "<<psizes_kvs[6][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram6[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15278,13 +14092,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP7: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 7, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[7][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 7, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[7]["<<partition<<"]: "<<psizes_kvs[7][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram7[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15292,13 +14109,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP8: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 8, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[8][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 8, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 8, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[8]["<<partition<<"]: "<<psizes_kvs[8][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram8[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15306,13 +14126,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP9: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 9, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[9][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 9, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 9, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[9]["<<partition<<"]: "<<psizes_kvs[9][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram9[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15320,13 +14143,16 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP10: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 10, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[10][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 10, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 10, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[10]["<<partition<<"]: "<<psizes_kvs[10][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram10[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
@@ -15334,22 +14160,28 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	}
 	vmoffseti_kvs = 0;
 	MERGE_MERGEVMSLOOP11: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts_merge::MERGE_merge Masks 12:: [instance 11, reduce partition "<<partition<<"]: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[11]["<<partition<<"]: "<<psizes_kvs[11][partition]<<"] "<<endl;
+		#endif 
 		if(psizes_kvs[11][partition] > 0){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 11, reduce partition "<<partition<<"] is active: [offset: "<<vmoffset_kvs*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[11]["<<partition<<"]: "<<psizes_kvs[11][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE_merge Masks 12:: [instance 11, reduce partition "<<partition<<"] is active: [offset: "<<(lbasevmoffset_kvs + vmoffseti_kvs)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS_VMASKBUFFER<<", psizes_kvs[11]["<<partition<<"]: "<<psizes_kvs[11][partition]<<"] "<<endl;
 			#endif
 			for(unsigned int k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
 			#pragma HLS PIPELINE II=1
-				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + vmoffset_kvs + k] = kvdram11[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
+				vdram[globalparamsv.BASEOFFSETKVS_VERTICESDATAMASK + lbasevmoffset_kvs + vmoffset_kvs + k] = kvdram11[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + vmoffseti_kvs + k];
 			}
 		}
 		vmoffset_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 		vmoffseti_kvs += globalparams.SIZEKVS_VMASKBUFFER;
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::MERGE:: FINISHED merging vertices masks. [end offset: "<<lbasevmoffset_kvs + vmoffset_kvs<<"]"<<endl; 
+	#endif
 	
 	// partition masks. 11(changes with graph size) * 24(fixed) = 264
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks."<<endl; 
+	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
 	unsigned int runningpartition_i = 0;
 	unsigned int vpmoffseti_kvs = 0;
@@ -15501,18 +14333,27 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 
 	unsigned int psizes_kvs[3][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = psizes_kvs
+	unsigned int partitionoffseti = 0;
 	
 	globalparams_t globalparamsvA = acts_utilobj->UTIL_getglobalparams(vdramA);
 	globalparams_t globalparamsvB = acts_utilobj->UTIL_getglobalparams(vdramB);
 	globalparams_t globalparamsvC = acts_utilobj->UTIL_getglobalparams(vdramC);
+	globalparams_t globalparamsv = acts_utilobj->UTIL_getglobalparams(vdram);
 	unsigned int actvpstats_beginoffset = MERGE_actvpstatsoffset(globalparamsvA);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::EXCHANGE:: retrieving stats from vdramA, vdramB & vdramC. "<<endl; 
 	#endif 
-	mem_accessobj->MEMACCESS_retreievekvstats(vdramA, psizes_kvs[0], globalparamsvA, actvpstats_beginoffset, globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2);
-	mem_accessobj->MEMACCESS_retreievekvstats(vdramB, psizes_kvs[1], globalparamsvB, actvpstats_beginoffset, globalparamsvB.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2);
+	mem_accessobj->MEMACCESS_retreievekvstats(vdramA, psizes_kvs[0], globalparamsvA, actvpstats_beginoffset, globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR2);
+	mem_accessobj->MEMACCESS_retreievekvstats(vdramB, psizes_kvs[1], globalparamsvB, actvpstats_beginoffset, globalparamsvB.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1);
 	mem_accessobj->MEMACCESS_retreievekvstats(vdramC, psizes_kvs[2], globalparamsvC, actvpstats_beginoffset, globalparamsvC.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR0);
+	///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		psizes_kvs[0][i] = 1;
+		psizes_kvs[1][i] = 1;
+		psizes_kvs[2][i] = 1;
+	} */
+	/////////////////////////////////////////////////////////
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::EXCHANGE:: transferring stats from vdramA, vdramB & vdramC to vdramA. "<<endl; 
@@ -15520,13 +14361,13 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 	mem_accessobj->MEMACCESS_commitkvstats2(vdramA, psizes_kvs[0], globalparamsvA, actvpstats_beginoffset + 0, (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2));
 	mem_accessobj->MEMACCESS_commitkvstats2(vdramA, psizes_kvs[1], globalparamsvA, actvpstats_beginoffset + (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2), (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2));
 	mem_accessobj->MEMACCESS_commitkvstats2(vdramA, psizes_kvs[2], globalparamsvA, actvpstats_beginoffset + (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2) + (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1AND2), (globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR0));
-	
+
 	// vertices
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramA to vdramB & vdramC."<<endl; 
-	#endif
-	unsigned int partitionoffseti = 0;
+	partitionoffseti = 0;
 	unsigned int voffsetA_kvs = 0;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramA to vdramB & vdramC. [begin offset: "<<voffsetA_kvs<<"]"<<endl; 
+	#endif
 	MERGE_EXCHANGEVS_LOOP1A: for(unsigned int i=0; i<NUMCOMPUTEUNITS_SLR2; i++){
 		for(unsigned int partition=0; partition<globalparamsvA.NUM_REDUCEPARTITIONS; partition++){
 			if(psizes_kvs[0][partitionoffseti] > 0){
@@ -15537,18 +14378,22 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 				#pragma HLS PIPELINE II=1
 					vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k] = vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k];
 					vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k] = vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k];
+					vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k] = vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetA_kvs + k];
 				}
 			}
 			partitionoffseti += 1;
 			voffsetA_kvs += globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 		}
 	}
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramB to vdramA & vdramC."<<endl; 
+	cout<<"MERGE::EXCHANGE:: FINISHED transferring vertices from vdramA to vdramB & vdramC. [end offset: "<<voffsetA_kvs<<"]"<<endl; 
 	#endif
+	
 	partitionoffseti = 0;
 	unsigned int voffsetB_kvs = NUMCOMPUTEUNITS_SLR2 * globalparamsvB.NUM_REDUCEPARTITIONS * globalparamsvB.SIZEKVS2_REDUCEPARTITION;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramB to vdramA & vdramC. [begin offset: "<<voffsetB_kvs<<"]"<<endl; 
+	#endif
 	MERGE_EXCHANGEVS_LOOP2A: for(unsigned int i=0; i<NUMCOMPUTEUNITS_SLR1; i++){
 		for(unsigned int partition=0; partition<globalparamsvB.NUM_REDUCEPARTITIONS; partition++){
 			if(psizes_kvs[1][partitionoffseti] > 0){
@@ -15559,19 +14404,23 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 				#pragma HLS PIPELINE II=1
 					vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k] = vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k];
 					vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k] = vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k];
+					vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k] = vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetB_kvs + k];
 				}
 			}
 			partitionoffseti += 1;
 			voffsetB_kvs += globalparamsvB.SIZEKVS2_REDUCEPARTITION;
 		}
 	}
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramC to vdramA & vdramB."<<endl; 
+	cout<<"MERGE::EXCHANGE:: FINISHED transferring vertices from vdramB to vdramA & vdramC. [end offset: "<<voffsetB_kvs<<"]"<<endl; 
 	#endif
+	
 	partitionoffseti = 0;
-	unsigned int voffsetC_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR0) * globalparamsvC.NUM_REDUCEPARTITIONS * globalparamsvC.SIZEKVS2_REDUCEPARTITION;
-	MERGE_EXCHANGEVS_LOOP3A: for(unsigned int i=0; i<NUMCOMPUTEUNITS_SLR1AND2; i++){
+	unsigned int voffsetC_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparamsvC.NUM_REDUCEPARTITIONS * globalparamsvC.SIZEKVS2_REDUCEPARTITION;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::EXCHANGE:: transferring vertices from vdramC to vdramA & vdramB. [begin offset: "<<voffsetC_kvs<<"]"<<endl; 
+	#endif
+	MERGE_EXCHANGEVS_LOOP3A: for(unsigned int i=0; i<NUMCOMPUTEUNITS_SLR0; i++){ // NUMCOMPUTEUNITS_SLR1AND2
 		for(unsigned int partition=0; partition<globalparamsvC.NUM_REDUCEPARTITIONS; partition++){
 			if(psizes_kvs[2][partitionoffseti] > 0){
 				#ifdef _DEBUGMODE_KERNELPRINTS
@@ -15579,14 +14428,18 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 				#endif
 				MERGE_EXCHANGEVS_LOOP3B: for(unsigned int k=0; k<globalparamsvC.SIZEKVS2_REDUCEPARTITION; k++){
 				#pragma HLS PIPELINE II=1
-					vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramA[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
-					vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramA[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
+					vdramA[globalparamsvA.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
+					vdramB[globalparamsvB.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
+					vdram[globalparamsv.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_DESTVERTICESDATA + voffsetC_kvs + k];
 				}
 			}
 			partitionoffseti += 1;
 			voffsetC_kvs += globalparamsvC.SIZEKVS2_REDUCEPARTITION;
 		}
 	}
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"MERGE::EXCHANGE:: FINISHED transferring vertices from vdramC to vdramA & vdramB. [end offset: "<<voffsetC_kvs<<"]"<<endl; 
+	#endif
 	
 	// vertices masks
 	#ifdef _DEBUGMODE_KERNELPRINTS3
@@ -15646,8 +14499,8 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 				#endif
 				MERGE_EXCHANGEVMS_LOOP3B: for(unsigned int k=0; k<globalparamsvC.SIZEKVS_VMASKBUFFER; k++){
 				#pragma HLS PIPELINE II=1
-					vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k] = vdramA[globalparamsvC.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k];
-					vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k] = vdramA[globalparamsvC.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k];
+					vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k];
+					vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESDATAMASK + vmoffsetC_kvs + k];
 				}
 			}
 			partitionoffseti += 1;
@@ -15672,6 +14525,9 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 		#endif 
 		
 		unsigned int p = pA | pB | pC;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(p > 0){ cout<<"MERGE_exchangeVs:: partition mask: "<<partition<<" is active: pA: "<<pA<<", pB: "<<pB<<", pC: "<<pC<<endl; }
+		#endif
 		// cout<<"MERGE_exchangeVs:: partition: "<<partition<<": pA: "<<pA<<", pB: "<<pB<<", pC: "<<pC<<endl;
 		
 		#ifdef _WIDEWORD
@@ -15688,7 +14544,7 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 		cout<<"--- MERGE_exchangeVs: vdramA["<<partition<<"]: "<<p<<endl; 
 		#endif
 	}
-
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE_exchangeVs: Finished. voffsetA: "<<voffsetA_kvs * VECTOR_SIZE<<", voffsetB: "<<voffsetB_kvs * VECTOR_SIZE<<", voffsetC: "<<voffsetC_kvs * VECTOR_SIZE<<endl;
 	cout<<"MERGE_exchangeVs: Finished. vmoffsetA: "<<vmoffsetA_kvs * VECTOR_SIZE<<", vmoffsetB: "<<vmoffsetB_kvs * VECTOR_SIZE<<", vmoffsetC: "<<vmoffsetC_kvs * VECTOR_SIZE<<endl;

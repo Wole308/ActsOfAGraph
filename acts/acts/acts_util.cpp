@@ -731,38 +731,6 @@ UTIL_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalpa
 	#endif
 	return;	
 }
-/** partition_type
-	#ifdef SW 
-	acts_util::
-	#endif 
-UTIL_getpartition(bool_type enable, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
-	partition_type partition;
-	keyvalue_t thiskeyvalue = UTIL_GETKV(keyvalue);
-	
-	if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }	
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	if(partition >= MAX_NUM_PARTITIONS){ actsutilityobj->globalstats_counterrorsingetpartition(1); }
-	#endif 
-	#ifdef _DEBUGMODE_CHECKS2
-	if(partition >= MAX_NUM_PARTITIONS){ 
-		#ifdef ENABLE_VOICEOUTKERNELERRORS
-		cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<endl; 
-		#endif 
-		#ifdef ENABLE_PERFECTACCURACY
-		exit(EXIT_FAILURE); 
-		#endif 
-	}
-	#endif
-	#ifndef ENABLE_PERFECTACCURACY
-		if(partition >= MAX_NUM_PARTITIONS){ partition = (((1 << NUM_PARTITIONS_POW) - 1) & (partition >> (1 - 1))); } // FIXME. REMOVEME. PERFECTIONTEST.
-	#endif
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_util::getpartition 2", partition, MAX_NUM_PARTITIONS, thiskeyvalue.key, upperlimit, currentLOP);
-	#endif
-	return partition;
-} */
 partition_type
 	#ifdef SW 
 	acts_util::
@@ -772,13 +740,6 @@ UTIL_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalu
 	keyvalue_t thiskeyvalue = UTIL_GETKV(keyvalue);
 	
 	#ifdef CONFIG_SPLIT_DESTVTXS
-	/* if(mode == REDUCEMODE){
-		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-		else { partition = ((thiskeyvalue.key - upperlimit) % NUM_PARTITIONS); }
-	} else {
-		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-		else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
-	} */
 	if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else {
 		keyy_t lkey = thiskeyvalue.key - upperlimit;
@@ -862,6 +823,35 @@ UTIL_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
+		#ifdef _WIDEWORD
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(127, 96) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(191, 160) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(255, 224) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(319, 288) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(383, 352) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(447, 416) = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(511, 480) = 0; 
+		#else 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[1].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[2].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[3].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[4].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[5].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[6].value = 0; 
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[7].value = 0; 
+		#endif
+	}
+	return;
+}
+void
+	#ifdef SW 
+	acts_util::
+	#endif 
+UTIL_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
+	for(unsigned int k=0; k<size_kvs; k++){
 	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = 0; 

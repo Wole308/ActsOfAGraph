@@ -21,6 +21,27 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 swkernel::~swkernel(){}
 
 #if defined(SW)
+void swkernel::verifyresults(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int id){
+	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		unsigned int _BASEOFFSETKVS_DESTVERTICESDATA = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
+		for(unsigned int k=0; k<NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2; k++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				unsigned int vdata1 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
+				unsigned int vdata2 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
+				if(vdata1 < 64){
+					vdatas[vdata1] += 1; 
+				}
+				if(vdata2 < 64){
+					vdatas[vdata2] += 1; 
+				}
+			}
+		}
+	}
+	cout<<">>> swkernel::verifyresults:: Printing results. id: "<<id<<endl;
+	utilityobj->printvalues("swkernel::verifyresults:: verifying results (vdatas)", vdatas, 16);
+}
+
 long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
@@ -31,17 +52,10 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; } // reset
 	
 	unsigned int hybridmodeoffset_kvs = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_OTHERINFOS].data[0].key; // hybrid-mode enables
-	for(unsigned int it=0; it<64; it++){ vdram[hybridmodeoffset_kvs + it].data[0].key = OFF; } 
-	// for(unsigned int it=0; it<64; it++){ if(it>=0 && it<64){ vdram[hybridmodeoffset_kvs + it].data[0].key = ON; } else { vdram[hybridmodeoffset_kvs + it].data[0].key = OFF; }} 
-	// for(unsigned int it=0; it<64; it++){ vdram[hybridmodeoffset_kvs + it].data[0].key = ON; } // hybrid-mode enables
+	for(unsigned int it=0; it<64; it++){ vdram[hybridmodeoffset_kvs + it].data[0].key = OFF; }
 	
 	unsigned int ind = 0;
 	unsigned int _PROCESSCOMMAND = ON; unsigned int _PARTITIONCOMMAND = ON; unsigned int _APPLYUPDATESCOMMAND = ON;
-	#ifdef ENABLE_KERNEL_PROFILING
-	unsigned int analysis_icount = 3;
-	#else 
-	unsigned int analysis_icount = 1;
-	#endif 
 	
 	#if NUM_EDGE_BANKS>0
 	cout<< TIMINGRESULTSCOLOR <<">>> swkernel::runapp: ACTS started. Parameters: NUM_EDGE_BANKS_PER_PROC: ["<<NUM_EDGE_BANKS<<"], NUMPROCTHREADS: ["<<(NUMSUBCPUTHREADS / NUM_EDGE_BANKS)<<"], TOTAL_NUM_BANKS_DEPLOYED: ["<<(NUMSUBCPUTHREADS + (NUMSUBCPUTHREADS / NUM_EDGE_BANKS))<<"]"<< RESET <<endl;							
@@ -68,54 +82,32 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	#endif
 	#endif 
 	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; vdramD[i] = vdram[i]; }
-	
+
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){ // numIters // CRITICAL REMOVEME.
 		cout<< TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<numIters<<" iterations"<< RESET <<endl;
-		
-		for(unsigned int analysis_i=0; analysis_i<analysis_icount; analysis_i++){
-			#ifdef ENABLE_KERNEL_PROFILING
-			if(analysis_i==0){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = OFF; _APPLYUPDATESCOMMAND = OFF; }
-			if(analysis_i==1){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = ON; _APPLYUPDATESCOMMAND = OFF; }
-			if(analysis_i==2){ _PROCESSCOMMAND = ON; _PARTITIONCOMMAND = ON; _APPLYUPDATESCOMMAND = ON; }
-			cout<<"swkernel::runapp: analysis_i: "<<analysis_i<<"(PROCESSCOMMAND:"<<_PROCESSCOMMAND<<", PARTITIONCOMMAND:"<<_PARTITIONCOMMAND<<", APPLYUPDATESCOMMAND:"<<_APPLYUPDATESCOMMAND<<")"<<endl;
-			
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-				kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key = ON;
-				kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key = _PROCESSCOMMAND; 
-				kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = _PARTITIONCOMMAND; 
-				kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = _APPLYUPDATESCOMMAND;
-			}
-			#endif 
-			
-			std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
+		std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
 
-			#if NUM_PEs==3
-			run3(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
-			#elif NUM_PEs==12
-			run12(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
-			#elif NUM_PEs==22
-			run22(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
-			#elif NUM_PEs==24
-			run24(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
-			#elif NUM_PEs==25
-			run25(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
-			#elif NUM_PEs==32
-			run32(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
-			#else 
-			NOT DEFINED.
-			#endif
-			kernelobjs_merge->MERGE_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);
+		#if NUM_PEs==3
+		run3(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
+		#elif NUM_PEs==12
+		run12(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
+		#elif NUM_PEs==22
+		run22(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
+		#elif NUM_PEs==24
+		run24(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
+		#elif NUM_PEs==25
+		run25(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
+		#elif NUM_PEs==32
+		run32(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
+		#else 
+		NOT DEFINED.
+		#endif
 		
-			long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
-			cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
-		}
+		kernelobjs_merge->MERGE_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);
 		
-		// #ifdef CONFIG_UNIFIED_VDRAM
-		// uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
-		// #else 
-		// uint512_vec_dt * ref = (uint512_vec_dt *)kvsourcedram[0];	
-		// #endif
-		// uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
+		long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
+		cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
+		
 		#ifdef CONFIG_SPLIT_DESTVTXS
 		uint512_vec_dt * ref = (uint512_vec_dt *)vdramA;
 		#else 
@@ -130,10 +122,15 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			if(gmask > 0){ cout<<i<<", "; }
 		}
 		cout<<""<<endl;
+		
+		verifyresults(kvsourcedram, 0);
+		
 		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 		// exit(EXIT_SUCCESS); //
 	}
 	
+	verifyresults(kvsourcedram, 1);
+
 	#ifdef CONFIG_SPLIT_DESTVTXS
 	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdram[i] = vdramA[i]; }
 	#endif
