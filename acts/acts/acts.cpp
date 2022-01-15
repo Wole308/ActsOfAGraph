@@ -375,6 +375,9 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 
 	ACTIT_MAINLOOP: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + flushsz; offset_kvs+=WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"acts::ACTS_actit: processing chunk [offset_kvs: "<<offset_kvs<<"]: [ptravstate.begin_kvs: "<<ptravstate.begin_kvs<<"]: [ptravstate.end_kvs + flushsz: "<<ptravstate.end_kvs + flushsz<<"] ... "<<endl;
+		#endif
 		#ifdef PUP1
 		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
 		if(itercount >= 1){ pp1writeen = ON; } else { pp1writeen = OFF; }

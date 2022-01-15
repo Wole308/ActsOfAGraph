@@ -40,12 +40,14 @@
 // #define CONFIG_UNIFIED_DESTVDRAM
 #define CONFIG_SPLIT_DESTVTXS // {reduceupdates.cpp, acts_util.cpp, app.cpp, loadgraph.cpp, top_nusrcv_nudstv.cpp, reduceupdates.h, actscommon.h}
 
+#define CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+
 #endif
 
 /*
 - AUTOMATE FOR LARGER GRAPHS: mem_access.cpp, acts_merge.cpp, mem_access.cpp->MEMACCESS_readvmasks
 - CRITICAL FIXME. mem_access.cpp
-- CRITICAL FIXME. TOO EXPENSIVE. mem_access.cpp
+- CRITICAL FIXME. TOO EXPENSIVE. mem_access.cpp, processedges_splitdstvxs.cpp
 - CRITICAL OPTIMIZEME: acts_merge.cpp
 - TOO EXPENSIVE. top_nusrcv_nudstv.cpp, processedges_slicedgraph.cpp, acts_merge.cpp
 - FIXME FOR DIFFERENT PARAMETERS: loadedges_splitdstvxs.cpp

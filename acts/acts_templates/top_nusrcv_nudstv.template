@@ -10,6 +10,7 @@ top_nusrcv_nudstv::top_nusrcv_nudstv(){
 	partitionupdatesobj = new partitionupdates();
 	reduceupdatesobj = new reduceupdates();
 	mem_accessobj = new mem_access();
+	mem_access_splitdstvxsobj = new mem_access_splitdstvxs();
 	acts_mergeobj = new acts_merge();
 	actsobj = new acts();
 }
@@ -20,7 +21,7 @@ void
 	#ifdef SW
 	top_nusrcv_nudstv::
 	#endif 
-processit_unsliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+processit_unsplitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -64,12 +65,12 @@ processit_unsliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt *
 	unsigned int SKIP_KVS = reducebuffersz * FETFACTOR;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	actsutilityobj->print7("### processit_unsliceddstvtxs:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 							
+	actsutilityobj->print7("### processit_unsplitdstvxs:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
 	PROCESSIT_MAINLOOP: for(batch_type source_partition=v_chunkids[v_chunkid]; source_partition<v_chunkids[v_chunkid+1]; source_partition+=1){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"processit_unsliceddstvtxs: processing source partition "<<source_partition<<" ... "<<endl; // REMOVEME.
+		cout<<"processit_unsplitdstvxs: processing source partition "<<source_partition<<" ... "<<endl; // REMOVEME.
 		#endif 
 		
 		batch_type voffset_kvs2 = source_partition * reducebuffersz * FETFACTOR;
@@ -81,7 +82,7 @@ processit_unsliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt *
 		avtravstate.i_kvs = voffset_kvs2;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS2
-		actsutilityobj->print5("### processit_unsliceddstvtxs:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs2 * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
+		actsutilityobj->print5("### processit_unsplitdstvxs:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs2 * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
 		
 		mem_accessobj->MEMACCESS_readvmasks(ON, kvdram, vmaskREAD, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, 0, vmaskoffset_kvs, 0, vmaskbuffersz_kvs); // NOTE: this should come before loadvdata because vbuffer is used as a temp buffer
@@ -108,8 +109,8 @@ processit_unsliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt *
 		keyy_t localbeginvptr_kvs = localbeginvptr / VECTOR_SIZE; // NOTE: this should be in KVS(8) terms
 		keyy_t numedges_kvs = numedges / VECTOR_SIZE; // NB: this is correct.
 		#ifdef _DEBUGMODE_CHECKS2
-		if(localendvptr < localbeginvptr){ cout<<"processit_unsliceddstvtxs::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
-		if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("processit_unsliceddstvtxs", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
+		if(localendvptr < localbeginvptr){ cout<<"processit_unsplitdstvxs::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
+		if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("processit_unsplitdstvxs", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
 		#endif
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -170,7 +171,7 @@ void
 	#ifdef SW
 	top_nusrcv_nudstv::
 	#endif 
-processit_sliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+processit_splitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -210,27 +211,27 @@ processit_sliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * e
 	batch_type vreadoffset_kvs2 = 0;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	actsutilityobj->print7("### processit_sliceddstvtxs:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 							
+	actsutilityobj->print7("### processit_splitdstvxs:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
 	PROCESSIT_MAINLOOP1: for(batch_type source_partition=0; source_partition<globalparamsK.NUM_PROCESSEDGESPARTITIONS; source_partition+=1){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"processit_sliceddstvtxs: processing [source_partition: "<<source_partition<<"]: [voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<"]: [vreadoffset: "<<vreadoffset_kvs2 * NUM_PEs * VECTOR2_SIZE<<"] ... "<<endl;
-		#endif 
+		cout<<"processit_splitdstvxs: processing [source_partition: "<<source_partition<<"]: [voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<"]: [vreadoffset: "<<vreadoffset_kvs2 * NUM_PEs * VECTOR2_SIZE<<"] ... "<<endl;
+		#endif
 		
 		if(voffset_kvs2 >= avtravstate.end_kvs){ voffset_kvs2 += globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION; vreadoffset_kvs2 += vreadskipsz_kvs2; continue; }
 		if(GraphAlgo != PAGERANK) { if(vmask_p[source_partition] == 0){ voffset_kvs2 += globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION; vreadoffset_kvs2 += vreadskipsz_kvs2; continue; }}
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(vmask_p[source_partition] > 0){ cout<<"processit_sliceddstvtxs:: source partition is active [vmask_p["<<source_partition<<"]: "<<vmask_p[source_partition]<<"] ..."<<endl; }
+		#ifdef _DEBUGMODE_KERNELPRINTsS
+		if(vmask_p[source_partition] > 0){ cout<<"processit_splitdstvxs:: source partition is active [vmask_p["<<source_partition<<"]: "<<vmask_p[source_partition]<<"] ..."<<endl; }
 		#endif 
 		
 		sweepparams.source_partition = source_partition;
 		avtravstate.i_kvs = voffset_kvs2;
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		actsutilityobj->print5("### processit_sliceddstvtxs:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs2 * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
+		actsutilityobj->print5("### processit_splitdstvxs:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs2 * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
-		mem_accessobj->MEMACCESS_readvmaskschunks_splitdstvxs(ON, kvdram, vmaskREAD, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
-		mem_accessobj->MEMACCESS_readvdatachunks_splitdstvxs(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
+		mem_access_splitdstvxsobj->MEMACCESS_readvmaskschunks(ON, kvdram, vmaskREAD, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
+		mem_access_splitdstvxsobj->MEMACCESS_readvdatachunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
 
 		vertex_t srcvlocaloffset = (voffset_kvs2 * VECTOR2_SIZE);
 		vertex_t beginsrcvid = globalparamsK.ACTSPARAMS_SRCVOFFSET + (voffset_kvs2 * VECTOR2_SIZE);
@@ -240,7 +241,7 @@ processit_sliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * e
 		
 		tuple_t tup = mem_accessobj->MEMACCESS_getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, vptrbaseoffset_kvs, voffset_kvs2 * VECTOR2_SIZE, (voffset_kvs2 + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
 		keyy_t beginvptr = tup.A;
-		keyy_t endvptr = tup.B; 
+		keyy_t endvptr = tup.B + VECTOR2_SIZE; // NEWCHANGE 
 	
 		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endvptr = beginvptr; }
 		
@@ -251,8 +252,8 @@ processit_sliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * e
 		keyy_t localbeginvptr_kvs = localbeginvptr / VECTOR_SIZE; // NOTE: this should be in KVS(8) terms
 		keyy_t numedges_kvs = numedges / VECTOR_SIZE; // NB: this is correct.
 		#ifdef _DEBUGMODE_CHECKS2
-		if(localendvptr < localbeginvptr){ cout<<"processit_sliceddstvtxs::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
-		if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("processit_sliceddstvtxs", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
+		if(localendvptr < localbeginvptr){ cout<<"processit_splitdstvxs::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<endl; exit(EXIT_FAILURE); }
+		if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("processit_splitdstvxs", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
 		#endif
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -472,9 +473,9 @@ dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, {%fo
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#ifdef CONFIG_SPLIT_DESTVTXS // REMOVEME.
-	if(en_process == ON){ processit_sliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
+	if(en_process == ON){ processit_splitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
 	#else 
-	if(en_process == ON){ processit_unsliceddstvtxs({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 	
+	if(en_process == ON){ processit_unsplitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 	
 	#endif 
 	if(en_partition == ON){ partitionit({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE,  vmask_subp, globalparamsK, NAp); } 
 	if(en_reduce == ON){ reduceit({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
@@ -538,7 +539,7 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
 		// read vertices
-		mem_accessobj->MEMACCESS_readvdata_splitdstvxs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		mem_access_splitdstvxsobj->MEMACCESS_readvdata(enablereduce, 0, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		#ifdef COLLECTMASKINFOS
 		acts_utilobj->UTIL_reset(vmaskWRITE);
 		#endif 
@@ -547,9 +548,9 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 		dispatch(OFF, OFF, enablereduce, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
 		
 		// writeback vertices
-		mem_accessobj->MEMACCESS_savevdata_splitdstvxs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); 
+		mem_access_splitdstvxsobj->MEMACCESS_savevdata(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); 
 		#ifdef COLLECTMASKINFOS
-		mem_accessobj->MEMACCESS_savemasks(enablereduce, kvdram, vmaskWRITE, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vmask_offset_kvs, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs, globalparamsK); // NEW
+		mem_access_splitdstvxsobj->MEMACCESS_savemasks(enablereduce, kvdram, vmaskWRITE, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vmask_offset_kvs, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs, globalparamsK); // NEW
 		#endif 
 		
 		sourcestatsmarker += 1;

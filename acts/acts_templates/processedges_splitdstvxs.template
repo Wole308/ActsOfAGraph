@@ -1,6 +1,12 @@
 #include "processedges_splitdstvxs.h"
 using namespace std;
 
+// => VDATA (to read)
+// 16:[0,32,...,480] | [1,33,...,481] | ... | [31,63,...,511]
+
+// => VMASK (to read)
+// 32:[0,32,...,480,...,992] | [1,33,...,481,...,993] | ... | [31,63,...,511,...,1023]
+
 #ifdef SW
 processedges_splitdstvxs::processedges_splitdstvxs(){ 
 	actsutilityobj = new actsutility(); 
@@ -28,15 +34,13 @@ PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	return res;
 }
 
+//
 value_t 
 	#ifdef SW 
 	processedges_splitdstvxs::
 	#endif 
 UTIL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
-	// => VDATA (to read)
-	// 16:[0,32,...,480] | [1,33,...,481] | ... | [31,63,...,511]
-	
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<">>> UTIL_GETVTXDATA: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
@@ -75,9 +79,6 @@ value_t
 	#endif 
 UTIL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
-	// => VMASK (to read)
-	// 32:[0,32,...,480,...,992] | [1,33,...,481,...,993] | ... | [31,63,...,511,...,1023]
-	
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<">>> UTIL_GETVTXMASK: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
@@ -103,6 +104,82 @@ UTIL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], u
 	#endif 
 	
 	value_t data = vmaskBITS[realcol][realrow].data;
+	return data;
+}
+
+value_t 
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+UTIL_GETVTXDATA2(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, unsigned int dataN[VECTOR2_SIZE], globalparams_t globalparams){
+	#pragma HLS INLINE
+	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> UTIL_GETVTXDATA2: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
+		#endif 
+		loc = 0; }
+	
+	unsigned int s = loc % NUM_PEs;
+	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, s);
+	unsigned int skip = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
+	
+	unsigned int col = lloc % 16;
+	unsigned int row = lloc / 16;
+	unsigned int realcol = col;
+	unsigned int rrealcol = (s + realcol) % 16;
+	unsigned int realrow = (skip + row) / 2;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<">>> UTIL_GETVTXDATA2: loc: "<<loc<<", instid: "<<s<<", lloc: "<<lloc<<", col: "<<col<<", row: "<<row<<", realrow: "<<realrow<<", skip: "<<skip<<", (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs): "<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.lloc", lloc, (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs) * VECTOR2_SIZE, loc, skip, NAp); 
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.skip", skip, REDUCEPARTITIONSZ_KVS2, loc, skip, NAp); 
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.realcol", realcol, VDATA_PACKINGSIZE, loc, skip, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.rrealcol", rrealcol, VDATA_PACKINGSIZE, loc, skip, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.realrow", realrow, BLOCKRAM_SIZE, loc, skip, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.row", skip + row, REDUCEPARTITIONSZ_KVS2, loc, skip, NAp);
+	#endif 
+	
+	value_t data = 0;
+	if(row % 2 == 0){ data = acts_utilobj->UTIL_GETKV2(vbuffer[rrealcol][realrow]).key; } 
+	else { data = acts_utilobj->UTIL_GETKV2(vbuffer[rrealcol][realrow]).value; }
+	return data;
+}
+
+value_t 
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+UTIL_GETVTXMASK2(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, unit1_type dataN[VECTOR2_SIZE], globalparams_t globalparams){
+	#pragma HLS INLINE
+	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> UTIL_GETVTXMASK: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
+		#endif 
+		loc = 0; }
+		
+	unsigned int s = loc % NUM_PEs;
+	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, s);
+	unsigned int skip = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
+	
+	unsigned int col = lloc % 16;
+	unsigned int row = lloc / 16;
+	unsigned int realcol = col;
+	unsigned int rrealcol = (s + realcol) % 16;
+	unsigned int realrow = skip + row;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<">>> UTIL_GETVTXMASK: loc: "<<loc<<", col: "<<col<<", row: "<<row<<", realcol: "<<realcol<<", realrow: "<<realrow<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("UTIL_SETVTXMASK.row", row, REDUCEPARTITIONSZ_KVS2, col, row, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_SETVTXMASK.realcol", realcol, VDATA_PACKINGSIZE, col, row, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_SETVTXMASK.rrealcol", rrealcol, VDATA_PACKINGSIZE, col, row, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_SETVTXMASK.realrow", realrow, DOUBLE_BLOCKRAM_SIZE, col, row, NAp); 
+	#endif 
+	
+	value_t data = vmaskBITS[rrealcol][realrow].data;
 	return data;
 }
 
@@ -142,6 +219,10 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	
 	value_t ludatas[MAX_NUM_UNIQ_EDGES_PER_VEC]; // AUTOMATEME.
 	#pragma HLS ARRAY_PARTITION variable=ludatas complete
+	value_t vdataset[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vdataset complete
+	unit1_type vmaskset[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmaskset complete
 	value_t masks[MAX_NUM_UNIQ_EDGES_PER_VEC]; // AUTOMATEME.
 	#pragma HLS ARRAY_PARTITION variable=masks complete
 	vertex_t lvids[VECTOR2_SIZE];
@@ -162,6 +243,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	unsigned int found1 = 0;
 	int nextactivei = -1;
 	int subpidx = -1;
+	unsigned int debug_numinvalidheads = 0;
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 
 	buffer_type chunk_size = acts_utilobj->UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
@@ -169,7 +251,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"--- PROCESS_readandprocess: i: "<<i<<" ---"<<endl;
+		cout<<"--- PROCESS_readandprocess: i: "<<i<<" (of "<<chunk_size<<")"<<endl;
 		#endif
 
 		#ifdef _WIDEWORD
@@ -203,12 +285,21 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			actsutilityobj->checkoutofbounds("readandprocess(12).1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, i);
 			#endif
 		
+		#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+		{%for r in context['8_seq']%} // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[{{r}}] = UTIL_GETVTXDATA2(vbuffer, lvid_head + {{r}}, vdataset, globalparams);
+		{%endfor%}
+		{%for r in context['8_seq']%}
+		masks[{{r}}] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + {{r}}, vmaskset, globalparams);
+		{%endfor%}
+		#else 
 		{%for r in context['8_seq']%} // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
 		ludatas[{{r}}] = UTIL_GETVTXDATA(vbuffer, lvid_head + {{r}}, globalparams);
 		{%endfor%}
 		{%for r in context['8_seq']%}
 		masks[{{r}}] = UTIL_GETVTXMASK(vmaskBITS, lvid_head + {{r}}, globalparams);
 		{%endfor%}
+		#endif 
 		if(GraphAlgo == PAGERANK){ {%for r in context['8_seq']%} masks[{{r}}] = 1; {%endfor%} }
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			{%for r in context['8_seq']%}
@@ -244,7 +335,19 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			}
 			{%endfor%}
 			#endif
-		
+			// cout<<"... readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<", lvid_head: "<<lvid_head<<", validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+			#ifdef _DEBUGMODE_CHECKS2
+			{%for v in context['VECTOR2_SIZE_seq']%}
+			if(lsrcvids{{v}} >= validbound){
+				if(debug_numinvalidheads > 32){
+				{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(17).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids{{n}}: "<<lsrcvids{{n}}<<", ldstvids{{n}}: "<<ldstvids{{n}}<<", incr{{n}}: "<<incr{{n}}<<endl; {%endfor%} 
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			{%endfor%}
+			#endif 
+			
 		if(GraphAlgo == PAGERANK){ {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = 1; {%endfor%} mask0 = 0; ens0 = OFF; } 
 		else { {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = masks[incr{{v}}]; {%endfor%} mask0 = 0; ens0 = OFF; }
 			#ifdef _DEBUGMODE_CHECKS2
@@ -298,6 +401,5 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
 }
-
 
 

@@ -9683,13 +9683,13 @@ MERGE_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 	#endif	
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<1; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	
 	// vertices
@@ -9826,13 +9826,13 @@ MERGE_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram0, psizes_kvs[0], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<2; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	
@@ -10014,13 +10014,13 @@ MERGE_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, u
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram1, psizes_kvs[1], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<3; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -10247,13 +10247,13 @@ MERGE_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram2, psizes_kvs[2], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<4; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -10525,13 +10525,13 @@ MERGE_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram3, psizes_kvs[3], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<5; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -10848,13 +10848,13 @@ MERGE_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram4, psizes_kvs[4], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<6; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -11216,13 +11216,13 @@ MERGE_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram5, psizes_kvs[5], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<7; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -11629,13 +11629,13 @@ MERGE_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram6, psizes_kvs[6], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<8; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -12087,13 +12087,13 @@ MERGE_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,ui
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram7, psizes_kvs[7], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram8, psizes_kvs[8], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<9; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -12590,13 +12590,13 @@ MERGE_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram8, psizes_kvs[8], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram9, psizes_kvs[9], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<10; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -13138,13 +13138,13 @@ MERGE_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram9, psizes_kvs[9], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram10, psizes_kvs[10], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<11; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -13731,13 +13731,13 @@ MERGE_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,u
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram10, psizes_kvs[10], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram11, psizes_kvs[11], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<12; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[0], globalparamsv, actvpstats_beginoffset + 0 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[1], globalparamsv, actvpstats_beginoffset + 1 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[2], globalparamsv, actvpstats_beginoffset + 2 * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -14347,13 +14347,13 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 	mem_accessobj->MEMACCESS_retreievekvstats(vdramA, psizes_kvs[0], globalparamsvA, actvpstats_beginoffset, globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR2);
 	mem_accessobj->MEMACCESS_retreievekvstats(vdramB, psizes_kvs[1], globalparamsvB, actvpstats_beginoffset, globalparamsvB.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1);
 	mem_accessobj->MEMACCESS_retreievekvstats(vdramC, psizes_kvs[2], globalparamsvC, actvpstats_beginoffset, globalparamsvC.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR0);
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		psizes_kvs[0][i] = 1;
 		psizes_kvs[1][i] = 1;
 		psizes_kvs[2][i] = 1;
-	} */
-	/////////////////////////////////////////////////////////
+	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::EXCHANGE:: transferring stats from vdramA, vdramB & vdramC to vdramA. "<<endl; 

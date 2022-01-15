@@ -102,8 +102,49 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		#else 
 		NOT DEFINED.
 		#endif
-		
 		kernelobjs_merge->MERGE_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);
+		
+		
+		////////////////////////////////////////////////////////////////////////////////////
+		unsigned int _BASEOFFSETKVS_DESTVERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
+		unsigned int _BASEOFFSETKVS_SRCVERTICESDATA = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA].data[0].key;
+		uint512_vec_dt * srcv = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+		for(unsigned int n=0; n<NUM_PEs; n++){
+			for(unsigned int k=0; k<NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2; k++){
+				srcv[(n * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2) + k] = kvsourcedram[n][_BASEOFFSETKVS_DESTVERTICESDATA + k];
+			}
+		}
+		for(unsigned int n=0; n<NUM_PEs; n++){
+			for(unsigned int k=0; k<NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2; k++){
+				for(unsigned int i=0; i<NUM_PEs; i++){ kvsourcedram[i][_BASEOFFSETKVS_SRCVERTICESDATA + (n * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2) + k] = srcv[(n * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2) + k]; }
+			}
+		}
+		unsigned int LAST = _BASEOFFSETKVS_SRCVERTICESDATA + (NUM_PEs * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2);// + (NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2);
+		unsigned int LIM = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
+		if(LAST > LIM){ cout<<"swkernel:: YUUUUUUUUUUUUUYTTTTTTTTTTTTTTTTTTTTTTTTTTRRRRRRRRRRRRRRR. LAST: "<<LAST<<", LIM: "<<LIM<<endl; exit(EXIT_FAILURE); }
+		
+		unsigned int _BASEOFFSETKVS_VERTICESDATAMASK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK].data[0].key;
+		uint512_vec_dt * srcvm = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+		for(unsigned int n=0; n<NUM_PEs; n++){
+			for(unsigned int k=0; k<NUMREDUCEPARTITIONS * VMASKBUFFERSZ_KVS; k++){
+				srcvm[(n * NUMREDUCEPARTITIONS * VMASKBUFFERSZ_KVS) + k] = kvsourcedram[n][_BASEOFFSETKVS_VERTICESDATAMASK + k];
+			}
+		}
+		for(unsigned int n=0; n<NUM_PEs; n++){
+			for(unsigned int k=0; k<NUMREDUCEPARTITIONS * VMASKBUFFERSZ_KVS; k++){
+				for(unsigned int i=0; i<NUM_PEs; i++){ kvsourcedram[i][_BASEOFFSETKVS_VERTICESDATAMASK + (n * NUMREDUCEPARTITIONS * VMASKBUFFERSZ_KVS) + k] = srcvm[(n * NUMREDUCEPARTITIONS * VMASKBUFFERSZ_KVS) + k]; }
+			}
+		}
+		unsigned int LAST2 = _BASEOFFSETKVS_VERTICESDATAMASK + (NUM_PEs * NUMREDUCEPARTITIONS * VMASKBUFFERSZ_KVS);// + (NUMREDUCEPARTITIONS * VMASKBUFFERSZ_KVS);
+		unsigned int LIM2 = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_STATSDRAM].data[0].key;
+		if(LAST2 > LIM2){ cout<<"swkernel:: YUUUUUUUUUUUUUYTTTTTTTTTTTTTTTTTTTTTTTTTTRRRRRRRRRRRRRRRTTTTTTTTTTTTTTTTTt. LAST2: "<<LAST2<<", LIM2: "<<LIM2<<endl; exit(EXIT_FAILURE); }
+		
+		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASKK = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		for(unsigned int k=0; k<NUMPROCESSEDGESPARTITIONS; k++){
+			for(unsigned int i=0; i<NUM_PEs; i++){ kvsourcedram[i][_BASEOFFSETKVS_VERTICESPARTITIONMASKK + k].data[0].key = 1; }
+		}
+		////////////////////////////////////////////////////////////////////////////////////
+		
 		
 		long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 		cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
@@ -125,7 +166,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		
 		verifyresults(kvsourcedram, 0);
 		
-		if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
+		// if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 		// exit(EXIT_SUCCESS); //
 	}
 	

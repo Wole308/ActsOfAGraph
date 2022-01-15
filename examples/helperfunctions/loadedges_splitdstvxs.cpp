@@ -406,10 +406,11 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	globalparams_t globalparamsVPTRS = globalparams.globalparamsK;
 	#endif 
 	
-	// calculate offsets
+	/* // calculate offsets
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 		tempvptrs[i][0].key = 0;
 		for(unsigned int vid=1; vid<KVDATA_RANGE; vid++){	
+			// tempvptrs[i][vid].key = tempvptrs[i][vid-1].key + counts_alledges_for_channel[i][vid-1]; 
 			tempvptrs[i][vid].key = tempvptrs[i][vid-1].key + counts_alledges_for_channel[i][vid-1]; 
 		}
 	}
@@ -420,6 +421,24 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 			_index += 1;
 		}
 		for(unsigned int vid=0; vid<(DRAMPADD/2); vid++){ // dummy pads
+			vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE) + _index].key = counts_totalalledges_for_channel[i];
+			_index += 1;
+		}
+	} */
+	// calculate offsets
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+		tempvptrs[i][0].key = 0;
+		for(unsigned int vid=1; vid<KVDATA_RANGE; vid++){
+			tempvptrs[i][vid].key = tempvptrs[i][vid-1].key + counts_alledges_for_channel[i][vid-1]; 
+		}
+	}
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		unsigned int _index = 0;
+		for(unsigned int vid=0; vid<KVDATA_RANGE; vid+=VPTR_SHRINK_RATIO){	
+			vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE) + _index].key = utilityobj->allignlowerto16_KV(tempvptrs[i][vid].key); // tempvptrs[i][vid].key; // NEWCHANGE.
+			_index += 1;
+		}
+		for(unsigned int vid=0; vid<(DRAMPADD/2); vid++){
 			vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE) + _index].key = counts_totalalledges_for_channel[i];
 			_index += 1;
 		}

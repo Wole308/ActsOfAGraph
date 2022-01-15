@@ -435,13 +435,13 @@ MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{
 	mem_accessobj->MEMACCESS_retreievekvstats(kvdram{{i}}, psizes_kvs[{{i}}], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	{%endif%}
 	{%endfor%}	
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.	
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		for(unsigned int j=0; j<{{n}}; j++){
 			psizes_kvs[j][i] = 1;
 		}
-	} */
-	/////////////////////////////////////////////////////////	
+	}
+	/////////////////////////////////////////////////////////	 */
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
 	mem_accessobj->MEMACCESS_commitkvstats2(vdram, psizes_kvs[{{i}}], globalparamsv, actvpstats_beginoffset + {{i}} * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
@@ -585,13 +585,13 @@ MERGE_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, 
 	mem_accessobj->MEMACCESS_retreievekvstats(vdramA, psizes_kvs[0], globalparamsvA, actvpstats_beginoffset, globalparamsvA.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR2);
 	mem_accessobj->MEMACCESS_retreievekvstats(vdramB, psizes_kvs[1], globalparamsvB, actvpstats_beginoffset, globalparamsvB.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR1);
 	mem_accessobj->MEMACCESS_retreievekvstats(vdramC, psizes_kvs[2], globalparamsvC, actvpstats_beginoffset, globalparamsvC.NUM_REDUCEPARTITIONS * NUMCOMPUTEUNITS_SLR0);
-	///////////////////////////////////////////////////////// CRITICAL REMOVEME.
-	/* for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+	/* ///////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 		psizes_kvs[0][i] = 1;
 		psizes_kvs[1][i] = 1;
 		psizes_kvs[2][i] = 1;
-	} */
-	/////////////////////////////////////////////////////////
+	}
+	///////////////////////////////////////////////////////// */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::EXCHANGE:: transferring stats from vdramA, vdramB & vdramC to vdramA. "<<endl; 

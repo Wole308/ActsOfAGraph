@@ -1,6 +1,12 @@
 #include "processedges_splitdstvxs.h"
 using namespace std;
 
+// => VDATA (to read)
+// 16:[0,32,...,480] | [1,33,...,481] | ... | [31,63,...,511]
+
+// => VMASK (to read)
+// 32:[0,32,...,480,...,992] | [1,33,...,481,...,993] | ... | [31,63,...,511,...,1023]
+
 #ifdef SW
 processedges_splitdstvxs::processedges_splitdstvxs(){ 
 	actsutilityobj = new actsutility(); 
@@ -28,15 +34,13 @@ PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	return res;
 }
 
+//
 value_t 
 	#ifdef SW 
 	processedges_splitdstvxs::
 	#endif 
 UTIL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
-	// => VDATA (to read)
-	// 16:[0,32,...,480] | [1,33,...,481] | ... | [31,63,...,511]
-	
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<">>> UTIL_GETVTXDATA: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
@@ -75,9 +79,6 @@ value_t
 	#endif 
 UTIL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
-	// => VMASK (to read)
-	// 32:[0,32,...,480,...,992] | [1,33,...,481,...,993] | ... | [31,63,...,511,...,1023]
-	
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<">>> UTIL_GETVTXMASK: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
@@ -103,6 +104,82 @@ UTIL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], u
 	#endif 
 	
 	value_t data = vmaskBITS[realcol][realrow].data;
+	return data;
+}
+
+value_t 
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+UTIL_GETVTXDATA2(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, unsigned int dataN[VECTOR2_SIZE], globalparams_t globalparams){
+	#pragma HLS INLINE
+	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> UTIL_GETVTXDATA2: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
+		#endif 
+		loc = 0; }
+	
+	unsigned int s = loc % NUM_PEs;
+	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, s);
+	unsigned int skip = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
+	
+	unsigned int col = lloc % 16;
+	unsigned int row = lloc / 16;
+	unsigned int realcol = col;
+	unsigned int rrealcol = (s + realcol) % 16;
+	unsigned int realrow = (skip + row) / 2;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<">>> UTIL_GETVTXDATA2: loc: "<<loc<<", instid: "<<s<<", lloc: "<<lloc<<", col: "<<col<<", row: "<<row<<", realrow: "<<realrow<<", skip: "<<skip<<", (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs): "<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.lloc", lloc, (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs) * VECTOR2_SIZE, loc, skip, NAp); 
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.skip", skip, REDUCEPARTITIONSZ_KVS2, loc, skip, NAp); 
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.realcol", realcol, VDATA_PACKINGSIZE, loc, skip, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.rrealcol", rrealcol, VDATA_PACKINGSIZE, loc, skip, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.realrow", realrow, BLOCKRAM_SIZE, loc, skip, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.row", skip + row, REDUCEPARTITIONSZ_KVS2, loc, skip, NAp);
+	#endif 
+	
+	value_t data = 0;
+	if(row % 2 == 0){ data = acts_utilobj->UTIL_GETKV2(vbuffer[rrealcol][realrow]).key; } 
+	else { data = acts_utilobj->UTIL_GETKV2(vbuffer[rrealcol][realrow]).value; }
+	return data;
+}
+
+value_t 
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+UTIL_GETVTXMASK2(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, unit1_type dataN[VECTOR2_SIZE], globalparams_t globalparams){
+	#pragma HLS INLINE
+	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> UTIL_GETVTXMASK: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
+		#endif 
+		loc = 0; }
+		
+	unsigned int s = loc % NUM_PEs;
+	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, s);
+	unsigned int skip = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
+	
+	unsigned int col = lloc % 16;
+	unsigned int row = lloc / 16;
+	unsigned int realcol = col;
+	unsigned int rrealcol = (s + realcol) % 16;
+	unsigned int realrow = skip + row;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<">>> UTIL_GETVTXMASK: loc: "<<loc<<", col: "<<col<<", row: "<<row<<", realcol: "<<realcol<<", realrow: "<<realrow<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("UTIL_SETVTXMASK.row", row, REDUCEPARTITIONSZ_KVS2, col, row, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_SETVTXMASK.realcol", realcol, VDATA_PACKINGSIZE, col, row, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_SETVTXMASK.rrealcol", rrealcol, VDATA_PACKINGSIZE, col, row, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_SETVTXMASK.realrow", realrow, DOUBLE_BLOCKRAM_SIZE, col, row, NAp); 
+	#endif 
+	
+	value_t data = vmaskBITS[rrealcol][realrow].data;
 	return data;
 }
 
@@ -155,6 +232,10 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	
 	value_t ludatas[MAX_NUM_UNIQ_EDGES_PER_VEC]; // AUTOMATEME.
 	#pragma HLS ARRAY_PARTITION variable=ludatas complete
+	value_t vdataset[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vdataset complete
+	unit1_type vmaskset[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmaskset complete
 	value_t masks[MAX_NUM_UNIQ_EDGES_PER_VEC]; // AUTOMATEME.
 	#pragma HLS ARRAY_PARTITION variable=masks complete
 	vertex_t lvids[VECTOR2_SIZE];
@@ -175,6 +256,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	unsigned int found1 = 0;
 	int nextactivei = -1;
 	int subpidx = -1;
+	unsigned int debug_numinvalidheads = 0;
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 
 	buffer_type chunk_size = acts_utilobj->UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
@@ -182,7 +264,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"--- PROCESS_readandprocess: i: "<<i<<" ---"<<endl;
+		cout<<"--- PROCESS_readandprocess: i: "<<i<<" (of "<<chunk_size<<")"<<endl;
 		#endif
 
 		#ifdef _WIDEWORD
@@ -253,6 +335,32 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			actsutilityobj->checkoutofbounds("readandprocess(12).1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, i);
 			#endif
 		
+		#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+ // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[0] = UTIL_GETVTXDATA2(vbuffer, lvid_head + 0, vdataset, globalparams);
+ // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[1] = UTIL_GETVTXDATA2(vbuffer, lvid_head + 1, vdataset, globalparams);
+ // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[2] = UTIL_GETVTXDATA2(vbuffer, lvid_head + 2, vdataset, globalparams);
+ // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[3] = UTIL_GETVTXDATA2(vbuffer, lvid_head + 3, vdataset, globalparams);
+ // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[4] = UTIL_GETVTXDATA2(vbuffer, lvid_head + 4, vdataset, globalparams);
+ // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[5] = UTIL_GETVTXDATA2(vbuffer, lvid_head + 5, vdataset, globalparams);
+ // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[6] = UTIL_GETVTXDATA2(vbuffer, lvid_head + 6, vdataset, globalparams);
+ // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		ludatas[7] = UTIL_GETVTXDATA2(vbuffer, lvid_head + 7, vdataset, globalparams);
+		masks[0] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + 0, vmaskset, globalparams);
+		masks[1] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + 1, vmaskset, globalparams);
+		masks[2] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + 2, vmaskset, globalparams);
+		masks[3] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + 3, vmaskset, globalparams);
+		masks[4] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + 4, vmaskset, globalparams);
+		masks[5] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + 5, vmaskset, globalparams);
+		masks[6] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + 6, vmaskset, globalparams);
+		masks[7] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + 7, vmaskset, globalparams);
+		#else 
  // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
 		ludatas[0] = UTIL_GETVTXDATA(vbuffer, lvid_head + 0, globalparams);
  // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
@@ -277,6 +385,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		masks[5] = UTIL_GETVTXMASK(vmaskBITS, lvid_head + 5, globalparams);
 		masks[6] = UTIL_GETVTXMASK(vmaskBITS, lvid_head + 6, globalparams);
 		masks[7] = UTIL_GETVTXMASK(vmaskBITS, lvid_head + 7, globalparams);
+		#endif 
 		if(GraphAlgo == PAGERANK){  masks[0] = 1;  masks[1] = 1;  masks[2] = 1;  masks[3] = 1;  masks[4] = 1;  masks[5] = 1;  masks[6] = 1;  masks[7] = 1;  }
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			cout<<"readandprocess(2): lvid_head: "<<lvid_head<<", lvid: "<<lvid_head + 0<<", ludatas[0]: "<<ludatas[0]<<", masks[0]: "<<masks[0]<<endl;
@@ -495,7 +604,122 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 				exit(EXIT_FAILURE); 
 			}
 			#endif
-		
+			// cout<<"... readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: , srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<", lvid_head: "<<lvid_head<<", validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+			#ifdef _DEBUGMODE_CHECKS2
+			if(lsrcvids0 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 0, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 0, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids1 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 1, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 1, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids2 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 2, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 2, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids3 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 3, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 3, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids4 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 4, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 4, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids5 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 5, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 5, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids6 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 6, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 6, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids7 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 7, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 7, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids8 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 8, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 8, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids9 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 9, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 9, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids10 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 10, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 10, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids11 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 11, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 11, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids12 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 12, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 12, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids13 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 13, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 13, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids14 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 14, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 14, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			if(lsrcvids15 >= validbound){
+				if(debug_numinvalidheads > 32){
+ cout<<">>> readandprocess(17).mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids0: "<<lsrcvids0<<", ldstvids0: "<<ldstvids0<<", incr0: "<<incr0<<endl;  cout<<">>> readandprocess(17).mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids1: "<<lsrcvids1<<", ldstvids1: "<<ldstvids1<<", incr1: "<<incr1<<endl;  cout<<">>> readandprocess(17).mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids2: "<<lsrcvids2<<", ldstvids2: "<<ldstvids2<<", incr2: "<<incr2<<endl;  cout<<">>> readandprocess(17).mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids3: "<<lsrcvids3<<", ldstvids3: "<<ldstvids3<<", incr3: "<<incr3<<endl;  cout<<">>> readandprocess(17).mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids4: "<<lsrcvids4<<", ldstvids4: "<<ldstvids4<<", incr4: "<<incr4<<endl;  cout<<">>> readandprocess(17).mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids5: "<<lsrcvids5<<", ldstvids5: "<<ldstvids5<<", incr5: "<<incr5<<endl;  cout<<">>> readandprocess(17).mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids6: "<<lsrcvids6<<", ldstvids6: "<<ldstvids6<<", incr6: "<<incr6<<endl;  cout<<">>> readandprocess(17).mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids7: "<<lsrcvids7<<", ldstvids7: "<<ldstvids7<<", incr7: "<<incr7<<endl;  cout<<">>> readandprocess(17).mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids8: "<<lsrcvids8<<", ldstvids8: "<<ldstvids8<<", incr8: "<<incr8<<endl;  cout<<">>> readandprocess(17).mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids9: "<<lsrcvids9<<", ldstvids9: "<<ldstvids9<<", incr9: "<<incr9<<endl;  cout<<">>> readandprocess(17).mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids10: "<<lsrcvids10<<", ldstvids10: "<<ldstvids10<<", incr10: "<<incr10<<endl;  cout<<">>> readandprocess(17).mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids11: "<<lsrcvids11<<", ldstvids11: "<<ldstvids11<<", incr11: "<<incr11<<endl;  cout<<">>> readandprocess(17).mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids12: "<<lsrcvids12<<", ldstvids12: "<<ldstvids12<<", incr12: "<<incr12<<endl;  cout<<">>> readandprocess(17).mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids13: "<<lsrcvids13<<", ldstvids13: "<<ldstvids13<<", incr13: "<<incr13<<endl;  cout<<">>> readandprocess(17).mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids14: "<<lsrcvids14<<", ldstvids14: "<<ldstvids14<<", incr14: "<<incr14<<endl;  cout<<">>> readandprocess(17).mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids15: "<<lsrcvids15<<", ldstvids15: "<<ldstvids15<<", incr15: "<<incr15<<endl;  
+				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: 15, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+				else {
+				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: 15, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+				debug_numinvalidheads += 1; }}
+			#endif 
+			
 		if(GraphAlgo == PAGERANK){  mask0 = 1;  mask1 = 1;  mask2 = 1;  mask3 = 1;  mask4 = 1;  mask5 = 1;  mask6 = 1;  mask7 = 1;  mask8 = 1;  mask9 = 1;  mask10 = 1;  mask11 = 1;  mask12 = 1;  mask13 = 1;  mask14 = 1;  mask15 = 1;  mask0 = 0; ens0 = OFF; } 
 		else {  mask0 = masks[incr0];  mask1 = masks[incr1];  mask2 = masks[incr2];  mask3 = masks[incr3];  mask4 = masks[incr4];  mask5 = masks[incr5];  mask6 = masks[incr6];  mask7 = masks[incr7];  mask8 = masks[incr8];  mask9 = masks[incr9];  mask10 = masks[incr10];  mask11 = masks[incr11];  mask12 = masks[incr12];  mask13 = masks[incr13];  mask14 = masks[incr14];  mask15 = masks[incr15];  mask0 = 0; ens0 = OFF; }
 			#ifdef _DEBUGMODE_CHECKS2
@@ -727,5 +951,4 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
 }
-
 
