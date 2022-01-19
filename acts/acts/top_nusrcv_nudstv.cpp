@@ -764,6 +764,8 @@ topkernelP1(
 	cout<<">>> topkernelP1: processing instance 0"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs1(kvdram0, vdram);
 
@@ -839,6 +841,8 @@ topkernelP2(
 	cout<<">>> topkernelP2: processing instance 1"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs2(kvdram0,kvdram1, vdram);
 
@@ -931,6 +935,8 @@ topkernelP3(
 	topkernelproc_embedded(kvdram2);	
 	exit(EXIT_SUCCESS); //	
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs3(kvdram0,kvdram1,kvdram2, vdram);
 
@@ -1038,6 +1044,8 @@ topkernelP4(
 	cout<<">>> topkernelP4: processing instance 3"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram);
 
@@ -1160,6 +1168,8 @@ topkernelP5(
 	cout<<">>> topkernelP5: processing instance 4"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram);
 
@@ -1297,6 +1307,8 @@ topkernelP6(
 	cout<<">>> topkernelP6: processing instance 5"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram);
 
@@ -1449,6 +1461,8 @@ topkernelP7(
 	cout<<">>> topkernelP7: processing instance 6"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram);
 
@@ -1616,6 +1630,8 @@ topkernelP8(
 	cout<<">>> topkernelP8: processing instance 7"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram);
 
@@ -1798,6 +1814,8 @@ topkernelP9(
 	cout<<">>> topkernelP9: processing instance 8"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram);
 
@@ -1995,6 +2013,8 @@ topkernelP10(
 	cout<<">>> topkernelP10: processing instance 9"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram);
 
@@ -2207,6 +2227,8 @@ topkernelP11(
 	cout<<">>> topkernelP11: processing instance 10"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram);
 
@@ -2434,6 +2456,8 @@ topkernelP12(
 	cout<<">>> topkernelP12: processing instance 11"<<endl;
 	#endif 
  */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram);
 

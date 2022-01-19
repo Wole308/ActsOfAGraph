@@ -36,6 +36,8 @@ public:
 	// functions (allignment)
 	batch_type UTIL_allignlower_KV(batch_type val);
 	batch_type UTIL_allignhigher_KV(batch_type val);
+	batch_type UTIL_allignlower_KV2(batch_type val);
+	batch_type UTIL_allignhigher_KV2(batch_type val);
 	
 	// functions (bit manipulation)
 	unsigned int UTIL_GETMASK_UINT(unsigned int index, unsigned int size);

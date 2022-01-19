@@ -812,6 +812,8 @@ topkernelP{{n}}(
 	{%endif%}
 	{%endif%}
 	{%endfor%} */
+	
+	// exit(EXIT_SUCCESS); //
 
 	acts_mergeobj->MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);
 

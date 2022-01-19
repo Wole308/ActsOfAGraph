@@ -49,22 +49,22 @@ UTIL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], un
 	
 	unsigned int instid = loc % NUM_PEs;
 	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, instid);
-	unsigned int skip = instid * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
+	unsigned int rowoffset = instid * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
 	
 	unsigned int col = lloc % 16;
 	unsigned int row = lloc / 16;
 	unsigned int realcol = col;
-	unsigned int realrow = (skip + row) / 2;
+	unsigned int realrow = (rowoffset + row) / 2;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<">>> UTIL_GETVTXDATA: loc: "<<loc<<", instid: "<<instid<<", lloc: "<<lloc<<", col: "<<col<<", row: "<<row<<", realrow: "<<realrow<<", skip: "<<skip<<", (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs): "<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs<<endl;
+	cout<<">>> UTIL_GETVTXDATA: loc: "<<loc<<", instid: "<<instid<<", lloc: "<<lloc<<", col: "<<col<<", row: "<<row<<", realrow: "<<realrow<<", rowoffset: "<<rowoffset<<", (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs): "<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.lloc", lloc, (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs) * VECTOR2_SIZE, loc, skip, NAp); 
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.skip", skip, REDUCEPARTITIONSZ_KVS2, loc, skip, NAp); 
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.realcol", realcol, VDATA_PACKINGSIZE, loc, skip, NAp);
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.realrow", realrow, BLOCKRAM_SIZE, loc, skip, NAp);
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.row", skip + row, REDUCEPARTITIONSZ_KVS2, loc, skip, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.lloc", lloc, (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs) * VECTOR2_SIZE, loc, rowoffset, NAp); 
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.rowoffset", rowoffset, REDUCEPARTITIONSZ_KVS2, loc, rowoffset, NAp); 
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.realcol", realcol, VDATA_PACKINGSIZE, loc, rowoffset, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.realrow", realrow, BLOCKRAM_SIZE, loc, rowoffset, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA.row", rowoffset + row, REDUCEPARTITIONSZ_KVS2, loc, rowoffset, NAp);
 	#endif 
 	
 	value_t data = 0;
@@ -87,12 +87,12 @@ UTIL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], u
 		
 	unsigned int instid = loc % NUM_PEs;
 	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, instid);
-	unsigned int skip = instid * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
+	unsigned int rowoffset = instid * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
 	
 	unsigned int col = lloc % 16;
 	unsigned int row = lloc / 16;
 	unsigned int realcol = col;
-	unsigned int realrow = skip + row;
+	unsigned int realrow = rowoffset + row;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<">>> UTIL_GETVTXMASK: loc: "<<loc<<", col: "<<col<<", row: "<<row<<", realcol: "<<realcol<<", realrow: "<<realrow<<endl;
@@ -121,24 +121,24 @@ UTIL_GETVTXDATA2(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], u
 	
 	unsigned int s = loc % NUM_PEs;
 	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, s);
-	unsigned int skip = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
+	unsigned int rowoffset = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
 	
 	unsigned int col = lloc % 16;
 	unsigned int row = lloc / 16;
 	unsigned int realcol = col;
 	unsigned int rrealcol = (s + realcol) % 16;
-	unsigned int realrow = (skip + row) / 2;
+	unsigned int realrow = (rowoffset + row) / 2;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<">>> UTIL_GETVTXDATA2: loc: "<<loc<<", instid: "<<s<<", lloc: "<<lloc<<", col: "<<col<<", row: "<<row<<", realrow: "<<realrow<<", skip: "<<skip<<", (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs): "<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs<<endl;
+	cout<<">>> UTIL_GETVTXDATA2: loc: "<<loc<<", instid: "<<s<<", lloc: "<<lloc<<", col: "<<col<<", row: "<<row<<", realrow: "<<realrow<<", rowoffset: "<<rowoffset<<", (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs): "<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.lloc", lloc, (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs) * VECTOR2_SIZE, loc, skip, NAp); 
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.skip", skip, REDUCEPARTITIONSZ_KVS2, loc, skip, NAp); 
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.realcol", realcol, VDATA_PACKINGSIZE, loc, skip, NAp);
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.rrealcol", rrealcol, VDATA_PACKINGSIZE, loc, skip, NAp);
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.realrow", realrow, BLOCKRAM_SIZE, loc, skip, NAp);
-	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.row", skip + row, REDUCEPARTITIONSZ_KVS2, loc, skip, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.lloc", lloc, (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs) * VECTOR2_SIZE, loc, rowoffset, NAp); 
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.rowoffset", rowoffset, REDUCEPARTITIONSZ_KVS2, loc, rowoffset, NAp); 
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.realcol", realcol, VDATA_PACKINGSIZE, loc, rowoffset, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.rrealcol", rrealcol, VDATA_PACKINGSIZE, loc, rowoffset, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.realrow", realrow, BLOCKRAM_SIZE, loc, rowoffset, NAp);
+	actsutilityobj->checkoutofbounds("UTIL_GETVTXDATA2.row", rowoffset + row, REDUCEPARTITIONSZ_KVS2, loc, rowoffset, NAp);
 	#endif 
 	
 	value_t data = 0;
@@ -161,13 +161,13 @@ UTIL_GETVTXMASK2(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], 
 		
 	unsigned int s = loc % NUM_PEs;
 	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, s);
-	unsigned int skip = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
+	unsigned int rowoffset = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
 	
 	unsigned int col = lloc % 16;
 	unsigned int row = lloc / 16;
 	unsigned int realcol = col;
 	unsigned int rrealcol = (s + realcol) % 16;
-	unsigned int realrow = skip + row;
+	unsigned int realrow = rowoffset + row;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<">>> UTIL_GETVTXMASK: loc: "<<loc<<", col: "<<col<<", row: "<<row<<", realcol: "<<realcol<<", realrow: "<<realrow<<endl;
@@ -181,6 +181,654 @@ UTIL_GETVTXMASK2(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], 
 	
 	value_t data = vmaskBITS[rrealcol][realrow].data;
 	return data;
+}
+
+pgroup_t 
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif
+getChosenPair(pgroup_t g0, pgroup_t g1, pgroup_t g2, int s_origin, int smin, int smax){
+	pgroup_t choice_pair; choice_pair.s = -333; choice_pair.v = -333; choice_pair.incr = -333;
+	pgroup_t invalidchoice_pair; invalidchoice_pair.s = -222; invalidchoice_pair.v = -222; invalidchoice_pair.incr = -222;
+	if(g0.s>=s_origin && g0.s>=smin && g0.s<smax){ 
+		choice_pair = g0;
+	} else if(g1.s>=s_origin && g1.s>=smin && g1.s<smax){
+		choice_pair = g1;
+	} else if(g2.s>=s_origin && g2.s>=smin && g2.s<smax){
+		choice_pair = g2;
+	} else {
+		choice_pair = invalidchoice_pair;	
+		#ifdef _DEBUGMODE_CHECKS
+		cout<<"getChosenPair:ERROR: choice_pair.s("<<choice_pair.s<<") not changed"<<endl; 
+		cout<<"UTIL_GETVTXMASKSET: g0.s: "<<g0.s<<", g0.v: "<<g0.v<<", g0.incr: "<<g0.incr<<" "<<endl;
+		cout<<"UTIL_GETVTXMASKSET: g1.s: "<<g1.s<<", g1.v: "<<g1.v<<", g1.incr: "<<g1.incr<<" "<<endl;
+		cout<<"UTIL_GETVTXMASKSET: g2.s: "<<g2.s<<", g2.v: "<<g2.v<<", g2.incr: "<<g2.incr<<" "<<endl;
+		cout<<"UTIL_GETVTXMASKSET: s_origin: "<<s_origin<<", smax: "<<smax<<endl;
+		exit(EXIT_FAILURE);
+		#endif	
+	}
+	return choice_pair;
+}
+
+/* value_t 
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+UTIL_GETVTXMASKSET(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, unit1_type dataN[VECTOR2_SIZE], globalparams_t globalparams){
+	#pragma HLS INLINE
+	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> UTIL_GETVTXMASK: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
+		#endif 
+		loc = 0; }
+		
+	// loc = 4 * 32;
+	loc = (32 * 16) + (32 * 4) + 1;
+	
+	int dataA0[VECTOR2_SIZE];
+	int dataA1[VECTOR2_SIZE];
+	int dataA2[VECTOR2_SIZE];
+	int dataB0[VECTOR2_SIZE];
+	int dataB1[VECTOR2_SIZE];
+	int dataB2[VECTOR2_SIZE];
+	
+	sliceinfo_t sliceA0; sliceA0.active = false; sliceA0.offset = 0;
+	sliceinfo_t sliceA1; sliceA1.active = false; sliceA1.offset = 0;
+	sliceinfo_t sliceA2; sliceA2.active = false; sliceA2.offset = 0;
+	sliceinfo_t sliceB0; sliceB0.active = false; sliceB0.offset = 0;
+	sliceinfo_t sliceB1; sliceB1.active = false; sliceB1.offset = 0;
+	sliceinfo_t sliceB2; sliceB2.active = false; sliceB2.offset = 0;
+	
+	/////////////////////////////////////////////////////////////////////
+	int s_begin = loc % NUM_PEs; //*
+	int llocA = acts_utilobj->UTIL_GETLOCALVID(loc, s_begin);
+	int v_begin = llocA % 16;
+	int s_base = -1 * v_begin;
+	int row = llocA / 16;
+	cout<<"UTIL_GETVTXMASKSET(A): loc: "<<loc<<", s_begin: "<<s_begin<<", llocA: "<<llocA<<", v_begin: "<<v_begin<<", s_base: "<<s_base<<", row: "<<row<<endl;
+	
+	if(s_begin>=0 && s_begin<s_base+VECTOR2_SIZE){ sliceA0.active = true; sliceA0.offset = v_begin + s_begin; sliceA1.active = true; }
+	if(s_begin>=s_base+VECTOR2_SIZE && s_begin<s_base+VECTOR2_SIZE+VECTOR2_SIZE){ sliceA1.active = true; sliceA2.active = true; }
+	if(s_begin>=s_base+VECTOR2_SIZE+VECTOR2_SIZE && s_begin<s_base+VECTOR2_SIZE+VECTOR2_SIZE+VECTOR2_SIZE){ sliceA2.active = true; sliceB0.active = true; }
+	
+	unsigned int indexA0 = 0;
+	int colA0 = 0;
+	if(sliceA0.active == true){
+		cout<<"ENTIRE SLICE A0 IS ACTIVE: VALID OFFSET: "<<sliceA0.offset<<endl;
+		for(int si=s_base; si<s_base+VECTOR2_SIZE; si++){
+			int rowoffseti = si * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(si>=0 && si<NUM_PEs){ cout<<"si("<<si<<"),colA0("<<colA0<<"),rowid("<<si<<")[slice:a0]"<<endl; } else { cout<<"si("<<si<<")[slice:a0][INVALID]"<<endl; }
+			if(si>=0 && si<NUM_PEs){ dataA0[indexA0] = vmaskBITS[colA0][rowoffseti + row].data; } else { dataA0[indexA0] = -1; }
+			colA0 += 1;
+			indexA0 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE A0 IGNORED."<<endl; }
+	
+	unsigned int indexA1 = 0;
+	int colA1 = 0;
+	if(sliceA1.active == true){
+		cout<<"ENTIRE SLICE A1 IS ACTIVE: VALID OFFSET: "<<sliceA1.offset<<endl;
+		for(int si=s_base+VECTOR2_SIZE; si<s_base+VECTOR2_SIZE+VECTOR2_SIZE; si++){
+			int rowoffseti = si * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(si>=0 && si<NUM_PEs){ cout<<"si("<<si<<"),colA1("<<colA1<<"),rowid("<<si<<")[slice:a1]"<<endl; } else { cout<<"si("<<si<<")[slice:a1][INVALID]"<<endl; }
+			if(si>=0 && si<NUM_PEs){ dataA1[indexA1] = vmaskBITS[colA1][rowoffseti + row].data; } else { dataA1[indexA1] = -1; }
+			colA1 += 1;
+			indexA1 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE A1 IGNORED."<<endl; }
+	
+	unsigned int indexA2 = 0;
+	int colA2 = 0;
+	if(sliceA2.active == true){
+		cout<<"ENTIRE SLICE A2 IS ACTIVE: VALID OFFSET: "<<sliceA2.offset<<endl;
+		for(int si=s_base+VECTOR2_SIZE+VECTOR2_SIZE; si<s_base+VECTOR2_SIZE+VECTOR2_SIZE+VECTOR2_SIZE; si++){
+			int rowoffseti = si * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(si>=0 && si<NUM_PEs){ cout<<"si("<<si<<"),colA2("<<colA2<<"),rowid("<<si<<")[slice:a2]"<<endl; } else { cout<<"si("<<si<<")[slice:a2][INVALID]"<<endl; }
+			if(si>=0 && si<NUM_PEs){ dataA2[indexA2] = vmaskBITS[colA2][rowoffseti + row].data; } else { dataA2[indexA2] = -1; }
+			colA2 += 1;
+			indexA2 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE A2 IGNORED."<<endl; }
+	/////////////////////////////////////////////////////////////////////
+	
+	
+	/////////////////////////////////////////////////////////////////////
+	int loc2 = ((loc / NUM_PEs) * NUM_PEs) + NUM_PEs;
+	int s_beginB = loc2 % NUM_PEs;
+	if(s_beginB!=0){ cout<<"UTIL_GETVTXMASKSET(4): s_beginB("<<s_beginB<<")!=0"<<endl; exit(EXIT_FAILURE); }
+	int llocB = acts_utilobj->UTIL_GETLOCALVID(loc2, s_beginB);
+	int v_beginB = llocB % 16;
+	int s_baseB = -1 * v_beginB;
+	row = llocB / 16;
+	cout<<"UTIL_GETVTXMASKSET(B): loc2: "<<loc2<<", s_beginB: "<<s_beginB<<", llocB: "<<llocB<<", v_beginB: "<<v_beginB<<", s_baseB: "<<s_baseB<<" "<<endl;
+	
+	unsigned int indexB0 = 0;
+	int colB0 = 0;
+	if(sliceB0.active == true){
+		cout<<"ENTIRE SLICE B0 IS ACTIVE: VALID OFFSET: "<<sliceB0.offset<<endl;
+		for(int si=s_baseB; si<s_baseB+VECTOR2_SIZE; si++){
+			int rowoffseti = si * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(si>=0 && si<NUM_PEs){ cout<<"si("<<si<<"),colB0("<<colB0<<"),rowid("<<si<<")[slice:b0]"<<endl; } else { cout<<"si("<<si<<")[slice:b0][INVALID]"<<endl; }
+			if(si>=0 && si<NUM_PEs){ dataB0[indexB0] = vmaskBITS[colB0][rowoffseti + row].data; } else { dataB0[indexB0] = -1; }
+			colB0 += 1;
+			indexB0 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE B0 IGNORED."<<endl; }
+	
+	unsigned int indexB1 = 0;
+	int colB1 = 0;
+	if(sliceB1.active == true){
+		cout<<"ENTIRE SLICE B1 IS ACTIVE: VALID OFFSET: "<<sliceB1.offset<<endl;
+		for(int si=s_baseB+VECTOR2_SIZE; si<s_baseB+VECTOR2_SIZE+VECTOR2_SIZE; si++){
+			int rowoffseti = si * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(si>=0 && si<NUM_PEs){ cout<<"si("<<si<<"),colB1("<<colB1<<"),rowid("<<si<<")[slice:b1]"<<endl; } else { cout<<"si("<<si<<")[slice:b1][INVALID]"<<endl; }
+			if(si>=0 && si<NUM_PEs){ dataB1[indexB1] = vmaskBITS[colB1][rowoffseti + row].data; } else { dataB1[indexB1] = -1; }
+			colB1 += 1;
+			indexB1 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE B1 IGNORED."<<endl; }
+	
+	unsigned int indexB2 = 0;
+	int colB2 = 0;
+	if(sliceB2.active == true){
+		cout<<"ENTIRE SLICE B2 IS ACTIVE: VALID OFFSET: "<<sliceB2.offset<<endl;
+		for(int si=s_baseB+VECTOR2_SIZE+VECTOR2_SIZE; si<s_base+VECTOR2_SIZE+VECTOR2_SIZE+VECTOR2_SIZE; si++){
+			int rowoffseti = si * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(si>=0 && si<NUM_PEs){ cout<<"si("<<si<<"),colB2("<<colB2<<"),rowid("<<si<<")[slice:b2]"<<endl; } else { cout<<"si("<<si<<")[slice:b2][INVALID]"<<endl; }
+			if(si>=0 && si<NUM_PEs){ dataB2[indexB2] = vmaskBITS[colB2][rowoffseti + row].data; } else { dataB2[indexB2] = -1; }
+			colB2 += 1;
+			indexB2 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE B2 IGNORED."<<endl; }
+	/////////////////////////////////////////////////////////////////////
+	
+	for(unsigned int t=0; t<indexA0; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA0["<<t<<"]: "<<dataA0[t]<<endl; }
+	for(unsigned int t=0; t<indexA1; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA1["<<t<<"]: "<<dataA1[t]<<endl; }
+	for(unsigned int t=0; t<indexA2; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA2["<<t<<"]: "<<dataA2[t]<<endl; }
+	
+	for(unsigned int t=0; t<indexB0; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB0["<<t<<"]: "<<dataB0[t]<<endl; }
+	for(unsigned int t=0; t<indexB1; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB1["<<t<<"]: "<<dataB1[t]<<endl; }
+	for(unsigned int t=0; t<indexB2; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB2["<<t<<"]: "<<dataB2[t]<<endl; }
+	
+	// unsigned int ind = 0;
+	// if(s_begin>=0 && s_begin<s_base+VECTOR2_SIZE){
+		// for(unsigned int t=v_begin; t<VECTOR2_SIZE; t++){ 
+			// dataN[ind] = dataA0[t]; 
+			// ind += 1;
+		// }
+	// }
+	// if(s_begin>=s_base+VECTOR2_SIZE && s_begin<s_base+VECTOR2_SIZE+VECTOR2_SIZE){
+		// for(unsigned int t=v_begin; t<VECTOR2_SIZE; t++){ 
+			// dataN[ind] = dataB[t]; 
+			// ind += 1;
+		// }
+	// }
+	
+	
+	
+	for(unsigned int t=0; t<VECTOR2_SIZE; t++){ dataN[t].data = 0; }
+	return NAp;
+}
+ */
+/* value_t 
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+UTIL_GETVTXMASKSET(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, unit1_type dataN[VECTOR2_SIZE], globalparams_t globalparams){
+	#pragma HLS INLINE
+	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> UTIL_GETVTXMASK: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
+		#endif 
+		loc = 0; }
+		
+	// loc = 4 * 32;
+	loc = (32 * 16) + (32 * 4) + 1;
+	
+	int dataA0[VECTOR2_SIZE];
+	int dataA1[VECTOR2_SIZE];
+	int dataA2[VECTOR2_SIZE];
+	int dataB0[VECTOR2_SIZE];
+	int dataB1[VECTOR2_SIZE];
+	int dataB2[VECTOR2_SIZE];
+	
+	sliceinfo_t sliceA0; sliceA0.active = false; sliceA0.offset = 0;
+	sliceinfo_t sliceA1; sliceA1.active = false; sliceA1.offset = 0;
+	sliceinfo_t sliceA2; sliceA2.active = false; sliceA2.offset = 0;
+	sliceinfo_t sliceB0; sliceB0.active = false; sliceB0.offset = 0;
+	sliceinfo_t sliceB1; sliceB1.active = false; sliceB1.offset = 0;
+	sliceinfo_t sliceB2; sliceB2.active = false; sliceB2.offset = 0;
+	
+	/////////////////////////////////////////////////////////////////////
+	int s_begin = loc % NUM_PEs; //*
+	int llocA = acts_utilobj->UTIL_GETLOCALVID(loc, s_begin);
+	int v_begin = llocA % 16;
+	int s_base = -1 * v_begin;
+	int row = llocA / 16;
+	cout<<"UTIL_GETVTXMASKSET(A): loc: "<<loc<<", s_begin: "<<s_begin<<", llocA: "<<llocA<<", v_begin: "<<v_begin<<", s_base: "<<s_base<<", row: "<<row<<endl;
+	
+	if(s_begin>=0 && s_begin<s_base+VECTOR2_SIZE){ sliceA0.active = true; sliceA0.offset = v_begin + s_begin; sliceA1.active = true; }
+	if(s_begin>=s_base+VECTOR2_SIZE && s_begin<s_base+VECTOR2_SIZE+VECTOR2_SIZE){ sliceA1.active = true; sliceA2.active = true; }
+	if(s_begin>=s_base+VECTOR2_SIZE+VECTOR2_SIZE && s_begin<s_base+VECTOR2_SIZE+VECTOR2_SIZE+VECTOR2_SIZE){ sliceA2.active = true; sliceB0.active = true; }
+	
+	unsigned int indexA0 = 0;
+	int colA0 = 0;
+	if(sliceA0.active == true){
+		cout<<"ENTIRE SLICE A0 IS ACTIVE: VALID OFFSET: "<<sliceA0.offset<<endl;
+		for(int t=0; t<VECTOR2_SIZE; t++){
+			int s_ = s_base + t;
+			int rowoffseti = s_ * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(s_>=0 && s_<NUM_PEs){ cout<<""<<s_<<": colA0("<<colA0<<"),rowid("<<s_<<")[slice:a0]"<<endl; } else { cout<<"s_("<<s_<<")[slice:a0][INVALID]"<<endl; }
+			if(s_>=0 && s_<NUM_PEs){ dataA0[indexA0] = vmaskBITS[colA0][rowoffseti + row].data; } else { dataA0[indexA0] = -1; }
+			colA0 += 1;
+			indexA0 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE A0 IGNORED."<<endl; }
+	
+	unsigned int indexA1 = 0;
+	int colA1 = 0;
+	if(sliceA1.active == true){
+		cout<<"ENTIRE SLICE A1 IS ACTIVE: VALID OFFSET: "<<sliceA1.offset<<endl;
+		for(int t=0; t<VECTOR2_SIZE; t++){
+			int s_ = s_base + VECTOR2_SIZE + t;
+			int rowoffseti = s_ * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(s_>=0 && s_<NUM_PEs){ cout<<""<<s_<<": colA1("<<colA1<<"),rowid("<<s_<<")[slice:a1]"<<endl; } else { cout<<"s_("<<s_<<")[slice:a1][INVALID]"<<endl; }
+			if(s_>=0 && s_<NUM_PEs){ dataA1[indexA1] = vmaskBITS[colA1][rowoffseti + row].data; } else { dataA1[indexA1] = -1; }
+			colA1 += 1;
+			indexA1 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE A1 IGNORED."<<endl; }
+	
+	unsigned int indexA2 = 0;
+	int colA2 = 0;
+	if(sliceA2.active == true){
+		cout<<"ENTIRE SLICE A2 IS ACTIVE: VALID OFFSET: "<<sliceA2.offset<<endl;
+		for(int t=0; t<VECTOR2_SIZE; t++){
+			int s_ = s_base + VECTOR2_SIZE + VECTOR2_SIZE + t;
+			int rowoffseti = s_ * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(s_>=0 && s_<NUM_PEs){ cout<<""<<s_<<": colA2("<<colA2<<"),rowid("<<s_<<")[slice:a2]"<<endl; } else { cout<<"s_("<<s_<<")[slice:a2][INVALID]"<<endl; }
+			if(s_>=0 && s_<NUM_PEs){ dataA2[indexA2] = vmaskBITS[colA2][rowoffseti + row].data; } else { dataA2[indexA2] = -1; }
+			colA2 += 1;
+			indexA2 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE A2 IGNORED."<<endl; }
+	/////////////////////////////////////////////////////////////////////
+	
+	
+	/////////////////////////////////////////////////////////////////////
+	int loc2 = ((loc / NUM_PEs) * NUM_PEs) + NUM_PEs;
+	int s_beginB = loc2 % NUM_PEs;
+	if(s_beginB!=0){ cout<<"UTIL_GETVTXMASKSET(4): s_beginB("<<s_beginB<<")!=0"<<endl; exit(EXIT_FAILURE); }
+	int llocB = acts_utilobj->UTIL_GETLOCALVID(loc2, s_beginB);
+	int v_beginB = llocB % 16;
+	int s_baseB = -1 * v_beginB;
+	row = llocB / 16;
+	cout<<"UTIL_GETVTXMASKSET(B): loc2: "<<loc2<<", s_beginB: "<<s_beginB<<", llocB: "<<llocB<<", v_beginB: "<<v_beginB<<", s_baseB: "<<s_baseB<<" "<<endl;
+	
+	unsigned int indexB0 = 0;
+	int colB0 = 0;
+	if(sliceB0.active == true){
+		cout<<"ENTIRE SLICE B0 IS ACTIVE: VALID OFFSET: "<<sliceB0.offset<<endl;
+		for(int t=0; t<VECTOR2_SIZE; t++){
+			int s_ = s_baseB + t;
+			int rowoffseti = t * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(s_>=0 && s_<NUM_PEs){ cout<<""<<s_<<": colB0("<<colB0<<"),rowid("<<s_<<")[slice:b0]"<<endl; } else { cout<<"s_("<<s_<<")[slice:b0][INVALID]"<<endl; }
+			if(s_>=0 && s_<NUM_PEs){ dataB0[indexB0] = vmaskBITS[colB0][rowoffseti + row].data; } else { dataB0[indexB0] = -1; }
+			colB0 += 1;
+			indexB0 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE B0 IGNORED."<<endl; }
+	
+	unsigned int indexB1 = 0;
+	int colB1 = 0;
+	if(sliceB1.active == true){
+		cout<<"ENTIRE SLICE B1 IS ACTIVE: VALID OFFSET: "<<sliceB1.offset<<endl;
+		for(int t=0; t<VECTOR2_SIZE; t++){
+			int s_ = s_baseB + VECTOR2_SIZE + t;
+			int rowoffseti = t * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(s_>=0 && s_<NUM_PEs){ cout<<""<<s_<<": colB1("<<colB1<<"),rowid("<<s_<<")[slice:b1]"<<endl; } else { cout<<"s_("<<s_<<")[slice:b1][INVALID]"<<endl; }
+			if(s_>=0 && s_<NUM_PEs){ dataB1[indexB1] = vmaskBITS[colB1][rowoffseti + row].data; } else { dataB1[indexB1] = -1; }
+			colB1 += 1;
+			indexB1 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE B1 IGNORED."<<endl; }
+	
+	unsigned int indexB2 = 0;
+	int colB2 = 0;
+	if(sliceB2.active == true){
+		cout<<"ENTIRE SLICE B2 IS ACTIVE: VALID OFFSET: "<<sliceB2.offset<<endl;
+		for(int t=0; t<VECTOR2_SIZE; t++){
+			int s_ = s_baseB + VECTOR2_SIZE + VECTOR2_SIZE + t;
+			int rowoffseti = t * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); 
+			if(s_>=0 && s_<NUM_PEs){ cout<<""<<s_<<": colB2("<<colB2<<"),rowid("<<s_<<")[slice:b2]"<<endl; } else { cout<<"s_("<<s_<<")[slice:b2][INVALID]"<<endl; }
+			if(s_>=0 && s_<NUM_PEs){ dataB2[indexB2] = vmaskBITS[colB2][rowoffseti + row].data; } else { dataB2[indexB2] = -1; }
+			colB2 += 1;
+			indexB2 += 1;
+		}
+	} else{ cout<<"ENTIRE SLICE B2 IGNORED."<<endl; }
+	/////////////////////////////////////////////////////////////////////
+	
+	for(unsigned int t=0; t<indexA0; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA0["<<t<<"]: "<<dataA0[t]<<endl; }
+	for(unsigned int t=0; t<indexA1; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA1["<<t<<"]: "<<dataA1[t]<<endl; }
+	for(unsigned int t=0; t<indexA2; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA2["<<t<<"]: "<<dataA2[t]<<endl; }
+	
+	for(unsigned int t=0; t<indexB0; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB0["<<t<<"]: "<<dataB0[t]<<endl; }
+	for(unsigned int t=0; t<indexB1; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB1["<<t<<"]: "<<dataB1[t]<<endl; }
+	for(unsigned int t=0; t<indexB2; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB2["<<t<<"]: "<<dataB2[t]<<endl; }
+	
+	// unsigned int ind = 0;
+	// if(s_begin>=0 && s_begin<s_base+VECTOR2_SIZE){
+		// for(unsigned int t=v_begin; t<VECTOR2_SIZE; t++){ 
+			// dataN[ind] = dataA0[t]; 
+			// ind += 1;
+		// }
+	// }
+	// if(s_begin>=s_base+VECTOR2_SIZE && s_begin<s_base+VECTOR2_SIZE+VECTOR2_SIZE){
+		// for(unsigned int t=v_begin; t<VECTOR2_SIZE; t++){ 
+			// dataN[ind] = dataB[t]; 
+			// ind += 1;
+		// }
+	// }
+	
+	
+	
+	for(unsigned int t=0; t<VECTOR2_SIZE; t++){ dataN[t].data = 0; }
+	return NAp;
+}
+ */
+
+void  
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+PROCESS_debug(
+	value_t E[VECTOR2_SIZE], bool_type ens[VECTOR2_SIZE], unsigned int mask[VECTOR2_SIZE],
+		value_t ludatas[MAX_NUM_UNIQ_EDGES_PER_VEC], value_t vdataset[VECTOR2_SIZE], unit1_type datasVM[32], value_t masks[MAX_NUM_UNIQ_EDGES_PER_VEC], vertex_t lvids[VECTOR2_SIZE],
+			unsigned int incr[VECTOR2_SIZE], unsigned int lsrcvids[VECTOR2_SIZE], unsigned int ldstvids[VECTOR2_SIZE], value_t res[VECTOR2_SIZE]){
+	#ifdef XXX
+	if(debugid == 0){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		cout<<"readandprocess(1-2): E[{{v}}]: "<<E[{{v}}]<<endl;
+		{%endfor%}
+		#endif
+	}
+	
+	if(debugid == 1){
+		#ifdef _DEBUGMODE_CHECKS
+		if(srcvid_head < travstate.i2){ cout<<"readandprocess(12): INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<" offset_kvs: "<<offset_kvs<<". exiting..."<<endl;					 
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess(12): E["<<v<<"]: "<<E[v]<<endl; }
+			exit(EXIT_FAILURE); }
+		if(lvid_head >= (reducebuffersz*FETFACTOR*VECTOR2_SIZE)){ cout<<"readandprocess(12): INVALID srcvid_head. this is an error. i: "<<i<<"(of "<<chunk_size<<"), lvid_head: "<<lvid_head<<", reducebuffersz*FETFACTOR*VECTOR2_SIZE: "<<reducebuffersz*FETFACTOR*VECTOR2_SIZE<<". exiting..."<<endl;					 
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"readandprocess(12): E["<<v<<"]: "<<E[v]<<endl; }
+			exit(EXIT_FAILURE); }
+		actsutilityobj->checkoutofbounds("readandprocess(12).1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, i);
+		#endif
+	}
+	
+	if(debugid == 2){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		{%for r in context['8_seq']%}
+		cout<<"readandprocess(2): lvid_head: "<<lvid_head<<", lvid: "<<lvid_head + {{r}}<<", ludatas[{{r}}]: "<<ludatas[{{r}}]<<", masks[{{r}}]: "<<masks[{{r}}]<<endl;
+		{%endfor%}
+		#endif
+		#ifdef _DEBUGMODE_CHECKS
+		{%for r in context['8_seq']%}
+		if(masks[{{r}}] > 2){ cout<<"ERROR @ readandprocess(13).masks[{{r}}].1. masks[{{r}}]: "<<masks[{{r}}]<<endl; for(unsigned int n=0; n<8; n++){ cout<<">>> readandprocess.mask: masks["<<n<<"]: "<<masks[n]<<", lvid + {{r}}: "<<lvid + {{r}}<<endl; } exit(EXIT_FAILURE); }
+		{%endfor%}
+		#endif
+	}
+	
+	if(debugid == 3){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		cout<<"readandprocess(3): E[{{v}}]: "<<E[{{v}}]<<", lvid_head: "<<lvid_head<<", incr[{{v}}]: "<<incr[{{v}}]<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ens[{{v}}]: "<<ens[{{v}}]<<endl;
+		{%endfor%}
+		#endif
+		#ifdef _DEBUGMODE_CHECKS2
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		if(ens[{{v}}] == ON && incr[{{v}}] >= MAX_NUM_UNIQ_EDGES_PER_VEC){ 
+			cout<<"readandprocess(12): incr[{{v}}]("<<incr[{{v}}]<<") > MAX_NUM_UNIQ_EDGES_PER_VEC("<<MAX_NUM_UNIQ_EDGES_PER_VEC<<"). lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<endl;
+			{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(12).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
+			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(12).mask: ludatas["<<r<<"]: "<<ludatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
+			exit(EXIT_FAILURE); 
+		}
+		{%endfor%}
+		#endif
+		#ifdef _DEBUGMODE_CHECKS2
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		if(lsrcvids[{{v}}] >= validbound){
+			if(debug_numinvalidheads > 32){
+			{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(17).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
+			cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
+			else {
+			// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
+			debug_numinvalidheads += 1; }}
+		{%endfor%}
+		#endif 
+	}
+	
+	if(debugid == 4){
+		#ifdef _DEBUGMODE_CHECKS2
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		if(ens[{{v}}] == ON && mask[{{v}}] > 2){ 
+			cout<<"ERROR @ readandprocess(14).mask[{{v}}].2. i: "<<i<<", mask[{{v}}]: "<<mask[{{v}}]<<", incr[{{v}}]: "<<incr[{{v}}]<<endl;
+			{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(14).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
+			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14).mask: ludatas["<<r<<"]: "<<ludatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
+			exit(EXIT_FAILURE); 
+		}
+		{%endfor%}
+		#endif
+	}
+	
+	if(debugid == 5){
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		if(ens[{{v}}] == ON && mask[{{v}}] == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<", udata: "<<ludatas[incr[{{v}}]]<<"], [ens[{{v}}]: "<<ens[{{v}}]<<", mask[{{v}}]: "<<mask[{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		{%endfor%}
+		#endif
+	}
+	
+	if(debugid == 6){
+		#ifdef _DEBUGMODE_CHECKS3
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		if(mykeyvalue{{v}}.key == INVALIDDATA || mykeyvalue{{v}}.value == INVALIDDATA){ inactiveloadcount += 1; } else { activeloadcount += 1; } 
+		{%endfor%}
+		#endif 
+	}
+
+	if(debugid == 7){
+		#ifdef _DEBUGMODE_STATS
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		actsutilityobj->globalstats_countkvsprocessed(1);
+		if(ens[{{v}}] == ON && mask[{{v}}] == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
+		{%endfor%}
+		#endif 
+	}
+	#endif 
+	return;
+}
+
+void  
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+PROCESS_getslice(sliceinfo_t slice, int id, int data[VECTOR2_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], int s_base, int row, globalparams_t globalparams){
+	
+	// cout<<"----------------------- PROCESS_getslice: row: "<<row<<""<<endl;
+	
+	if(slice.active == false){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"ENTIRE SLICE "<<id<<" IGNORED."<<endl;
+		#endif 
+		return; }
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"ENTIRE SLICE "<<id<<" IS ACTIVE: VALID BEGIN OFFSET: "<<slice.beginoffset<<", END OFFSET: "<<slice.endoffset<<endl;
+	#endif 
+	for(int t=0; t<VECTOR2_SIZE; t++){
+	#pragma HLS UNROLL
+		int s_ = s_base + t;
+		int rowoffseti = s_ * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
+		bool en=false; if(t>=slice.beginoffset && t<slice.endoffset){ en = true; } else { en = false; } // rowoffseti = 0; _row = 0; }
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(en==true){ cout<<"s:"<<s_<<": v:"<<t<<" [slice:a2]: vmaskBITS["<<t<<"]["<<rowoffseti<<" + "<<row<<"].data: "<<vmaskBITS[t][rowoffseti + row].data<<endl; } else { cout<<"s:"<<s_<<": v:"<<t<<" [slice:a2][INVALID]"<<endl; }
+		#endif
+		if(en==true){ data[t] = vmaskBITS[t][rowoffseti + row].data; } else { data[t] = -1; }
+	}
+	return;
+}
+
+value_t 
+	#ifdef SW 
+	processedges_splitdstvxs::
+	#endif 
+UTIL_GETVTXMASKSET(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, unit1_type dataN[32], globalparams_t globalparams){
+	#pragma HLS INLINE
+	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<">>> UTIL_GETVTXMASK: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
+		#endif 
+		loc = 0; }
+		
+	// realvid = (lvid * NUM_PEs) + instid;
+	// loc = 4 * 32;
+	// loc = (32 * 15);
+	// loc = (32 * 15) + 31;
+	// loc = (32 * 16) + (32 * 4) + 1;
+	// loc = (2 * NUM_PEs) + 31; //
+	
+	// loc = 513;
+	
+	int dataA0[VECTOR2_SIZE];
+	int dataA1[VECTOR2_SIZE];
+	int dataA2[VECTOR2_SIZE];
+	int dataB0[VECTOR2_SIZE];
+	int dataB1[VECTOR2_SIZE];
+	int dataB2[VECTOR2_SIZE];
+	
+	sliceinfo_t sliceA0; sliceA0.active = false; sliceA0.beginoffset = 0; sliceA0.endoffset = NUM_PEs;
+	sliceinfo_t sliceA1; sliceA1.active = false; sliceA1.beginoffset = 0; sliceA1.endoffset = NUM_PEs;
+	sliceinfo_t sliceA2; sliceA2.active = false; sliceA2.beginoffset = 0; sliceA2.endoffset = NUM_PEs;
+	sliceinfo_t sliceB0; sliceB0.active = false; sliceB0.beginoffset = 0; sliceB0.endoffset = NUM_PEs;
+	sliceinfo_t sliceB1; sliceB1.active = false; sliceB1.beginoffset = 0; sliceB1.endoffset = NUM_PEs;
+	sliceinfo_t sliceB2; sliceB2.active = false; sliceB2.beginoffset = 0; sliceB2.endoffset = NUM_PEs;
+	
+	//
+	int s_begin = loc % NUM_PEs; //*
+	int llocA = acts_utilobj->UTIL_GETLOCALVID(loc, s_begin);
+	int v_begin = llocA % 16; //*
+	int s_base = -1 * v_begin;
+	int row = llocA / 16;
+	//
+	int loc2 = ((loc / NUM_PEs) * NUM_PEs) + NUM_PEs;
+	int s_beginB = loc2 % NUM_PEs;
+	if(s_beginB!=0){ cout<<"UTIL_GETVTXMASKSET(4): s_beginB("<<s_beginB<<")!=0"<<endl; exit(EXIT_FAILURE); }
+	int llocB = acts_utilobj->UTIL_GETLOCALVID(loc2, s_beginB);
+	if(llocB!=llocA+1){ cout<<"UTIL_GETVTXMASKSET(4): llocB("<<llocB<<")!=llocA("<<llocA<<")+1"<<endl; exit(EXIT_FAILURE); }
+	int v_beginB = llocB % 16;
+	// if(v_beginB!=v_begin+1){ cout<<"UTIL_GETVTXMASKSET(4): v_beginB("<<v_beginB<<")!=v_begin("<<v_begin<<")+1"<<endl; exit(EXIT_FAILURE); }
+	int s_baseB = -1 * v_beginB;
+	int rowB = llocB / 16;
+	//
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"UTIL_GETVTXMASKSET(A): loc: "<<loc<<", s_begin: "<<s_begin<<", llocA: "<<llocA<<", v_begin: "<<v_begin<<", s_base: "<<s_base<<", row: "<<row<<endl;
+	cout<<"UTIL_GETVTXMASKSET(B): loc2: "<<loc2<<", s_beginB: "<<s_beginB<<", llocB: "<<llocB<<", v_beginB: "<<v_beginB<<", s_baseB: "<<s_baseB<<", rowB: "<<rowB<<" "<<endl;
+	#endif 
+	
+	int s_baseA0 = s_base+0;
+	int s_baseA1 = s_base+VECTOR2_SIZE;
+	int s_baseA2 = s_base+VECTOR2_SIZE+VECTOR2_SIZE;
+	
+	int s_baseB0 = s_baseB+0;
+	int s_baseB1 = s_baseB+VECTOR2_SIZE;
+	int s_baseB2 = s_baseB+VECTOR2_SIZE+VECTOR2_SIZE;
+	
+	if(s_begin>=s_baseA0 && s_begin<s_baseA0+VECTOR2_SIZE){ sliceA0.active = true; sliceA1.active = true; sliceA0.beginoffset = (s_begin - s_base) % VECTOR2_SIZE; sliceA0.endoffset = NUM_PEs - s_baseA0; }
+	if(s_begin>=s_baseA1 && s_begin<s_baseA1+VECTOR2_SIZE){ sliceA1.active = true; sliceA2.active = true; sliceA1.beginoffset = (s_begin - s_base) % VECTOR2_SIZE; sliceA1.endoffset = NUM_PEs - s_baseA1; }
+	if(s_begin>=s_baseA2 && s_begin<s_baseA2+VECTOR2_SIZE){ sliceA2.active = true; sliceB0.active = true; sliceA2.beginoffset = (s_begin - s_base) % VECTOR2_SIZE; sliceA2.endoffset = NUM_PEs - s_baseA2; sliceB0.beginoffset = (s_beginB - s_baseB) % VECTOR2_SIZE; sliceB0.endoffset = NUM_PEs - s_baseB0; }
+	
+	PROCESS_getslice(sliceA0, 700, dataA0, vmaskBITS, s_baseA0, row, globalparams);
+	PROCESS_getslice(sliceA1, 701, dataA1, vmaskBITS, s_baseA1, row, globalparams);
+	PROCESS_getslice(sliceA2, 702, dataA2, vmaskBITS, s_baseA2, row, globalparams);
+
+	PROCESS_getslice(sliceB0, 710, dataB0, vmaskBITS, s_baseB0, rowB, globalparams);
+	PROCESS_getslice(sliceB1, 711, dataB1, vmaskBITS, s_baseB1, rowB, globalparams);
+	PROCESS_getslice(sliceB2, 712, dataB2, vmaskBITS, s_baseB2, rowB, globalparams);
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(sliceA0.active == true){ for(unsigned int t=0; t<VECTOR2_SIZE; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA0["<<t<<"]: "<<dataA0[t]<<endl; }}
+	if(sliceA1.active == true){ for(unsigned int t=0; t<VECTOR2_SIZE; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA1["<<t<<"]: "<<dataA1[t]<<endl; }}
+	if(sliceA2.active == true){ for(unsigned int t=0; t<VECTOR2_SIZE; t++){ cout<<"UTIL_GETVTXMASKSET:: dataA2["<<t<<"]: "<<dataA2[t]<<endl; }}
+	
+	if(sliceB0.active == true){ for(unsigned int t=0; t<VECTOR2_SIZE; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB0["<<t<<"]: "<<dataB0[t]<<endl; }}
+	if(sliceB1.active == true){ for(unsigned int t=0; t<VECTOR2_SIZE; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB1["<<t<<"]: "<<dataB1[t]<<endl; }}
+	if(sliceB2.active == true){ for(unsigned int t=0; t<VECTOR2_SIZE; t++){ cout<<"UTIL_GETVTXMASKSET:: dataB2["<<t<<"]: "<<dataB2[t]<<endl; }}
+	#endif
+	
+	////
+	for(unsigned int t=0; t<VECTOR2_SIZE; t++){ dataN[t].data = 0; }
+	int ind = 0;
+	if(sliceA0.active==true && ind<VECTOR2_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"Copying slice A0. begin offset: "<<sliceA0.beginoffset<<", end offset: "<<sliceA0.endoffset<<"..."<<endl;
+		#endif 
+		for(int t=sliceA0.beginoffset; t<acts_utilobj->UTIL_amin(VECTOR2_SIZE, sliceA0.endoffset); t++){ 
+			dataN[ind].data = dataA0[t]; 
+			ind += 1;
+		}
+	}
+	if(sliceA1.active==true && ind<VECTOR2_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"Copying slice A1. begin offset: "<<sliceA1.beginoffset<<", end offset: "<<sliceA1.endoffset<<"..."<<endl;
+		#endif 
+		for(int t=sliceA1.beginoffset; t<acts_utilobj->UTIL_amin(VECTOR2_SIZE, sliceA1.endoffset); t++){ 
+			dataN[ind].data = dataA1[t]; 
+			ind += 1;
+		}
+	}
+	if(sliceA2.active==true && ind<VECTOR2_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"Copying slice A2. begin offset: "<<sliceA2.beginoffset<<", end offset: "<<sliceA2.endoffset<<"..."<<endl;
+		#endif 
+		for(int t=sliceA2.beginoffset; t<acts_utilobj->UTIL_amin(VECTOR2_SIZE, sliceA2.endoffset); t++){ 
+			dataN[ind].data = dataA2[t]; 
+			ind += 1;
+		}
+	}
+	if(sliceB0.active==true && ind<VECTOR2_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"Copying slice B0. begin offset: "<<sliceB0.beginoffset<<", end offset: "<<sliceB0.endoffset<<"..."<<endl;
+		#endif 
+		for(int t=sliceB0.beginoffset; t<acts_utilobj->UTIL_amin(VECTOR2_SIZE, sliceB0.endoffset); t++){ 
+			dataN[ind].data = dataB0[t]; 
+			ind += 1;
+		}
+	}
+	if(sliceB1.active==true && ind<VECTOR2_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"Copying slice B1. begin offset: "<<sliceB1.beginoffset<<", end offset: "<<sliceB1.endoffset<<"..."<<endl;
+		#endif 
+		for(int t=sliceB1.beginoffset; t<acts_utilobj->UTIL_amin(VECTOR2_SIZE, sliceB1.endoffset); t++){ 
+			dataN[ind].data = dataB1[t]; 
+			ind += 1;
+		}
+	}
+	if(sliceB2.active==true && ind<VECTOR2_SIZE){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"Copying slice B2. begin offset: "<<sliceB2.beginoffset<<", end offset: "<<sliceB2.endoffset<<"..."<<endl;
+		#endif 
+		for(int t=sliceB2.beginoffset; t<acts_utilobj->UTIL_amin(VECTOR2_SIZE, sliceB2.endoffset); t++){ 
+			dataN[ind].data = dataB2[t]; 
+			ind += 1;
+		}
+	}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	for(unsigned int t=0; t<ind; t++){ cout<<"UTIL_GETVTXMASKSET::FINAL RESULTS dataN["<<t<<"].data: "<<dataN[t].data<<endl; }
+	cout<<"UTIL_GETVTXMASKSET::FINAL RESULTS ind: "<<ind<<endl;
+	#endif 
+	// for(unsigned int t=0; t<VECTOR2_SIZE; t++){ dataN[t].data = 0; }
+	return NAp;
 }
 
 fetchmessage_t 
@@ -203,9 +851,8 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	bool_type en = ON;
 	bool_type ens[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=ens complete
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	unsigned int mask{{v}};
-	{%endfor%}
+	unsigned int mask[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=mask complete
 	
 	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
 	unsigned int validbound = reducebuffersz * FETFACTOR * VECTOR2_SIZE;
@@ -221,12 +868,21 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	#pragma HLS ARRAY_PARTITION variable=ludatas complete
 	value_t vdataset[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vdataset complete
-	unit1_type vmaskset[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=vmaskset complete
+	unit1_type datasVM[32];
+	#pragma HLS ARRAY_PARTITION variable=datasVM complete
 	value_t masks[MAX_NUM_UNIQ_EDGES_PER_VEC]; // AUTOMATEME.
 	#pragma HLS ARRAY_PARTITION variable=masks complete
 	vertex_t lvids[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=lvids complete
+	
+	unsigned int incr[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=incr complete
+	unsigned int lsrcvids[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=lsrcvids complete
+	unsigned int ldstvids[VECTOR2_SIZE];	
+	#pragma HLS ARRAY_PARTITION variable=ldstvids complete
+	value_t res[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=res complete
 	
 	batch_type vptrbaseoffset_kvs = globalparams.BASEOFFSETKVS_VERTEXPTR + (globalparams.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE);
 	batch_type voffset_kvs = sweepparams.source_partition * reducebuffersz * FETFACTOR;
@@ -285,15 +941,23 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			actsutilityobj->checkoutofbounds("readandprocess(12).1", lvid_head, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid_head, travstate.i2, i);
 			#endif
 		
-		#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
-		{%for r in context['8_seq']%} // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD		
+		{%for r in context['8_seq']%} 
 		ludatas[{{r}}] = UTIL_GETVTXDATA2(vbuffer, lvid_head + {{r}}, vdataset, globalparams);
 		{%endfor%}
+		UTIL_GETVTXMASKSET(vmaskBITS, lvid_head, datasVM, globalparams);
 		{%for r in context['8_seq']%}
-		masks[{{r}}] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + {{r}}, vmaskset, globalparams);
-		{%endfor%}
+		masks[{{r}}] = datasVM[{{r}}].data;
+		{%endfor%}	
+		
+		// {%for r in context['8_seq']%}
+		// ludatas[{{r}}] = UTIL_GETVTXDATA2(vbuffer, lvid_head + {{r}}, vdataset, globalparams);
+		// {%endfor%}
+		// {%for r in context['8_seq']%}
+		// masks[{{r}}] = UTIL_GETVTXMASK2(vmaskBITS, lvid_head + {{r}}, datasVM, globalparams);
+		// {%endfor%}	
 		#else 
-		{%for r in context['8_seq']%} // AUTOMATEME. OPTIMIZEME. FIXME.BOTTLENECK
+		{%for r in context['8_seq']%} 
 		ludatas[{{r}}] = UTIL_GETVTXDATA(vbuffer, lvid_head + {{r}}, globalparams);
 		{%endfor%}
 		{%for r in context['8_seq']%}
@@ -313,34 +977,33 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			#endif
 		
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		unsigned int incr{{v}} = acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 28, 4);
-		unsigned int lsrcvids{{v}} = lvid_head + incr{{v}};
-		unsigned int ldstvids{{v}} = acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 0, 28);
+		incr[{{v}}] = acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 28, 4);
+		lsrcvids[{{v}}] = lvid_head + incr[{{v}}];
+		ldstvids[{{v}}] = acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 0, 28);
 		{%endfor%}
 		{%for v in context['VECTOR2_SIZE_seq']%}	
-		bool_type ens{{v}} = ON; if(E[{{v}}] == INVALIDDATA || lsrcvids{{v}} >= validbound){ ens{{v}} = OFF; }
+		ens[{{v}}] = ON; if(E[{{v}}] == INVALIDDATA || lsrcvids[{{v}}] >= validbound){ ens[{{v}}] = OFF; }
 		{%endfor%}
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			cout<<"readandprocess(3): E[{{v}}]: "<<E[{{v}}]<<", lvid_head: "<<lvid_head<<", incr{{v}}: "<<incr{{v}}<<", lsrcvids{{v}}: "<<lsrcvids{{v}}<<", ens{{v}}: "<<ens{{v}}<<endl;
+			cout<<"readandprocess(3): E[{{v}}]: "<<E[{{v}}]<<", lvid_head: "<<lvid_head<<", incr[{{v}}]: "<<incr[{{v}}]<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ens[{{v}}]: "<<ens[{{v}}]<<endl;
 			{%endfor%}
 			#endif
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			if(ens{{v}} == ON && incr{{v}} >= MAX_NUM_UNIQ_EDGES_PER_VEC){ 
-				cout<<"readandprocess(12): incr{{v}}("<<incr{{v}}<<") > MAX_NUM_UNIQ_EDGES_PER_VEC("<<MAX_NUM_UNIQ_EDGES_PER_VEC<<"). lsrcvids{{v}}: "<<lsrcvids{{v}}<<", ldstvids{{v}}: "<<ldstvids{{v}}<<endl;
-				{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(12).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids{{n}}: "<<lsrcvids{{n}}<<", ldstvids{{n}}: "<<ldstvids{{n}}<<", incr{{n}}: "<<incr{{n}}<<endl; {%endfor%} 
+			if(ens[{{v}}] == ON && incr[{{v}}] >= MAX_NUM_UNIQ_EDGES_PER_VEC){ 
+				cout<<"readandprocess(12): incr[{{v}}]("<<incr[{{v}}]<<") > MAX_NUM_UNIQ_EDGES_PER_VEC("<<MAX_NUM_UNIQ_EDGES_PER_VEC<<"). lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<endl;
+				{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(12).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
 				for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(12).mask: ludatas["<<r<<"]: "<<ludatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
 				exit(EXIT_FAILURE); 
 			}
 			{%endfor%}
 			#endif
-			// cout<<"... readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, srcvid_head: "<<srcvid_head<<", travstate.i2: "<<travstate.i2<<", lvid_head: "<<lvid_head<<", validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			if(lsrcvids{{v}} >= validbound){
+			if(lsrcvids[{{v}}] >= validbound){
 				if(debug_numinvalidheads > 32){
-				{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(17).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids{{n}}: "<<lsrcvids{{n}}<<", ldstvids{{n}}: "<<ldstvids{{n}}<<", incr{{n}}: "<<incr{{n}}<<endl; {%endfor%} 
+				{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(17).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
 				cout<<"readandprocess::ERROR(17): "<<debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
 				else {
 				// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, validbound: "<<validbound<<", debug_numinvalidheads: "<<debug_numinvalidheads<<endl;
@@ -348,13 +1011,13 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			{%endfor%}
 			#endif 
 			
-		if(GraphAlgo == PAGERANK){ {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = 1; {%endfor%} mask0 = 0; ens0 = OFF; } 
-		else { {%for v in context['VECTOR2_SIZE_seq']%} mask{{v}} = masks[incr{{v}}]; {%endfor%} mask0 = 0; ens0 = OFF; }
+		if(GraphAlgo == PAGERANK){ {%for v in context['VECTOR2_SIZE_seq']%} mask[{{v}}] = 1; {%endfor%} mask[0] = 0; ens[0] = OFF; } 
+		else { {%for v in context['VECTOR2_SIZE_seq']%} mask[{{v}}] = masks[incr[{{v}}]]; {%endfor%} mask[0] = 0; ens[0] = OFF; }
 			#ifdef _DEBUGMODE_CHECKS2
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			if(ens{{v}} == ON && mask{{v}} > 2){ 
-				cout<<"ERROR @ readandprocess(14).mask{{v}}.2. i: "<<i<<", mask{{v}}: "<<mask{{v}}<<", incr{{v}}: "<<incr{{v}}<<endl;
-				{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(14).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids{{n}}: "<<lsrcvids{{n}}<<", ldstvids{{n}}: "<<ldstvids{{n}}<<", incr{{n}}: "<<incr{{n}}<<endl; {%endfor%} 
+			if(ens[{{v}}] == ON && mask[{{v}}] > 2){ 
+				cout<<"ERROR @ readandprocess(14).mask[{{v}}].2. i: "<<i<<", mask[{{v}}]: "<<mask[{{v}}]<<", incr[{{v}}]: "<<incr[{{v}}]<<endl;
+				{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(14).mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
 				for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14).mask: ludatas["<<r<<"]: "<<ludatas[r]<<", masks["<<r<<"]: "<<masks[r]<<endl; }
 				exit(EXIT_FAILURE); 
 			}
@@ -362,16 +1025,16 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			#endif
 		
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		value_t res{{v}} = PROCESS_processfunc(ludatas[incr{{v}}], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+		res[{{v}}] = PROCESS_processfunc(ludatas[incr[{{v}}]], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
 		{%endfor%}
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{v}}; if(ens{{v}} == ON && mask{{v}} == 1){ mykeyvalue{{v}}.key = ldstvids{{v}}; mykeyvalue{{v}}.value = res{{v}}; } else { mykeyvalue{{v}}.key = INVALIDDATA; mykeyvalue{{v}}.value = INVALIDDATA;  }
+		keyvalue_t mykeyvalue{{v}}; if(ens[{{v}}] == ON && mask[{{v}}] == 1){ mykeyvalue{{v}}.key = ldstvids[{{v}}]; mykeyvalue{{v}}.value = res[{{v}}]; } else { mykeyvalue{{v}}.key = INVALIDDATA; mykeyvalue{{v}}.value = INVALIDDATA;  }
 		{%endfor%}
 		mykeyvalue0.key = INVALIDDATA;
 		mykeyvalue0.value = INVALIDDATA;
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			if(ens{{v}} == ON && mask{{v}} == 1){ cout<<"readandprocess(15): [i: "<<i<<", lsrcvids{{v}}: "<<lsrcvids{{v}}<<", ldstvids{{v}}: "<<ldstvids{{v}}<<", udata: "<<ludatas[incr{{v}}]<<"], [ens{{v}}: "<<ens{{v}}<<", mask{{v}}: "<<mask{{v}}<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+			if(ens[{{v}}] == ON && mask[{{v}}] == 1){ cout<<"readandprocess(15): [i: "<<i<<", lvid_head: "<<lvid_head<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<", udata: "<<ludatas[incr[{{v}}]]<<"], [ens[{{v}}]: "<<ens[{{v}}]<<", mask[{{v}}]: "<<mask[{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
 			{%endfor%}
 			#endif
 		
@@ -381,7 +1044,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		{%for v in context['VECTOR_SIZE_seq']%}
 		buffer[{{v}}][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue{{8+v}});
 		{%endfor%}
-		if(ens1 == ON && mask1 == 1){ loadcount += 2; } 
+		if(ens[1] == ON && mask[1] == 1){ loadcount += 2; } 
 			#ifdef _DEBUGMODE_CHECKS3
 			{%for v in context['VECTOR2_SIZE_seq']%}
 			if(mykeyvalue{{v}}.key == INVALIDDATA || mykeyvalue{{v}}.value == INVALIDDATA){ inactiveloadcount += 1; } else { activeloadcount += 1; } 
@@ -391,7 +1054,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 			#ifdef _DEBUGMODE_STATS
 			{%for v in context['VECTOR2_SIZE_seq']%}
 			actsutilityobj->globalstats_countkvsprocessed(1);
-			if(ens{{v}} == ON && mask{{v}} == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
+			if(ens[{{v}}] == ON && mask[{{v}}] == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
 			{%endfor%}
 			#endif 
 		// exit(EXIT_SUCCESS); ///
@@ -401,5 +1064,4 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
 }
-
 

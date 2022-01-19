@@ -62,6 +62,22 @@ UTIL_allignhigher_KV(batch_type val){
 	batch_type fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
+batch_type
+	#ifdef SW 
+	acts_util::
+	#endif
+UTIL_allignlower_KV2(batch_type val){
+	batch_type fac = val / VECTOR2_SIZE;
+	return (fac * VECTOR2_SIZE);
+}
+batch_type
+	#ifdef SW 
+	acts_util::
+	#endif
+UTIL_allignhigher_KV2(batch_type val){
+	batch_type fac = (val + (VECTOR2_SIZE - 1)) / VECTOR2_SIZE;
+	return (fac * VECTOR2_SIZE);
+}
 
 // bit manipulation
 unsigned int 
