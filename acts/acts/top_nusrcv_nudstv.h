@@ -31,6 +31,7 @@
 #include "mem_access_splitdstvxs.h"
 #include "acts_util.h"
 #include "acts_merge.h"
+#include "acts_merge_splitdstvxs.h"
 #include "acts.h"
 using namespace std;
 
@@ -186,6 +187,7 @@ private:
 	mem_access * mem_accessobj;
 	mem_access_splitdstvxs * mem_access_splitdstvxsobj;
 	acts_merge * acts_mergeobj;
+	acts_merge_splitdstvxs * acts_merge_splitdstvxsobj;
 	acts * actsobj;
 	#endif
 };

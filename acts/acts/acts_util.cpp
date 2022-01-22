@@ -280,7 +280,7 @@ UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], 
 	actsutilityobj->checkoutofbounds("GETVTXMASK_SUBP.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
 	#endif 
 	
-	value_t data = vmask[col][row].data;
+	value_t data = vmask[col][row];
 	return data;
 }
 uint32_type 
@@ -291,39 +291,39 @@ UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRA
 	#pragma HLS INLINE
 	uint32_type res = 0;
 	#ifdef _WIDEWORD
-	res.range(0, 0) = vmaskBITS[0][index].data;
-	res.range(1, 1) = vmaskBITS[1][index].data;
-	res.range(2, 2) = vmaskBITS[2][index].data;
-	res.range(3, 3) = vmaskBITS[3][index].data;
-	res.range(4, 4) = vmaskBITS[4][index].data;
-	res.range(5, 5) = vmaskBITS[5][index].data;
-	res.range(6, 6) = vmaskBITS[6][index].data;
-	res.range(7, 7) = vmaskBITS[7][index].data;
-	res.range(8, 8) = vmaskBITS[8][index].data;
-	res.range(9, 9) = vmaskBITS[9][index].data;
-	res.range(10, 10) = vmaskBITS[10][index].data;
-	res.range(11, 11) = vmaskBITS[11][index].data;
-	res.range(12, 12) = vmaskBITS[12][index].data;
-	res.range(13, 13) = vmaskBITS[13][index].data;
-	res.range(14, 14) = vmaskBITS[14][index].data;
-	res.range(15, 15) = vmaskBITS[15][index].data;
+	res.range(0, 0) = vmaskBITS[0][index];
+	res.range(1, 1) = vmaskBITS[1][index];
+	res.range(2, 2) = vmaskBITS[2][index];
+	res.range(3, 3) = vmaskBITS[3][index];
+	res.range(4, 4) = vmaskBITS[4][index];
+	res.range(5, 5) = vmaskBITS[5][index];
+	res.range(6, 6) = vmaskBITS[6][index];
+	res.range(7, 7) = vmaskBITS[7][index];
+	res.range(8, 8) = vmaskBITS[8][index];
+	res.range(9, 9) = vmaskBITS[9][index];
+	res.range(10, 10) = vmaskBITS[10][index];
+	res.range(11, 11) = vmaskBITS[11][index];
+	res.range(12, 12) = vmaskBITS[12][index];
+	res.range(13, 13) = vmaskBITS[13][index];
+	res.range(14, 14) = vmaskBITS[14][index];
+	res.range(15, 15) = vmaskBITS[15][index];
 	#else 
-	UTIL_WRITETO_UINT(&res, 0, 1, vmaskBITS[0][index].data);
-	UTIL_WRITETO_UINT(&res, 1, 1, vmaskBITS[1][index].data);
-	UTIL_WRITETO_UINT(&res, 2, 1, vmaskBITS[2][index].data);
-	UTIL_WRITETO_UINT(&res, 3, 1, vmaskBITS[3][index].data);
-	UTIL_WRITETO_UINT(&res, 4, 1, vmaskBITS[4][index].data);
-	UTIL_WRITETO_UINT(&res, 5, 1, vmaskBITS[5][index].data);
-	UTIL_WRITETO_UINT(&res, 6, 1, vmaskBITS[6][index].data);
-	UTIL_WRITETO_UINT(&res, 7, 1, vmaskBITS[7][index].data);
-	UTIL_WRITETO_UINT(&res, 8, 1, vmaskBITS[8][index].data);
-	UTIL_WRITETO_UINT(&res, 9, 1, vmaskBITS[9][index].data);
-	UTIL_WRITETO_UINT(&res, 10, 1, vmaskBITS[10][index].data);
-	UTIL_WRITETO_UINT(&res, 11, 1, vmaskBITS[11][index].data);
-	UTIL_WRITETO_UINT(&res, 12, 1, vmaskBITS[12][index].data);
-	UTIL_WRITETO_UINT(&res, 13, 1, vmaskBITS[13][index].data);
-	UTIL_WRITETO_UINT(&res, 14, 1, vmaskBITS[14][index].data);
-	UTIL_WRITETO_UINT(&res, 15, 1, vmaskBITS[15][index].data);
+	UTIL_WRITETO_UINT(&res, 0, 1, vmaskBITS[0][index]);
+	UTIL_WRITETO_UINT(&res, 1, 1, vmaskBITS[1][index]);
+	UTIL_WRITETO_UINT(&res, 2, 1, vmaskBITS[2][index]);
+	UTIL_WRITETO_UINT(&res, 3, 1, vmaskBITS[3][index]);
+	UTIL_WRITETO_UINT(&res, 4, 1, vmaskBITS[4][index]);
+	UTIL_WRITETO_UINT(&res, 5, 1, vmaskBITS[5][index]);
+	UTIL_WRITETO_UINT(&res, 6, 1, vmaskBITS[6][index]);
+	UTIL_WRITETO_UINT(&res, 7, 1, vmaskBITS[7][index]);
+	UTIL_WRITETO_UINT(&res, 8, 1, vmaskBITS[8][index]);
+	UTIL_WRITETO_UINT(&res, 9, 1, vmaskBITS[9][index]);
+	UTIL_WRITETO_UINT(&res, 10, 1, vmaskBITS[10][index]);
+	UTIL_WRITETO_UINT(&res, 11, 1, vmaskBITS[11][index]);
+	UTIL_WRITETO_UINT(&res, 12, 1, vmaskBITS[12][index]);
+	UTIL_WRITETO_UINT(&res, 13, 1, vmaskBITS[13][index]);
+	UTIL_WRITETO_UINT(&res, 14, 1, vmaskBITS[14][index]);
+	UTIL_WRITETO_UINT(&res, 15, 1, vmaskBITS[15][index]);
 	#endif
 	return res;
 }	
@@ -900,7 +900,7 @@ UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]){
 	#pragma HLS PIPELINE II=1
 		for(unsigned int i=0; i<VMASK_PACKINGSIZE; i++){
 		#pragma HLS UNROLL
-			vmaskBITS[i][k].data = 0;
+			vmaskBITS[i][k] = 0;
 		}
 	}
 	return;

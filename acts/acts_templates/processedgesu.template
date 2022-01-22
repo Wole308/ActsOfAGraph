@@ -32,7 +32,7 @@ value_t
 	#ifdef SW 
 	processedgesu::
 	#endif 
-UTIL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+PROCESS_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -80,7 +80,7 @@ value_t
 	#ifdef SW 
 	processedgesu::
 	#endif 
-UTIL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+PROCESS_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -109,13 +109,13 @@ UTIL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], u
 
 	#ifdef CONFIG_SPLIT_DESTVTXS
 		if(col >= NUM_PARTITIONS || row >= BLOCKRAM_SIZE){ data = 0; } // AUTOMATEME. for pagerank and sssp
-		else { data = vmaskBITS[col][row].data; }
+		else { data = vmaskBITS[col][row]; }
 	#else 
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("GETVTXMASK.col", col, NUM_PARTITIONS, loc, NAp, NAp);
 		actsutilityobj->checkoutofbounds("GETVTXMASK.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
 		#endif 
-		data = vmaskBITS[col][row].data;
+		data = vmaskBITS[col][row];
 	#endif 
 	return data;
 }
@@ -212,10 +212,10 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		actsutilityobj->checkoutofbounds("readandprocess.1", lvid, reducebuffersz * FETFACTOR * VECTOR2_SIZE, srcvid, travstate.i2, NAp);
 		#endif
 		
-		value_t udata = UTIL_GETVTXDATA(vbuffer, lvid, globalparams);
+		value_t udata = PROCESS_GETVTXDATA(vbuffer, lvid, globalparams);
 		unsigned int mask;
 		if(GraphAlgo == PAGERANK){ mask = 1; } 
-		else { mask = UTIL_GETVTXMASK(vmaskBITS, lvid, globalparams); }
+		else { mask = PROCESS_GETVTXMASK(vmaskBITS, lvid, globalparams); }
 		value_t res = PROCESS_processfunc(udata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
 		
 		if(en == ON && mask == 1 && firstvalidlvid == INVALIDDATA){ firstvalidlvid = lvid; } // NEWCHANGE.

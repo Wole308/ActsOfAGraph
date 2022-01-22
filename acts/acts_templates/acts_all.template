@@ -1,0 +1,37 @@
+#ifdef SW 
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
+#endif 
+#include "../../include/config_params.h"
+#include "../../include/common.h"
+#include "../include/actscommon.h"
+#ifdef SW 
+#include "../actsutility/actsutility.h"
+#endif
+#include "acts_util.h"
+using namespace std;
+
+{% include 'processedgesu.template' %}
+{% include 'processedges_splitdstvxs.template' %}
+{% include 'partitionupdates.template' %}
+{% include 'reduceupdates.template' %}
+{% include 'mem_access.template' %}
+{% include 'mem_access_splitdstvxs.template' %}
+{% include 'acts_util.template' %}
+{% include 'acts.template' %}
+{% include 'acts_merge.template' %}
+{% include 'acts_merge_splitdstvxs.template' %}
+{% include 'top_usrcv_udstv.template' %}
+{% include 'top_nusrcv_nudstv.template' %}

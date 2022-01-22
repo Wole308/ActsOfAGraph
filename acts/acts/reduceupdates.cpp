@@ -115,9 +115,9 @@ REDUCE_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer
 	#endif 
 	#endif	 */	
 	#ifdef COLLECTMASKINFOS // mask information CORRECT ONE.
-	if(en == true && new_vprop != temp){ vmaskBITS[loc].data = 1; }
+	if(en == true && new_vprop != temp){ vmaskBITS[loc] = 1; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true && new_vprop != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
+	if(en == true && new_vprop != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
 	#endif 
 	#endif
 	/* #ifdef COLLECTMASKINFOS // mask information

@@ -858,10 +858,10 @@ void loadedges_splitdstvxs::savemasks(uint512_vec_dt * kvdram, unit1_type vmaskB
 		unsigned int n_iplus1 = k + 1;
 		
 		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			utilityobj->WRITETO_UINT(&tempbuffer[indexx], v, 1, vmaskBITS[v][n_i].data);
+			utilityobj->WRITETO_UINT(&tempbuffer[indexx], v, 1, vmaskBITS[v][n_i]);
 		}
 		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			utilityobj->WRITETO_UINT(&tempbuffer[indexx], 16+v, 1, vmaskBITS[v][n_iplus1].data);
+			utilityobj->WRITETO_UINT(&tempbuffer[indexx], 16+v, 1, vmaskBITS[v][n_iplus1]);
 		}
 		indexx += 1;
 	}
@@ -899,10 +899,10 @@ void loadedges_splitdstvxs::setrootvid(uint512_vec_dt * kvbuffer, vector<vertex_
 						cout<<"loadedges_splitdstvxs::setrootvid::(1) vid == 1 seen. i: "<<i<<", partition: "<<partition<<", k: "<<k<<", v: "<<v<<", lvid: "<<lvid<<", vid: "<<vid<<endl;
 						#endif 
 						vbuffer[v][k] = 0;
-						vmask[v][k].data = 1;
+						vmask[v][k] = 1;
 					} else {
 						vbuffer[v][k] = algorithmobj->vertex_initdata();
-						vmask[v][k].data = 0;
+						vmask[v][k] = 0;
 					}
 				}
 			}

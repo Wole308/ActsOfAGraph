@@ -1,5 +1,5 @@
-#ifndef ACTSMERGE_H
-#define ACTSMERGE_H
+#ifndef ACTSMERGE_SPLIT_H
+#define ACTSMERGE_SPLIT_H
 #include "../../include/config_params.h"
 #include "../../include/common.h"
 #include "../include/actscommon.h"
@@ -32,26 +32,28 @@
 #include "acts.h"
 using namespace std;
 
-class acts_merge {
+class acts_merge_splitdstvxs {
 public:
-	acts_merge();
-	~acts_merge();
+	acts_merge_splitdstvxs();
+	~acts_merge_splitdstvxs();
+
+	unsigned int MERGE_SPLIT_actvpstatsoffset(globalparams_t globalparams);
 	
-	// for usrcv udstv 
-	unsigned int MERGE_amin(unsigned int val1, unsigned int val2);
-	value_t MERGE_mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo);
+	value_t MERGE_SPLIT_applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 	
 	{%for n in context['T_seq']%}
 	{%if(n>=1)%}
-	void MERGE_readandreplicate{{n}}vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],{%endif%}{%endfor%} unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
+	void MERGE_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
 	{%endif%}
 	{%endfor%}
 	
 	{%for n in context['T_seq']%}
 	{%if(n>=1)%}
-	void MERGE_merge{{n}}andsavevdata(bool_type enable, uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t vbuffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],{%endif%}{%endfor%} unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs); 
+	void MERGE_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
 	{%endif%}
 	{%endfor%}
+	
+	void MERGE_SPLIT_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram);
 
 private:
 	#ifdef SW

@@ -12,6 +12,7 @@ top_nusrcv_nudstv::top_nusrcv_nudstv(){
 	mem_accessobj = new mem_access();
 	mem_access_splitdstvxsobj = new mem_access_splitdstvxs();
 	acts_mergeobj = new acts_merge();
+	acts_merge_splitdstvxsobj = new acts_merge_splitdstvxs();
 	actsobj = new acts();
 }
 top_nusrcv_nudstv::~top_nusrcv_nudstv(){}
@@ -230,8 +231,8 @@ processit_splitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edg
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->print5("### processit_splitdstvxs:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs2 * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
-		mem_access_splitdstvxsobj->MEMACCESS_readvmaskschunks(ON, kvdram, vmaskREAD, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
-		mem_access_splitdstvxsobj->MEMACCESS_readvdatachunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
+		mem_access_splitdstvxsobj->MEMACCESS_SPL_readvmaskschunks(ON, kvdram, vmaskREAD, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
+		mem_access_splitdstvxsobj->MEMACCESS_SPL_readvdatachunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
 
 		vertex_t srcvlocaloffset = (voffset_kvs2 * VECTOR2_SIZE);
 		vertex_t beginsrcvid = globalparamsK.ACTSPARAMS_SRCVOFFSET + (voffset_kvs2 * VECTOR2_SIZE);
@@ -539,8 +540,8 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
 		// read vertices
-		mem_access_splitdstvxsobj->MEMACCESS_readvdata(enablereduce, 0, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
-		#ifdef COLLECTMASKINFOS
+		mem_access_splitdstvxsobj->MEMACCESS_SPL_readvdata(enablereduce, 0, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		#ifdef CONFIG_COLLECTMASKINFOSDURINGREDUCE
 		acts_utilobj->UTIL_reset(vmaskWRITE);
 		#endif 
 		
@@ -548,9 +549,9 @@ dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}
 		dispatch(OFF, OFF, enablereduce, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
 		
 		// writeback vertices
-		mem_access_splitdstvxsobj->MEMACCESS_savevdata(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); 
-		#ifdef COLLECTMASKINFOS
-		mem_access_splitdstvxsobj->MEMACCESS_savemasks(enablereduce, kvdram, vmaskWRITE, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vmask_offset_kvs, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs, globalparamsK); // NEW
+		mem_access_splitdstvxsobj->MEMACCESS_SPL_savevdata(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); 
+		#ifdef CONFIG_COLLECTMASKINFOSDURINGREDUCE
+		mem_access_splitdstvxsobj->MEMACCESS_SPL_savemasks(enablereduce, kvdram, vmaskWRITE, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vmask_offset_kvs, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs, globalparamsK); // NEW
 		#endif 
 		
 		sourcestatsmarker += 1;
@@ -659,7 +660,7 @@ topkernelproc_embedded(
 
 		for(unsigned int v_chunkid=0; v_chunkid<globalparamsK.ACTSPARAMS_NUMEDGECHUNKSINABUFFER; v_chunkid++){
 			// process & partition
-			#ifdef PROCESSMODULE
+			#ifdef CONFIG_ENABLEPROCESSMODULE
 			if(globalparamsK.ENABLE_PROCESSCOMMAND == ON){
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: processing instance ... "<<endl;
@@ -669,7 +670,7 @@ topkernelproc_embedded(
 			#endif
 			
 			// partition
-			#ifdef PARTITIONMODULE
+			#ifdef CONFIG_ENABLEPARTITIONMODULE
 			if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON){
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: partitioning instance ... "<<endl;
@@ -679,7 +680,7 @@ topkernelproc_embedded(
 			#endif
 			
 			// reduce & partition
-			#if defined(REDUCEMODULE)
+			#if defined(CONFIG_ENABLEREDUCEMODULE)
 			if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){ 
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelproc: reducing instance ... "<<endl;
@@ -790,7 +791,7 @@ topkernelP{{n}}(
 	cout<<">>> swkernel::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
-	if(GraphIter > 0){ acts_mergeobj->MERGE_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram); }
+	if(GraphIter > 0){ acts_merge_splitdstvxsobj->MERGE_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram); }
 	
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
@@ -811,11 +812,10 @@ topkernelP{{n}}(
 	exit(EXIT_SUCCESS); //	
 	{%endif%}
 	{%endif%}
-	{%endfor%} */
-	
-	// exit(EXIT_SUCCESS); //
+	{%endfor%}
+	exit(EXIT_SUCCESS); // */
 
-	acts_mergeobj->MERGE_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);
+	acts_merge_splitdstvxsobj->MERGE_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);
 
 	// exit(EXIT_SUCCESS); //
 	return;

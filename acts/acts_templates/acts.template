@@ -52,35 +52,35 @@ ACTS_fetchkeyvalues(bool_type enable, unsigned int mode, {%for n in context['NUM
 	if(mode == PROCESSMODE){ // CRITICAL REMOVEME.
 		#if NUM_EDGE_BANKS>0
 			if(edgebankID == 0){ // AUTOMATEME.
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, edges0, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, edges0, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			} 
 			#if NUM_EDGE_BANKS>1
 			else if(edgebankID == 1){
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, edges1, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, edges1, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			} 
 			#if NUM_EDGE_BANKS>2
 			else if(edgebankID == 2){
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, edges2, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, edges2, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			} 
 			#if NUM_EDGE_BANKS>3
 			else if(edgebankID == 3){
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, edges3, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, edges3, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			} 
 			#if NUM_EDGE_BANKS>4
 			else if(edgebankID == 4){
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, edges4, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, edges4, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			} 
 			#if NUM_EDGE_BANKS>5
 			else if(edgebankID == 5){
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, edges5, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, edges5, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			} 
 			#if NUM_EDGE_BANKS>6
 			else if(edgebankID == 6){
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, edges6, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, edges6, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			} 
 			#if NUM_EDGE_BANKS>7
 			else {
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, edges7, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, edges7, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			}
 			#endif 
 			#endif 
@@ -90,10 +90,10 @@ ACTS_fetchkeyvalues(bool_type enable, unsigned int mode, {%for n in context['NUM
 			#endif 
 			#endif 
 			else {
-				fetchmessage = processedgesobj->PROCESS_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+				fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			}
 		#else 
-		fetchmessage = processedgesobj->PROCESS_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+		fetchmessage = processedgesobj->PROCESS_SPL_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 		#endif
 	} else {
 		fetchmessage = mem_accessobj->MEMACCESS_readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 

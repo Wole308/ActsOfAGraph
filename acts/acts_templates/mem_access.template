@@ -368,17 +368,17 @@ MEMACCESS_readvmasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		{%for v in context['16_seq']%}
-		vmaskBITS[{{v}}][bufferoffset + i].data = bitsbuffer[i/2].range({{v}}, {{v}});
+		vmaskBITS[{{v}}][bufferoffset + i] = bitsbuffer[i/2].range({{v}}, {{v}});
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		vmaskBITS[{{v}}][bufferoffset + i + 1].data = bitsbuffer[i/2].range({{16+v}}, {{16+v}});
+		vmaskBITS[{{v}}][bufferoffset + i + 1] = bitsbuffer[i/2].range({{16+v}}, {{16+v}});
 		{%endfor%}
 		#else 
 		{%for v in context['16_seq']%}
-		vmaskBITS[{{v}}][bufferoffset + i].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], {{v}}, 1);
+		vmaskBITS[{{v}}][bufferoffset + i] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], {{v}}, 1);
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		vmaskBITS[{{v}}][bufferoffset + i + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], {{16+v}}, 1);
+		vmaskBITS[{{v}}][bufferoffset + i + 1] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], {{16+v}}, 1);
 		{%endfor%}
 		#endif
 	}
@@ -416,17 +416,17 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[
 		
 		#ifdef _WIDEWORD
 		{%for v in context['16_seq']%}
-		tempbuffer[X][Y].range({{v}}, {{v}}) = vmaskBITS[{{v}}][n_i].data;
+		tempbuffer[X][Y].range({{v}}, {{v}}) = vmaskBITS[{{v}}][n_i];
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		tempbuffer[X][Y].range({{16+v}}, {{16+v}}) = vmaskBITS[{{v}}][n_iplus1].data;
+		tempbuffer[X][Y].range({{16+v}}, {{16+v}}) = vmaskBITS[{{v}}][n_iplus1];
 		{%endfor%}
 		#else
 		{%for v in context['16_seq']%}
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{v}}, 1, vmaskBITS[{{v}}][n_i].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{v}}, 1, vmaskBITS[{{v}}][n_i]);
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{16+v}}, 1, vmaskBITS[{{v}}][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{16+v}}, 1, vmaskBITS[{{v}}][n_iplus1]);
 		{%endfor%}
 		#endif
 		index += 1;
@@ -544,17 +544,17 @@ MEMACCESS_readmanyvmasks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in 
 		{%if(i<n)%}
 		#ifdef _WIDEWORD
 		{%for v in context['16_seq']%}
-		vmaskBITS{{i}}[{{v}}][index2].data = bitsbuffer[i].range({{v}}, {{v}});
+		vmaskBITS{{i}}[{{v}}][index2] = bitsbuffer[i].range({{v}}, {{v}});
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		vmaskBITS{{i}}[{{v}}][index2 + 1].data = bitsbuffer[i].range({{16+v}}, {{16+v}});
+		vmaskBITS{{i}}[{{v}}][index2 + 1] = bitsbuffer[i].range({{16+v}}, {{16+v}});
 		{%endfor%}
 		#else 
 		{%for v in context['16_seq']%}
-		vmaskBITS{{i}}[{{v}}][index2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], {{v}}, 1);
+		vmaskBITS{{i}}[{{v}}][index2] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], {{v}}, 1);
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		vmaskBITS{{i}}[{{v}}][index2 + 1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], {{16+v}}, 1);
+		vmaskBITS{{i}}[{{v}}][index2 + 1] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], {{16+v}}, 1);
 		{%endfor%}
 		#endif
 		{%endif%}

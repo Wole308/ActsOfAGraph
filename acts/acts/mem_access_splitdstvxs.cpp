@@ -15,7 +15,7 @@ void
 	#ifdef SW 
 	mem_access_splitdstvxs::
 	#endif 
-GetXYLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE]){
+MEMACCESS_SPL_GetXYLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE]){
 	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[(v+s) % VECTOR2_SIZE] = vdata[v]; } 
 	return;
 }
@@ -24,7 +24,7 @@ void
 	#ifdef SW 
 	mem_access_splitdstvxs::
 	#endif 
-MEMACCESS_readvdata(bool_type enable, unsigned int s, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_SPL_readvdata(bool_type enable, unsigned int s, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -91,7 +91,7 @@ MEMACCESS_readvdata(bool_type enable, unsigned int s, uint512_dt * kvdram, keyva
 		#endif
 		
 		#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
-		GetXYLayoutV(s, vdata, vdata2);
+		MEMACCESS_SPL_GetXYLayoutV(s, vdata, vdata2);
 		if(i%2==0){
 			keyvalue0.key = vdata2[0];		
 			keyvalue1.key = vdata2[1];		
@@ -199,15 +199,21 @@ void
 	#ifdef SW
 	mem_access_splitdstvxs::
 	#endif 
-MEMACCESS_readvdatachunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+MEMACCESS_SPL_readvdatachunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_readvdatachunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESS_SPL_readvdatachunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif 
-		MEMACCESS_readvdata(enable, s, kvdram, buffer, vbaseoffset_kvs, (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + voffset_kvs, (s * vsz_kvs) / 2, vsz_kvs, globalparams);
+		MEMACCESS_SPL_readvdata(enable, s, kvdram, buffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams);
+		depth_i += depth;
+		bdepth_i += bdepth;
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_readvdatachunks:: total size loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE<<endl;
+	cout<<"+++ MEMACCESS_SPL_readvdatachunks:: total size loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE<<endl;
 	#endif
 	return;	
 }
@@ -216,7 +222,7 @@ void
 	#ifdef SW 
 	mem_access_splitdstvxs::
 	#endif 
-MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+MEMACCESS_SPL_savevdata(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -329,7 +335,7 @@ void
 	#ifdef SW 
 	mem_access_splitdstvxs::
 	#endif 
-GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
+MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
 	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vmdata2[(v+s) % VECTOR2_SIZE] = vmdata[v]; }
 	return;
 }
@@ -338,7 +344,7 @@ void
 	#ifdef SW
 	mem_access_splitdstvxs::
 	#endif 
-MEMACCESS_readvmasks(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
+MEMACCESS_SPL_readvmasks(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -400,7 +406,7 @@ MEMACCESS_readvmasks(bool_type enable, unsigned int s, uint512_dt * kvdram, unit
 		tempbuffer[7][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].value; 
 		#endif 
 		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("MEMACCESS_readvmasks:", rlbaseoffset_kvs + roffset_kvs, NUMPROCESSEDGESPARTITIONS * VMASKBUFFERSZ_KVS, baseoffset_kvs, rlbaseoffset_kvs, roffset_kvs);
+		actsutilityobj->checkoutofbounds("MEMACCESS_SPL_readvmasks:", rlbaseoffset_kvs + roffset_kvs, NUMPROCESSEDGESPARTITIONS * VMASKBUFFERSZ_KVS, baseoffset_kvs, rlbaseoffset_kvs, roffset_kvs);
 		#endif
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -438,141 +444,141 @@ MEMACCESS_readvmasks(bool_type enable, unsigned int s, uint512_dt * kvdram, unit
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=2
 		#ifdef _WIDEWORD
-		vmdata1[0].data = bitsbuffer[i/2].range(0, 0);
-		vmdata1[1].data = bitsbuffer[i/2].range(1, 1);
-		vmdata1[2].data = bitsbuffer[i/2].range(2, 2);
-		vmdata1[3].data = bitsbuffer[i/2].range(3, 3);
-		vmdata1[4].data = bitsbuffer[i/2].range(4, 4);
-		vmdata1[5].data = bitsbuffer[i/2].range(5, 5);
-		vmdata1[6].data = bitsbuffer[i/2].range(6, 6);
-		vmdata1[7].data = bitsbuffer[i/2].range(7, 7);
-		vmdata1[8].data = bitsbuffer[i/2].range(8, 8);
-		vmdata1[9].data = bitsbuffer[i/2].range(9, 9);
-		vmdata1[10].data = bitsbuffer[i/2].range(10, 10);
-		vmdata1[11].data = bitsbuffer[i/2].range(11, 11);
-		vmdata1[12].data = bitsbuffer[i/2].range(12, 12);
-		vmdata1[13].data = bitsbuffer[i/2].range(13, 13);
-		vmdata1[14].data = bitsbuffer[i/2].range(14, 14);
-		vmdata1[15].data = bitsbuffer[i/2].range(15, 15);
-		vmdata2[0].data = bitsbuffer[i/2].range(16, 16);
-		vmdata2[1].data = bitsbuffer[i/2].range(17, 17);
-		vmdata2[2].data = bitsbuffer[i/2].range(18, 18);
-		vmdata2[3].data = bitsbuffer[i/2].range(19, 19);
-		vmdata2[4].data = bitsbuffer[i/2].range(20, 20);
-		vmdata2[5].data = bitsbuffer[i/2].range(21, 21);
-		vmdata2[6].data = bitsbuffer[i/2].range(22, 22);
-		vmdata2[7].data = bitsbuffer[i/2].range(23, 23);
-		vmdata2[8].data = bitsbuffer[i/2].range(24, 24);
-		vmdata2[9].data = bitsbuffer[i/2].range(25, 25);
-		vmdata2[10].data = bitsbuffer[i/2].range(26, 26);
-		vmdata2[11].data = bitsbuffer[i/2].range(27, 27);
-		vmdata2[12].data = bitsbuffer[i/2].range(28, 28);
-		vmdata2[13].data = bitsbuffer[i/2].range(29, 29);
-		vmdata2[14].data = bitsbuffer[i/2].range(30, 30);
-		vmdata2[15].data = bitsbuffer[i/2].range(31, 31);
+		vmdata1[0] = bitsbuffer[i/2].range(0, 0);
+		vmdata1[1] = bitsbuffer[i/2].range(1, 1);
+		vmdata1[2] = bitsbuffer[i/2].range(2, 2);
+		vmdata1[3] = bitsbuffer[i/2].range(3, 3);
+		vmdata1[4] = bitsbuffer[i/2].range(4, 4);
+		vmdata1[5] = bitsbuffer[i/2].range(5, 5);
+		vmdata1[6] = bitsbuffer[i/2].range(6, 6);
+		vmdata1[7] = bitsbuffer[i/2].range(7, 7);
+		vmdata1[8] = bitsbuffer[i/2].range(8, 8);
+		vmdata1[9] = bitsbuffer[i/2].range(9, 9);
+		vmdata1[10] = bitsbuffer[i/2].range(10, 10);
+		vmdata1[11] = bitsbuffer[i/2].range(11, 11);
+		vmdata1[12] = bitsbuffer[i/2].range(12, 12);
+		vmdata1[13] = bitsbuffer[i/2].range(13, 13);
+		vmdata1[14] = bitsbuffer[i/2].range(14, 14);
+		vmdata1[15] = bitsbuffer[i/2].range(15, 15);
+		vmdata2[0] = bitsbuffer[i/2].range(16, 16);
+		vmdata2[1] = bitsbuffer[i/2].range(17, 17);
+		vmdata2[2] = bitsbuffer[i/2].range(18, 18);
+		vmdata2[3] = bitsbuffer[i/2].range(19, 19);
+		vmdata2[4] = bitsbuffer[i/2].range(20, 20);
+		vmdata2[5] = bitsbuffer[i/2].range(21, 21);
+		vmdata2[6] = bitsbuffer[i/2].range(22, 22);
+		vmdata2[7] = bitsbuffer[i/2].range(23, 23);
+		vmdata2[8] = bitsbuffer[i/2].range(24, 24);
+		vmdata2[9] = bitsbuffer[i/2].range(25, 25);
+		vmdata2[10] = bitsbuffer[i/2].range(26, 26);
+		vmdata2[11] = bitsbuffer[i/2].range(27, 27);
+		vmdata2[12] = bitsbuffer[i/2].range(28, 28);
+		vmdata2[13] = bitsbuffer[i/2].range(29, 29);
+		vmdata2[14] = bitsbuffer[i/2].range(30, 30);
+		vmdata2[15] = bitsbuffer[i/2].range(31, 31);
 		#else 
-		vmdata1[0].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 0, 1);
-		vmdata1[1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 1, 1);
-		vmdata1[2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 2, 1);
-		vmdata1[3].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 3, 1);
-		vmdata1[4].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 4, 1);
-		vmdata1[5].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 5, 1);
-		vmdata1[6].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 6, 1);
-		vmdata1[7].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 7, 1);
-		vmdata1[8].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 8, 1);
-		vmdata1[9].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 9, 1);
-		vmdata1[10].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 10, 1);
-		vmdata1[11].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 11, 1);
-		vmdata1[12].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 12, 1);
-		vmdata1[13].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 13, 1);
-		vmdata1[14].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 14, 1);
-		vmdata1[15].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 15, 1);
-		vmdata2[0].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 16, 1);
-		vmdata2[1].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 17, 1);
-		vmdata2[2].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 18, 1);
-		vmdata2[3].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 19, 1);
-		vmdata2[4].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 20, 1);
-		vmdata2[5].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 21, 1);
-		vmdata2[6].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 22, 1);
-		vmdata2[7].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 23, 1);
-		vmdata2[8].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 24, 1);
-		vmdata2[9].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 25, 1);
-		vmdata2[10].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 26, 1);
-		vmdata2[11].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 27, 1);
-		vmdata2[12].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 28, 1);
-		vmdata2[13].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 29, 1);
-		vmdata2[14].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 30, 1);
-		vmdata2[15].data = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 31, 1);
+		vmdata1[0] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 0, 1);
+		vmdata1[1] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 1, 1);
+		vmdata1[2] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 2, 1);
+		vmdata1[3] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 3, 1);
+		vmdata1[4] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 4, 1);
+		vmdata1[5] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 5, 1);
+		vmdata1[6] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 6, 1);
+		vmdata1[7] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 7, 1);
+		vmdata1[8] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 8, 1);
+		vmdata1[9] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 9, 1);
+		vmdata1[10] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 10, 1);
+		vmdata1[11] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 11, 1);
+		vmdata1[12] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 12, 1);
+		vmdata1[13] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 13, 1);
+		vmdata1[14] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 14, 1);
+		vmdata1[15] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 15, 1);
+		vmdata2[0] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 16, 1);
+		vmdata2[1] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 17, 1);
+		vmdata2[2] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 18, 1);
+		vmdata2[3] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 19, 1);
+		vmdata2[4] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 20, 1);
+		vmdata2[5] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 21, 1);
+		vmdata2[6] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 22, 1);
+		vmdata2[7] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 23, 1);
+		vmdata2[8] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 24, 1);
+		vmdata2[9] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 25, 1);
+		vmdata2[10] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 26, 1);
+		vmdata2[11] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 27, 1);
+		vmdata2[12] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 28, 1);
+		vmdata2[13] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 29, 1);
+		vmdata2[14] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 30, 1);
+		vmdata2[15] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], 31, 1);
 		#endif
 		
 		#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
-		GetXYLayoutVM(s, vmdata1, vmdata1b);
-		GetXYLayoutVM(s, vmdata2, vmdata2b);
-		vmaskBITS[0][bufferoffset + i].data = vmdata1b[0].data;
-		vmaskBITS[1][bufferoffset + i].data = vmdata1b[1].data;
-		vmaskBITS[2][bufferoffset + i].data = vmdata1b[2].data;
-		vmaskBITS[3][bufferoffset + i].data = vmdata1b[3].data;
-		vmaskBITS[4][bufferoffset + i].data = vmdata1b[4].data;
-		vmaskBITS[5][bufferoffset + i].data = vmdata1b[5].data;
-		vmaskBITS[6][bufferoffset + i].data = vmdata1b[6].data;
-		vmaskBITS[7][bufferoffset + i].data = vmdata1b[7].data;
-		vmaskBITS[8][bufferoffset + i].data = vmdata1b[8].data;
-		vmaskBITS[9][bufferoffset + i].data = vmdata1b[9].data;
-		vmaskBITS[10][bufferoffset + i].data = vmdata1b[10].data;
-		vmaskBITS[11][bufferoffset + i].data = vmdata1b[11].data;
-		vmaskBITS[12][bufferoffset + i].data = vmdata1b[12].data;
-		vmaskBITS[13][bufferoffset + i].data = vmdata1b[13].data;
-		vmaskBITS[14][bufferoffset + i].data = vmdata1b[14].data;
-		vmaskBITS[15][bufferoffset + i].data = vmdata1b[15].data;
-		vmaskBITS[0][bufferoffset + i + 1].data = vmdata2b[0].data;
-		vmaskBITS[1][bufferoffset + i + 1].data = vmdata2b[1].data;
-		vmaskBITS[2][bufferoffset + i + 1].data = vmdata2b[2].data;
-		vmaskBITS[3][bufferoffset + i + 1].data = vmdata2b[3].data;
-		vmaskBITS[4][bufferoffset + i + 1].data = vmdata2b[4].data;
-		vmaskBITS[5][bufferoffset + i + 1].data = vmdata2b[5].data;
-		vmaskBITS[6][bufferoffset + i + 1].data = vmdata2b[6].data;
-		vmaskBITS[7][bufferoffset + i + 1].data = vmdata2b[7].data;
-		vmaskBITS[8][bufferoffset + i + 1].data = vmdata2b[8].data;
-		vmaskBITS[9][bufferoffset + i + 1].data = vmdata2b[9].data;
-		vmaskBITS[10][bufferoffset + i + 1].data = vmdata2b[10].data;
-		vmaskBITS[11][bufferoffset + i + 1].data = vmdata2b[11].data;
-		vmaskBITS[12][bufferoffset + i + 1].data = vmdata2b[12].data;
-		vmaskBITS[13][bufferoffset + i + 1].data = vmdata2b[13].data;
-		vmaskBITS[14][bufferoffset + i + 1].data = vmdata2b[14].data;
-		vmaskBITS[15][bufferoffset + i + 1].data = vmdata2b[15].data;
+		MEMACCESS_SPL_GetXYLayoutVM(s, vmdata1, vmdata1b);
+		MEMACCESS_SPL_GetXYLayoutVM(s, vmdata2, vmdata2b);
+		vmaskBITS[0][bufferoffset + i] = vmdata1b[0];
+		vmaskBITS[1][bufferoffset + i] = vmdata1b[1];
+		vmaskBITS[2][bufferoffset + i] = vmdata1b[2];
+		vmaskBITS[3][bufferoffset + i] = vmdata1b[3];
+		vmaskBITS[4][bufferoffset + i] = vmdata1b[4];
+		vmaskBITS[5][bufferoffset + i] = vmdata1b[5];
+		vmaskBITS[6][bufferoffset + i] = vmdata1b[6];
+		vmaskBITS[7][bufferoffset + i] = vmdata1b[7];
+		vmaskBITS[8][bufferoffset + i] = vmdata1b[8];
+		vmaskBITS[9][bufferoffset + i] = vmdata1b[9];
+		vmaskBITS[10][bufferoffset + i] = vmdata1b[10];
+		vmaskBITS[11][bufferoffset + i] = vmdata1b[11];
+		vmaskBITS[12][bufferoffset + i] = vmdata1b[12];
+		vmaskBITS[13][bufferoffset + i] = vmdata1b[13];
+		vmaskBITS[14][bufferoffset + i] = vmdata1b[14];
+		vmaskBITS[15][bufferoffset + i] = vmdata1b[15];
+		vmaskBITS[0][bufferoffset + i + 1] = vmdata2b[0];
+		vmaskBITS[1][bufferoffset + i + 1] = vmdata2b[1];
+		vmaskBITS[2][bufferoffset + i + 1] = vmdata2b[2];
+		vmaskBITS[3][bufferoffset + i + 1] = vmdata2b[3];
+		vmaskBITS[4][bufferoffset + i + 1] = vmdata2b[4];
+		vmaskBITS[5][bufferoffset + i + 1] = vmdata2b[5];
+		vmaskBITS[6][bufferoffset + i + 1] = vmdata2b[6];
+		vmaskBITS[7][bufferoffset + i + 1] = vmdata2b[7];
+		vmaskBITS[8][bufferoffset + i + 1] = vmdata2b[8];
+		vmaskBITS[9][bufferoffset + i + 1] = vmdata2b[9];
+		vmaskBITS[10][bufferoffset + i + 1] = vmdata2b[10];
+		vmaskBITS[11][bufferoffset + i + 1] = vmdata2b[11];
+		vmaskBITS[12][bufferoffset + i + 1] = vmdata2b[12];
+		vmaskBITS[13][bufferoffset + i + 1] = vmdata2b[13];
+		vmaskBITS[14][bufferoffset + i + 1] = vmdata2b[14];
+		vmaskBITS[15][bufferoffset + i + 1] = vmdata2b[15];
 		#else 
-		vmaskBITS[0][bufferoffset + i].data = vmdata1[0].data;
-		vmaskBITS[1][bufferoffset + i].data = vmdata1[1].data;
-		vmaskBITS[2][bufferoffset + i].data = vmdata1[2].data;
-		vmaskBITS[3][bufferoffset + i].data = vmdata1[3].data;
-		vmaskBITS[4][bufferoffset + i].data = vmdata1[4].data;
-		vmaskBITS[5][bufferoffset + i].data = vmdata1[5].data;
-		vmaskBITS[6][bufferoffset + i].data = vmdata1[6].data;
-		vmaskBITS[7][bufferoffset + i].data = vmdata1[7].data;
-		vmaskBITS[8][bufferoffset + i].data = vmdata1[8].data;
-		vmaskBITS[9][bufferoffset + i].data = vmdata1[9].data;
-		vmaskBITS[10][bufferoffset + i].data = vmdata1[10].data;
-		vmaskBITS[11][bufferoffset + i].data = vmdata1[11].data;
-		vmaskBITS[12][bufferoffset + i].data = vmdata1[12].data;
-		vmaskBITS[13][bufferoffset + i].data = vmdata1[13].data;
-		vmaskBITS[14][bufferoffset + i].data = vmdata1[14].data;
-		vmaskBITS[15][bufferoffset + i].data = vmdata1[15].data;
-		vmaskBITS[0][bufferoffset + i + 1].data = vmdata2[0].data;
-		vmaskBITS[1][bufferoffset + i + 1].data = vmdata2[1].data;
-		vmaskBITS[2][bufferoffset + i + 1].data = vmdata2[2].data;
-		vmaskBITS[3][bufferoffset + i + 1].data = vmdata2[3].data;
-		vmaskBITS[4][bufferoffset + i + 1].data = vmdata2[4].data;
-		vmaskBITS[5][bufferoffset + i + 1].data = vmdata2[5].data;
-		vmaskBITS[6][bufferoffset + i + 1].data = vmdata2[6].data;
-		vmaskBITS[7][bufferoffset + i + 1].data = vmdata2[7].data;
-		vmaskBITS[8][bufferoffset + i + 1].data = vmdata2[8].data;
-		vmaskBITS[9][bufferoffset + i + 1].data = vmdata2[9].data;
-		vmaskBITS[10][bufferoffset + i + 1].data = vmdata2[10].data;
-		vmaskBITS[11][bufferoffset + i + 1].data = vmdata2[11].data;
-		vmaskBITS[12][bufferoffset + i + 1].data = vmdata2[12].data;
-		vmaskBITS[13][bufferoffset + i + 1].data = vmdata2[13].data;
-		vmaskBITS[14][bufferoffset + i + 1].data = vmdata2[14].data;
-		vmaskBITS[15][bufferoffset + i + 1].data = vmdata2[15].data;
+		vmaskBITS[0][bufferoffset + i] = vmdata1[0];
+		vmaskBITS[1][bufferoffset + i] = vmdata1[1];
+		vmaskBITS[2][bufferoffset + i] = vmdata1[2];
+		vmaskBITS[3][bufferoffset + i] = vmdata1[3];
+		vmaskBITS[4][bufferoffset + i] = vmdata1[4];
+		vmaskBITS[5][bufferoffset + i] = vmdata1[5];
+		vmaskBITS[6][bufferoffset + i] = vmdata1[6];
+		vmaskBITS[7][bufferoffset + i] = vmdata1[7];
+		vmaskBITS[8][bufferoffset + i] = vmdata1[8];
+		vmaskBITS[9][bufferoffset + i] = vmdata1[9];
+		vmaskBITS[10][bufferoffset + i] = vmdata1[10];
+		vmaskBITS[11][bufferoffset + i] = vmdata1[11];
+		vmaskBITS[12][bufferoffset + i] = vmdata1[12];
+		vmaskBITS[13][bufferoffset + i] = vmdata1[13];
+		vmaskBITS[14][bufferoffset + i] = vmdata1[14];
+		vmaskBITS[15][bufferoffset + i] = vmdata1[15];
+		vmaskBITS[0][bufferoffset + i + 1] = vmdata2[0];
+		vmaskBITS[1][bufferoffset + i + 1] = vmdata2[1];
+		vmaskBITS[2][bufferoffset + i + 1] = vmdata2[2];
+		vmaskBITS[3][bufferoffset + i + 1] = vmdata2[3];
+		vmaskBITS[4][bufferoffset + i + 1] = vmdata2[4];
+		vmaskBITS[5][bufferoffset + i + 1] = vmdata2[5];
+		vmaskBITS[6][bufferoffset + i + 1] = vmdata2[6];
+		vmaskBITS[7][bufferoffset + i + 1] = vmdata2[7];
+		vmaskBITS[8][bufferoffset + i + 1] = vmdata2[8];
+		vmaskBITS[9][bufferoffset + i + 1] = vmdata2[9];
+		vmaskBITS[10][bufferoffset + i + 1] = vmdata2[10];
+		vmaskBITS[11][bufferoffset + i + 1] = vmdata2[11];
+		vmaskBITS[12][bufferoffset + i + 1] = vmdata2[12];
+		vmaskBITS[13][bufferoffset + i + 1] = vmdata2[13];
+		vmaskBITS[14][bufferoffset + i + 1] = vmdata2[14];
+		vmaskBITS[15][bufferoffset + i + 1] = vmdata2[15];
 		#endif
 	}
 	return;
@@ -582,16 +588,22 @@ void
 	#ifdef SW
 	mem_access_splitdstvxs::
 	#endif 
-MEMACCESS_readvmaskschunks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+MEMACCESS_SPL_readvmaskschunks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_readvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESS_SPL_readvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_readvmasks(enable, s, kvdram, vmaskBITS, buffer, basevoffset_kvs, (s * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION), voffset_kvs, (s * vsz_kvs), vsz_kvs); 
+		MEMACCESS_SPL_readvmasks(enable, s, kvdram, vmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_readvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESS_SPL_readvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif 
 	// exit(EXIT_SUCCESS);
 	return;	
@@ -601,10 +613,10 @@ void
 	#ifdef SW 
 	mem_access_splitdstvxs::
 	#endif 
-MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+MEMACCESS_SPL_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"MEMACCESS_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
+	cout<<"MEMACCESS_SPL_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
 	#endif
 	
 	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
@@ -627,90 +639,90 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[
 		unsigned int n_iplus1 = k + 1;
 		
 		#ifdef _WIDEWORD
-		tempbuffer[X][Y].range(0, 0) = vmaskBITS[0][n_i].data;
-		tempbuffer[X][Y].range(1, 1) = vmaskBITS[1][n_i].data;
-		tempbuffer[X][Y].range(2, 2) = vmaskBITS[2][n_i].data;
-		tempbuffer[X][Y].range(3, 3) = vmaskBITS[3][n_i].data;
-		tempbuffer[X][Y].range(4, 4) = vmaskBITS[4][n_i].data;
-		tempbuffer[X][Y].range(5, 5) = vmaskBITS[5][n_i].data;
-		tempbuffer[X][Y].range(6, 6) = vmaskBITS[6][n_i].data;
-		tempbuffer[X][Y].range(7, 7) = vmaskBITS[7][n_i].data;
-		tempbuffer[X][Y].range(8, 8) = vmaskBITS[8][n_i].data;
-		tempbuffer[X][Y].range(9, 9) = vmaskBITS[9][n_i].data;
-		tempbuffer[X][Y].range(10, 10) = vmaskBITS[10][n_i].data;
-		tempbuffer[X][Y].range(11, 11) = vmaskBITS[11][n_i].data;
-		tempbuffer[X][Y].range(12, 12) = vmaskBITS[12][n_i].data;
-		tempbuffer[X][Y].range(13, 13) = vmaskBITS[13][n_i].data;
-		tempbuffer[X][Y].range(14, 14) = vmaskBITS[14][n_i].data;
-		tempbuffer[X][Y].range(15, 15) = vmaskBITS[15][n_i].data;
-		tempbuffer[X][Y].range(16, 16) = vmaskBITS[0][n_iplus1].data;
-		tempbuffer[X][Y].range(17, 17) = vmaskBITS[1][n_iplus1].data;
-		tempbuffer[X][Y].range(18, 18) = vmaskBITS[2][n_iplus1].data;
-		tempbuffer[X][Y].range(19, 19) = vmaskBITS[3][n_iplus1].data;
-		tempbuffer[X][Y].range(20, 20) = vmaskBITS[4][n_iplus1].data;
-		tempbuffer[X][Y].range(21, 21) = vmaskBITS[5][n_iplus1].data;
-		tempbuffer[X][Y].range(22, 22) = vmaskBITS[6][n_iplus1].data;
-		tempbuffer[X][Y].range(23, 23) = vmaskBITS[7][n_iplus1].data;
-		tempbuffer[X][Y].range(24, 24) = vmaskBITS[8][n_iplus1].data;
-		tempbuffer[X][Y].range(25, 25) = vmaskBITS[9][n_iplus1].data;
-		tempbuffer[X][Y].range(26, 26) = vmaskBITS[10][n_iplus1].data;
-		tempbuffer[X][Y].range(27, 27) = vmaskBITS[11][n_iplus1].data;
-		tempbuffer[X][Y].range(28, 28) = vmaskBITS[12][n_iplus1].data;
-		tempbuffer[X][Y].range(29, 29) = vmaskBITS[13][n_iplus1].data;
-		tempbuffer[X][Y].range(30, 30) = vmaskBITS[14][n_iplus1].data;
-		tempbuffer[X][Y].range(31, 31) = vmaskBITS[15][n_iplus1].data;
+		tempbuffer[X][Y].range(0, 0) = vmaskBITS[0][n_i];
+		tempbuffer[X][Y].range(1, 1) = vmaskBITS[1][n_i];
+		tempbuffer[X][Y].range(2, 2) = vmaskBITS[2][n_i];
+		tempbuffer[X][Y].range(3, 3) = vmaskBITS[3][n_i];
+		tempbuffer[X][Y].range(4, 4) = vmaskBITS[4][n_i];
+		tempbuffer[X][Y].range(5, 5) = vmaskBITS[5][n_i];
+		tempbuffer[X][Y].range(6, 6) = vmaskBITS[6][n_i];
+		tempbuffer[X][Y].range(7, 7) = vmaskBITS[7][n_i];
+		tempbuffer[X][Y].range(8, 8) = vmaskBITS[8][n_i];
+		tempbuffer[X][Y].range(9, 9) = vmaskBITS[9][n_i];
+		tempbuffer[X][Y].range(10, 10) = vmaskBITS[10][n_i];
+		tempbuffer[X][Y].range(11, 11) = vmaskBITS[11][n_i];
+		tempbuffer[X][Y].range(12, 12) = vmaskBITS[12][n_i];
+		tempbuffer[X][Y].range(13, 13) = vmaskBITS[13][n_i];
+		tempbuffer[X][Y].range(14, 14) = vmaskBITS[14][n_i];
+		tempbuffer[X][Y].range(15, 15) = vmaskBITS[15][n_i];
+		tempbuffer[X][Y].range(16, 16) = vmaskBITS[0][n_iplus1];
+		tempbuffer[X][Y].range(17, 17) = vmaskBITS[1][n_iplus1];
+		tempbuffer[X][Y].range(18, 18) = vmaskBITS[2][n_iplus1];
+		tempbuffer[X][Y].range(19, 19) = vmaskBITS[3][n_iplus1];
+		tempbuffer[X][Y].range(20, 20) = vmaskBITS[4][n_iplus1];
+		tempbuffer[X][Y].range(21, 21) = vmaskBITS[5][n_iplus1];
+		tempbuffer[X][Y].range(22, 22) = vmaskBITS[6][n_iplus1];
+		tempbuffer[X][Y].range(23, 23) = vmaskBITS[7][n_iplus1];
+		tempbuffer[X][Y].range(24, 24) = vmaskBITS[8][n_iplus1];
+		tempbuffer[X][Y].range(25, 25) = vmaskBITS[9][n_iplus1];
+		tempbuffer[X][Y].range(26, 26) = vmaskBITS[10][n_iplus1];
+		tempbuffer[X][Y].range(27, 27) = vmaskBITS[11][n_iplus1];
+		tempbuffer[X][Y].range(28, 28) = vmaskBITS[12][n_iplus1];
+		tempbuffer[X][Y].range(29, 29) = vmaskBITS[13][n_iplus1];
+		tempbuffer[X][Y].range(30, 30) = vmaskBITS[14][n_iplus1];
+		tempbuffer[X][Y].range(31, 31) = vmaskBITS[15][n_iplus1];
 		#else
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmaskBITS[0][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmaskBITS[1][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmaskBITS[2][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmaskBITS[3][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmaskBITS[4][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmaskBITS[5][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmaskBITS[6][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmaskBITS[7][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmaskBITS[8][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmaskBITS[9][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmaskBITS[10][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmaskBITS[11][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmaskBITS[12][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmaskBITS[13][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmaskBITS[14][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmaskBITS[15][n_i].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmaskBITS[0][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmaskBITS[1][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmaskBITS[2][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmaskBITS[3][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmaskBITS[4][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmaskBITS[5][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmaskBITS[6][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmaskBITS[7][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmaskBITS[8][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmaskBITS[9][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmaskBITS[10][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmaskBITS[11][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmaskBITS[12][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmaskBITS[13][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmaskBITS[14][n_iplus1].data);
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmaskBITS[15][n_iplus1].data);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmaskBITS[0][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmaskBITS[1][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmaskBITS[2][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmaskBITS[3][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmaskBITS[4][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmaskBITS[5][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmaskBITS[6][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmaskBITS[7][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmaskBITS[8][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmaskBITS[9][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmaskBITS[10][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmaskBITS[11][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmaskBITS[12][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmaskBITS[13][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmaskBITS[14][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmaskBITS[15][n_i]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmaskBITS[0][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmaskBITS[1][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmaskBITS[2][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmaskBITS[3][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmaskBITS[4][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmaskBITS[5][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmaskBITS[6][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmaskBITS[7][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmaskBITS[8][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmaskBITS[9][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmaskBITS[10][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmaskBITS[11][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmaskBITS[12][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmaskBITS[13][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmaskBITS[14][n_iplus1]);
+		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmaskBITS[15][n_iplus1]);
 		#endif
 		index += 1;
 		
 		uint32_type maskA = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
 		uint32_type maskB = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
 		cummvmask_sp = cummvmask_sp | maskA | maskB;
-		// cout<<"MEMACCESS_savemasks:: maskA: "<<maskA<<", maskB: "<<maskB<<", cummvmask_sp: "<<cummvmask_sp<<endl;
+		// cout<<"MEMACCESS_SPL_savemasks:: maskA: "<<maskA<<", maskB: "<<maskB<<", cummvmask_sp: "<<cummvmask_sp<<endl;
 		
 		realvid = acts_utilobj->UTIL_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(realvid >= next_chpt){ cout<<"--- MEMACCESS_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(realvid >= next_chpt){ cout<<"--- MEMACCESS_SPL_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		#endif 
 		if(realvid >= next_chpt){ vpmasks[vpmasks_i] = cummvmask_sp; cummvmask_sp = 0; vpmasks_i += 1; next_chpt += processpartitionsz; } // CRITICAL FIXME. TOO EXPENSIVE. CRITICAL FIXME.
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<"--- MEMACCESS_savemasks:: FINISHED. realvid: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl;
+	cout<<"--- MEMACCESS_SPL_savemasks:: FINISHED. realvid: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_CHECKS3
-	if(vpmasks_i != NUM_PEs){ cout<<"--- MEMACCESS_savemasks:: ERROR: vpmasks_i("<<vpmasks_i<<") != NUM_PEs("<<NUM_PEs<<"). EXITING...."<<endl; exit(EXIT_FAILURE); }
+	if(vpmasks_i != NUM_PEs){ cout<<"--- MEMACCESS_SPL_savemasks:: ERROR: vpmasks_i("<<vpmasks_i<<") != NUM_PEs("<<NUM_PEs<<"). EXITING...."<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
 	for(buffer_type k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){

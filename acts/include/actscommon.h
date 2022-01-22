@@ -31,14 +31,6 @@ using namespace std;
 #endif 
 // #define _DEBUGMODE_SUBPMASKING_TRACE
 
-#define PROCESSMODULE
-#define PARTITIONMODULE
-#define REDUCEMODULE //
-#define SYNCHRONIZEMODULE //
-#ifdef CONFIG_SPLIT_DESTVTXS
-#define COLLECTMASKINFOS
-#endif 
-
 #define PROCESSMODE 0
 #define PARTITIONMODE 1
 #define REDUCEMODE 2

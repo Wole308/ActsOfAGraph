@@ -84,9 +84,11 @@ KERNEL_TOP_PROC += $(RELREF)acts/acts/processedges_splitdstvxs.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/partitionupdates.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/reduceupdates.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/mem_access.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/mem_access_splitdstvxs.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_util.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts.cpp
 KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge.cpp
+KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge_splitdstvxs.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/actsutility/actsutility.cpp
 
 #CRITICAL REMOVEME.

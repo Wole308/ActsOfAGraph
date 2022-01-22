@@ -16,6 +16,7 @@
 #include "../src/graphs/graph.h"
 #include "../acts/acts/actsproc.h"
 #include "../acts/acts/acts_merge.h"
+#include "../acts/acts/acts_merge_splitdstvxs.h"
 #include "../acts/acts/actssync.h"
 #include "../src/utility/utility.h"
 #include "../src/algorithm/algorithm.h"
@@ -52,6 +53,7 @@ private:
 	top_nusrcv_nudstv * kernelobjs_process[NUMSUBCPUTHREADS];
 	actssync * kernelobjs_synchronize;
 	acts_merge * kernelobjs_merge;
+	acts_merge_splitdstvxs * kernelobjs_merge_splitdstvxs;
 	#endif
 };
 #endif

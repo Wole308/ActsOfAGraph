@@ -375,7 +375,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	if(GraphAlgo != PAGERANK){ if(globalposition.stage==0 && globalposition.currentLOP==1 && globalposition.source_partition==globalposition.first_source_partition){ acts_utilobj->UTIL_resetkvstatvalues(kvdram, globalparamsK); }}	// CRITICAL FIXME. NEWCHANGE. DO FOR ALL.
 	
 	// process & partition
-	#ifdef PROCESSMODULE
+	#ifdef CONFIG_ENABLEPROCESSMODULE
 	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON && en_process == ON){
 		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: processing instance ... "<<endl;
@@ -385,7 +385,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	#endif
 	
 	// partition
-	#ifdef PARTITIONMODULE
+	#ifdef CONFIG_ENABLEPARTITIONMODULE
 	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON && en_partition == ON){
 		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: partitioning instance ... "<<endl;
@@ -395,7 +395,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	#endif
 	
 	// reduce & partition
-	#if defined(REDUCEMODULE)
+	#if defined(CONFIG_ENABLEREDUCEMODULE)
 	if(globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON && en_reduce == ON){ 
 		#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 		cout<<"topkernelproc: reducing instance ... "<<endl;

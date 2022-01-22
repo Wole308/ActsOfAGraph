@@ -468,24 +468,36 @@ typedef struct {
 	keyvalue1_type data[16];
 } unitBRAMwidth_type; 
 
-typedef struct {
+/* typedef struct {
 	#ifdef _WIDEWORD
 	ap_uint<1> data;
 	#else 
 	unsigned int data;
 	#endif 
-} unit1_type;
+} unit1_type; */
 
 #ifdef _WIDEWORD
-typedef ap_uint<64> uint64_type;
-#else
-typedef keyvalue_t uint64_type;
+typedef ap_uint<1> unit1_type;
+#else 
+typedef unsigned int unit1_type;
+#endif 
+
+#ifdef _WIDEWORD
+typedef ap_uint<16> unit16_type;
+#else 
+typedef unsigned int unit16_type;
 #endif
 
 #ifdef _WIDEWORD
 typedef ap_uint<32> uint32_type;
 #else
 typedef unsigned int uint32_type;
+#endif
+
+#ifdef _WIDEWORD
+typedef ap_uint<64> uint64_type;
+#else
+typedef keyvalue_t uint64_type;
 #endif
 
 typedef struct {
