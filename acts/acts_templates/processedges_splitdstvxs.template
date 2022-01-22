@@ -129,7 +129,8 @@ PROCESS_SPL_debug(unsigned int debugid,
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		if(ens[{{v}}] == ON && mask[{{v}}] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<", udata: "<<udataset[incr[{{v}}]]<<"], [ens[{{v}}]: "<<ens[{{v}}]<<", mask[{{v}}]: "<<mask[{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		{%endfor%}
+		// if(ens[{{v}}] == ON && mask[{{v}}] == 1){ kernelglobal_numvtxsprocessed }	
+		{%endfor%}	
 		#endif
 	}
 	

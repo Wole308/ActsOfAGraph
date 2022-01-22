@@ -4,6 +4,8 @@ using namespace std;
 #define ENABLE_ACTSPROC
 #define ENABLE_ACTSSYNC
 
+unsigned int kernelglobal_numvtxsprocessed[32];
+
 swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;

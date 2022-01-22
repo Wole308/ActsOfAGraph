@@ -871,21 +871,38 @@ PROCESS_SPL_debug(unsigned int debugid,
 	if(debugid == 5){
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		if(ens[0] == ON && mask[0] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", udata: "<<udataset[incr[0]]<<"], [ens[0]: "<<ens[0]<<", mask[0]: "<<mask[0]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[0] == ON && mask[0] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[1] == ON && mask[1] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", udata: "<<udataset[incr[1]]<<"], [ens[1]: "<<ens[1]<<", mask[1]: "<<mask[1]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[1] == ON && mask[1] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[2] == ON && mask[2] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", udata: "<<udataset[incr[2]]<<"], [ens[2]: "<<ens[2]<<", mask[2]: "<<mask[2]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[2] == ON && mask[2] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[3] == ON && mask[3] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", udata: "<<udataset[incr[3]]<<"], [ens[3]: "<<ens[3]<<", mask[3]: "<<mask[3]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[3] == ON && mask[3] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[4] == ON && mask[4] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", udata: "<<udataset[incr[4]]<<"], [ens[4]: "<<ens[4]<<", mask[4]: "<<mask[4]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[4] == ON && mask[4] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[5] == ON && mask[5] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", udata: "<<udataset[incr[5]]<<"], [ens[5]: "<<ens[5]<<", mask[5]: "<<mask[5]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[5] == ON && mask[5] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[6] == ON && mask[6] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", udata: "<<udataset[incr[6]]<<"], [ens[6]: "<<ens[6]<<", mask[6]: "<<mask[6]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[6] == ON && mask[6] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[7] == ON && mask[7] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", udata: "<<udataset[incr[7]]<<"], [ens[7]: "<<ens[7]<<", mask[7]: "<<mask[7]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[7] == ON && mask[7] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[8] == ON && mask[8] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", udata: "<<udataset[incr[8]]<<"], [ens[8]: "<<ens[8]<<", mask[8]: "<<mask[8]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[8] == ON && mask[8] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[9] == ON && mask[9] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", udata: "<<udataset[incr[9]]<<"], [ens[9]: "<<ens[9]<<", mask[9]: "<<mask[9]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[9] == ON && mask[9] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[10] == ON && mask[10] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", udata: "<<udataset[incr[10]]<<"], [ens[10]: "<<ens[10]<<", mask[10]: "<<mask[10]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[10] == ON && mask[10] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[11] == ON && mask[11] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", udata: "<<udataset[incr[11]]<<"], [ens[11]: "<<ens[11]<<", mask[11]: "<<mask[11]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[11] == ON && mask[11] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[12] == ON && mask[12] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", udata: "<<udataset[incr[12]]<<"], [ens[12]: "<<ens[12]<<", mask[12]: "<<mask[12]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[12] == ON && mask[12] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[13] == ON && mask[13] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", udata: "<<udataset[incr[13]]<<"], [ens[13]: "<<ens[13]<<", mask[13]: "<<mask[13]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[13] == ON && mask[13] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[14] == ON && mask[14] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", udata: "<<udataset[incr[14]]<<"], [ens[14]: "<<ens[14]<<", mask[14]: "<<mask[14]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[14] == ON && mask[14] == 1){ kernelglobal_numvtxsprocessed }	
 		if(ens[15] == ON && mask[15] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", udata: "<<udataset[incr[15]]<<"], [ens[15]: "<<ens[15]<<", mask[15]: "<<mask[15]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		// if(ens[15] == ON && mask[15] == 1){ kernelglobal_numvtxsprocessed }	
+	
 		#endif
 	}
 	
@@ -2370,61 +2387,24 @@ REDUCE_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer
 	if(en == true){ cout<<"REDUCE_reducevector:: REDUCEFUNC RESULT @ new_vprop: "<<new_vprop<<", temp: "<<temp<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
-	/* if(en == true && new_vprop != temp){
+	// if(en == true && new_vprop != temp){ // CORRECT ONE.
+		// if(colindex == 0){ curr_vprop.key = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
+		// else { curr_vprop.value = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
+	// }
+	// if(en == true && new_vprop != temp){ // CORRECT ONE.
 		if(colindex == 0){ curr_vprop.key = new_vprop; }
 		else { curr_vprop.value = new_vprop; }
-	} */
-	if(en == true && new_vprop != temp){ // CORRECT ONE.
-		if(colindex == 0){ curr_vprop.key = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
-		else { curr_vprop.value = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
-	}
-	/* if(en == true){
-		if(colindex == 0){ curr_vprop.key = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
-		else { curr_vprop.value = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
-	} */
-	/* if(en == true && temp > 64 && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){
-		if(colindex == 0){ curr_vprop.key = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
-		else { curr_vprop.value = globalparams.ALGORITHMINFO_GRAPHITERATIONID; }
-	} */
-	
-	// if(en == true){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
-	// if(en == true && new_vprop == globalparams.ALGORITHMINFO_GRAPHITERATIONID && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
-	// destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); v
-	// if(en == true && new_vprop == globalparams.ALGORITHMINFO_GRAPHITERATIONID){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
-	if(en == true && new_vprop != temp){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); } // CORRECT ONE.
-	// if(en == true && temp > 64 && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); }
-	
-	// new_vprop == globalparams.ALGORITHMINFO_GRAPHITERATIONID
-	/* #ifdef COLLECTMASKINFOS // mask information
-	if(en == true && mykeyvalue.value != temp){ vmaskBITS[loc].data = 1; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true && mykeyvalue.value != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
-	#endif 
-	#endif */	
-	/* #ifdef COLLECTMASKINFOS // mask information
-	if(en == true && new_vprop != temp){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); vmaskBITS[loc].data = 1; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true && new_vprop != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
-	#endif 
-	#endif	 */
-	/* #ifdef COLLECTMASKINFOS // mask information
-	if(en == true && new_vprop != temp){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); vmaskBITS[loc].data = 1; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true && new_vprop != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
-	#endif 
-	#endif	 */	
-	#ifdef COLLECTMASKINFOS // mask information CORRECT ONE.
+	// }
+
+	if(en == true){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); } // CORRECT ONE.
+	// if(en == true && new_vprop != temp){ destbuffer[destoffset + rowindex] = acts_utilobj->UTIL_GETKV2(curr_vprop); } // CORRECT ONE.
+
+	#ifdef CONFIG_COLLECTMASKINFOSDURINGREDUCE // mask information CORRECT ONE.
 	if(en == true && new_vprop != temp){ vmaskBITS[loc] = 1; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	if(en == true && new_vprop != temp){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
 	#endif 
 	#endif
-	/* #ifdef COLLECTMASKINFOS // mask information
-	if(en == true && temp > 64 && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){ vmaskBITS[loc].data = 1; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true && temp > 64 && globalparams.ALGORITHMINFO_GRAPHITERATIONID < 2){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"].data: "<<vmaskBITS[loc].data<<endl; }
-	#endif 
-	#endif */
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1);
