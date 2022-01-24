@@ -31,11 +31,12 @@
 #include "acts_util.h"
 #include "acts.h"
 #include "acts_merge.h"
+#include "mydebug.h"
 using namespace std;
 
 class top_usrcv_udstv {
 public:
-	top_usrcv_udstv();
+	top_usrcv_udstv(mydebug * _mydebugobj);
 	~top_usrcv_udstv();
 	
 	void processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
@@ -181,6 +182,7 @@ private:
 	mem_access * mem_accessobj;
 	acts * actsobj;
 	acts_merge * mergeobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

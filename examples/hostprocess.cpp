@@ -21,6 +21,8 @@ using namespace std;
 int main(int argc, char** argv){
 	cout<<"Hostprocess:: Graph Analytics Started..."<<endl;
 	
+	int programglobalvar_numvtxsprocessed = 0; // program global variables
+	
 	std::string binaryFile1;
 	std::string binaryFile2;
 	dataset * datasetobj = new dataset();

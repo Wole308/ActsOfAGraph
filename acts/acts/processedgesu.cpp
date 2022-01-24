@@ -2,19 +2,16 @@
 using namespace std;
 
 #ifdef SW
-processedgesu::processedgesu(){ 
+processedgesu::processedgesu(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util();
-	mem_accessobj = new mem_access();
+	acts_utilobj = new acts_util(_mydebugobj);
+	mem_accessobj = new mem_access(_mydebugobj);
+	mydebugobj = _mydebugobj;
 }
 processedgesu::~processedgesu(){}
 #endif
 
-value_t 
-	#ifdef SW 
-	processedgesu::
-	#endif 
-PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	if(GraphAlgo == PAGERANK){
 		res = udata;
@@ -28,11 +25,7 @@ PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	return res;
 }
 
-value_t 
-	#ifdef SW 
-	processedgesu::
-	#endif 
-PROCESS_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t PROCESS_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -65,22 +58,18 @@ PROCESS_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],
 	
 	#ifdef CONFIG_SPLIT_DESTVTXS
 		if(col >= NUM_PARTITIONS || row >= BLOCKRAM_SIZE){ data = 0; } // AUTOMATEME. for pagerank and sssp
-		else { if(loc % 2 == 0){ data = acts_utilobj->UTIL_GETKV2(vbuffer[col][row]).key; } else { data = acts_utilobj->UTIL_GETKV2(vbuffer[col][row]).value; }}
+		else { if(loc % 2 == 0){ data = UTIL_GETKV2(vbuffer[col][row]).key; } else { data = UTIL_GETKV2(vbuffer[col][row]).value; }}
 	#else 
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("GETVTXDATA.col", col, NUM_PARTITIONS, loc, NAp, NAp); 
 		actsutilityobj->checkoutofbounds("GETVTXDATA.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
 		#endif 
-		if(loc % 2 == 0){ data = acts_utilobj->UTIL_GETKV2(vbuffer[col][row]).key; } else { data = acts_utilobj->UTIL_GETKV2(vbuffer[col][row]).value; }
+		if(loc % 2 == 0){ data = UTIL_GETKV2(vbuffer[col][row]).key; } else { data = UTIL_GETKV2(vbuffer[col][row]).value; }
 	#endif 
 	return data;
 }
 
-value_t 
-	#ifdef SW 
-	processedgesu::
-	#endif 
-PROCESS_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t PROCESS_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -120,11 +109,7 @@ PROCESS_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]
 	return data;
 }
 
-fetchmessage_t 
-	#ifdef SW 
-	processedgesu::
-	#endif 
-PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 			
+fetchmessage_t PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 			
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
@@ -171,7 +156,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	int subpidx = -1;
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	
-	buffer_type chunk_size = acts_utilobj->UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
+	buffer_type chunk_size = UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
 	READANDPROCESS_LOOP1: for (buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 	#pragma HLS PIPELINE II=1
@@ -337,22 +322,22 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		mykeyvalue00.key = INVALIDDATA;
 		mykeyvalue00.value = INVALIDDATA;
 		
-		buffer[0][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue00);
-		buffer[0][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue10);
-		buffer[1][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue01);
-		buffer[1][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue11);
-		buffer[2][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue02);
-		buffer[2][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue12);
-		buffer[3][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue03);
-		buffer[3][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue13);
-		buffer[4][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue04);
-		buffer[4][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue14);
-		buffer[5][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue05);
-		buffer[5][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue15);
-		buffer[6][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue06);
-		buffer[6][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue16);
-		buffer[7][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue07);
-		buffer[7][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue17);
+		buffer[0][loadcount] = UTIL_GETKV(mykeyvalue00);
+		buffer[0][loadcount + 1] = UTIL_GETKV(mykeyvalue10);
+		buffer[1][loadcount] = UTIL_GETKV(mykeyvalue01);
+		buffer[1][loadcount + 1] = UTIL_GETKV(mykeyvalue11);
+		buffer[2][loadcount] = UTIL_GETKV(mykeyvalue02);
+		buffer[2][loadcount + 1] = UTIL_GETKV(mykeyvalue12);
+		buffer[3][loadcount] = UTIL_GETKV(mykeyvalue03);
+		buffer[3][loadcount + 1] = UTIL_GETKV(mykeyvalue13);
+		buffer[4][loadcount] = UTIL_GETKV(mykeyvalue04);
+		buffer[4][loadcount + 1] = UTIL_GETKV(mykeyvalue14);
+		buffer[5][loadcount] = UTIL_GETKV(mykeyvalue05);
+		buffer[5][loadcount + 1] = UTIL_GETKV(mykeyvalue15);
+		buffer[6][loadcount] = UTIL_GETKV(mykeyvalue06);
+		buffer[6][loadcount + 1] = UTIL_GETKV(mykeyvalue16);
+		buffer[7][loadcount] = UTIL_GETKV(mykeyvalue07);
+		buffer[7][loadcount + 1] = UTIL_GETKV(mykeyvalue17);
 		if(en == ON && mask == 1){ loadcount += 2; }
 		
 		#ifdef _DEBUGMODE_STATS

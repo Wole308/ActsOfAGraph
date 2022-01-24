@@ -42,11 +42,21 @@ private:
 	VertexValues<uint32_t,uint32_t>* vertex_values;
 	#endif
 	
-	#ifdef FPGA_IMPL
+	#if defined(SW)
+	swkernel * kernelobj;	
+	#elif defined(SW_ALLINONE)
+	swkernel * kernelobj;
+	#elif defined(FPGA_IMPL)
 	goclkernel * kernelobj;
 	#else 
-	swkernel * kernelobj;	
-	#endif
+	NOT DEFINED.
+	#endif 
+	
+	// #ifdef FPGA_IMPL
+	// goclkernel * kernelobj;
+	// #else 
+	// swkernel * kernelobj;	
+	// #endif
 
 	std::thread mythread[NUMUTILITYTHREADS];
 	std::thread mykernelthread[NUMUTILITYTHREADS];

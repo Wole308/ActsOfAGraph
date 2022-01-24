@@ -7,21 +7,20 @@ using namespace std;
 // => VMASK (to read)
 // 32:[0,32,...,480,...,992] | [1,33,...,481,...,993] | ... | [31,63,...,511,...,1023]
 
+// int programglobalvar_numvtxsprocessed = 0; // program global variables
+
 #ifdef SW
-processedges_splitdstvxs::processedges_splitdstvxs(){ 
+processedges_splitdstvxs::processedges_splitdstvxs(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(); 
-	mem_accessobj = new mem_access();
+	acts_utilobj = new acts_util(_mydebugobj); 
+	mem_accessobj = new mem_access(_mydebugobj);
+	mydebugobj = _mydebugobj;
 }
 processedges_splitdstvxs::~processedges_splitdstvxs(){}
 #endif
 
 //
-value_t 
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	if(GraphAlgo == PAGERANK){
 		res = udata;
@@ -35,11 +34,7 @@ PROCESS_SPL_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	return res;
 }
 
-void  
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_debug(unsigned int debugid,
+void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigned int debugid,
 	unsigned int i, value_t E[VECTOR2_SIZE], bool_type ens[VECTOR2_SIZE], unsigned int mask[VECTOR2_SIZE],
 		value_t udataset[MAX_NUM_UNIQ_EDGES_PER_VEC], value_t maskset[VECTOR2_SIZE], value_t Vset[2][VECTOR2_SIZE], unit1_type VMset[2][VECTOR2_SIZE], vertex_t lvids[VECTOR2_SIZE],
 			unsigned int incr[VECTOR2_SIZE], unsigned int lsrcvids[VECTOR2_SIZE], unsigned int ldstvids[VECTOR2_SIZE], value_t res[VECTOR2_SIZE], keyvalue_t mykeyvalue[VECTOR2_SIZE], sweepparams_t sweepparams, globalparams_t globalparams,
@@ -129,7 +124,6 @@ PROCESS_SPL_debug(unsigned int debugid,
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		if(ens[{{v}}] == ON && mask[{{v}}] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<", udata: "<<udataset[incr[{{v}}]]<<"], [ens[{{v}}]: "<<ens[{{v}}]<<", mask[{{v}}]: "<<mask[{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		// if(ens[{{v}}] == ON && mask[{{v}}] == 1){ kernelglobal_numvtxsprocessed }	
 		{%endfor%}	
 		#endif
 	}
@@ -153,11 +147,7 @@ PROCESS_SPL_debug(unsigned int debugid,
 	return;
 }
 
-void  
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_getslice(sliceinfo_t slice, int id, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[VECTOR2_SIZE], unit1_type VMdatas[VECTOR2_SIZE], unsigned int depths[64], globalparams_t globalparams){
+void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_getslice(sliceinfo_t slice, int id, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[VECTOR2_SIZE], unit1_type VMdatas[VECTOR2_SIZE], unsigned int depths[64], globalparams_t globalparams){
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	if(slice.active == false){ cout<<"ENTIRE SLICE "<<id<<" IGNORED."<<endl; exit(EXIT_FAILURE); }
@@ -193,17 +183,13 @@ PROCESS_SPL_getslice(sliceinfo_t slice, int id, keyvalue_vbuffer_t vbuffer[VDATA
 		#endif 
 		
 		if(en==true){ VMdatas[t] = vmaskBITS[t][rowoffseti + slice.local_rowoffset]; } else { VMdatas[t] = 999; }
-		if(en==true){ if(s_%2==0){ Vdatas[t] = vbuffer[t][(rowoffseti + slice.local_rowoffset)/2].key; } else { Vdatas[t] = vbuffer[t][(rowoffseti + slice.local_rowoffset)/2].value; }} else { Vdatas[t] = 888; }
+		if(en==true){ if(s_%2==0){ Vdatas[t] = UTIL_GETKV2(vbuffer[t][(rowoffseti + slice.local_rowoffset)/2]).key; } else { Vdatas[t] = UTIL_GETKV2(vbuffer[t][(rowoffseti + slice.local_rowoffset)/2]).value; }} else { Vdatas[t] = 888; }
 	}
 	return;
 }
 
 //
-value_t 
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -212,7 +198,7 @@ PROCESS_SPL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SI
 		loc = 0; }
 	
 	unsigned int instid = loc % NUM_PEs;
-	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, instid);
+	unsigned int lloc = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETLOCALVID(loc, instid);
 	unsigned int rowoffset = instid * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
 	
 	unsigned int col = lloc % 16;
@@ -232,16 +218,12 @@ PROCESS_SPL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SI
 	#endif 
 	
 	value_t data = 0;
-	if(row % 2 == 0){ data = acts_utilobj->UTIL_GETKV2(vbuffer[realcol][realrow]).key; } 
-	else { data = acts_utilobj->UTIL_GETKV2(vbuffer[realcol][realrow]).value; }
+	if(row % 2 == 0){ data = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer[realcol][realrow]).key; } 
+	else { data = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer[realcol][realrow]).value; }
 	return data;
 }
 
-value_t 
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -250,7 +232,7 @@ PROCESS_SPL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_S
 		loc = 0; }
 		
 	unsigned int instid = loc % NUM_PEs;
-	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, instid);
+	unsigned int lloc = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETLOCALVID(loc, instid);
 	unsigned int rowoffset = instid * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
 	
 	unsigned int col = lloc % 16;
@@ -271,11 +253,7 @@ PROCESS_SPL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_S
 	return data;
 }
 
-value_t 
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_GETVTXDATA_SLIDED(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_GETVTXDATA_SLIDED(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -284,7 +262,7 @@ PROCESS_SPL_GETVTXDATA_SLIDED(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOC
 		loc = 0; }
 	
 	unsigned int s = loc % NUM_PEs;
-	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, s);
+	unsigned int lloc = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETLOCALVID(loc, s);
 	unsigned int rowoffset = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
 	
 	unsigned int col = lloc % 16;
@@ -306,16 +284,12 @@ PROCESS_SPL_GETVTXDATA_SLIDED(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOC
 	#endif 
 	
 	value_t data = 0;
-	if(row % 2 == 0){ data = acts_utilobj->UTIL_GETKV2(vbuffer[rrealcol][realrow]).key; } 
-	else { data = acts_utilobj->UTIL_GETKV2(vbuffer[rrealcol][realrow]).value; }
+	if(row % 2 == 0){ data = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer[rrealcol][realrow]).key; } 
+	else { data = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer[rrealcol][realrow]).value; }
 	return data;
 }
 
-value_t 
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_GETVTXMASK_SLIDED(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_GETVTXMASK_SLIDED(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -324,7 +298,7 @@ PROCESS_SPL_GETVTXMASK_SLIDED(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLO
 		loc = 0; }
 		
 	unsigned int s = loc % NUM_PEs;
-	unsigned int lloc = acts_utilobj->UTIL_GETLOCALVID(loc, s);
+	unsigned int lloc = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETLOCALVID(loc, s);
 	unsigned int rowoffset = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
 	
 	unsigned int col = lloc % 16;
@@ -347,11 +321,7 @@ PROCESS_SPL_GETVTXMASK_SLIDED(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLO
 	return data;
 }
 
-sliceinfos_t 
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_GETVTXSLICES(unsigned int loc, globalparams_t globalparams){					
+sliceinfos_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_GETVTXSLICES(unsigned int loc, globalparams_t globalparams){					
 	#pragma HLS INLINE
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -360,7 +330,7 @@ PROCESS_SPL_GETVTXSLICES(unsigned int loc, globalparams_t globalparams){
 		loc = 0; }
 
 	int s_begin = loc % NUM_PEs; //
-	int llocA = acts_utilobj->UTIL_GETLOCALVID(loc, s_begin);
+	int llocA = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETLOCALVID(loc, s_begin);
 	int v_begin = llocA % 16; //
 	int s_base = -1 * v_begin;
 	int row = llocA / 16;
@@ -404,19 +374,17 @@ PROCESS_SPL_GETVTXSLICES(unsigned int loc, globalparams_t globalparams){
 		sliceX.active = true; sliceX.s_base = s_baseA2; sliceX.beginoffset = s_begin - s_baseA2; if(s_baseA2 + VECTOR2_SIZE > NUM_PEs){ sliceX.endoffset = NUM_PEs - s_baseA2; } else { sliceX.endoffset = VECTOR2_SIZE; } sliceX.local_rowoffset = row; 
 		sliceY.active = true; sliceY.s_base = s_baseB0; sliceY.beginoffset = s_beginB - s_baseB0; if(s_baseB0 + VECTOR2_SIZE > NUM_PEs){ sliceY.endoffset = NUM_PEs - s_baseB0; } else{ sliceY.endoffset = VECTOR2_SIZE; } sliceY.local_rowoffset = rowB; 
 	} else {
+		#ifdef _DEBUGMODE_CHECKS2
 		cout<<"PROCESS_SPL_GETVTXSLICES:: SHOULD NOT BE SEEN. 23 EXITING..."<<endl;
 		exit(EXIT_FAILURE);
+		#endif 
 	}
 	
 	sliceinfos_t sliceinfos; sliceinfos.slice[0] = sliceX; sliceinfos.slice[1] = sliceY;
 	return sliceinfos;
 }
 
-void  
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_GETVTXDATASET(sliceinfo_t slice, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[VECTOR2_SIZE], unit1_type VMdatas[VECTOR2_SIZE], unsigned int depths[64], globalparams_t globalparams){					
+void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_GETVTXDATASET(sliceinfo_t slice, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[VECTOR2_SIZE], unit1_type VMdatas[VECTOR2_SIZE], unsigned int depths[64], globalparams_t globalparams){					
 	#pragma HLS INLINE
 	PROCESS_SPL_getslice(slice, 0, vbuffer, vmaskBITS, Vdatas, VMdatas, depths, globalparams);
 	
@@ -427,11 +395,7 @@ PROCESS_SPL_GETVTXDATASET(sliceinfo_t slice, keyvalue_vbuffer_t vbuffer[VDATA_PA
 	return;
 }
 
-fetchmessage_t 
-	#ifdef SW 
-	processedges_splitdstvxs::
-	#endif 
-PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
@@ -527,7 +491,7 @@ PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kv
 	#else 
 	unsigned int num_passes = 1;
 	#endif 
-	buffer_type chunk_size = acts_utilobj->UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
+	buffer_type chunk_size = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
 	
 	READANDPROCESS_SPL_LOOP1A:  for (buffer_type m=0; m<num_passes; m++){
 		loadcount = 0;
@@ -557,15 +521,15 @@ PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kv
 			srcvid_head = E[0];
 			lvid_head = srcvid_head - travstate.i2;
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			incr[{{v}}] = acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 28, 4);
+			incr[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(E[{{v}}], 28, 4);
 			lsrcvids[{{v}}] = lvid_head + incr[{{v}}];
-			ldstvids[{{v}}] = acts_utilobj->UTIL_READFROM_UINT(E[{{v}}], 0, 28);
+			ldstvids[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(E[{{v}}], 0, 28);
 			{%endfor%}
 			
 			bool_type en = ON;
 			#ifdef _DEBUGMODE_CHECKS3
 			PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-			#endif ;
+			#endif
 			
 			#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD	
 				#if defined(CONFIG_PROCESSEDGESSPLITDSTVTXS_PARALLELVTXSACCESS_II1)
@@ -652,10 +616,10 @@ PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kv
 				udata[{{v}}] = udataset[incr[{{v}}]];
 				mask[{{v}}] = maskset[incr[{{v}}]];
 				{%endfor%}		
-				#endif 
+				#endif
 			}
 			mask[0] = 0; 
-			ens[0] = OFF; 
+			ens[0] = OFF;
 			#ifdef _DEBUGMODE_CHECKS3
 			PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
@@ -673,10 +637,10 @@ PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kv
 			#endif 
 			
 			{%for v in context['VECTOR_SIZE_seq']%}
-			if(enPs[{{v}}] = ON){ buffer[{{v}}][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue[{{v}}]); }
+			if(enPs[{{v}}] == ON){ buffer[{{v}}][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{v}}]); }
 			{%endfor%}
 			{%for v in context['VECTOR_SIZE_seq']%}
-			if(enPs[{{8+v}}] = ON){ buffer[{{v}}][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue[{{8+v}}]); }
+			if(enPs[{{8+v}}] == ON){ buffer[{{v}}][loadcount + 1] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{8+v}}]); }
 			{%endfor%}	
 			
 			#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD

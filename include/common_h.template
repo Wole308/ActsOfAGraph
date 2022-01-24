@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-{%if((context['XWARE'] == "HW") or (context['XWARE'] == "SWEMU"))%}
+{%if(context['XWARE'] == "HW")%}
 #include <string.h>
 #include <cmath>
 #include <ap_int.h>

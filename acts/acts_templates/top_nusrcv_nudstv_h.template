@@ -33,11 +33,12 @@
 #include "acts_merge.h"
 #include "acts_merge_splitdstvxs.h"
 #include "acts.h"
+#include "mydebug.h"
 using namespace std;
 
 class top_nusrcv_nudstv {
 public:
-	top_nusrcv_nudstv();
+	top_nusrcv_nudstv(mydebug * _mydebugobj);
 	~top_nusrcv_nudstv();
 	
 	void processit_unsplitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,
@@ -88,6 +89,7 @@ private:
 	acts_merge * acts_mergeobj;
 	acts_merge_splitdstvxs * acts_merge_splitdstvxsobj;
 	acts * actsobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

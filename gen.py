@@ -9,6 +9,7 @@ import array as arr
 context = {}
 print ('ACTGraph (Courtesy: Jinja 2.0)...')
 context['XWARE'] = sys.argv[1]
+# context['XWARE'] = "SW_ALLINONE"
 context['SETUP'] = sys.argv[2]
 context['ALGORITHM'] = sys.argv[3] 
 context['DATASET'] = sys.argv[4]
@@ -29,6 +30,8 @@ print(isFile)
 if ((context['EVALUATION_TYPE'] != "EV_CREATENDGRAPH") and ((context['DATASET'] == "_RMAT_RANGE0") or (context['DATASET'] == "_RMAT_RANGE1") or (context['DATASET'] == "_RMAT_RANGE2") or (context['DATASET'] == "_RMAT_RANGE3") or (context['DATASET'] == "_RMAT_RANGE4") or (context['DATASET'] == "_RMAT_RANGE5") or (context['DATASET'] == "_RMAT_RANGE6") or (context['DATASET'] == "_RMAT_RANGE7"))):                                     
     context['NUMSUBCPUTHREADS']=1
     
+# context['XWARE'] = OFF
+    
 ###
 
 context['VECTOR_SIZE'] = 8
@@ -38,41 +41,6 @@ context['NUMSUBWORKERS'] = 1 # 3#4
 
 context['NUM_EDGE_BANKS'] = 0
 context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
-
-# context['NUM_EDGE_BANKS'] = 1
-# context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-
-# if (context['NUM_PEs'] >= 0) and (context['NUM_PEs'] < 16):
-   # context['NUM_EDGE_BANKS'] = 1
-   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-# elif (context['NUM_PEs'] >= 16) and (context['NUM_PEs'] < 64):
-   # context['NUM_EDGE_BANKS'] = 0
-   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
-# else:
-   # print ('gen.py: NOT YET IMPLEMENTED 32... EXITING...')
-   # quit()
-    
-# if context['NUM_PEs'] == 1:
-   # context['NUM_EDGE_BANKS'] = 5
-   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-# elif context['NUM_PEs'] == 2:
-   # context['NUM_EDGE_BANKS'] = 3
-   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-# elif context['NUM_PEs'] == 3:
-   # context['NUM_EDGE_BANKS'] = 2
-   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-# elif context['NUM_PEs'] == 4:
-   # context['NUM_EDGE_BANKS'] = 2
-   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-# elif (context['NUM_PEs'] >= 5) and (context['NUM_PEs'] < 16):
-   # context['NUM_EDGE_BANKS'] = 1
-   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-# elif (context['NUM_PEs'] >= 16):
-   # context['NUM_EDGE_BANKS'] = 0
-   # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
-# else:
-   # print ('gen.py: NOT YET IMPLEMENTED 32... EXITING...')
-   # quit()
 
 context['NUM_PEs_seq'] = []
 for i in range (0,context['NUM_PEs']):
@@ -231,6 +199,53 @@ print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 
+###
+
+if context['XWARE'] == "SW":
+    context['classname__top_nusrcv_nudstv'] = "top_nusrcv_nudstv::"
+    context['classname__top_usrcv_udstv'] = "top_usrcv_udstv::"
+    context['classname__processedgesu'] = "processedgesu::"
+    context['classname__processedges_splitdstvxs'] = "processedges_splitdstvxs::"
+    context['classname__partitionupdates'] = "partitionupdates::"
+    context['classname__reduceupdates'] = "reduceupdates::"
+    context['classname__mem_access'] = "mem_access::"
+    context['classname__mem_access_splitdstvxs'] = "mem_access_splitdstvxs::"
+    context['classname__acts_util'] = "acts_util::"
+    context['classname__acts'] = "acts::"
+    context['classname__acts_merge'] = "acts_merge::"
+    context['classname__acts_merge_splitdstvxs'] = "acts_merge_splitdstvxs::"
+elif (context['XWARE'] == "SW_ALLINONE"):
+    context['classname__top_nusrcv_nudstv'] = "acts_all::"
+    context['classname__top_usrcv_udstv'] = "acts_all::"
+    context['classname__processedgesu'] = "acts_all::"
+    context['classname__processedges_splitdstvxs'] = "acts_all::"
+    context['classname__partitionupdates'] = "acts_all::"
+    context['classname__reduceupdates'] = "acts_all::"
+    context['classname__mem_access'] = "acts_all::"
+    context['classname__mem_access_splitdstvxs'] = "acts_all::"
+    context['classname__acts_util'] = "acts_all::"
+    context['classname__acts'] = "acts_all::"
+    context['classname__acts_merge'] = "acts_all::"
+    context['classname__acts_merge_splitdstvxs'] = "acts_all::"
+elif ((context['XWARE'] == "HW") or (context['XWARE'] == "SWEMU")):
+    context['classname__top_nusrcv_nudstv'] = ""
+    context['classname__top_usrcv_udstv'] = ""
+    context['classname__processedgesu'] = ""
+    context['classname__processedges_splitdstvxs'] = ""
+    context['classname__partitionupdates'] = ""
+    context['classname__reduceupdates'] = ""
+    context['classname__mem_access'] = ""
+    context['classname__mem_access_splitdstvxs'] = ""
+    context['classname__acts_util'] = ""
+    context['classname__acts'] = ""
+    context['classname__acts_merge'] = ""
+    context['classname__acts_merge_splitdstvxs'] = ""
+else:
+    print ('gen.py: NOT YET IMPLEMENTED 38... EXITING...')
+    quit()
+
+###
+
 relref=""
 # relref="../"
 	
@@ -271,6 +286,19 @@ o_path32=relref+"acts/acts/acts_merge_splitdstvxs.cpp"
 o_path33=relref+"acts/acts/acts_merge_splitdstvxs.h"
 o_path34=relref+"acts/acts/acts_all.cpp"
 o_path35=relref+"acts/acts/acts_all.h"
+o_path100=relref+"acts/acts/top_usrcv_udstv_mf.h"
+o_path101=relref+"acts/acts/top_nusrcv_nudstv_mf.h"
+o_path102=relref+"acts/acts/processedges_splitdstvxs_mf.h"
+o_path103=relref+"acts/acts/processedgesu_mf.h"
+o_path104=relref+"acts/acts/reduceupdates_mf.h"
+o_path105=relref+"acts/acts/acts_util_mf.h"
+o_path106=relref+"acts/acts/mem_access_mf.h"
+o_path107=relref+"acts/acts/partitionupdates_mf.h"
+o_path108=relref+"acts/acts/acts_merge_mf.h"
+o_path109=relref+"acts/acts/mem_access_splitdstvxs_mf.h"
+o_path110=relref+"acts/acts/acts_merge_splitdstvxs_mf.h"
+o_path111=relref+"acts/acts/acts_util_mf.h"
+o_path112=relref+"acts/acts/acts_util_mf.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -308,6 +336,19 @@ out_path32=os.path.abspath(o_path32)
 out_path33=os.path.abspath(o_path33)
 out_path34=os.path.abspath(o_path34)
 out_path35=os.path.abspath(o_path35)
+out_path100=os.path.abspath(o_path100)
+out_path101=os.path.abspath(o_path101)
+out_path102=os.path.abspath(o_path102)
+out_path103=os.path.abspath(o_path103)
+out_path104=os.path.abspath(o_path104)
+out_path105=os.path.abspath(o_path105)
+out_path106=os.path.abspath(o_path106)
+out_path107=os.path.abspath(o_path107)
+out_path108=os.path.abspath(o_path108)
+out_path109=os.path.abspath(o_path109)
+out_path110=os.path.abspath(o_path110)
+out_path111=os.path.abspath(o_path111)
+out_path112=os.path.abspath(o_path112)
 
 templ_path0=relref+"acts/acts_templates"
 templ_path1=relref+"acts/acts_templates"
@@ -345,6 +386,19 @@ templ_path32=relref+"acts/acts_templates"
 templ_path33=relref+"acts/acts_templates"
 templ_path34=relref+"acts/acts_templates"
 templ_path35=relref+"acts/acts_templates"
+templ_path100=relref+"acts/acts_templates"
+templ_path101=relref+"acts/acts_templates"
+templ_path102=relref+"acts/acts_templates"
+templ_path103=relref+"acts/acts_templates"
+templ_path104=relref+"acts/acts_templates"
+templ_path105=relref+"acts/acts_templates"
+templ_path106=relref+"acts/acts_templates"
+templ_path107=relref+"acts/acts_templates"
+templ_path108=relref+"acts/acts_templates"
+templ_path109=relref+"acts/acts_templates"
+templ_path110=relref+"acts/acts_templates"
+templ_path111=relref+"acts/acts_templates"
+templ_path112=relref+"acts/acts_templates"
 
 ###
 context['1_seq'] = []
@@ -588,6 +642,19 @@ env32 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path32)), trim
 env33 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path33)), trim_blocks=True, lstrip_blocks=True)
 env34 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path34)), trim_blocks=True, lstrip_blocks=True)
 env35 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path35)), trim_blocks=True, lstrip_blocks=True)
+env100 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path100)), trim_blocks=True, lstrip_blocks=True)
+env101 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path101)), trim_blocks=True, lstrip_blocks=True)
+env102 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path102)), trim_blocks=True, lstrip_blocks=True)
+env103 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path103)), trim_blocks=True, lstrip_blocks=True)
+env104 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path104)), trim_blocks=True, lstrip_blocks=True)
+env105 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path105)), trim_blocks=True, lstrip_blocks=True)
+env106 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path106)), trim_blocks=True, lstrip_blocks=True)
+env107 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path107)), trim_blocks=True, lstrip_blocks=True)
+env108 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path108)), trim_blocks=True, lstrip_blocks=True)
+env109 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path109)), trim_blocks=True, lstrip_blocks=True)
+env110 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path110)), trim_blocks=True, lstrip_blocks=True)
+env111 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path111)), trim_blocks=True, lstrip_blocks=True)
+env112 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path112)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -625,6 +692,19 @@ env32.globals.update(zip=zip)
 env33.globals.update(zip=zip)
 env34.globals.update(zip=zip)
 env35.globals.update(zip=zip)
+env100.globals.update(zip=zip)
+env101.globals.update(zip=zip)
+env102.globals.update(zip=zip)
+env103.globals.update(zip=zip)
+env104.globals.update(zip=zip)
+env105.globals.update(zip=zip)
+env106.globals.update(zip=zip)
+env107.globals.update(zip=zip)
+env108.globals.update(zip=zip)
+env109.globals.update(zip=zip)
+env110.globals.update(zip=zip)
+env111.globals.update(zip=zip)
+env112.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts_h.template')
@@ -662,6 +742,19 @@ template32 = env32.get_template('acts_merge_splitdstvxs.template')
 template33 = env33.get_template('acts_merge_splitdstvxs_h.template')
 template34 = env34.get_template('acts_all.template')
 template35 = env35.get_template('acts_all_h.template')
+template100 = env100.get_template('top_usrcv_udstv_mf.template')
+template101 = env101.get_template('top_nusrcv_nudstv_mf.template')
+template102 = env102.get_template('processedges_splitdstvxs_mf.template')
+template103 = env103.get_template('processedgesu_mf.template')
+template104 = env104.get_template('reduceupdates_mf.template')
+template105 = env105.get_template('acts_util_mf.template')
+template106 = env106.get_template('mem_access_mf.template')
+template107 = env107.get_template('partitionupdates_mf.template')
+template108 = env108.get_template('acts_merge_mf.template')
+template109 = env109.get_template('mem_access_splitdstvxs_mf.template')
+template110 = env110.get_template('acts_merge_splitdstvxs_mf.template')
+template111 = env111.get_template('acts_util_mf.template')
+template112 = env112.get_template('acts_util_mf.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -699,6 +792,19 @@ rendered_file32 = template32.render(context=context)
 rendered_file33 = template33.render(context=context)
 rendered_file34 = template34.render(context=context)
 rendered_file35 = template35.render(context=context)
+rendered_file100 = template100.render(context=context)
+rendered_file101 = template101.render(context=context)
+rendered_file102 = template102.render(context=context)
+rendered_file103 = template103.render(context=context)
+rendered_file104 = template104.render(context=context)
+rendered_file105 = template105.render(context=context)
+rendered_file106 = template106.render(context=context)
+rendered_file107 = template107.render(context=context)
+rendered_file108 = template108.render(context=context)
+rendered_file109 = template109.render(context=context)
+rendered_file110 = template110.render(context=context)
+rendered_file111 = template111.render(context=context)
+rendered_file112 = template12.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -776,6 +882,32 @@ with open(out_path35, 'w') as outFile35:
 	# outFile36.write(rendered_file36)
 # with open(out_path37, 'w') as outFile37:
 	# outFile37.write(rendered_file37)
+with open(out_path100, 'w') as outFile100:
+	outFile100.write(rendered_file100)
+with open(out_path101, 'w') as outFile101:
+	outFile101.write(rendered_file101)
+with open(out_path102, 'w') as outFile102:
+	outFile102.write(rendered_file102)
+with open(out_path103, 'w') as outFile103:
+	outFile103.write(rendered_file103) 
+with open(out_path104, 'w') as outFile104:
+	outFile104.write(rendered_file104) 
+with open(out_path105, 'w') as outFile105:
+	outFile105.write(rendered_file105)
+with open(out_path106, 'w') as outFile106:
+	outFile106.write(rendered_file106)
+with open(out_path107, 'w') as outFile107:
+	outFile107.write(rendered_file107)
+with open(out_path108, 'w') as outFile108:
+	outFile108.write(rendered_file108)
+with open(out_path109, 'w') as outFile109:
+	outFile109.write(rendered_file109)
+with open(out_path110, 'w') as outFile110:
+	outFile110.write(rendered_file110)
+with open(out_path111, 'w') as outFile111:
+	outFile111.write(rendered_file111)
+with open(out_path112, 'w') as outFile112:
+	outFile112.write(rendered_file112)
 
 print ("successful!")
 print ("...")

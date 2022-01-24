@@ -1,0 +1,82 @@
+#ifndef ACTS_ALL_H
+#define ACTS_ALL_H
+#include "../../include/config_params.h"
+#include "../../include/common.h"
+#include "../include/actscommon.h"
+#ifdef SW_ALLINONE 
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
+#endif 
+#ifdef SW_ALLINONE 
+#include "../../src/utility/utility.h"
+#include "../../acts/actsutility/actsutility.h"
+#endif
+#include "mydebug.h"
+using namespace std;
+
+class acts_all {
+public:
+	acts_all(mydebug * _mydebugobj);
+	~acts_all();
+	
+	#ifdef CONFIG_ENABLECLASS_ACTS_UTIL
+	{% include 'acts_util_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_MEM_ACCESS
+	{% include 'mem_access_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_MEM_ACCESS_SPLITDSTVXS
+	{% include 'mem_access_splitdstvxs_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_PROCESSEDGESU
+	{% include 'processedgesu_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES_SPLITDSTVXS
+	{% include 'processedges_splitdstvxs_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_PARTITIONUPDATES
+	{% include 'partitionupdates_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
+	{% include 'reduceupdates_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
+	{% include 'acts_merge_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE_SPLITDSTVXS
+	{% include 'acts_merge_splitdstvxs_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_ACTS
+	{% include 'acts_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
+	{% include 'top_usrcv_udstv_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
+	{% include 'top_nusrcv_nudstv_mf.template' %}	
+	#endif 
+	
+private:
+	#ifdef SW_ALLINONE 
+	actsutility * actsutilityobj;
+	mydebug * mydebugobj;
+	#endif 
+};
+#endif 
+
+
+
+
+

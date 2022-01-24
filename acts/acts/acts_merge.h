@@ -30,11 +30,12 @@
 #include "mem_access.h"
 #include "acts_util.h"
 #include "acts.h"
+#include "mydebug.h"
 using namespace std;
 
 class acts_merge {
 public:
-	acts_merge();
+	acts_merge(mydebug * _mydebugobj);
 	~acts_merge();
 	
 	// for usrcv udstv 
@@ -77,6 +78,7 @@ private:
 	reduceupdates * reduceupdatesobj;
 	mem_access * mem_accessobj;
 	acts * actsobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

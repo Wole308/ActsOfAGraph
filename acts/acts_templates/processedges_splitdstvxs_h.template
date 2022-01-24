@@ -21,23 +21,12 @@
 #endif 
 #include "mem_access.h"
 #include "acts_util.h"
+#include "mydebug.h"
 using namespace std;
-
-typedef struct {
-	bool active;
-	int beginoffset;
-	int endoffset;
-	int s_base;
-	int local_rowoffset;
-} sliceinfo_t;
-
-typedef struct {
-	sliceinfo_t slice[4];
-} sliceinfos_t;
 
 class processedges_splitdstvxs {
 public:
-	processedges_splitdstvxs();
+	processedges_splitdstvxs(mydebug * _mydebugobj);
 	~processedges_splitdstvxs();
 	
 	//
@@ -73,6 +62,7 @@ private:
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
 	mem_access * mem_accessobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

@@ -2,44 +2,33 @@
 using namespace std;
 
 #ifdef SW
-acts_merge::acts_merge(){ 
+acts_merge::acts_merge(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(); 
-	processedgesobj = new processedgesu();
-	processedges_splitdstvxsobj = new processedges_splitdstvxs();
-	partitionupdatesobj = new partitionupdates();
-	reduceupdatesobj = new reduceupdates();
-	mem_accessobj = new mem_access();
-	actsobj = new acts();
+	acts_utilobj = new acts_util(_mydebugobj); 
+	processedgesobj = new processedgesu(_mydebugobj);
+	processedges_splitdstvxsobj = new processedges_splitdstvxs(_mydebugobj);
+	partitionupdatesobj = new partitionupdates(_mydebugobj);
+	reduceupdatesobj = new reduceupdates(_mydebugobj);
+	mem_accessobj = new mem_access(_mydebugobj);
+	actsobj = new acts(_mydebugobj);
+	mydebugobj = _mydebugobj;
 }
 acts_merge::~acts_merge(){}
 #endif
 
 // for usrcv udstv 
-unsigned int
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_amin(unsigned int val1, unsigned int val2){
+unsigned int {{context['classname__acts_merge']}}MERGE_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
 
-value_t 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+value_t {{context['classname__acts_merge']}}MERGE_mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	return MERGE_amin(value1, value2);
 }
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate{{n}}vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],{%endif%}{%endfor%} unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__acts_merge']}}MERGE_readandreplicate{{n}}vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],{%endif%}{%endfor%} unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -65,7 +54,7 @@ MERGE_readandreplicate{{n}}vdata(bool_type enable, uint512_dt * vdram, batch_typ
 		{%for i in context['T_seq']%}
 		{%if(i<n)%}
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer{{i}}[begincol + {{v}}][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue{{v}});
+		buffer{{i}}[begincol + {{v}}][bufferoffset_kvs + i] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(mykeyvalue{{v}});
 		{%endfor%}
 		{%endif%}
 		{%endfor%}
@@ -88,11 +77,7 @@ MERGE_readandreplicate{{n}}vdata(bool_type enable, uint512_dt * vdram, batch_typ
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge{{n}}andsavevdata(bool_type enable, uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t vbuffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],{%endif%}{%endfor%} unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void {{context['classname__acts_merge']}}MERGE_merge{{n}}andsavevdata(bool_type enable, uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t vbuffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],{%endif%}{%endfor%} unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -109,7 +94,7 @@ MERGE_merge{{n}}andsavevdata(bool_type enable, uint512_dt * vdram, {%for i in co
 		{%for i in context['Tplus2_seq']%}
 		{%if(i<n)%}
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{i}}{{v}} = acts_utilobj->UTIL_GETKV2(vbuffer{{i}}[begincol + {{v}}][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue{{i}}{{v}} = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer{{i}}[begincol + {{v}}][bufferoffset_kvs + j]);	
 		{%endfor%}
 		{%else%}
 		{%for v in context['VECTOR_SIZE_seq']%}

@@ -25,11 +25,12 @@
 #ifdef SW 
 #include "../../acts/actsutility/actsutility.h"
 #endif
+#include "mydebug.h"
 using namespace std;
 
 class actssync {
 public:
-	actssync();
+	actssync(mydebug * _mydebugobj);
 	~actssync();
 	
 	#ifdef SW  // CRITICAL REMOVEME.
@@ -119,8 +120,9 @@ public:
 	void topkernelsync({%for i in context['SYNCTHREADS_seq']%}uint512_dt * kvdram{{i}},{%endfor%} uint512_dt * vdram);
 
 private:
-	#ifndef FPGA_IMPL
+	#ifdef SW
 	actsutility * actsutilityobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

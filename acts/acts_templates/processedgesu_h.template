@@ -25,11 +25,12 @@
 #endif
 #include "mem_access.h"
 #include "acts_util.h"
+#include "mydebug.h"
 using namespace std;
 
 class processedgesu {
 public:
-	processedgesu();
+	processedgesu(mydebug * _mydebugobj);
 	~processedgesu();
 	
 	value_t PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo);
@@ -46,6 +47,7 @@ private:
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
 	mem_access * mem_accessobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

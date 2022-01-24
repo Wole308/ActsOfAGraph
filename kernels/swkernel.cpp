@@ -4,26 +4,26 @@ using namespace std;
 #define ENABLE_ACTSPROC
 #define ENABLE_ACTSSYNC
 
-unsigned int kernelglobal_numvtxsprocessed[32];
-
 swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
 	graphobj = _graphobj;
 	algorithmobj = _algorithmobj;
+	mydebugobj = new mydebug();
 	
-	#ifdef SW
-	// for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(); }
-	// for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new actsproc(); }
-	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new top_nusrcv_nudstv(); }
-	kernelobjs_synchronize = new actssync();
-	kernelobjs_merge = new acts_merge();
-	kernelobjs_merge_splitdstvxs = new acts_merge_splitdstvxs();
-	#endif
+	// for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(mydebugobj); }
+	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new acts_all(mydebugobj); }
+	// for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new actsproc(mydebugobj); }
+	// for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new top_nusrcv_nudstv(mydebugobj); } // Recent.
+	
+	#ifdef SW 
+	kernelobjs_merge = new acts_merge(mydebugobj);
+	kernelobjs_merge_splitdstvxs = new acts_merge_splitdstvxs(mydebugobj);
+	#endif 
 }
 swkernel::~swkernel(){}
 
-#if defined(SW)
+#ifndef HW
 void swkernel::verifyresults(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int id){
 	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -83,10 +83,10 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	vdramC = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	vdramD = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
 	#endif
-	#endif 
+	#endif
 	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; vdramD[i] = vdram[i]; }
 
-	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){ // numIters // CRITICAL REMOVEME.
+	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<< TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<numIters<<" iterations"<< RESET <<endl;
 		std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
 
@@ -105,7 +105,21 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		#else 
 		NOT DEFINED.
 		#endif
+		
+		#ifdef SW  // ADDMEBACK.
 		kernelobjs_merge_splitdstvxs->MERGE_SPLIT_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);
+		#else 
+		kernelobjs_process[0]->MERGE_SPLIT_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);	
+		#endif 
+		
+		// cout<<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> swkernel::runapp:: Number of active vertices for next iteration (Iter "<<GraphIter+1<<"): mydebugobj->get("<<GraphIter<<"): "<<mydebugobj->get(0, GraphIter+1)<<endl;
+		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 0 (@ top_nusrcv_nudstv::topkernelP (before broadcast).cpp): mydebugobj->get(0, "<<t<<"): "<<mydebugobj->get(0, t)<<endl; }
+		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 1 (@ top_nusrcv_nudstv::topkernelP (after broadcast).cpp): mydebugobj->get(1, "<<t<<"): "<<mydebugobj->get(1, t)<<endl; }
+		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 2 (@ mem_access::MEMACCESS_SPL_savemasks.cpp): mydebugobj->get(2, "<<t<<"): "<<mydebugobj->get(2, t)<<endl; }
+		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 3 (@ acts_merge_splitdstvxss::MERGE_SPLIT_exchangeVs.cpp): mydebugobj->get(3, "<<t<<"): "<<mydebugobj->get(3, t)<<endl; }
+		
+		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 4 (@ dummy): mydebugobj->get(4, "<<t<<"): "<<mydebugobj->get(4, t)<<endl; }
+		// exit(EXIT_SUCCESS);
 		
 		long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 		cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
@@ -589,6 +603,7 @@ void swkernel::run32(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 	unsigned int B_OFFSET = 10;
 	unsigned int C_OFFSET = 20;
 	
+	// #ifdef XXX // CRITICAL REMOVEME.
 	cout<<"------------------------------------ topkernelP1: processing P10 instances ------------------------------------"<<endl;
 	#if NUM_EDGE_BANKS==0
 	kernelobjs_process[0]->topkernelP10(
@@ -670,6 +685,7 @@ void swkernel::run32(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 		(uint512_dt *)vdramB
 	);
 	#endif 
+	// #endif 
 	
 	cout<<"------------------------------------ topkernelP1: processing P12 instances ------------------------------------"<<endl;
 	#if NUM_EDGE_BANKS==0
@@ -716,7 +732,7 @@ void swkernel::run32(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 		(uint512_dt *)kvsourcedram[C_OFFSET + 11],
 		(uint512_dt *)vdramC
 	);
-	#endif
+	#endif 
 }
 #endif 
 

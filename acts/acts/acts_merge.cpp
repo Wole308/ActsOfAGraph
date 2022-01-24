@@ -2,42 +2,31 @@
 using namespace std;
 
 #ifdef SW
-acts_merge::acts_merge(){ 
+acts_merge::acts_merge(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(); 
-	processedgesobj = new processedgesu();
-	processedges_splitdstvxsobj = new processedges_splitdstvxs();
-	partitionupdatesobj = new partitionupdates();
-	reduceupdatesobj = new reduceupdates();
-	mem_accessobj = new mem_access();
-	actsobj = new acts();
+	acts_utilobj = new acts_util(_mydebugobj); 
+	processedgesobj = new processedgesu(_mydebugobj);
+	processedges_splitdstvxsobj = new processedges_splitdstvxs(_mydebugobj);
+	partitionupdatesobj = new partitionupdates(_mydebugobj);
+	reduceupdatesobj = new reduceupdates(_mydebugobj);
+	mem_accessobj = new mem_access(_mydebugobj);
+	actsobj = new acts(_mydebugobj);
+	mydebugobj = _mydebugobj;
 }
 acts_merge::~acts_merge(){}
 #endif
 
 // for usrcv udstv 
-unsigned int
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_amin(unsigned int val1, unsigned int val2){
+unsigned int MERGE_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
 
-value_t 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
+value_t MERGE_mergefunc(value_t value1, value_t value2, unsigned int GraphAlgo){
 	return MERGE_amin(value1, value2);
 }
 
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate1vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate1vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -89,14 +78,14 @@ MERGE_readandreplicate1vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -111,11 +100,7 @@ MERGE_readandreplicate1vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate2vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate2vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -167,22 +152,22 @@ MERGE_readandreplicate2vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -197,11 +182,7 @@ MERGE_readandreplicate2vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate3vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate3vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -253,30 +234,30 @@ MERGE_readandreplicate3vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -291,11 +272,7 @@ MERGE_readandreplicate3vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate4vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate4vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -347,38 +324,38 @@ MERGE_readandreplicate4vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -393,11 +370,7 @@ MERGE_readandreplicate4vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate5vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate5vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -449,46 +422,46 @@ MERGE_readandreplicate5vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer4[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer4[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer4[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer4[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer4[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer4[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer4[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer4[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer4[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer4[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer4[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer4[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer4[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer4[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer4[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer4[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -503,11 +476,7 @@ MERGE_readandreplicate5vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate6vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate6vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -559,54 +528,54 @@ MERGE_readandreplicate6vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer4[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer4[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer4[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer4[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer4[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer4[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer4[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer4[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer5[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer5[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer5[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer5[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer5[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer5[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer5[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer5[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer4[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer4[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer4[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer4[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer4[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer4[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer4[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer4[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer5[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer5[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer5[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer5[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer5[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer5[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer5[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer5[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -621,11 +590,7 @@ MERGE_readandreplicate6vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate7vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate7vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -677,62 +642,62 @@ MERGE_readandreplicate7vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer4[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer4[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer4[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer4[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer4[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer4[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer4[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer4[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer5[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer5[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer5[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer5[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer5[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer5[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer5[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer5[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer6[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer6[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer6[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer6[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer6[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer6[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer6[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer6[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer4[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer4[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer4[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer4[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer4[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer4[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer4[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer4[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer5[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer5[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer5[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer5[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer5[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer5[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer5[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer5[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer6[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer6[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer6[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer6[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer6[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer6[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer6[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer6[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -747,11 +712,7 @@ MERGE_readandreplicate7vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate8vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate8vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -803,70 +764,70 @@ MERGE_readandreplicate8vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer4[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer4[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer4[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer4[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer4[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer4[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer4[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer4[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer5[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer5[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer5[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer5[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer5[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer5[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer5[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer5[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer6[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer6[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer6[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer6[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer6[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer6[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer6[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer6[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer7[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer7[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer7[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer7[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer7[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer7[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer7[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer7[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer4[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer4[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer4[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer4[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer4[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer4[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer4[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer4[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer5[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer5[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer5[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer5[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer5[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer5[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer5[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer5[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer6[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer6[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer6[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer6[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer6[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer6[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer6[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer6[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer7[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer7[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer7[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer7[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer7[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer7[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer7[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer7[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -881,11 +842,7 @@ MERGE_readandreplicate8vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate9vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate9vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -937,78 +894,78 @@ MERGE_readandreplicate9vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer4[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer4[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer4[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer4[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer4[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer4[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer4[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer4[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer5[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer5[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer5[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer5[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer5[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer5[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer5[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer5[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer6[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer6[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer6[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer6[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer6[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer6[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer6[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer6[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer7[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer7[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer7[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer7[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer7[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer7[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer7[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer7[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer8[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer8[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer8[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer8[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer8[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer8[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer8[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer8[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer4[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer4[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer4[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer4[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer4[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer4[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer4[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer4[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer5[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer5[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer5[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer5[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer5[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer5[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer5[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer5[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer6[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer6[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer6[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer6[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer6[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer6[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer6[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer6[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer7[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer7[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer7[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer7[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer7[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer7[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer7[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer7[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer8[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer8[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer8[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer8[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer8[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer8[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer8[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer8[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -1023,11 +980,7 @@ MERGE_readandreplicate9vdata(bool_type enable, uint512_dt * vdram, batch_type dr
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate10vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate10vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -1079,86 +1032,86 @@ MERGE_readandreplicate10vdata(bool_type enable, uint512_dt * vdram, batch_type d
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer4[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer4[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer4[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer4[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer4[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer4[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer4[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer4[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer5[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer5[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer5[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer5[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer5[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer5[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer5[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer5[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer6[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer6[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer6[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer6[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer6[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer6[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer6[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer6[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer7[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer7[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer7[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer7[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer7[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer7[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer7[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer7[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer8[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer8[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer8[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer8[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer8[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer8[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer8[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer8[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer9[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer9[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer9[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer9[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer9[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer9[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer9[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer9[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer4[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer4[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer4[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer4[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer4[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer4[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer4[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer4[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer5[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer5[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer5[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer5[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer5[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer5[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer5[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer5[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer6[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer6[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer6[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer6[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer6[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer6[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer6[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer6[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer7[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer7[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer7[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer7[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer7[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer7[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer7[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer7[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer8[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer8[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer8[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer8[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer8[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer8[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer8[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer8[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer9[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer9[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer9[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer9[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer9[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer9[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer9[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer9[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -1173,11 +1126,7 @@ MERGE_readandreplicate10vdata(bool_type enable, uint512_dt * vdram, batch_type d
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate11vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate11vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -1229,94 +1178,94 @@ MERGE_readandreplicate11vdata(bool_type enable, uint512_dt * vdram, batch_type d
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer4[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer4[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer4[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer4[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer4[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer4[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer4[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer4[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer5[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer5[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer5[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer5[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer5[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer5[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer5[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer5[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer6[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer6[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer6[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer6[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer6[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer6[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer6[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer6[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer7[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer7[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer7[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer7[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer7[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer7[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer7[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer7[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer8[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer8[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer8[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer8[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer8[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer8[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer8[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer8[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer9[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer9[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer9[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer9[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer9[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer9[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer9[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer9[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer10[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer10[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer10[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer10[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer10[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer10[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer10[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer10[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer4[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer4[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer4[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer4[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer4[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer4[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer4[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer4[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer5[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer5[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer5[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer5[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer5[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer5[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer5[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer5[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer6[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer6[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer6[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer6[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer6[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer6[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer6[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer6[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer7[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer7[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer7[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer7[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer7[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer7[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer7[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer7[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer8[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer8[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer8[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer8[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer8[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer8[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer8[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer8[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer9[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer9[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer9[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer9[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer9[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer9[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer9[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer9[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer10[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer10[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer10[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer10[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer10[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer10[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer10[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer10[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -1331,11 +1280,7 @@ MERGE_readandreplicate11vdata(bool_type enable, uint512_dt * vdram, batch_type d
 	#endif
 	return;
 }
-void 
-	#ifdef SW 
-	acts_merge::
-	#endif 
-MERGE_readandreplicate12vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MERGE_readandreplicate12vdata(bool_type enable, uint512_dt * vdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -1387,102 +1332,102 @@ MERGE_readandreplicate12vdata(bool_type enable, uint512_dt * vdram, batch_type d
 		mykeyvalue7.value = vdram[dramoffset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer0[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer0[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer0[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer0[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer0[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer0[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer0[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer0[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer1[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer1[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer1[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer1[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer1[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer1[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer1[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer1[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer2[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer2[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer2[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer2[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer2[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer2[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer2[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer2[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer3[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer3[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer3[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer3[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer3[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer3[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer3[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer3[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer4[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer4[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer4[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer4[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer4[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer4[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer4[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer4[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer5[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer5[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer5[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer5[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer5[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer5[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer5[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer5[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer6[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer6[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer6[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer6[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer6[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer6[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer6[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer6[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer7[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer7[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer7[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer7[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer7[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer7[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer7[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer7[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer8[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer8[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer8[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer8[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer8[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer8[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer8[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer8[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer9[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer9[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer9[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer9[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer9[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer9[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer9[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer9[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer10[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer10[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer10[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer10[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer10[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer10[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer10[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer10[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
-		buffer11[begincol + 0][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue0);
-		buffer11[begincol + 1][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue1);
-		buffer11[begincol + 2][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue2);
-		buffer11[begincol + 3][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue3);
-		buffer11[begincol + 4][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue4);
-		buffer11[begincol + 5][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue5);
-		buffer11[begincol + 6][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue6);
-		buffer11[begincol + 7][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue7);
+		buffer0[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer0[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer0[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer0[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer0[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer0[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer0[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer0[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer1[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer1[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer1[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer1[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer1[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer1[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer1[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer1[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer2[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer2[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer2[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer2[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer2[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer2[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer2[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer2[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer3[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer3[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer3[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer3[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer3[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer3[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer3[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer3[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer4[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer4[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer4[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer4[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer4[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer4[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer4[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer4[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer5[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer5[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer5[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer5[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer5[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer5[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer5[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer5[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer6[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer6[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer6[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer6[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer6[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer6[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer6[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer6[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer7[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer7[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer7[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer7[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer7[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer7[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer7[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer7[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer8[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer8[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer8[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer8[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer8[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer8[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer8[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer8[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer9[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer9[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer9[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer9[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer9[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer9[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer9[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer9[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer10[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer10[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer10[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer10[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer10[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer10[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer10[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer10[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
+		buffer11[begincol + 0][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue0);
+		buffer11[begincol + 1][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue1);
+		buffer11[begincol + 2][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue2);
+		buffer11[begincol + 3][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue3);
+		buffer11[begincol + 4][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue4);
+		buffer11[begincol + 5][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue5);
+		buffer11[begincol + 6][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue6);
+		buffer11[begincol + 7][bufferoffset_kvs + i] = UTIL_GETKV2(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -1498,11 +1443,7 @@ MERGE_readandreplicate12vdata(bool_type enable, uint512_dt * vdram, batch_type d
 	return;
 }
 
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge1andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge1andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -1718,14 +1659,14 @@ MERGE_merge1andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE1_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue10 = dummykv;
 		keyvalue_t mykeyvalue11 = dummykv;
 		keyvalue_t mykeyvalue12 = dummykv;
@@ -1993,11 +1934,7 @@ MERGE_merge1andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge2andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge2andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -2213,22 +2150,22 @@ MERGE_merge2andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE2_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue20 = dummykv;
 		keyvalue_t mykeyvalue21 = dummykv;
 		keyvalue_t mykeyvalue22 = dummykv;
@@ -2504,11 +2441,7 @@ MERGE_merge2andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge3andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge3andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -2724,30 +2657,30 @@ MERGE_merge3andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE3_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue30 = dummykv;
 		keyvalue_t mykeyvalue31 = dummykv;
 		keyvalue_t mykeyvalue32 = dummykv;
@@ -3015,11 +2948,7 @@ MERGE_merge3andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge4andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge4andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -3235,38 +3164,38 @@ MERGE_merge4andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE4_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue40 = dummykv;
 		keyvalue_t mykeyvalue41 = dummykv;
 		keyvalue_t mykeyvalue42 = dummykv;
@@ -3542,11 +3471,7 @@ MERGE_merge4andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge5andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge5andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -3762,46 +3687,46 @@ MERGE_merge5andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE5_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue40 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue41 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue42 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue43 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue44 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue45 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue46 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue47 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue40 = UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue41 = UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue42 = UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue43 = UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue44 = UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue45 = UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue46 = UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue47 = UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue50 = dummykv;
 		keyvalue_t mykeyvalue51 = dummykv;
 		keyvalue_t mykeyvalue52 = dummykv;
@@ -4069,11 +3994,7 @@ MERGE_merge5andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge6andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge6andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -4289,54 +4210,54 @@ MERGE_merge6andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE6_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue40 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue41 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue42 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue43 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue44 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue45 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue46 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue47 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue50 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue51 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue52 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue53 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue54 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue55 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue56 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue57 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue40 = UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue41 = UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue42 = UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue43 = UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue44 = UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue45 = UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue46 = UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue47 = UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue50 = UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue51 = UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue52 = UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue53 = UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue54 = UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue55 = UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue56 = UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue57 = UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue60 = dummykv;
 		keyvalue_t mykeyvalue61 = dummykv;
 		keyvalue_t mykeyvalue62 = dummykv;
@@ -4612,11 +4533,7 @@ MERGE_merge6andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge7andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge7andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -4832,62 +4749,62 @@ MERGE_merge7andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE7_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue40 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue41 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue42 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue43 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue44 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue45 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue46 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue47 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue50 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue51 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue52 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue53 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue54 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue55 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue56 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue57 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue60 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue61 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue62 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue63 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue64 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue65 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue66 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue67 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue40 = UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue41 = UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue42 = UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue43 = UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue44 = UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue45 = UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue46 = UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue47 = UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue50 = UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue51 = UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue52 = UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue53 = UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue54 = UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue55 = UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue56 = UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue57 = UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue60 = UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue61 = UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue62 = UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue63 = UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue64 = UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue65 = UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue66 = UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue67 = UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue70 = dummykv;
 		keyvalue_t mykeyvalue71 = dummykv;
 		keyvalue_t mykeyvalue72 = dummykv;
@@ -5155,11 +5072,7 @@ MERGE_merge7andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge8andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge8andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -5375,70 +5288,70 @@ MERGE_merge8andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE8_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue40 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue41 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue42 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue43 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue44 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue45 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue46 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue47 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue50 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue51 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue52 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue53 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue54 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue55 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue56 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue57 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue60 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue61 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue62 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue63 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue64 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue65 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue66 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue67 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue70 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue71 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue72 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue73 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue74 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue75 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue76 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue77 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue40 = UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue41 = UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue42 = UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue43 = UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue44 = UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue45 = UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue46 = UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue47 = UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue50 = UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue51 = UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue52 = UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue53 = UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue54 = UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue55 = UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue56 = UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue57 = UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue60 = UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue61 = UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue62 = UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue63 = UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue64 = UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue65 = UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue66 = UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue67 = UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue70 = UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue71 = UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue72 = UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue73 = UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue74 = UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue75 = UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue76 = UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue77 = UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue80 = dummykv;
 		keyvalue_t mykeyvalue81 = dummykv;
 		keyvalue_t mykeyvalue82 = dummykv;
@@ -5714,11 +5627,7 @@ MERGE_merge8andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge9andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge9andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -5934,78 +5843,78 @@ MERGE_merge9andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	
 	MERGE9_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue40 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue41 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue42 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue43 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue44 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue45 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue46 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue47 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue50 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue51 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue52 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue53 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue54 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue55 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue56 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue57 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue60 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue61 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue62 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue63 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue64 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue65 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue66 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue67 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue70 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue71 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue72 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue73 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue74 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue75 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue76 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue77 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue80 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue81 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue82 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue83 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue84 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue85 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue86 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue87 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue40 = UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue41 = UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue42 = UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue43 = UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue44 = UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue45 = UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue46 = UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue47 = UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue50 = UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue51 = UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue52 = UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue53 = UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue54 = UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue55 = UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue56 = UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue57 = UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue60 = UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue61 = UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue62 = UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue63 = UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue64 = UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue65 = UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue66 = UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue67 = UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue70 = UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue71 = UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue72 = UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue73 = UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue74 = UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue75 = UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue76 = UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue77 = UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue80 = UTIL_GETKV2(vbuffer8[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue81 = UTIL_GETKV2(vbuffer8[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue82 = UTIL_GETKV2(vbuffer8[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue83 = UTIL_GETKV2(vbuffer8[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue84 = UTIL_GETKV2(vbuffer8[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue85 = UTIL_GETKV2(vbuffer8[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue86 = UTIL_GETKV2(vbuffer8[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue87 = UTIL_GETKV2(vbuffer8[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue90 = dummykv;
 		keyvalue_t mykeyvalue91 = dummykv;
 		keyvalue_t mykeyvalue92 = dummykv;
@@ -6273,11 +6182,7 @@ MERGE_merge9andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge10andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge10andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -6493,86 +6398,86 @@ MERGE_merge10andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer
 	
 	MERGE10_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue40 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue41 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue42 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue43 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue44 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue45 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue46 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue47 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue50 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue51 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue52 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue53 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue54 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue55 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue56 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue57 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue60 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue61 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue62 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue63 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue64 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue65 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue66 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue67 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue70 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue71 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue72 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue73 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue74 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue75 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue76 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue77 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue80 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue81 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue82 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue83 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue84 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue85 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue86 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue87 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue90 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue91 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue92 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue93 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue94 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue95 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue96 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue97 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue40 = UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue41 = UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue42 = UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue43 = UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue44 = UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue45 = UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue46 = UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue47 = UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue50 = UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue51 = UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue52 = UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue53 = UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue54 = UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue55 = UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue56 = UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue57 = UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue60 = UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue61 = UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue62 = UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue63 = UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue64 = UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue65 = UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue66 = UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue67 = UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue70 = UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue71 = UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue72 = UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue73 = UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue74 = UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue75 = UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue76 = UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue77 = UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue80 = UTIL_GETKV2(vbuffer8[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue81 = UTIL_GETKV2(vbuffer8[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue82 = UTIL_GETKV2(vbuffer8[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue83 = UTIL_GETKV2(vbuffer8[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue84 = UTIL_GETKV2(vbuffer8[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue85 = UTIL_GETKV2(vbuffer8[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue86 = UTIL_GETKV2(vbuffer8[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue87 = UTIL_GETKV2(vbuffer8[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue90 = UTIL_GETKV2(vbuffer9[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue91 = UTIL_GETKV2(vbuffer9[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue92 = UTIL_GETKV2(vbuffer9[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue93 = UTIL_GETKV2(vbuffer9[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue94 = UTIL_GETKV2(vbuffer9[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue95 = UTIL_GETKV2(vbuffer9[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue96 = UTIL_GETKV2(vbuffer9[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue97 = UTIL_GETKV2(vbuffer9[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue100 = dummykv;
 		keyvalue_t mykeyvalue101 = dummykv;
 		keyvalue_t mykeyvalue102 = dummykv;
@@ -6848,11 +6753,7 @@ MERGE_merge10andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge11andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge11andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -7068,94 +6969,94 @@ MERGE_merge11andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer
 	
 	MERGE11_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue40 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue41 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue42 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue43 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue44 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue45 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue46 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue47 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue50 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue51 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue52 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue53 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue54 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue55 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue56 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue57 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue60 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue61 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue62 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue63 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue64 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue65 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue66 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue67 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue70 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue71 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue72 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue73 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue74 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue75 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue76 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue77 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue80 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue81 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue82 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue83 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue84 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue85 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue86 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue87 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue90 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue91 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue92 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue93 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue94 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue95 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue96 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue97 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue100 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue101 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue102 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue103 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue104 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue105 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue106 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue107 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue40 = UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue41 = UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue42 = UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue43 = UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue44 = UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue45 = UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue46 = UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue47 = UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue50 = UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue51 = UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue52 = UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue53 = UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue54 = UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue55 = UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue56 = UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue57 = UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue60 = UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue61 = UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue62 = UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue63 = UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue64 = UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue65 = UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue66 = UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue67 = UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue70 = UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue71 = UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue72 = UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue73 = UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue74 = UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue75 = UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue76 = UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue77 = UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue80 = UTIL_GETKV2(vbuffer8[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue81 = UTIL_GETKV2(vbuffer8[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue82 = UTIL_GETKV2(vbuffer8[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue83 = UTIL_GETKV2(vbuffer8[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue84 = UTIL_GETKV2(vbuffer8[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue85 = UTIL_GETKV2(vbuffer8[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue86 = UTIL_GETKV2(vbuffer8[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue87 = UTIL_GETKV2(vbuffer8[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue90 = UTIL_GETKV2(vbuffer9[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue91 = UTIL_GETKV2(vbuffer9[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue92 = UTIL_GETKV2(vbuffer9[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue93 = UTIL_GETKV2(vbuffer9[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue94 = UTIL_GETKV2(vbuffer9[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue95 = UTIL_GETKV2(vbuffer9[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue96 = UTIL_GETKV2(vbuffer9[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue97 = UTIL_GETKV2(vbuffer9[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue100 = UTIL_GETKV2(vbuffer10[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue101 = UTIL_GETKV2(vbuffer10[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue102 = UTIL_GETKV2(vbuffer10[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue103 = UTIL_GETKV2(vbuffer10[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue104 = UTIL_GETKV2(vbuffer10[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue105 = UTIL_GETKV2(vbuffer10[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue106 = UTIL_GETKV2(vbuffer10[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue107 = UTIL_GETKV2(vbuffer10[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue110 = dummykv;
 		keyvalue_t mykeyvalue111 = dummykv;
 		keyvalue_t mykeyvalue112 = dummykv;
@@ -7423,11 +7324,7 @@ MERGE_merge11andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer
 	}
 	return;
 }
-void
-	#if defined(SW)
-	acts_merge::
-	#endif
-MERGE_merge12andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer11[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
+void MERGE_merge12andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t vbuffer0[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],keyvalue_vbuffer_t vbuffer11[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, unsigned int dramoffset_kvs){
 	if(enable == OFF){ return; }
 	keyvalue_t dummykv;
 	dummykv.key = 0xFFFFFFFF; dummykv.value = 0xFFFFFFFF;
@@ -7643,102 +7540,102 @@ MERGE_merge12andsavevdata(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer
 	
 	MERGE12_LOOP1: for (buffer_type j=0; j<BLOCKRAM_SIZE; j++){
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue00 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue01 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue02 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue03 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue04 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue05 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue06 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue07 = acts_utilobj->UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue10 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue11 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue12 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue13 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue14 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue15 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue16 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue17 = acts_utilobj->UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue20 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue21 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue22 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue23 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue24 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue25 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue26 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue27 = acts_utilobj->UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue30 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue31 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue32 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue33 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue34 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue35 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue36 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue37 = acts_utilobj->UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue40 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue41 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue42 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue43 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue44 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue45 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue46 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue47 = acts_utilobj->UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue50 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue51 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue52 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue53 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue54 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue55 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue56 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue57 = acts_utilobj->UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue60 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue61 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue62 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue63 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue64 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue65 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue66 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue67 = acts_utilobj->UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue70 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue71 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue72 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue73 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue74 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue75 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue76 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue77 = acts_utilobj->UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue80 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue81 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue82 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue83 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue84 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue85 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue86 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue87 = acts_utilobj->UTIL_GETKV2(vbuffer8[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue90 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue91 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue92 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue93 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue94 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue95 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue96 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue97 = acts_utilobj->UTIL_GETKV2(vbuffer9[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue100 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue101 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue102 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue103 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue104 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue105 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue106 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue107 = acts_utilobj->UTIL_GETKV2(vbuffer10[begincol + 7][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue110 = acts_utilobj->UTIL_GETKV2(vbuffer11[begincol + 0][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue111 = acts_utilobj->UTIL_GETKV2(vbuffer11[begincol + 1][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue112 = acts_utilobj->UTIL_GETKV2(vbuffer11[begincol + 2][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue113 = acts_utilobj->UTIL_GETKV2(vbuffer11[begincol + 3][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue114 = acts_utilobj->UTIL_GETKV2(vbuffer11[begincol + 4][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue115 = acts_utilobj->UTIL_GETKV2(vbuffer11[begincol + 5][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue116 = acts_utilobj->UTIL_GETKV2(vbuffer11[begincol + 6][bufferoffset_kvs + j]);	
-		keyvalue_t mykeyvalue117 = acts_utilobj->UTIL_GETKV2(vbuffer11[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue00 = UTIL_GETKV2(vbuffer0[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue01 = UTIL_GETKV2(vbuffer0[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue02 = UTIL_GETKV2(vbuffer0[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue03 = UTIL_GETKV2(vbuffer0[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue04 = UTIL_GETKV2(vbuffer0[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue05 = UTIL_GETKV2(vbuffer0[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue06 = UTIL_GETKV2(vbuffer0[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue07 = UTIL_GETKV2(vbuffer0[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue10 = UTIL_GETKV2(vbuffer1[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue11 = UTIL_GETKV2(vbuffer1[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue12 = UTIL_GETKV2(vbuffer1[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue13 = UTIL_GETKV2(vbuffer1[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue14 = UTIL_GETKV2(vbuffer1[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue15 = UTIL_GETKV2(vbuffer1[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue16 = UTIL_GETKV2(vbuffer1[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue17 = UTIL_GETKV2(vbuffer1[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue20 = UTIL_GETKV2(vbuffer2[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue21 = UTIL_GETKV2(vbuffer2[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue22 = UTIL_GETKV2(vbuffer2[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue23 = UTIL_GETKV2(vbuffer2[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue24 = UTIL_GETKV2(vbuffer2[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue25 = UTIL_GETKV2(vbuffer2[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue26 = UTIL_GETKV2(vbuffer2[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue27 = UTIL_GETKV2(vbuffer2[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue30 = UTIL_GETKV2(vbuffer3[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue31 = UTIL_GETKV2(vbuffer3[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue32 = UTIL_GETKV2(vbuffer3[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue33 = UTIL_GETKV2(vbuffer3[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue34 = UTIL_GETKV2(vbuffer3[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue35 = UTIL_GETKV2(vbuffer3[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue36 = UTIL_GETKV2(vbuffer3[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue37 = UTIL_GETKV2(vbuffer3[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue40 = UTIL_GETKV2(vbuffer4[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue41 = UTIL_GETKV2(vbuffer4[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue42 = UTIL_GETKV2(vbuffer4[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue43 = UTIL_GETKV2(vbuffer4[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue44 = UTIL_GETKV2(vbuffer4[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue45 = UTIL_GETKV2(vbuffer4[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue46 = UTIL_GETKV2(vbuffer4[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue47 = UTIL_GETKV2(vbuffer4[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue50 = UTIL_GETKV2(vbuffer5[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue51 = UTIL_GETKV2(vbuffer5[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue52 = UTIL_GETKV2(vbuffer5[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue53 = UTIL_GETKV2(vbuffer5[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue54 = UTIL_GETKV2(vbuffer5[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue55 = UTIL_GETKV2(vbuffer5[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue56 = UTIL_GETKV2(vbuffer5[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue57 = UTIL_GETKV2(vbuffer5[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue60 = UTIL_GETKV2(vbuffer6[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue61 = UTIL_GETKV2(vbuffer6[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue62 = UTIL_GETKV2(vbuffer6[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue63 = UTIL_GETKV2(vbuffer6[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue64 = UTIL_GETKV2(vbuffer6[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue65 = UTIL_GETKV2(vbuffer6[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue66 = UTIL_GETKV2(vbuffer6[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue67 = UTIL_GETKV2(vbuffer6[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue70 = UTIL_GETKV2(vbuffer7[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue71 = UTIL_GETKV2(vbuffer7[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue72 = UTIL_GETKV2(vbuffer7[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue73 = UTIL_GETKV2(vbuffer7[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue74 = UTIL_GETKV2(vbuffer7[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue75 = UTIL_GETKV2(vbuffer7[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue76 = UTIL_GETKV2(vbuffer7[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue77 = UTIL_GETKV2(vbuffer7[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue80 = UTIL_GETKV2(vbuffer8[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue81 = UTIL_GETKV2(vbuffer8[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue82 = UTIL_GETKV2(vbuffer8[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue83 = UTIL_GETKV2(vbuffer8[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue84 = UTIL_GETKV2(vbuffer8[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue85 = UTIL_GETKV2(vbuffer8[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue86 = UTIL_GETKV2(vbuffer8[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue87 = UTIL_GETKV2(vbuffer8[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue90 = UTIL_GETKV2(vbuffer9[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue91 = UTIL_GETKV2(vbuffer9[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue92 = UTIL_GETKV2(vbuffer9[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue93 = UTIL_GETKV2(vbuffer9[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue94 = UTIL_GETKV2(vbuffer9[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue95 = UTIL_GETKV2(vbuffer9[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue96 = UTIL_GETKV2(vbuffer9[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue97 = UTIL_GETKV2(vbuffer9[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue100 = UTIL_GETKV2(vbuffer10[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue101 = UTIL_GETKV2(vbuffer10[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue102 = UTIL_GETKV2(vbuffer10[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue103 = UTIL_GETKV2(vbuffer10[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue104 = UTIL_GETKV2(vbuffer10[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue105 = UTIL_GETKV2(vbuffer10[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue106 = UTIL_GETKV2(vbuffer10[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue107 = UTIL_GETKV2(vbuffer10[begincol + 7][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue110 = UTIL_GETKV2(vbuffer11[begincol + 0][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue111 = UTIL_GETKV2(vbuffer11[begincol + 1][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue112 = UTIL_GETKV2(vbuffer11[begincol + 2][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue113 = UTIL_GETKV2(vbuffer11[begincol + 3][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue114 = UTIL_GETKV2(vbuffer11[begincol + 4][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue115 = UTIL_GETKV2(vbuffer11[begincol + 5][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue116 = UTIL_GETKV2(vbuffer11[begincol + 6][bufferoffset_kvs + j]);	
+		keyvalue_t mykeyvalue117 = UTIL_GETKV2(vbuffer11[begincol + 7][bufferoffset_kvs + j]);	
 		keyvalue_t mykeyvalue120 = dummykv;
 		keyvalue_t mykeyvalue121 = dummykv;
 		keyvalue_t mykeyvalue122 = dummykv;

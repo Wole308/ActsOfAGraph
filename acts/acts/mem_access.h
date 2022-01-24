@@ -24,11 +24,12 @@
 #include "../../src/utility/utility.h"
 #endif
 #include "acts_util.h"
+#include "mydebug.h"
 using namespace std;
 
 class mem_access {
 public:
-	mem_access();
+	mem_access(mydebug * _mydebugobj);
 	~mem_access();
 	
 	fetchmessage_t MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams);
@@ -114,6 +115,7 @@ private:
 	#ifdef SW
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

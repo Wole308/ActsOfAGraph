@@ -22,13 +22,15 @@
 #include "../src/algorithm/algorithm.h"
 #include "../acts/acts/top_usrcv_udstv.h"
 #include "../acts/acts/top_nusrcv_nudstv.h"
+#include "../acts/acts/acts_all.h"
+#include "../acts/acts/mydebug.h"
 
 class swkernel {
 public:
 	swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj);
 	~swkernel();
 	
-	#ifdef SW
+	#ifndef HW
 	void verifyresults(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int id);
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters);						
 	
@@ -47,14 +49,16 @@ private:
 	graph * graphobj;
 	algorithm * algorithmobj;
 	
-	#ifdef SW
 	// actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
+	acts_all * kernelobjs_process[NUMSUBCPUTHREADS];
 	// top_usrcv_udstv * kernelobjs_process[NUMSUBCPUTHREADS];
-	top_nusrcv_nudstv * kernelobjs_process[NUMSUBCPUTHREADS];
-	actssync * kernelobjs_synchronize;
+	// top_nusrcv_nudstv * kernelobjs_process[NUMSUBCPUTHREADS]; // Recent.
+	
+	#ifdef SW
 	acts_merge * kernelobjs_merge;
 	acts_merge_splitdstvxs * kernelobjs_merge_splitdstvxs;
 	#endif
+	mydebug * mydebugobj;
 };
 #endif
 

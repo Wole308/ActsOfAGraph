@@ -25,6 +25,7 @@
 #ifdef SW 
 #include "../../acts/actsutility/actsutility.h"
 #endif
+#include "mydebug.h"
 using namespace std;
 
 #define ACTSPROC_AUTOMATE_ACROSSDATASETS
@@ -42,31 +43,9 @@ using namespace std;
 	#define MAX_NUM_PARTITIONS NUM_PARTITIONS
 #endif
 
-/* typedef struct {
-	unsigned int first;
-	unsigned int last;
-	unsigned int edgebankID;
-	unsigned int v_chunkid;
-	unsigned int stage;
-	unsigned int laststage;
-	unsigned int currentLOP;
-	unsigned int lastLOP;
-	unsigned int source_partition;
-	unsigned int first_source_partition;
-	unsigned int last_source_partition;
-	unsigned int num_source_partitions;
-	unsigned int sourcestatsmarker;
-	unsigned int deststatsmarker;
-	unsigned int EN_PROCESS; 
-	unsigned int EN_PARTITION; 
-	unsigned int EN_REDUCE;
-	unsigned int EN_PROCESSANDREDUCE;
-	unsigned int EN_PROCESSANDPARTITION;
-} globalposition_t; */
-
 class actsproc {
 public:
-	actsproc();
+	actsproc(mydebug * _mydebugobj);
 	~actsproc();
 	
 	unsigned int test(uint512_dt * kvdram);
@@ -557,8 +536,9 @@ public:
 	#endif 
 	
 private:
-	#ifndef FPGA_IMPL
+	#ifdef SW
 	actsutility * actsutilityobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

@@ -2,19 +2,16 @@
 using namespace std;
 
 #ifdef SW
-processedgesu::processedgesu(){ 
+processedgesu::processedgesu(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util();
-	mem_accessobj = new mem_access();
+	acts_utilobj = new acts_util(_mydebugobj);
+	mem_accessobj = new mem_access(_mydebugobj);
+	mydebugobj = _mydebugobj;
 }
 processedgesu::~processedgesu(){}
 #endif
 
-value_t 
-	#ifdef SW 
-	processedgesu::
-	#endif 
-PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t {{context['classname__processedgesu']}}PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	if(GraphAlgo == PAGERANK){
 		res = udata;
@@ -28,11 +25,7 @@ PROCESS_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	return res;
 }
 
-value_t 
-	#ifdef SW 
-	processedgesu::
-	#endif 
-PROCESS_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t {{context['classname__processedgesu']}}PROCESS_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -65,22 +58,18 @@ PROCESS_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE],
 	
 	#ifdef CONFIG_SPLIT_DESTVTXS
 		if(col >= NUM_PARTITIONS || row >= BLOCKRAM_SIZE){ data = 0; } // AUTOMATEME. for pagerank and sssp
-		else { if(loc % 2 == 0){ data = acts_utilobj->UTIL_GETKV2(vbuffer[col][row]).key; } else { data = acts_utilobj->UTIL_GETKV2(vbuffer[col][row]).value; }}
+		else { if(loc % 2 == 0){ data = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer[col][row]).key; } else { data = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer[col][row]).value; }}
 	#else 
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("GETVTXDATA.col", col, NUM_PARTITIONS, loc, NAp, NAp); 
 		actsutilityobj->checkoutofbounds("GETVTXDATA.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
 		#endif 
-		if(loc % 2 == 0){ data = acts_utilobj->UTIL_GETKV2(vbuffer[col][row]).key; } else { data = acts_utilobj->UTIL_GETKV2(vbuffer[col][row]).value; }
+		if(loc % 2 == 0){ data = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer[col][row]).key; } else { data = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(vbuffer[col][row]).value; }
 	#endif 
 	return data;
 }
 
-value_t 
-	#ifdef SW 
-	processedgesu::
-	#endif 
-PROCESS_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t {{context['classname__processedgesu']}}PROCESS_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	value_t data = 0;
 	
@@ -120,11 +109,7 @@ PROCESS_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]
 	return data;
 }
 
-fetchmessage_t 
-	#ifdef SW 
-	processedgesu::
-	#endif 
-PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 			
+fetchmessage_t {{context['classname__processedgesu']}}PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 			
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
@@ -171,7 +156,7 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 	int subpidx = -1;
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	
-	buffer_type chunk_size = acts_utilobj->UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
+	buffer_type chunk_size = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
 	READANDPROCESS_LOOP1: for (buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 	#pragma HLS PIPELINE II=1
@@ -264,8 +249,8 @@ PROCESS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram
 		mykeyvalue00.value = INVALIDDATA;
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer[{{v}}][loadcount] = acts_utilobj->UTIL_GETKV(mykeyvalue0{{v}});
-		buffer[{{v}}][loadcount + 1] = acts_utilobj->UTIL_GETKV(mykeyvalue1{{v}});
+		buffer[{{v}}][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue0{{v}});
+		buffer[{{v}}][loadcount + 1] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue1{{v}});
 		{%endfor%}
 		if(en == ON && mask == 1){ loadcount += 2; }
 		

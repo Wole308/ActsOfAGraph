@@ -25,11 +25,12 @@
 #endif
 #include "acts_util.h"
 #include "reduceupdates.h"
+#include "mydebug.h"
 using namespace std; 
 
 class reduceupdates {
 public:
-	reduceupdates();
+	reduceupdates(mydebug * _mydebugobj);
 	~reduceupdates();
 	
 	// functions (reduce)
@@ -47,6 +48,7 @@ private:
 	#ifdef SW
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

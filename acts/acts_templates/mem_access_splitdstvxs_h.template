@@ -26,11 +26,12 @@
 #endif
 #include "acts_util.h"
 #include "mem_access.h"
+#include "mydebug.h"
 using namespace std;
 
 class mem_access_splitdstvxs {
 public:
-	mem_access_splitdstvxs();
+	mem_access_splitdstvxs(mydebug * _mydebugobj);
 	~mem_access_splitdstvxs();
 	
 	// -------------------- vdata -------------------- //
@@ -56,6 +57,7 @@ private:
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
 	mem_access * mem_accessobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

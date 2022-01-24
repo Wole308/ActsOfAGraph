@@ -7,25 +7,21 @@ using namespace std;
 // unsigned int _chkpartitions[MAX_NUM_PARTITIONS];
 
 #ifdef SW
-top_usrcv_udstv::top_usrcv_udstv(){ 
+top_usrcv_udstv::top_usrcv_udstv(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(); 
-	processedgesobj = new processedgesu();
-	processedges_splitdstvxsobj = new processedges_splitdstvxs();
-	partitionupdatesobj = new partitionupdates();
-	reduceupdatesobj = new reduceupdates();
-	mem_accessobj = new mem_access();
-	actsobj = new acts();
-	// mergeobj = new merge_vtxs();
+	acts_utilobj = new acts_util(_mydebugobj); 
+	processedgesobj = new processedgesu(_mydebugobj);
+	processedges_splitdstvxsobj = new processedges_splitdstvxs(_mydebugobj);
+	partitionupdatesobj = new partitionupdates(_mydebugobj);
+	reduceupdatesobj = new reduceupdates(_mydebugobj);
+	mem_accessobj = new mem_access(_mydebugobj);
+	actsobj = new acts(_mydebugobj);
+	mydebugobj = _mydebugobj;
 }
 top_usrcv_udstv::~top_usrcv_udstv(){}
 #endif
 
-void
-	#ifdef SW
-	top_usrcv_udstv::
-	#endif 
-processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+void processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -47,8 +43,8 @@ processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOUR
 	buffer_type reducebuffersz = globalparamsK.SIZE_REDUCE / 2;
 	buffer_type vmaskbuffersz_kvs = (globalparamsK.SIZE_REDUCE * VDATA_PACKINGSIZE) / 512;
 	
-	if(globalposition.source_partition == globalposition.first_source_partition){ acts_utilobj->UTIL_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0); } // CRITICAL NEWCHANGE.
-	sweepparams = acts_utilobj->UTIL_getsweepparams(globalparamsK, globalposition.currentLOP, 0);
+	if(globalposition.source_partition == globalposition.first_source_partition){ UTIL_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0); } // CRITICAL NEWCHANGE.
+	sweepparams = UTIL_getsweepparams(globalparamsK, globalposition.currentLOP, 0);
 	travstate_t avtravstate;
 	
 	globalparams_t globalparamsVPTRS = globalparamsE;
@@ -56,8 +52,8 @@ processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOUR
 	
 	avtravstate.begin_kvs = 0;
 	avtravstate.end_kvs = avtravstate.begin_kvs + (globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE); avtravstate.size_kvs = globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
-	if(globalposition.source_partition == globalposition.first_source_partition){ mem_accessobj->MEMACCESS_readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); } // CRITICAL NEWCHANGE.
-	if(globalposition.source_partition == globalposition.first_source_partition){ acts_utilobj->UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0); } // CRITICAL NEWCHANGE.
+	if(globalposition.source_partition == globalposition.first_source_partition){ MEMACCESS_readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); } // CRITICAL NEWCHANGE.
+	if(globalposition.source_partition == globalposition.first_source_partition){ UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0); } // CRITICAL NEWCHANGE.
 
 	batch_type vptrbaseoffset_kvs = globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR + (globalparamsVPTRS.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE. NOTE: no need to include v_chunkids[32] because source_partition handles it
 	batch_type vdatabaseoffset_kvs = globalparamsVDATA.BASEOFFSETKVS_SRCVERTICESDATA + (globalparamsVDATA.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE.
@@ -91,14 +87,14 @@ processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOUR
 	for(unsigned int lvid_kvs=0; lvid_kvs<SZ_KVS; lvid_kvs+=SKIP_KVS){
 		
 		if(enable_hybridmode == ON && lvid_kvs + SKIP_KVS < (reducebuffersz * FETFACTOR)){
-			unsigned int mask_subp = acts_utilobj->UTIL_GETVTXMASK_SUBP(vmask_subp, lvid_kvs * VECTOR2_SIZE, globalparamsK);
+			unsigned int mask_subp = UTIL_GETVTXMASK_SUBP(vmask_subp, lvid_kvs * VECTOR2_SIZE, globalparamsK);
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			if(mask_subp == 0){ mask_subp_is_zero += 1; } else { mask_subp_is_not_zero += 1; }
 			#endif 
 			if(mask_subp == 0){ continue; }
 		}
 		
-		tuple_t tup = mem_accessobj->MEMACCESS_getvptrs_opt( kvdram, vptrbaseoffset_kvs, (voffset_kvs + lvid_kvs) * VECTOR2_SIZE, (voffset_kvs + lvid_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
+		tuple_t tup = MEMACCESS_getvptrs_opt( kvdram, vptrbaseoffset_kvs, (voffset_kvs + lvid_kvs) * VECTOR2_SIZE, (voffset_kvs + lvid_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
 		keyy_t beginvptr = tup.A;
 		keyy_t endvptr = tup.B; 
 		
@@ -138,13 +134,13 @@ processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOUR
 		if(GraphAlgo != PAGERANK){ resetenv = ON; flush = ON; } // CRITICAL NEWCHANGE.
 
 		#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
-		actsobj->ACTS_actit
+ACTS_actit
 		#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
-		actsobj->ACTS_priorit	
+ACTS_priorit	
 		#elif defined(TRAD_PARTITION_AND_REDUCE_STRETEGY)
-		actsobj->ACTS_tradit
+ACTS_tradit
 		#else 
-		actsobj->ACTS_tradit
+ACTS_tradit
 		#endif 
 		(
 			ON, PROCESSMODE,
@@ -153,7 +149,7 @@ processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOUR
 			resetenv, flush, edgebankID);
 	}
 	
-	mem_accessobj->MEMACCESS_saveglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); // CRITICAL OPTIMIZEME. should be called only once
+MEMACCESS_saveglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); // CRITICAL OPTIMIZEME. should be called only once
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalvars();
@@ -169,11 +165,7 @@ processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOUR
 	return;
 }
 
-void
-	#ifdef SW 
-	top_usrcv_udstv::
-	#endif 
-partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){
+void partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -183,7 +175,7 @@ partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SO
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	actsutilityobj->printglobalvars();
-	actsutilityobj->printglobalparameters("top_usrcv_udstv::acts_utilobj->UTIL_getglobalparams:: printing global parameters", globalparams);
+	actsutilityobj->printglobalparameters("top_usrcv_udstv::UTIL_getglobalparams:: printing global parameters", globalparams);
 	#endif 
 	#if defined(_DEBUGMODE_KERNELPRINTS2) || defined(_DEBUGMODE_CHECKS2)
 	actsutilityobj->clearglobalvars();
@@ -200,13 +192,13 @@ partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SO
 	
 	config_t config;
 	
-	acts_utilobj->UTIL_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
-	sweepparams_t sweepparams = acts_utilobj->UTIL_getsweepparams(globalparams, globalposition.currentLOP, globalposition.source_partition);
-	travstate_t ptravstate = acts_utilobj->UTIL_gettravstate(ON, kvdram, globalparams, globalposition.currentLOP, globalposition.sourcestatsmarker);
+UTIL_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
+	sweepparams_t sweepparams = UTIL_getsweepparams(globalparams, globalposition.currentLOP, globalposition.source_partition);
+	travstate_t ptravstate = UTIL_gettravstate(ON, kvdram, globalparams, globalposition.currentLOP, globalposition.sourcestatsmarker);
 	
 	// collect stats
-	mem_accessobj->MEMACCESS_readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparams);
-	acts_utilobj->UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
+MEMACCESS_readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparams);
+UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 	
 	// partition
 	if(ptravstate.size_kvs > 0){ config.enablepartition = ON; } 
@@ -215,24 +207,24 @@ partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SO
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	if((config.enablepartition == ON) && (globalposition.currentLOP >= 1) && (globalposition.currentLOP <= globalparams.ACTSPARAMS_TREEDEPTH)){ actsutilityobj->print7("### partitionit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (NUM_PARTITIONS_POW * sweepparams.currentLOP)), sweepparams.currentLOP); }	
 	#endif
-	acts_utilobj->UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
+UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 	bool_type resetenv; if(globalposition.source_partition==0){ resetenv = ON; } else { resetenv = OFF; }
 	
 	#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
-	actsobj->ACTS_actit
+ACTS_actit
 	#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
-	actsobj->ACTS_priorit	
+ACTS_priorit	
 	#elif defined(TRAD_PARTITION_AND_REDUCE_STRETEGY)
-	actsobj->ACTS_tradit
+ACTS_tradit
 	#else 
-	actsobj->ACTS_tradit
+ACTS_tradit
 	#endif
 	(config.enablepartition, PARTITIONMODE,
  kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp);
 			
-	mem_accessobj->MEMACCESS_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparams); 
+MEMACCESS_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparams); 
 	
 	#ifdef _DEBUGMODE_CHECKS
 	if(config.enablereduce == ON){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
@@ -254,11 +246,7 @@ partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SO
 	return;
 }
 
-void
-	#ifdef SW 
-	top_usrcv_udstv::
-	#endif 
-reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){	
+void reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbufferUNUSED[MAX_NUM_PARTITIONS], globalparams_t globalparams, globalposition_t globalposition, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -272,8 +260,8 @@ reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 	config_t config;
 	sweepparams_t sweepparams;
 	
-	sweepparams = acts_utilobj->UTIL_getsweepparams(globalparams, globalposition.currentLOP, globalposition.source_partition);
-	travstate_t ptravstate = acts_utilobj->UTIL_gettravstate(ON, kvdram, globalparams, globalposition.currentLOP, globalposition.sourcestatsmarker);
+	sweepparams = UTIL_getsweepparams(globalparams, globalposition.currentLOP, globalposition.source_partition);
+	travstate_t ptravstate = UTIL_gettravstate(ON, kvdram, globalparams, globalposition.currentLOP, globalposition.sourcestatsmarker);
 
 	if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablereduce = OFF; }
 	else { config.enablereduce = ON; }
@@ -283,13 +271,13 @@ reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 	bool_type resetenv; if(globalposition.source_partition==0){ resetenv = ON; } else { resetenv = OFF; }
 	
 	#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
-	actsobj->ACTS_actit
+ACTS_actit
 	#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
-	actsobj->ACTS_priorit	
+ACTS_priorit	
 	#elif defined(TRAD_PARTITION_AND_REDUCE_STRETEGY)
-	actsobj->ACTS_tradit
+ACTS_tradit
 	#else 
-	actsobj->ACTS_tradit
+ACTS_tradit
 	#endif
 	(config.enablereduce, REDUCEMODE,
  kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, globalstatsbuffer, // CRITICAL FIXME.
@@ -298,11 +286,7 @@ reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURC
 	return;
 }
 
-void
-	#ifdef SW 
-	top_usrcv_udstv::
-	#endif 
-dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],
+void dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],
 			globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	if(en_process == ON){ processit( kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID, hybridmode); } 
@@ -311,11 +295,7 @@ dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uin
 	return;
 }
 
-void
-	#ifdef SW 
-	top_usrcv_udstv::
-	#endif 
-dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,	
+void dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, unsigned int hybridmode){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -331,7 +311,7 @@ dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sou
 	#endif
 	
 	// CRITICAL NEWCHANGE.
-	travstate_t rtravstate = acts_utilobj->UTIL_gettravstate(ON, kvdram, globalparamsK, globalposition.currentLOP, globalposition.sourcestatsmarker);
+	travstate_t rtravstate = UTIL_gettravstate(ON, kvdram, globalparamsK, globalposition.currentLOP, globalposition.sourcestatsmarker);
 	if(rtravstate.size_kvs == 0){ return; }
 	
 	dispatch(OFF, OFF, en_reduce,  kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp, hybridmode);
@@ -339,11 +319,7 @@ dispatch_reduce(bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sou
 } 
 
 // top
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsigned int en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalposition_t globalposition, unsigned int hybridmode){
+void topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsigned int en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], globalposition_t globalposition, unsigned int hybridmode){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -359,7 +335,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	globalparams_t _globalparamsE;
 	
-	globalparamsK = acts_utilobj->UTIL_getglobalparams(kvdram); // CRITICAL OPTIMIZEME. MOVETOBASE?
+	globalparamsK = UTIL_getglobalparams(kvdram); // CRITICAL OPTIMIZEME. MOVETOBASE?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
@@ -372,7 +348,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 	#endif 
 	
 	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
-	if(GraphAlgo != PAGERANK){ if(globalposition.stage==0 && globalposition.currentLOP==1 && globalposition.source_partition==globalposition.first_source_partition){ acts_utilobj->UTIL_resetkvstatvalues(kvdram, globalparamsK); }}	// CRITICAL FIXME. NEWCHANGE. DO FOR ALL.
+	if(GraphAlgo != PAGERANK){ if(globalposition.stage==0 && globalposition.currentLOP==1 && globalposition.source_partition==globalposition.first_source_partition){ UTIL_resetkvstatvalues(kvdram, globalparamsK); }}	// CRITICAL FIXME. NEWCHANGE. DO FOR ALL.
 	
 	// process & partition
 	#ifdef CONFIG_ENABLEPROCESSMODULE
@@ -425,11 +401,7 @@ topkernelproc_embedded(unsigned int en_process, unsigned int en_partition, unsig
 }
 
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP1(
+void topkernelP1(
 	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
@@ -493,14 +465,14 @@ topkernelP1(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -539,8 +511,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOT
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask1(vdram, vmask0_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask1(vdram, vmask0_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -590,9 +562,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOT
 				
 				TOPKERNEL1_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -630,7 +602,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOT
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 1; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -642,9 +614,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOT
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks1(enable_loadmasks, vdram, vmaskREAD0, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks1(enable_loadmasks, vdram, vmaskREAD0, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask1(enable_loadmasks, vmask0, vmask0_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask1(enable_loadmasks, vmask0, vmask0_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate1vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate1vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
@@ -673,7 +645,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOT
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -691,11 +663,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOT
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP2(
+void topkernelP2(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * vdram
@@ -777,14 +745,14 @@ topkernelP2(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -823,8 +791,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask2(vdram, vmask0_p,vmask1_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask2(vdram, vmask0_p,vmask1_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -874,9 +842,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL2_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -914,8 +882,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 2; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -927,9 +895,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks2(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks2(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask2(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask2(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate2vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate2vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
@@ -959,7 +927,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -977,11 +945,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP3(
+void topkernelP3(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1081,14 +1045,14 @@ topkernelP3(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -1127,8 +1091,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask3(vdram, vmask0_p,vmask1_p,vmask2_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask3(vdram, vmask0_p,vmask1_p,vmask2_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -1178,9 +1142,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL3_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -1218,9 +1182,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 3; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -1232,9 +1196,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks3(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks3(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask3(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask3(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate3vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate3vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
@@ -1265,7 +1229,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -1283,11 +1247,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP4(
+void topkernelP4(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1405,14 +1365,14 @@ topkernelP4(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -1451,8 +1411,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask4(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask4(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -1502,9 +1462,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL4_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -1542,10 +1502,10 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 4; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -1557,9 +1517,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks4(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks4(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask4(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask4(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate4vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate4vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
@@ -1591,7 +1551,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -1609,11 +1569,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP5(
+void topkernelP5(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1749,14 +1705,14 @@ topkernelP5(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3);globalparamsKs[4] = acts_utilobj->UTIL_getglobalparams(kvdram4); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3);globalparamsKs[4] = UTIL_getglobalparams(kvdram4); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -1795,8 +1751,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask5(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask5(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -1846,9 +1802,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL5_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -1886,11 +1842,11 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[4] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[4] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 5; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -1902,9 +1858,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks5(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks5(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask5(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask5(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate5vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate5vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
@@ -1937,7 +1893,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -1955,11 +1911,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP6(
+void topkernelP6(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2113,14 +2065,14 @@ topkernelP6(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3);globalparamsKs[4] = acts_utilobj->UTIL_getglobalparams(kvdram4);globalparamsKs[5] = acts_utilobj->UTIL_getglobalparams(kvdram5); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3);globalparamsKs[4] = UTIL_getglobalparams(kvdram4);globalparamsKs[5] = UTIL_getglobalparams(kvdram5); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -2159,8 +2111,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask6(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask6(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -2210,9 +2162,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL6_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -2250,12 +2202,12 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[4] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[5] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[4] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[5] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 6; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -2267,9 +2219,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks6(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks6(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask6(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask6(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate6vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate6vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
@@ -2303,7 +2255,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -2321,11 +2273,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP7(
+void topkernelP7(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2497,14 +2445,14 @@ topkernelP7(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3);globalparamsKs[4] = acts_utilobj->UTIL_getglobalparams(kvdram4);globalparamsKs[5] = acts_utilobj->UTIL_getglobalparams(kvdram5);globalparamsKs[6] = acts_utilobj->UTIL_getglobalparams(kvdram6); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3);globalparamsKs[4] = UTIL_getglobalparams(kvdram4);globalparamsKs[5] = UTIL_getglobalparams(kvdram5);globalparamsKs[6] = UTIL_getglobalparams(kvdram6); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -2543,8 +2491,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask7(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask7(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -2594,9 +2542,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL7_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -2634,13 +2582,13 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[4] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[5] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[6] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[4] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[5] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[6] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 7; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -2652,9 +2600,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks7(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks7(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask7(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask7(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate7vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate7vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
@@ -2689,7 +2637,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -2707,11 +2655,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP8(
+void topkernelP8(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2901,14 +2845,14 @@ topkernelP8(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3);globalparamsKs[4] = acts_utilobj->UTIL_getglobalparams(kvdram4);globalparamsKs[5] = acts_utilobj->UTIL_getglobalparams(kvdram5);globalparamsKs[6] = acts_utilobj->UTIL_getglobalparams(kvdram6);globalparamsKs[7] = acts_utilobj->UTIL_getglobalparams(kvdram7); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3);globalparamsKs[4] = UTIL_getglobalparams(kvdram4);globalparamsKs[5] = UTIL_getglobalparams(kvdram5);globalparamsKs[6] = UTIL_getglobalparams(kvdram6);globalparamsKs[7] = UTIL_getglobalparams(kvdram7); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -2947,8 +2891,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask8(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask8(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -2998,9 +2942,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL8_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -3038,14 +2982,14 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[4] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[5] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[6] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[7] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[4] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[5] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[6] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[7] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 8; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -3057,9 +3001,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks8(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks8(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask8(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask8(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate8vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate8vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
@@ -3095,7 +3039,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -3113,11 +3057,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP9(
+void topkernelP9(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -3325,14 +3265,14 @@ topkernelP9(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3);globalparamsKs[4] = acts_utilobj->UTIL_getglobalparams(kvdram4);globalparamsKs[5] = acts_utilobj->UTIL_getglobalparams(kvdram5);globalparamsKs[6] = acts_utilobj->UTIL_getglobalparams(kvdram6);globalparamsKs[7] = acts_utilobj->UTIL_getglobalparams(kvdram7);globalparamsKs[8] = acts_utilobj->UTIL_getglobalparams(kvdram8); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3);globalparamsKs[4] = UTIL_getglobalparams(kvdram4);globalparamsKs[5] = UTIL_getglobalparams(kvdram5);globalparamsKs[6] = UTIL_getglobalparams(kvdram6);globalparamsKs[7] = UTIL_getglobalparams(kvdram7);globalparamsKs[8] = UTIL_getglobalparams(kvdram8); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -3371,8 +3311,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask9(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask9(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -3422,9 +3362,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL9_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -3462,15 +3402,15 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[4] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[5] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[6] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[7] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[8] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram8, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[4] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[5] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[6] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[7] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[8] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram8, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 9; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -3482,9 +3422,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks9(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks9(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask9(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask9(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate9vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate9vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 8, 0, reducebuffersz, globalparamsV); 
@@ -3521,7 +3461,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -3539,11 +3479,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP10(
+void topkernelP10(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -3769,14 +3705,14 @@ topkernelP10(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3);globalparamsKs[4] = acts_utilobj->UTIL_getglobalparams(kvdram4);globalparamsKs[5] = acts_utilobj->UTIL_getglobalparams(kvdram5);globalparamsKs[6] = acts_utilobj->UTIL_getglobalparams(kvdram6);globalparamsKs[7] = acts_utilobj->UTIL_getglobalparams(kvdram7);globalparamsKs[8] = acts_utilobj->UTIL_getglobalparams(kvdram8);globalparamsKs[9] = acts_utilobj->UTIL_getglobalparams(kvdram9); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3);globalparamsKs[4] = UTIL_getglobalparams(kvdram4);globalparamsKs[5] = UTIL_getglobalparams(kvdram5);globalparamsKs[6] = UTIL_getglobalparams(kvdram6);globalparamsKs[7] = UTIL_getglobalparams(kvdram7);globalparamsKs[8] = UTIL_getglobalparams(kvdram8);globalparamsKs[9] = UTIL_getglobalparams(kvdram9); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -3815,8 +3751,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask10(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask10(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -3866,9 +3802,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL10_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -3906,16 +3842,16 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[4] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[5] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[6] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[7] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[8] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram8, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[9] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram9, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[4] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[5] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[6] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[7] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[8] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram8, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[9] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram9, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 10; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -3927,9 +3863,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks10(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks10(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask10(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask10(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate10vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate10vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 8, 0, reducebuffersz, globalparamsV); 
@@ -3967,7 +3903,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -3985,11 +3921,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP11(
+void topkernelP11(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -4233,14 +4165,14 @@ topkernelP11(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3);globalparamsKs[4] = acts_utilobj->UTIL_getglobalparams(kvdram4);globalparamsKs[5] = acts_utilobj->UTIL_getglobalparams(kvdram5);globalparamsKs[6] = acts_utilobj->UTIL_getglobalparams(kvdram6);globalparamsKs[7] = acts_utilobj->UTIL_getglobalparams(kvdram7);globalparamsKs[8] = acts_utilobj->UTIL_getglobalparams(kvdram8);globalparamsKs[9] = acts_utilobj->UTIL_getglobalparams(kvdram9);globalparamsKs[10] = acts_utilobj->UTIL_getglobalparams(kvdram10); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3);globalparamsKs[4] = UTIL_getglobalparams(kvdram4);globalparamsKs[5] = UTIL_getglobalparams(kvdram5);globalparamsKs[6] = UTIL_getglobalparams(kvdram6);globalparamsKs[7] = UTIL_getglobalparams(kvdram7);globalparamsKs[8] = UTIL_getglobalparams(kvdram8);globalparamsKs[9] = UTIL_getglobalparams(kvdram9);globalparamsKs[10] = UTIL_getglobalparams(kvdram10); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -4279,8 +4211,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask11(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p,vmask10_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask11(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p,vmask10_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -4330,9 +4262,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL11_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -4370,17 +4302,17 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[4] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[5] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[6] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[7] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[8] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram8, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[9] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram9, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[10] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram10, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[4] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[5] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[6] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[7] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[8] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram8, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[9] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram9, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[10] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram10, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 11; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -4392,9 +4324,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks11(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9,vmaskREAD10, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks11(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9,vmaskREAD10, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask11(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp,vmask10_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask11(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp,vmask10_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate11vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate11vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 8, 0, reducebuffersz, globalparamsV); 
@@ -4433,7 +4365,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -4451,11 +4383,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 }
 }
 extern "C" {
-void 
-	#ifdef SW 
-	top_usrcv_udstv:: 
-	#endif
-topkernelP12(
+void topkernelP12(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -4717,14 +4645,14 @@ topkernelP12(
 	for(unsigned int i=0; i<MAX_NUM_PARTITIONS; i++){ _chkpartitions[i] = 0; }
 	#endif 
 	
-globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1] = acts_utilobj->UTIL_getglobalparams(kvdram1);globalparamsKs[2] = acts_utilobj->UTIL_getglobalparams(kvdram2);globalparamsKs[3] = acts_utilobj->UTIL_getglobalparams(kvdram3);globalparamsKs[4] = acts_utilobj->UTIL_getglobalparams(kvdram4);globalparamsKs[5] = acts_utilobj->UTIL_getglobalparams(kvdram5);globalparamsKs[6] = acts_utilobj->UTIL_getglobalparams(kvdram6);globalparamsKs[7] = acts_utilobj->UTIL_getglobalparams(kvdram7);globalparamsKs[8] = acts_utilobj->UTIL_getglobalparams(kvdram8);globalparamsKs[9] = acts_utilobj->UTIL_getglobalparams(kvdram9);globalparamsKs[10] = acts_utilobj->UTIL_getglobalparams(kvdram10);globalparamsKs[11] = acts_utilobj->UTIL_getglobalparams(kvdram11); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-	globalparams_t globalparamsK = globalparamsKs[0]; // acts_utilobj->UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getglobalparams(kvdram1);globalparamsKs[2] = UTIL_getglobalparams(kvdram2);globalparamsKs[3] = UTIL_getglobalparams(kvdram3);globalparamsKs[4] = UTIL_getglobalparams(kvdram4);globalparamsKs[5] = UTIL_getglobalparams(kvdram5);globalparamsKs[6] = UTIL_getglobalparams(kvdram6);globalparamsKs[7] = UTIL_getglobalparams(kvdram7);globalparamsKs[8] = UTIL_getglobalparams(kvdram8);globalparamsKs[9] = UTIL_getglobalparams(kvdram9);globalparamsKs[10] = UTIL_getglobalparams(kvdram10);globalparamsKs[11] = UTIL_getglobalparams(kvdram11); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+	globalparams_t globalparamsK = globalparamsKs[0]; // UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	
 	#else 
 	globalparamsEs[0] = globalparamsK;
 	#endif 
-	globalparams_t globalparamsV = acts_utilobj->UTIL_getglobalparams(vdram);
+	globalparams_t globalparamsV = UTIL_getglobalparams(vdram);
 	
 	unsigned int PARTITION_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -4763,8 +4691,8 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ mem_accessobj->MEMACCESS_readmanypmask12(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p,vmask10_p,vmask11_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
-	if(GraphAlgo != PAGERANK){ acts_utilobj->UTIL_resetkvstatvalues(vdram, globalparamsV); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask12(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p,vmask10_p,vmask11_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
 	unsigned int FIRST_BASEOFFSETKVS_STATSDRAM = globalparamsK.BASEOFFSETKVS_STATSDRAM;
@@ -4814,9 +4742,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 				
 				TOPKERNEL12_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef ENABLERECURSIVEPARTITIONING
-					if(stage==0){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
-					else if(stage==1){ num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(currentLOP);  }
-					else { num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
+					if(stage==0){ num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH); }
+					else if(stage==1){ num_source_partitions = UTIL_get_num_source_partitions(currentLOP);  }
+					else { num_source_partitions = UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);  }
 					#else
 					NOT IMPLEMENTED.
 					#endif
@@ -4854,18 +4782,18 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						bool_type enablereduce = OFF; 
 						unsigned int ntravszs = 0;
 						if(globalposition.EN_REDUCE == ON){
-							rtravstates[0] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[1] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[2] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[3] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[4] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[5] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[6] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[7] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[8] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram8, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[9] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram9, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[10] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram10, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
-							rtravstates[11] = acts_utilobj->UTIL_gettravstate(globalposition.EN_REDUCE, kvdram11, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[0] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram0, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[1] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram1, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[2] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram2, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[3] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram3, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[4] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram4, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[5] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram5, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[6] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram6, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[7] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram7, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[8] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram8, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[9] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram9, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[10] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram10, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
+							rtravstates[11] = UTIL_gettravstate(globalposition.EN_REDUCE, kvdram11, globalparamsK, currentLOP, sourcestatsmarker); // CRITICAL NOTEME. POSSIBLE SOURCE OF ROUTING CONSTRAINTS?
 							for(unsigned int i = 0; i < 12; i++){ ntravszs += rtravstates[i].size_kvs; }
 							if(ntravszs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 						}
@@ -4877,9 +4805,9 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-						mem_accessobj->MEMACCESS_readmanyvmasks12(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9,vmaskREAD10,vmaskREAD11, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_readmanyvmasks12(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9,vmaskREAD10,vmaskREAD11, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-						mem_accessobj->MEMACCESS_readmanyspmask12(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp,vmask10_subp,vmask11_subp, vmaskbuffersz_kvs); 
+MEMACCESS_readmanyspmask12(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp,vmask10_subp,vmask11_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate12vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate12vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 8, 0, reducebuffersz, globalparamsV); 
@@ -4919,7 +4847,7 @@ globalparamsKs[0] = acts_utilobj->UTIL_getglobalparams(kvdram0);globalparamsKs[1
 		} // v_chunkid
 	} // edgebankID
 	
-	mem_accessobj->MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here

@@ -2,22 +2,22 @@
 using namespace std;
 
 #ifdef SW
-partitionupdates::partitionupdates(){ actsutilityobj = new actsutility(); acts_utilobj = new acts_util(); }
+partitionupdates::partitionupdates(mydebug * _mydebugobj){ 
+	actsutilityobj = new actsutility(); 
+	acts_utilobj = new acts_util(_mydebugobj); 
+	mydebugobj = _mydebugobj; 
+}
 partitionupdates::~partitionupdates(){}
 #endif
 
-void 
-	#ifdef SW 
-	partitionupdates::
-	#endif
-PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
+void {{context['classname__partitionupdates']}}PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_loop1 = WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
 	
 	value_t emptyslot[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=emptyslot complete
-	acts_utilobj->UTIL_resetvalues(emptyslot, VECTOR_SIZE, 0);
+	{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_resetvalues(emptyslot, VECTOR_SIZE, 0);
 	
 	buffer_type chunk_size = size_kvs;
 	unsigned int upperlimit = sweepparams.upperlimit;
@@ -38,17 +38,17 @@ PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mo
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{v}} = acts_utilobj->UTIL_GETKV(keyvalue{{v}});
+		keyvalue_t mykeyvalue{{v}} = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(keyvalue{{v}});
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		bool_type valid{{v}} = ON;
-		if(mykeyvalue{{v}}.key != acts_utilobj->UTIL_GETK(INVALIDDATA) && mykeyvalue{{v}}.value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ valid{{v}} = ON; } else { valid{{v}} = OFF; }
+		if(mykeyvalue{{v}}.key != {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETK(INVALIDDATA) && mykeyvalue{{v}}.value != {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETV(INVALIDDATA)){ valid{{v}} = ON; } else { valid{{v}} = OFF; }
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
 		partition_type p{{v}} = 0;
-		if(valid{{v}} == ON){ p{{v}} = acts_utilobj->UTIL_getpartition(ON, mode, keyvalue{{v}}, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
+		if(valid{{v}} == ON){ p{{v}} = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getpartition(ON, mode, keyvalue{{v}}, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE); }
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -84,7 +84,7 @@ PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mo
 		keyvalue_t mydummykv;
 		mydummykv.key = p;
 		mydummykv.value = INVALIDDATA;
-		keyvalue_buffer_t dummykv = acts_utilobj->UTIL_GETKV(mydummykv);
+		keyvalue_buffer_t dummykv = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mydummykv);
 		for(vector_type k=0; k<4; k++){
 		#pragma HLS PIPELINE II=2
 			{%for v in context['VECTOR_SIZE_seq']%}
@@ -108,7 +108,7 @@ PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mo
 	localcapsule[{{v}}][0].key = 0;
 	{%endfor%}
 	
-	acts_utilobj->UTIL_calculatemanyunallignedoffsets(localcapsule, MAX_NUM_PARTITIONS, 0, 0);
+	{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_calculatemanyunallignedoffsets(localcapsule, MAX_NUM_PARTITIONS, 0, 0);
 
 	#ifdef _DEBUGMODE_CHECKS2
 	for(partition_type p=0; p<MAX_NUM_PARTITIONS; p++){
@@ -124,11 +124,7 @@ PARTITION_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mo
 	return;
 }
 
-void 
-	#ifdef SW 
-	partitionupdates::
-	#endif
-PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams){				
+void {{context['classname__partitionupdates']}}PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams){				
 	#ifdef ENABLERECURSIVEPARTITIONING
 	if(currentLOP == globalparams.ACTSPARAMS_TREEDEPTH){ return; } /// NEWCHANGE.
 	#else 
@@ -156,13 +152,13 @@ PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, unsigned
 		#pragma HLS PIPELINE II=2
 			keyvalue_buffer_t kv = sourcebuffer[v][i];
 			
-			partition_type p = acts_utilobj->UTIL_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
-			if(acts_utilobj->UTIL_GETKV(kv).key != acts_utilobj->UTIL_GETV(INVALIDDATA) && acts_utilobj->UTIL_GETKV(kv).value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ localcapsule[p].value += 1; }
+			partition_type p = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			if({%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(kv).key != {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETV(INVALIDDATA) && {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(kv).value != {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETV(INVALIDDATA)){ localcapsule[p].value += 1; }
 		}
 	}
 	
-	acts_utilobj->UTIL_calculateoffsets(localcapsule, NUM_PARTITIONS);
-	acts_utilobj->UTIL_resetvalues(localcapsule, NUM_PARTITIONS, 0);
+	{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_calculateoffsets(localcapsule, NUM_PARTITIONS);
+	{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_resetvalues(localcapsule, NUM_PARTITIONS, 0);
 	
 	BASICPARTITIONKEYVALUES_LOOP2: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -170,11 +166,11 @@ PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, unsigned
 		#pragma HLS PIPELINE II=2
 			keyvalue_buffer_t kv = sourcebuffer[v][i];
 			// cout<<"--- priorpartitionkeyvalues: kv.key: "<<kv.key<<endl; // REMOVEME.
-			partition_type p = acts_utilobj->UTIL_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			partition_type p = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
 			buffer_type pos = localcapsule[p].key + localcapsule[p].value;
 			
-			if(acts_utilobj->UTIL_GETKV(kv).key != acts_utilobj->UTIL_GETV(INVALIDDATA) && acts_utilobj->UTIL_GETKV(kv).value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ destbuffer[pos % VECTOR_SIZE][pos / VECTOR_SIZE] = kv; } // NOTE: could this be the cause of slight imperfection in results?
-			if(acts_utilobj->UTIL_GETKV(kv).key != acts_utilobj->UTIL_GETV(INVALIDDATA) && acts_utilobj->UTIL_GETKV(kv).value != acts_utilobj->UTIL_GETV(INVALIDDATA)){ localcapsule[p].value += 1; }
+			if({%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(kv).key != {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETV(INVALIDDATA) && {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(kv).value != {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETV(INVALIDDATA)){ destbuffer[pos % VECTOR_SIZE][pos / VECTOR_SIZE] = kv; } // NOTE: could this be the cause of slight imperfection in results?
+			if({%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(kv).key != {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETV(INVALIDDATA) && {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(kv).value != {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETV(INVALIDDATA)){ localcapsule[p].value += 1; }
 		}
 	}
 	
@@ -182,8 +178,8 @@ PARTITION_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, unsigned
 	// #pragma HLS PIPELINE II=8
 		keyvalue_t mydummykv;
 		mydummykv.key = p;
-		mydummykv.value = acts_utilobj->UTIL_GETV(INVALIDDATA);
-		keyvalue_buffer_t dummykv = acts_utilobj->UTIL_GETKV(mydummykv);
+		mydummykv.value = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETV(INVALIDDATA);
+		keyvalue_buffer_t dummykv = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mydummykv);
 	
 		unsigned int endoffset = localcapsule[p].key + localcapsule[p].value;
 		unsigned int xpos = endoffset % VECTOR_SIZE;

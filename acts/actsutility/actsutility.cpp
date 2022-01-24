@@ -1,34 +1,8 @@
-#include "../../include/config_params.h"
-#include "../include/actscommon.h"
-#include "../../include/common.h"
-#ifdef SW
-#include <chrono>
-#include <stdlib.h>
-#include <ctime>
-#include <map>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <vector>
-#include <mutex>
-#include <string>
-#include <iostream>
-#include <string.h>
-#include <functional>
-#include <sys/time.h>
-#include <time.h>
-#include <iomanip>
-#include <cmath>
-#include <fstream>
-#endif 
-#ifdef SW
-#include "../../src/utility/utility.h"
-#endif
 #include "actsutility.h"
 using namespace std;
 
 actsutility::actsutility(){
-	#ifdef SW
+	#ifndef HW
 	utilityobj = new utility();
 	#endif 
 	for(unsigned int i=0; i<8; i++){ for(unsigned int k=0; k<MYSTATSYSIZE; k++){ for(unsigned int p=0; p<NUM_PARTITIONS; p++){ mystats[i][k][p] = 0; }}}
@@ -38,7 +12,7 @@ actsutility::actsutility(){
 }
 actsutility::~actsutility(){}
 
-#ifdef SW
+#ifndef HW
 void actsutility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"acts::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }
 }
@@ -198,7 +172,7 @@ void actsutility::printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZ
 }
 void actsutility::printkeyvalues(string message, keyvalue_buffer_t keyvalues[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int size){
 	cout<<endl<<"actsutility::printkeyvalues:"<<message<<endl;
-	#ifdef SW 
+	#ifndef HW 
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){
 		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
 		cout<<".."<<endl;
@@ -884,7 +858,7 @@ void actsutility::printprofileso1(unsigned int enable, string message, keyvalue_
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		printkeyvalues("printprofileso1:: printing stats:", (keyvalue_t *)stats, NUM_PARTITIONS);
 		#endif
-		#ifdef SW
+		#ifndef HW
 		printprofile(ON, "message: " + message + ". i: " + std::to_string(i) + ". printprofileso1:: keyvalues, stats", keyvalues[i], stats[i], BLOCKRAM_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
 		#else 
 		printprofile(ON, "message: " + message + ". printprofileso1:: keyvalues, stats", keyvalues[i], stats[i], BLOCKRAM_SIZE, currentLOP, upperlimit, batch_range_pow, partitioncount);
@@ -1275,7 +1249,7 @@ void actsutility::intrarunpipelinecheck_shifting(unsigned int enable, string mes
 }
 void actsutility::intrapartitioncheck(){
 	for(batch_type k=0; k<MYSTATSYSIZE-4; k+=3){
-		#ifdef SW 
+		#ifndef HW 
 		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k)+") == getstats(1, "+std::to_string(k+2)+")", getstats(0, k), getstats(1, k+2), NUM_PARTITIONS, NAp, NAp, NAp);
 		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k+1)+") == getstats(1, "+std::to_string(k+3)+")", getstats(0, k+1), getstats(1, k+3), NUM_PARTITIONS, NAp, NAp, NAp);
 		hcheckforequal(ON, "intrapartitioncheck: checking if getstats(0, "+std::to_string(k+2)+") == getstats(1, "+std::to_string(k+4)+")", getstats(0, k+2), getstats(1, k+4), NUM_PARTITIONS, NAp, NAp, NAp); 
@@ -1425,7 +1399,7 @@ unsigned int actsutility::READFROM_ULONG(ulong_dt data, ulong_dt index, ulong_dt
 	return (((data) & GETMASK_ULONG((index), (size))) >> (index)); 
 }
 unsigned int actsutility::READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ulong_dt size){
-	// #ifdef SW
+	// #ifndef HW
 	// ulong_dt * data = (ulong_dt *)&keyvalue;
 	// return READFROM_ULONG(*data, index, size);
 	// #else 
@@ -1433,7 +1407,7 @@ unsigned int actsutility::READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ul
 	// #endif 
 	
 	ulong_dt data;
-	#ifdef SW
+	#ifndef HW
 	ulong_dt * thisdata = (ulong_dt *)&keyvalue;
 	data = *thisdata;
 	#else
@@ -1442,7 +1416,7 @@ unsigned int actsutility::READFROM_ULONG(keyvalue_t keyvalue, ulong_dt index, ul
 	return READFROM_ULONG(data, index, size);
 }
 void actsutility::WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, ulong_dt value){ 
-	/* #ifdef SW
+	/* #ifndef HW
 	ulong_dt tempdata = *data;
 	(tempdata) = ((tempdata) & (~GETMASK_ULONG((index), (size)))) | ((value) << (index));
 	*data = tempdata;
@@ -1470,7 +1444,7 @@ void actsutility::WRITETO_ULONG(ulong_dt * data, ulong_dt index, ulong_dt size, 
 	return; 
 }
 void actsutility::WRITETO_ULONG(keyvalue_t * keyvalue, ulong_dt index, ulong_dt size, ulong_dt value){ 
-	#ifdef SW
+	#ifndef HW
 	ulong_dt * data = (ulong_dt *)keyvalue;
 	return WRITETO_ULONG(data, index, size, value);
 	#else

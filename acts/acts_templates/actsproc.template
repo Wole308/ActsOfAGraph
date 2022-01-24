@@ -41,7 +41,7 @@ using namespace std;
 #endif
 
 #ifdef SW
-actsproc::actsproc(){ actsutilityobj = new actsutility(); }
+actsproc::actsproc(mydebug * _mydebugobj){ actsutilityobj = new actsutility(); mydebugobj = _mydebugobj; }
 actsproc::~actsproc(){}
 #endif
 #ifdef FPGA_IMPL // SWEMU

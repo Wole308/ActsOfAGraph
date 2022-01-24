@@ -1,22 +1,38 @@
 #ifndef ACTS_H
 #define ACTS_H
 #ifdef SW 
-#include "acts_util.h"
-#include "../../acts/actsutility/actsutility.h"
-#include "../../src/utility/utility.h"
-#endif
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <string.h>
+#include <stdio.h>
+#include <ctime>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
+#endif 
 #include "../../include/config_params.h"
 #include "../../include/common.h"
 #include "../include/actscommon.h"
+#ifdef SW 
+#include "../../src/utility/utility.h"
+#include "../../acts/actsutility/actsutility.h"
+#endif
 #include "processedgesu.h"
 #include "processedges_splitdstvxs.h"
 #include "partitionupdates.h"
 #include "reduceupdates.h"
 #include "mem_access.h"
+#include "mydebug.h"
 
 class acts {
 public:
-	acts();
+	acts(mydebug * _mydebugobj);
 	~acts();
 
 	fetchmessage_t ACTS_fetchkeyvalues(bool_type enable, unsigned int mode, {%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
@@ -61,6 +77,7 @@ private:
 	partitionupdates * partitionupdatesobj;
 	reduceupdates * reduceupdatesobj;
 	mem_access * mem_accessobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

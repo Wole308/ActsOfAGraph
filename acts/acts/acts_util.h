@@ -22,11 +22,12 @@
 #ifdef SW 
 #include "../actsutility/actsutility.h"
 #endif
+#include "mydebug.h"
 using namespace std;
 
 class acts_util {
 public:
-	acts_util();
+	acts_util(mydebug * _mydebugobj);
 	~acts_util();
 	
 	// functions (basic)
@@ -83,12 +84,14 @@ public:
 	void UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]);
 	void UTIL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 	void UTIL_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);
+	void UTIL_set_graphiteration(uint512_dt * kvdram, unsigned int GraphIter);
 	void UTIL_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 	void UTIL_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 	
 private:
-	#ifndef FPGA_IMPL
+	#ifdef SW
 	actsutility * actsutilityobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

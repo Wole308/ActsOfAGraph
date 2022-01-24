@@ -2,23 +2,23 @@
 using namespace std;
 
 #ifdef SW
-mem_access::mem_access(){ actsutilityobj = new actsutility(); acts_utilobj = new acts_util(); }
+mem_access::mem_access(mydebug * _mydebugobj){ 
+	actsutilityobj = new actsutility(); 
+	acts_utilobj = new acts_util(_mydebugobj); 
+	mydebugobj = _mydebugobj; 
+}
 mem_access::~mem_access(){}
 #endif
 
 // -------------------- key values -------------------- //
-fetchmessage_t
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
+fetchmessage_t {{context['classname__mem_access']}}MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
 	if(enable == OFF){ return fetchmessage; }
 	
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
-	buffer_type chunk_size = acts_utilobj->UTIL_getchunksize_kvs(size_kvs, travstate, 0);
+	buffer_type chunk_size = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getchunksize_kvs(size_kvs, travstate, 0);
 	
 	fetchmessage.chunksize_kvs = chunk_size;
 	fetchmessage.nextoffset_kvs = NAp;
@@ -43,7 +43,7 @@ MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t
 		#endif 
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer[{{v}}][i] = acts_utilobj->UTIL_GETKV(mykeyvalue{{v}});
+		buffer[{{v}}][i] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue{{v}});
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_STATS
@@ -57,11 +57,7 @@ MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t
 	return fetchmessage;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+void {{context['classname__mem_access']}}MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_destpartitionsz = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 	
@@ -75,7 +71,7 @@ MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t
 		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
 		buffer_type bramoffset_kvs = localcapsule[p].key / VECTOR_SIZE;
 		buffer_type realsize_kvs = localcapsule[p].value / VECTOR_SIZE;
-		buffer_type size_kvs = acts_utilobj->UTIL_getpartitionwritesz(realsize_kvs, bramoffset_kvs);
+		buffer_type size_kvs = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getpartitionwritesz(realsize_kvs, bramoffset_kvs);
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("savekeyvalues 23", bramoffset_kvs + size_kvs, DESTBLOCKRAM_SIZE + 1, p, NAp, NAp);
@@ -86,7 +82,7 @@ MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
 			#pragma HLS PIPELINE II=1
 				{%for v in context['VECTOR_SIZE_seq']%}
-				keyvalue_t mykeyvalue{{v}} = acts_utilobj->UTIL_GETKV(buffer[{{v}}][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue{{v}} = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(buffer[{{v}}][bramoffset_kvs + i]);
 				{%endfor%}
 				
 				#ifdef _WIDEWORD
@@ -133,11 +129,7 @@ MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access']}}MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -160,7 +152,7 @@ MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramof
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer[{{v}}][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV(mykeyvalue{{v}});
+		buffer[{{v}}][bufferoffset_kvs + i] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue{{v}});
 		{%endfor%}
 		
 		#endif 
@@ -178,11 +170,7 @@ MEMACCESS_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramof
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access']}}MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  BLOCKRAM_SIZE;
 	
@@ -190,7 +178,7 @@ MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramof
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{v}} = acts_utilobj->UTIL_GETKV(buffer[{{v}}][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue{{v}} = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(buffer[{{v}}][bufferoffset_kvs + i]);
 		{%endfor%}
 	
 		#ifdef _WIDEWORD
@@ -220,11 +208,7 @@ MEMACCESS_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramof
 }
 
 // -------------------- vdata -------------------- //
-void
-	#ifdef SW
-	mem_access::
-	#endif 
-MEMACCESS_readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access']}}MEMACCESS_readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -248,7 +232,7 @@ MEMACCESS_readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 		#endif 
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer[begincol + {{v}}][bufferoffset_kvs + i] = acts_utilobj->UTIL_GETKV2(mykeyvalue{{v}});
+		buffer[begincol + {{v}}][bufferoffset_kvs + i] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(mykeyvalue{{v}});
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_STATS
@@ -265,11 +249,7 @@ MEMACCESS_readvdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access']}}MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int begincol, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -277,7 +257,7 @@ MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{v}} = acts_utilobj->UTIL_GETKV2(buffer[begincol + {{v}}][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue{{v}} = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV2(buffer[begincol + {{v}}][bufferoffset_kvs + i]);
 		{%endfor%}
 	
 		#ifdef _WIDEWORD
@@ -307,11 +287,7 @@ MEMACCESS_savevdata(bool_type enable, uint512_dt * kvdram, batch_type dramoffset
 }
 
 // -------------------- vmasks -------------------- //
-void
-	#ifdef SW
-	mem_access::
-	#endif 
-MEMACCESS_readvmasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){
+void {{context['classname__mem_access']}}MEMACCESS_readvmasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -330,9 +306,9 @@ MEMACCESS_readvmasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		{%for v in context['8_seq']%}
-		tempbuffer[{{v}}][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-		tempbuffer[{{v}}][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		tempbuffer[{{2*v}}][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		tempbuffer[{{2*v+1}}][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -353,10 +329,16 @@ MEMACCESS_readvmasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS
 	LOADVMASKS_LOOP1: for (buffer_type i=0; i<rsize_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount2 avg=analysis_loopcount2
 	#pragma HLS PIPELINE II=8
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		bitsbuffer[index + {{v}}] = tempbuffer[{{v}}][i];
+		{%endfor%}
+		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
 		bitsbuffer[index + {{2*v}}] = tempbuffer[{{v}}][i].key;
 		bitsbuffer[index + {{2*v}} + 1] = tempbuffer[{{v}}][i].value;
 		{%endfor%}
+		#endif 
 		
 		index += VECTOR_SIZE * 2;
 	}
@@ -375,21 +357,17 @@ MEMACCESS_readvmasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS
 		{%endfor%}
 		#else 
 		{%for v in context['16_seq']%}
-		vmaskBITS[{{v}}][bufferoffset + i] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], {{v}}, 1);
+		vmaskBITS[{{v}}][bufferoffset + i] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(bitsbuffer[i/2], {{v}}, 1);
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		vmaskBITS[{{v}}][bufferoffset + i + 1] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i/2], {{16+v}}, 1);
+		vmaskBITS[{{v}}][bufferoffset + i + 1] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(bitsbuffer[i/2], {{16+v}}, 1);
 		{%endfor%}
 		#endif
 	}
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access']}}MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MEMACCESS_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
@@ -423,20 +401,20 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[
 		{%endfor%}
 		#else
 		{%for v in context['16_seq']%}
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{v}}, 1, vmaskBITS[{{v}}][n_i]);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{v}}, 1, vmaskBITS[{{v}}][n_i]);
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		acts_utilobj->UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{16+v}}, 1, vmaskBITS[{{v}}][n_iplus1]);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{16+v}}, 1, vmaskBITS[{{v}}][n_iplus1]);
 		{%endfor%}
 		#endif
 		index += 1;
 		
-		uint32_type maskA = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
-		uint32_type maskB = acts_utilobj->UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
+		uint32_type maskA = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
+		uint32_type maskB = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
 		cummvmask_sp = cummvmask_sp | maskA | maskB;
 		// cout<<"MEMACCESS_savemasks:: maskA: "<<maskA<<", maskB: "<<maskB<<", cummvmask_sp: "<<cummvmask_sp<<endl;
 		
-		realvid = acts_utilobj->UTIL_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
+		realvid = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(realvid >= next_chpt){ cout<<"--- MEMACCESS_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		#endif 
@@ -481,11 +459,7 @@ MEMACCESS_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_readmanyvmasks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmaskBITS{{i}}[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access']}}MEMACCESS_readmanyvmasks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmaskBITS{{i}}[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -551,10 +525,10 @@ MEMACCESS_readmanyvmasks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in 
 		{%endfor%}
 		#else 
 		{%for v in context['16_seq']%}
-		vmaskBITS{{i}}[{{v}}][index2] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], {{v}}, 1);
+		vmaskBITS{{i}}[{{v}}][index2] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(bitsbuffer[i], {{v}}, 1);
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		vmaskBITS{{i}}[{{v}}][index2 + 1] = acts_utilobj->UTIL_READFROM_UINT(bitsbuffer[i], {{16+v}}, 1);
+		vmaskBITS{{i}}[{{v}}][index2 + 1] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(bitsbuffer[i], {{16+v}}, 1);
 		{%endfor%}
 		#endif
 		{%endif%}
@@ -568,11 +542,7 @@ MEMACCESS_readmanyvmasks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in 
 {%endfor%}
 
 // -------------------- pmasks -------------------- //
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void {{context['classname__mem_access']}}MEMACCESS_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -585,11 +555,7 @@ MEMACCESS_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], bat
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_readmanyspmask{{n}}(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmask{{i}}_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],{%endif%}{%endfor%} buffer_type size_kvs){
+void {{context['classname__mem_access']}}MEMACCESS_readmanyspmask{{n}}(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmask{{i}}_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],{%endif%}{%endfor%} buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -652,11 +618,7 @@ MEMACCESS_readmanyspmask{{n}}(bool_type enable, unit1_type vmask0[VMASK_PACKINGS
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}uint32_type vmask{{i}}_p[BLOCKRAM_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs){
+void {{context['classname__mem_access']}}MEMACCESS_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}uint32_type vmask{{i}}_p[BLOCKRAM_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		{%for i in context['T_seq']%}
@@ -678,11 +640,7 @@ MEMACCESS_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{
 {%endfor%}
 
 // -------------------- others -------------------- //
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
+void {{context['classname__mem_access']}}MEMACCESS_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
@@ -722,11 +680,7 @@ MEMACCESS_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t glob
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
+void {{context['classname__mem_access']}}MEMACCESS_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -770,11 +724,7 @@ MEMACCESS_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t glob
 	return;
 }
 
-tuple_t
-	#ifdef SW 
-	mem_access::
-	#endif
-MEMACCESS_getvptrs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t {{context['classname__mem_access']}}MEMACCESS_getvptrs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -890,11 +840,7 @@ MEMACCESS_getvptrs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{
 	return t;
 }
 
-unsigned int
-	#ifdef SW 
-	mem_access::
-	#endif
-MEMACCESS_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
+unsigned int {{context['classname__mem_access']}}MEMACCESS_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (offset / 16)];
@@ -920,11 +866,7 @@ MEMACCESS_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int
 	else { return vptr_kv.value; }
 }
 
-tuple_t
-	#ifdef SW 
-	mem_access::
-	#endif
-MEMACCESS_getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t {{context['classname__mem_access']}}MEMACCESS_getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -997,11 +939,7 @@ MEMACCESS_getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * ed
 	return t;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparamsK){
+void {{context['classname__mem_access']}}MEMACCESS_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], globalparams_t globalparamsK){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 	
@@ -1009,7 +947,7 @@ MEMACCESS_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSI
 	
 	#ifdef ENABLERECURSIVEPARTITIONING
 	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
-	batch_type num_source_partitions = acts_utilobj->UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);
+	batch_type num_source_partitions = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);
 	#else
 	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH + 1;
 	batch_type num_source_partitions = NUM_PARTITIONS;
@@ -1050,11 +988,7 @@ MEMACCESS_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSI
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK){
+void {{context['classname__mem_access']}}MEMACCESS_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 	
@@ -1065,11 +999,7 @@ MEMACCESS_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t glob
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_copyallstats({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
+void {{context['classname__mem_access']}}MEMACCESS_copyallstats({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 
@@ -1084,11 +1014,7 @@ MEMACCESS_copyallstats({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * ed
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
+void {{context['classname__mem_access']}}MEMACCESS_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -1107,11 +1033,7 @@ MEMACCESS_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t gl
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void {{context['classname__mem_access']}}MEMACCESS_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k]; 
@@ -1122,11 +1044,7 @@ MEMACCESS_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t g
 	return;
 }
 
-void
-	#ifdef SW 
-	mem_access::
-	#endif 
-MEMACCESS_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void {{context['classname__mem_access']}}MEMACCESS_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD

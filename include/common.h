@@ -1,8 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define _ORKUT_3M_106M 

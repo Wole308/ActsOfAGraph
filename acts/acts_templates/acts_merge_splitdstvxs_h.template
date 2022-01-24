@@ -3,7 +3,7 @@
 #include "../../include/config_params.h"
 #include "../../include/common.h"
 #include "../include/actscommon.h"
-#ifdef SW 
+#ifdef SW
 #include <string>
 #include <string.h>
 #include <iostream>
@@ -19,7 +19,7 @@
 #include <cmath>
 #include <fstream>
 #endif 
-#ifdef SW 
+#ifdef SW
 #include "../../src/utility/utility.h"
 #include "../../acts/actsutility/actsutility.h"
 #endif
@@ -30,11 +30,12 @@
 #include "mem_access.h"
 #include "acts_util.h"
 #include "acts.h"
+#include "mydebug.h"
 using namespace std;
 
 class acts_merge_splitdstvxs {
 public:
-	acts_merge_splitdstvxs();
+	acts_merge_splitdstvxs(mydebug * _mydebugobj);
 	~acts_merge_splitdstvxs();
 
 	unsigned int MERGE_SPLIT_actvpstatsoffset(globalparams_t globalparams);
@@ -44,6 +45,12 @@ public:
 	{%for n in context['T_seq']%}
 	{%if(n>=1)%}
 	void MERGE_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
+	{%endif%}
+	{%endfor%}
+	
+	{%for n in context['T_seq']%}
+	{%if(n>=1)%}
+	void MERGE_SPLIT_BASICbroadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
 	{%endif%}
 	{%endfor%}
 	
@@ -65,6 +72,7 @@ private:
 	reduceupdates * reduceupdatesobj;
 	mem_access * mem_accessobj;
 	acts * actsobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

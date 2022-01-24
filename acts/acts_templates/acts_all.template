@@ -1,37 +1,47 @@
-#ifdef SW 
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <vector>
-#include <string.h>
-#include <stdio.h>
-#include <ctime>
-#include <functional>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-#include <iomanip>
-#include <cmath>
-#include <fstream>
-#endif 
-#include "../../include/config_params.h"
-#include "../../include/common.h"
-#include "../include/actscommon.h"
-#ifdef SW 
-#include "../actsutility/actsutility.h"
-#endif
-#include "acts_util.h"
+#include "acts_all.h"
 using namespace std;
 
-{% include 'processedgesu.template' %}
-{% include 'processedges_splitdstvxs.template' %}
-{% include 'partitionupdates.template' %}
-{% include 'reduceupdates.template' %}
-{% include 'mem_access.template' %}
-{% include 'mem_access_splitdstvxs.template' %}
-{% include 'acts_util.template' %}
-{% include 'acts.template' %}
-{% include 'acts_merge.template' %}
-{% include 'acts_merge_splitdstvxs.template' %}
-{% include 'top_usrcv_udstv.template' %}
-{% include 'top_nusrcv_nudstv.template' %}
+#ifdef SW_ALLINONE
+acts_all::acts_all(mydebug * _mydebugobj){
+	actsutilityobj = new actsutility();
+	mydebugobj = _mydebugobj;
+}
+acts_all::~acts_all(){}
+#endif
+
+#ifdef CONFIG_ENABLECLASS_ACTS_UTIL
+{% include 'acts_util.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_MEM_ACCESS
+{% include 'mem_access.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_MEM_ACCESS_SPLITDSTVXS
+{% include 'mem_access_splitdstvxs.template' %}	
+#endif 	
+#ifdef CONFIG_ENABLECLASS_PROCESSEDGESU
+{% include 'processedgesu.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_PROCESSEDGES_SPLITDSTVXS
+{% include 'processedges_splitdstvxs.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_PARTITIONUPDATES
+{% include 'partitionupdates.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
+{% include 'reduceupdates.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
+{% include 'acts_merge.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ACTS_MERGE_SPLITDSTVXS
+{% include 'acts_merge_splitdstvxs.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ACTS
+{% include 'acts.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
+{% include 'top_usrcv_udstv.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
+{% include 'top_nusrcv_nudstv.template' %}	
+#endif 

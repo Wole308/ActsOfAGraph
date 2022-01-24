@@ -25,11 +25,12 @@
 #ifdef SW 
 #include "../../acts/actsutility/actsutility.h"
 #endif
+#include "mydebug.h"
 using namespace std;
 
 class actssync {
 public:
-	actssync();
+	actssync(mydebug * _mydebugobj);
 	~actssync();
 	
 	#ifdef SW  // CRITICAL REMOVEME.
@@ -137,8 +138,9 @@ uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdr
 	void topkernelsync(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram);
 
 private:
-	#ifndef FPGA_IMPL
+	#ifdef SW
 	actsutility * actsutilityobj;
+	mydebug * mydebugobj;
 	#endif
 };
 #endif 

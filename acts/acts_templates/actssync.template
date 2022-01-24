@@ -36,7 +36,10 @@ using namespace std;
 #endif
 
 #ifdef SW
-actssync::actssync(){ actsutilityobj = new actsutility(); }
+actssync::actssync(mydebug * _mydebugobj){ 
+	actsutilityobj = new actsutility(); 
+	mydebugobj = _mydebugobj; 
+}
 actssync::~actssync(){}
 #endif
 #ifdef FPGA_IMPL

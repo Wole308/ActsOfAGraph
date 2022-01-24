@@ -1,9 +1,29 @@
 #ifndef ACTSUTILITY_H
 #define ACTSUTILITY_H
+#include "../../include/config_params.h"
 #include "../include/actscommon.h"
 #include "../../include/common.h"
-#include "../../include/config_params.h"
-#ifdef SW
+#ifndef HW
+#include <chrono>
+#include <stdlib.h>
+#include <ctime>
+#include <map>
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <vector>
+#include <mutex>
+#include <string>
+#include <iostream>
+#include <string.h>
+#include <functional>
+#include <sys/time.h>
+#include <time.h>
+#include <iomanip>
+#include <cmath>
+#include <fstream>
+#endif 
+#ifndef HW
 #include "../../src/utility/utility.h"
 #endif
 using namespace std;
@@ -185,7 +205,7 @@ public:
 	void reducehelper_checkreduceloc(unsigned int i, unsigned int loc, keyvalue_t keyvalue, sweepparams_t sweepparams, globalparams_t globalparams);
 	
 private:
-	#ifdef SW 
+	#ifndef HW 
 	utility * utilityobj;
 	#endif 
 	

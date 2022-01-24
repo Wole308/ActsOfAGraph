@@ -390,6 +390,18 @@ typedef struct {
 	unsigned int EN_PROCESSANDREDUCE;
 	unsigned int EN_PROCESSANDPARTITION;
 } globalposition_t;
+
+typedef struct {
+	bool active;
+	int beginoffset;
+	int endoffset;
+	int s_base;
+	int local_rowoffset;
+} sliceinfo_t;
+
+typedef struct {
+	sliceinfo_t slice[4];
+} sliceinfos_t;
 #endif 
 
 
