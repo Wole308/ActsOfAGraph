@@ -67,7 +67,9 @@ fetchmessage_t {{context['classname__acts']}}ACTS_fetchkeyvalues(bool_type enabl
 				fetchmessage = {%if(context['XWARE']=="SW")%}processedgesobj->{%endif%}PROCESS_SPL_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			}
 		#else 
+		// fetchmessage = {%if(context['XWARE']=="SW")%}processedgesobj->{%endif%}PROCESS_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams); // CRITICAL REMOVEME.
 		fetchmessage = {%if(context['XWARE']=="SW")%}processedgesobj->{%endif%}PROCESS_SPL_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+		// fetchmessage = {%if(context['XWARE']=="SW")%}processedgesobj->{%endif%}PROCESS_SPL2_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 		#endif
 	} else {
 		fetchmessage = {%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
@@ -346,6 +348,7 @@ void {{context['classname__acts']}}ACTS_actit(bool_type enable, unsigned int mod
 		
 		ptravstatepp0.i_kvs = offset_kvs;
 		fetchmessagepp0 = ACTS_fetchkeyvalues(ON, mode, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, vbuffer, vmaskREAD, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
+		// CRITICAL ADDMEBACK.
 		#ifdef PUP1
 		ACTS_actspipeline(pp1runpipelineen, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 

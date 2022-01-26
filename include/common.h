@@ -1,11 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW_ALLINONE // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
 #define _ORKUT_3M_106M 
@@ -446,6 +443,18 @@ typedef struct {
 typedef ap_uint<1> unit1_type;
 #else 
 typedef unsigned int unit1_type;
+#endif 
+
+#ifdef _WIDEWORD
+typedef ap_uint<3> unit3_type;
+#else 
+typedef unsigned int unit3_type;
+#endif 
+
+#ifdef _WIDEWORD
+typedef ap_uint<4> unit4_type;
+#else 
+typedef unsigned int unit4_type;
 #endif 
 
 #ifdef _WIDEWORD

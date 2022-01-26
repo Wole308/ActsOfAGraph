@@ -92,6 +92,7 @@ private:
 	partitionupdates * partitionupdatesobj;
 	reduceupdates * reduceupdatesobj;
 	mem_access * mem_accessobj;
+	mem_convert_and_access * mem_convert_and_accessobj;
 	acts * actsobj;
 	mydebug * mydebugobj;
 	#endif

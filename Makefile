@@ -89,6 +89,7 @@ KERNEL_TOP_PROC += $(RELREF)acts/acts/mydebug.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/acts/reduceupdates.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/acts/mem_access.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/acts/mem_access_splitdstvxs.cpp
+# KERNEL_TOP_PROC += $(RELREF)acts/acts/mem_convert_and_access.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_util.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/acts/acts.cpp
 # KERNEL_TOP_PROC += $(RELREF)acts/acts/acts_merge.cpp

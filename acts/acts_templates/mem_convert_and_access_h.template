@@ -1,5 +1,5 @@
-#ifndef PROCESSEDGES_SPLITDSTVTXS_H
-#define PROCESSEDGES_SPLITDSTVTXS_H
+#ifndef MEM_CONVERT_AND_ACCESS_H
+#define MEM_CONVERT_AND_ACCESS_H
 #include "../../include/config_params.h"
 #include "../../include/common.h"
 #include "../include/actscommon.h"
@@ -19,23 +19,25 @@
 #include <cmath>
 #include <fstream>
 #endif 
-#include "mem_access.h"
+#ifdef SW 
+#include "../../acts/actsutility/actsutility.h"
+#include "../../src/utility/utility.h"
+#endif
 #include "acts_util.h"
 #include "mydebug.h"
 using namespace std;
 
-class processedges_splitdstvxs {
+class mem_convert_and_access {
 public:
-	processedges_splitdstvxs(mydebug * _mydebugobj);
-	~processedges_splitdstvxs();
+	mem_convert_and_access(mydebug * _mydebugobj);
+	~mem_convert_and_access();
 	
-	{% include 'processedges_splitdstvxs_mf.template' %}	
+	{% include 'mem_convert_and_access_mf.template' %}	
 
 private:
 	#ifdef SW
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
-	mem_access * mem_accessobj;
 	mydebug * mydebugobj;
 	#endif
 };

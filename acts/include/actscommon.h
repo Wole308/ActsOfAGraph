@@ -198,7 +198,7 @@ typedef struct {
 #endif 
 
 #ifdef _WIDEWORD
-typedef ap_uint<32> keyvalue_vbuffer_t;
+typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
 #else
 typedef struct {
 	unsigned int key;
@@ -402,6 +402,11 @@ typedef struct {
 typedef struct {
 	sliceinfo_t slice[4];
 } sliceinfos_t;
+
+typedef struct {
+	unsigned int incr;
+	unsigned int dstvid;
+} parsededge_t;
 #endif 
 
 

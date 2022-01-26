@@ -19,7 +19,7 @@ top_nusrcv_nudstv::top_nusrcv_nudstv(mydebug * _mydebugobj){
 top_nusrcv_nudstv::~top_nusrcv_nudstv(){}
 #endif
 
-void processit_unsplitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+void acts_all::processit_unsplitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -165,7 +165,7 @@ MEMACCESS_saveglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSE
 	return;
 }
 
-void processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+void acts_all::processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -239,7 +239,7 @@ UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 MEMACCESS_SPL_readvmaskschunks(ON, kvdram, vmaskREAD, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
 MEMACCESS_SPL_readvdatachunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
 		
-		///////////////////////////////////////////////// REMOVEME
+		/* ///////////////////////////////////////////////// REMOVEME
 		#ifdef _DEBUGMODE_CHECKS2
 		if(globalparamsK.ACTSPARAMS_INSTID == 0){
 			for(buffer_type k=0; k<globalparamsK.SIZEKVS2_REDUCEPARTITION; k+=1){
@@ -249,7 +249,7 @@ MEMACCESS_SPL_readvdatachunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoff
 			}
 		}
 		#endif 
-		/////////////////////////////////////////////////
+		///////////////////////////////////////////////// */
 		
 		vertex_t srcvlocaloffset = (voffset_kvs2 * VECTOR2_SIZE);
 		vertex_t beginsrcvid = globalparamsK.ACTSPARAMS_SRCVOFFSET + (voffset_kvs2 * VECTOR2_SIZE);
@@ -333,7 +333,7 @@ MEMACCESS_saveglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSE
 	return;
 }
 
-void partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams, unsigned int edgebankID){
+void acts_all::partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], globalparams_t globalparams, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -432,7 +432,7 @@ MEMACCESS_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, glo
 	return;
 }
 
-void reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
+void acts_all::reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -475,20 +475,20 @@ ACTS_tradit
 	return;
 }
 
-void dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+void acts_all::dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#ifdef CONFIG_SPLIT_DESTVTXS // REMOVEME.
 	if(en_process == ON){ processit_splitdstvxs( kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
 	#else 
 	if(en_process == ON){ processit_unsplitdstvxs( kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 	
-	#endif 
+	#endif // CRITICAL ADDMEBACK.
 	if(en_partition == ON){ partitionit( kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE,  vmask_subp, globalparamsK, NAp); } 
 	if(en_reduce == ON){ reduceit( kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
 	return;
 }
 
-void dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+void acts_all::dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -541,7 +541,7 @@ void dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
 		// read vertices
-MEMACCESS_SPL_readvdata(enablereduce, 0, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+MEMACCESS_SPL_readvdata(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		#ifdef CONFIG_COLLECTMASKINFOSDURINGREDUCE
 UTIL_reset(vmaskWRITE);
 		#endif 
@@ -568,7 +568,7 @@ MEMACCESS_SPL_savemasks(enablereduce, kvdram, vmaskWRITE, globalparamsK.BASEOFFS
 } 
 
 // top
-void topkernelproc_embedded(
+void acts_all::topkernelproc_embedded(
 	
 	uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -583,11 +583,14 @@ void topkernelproc_embedded(
 	keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer
 	unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmaskREAD
+	// #pragma HLS DATA_PACK variable = vmaskREAD
+	#pragma HLS array_partition variable = vmaskREAD
 	unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
-	#pragma HLS DATA_PACK variable = vmaskWRITE
+	// #pragma HLS DATA_PACK variable = vmaskWRITE
+	#pragma HLS array_partition variable = vmaskWRITE
 	unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE];
-	#pragma HLS DATA_PACK variable = vmask_subp
+	// #pragma HLS DATA_PACK variable = vmask_subp
+	#pragma HLS array_partition variable = vmask_subp
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
 	globalparams_t globalparamsK = UTIL_getglobalparams(kvdram);
@@ -710,7 +713,7 @@ UTIL_increment_graphiteration(kvdram, globalparamsK);
 }
 
 extern "C" {
-void topkernelP1(
+void acts_all::topkernelP1(
 	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
@@ -754,12 +757,17 @@ void topkernelP1(
 	#endif 
 	topkernelproc_embedded(kvdram0);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP1: processing instance 0"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs1(kvdram0, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP2(
+void acts_all::topkernelP2(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * vdram
@@ -815,12 +823,20 @@ void topkernelP2(
 	#endif 
 	topkernelproc_embedded(kvdram1);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP2: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP2: processing instance 1"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs2(kvdram0,kvdram1, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP3(
+void acts_all::topkernelP3(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -888,12 +904,25 @@ void topkernelP3(
 	#endif 
 	topkernelproc_embedded(kvdram2);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP3: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP3: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP3: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+ */
+	
 MERGE_SPLIT_mergeVs3(kvdram0,kvdram1,kvdram2, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP4(
+void acts_all::topkernelP4(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -973,12 +1002,28 @@ void topkernelP4(
 	#endif 
 	topkernelproc_embedded(kvdram3);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP4: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP4: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP4: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP4: processing instance 3"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP5(
+void acts_all::topkernelP5(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1070,12 +1115,31 @@ void topkernelP5(
 	#endif 
 	topkernelproc_embedded(kvdram4);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP5: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP5: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP5: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP5: processing instance 3"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP5: processing instance 4"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP6(
+void acts_all::topkernelP6(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1179,12 +1243,34 @@ void topkernelP6(
 	#endif 
 	topkernelproc_embedded(kvdram5);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP6: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP6: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP6: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP6: processing instance 3"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP6: processing instance 4"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP6: processing instance 5"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP7(
+void acts_all::topkernelP7(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1300,12 +1386,37 @@ void topkernelP7(
 	#endif 
 	topkernelproc_embedded(kvdram6);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP7: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP7: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP7: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP7: processing instance 3"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP7: processing instance 4"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP7: processing instance 5"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP7: processing instance 6"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP8(
+void acts_all::topkernelP8(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1433,12 +1544,40 @@ void topkernelP8(
 	#endif 
 	topkernelproc_embedded(kvdram7);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP8: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP8: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP8: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP8: processing instance 3"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP8: processing instance 4"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP8: processing instance 5"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP8: processing instance 6"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP8: processing instance 7"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP9(
+void acts_all::topkernelP9(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1578,12 +1717,43 @@ void topkernelP9(
 	#endif 
 	topkernelproc_embedded(kvdram8);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 3"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 4"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 5"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 6"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 7"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP9: processing instance 8"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP10(
+void acts_all::topkernelP10(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1735,12 +1905,46 @@ void topkernelP10(
 	#endif 
 	topkernelproc_embedded(kvdram9);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 3"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 4"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 5"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 6"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 7"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 8"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP10: processing instance 9"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP11(
+void acts_all::topkernelP11(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1904,12 +2108,49 @@ void topkernelP11(
 	#endif 
 	topkernelproc_embedded(kvdram10);	
 	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 3"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 4"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 5"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 6"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 7"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 8"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 9"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP11: processing instance 10"<<endl;
+	#endif 
+ */
+	
 MERGE_SPLIT_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram);
 	return;
 }
 }
 extern "C" {
-void topkernelP12(
+void acts_all::topkernelP12(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2084,6 +2325,46 @@ void topkernelP12(
 	cout<<">>> topkernelP12: processing instance 11"<<endl;
 	#endif 
 	topkernelproc_embedded(kvdram11);	
+	
+	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 0"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 1"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 2"<<endl;
+	#endif 
+	topkernelproc_embedded(kvdram2);	
+	exit(EXIT_SUCCESS); //	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 3"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 4"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 5"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 6"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 7"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 8"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 9"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 10"<<endl;
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<">>> topkernelP12: processing instance 11"<<endl;
+	#endif 
+ */
 	
 MERGE_SPLIT_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram);
 	return;

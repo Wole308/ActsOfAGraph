@@ -483,6 +483,18 @@ typedef unsigned int unit1_type;
 #endif 
 
 #ifdef _WIDEWORD
+typedef ap_uint<3> unit3_type;
+#else 
+typedef unsigned int unit3_type;
+#endif 
+
+#ifdef _WIDEWORD
+typedef ap_uint<4> unit4_type;
+#else 
+typedef unsigned int unit4_type;
+#endif 
+
+#ifdef _WIDEWORD
 typedef ap_uint<16> unit16_type;
 #else 
 typedef unsigned int unit16_type;
