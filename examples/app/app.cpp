@@ -114,7 +114,7 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 8; // 32; // 3,12,32
+	unsigned int NumGraphIters = 1; // 32; // 3,12,32
 	#endif 
 	container_t container;
 	vector<value_t> actvvs;

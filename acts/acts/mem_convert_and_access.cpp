@@ -17,7 +17,7 @@ void acts_all::MEMCA_WRITEVDATATOBUFFER(unsigned int v, unsigned int index, keyv
 	#endif
 	#ifdef _WIDEWORD
 	if(index%2==0){ buffer[v][index/2].range(SIZEOF_VDATAKEY - 1, 0) = vdata; }
-	else{ buffer[v][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY) = vdata2; }
+	else{ buffer[v][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY) = vdata; }
 	#else 
 	if(index%2==0){ buffer[v][index/2].key = vdata; }
 	else{ buffer[v][index/2].value = vdata; }	

@@ -252,7 +252,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmasks_sl
 	uint32_type bitsbuffer[BLOCKRAM_SIZE];
 	unit1_type vmdata[VMASK_PACKINGSIZE];
 	unit1_type vmdata2[VMASK_PACKINGSIZE];
-	#pragma HLS ARRAY_PARTITION variable=vmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
 	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
 	unsigned int depths[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=depths complete
@@ -353,6 +353,10 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmaskschu
 		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, vmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+		
 	}
 	
 	/* //////////////////////////////////////////////////////////////////

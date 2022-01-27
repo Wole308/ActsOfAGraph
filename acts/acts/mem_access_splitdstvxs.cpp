@@ -748,17 +748,9 @@ void acts_all::MEMACCESS_SPL_readvdata_slide(bool_type enable, unsigned int s, u
 		#endif
 		
 		#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
-		// unsigned int x = (i*NUM_PEs) + s;
 		unsigned int x = index2 + s;
 		unsigned int basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutV(x, vdata, vdata2, depths, basedepth); // FIXME. TOO EXPENSIVE?	
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-		// #pragma HLS UNROLL
-			// depths[v] = ((x / VECTOR2_SIZE) * VECTOR2_SIZE) + depths[v]; // (i * VECTOR2_SIZE) + depths[v]; //  (i/VECTOR2_SIZE) * VECTOR2_SIZE // FIXME. TOO EXPENSIVE.
-			// #ifdef _DEBUGMODE_CHECKS2
-			// actsutilityobj->checkoutofbounds("acts_all::MEMACCESS_SPL_readvdata_slideandrearrange:", depths[v]/2, BLOCKRAM_SIZE, depths[v], NAp, NAp);
-			// #endif
-		// }	
+		MEMACCESS_SPL_GetXYLayoutV(x, vdata, vdata2, depths, basedepth);
 MEMCA_WRITEVDATASTOBUFFER_WITHDEPTHS(depths, buffer, vdata2);	
 		index2 += NUM_PEs;
 		#else
@@ -909,7 +901,7 @@ void acts_all::MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VEC
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
- if(s_==0){ 
+ if(s_==0){
 		vmdata2[0] = vmdata[0]; 
 		vmdata2[1] = vmdata[1]; 
 		vmdata2[2] = vmdata[2]; 
@@ -944,7 +936,7 @@ void acts_all::MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VEC
 		depths_tmp[14] = 14; 
 		depths_tmp[15] = 15; 
 	}
-else if(s_==1){ 
+else if(s_==1){
 		vmdata2[0] = vmdata[15]; 
 		vmdata2[1] = vmdata[0]; 
 		vmdata2[2] = vmdata[1]; 
@@ -979,7 +971,7 @@ else if(s_==1){
 		depths_tmp[14] = 13; 
 		depths_tmp[15] = 14; 
 	}
-else if(s_==2){ 
+else if(s_==2){
 		vmdata2[0] = vmdata[14]; 
 		vmdata2[1] = vmdata[15]; 
 		vmdata2[2] = vmdata[0]; 
@@ -1014,7 +1006,7 @@ else if(s_==2){
 		depths_tmp[14] = 12; 
 		depths_tmp[15] = 13; 
 	}
-else if(s_==3){ 
+else if(s_==3){
 		vmdata2[0] = vmdata[13]; 
 		vmdata2[1] = vmdata[14]; 
 		vmdata2[2] = vmdata[15]; 
@@ -1049,7 +1041,7 @@ else if(s_==3){
 		depths_tmp[14] = 11; 
 		depths_tmp[15] = 12; 
 	}
-else if(s_==4){ 
+else if(s_==4){
 		vmdata2[0] = vmdata[12]; 
 		vmdata2[1] = vmdata[13]; 
 		vmdata2[2] = vmdata[14]; 
@@ -1084,7 +1076,7 @@ else if(s_==4){
 		depths_tmp[14] = 10; 
 		depths_tmp[15] = 11; 
 	}
-else if(s_==5){ 
+else if(s_==5){
 		vmdata2[0] = vmdata[11]; 
 		vmdata2[1] = vmdata[12]; 
 		vmdata2[2] = vmdata[13]; 
@@ -1119,7 +1111,7 @@ else if(s_==5){
 		depths_tmp[14] = 9; 
 		depths_tmp[15] = 10; 
 	}
-else if(s_==6){ 
+else if(s_==6){
 		vmdata2[0] = vmdata[10]; 
 		vmdata2[1] = vmdata[11]; 
 		vmdata2[2] = vmdata[12]; 
@@ -1154,7 +1146,7 @@ else if(s_==6){
 		depths_tmp[14] = 8; 
 		depths_tmp[15] = 9; 
 	}
-else if(s_==7){ 
+else if(s_==7){
 		vmdata2[0] = vmdata[9]; 
 		vmdata2[1] = vmdata[10]; 
 		vmdata2[2] = vmdata[11]; 
@@ -1189,7 +1181,7 @@ else if(s_==7){
 		depths_tmp[14] = 7; 
 		depths_tmp[15] = 8; 
 	}
-else if(s_==8){ 
+else if(s_==8){
 		vmdata2[0] = vmdata[8]; 
 		vmdata2[1] = vmdata[9]; 
 		vmdata2[2] = vmdata[10]; 
@@ -1224,7 +1216,7 @@ else if(s_==8){
 		depths_tmp[14] = 6; 
 		depths_tmp[15] = 7; 
 	}
-else if(s_==9){ 
+else if(s_==9){
 		vmdata2[0] = vmdata[7]; 
 		vmdata2[1] = vmdata[8]; 
 		vmdata2[2] = vmdata[9]; 
@@ -1259,7 +1251,7 @@ else if(s_==9){
 		depths_tmp[14] = 5; 
 		depths_tmp[15] = 6; 
 	}
-else if(s_==10){ 
+else if(s_==10){
 		vmdata2[0] = vmdata[6]; 
 		vmdata2[1] = vmdata[7]; 
 		vmdata2[2] = vmdata[8]; 
@@ -1294,7 +1286,7 @@ else if(s_==10){
 		depths_tmp[14] = 4; 
 		depths_tmp[15] = 5; 
 	}
-else if(s_==11){ 
+else if(s_==11){
 		vmdata2[0] = vmdata[5]; 
 		vmdata2[1] = vmdata[6]; 
 		vmdata2[2] = vmdata[7]; 
@@ -1329,7 +1321,7 @@ else if(s_==11){
 		depths_tmp[14] = 3; 
 		depths_tmp[15] = 4; 
 	}
-else if(s_==12){ 
+else if(s_==12){
 		vmdata2[0] = vmdata[4]; 
 		vmdata2[1] = vmdata[5]; 
 		vmdata2[2] = vmdata[6]; 
@@ -1364,7 +1356,7 @@ else if(s_==12){
 		depths_tmp[14] = 2; 
 		depths_tmp[15] = 3; 
 	}
-else if(s_==13){ 
+else if(s_==13){
 		vmdata2[0] = vmdata[3]; 
 		vmdata2[1] = vmdata[4]; 
 		vmdata2[2] = vmdata[5]; 
@@ -1399,7 +1391,7 @@ else if(s_==13){
 		depths_tmp[14] = 1; 
 		depths_tmp[15] = 2; 
 	}
-else if(s_==14){ 
+else if(s_==14){
 		vmdata2[0] = vmdata[2]; 
 		vmdata2[1] = vmdata[3]; 
 		vmdata2[2] = vmdata[4]; 
@@ -1434,7 +1426,7 @@ else if(s_==14){
 		depths_tmp[14] = 0; 
 		depths_tmp[15] = 1; 
 	}
-else { 
+else {
 		vmdata2[0] = vmdata[1]; 
 		vmdata2[1] = vmdata[2]; 
 		vmdata2[2] = vmdata[3]; 
@@ -1492,222 +1484,6 @@ else {
 	return;
 }
 
-/* void acts_all::MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
-	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
-	analysis_type analysis_loopcount3 = BLOCKRAM_SIZE;
-	
-	// vmask is essentially vdata shrinked
-	unsigned int rlbaseoffset_kvs = lbaseoffset_kvs / FACTOR_REDUCEPARTITIONSZ_VMASKSZ;
-	unsigned int roffset_kvs = offset_kvs / FACTOR_REDUCEPARTITIONSZ_VMASKSZ; // AUTOMATEME. 'FACTOR_REDUCEPARTITIONSZ_VMASKSZ' changes with dataset
-	unsigned int rbufferoffset = bufferoffset / FACTOR_REDUCEPARTITIONSZ_VMASKSZ;
-	unsigned int rsize_kvs = size_kvs / FACTOR_REDUCEPARTITIONSZ_VMASKSZ; // 32
-	
-	uint32_type bitsbuffer[BLOCKRAM_SIZE];
-	unit1_type vmdata[VMASK_PACKINGSIZE];
-	unit1_type vmdata2[VMASK_PACKINGSIZE];
-	#pragma HLS ARRAY_PARTITION variable=vmdata1 complete
-	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
-	unsigned int depths[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=depths complete
-
-	// read 
-	READVMASKS_LOOP: for (buffer_type i=0; i<rsize_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
-	#pragma HLS PIPELINE II=1
-		#ifdef _WIDEWORD
-	
-		tempbuffer[0][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(31, 0); 
-		tempbuffer[1][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(63, 32);			
-	
-		tempbuffer[2][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(95, 64); 
-		tempbuffer[3][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(127, 96);			
-	
-		tempbuffer[4][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(159, 128); 
-		tempbuffer[5][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(191, 160);			
-	
-		tempbuffer[6][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(223, 192); 
-		tempbuffer[7][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(255, 224);			
-	
-		tempbuffer[8][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(287, 256); 
-		tempbuffer[9][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(319, 288);			
-	
-		tempbuffer[10][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(351, 320); 
-		tempbuffer[11][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(383, 352);			
-	
-		tempbuffer[12][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(415, 384); 
-		tempbuffer[13][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(447, 416);			
-	
-		tempbuffer[14][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(479, 448); 
-		tempbuffer[15][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(511, 480);			
-		#else 
-		tempbuffer[0][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].value; 
-		#endif 
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("MEMACCESS_SPL_readvmasks_slide:", rlbaseoffset_kvs + roffset_kvs, NUMPROCESSEDGESPARTITIONS * VMASKBUFFERSZ_KVS, baseoffset_kvs, rlbaseoffset_kvs, roffset_kvs);
-		#endif
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
-		#endif
-	}
-	
-	// u512 => u32s
-	buffer_type index = 0;
-	LOADVMASKS_LOOP1: for (buffer_type i=0; i<rsize_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount2 avg=analysis_loopcount2
-	#pragma HLS PIPELINE II=8
-		#ifdef _WIDEWORD
-		bitsbuffer[index + 0] = tempbuffer[0][i];
-		bitsbuffer[index + 1] = tempbuffer[1][i];
-		bitsbuffer[index + 2] = tempbuffer[2][i];
-		bitsbuffer[index + 3] = tempbuffer[3][i];
-		bitsbuffer[index + 4] = tempbuffer[4][i];
-		bitsbuffer[index + 5] = tempbuffer[5][i];
-		bitsbuffer[index + 6] = tempbuffer[6][i];
-		bitsbuffer[index + 7] = tempbuffer[7][i];
-		bitsbuffer[index + 8] = tempbuffer[8][i];
-		bitsbuffer[index + 9] = tempbuffer[9][i];
-		bitsbuffer[index + 10] = tempbuffer[10][i];
-		bitsbuffer[index + 11] = tempbuffer[11][i];
-		bitsbuffer[index + 12] = tempbuffer[12][i];
-		bitsbuffer[index + 13] = tempbuffer[13][i];
-		bitsbuffer[index + 14] = tempbuffer[14][i];
-		bitsbuffer[index + 15] = tempbuffer[15][i];
-		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 0 + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 2 + 1] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 4 + 1] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 6 + 1] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 8 + 1] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 10 + 1] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 12 + 1] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 14 + 1] = tempbuffer[7][i].value;
-		#endif 
-		
-		index += VECTOR_SIZE * 2;
-	}
-
-	// u32 => u16bits
-	buffer_type i = 0;
-	LOADVMASKS_LOOP2: for (i=0; i<size_kvs; i++){ // transfsize, reducebuffersz
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
-	#pragma HLS PIPELINE II=2
-		#ifdef _WIDEWORD
-		if(i%2==0){
-			vmdata[0] = bitsbuffer[i/2].range(0, 0);
-			vmdata[1] = bitsbuffer[i/2].range(1, 1);
-			vmdata[2] = bitsbuffer[i/2].range(2, 2);
-			vmdata[3] = bitsbuffer[i/2].range(3, 3);
-			vmdata[4] = bitsbuffer[i/2].range(4, 4);
-			vmdata[5] = bitsbuffer[i/2].range(5, 5);
-			vmdata[6] = bitsbuffer[i/2].range(6, 6);
-			vmdata[7] = bitsbuffer[i/2].range(7, 7);
-			vmdata[8] = bitsbuffer[i/2].range(8, 8);
-			vmdata[9] = bitsbuffer[i/2].range(9, 9);
-			vmdata[10] = bitsbuffer[i/2].range(10, 10);
-			vmdata[11] = bitsbuffer[i/2].range(11, 11);
-			vmdata[12] = bitsbuffer[i/2].range(12, 12);
-			vmdata[13] = bitsbuffer[i/2].range(13, 13);
-			vmdata[14] = bitsbuffer[i/2].range(14, 14);
-			vmdata[15] = bitsbuffer[i/2].range(15, 15);
-		} else {
-			vmdata[0] = bitsbuffer[i/2].range(16, 16);
-			vmdata[1] = bitsbuffer[i/2].range(17, 17);
-			vmdata[2] = bitsbuffer[i/2].range(18, 18);
-			vmdata[3] = bitsbuffer[i/2].range(19, 19);
-			vmdata[4] = bitsbuffer[i/2].range(20, 20);
-			vmdata[5] = bitsbuffer[i/2].range(21, 21);
-			vmdata[6] = bitsbuffer[i/2].range(22, 22);
-			vmdata[7] = bitsbuffer[i/2].range(23, 23);
-			vmdata[8] = bitsbuffer[i/2].range(24, 24);
-			vmdata[9] = bitsbuffer[i/2].range(25, 25);
-			vmdata[10] = bitsbuffer[i/2].range(26, 26);
-			vmdata[11] = bitsbuffer[i/2].range(27, 27);
-			vmdata[12] = bitsbuffer[i/2].range(28, 28);
-			vmdata[13] = bitsbuffer[i/2].range(29, 29);
-			vmdata[14] = bitsbuffer[i/2].range(30, 30);
-			vmdata[15] = bitsbuffer[i/2].range(31, 31);
-		}
-		#else 
-		if(i%2==0){
-			vmdata[0] = UTIL_READFROM_UINT(bitsbuffer[i/2], 0, 1);
-			vmdata[1] = UTIL_READFROM_UINT(bitsbuffer[i/2], 1, 1);
-			vmdata[2] = UTIL_READFROM_UINT(bitsbuffer[i/2], 2, 1);
-			vmdata[3] = UTIL_READFROM_UINT(bitsbuffer[i/2], 3, 1);
-			vmdata[4] = UTIL_READFROM_UINT(bitsbuffer[i/2], 4, 1);
-			vmdata[5] = UTIL_READFROM_UINT(bitsbuffer[i/2], 5, 1);
-			vmdata[6] = UTIL_READFROM_UINT(bitsbuffer[i/2], 6, 1);
-			vmdata[7] = UTIL_READFROM_UINT(bitsbuffer[i/2], 7, 1);
-			vmdata[8] = UTIL_READFROM_UINT(bitsbuffer[i/2], 8, 1);
-			vmdata[9] = UTIL_READFROM_UINT(bitsbuffer[i/2], 9, 1);
-			vmdata[10] = UTIL_READFROM_UINT(bitsbuffer[i/2], 10, 1);
-			vmdata[11] = UTIL_READFROM_UINT(bitsbuffer[i/2], 11, 1);
-			vmdata[12] = UTIL_READFROM_UINT(bitsbuffer[i/2], 12, 1);
-			vmdata[13] = UTIL_READFROM_UINT(bitsbuffer[i/2], 13, 1);
-			vmdata[14] = UTIL_READFROM_UINT(bitsbuffer[i/2], 14, 1);
-			vmdata[15] = UTIL_READFROM_UINT(bitsbuffer[i/2], 15, 1);
-		} else {
-			vmdata[0] = UTIL_READFROM_UINT(bitsbuffer[i/2], 16, 1);
-			vmdata[1] = UTIL_READFROM_UINT(bitsbuffer[i/2], 17, 1);
-			vmdata[2] = UTIL_READFROM_UINT(bitsbuffer[i/2], 18, 1);
-			vmdata[3] = UTIL_READFROM_UINT(bitsbuffer[i/2], 19, 1);
-			vmdata[4] = UTIL_READFROM_UINT(bitsbuffer[i/2], 20, 1);
-			vmdata[5] = UTIL_READFROM_UINT(bitsbuffer[i/2], 21, 1);
-			vmdata[6] = UTIL_READFROM_UINT(bitsbuffer[i/2], 22, 1);
-			vmdata[7] = UTIL_READFROM_UINT(bitsbuffer[i/2], 23, 1);
-			vmdata[8] = UTIL_READFROM_UINT(bitsbuffer[i/2], 24, 1);
-			vmdata[9] = UTIL_READFROM_UINT(bitsbuffer[i/2], 25, 1);
-			vmdata[10] = UTIL_READFROM_UINT(bitsbuffer[i/2], 26, 1);
-			vmdata[11] = UTIL_READFROM_UINT(bitsbuffer[i/2], 27, 1);
-			vmdata[12] = UTIL_READFROM_UINT(bitsbuffer[i/2], 28, 1);
-			vmdata[13] = UTIL_READFROM_UINT(bitsbuffer[i/2], 29, 1);
-			vmdata[14] = UTIL_READFROM_UINT(bitsbuffer[i/2], 30, 1);
-			vmdata[15] = UTIL_READFROM_UINT(bitsbuffer[i/2], 31, 1);
-		}
-		#endif
-		
-		#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
-		unsigned int x = (i*NUM_PEs) + s;
-		MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths);
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-		#pragma HLS UNROLL
-			depths[v] = ((x / VECTOR2_SIZE) * VECTOR2_SIZE) + depths[v]; // FIXME. TOO EXPENSIVE.
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("acts_all::MEMACCESS_SPL_readvmasks_slide:", depths[v], DOUBLE_BLOCKRAM_SIZE, depths[v], NAp, NAp);
-			#endif
-		}
-MEMCA_WRITEVMASKSTOBUFFER_WITHDEPTHS(depths, vmaskBITS, vmdata2);
-		#else 
-		MEMACCESS_SPL_GetXYLayoutVM(s, vmdata, vmdata2, depths);
-MEMCA_WRITEVMASKSTOBUFFER(bufferoffset + i, vmaskBITS, vmdata2);
-		#endif 
-	}
-	return;
-} */
 void acts_all::MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
@@ -1723,7 +1499,7 @@ void acts_all::MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, 
 	uint32_type bitsbuffer[BLOCKRAM_SIZE];
 	unit1_type vmdata[VMASK_PACKINGSIZE];
 	unit1_type vmdata2[VMASK_PACKINGSIZE];
-	#pragma HLS ARRAY_PARTITION variable=vmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
 	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
 	unsigned int depths[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=depths complete
@@ -1910,17 +1686,7 @@ void acts_all::MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, 
 		#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
 		unsigned int x = index2 + s;
 		unsigned int basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		
-		// unsigned int x = (i*NUM_PEs) + s;
 		MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
-		/* for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-		#pragma HLS UNROLL
-			// depths[v] = ((x / VECTOR2_SIZE) * VECTOR2_SIZE) + depths[v]; // FIXME. TOO EXPENSIVE.
-			depths[v] = depths[v] + dep;
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("acts_all::MEMACCESS_SPL_readvmasks_slide:", depths[v], DOUBLE_BLOCKRAM_SIZE, depths[v], NAp, NAp);
-			#endif
-		} */
 MEMCA_WRITEVMASKSTOBUFFER_WITHDEPTHS(depths, vmaskBITS, vmdata2);
 		index2 += NUM_PEs;
 		#else 
