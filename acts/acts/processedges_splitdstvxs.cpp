@@ -1209,29 +1209,11 @@ void acts_all::PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t v
 	
 	unsigned int fcol_dim16 = loc % VECTOR2_SIZE;
 	unsigned int col_dim16 = loc % VECTOR2_SIZE;
-	unsigned int row_dim16 = loc / VECTOR2_SIZE;
-	
-	/* unsigned int truerow1_dim16 = PROCESS_SPL3_GETROW(loc);
-	PROCESS_SPL3_GETSET(vbuffer, vmaskBITS, VMdatas_tmp, Vdatas_tmp, truerow1_dim16, 0, globalparams);
-	
-	loc = loc + (VECTOR2_SIZE - col_dim16);
-	#ifdef _DEBUGMODE_CHECKS2
-	if(loc % VECTOR2_SIZE != 0){ cout<<"PROCESS_SPL2_GETVTXDATASET:: loc("<<loc<<") % VECTOR2_SIZE != 0"<<endl; exit(EXIT_FAILURE); }
-	#endif
-	unsigned int truerow2_dim16 = PROCESS_SPL3_GETROW(loc);
-	PROCESS_SPL3_GETSET(vbuffer, vmaskBITS, VMdatas_tmp, Vdatas_tmp, truerow2_dim16, VECTOR2_SIZE, globalparams); */
 	
 	unsigned int truerow1_dim16 = PROCESS_SPL3_GETROW(loc);
 	unsigned int truerow2_dim16 = PROCESS_SPL3_GETROW((loc + (VECTOR2_SIZE - col_dim16)));
 	PROCESS_SPL3_GETSET(vbuffer, vmaskBITS, VMdatas_tmp, Vdatas_tmp, truerow1_dim16, 0, globalparams);
 	PROCESS_SPL3_GETSET(vbuffer, vmaskBITS, VMdatas_tmp, Vdatas_tmp, truerow2_dim16, VECTOR2_SIZE, globalparams);
-	
-	// loc = loc + (VECTOR2_SIZE - col_dim16);
-	// #ifdef _DEBUGMODE_CHECKS2
-	// if(loc % VECTOR2_SIZE != 0){ cout<<"PROCESS_SPL2_GETVTXDATASET:: loc("<<loc<<") % VECTOR2_SIZE != 0"<<endl; exit(EXIT_FAILURE); }
-	// #endif
-	// unsigned int truerow2_dim16 = PROCESS_SPL3_GETROW(loc);
-	// PROCESS_SPL3_GETSET(vbuffer, vmaskBITS, VMdatas_tmp, Vdatas_tmp, truerow2_dim16, VECTOR2_SIZE, globalparams);
 	
 	unsigned int index = 0;
 	for(unsigned int v=fcol_dim16; v<fcol_dim16 + MAX_NUM_UNIQ_EDGES_PER_VEC; v++){
