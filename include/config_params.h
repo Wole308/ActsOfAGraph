@@ -40,10 +40,7 @@
 // #define CONFIG_UNIFIED_DESTVDRAM
 #define CONFIG_SPLIT_DESTVTXS // {reduceupdates.cpp, acts_util.cpp, app.cpp, loadgraph.cpp, top_nusrcv_nudstv.cpp, reduceupdates.h, actscommon.h}
 
-#define CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
-// #define CONFIG_PROCESSEDGESSPLITDSTVTXS_PARALLELVTXSACCESS_II1
-#define CONFIG_PROCESSEDGESSPLITDSTVTXS_PARALLELVTXSACCESS_II2
-#define CONFIG_ACTSPROCESSEDGES_REARRANGEINREADTREAD
+#define CONFIG_READVDATA_SLIDE
 #define CONFIG_READVDATA_SLIDEANDREARRANGE
 
 #define CONFIG_ENABLEPROCESSMODULE
@@ -105,6 +102,25 @@ for i in range (0,8):
 #define CONFIG_READVDATA_SLIDEANDREARRANGE
 MEMACCESS_SPL_readvdata_slide(enable, s, kvdram, buffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 READANDPROCESS_SPL_LOOP3C: for (buffer_type i=0; i<4; i++){ // CRITICAL REMOVEME.
+
+void acts_all::MEMACCESS_SPL_readvdatachunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t * KV = (value_t *)&kvdram[vbaseoffset_kvs];
+	unsigned int mydepth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION * VECTOR2_SIZE;
+	for(unsigned int i=0; i<16384; i++){
+		for(unsigned int s=0; s<NUM_PEs; s++){
+			KV[s*mydepth + i] = index; index+=1;
+		}
+		if(index > 2*16384){ break; }
+		
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvdata_slide
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvdatachunks(
+void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVDATASTOBUFFER_WITHDEPTHS(
+READANDPROCESS_SPL_LOOP3C: for (buffer_type i=0; i<5; i++){ // CRITICAL REMOVEME.
+
 */
 
 

@@ -10,6 +10,7 @@ mem_convert_and_access::mem_convert_and_access(mydebug * _mydebugobj){
 mem_convert_and_access::~mem_convert_and_access(){}
 #endif
 
+// vdata 
 void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVDATATOBUFFER(unsigned int v, unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], value_t vdata){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
@@ -56,6 +57,37 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVDATASTOBUFFER(u
 	return;
 }
 
+void {{context['classname__mem_convert_and_access']}}MEMCA_READVDATASFROMBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], value_t vdatas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA_READVDATASFROMBUFFER:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	#ifdef _WIDEWORD
+	if(index%2==0){ 
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		vdatas[{{v}}] = buffer[{{v}}][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		{%endfor%}
+	} else {
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		vdatas[{{v}}] = buffer[{{v}}][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		{%endfor%}
+	}
+	#else 
+	if(index%2==0){ 
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		vdatas[{{v}}] = buffer[{{v}}][index/2].key;
+		{%endfor%}
+	} else {
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		vdatas[{{v}}] = buffer[{{v}}][index/2].value;
+		{%endfor%}
+	}
+	#endif 
+	return;
+}
+
 void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVDATASTOBUFFER_WITHDEPTHS(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], value_t vdatas[VDATA_PACKINGSIZE]){
 	#pragma HLS INLINE
 	
@@ -82,6 +114,7 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVDATASTOBUFFER_W
 	return;
 }
 
+// vmasks 
 void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVMASKSTOBUFFER(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE]){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
@@ -90,6 +123,18 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVMASKSTOBUFFER(u
 	
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	vmaskBITS[{{v}}][index] = vmdatas[{{v}}];
+	{%endfor%}
+	return;
+}
+
+void {{context['classname__mem_convert_and_access']}}MEMCA_READVMASKSFROMBUFFER(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE]){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITEVMASKSTOBUFFER_WITHDEPTHS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	vmdatas[{{v}}] = vmaskBITS[{{v}}][index];
 	{%endfor%}
 	return;
 }

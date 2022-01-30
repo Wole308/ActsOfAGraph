@@ -10,6 +10,7 @@ mem_convert_and_access::mem_convert_and_access(mydebug * _mydebugobj){
 mem_convert_and_access::~mem_convert_and_access(){}
 #endif
 
+// vdata 
 void acts_all::MEMCA_WRITEVDATATOBUFFER(unsigned int v, unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], value_t vdata){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
@@ -103,6 +104,89 @@ void acts_all::MEMCA_WRITEVDATASTOBUFFER(unsigned int index, keyvalue_vbuffer_t 
 		buffer[13][index/2].value = vdatas[13];
 		buffer[14][index/2].value = vdatas[14];
 		buffer[15][index/2].value = vdatas[15];
+	}
+	#endif 
+	return;
+}
+
+void acts_all::MEMCA_READVDATASFROMBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], value_t vdatas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("acts_all::MEMCA_READVDATASFROMBUFFER:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	#ifdef _WIDEWORD
+	if(index%2==0){ 
+		vdatas[0] = buffer[0][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[1] = buffer[1][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[2] = buffer[2][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[3] = buffer[3][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[4] = buffer[4][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[5] = buffer[5][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[6] = buffer[6][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[7] = buffer[7][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[8] = buffer[8][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[9] = buffer[9][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[10] = buffer[10][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[11] = buffer[11][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[12] = buffer[12][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[13] = buffer[13][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[14] = buffer[14][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+		vdatas[15] = buffer[15][index/2].range(SIZEOF_VDATAKEY - 1, 0); 
+	} else {
+		vdatas[0] = buffer[0][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[1] = buffer[1][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[2] = buffer[2][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[3] = buffer[3][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[4] = buffer[4][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[5] = buffer[5][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[6] = buffer[6][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[7] = buffer[7][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[8] = buffer[8][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[9] = buffer[9][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[10] = buffer[10][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[11] = buffer[11][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[12] = buffer[12][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[13] = buffer[13][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[14] = buffer[14][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+		vdatas[15] = buffer[15][index/2].range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
+	}
+	#else 
+	if(index%2==0){ 
+		vdatas[0] = buffer[0][index/2].key;
+		vdatas[1] = buffer[1][index/2].key;
+		vdatas[2] = buffer[2][index/2].key;
+		vdatas[3] = buffer[3][index/2].key;
+		vdatas[4] = buffer[4][index/2].key;
+		vdatas[5] = buffer[5][index/2].key;
+		vdatas[6] = buffer[6][index/2].key;
+		vdatas[7] = buffer[7][index/2].key;
+		vdatas[8] = buffer[8][index/2].key;
+		vdatas[9] = buffer[9][index/2].key;
+		vdatas[10] = buffer[10][index/2].key;
+		vdatas[11] = buffer[11][index/2].key;
+		vdatas[12] = buffer[12][index/2].key;
+		vdatas[13] = buffer[13][index/2].key;
+		vdatas[14] = buffer[14][index/2].key;
+		vdatas[15] = buffer[15][index/2].key;
+	} else {
+		vdatas[0] = buffer[0][index/2].value;
+		vdatas[1] = buffer[1][index/2].value;
+		vdatas[2] = buffer[2][index/2].value;
+		vdatas[3] = buffer[3][index/2].value;
+		vdatas[4] = buffer[4][index/2].value;
+		vdatas[5] = buffer[5][index/2].value;
+		vdatas[6] = buffer[6][index/2].value;
+		vdatas[7] = buffer[7][index/2].value;
+		vdatas[8] = buffer[8][index/2].value;
+		vdatas[9] = buffer[9][index/2].value;
+		vdatas[10] = buffer[10][index/2].value;
+		vdatas[11] = buffer[11][index/2].value;
+		vdatas[12] = buffer[12][index/2].value;
+		vdatas[13] = buffer[13][index/2].value;
+		vdatas[14] = buffer[14][index/2].value;
+		vdatas[15] = buffer[15][index/2].value;
 	}
 	#endif 
 	return;
@@ -249,6 +333,7 @@ void acts_all::MEMCA_WRITEVDATASTOBUFFER_WITHDEPTHS(unsigned int indexes[VDATA_P
 	return;
 }
 
+// vmasks 
 void acts_all::MEMCA_WRITEVMASKSTOBUFFER(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE]){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
@@ -271,6 +356,31 @@ void acts_all::MEMCA_WRITEVMASKSTOBUFFER(unsigned int index, unit1_type vmaskBIT
 	vmaskBITS[13][index] = vmdatas[13];
 	vmaskBITS[14][index] = vmdatas[14];
 	vmaskBITS[15][index] = vmdatas[15];
+	return;
+}
+
+void acts_all::MEMCA_READVMASKSFROMBUFFER(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE]){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITEVMASKSTOBUFFER_WITHDEPTHS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	vmdatas[0] = vmaskBITS[0][index];
+	vmdatas[1] = vmaskBITS[1][index];
+	vmdatas[2] = vmaskBITS[2][index];
+	vmdatas[3] = vmaskBITS[3][index];
+	vmdatas[4] = vmaskBITS[4][index];
+	vmdatas[5] = vmaskBITS[5][index];
+	vmdatas[6] = vmaskBITS[6][index];
+	vmdatas[7] = vmaskBITS[7][index];
+	vmdatas[8] = vmaskBITS[8][index];
+	vmdatas[9] = vmaskBITS[9][index];
+	vmdatas[10] = vmaskBITS[10][index];
+	vmdatas[11] = vmaskBITS[11][index];
+	vmdatas[12] = vmaskBITS[12][index];
+	vmdatas[13] = vmaskBITS[13][index];
+	vmdatas[14] = vmaskBITS[14][index];
+	vmdatas[15] = vmaskBITS[15][index];
 	return;
 }
 

@@ -13,7 +13,7 @@ mem_access_splitdstvxs::~mem_access_splitdstvxs(){}
 
 // -------------------- vdata -------------------- //
 void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_GetXYLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
-	#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+	// #ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -38,9 +38,28 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_GetXYLayoutV(
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	depths[{{v}}] = basedepth + depths_tmp[{{v}}]; 
 	{%endfor%}
-	#else 
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[v] = vdata[v]; }
-	#endif 
+	// #else 
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[v] = vdata[v]; }
+	// #endif 
+	return;
+}
+
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_RearrangeLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE]){
+	// #ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+	unsigned int s_ = s % VECTOR2_SIZE;
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<16-1)%}if(s_=={{v}}){%endif%}{ 
+		{%for v2 in context['VECTOR2_SIZE_seq']%}{%if(v2<v)%}
+		vdata2[{{16-v+v2}}] = vdata[{{v2}}]; 
+		{%endif%}{%endfor%}
+		{%for v2 in context['VECTOR2_SIZE_seq']%}{%if(v2>=v)%}
+		vdata2[{{v2-v}}] = vdata[{{v2}}]; 
+		{%endif%}{%endfor%}
+	}
+	{%endfor%}
+	// #else 
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[v] = vdata[v]; }
+	// #endif 
 	return;
 }
 
@@ -100,6 +119,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvdata_sli
 	keyvalue_t keyvalue{{v}}; keyvalue{{v}}.key = 777; keyvalue{{v}}.value = 777;
 	{%endfor%}
 	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata[v] = 0; vdata2[v] = 0; }
+	unsigned int basedepth = 0;
 	
 	unsigned int index2 = 0;
 	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
@@ -117,15 +137,19 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvdata_sli
 		{%endfor%}
 		#endif
 		
-		#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
-		unsigned int x = index2 + s;
-		unsigned int basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutV(x, vdata, vdata2, depths, basedepth);
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVDATASTOBUFFER_WITHDEPTHS(depths, buffer, vdata2);	
-		index2 += NUM_PEs;
-		#else
-		MEMACCESS_SPL_GetXYLayoutV(s, vdata, vdata2, depths);
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVDATASTOBUFFER(bufferoffset_kvs + i, buffer, vdata2);	
+		#ifdef CONFIG_READVDATA_SLIDE
+			#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
+			unsigned int x = index2 + s;
+			basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
+			MEMACCESS_SPL_GetXYLayoutV(x, vdata, vdata2, depths, basedepth);
+			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVDATASTOBUFFER_WITHDEPTHS(depths, buffer, vdata2);	
+			index2 += NUM_PEs;
+			#else
+			MEMACCESS_SPL_GetXYLayoutV(s, vdata, vdata2, depths, basedepth);
+			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVDATASTOBUFFER(bufferoffset_kvs + i, buffer, vdata2);	
+			#endif 
+		#else 
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVDATASTOBUFFER(bufferoffset_kvs + i, buffer, vdata);	
 		#endif 
 		
 		#ifdef _DEBUGMODE_STATS
@@ -143,17 +167,96 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvdatachun
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL REMOVEME.
+	
+	#ifdef _DEBUGMODE_CHECKS
+	unsigned int index = 0;
+	value_t * KV = (value_t *)&kvdram[vbaseoffset_kvs];
+	unsigned int mydepth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION * VECTOR2_SIZE;
+	for(unsigned int i=0; i<16384; i++){
+		for(unsigned int s=0; s<NUM_PEs; s++){
+			KV[s*mydepth + i] = index; index+=1;
+		}
+		if(index > 2*16384){ break; }
+	}
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		for(unsigned int i=0; i<2; i++){
+			cout<<"kvdram [s: "<<s<<", row "<<i<<"]: ";
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				cout<<kvdram[vbaseoffset_kvs + s*depth + i].data[v].key<<", "<<kvdram[vbaseoffset_kvs + s*depth + i].data[v].value<<", ";
+			}
+			cout<<endl;
+		}
+	}
+	cout<<endl;
+	// exit(EXIT_SUCCESS);
+	#endif 
+
+	#ifdef _DEBUGMODE_CHECKS
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			buffer[v][i].key = 0;
+			buffer[v][i].value = 0;
+		}
+	}
+	#endif 
+	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"MEMACCESS_SPL_readvdatachunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_readvdata_slide(enable, s, kvdram, buffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESS_SPL_readvdata_slide(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"+++ MEMACCESS_SPL_readvdatachunks:: total size loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE<<endl;
 	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS
+	for(unsigned int i=0; i<32; i++){
+		cout<<"buffer row "<<2*i<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<buffer[v][i].key<<", ";
+		}
+		cout<<endl;
+		cout<<"buffer row "<<2*i+1<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<buffer[v][i].value<<", ";
+		}
+		cout<<endl;
+	}
+	cout<<endl;
+	#endif 
+	
+	int limit = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE];
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READVDATASFROMBUFFER(i, tempbuffer, vdata);
+		if(i<limit){ cout<<"MEMACCESS_SPL_readvdatachunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdata[v]<<", "; } cout<<endl; }
+		MEMACCESS_SPL_RearrangeLayoutV(i, vdata, vdata2);
+		if(i<limit){ cout<<"MEMACCESS_SPL_readvdatachunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdata2[v]<<", "; } cout<<endl; }
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVDATASTOBUFFER(i, buffer, vdata2);
+	}
+	
+	#ifdef _DEBUGMODE_CHECKS
+	for(unsigned int i=0; i<64; i++){
+		cout<<"buffer row "<<2*i<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<buffer[v][i].key<<", ";
+		}
+		cout<<endl;
+		cout<<"buffer row "<<2*i+1<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<buffer[v][i].value<<", ";
+		}
+		cout<<endl;
+	}
+	cout<<endl;
+	#endif
+	// exit(EXIT_SUCCESS);
 	return;	
 }
 
@@ -206,7 +309,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savevdata(boo
 
 // -------------------- vmasks -------------------- //
 void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
-	#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+	// #ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -231,9 +334,28 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_GetXYLayoutVM
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	depths[{{v}}] = basedepth + depths_tmp[{{v}}]; 
 	{%endfor%}
-	#else 
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vmdata2[v] = vmdata[v]; }
-	#endif 
+	// #else 
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vmdata2[v] = vmdata[v]; }
+	// #endif 
+	return;
+}
+
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_RearrangeLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
+	// #ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+	unsigned int s_ = s % VECTOR2_SIZE;
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<16-1)%}if(s_=={{v}}){%endif%}{ 
+		{%for v2 in context['VECTOR2_SIZE_seq']%}{%if(v2<v)%}
+		vmdata2[{{16-v+v2}}] = vmdata[{{v2}}]; 
+		{%endif%}{%endfor%}
+		{%for v2 in context['VECTOR2_SIZE_seq']%}{%if(v2>=v)%}
+		vmdata2[{{v2-v}}] = vmdata[{{v2}}]; 
+		{%endif%}{%endfor%}
+	}
+	{%endfor%}
+	// #else 
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[v] = vdata[v]; }
+	// #endif 
 	return;
 }
 
@@ -302,6 +424,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmasks_sl
 	// u32 => u16bits
 	buffer_type i = 0;
 	unsigned int index2 = 0;
+	unsigned int basedepth = 0;
 	LOADVMASKS_LOOP2: for (i=0; i<size_kvs; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=2
@@ -327,15 +450,19 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmasks_sl
 		}
 		#endif
 		
-		#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
-		unsigned int x = index2 + s;
-		unsigned int basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVMASKSTOBUFFER_WITHDEPTHS(depths, vmaskBITS, vmdata2);
-		index2 += NUM_PEs;
-		#else 
-		MEMACCESS_SPL_GetXYLayoutVM(s, vmdata, vmdata2, depths);
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVMASKSTOBUFFER(bufferoffset + i, vmaskBITS, vmdata2);
+		#ifdef CONFIG_READVDATA_SLIDE
+			#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
+			unsigned int x = index2 + s;
+			basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
+			MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
+			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVMASKSTOBUFFER_WITHDEPTHS(depths, vmaskBITS, vmdata2);
+			index2 += NUM_PEs;
+			#else 
+			MEMACCESS_SPL_GetXYLayoutVM(s, vmdata, vmdata2, depths, basedepth);
+			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVMASKSTOBUFFER(bufferoffset + i, vmaskBITS, vmdata2);
+			#endif 
+		#else
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVMASKSTOBUFFER(bufferoffset + i, vmaskBITS, vmdata);	
 		#endif 
 	}
 	return;
@@ -346,30 +473,38 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmaskschu
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
+	unit1_type tempvmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // CRITICAL REMOVEME.
+	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"MEMACCESS_SPL_readvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, vmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
+	int limit = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-		
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READVMASKSFROMBUFFER(i, tempvmaskBITS, vmdata);
+		if(i<limit){ cout<<"MEMACCESS_SPL_readvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+		MEMACCESS_SPL_RearrangeLayoutVM(i, vmdata, vmdata2);
+		if(i<limit){ cout<<"MEMACCESS_SPL_readvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITEVMASKSTOBUFFER(i, vmaskBITS, vmdata2);
 	}
 	
-	/* //////////////////////////////////////////////////////////////////
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+	#ifdef _DEBUGMODE_CHECKS
+	for(unsigned int i=0; i<32; i++){
+		cout<<"vmask buffer row "<<i<<": ";
 		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			if(vmaskBITS[v][i] == 1){
-				cout<<"------------ MEMACCESS_SPL_readvmaskschunks: 1 SEEN: vmaskBITS["<<v<<"]["<<i<<"]("<<vmaskBITS[v][i]<<") == 1"<<endl;
-			}
+			cout<<vmaskBITS[v][i]<<", ";
 		}
+		cout<<endl;
 	}
-	#endif 
-	////////////////////////////////////////////////////////////////// */
+	cout<<endl;
+	#endif
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"+++ MEMACCESS_SPL_readvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;

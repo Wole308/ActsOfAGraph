@@ -13,7 +13,7 @@ mem_access_splitdstvxs::~mem_access_splitdstvxs(){}
 
 // -------------------- vdata -------------------- //
 void acts_all::MEMACCESS_SPL_GetXYLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
-	#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+	// #ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -594,9 +594,306 @@ else {
 	depths[13] = basedepth + depths_tmp[13]; 
 	depths[14] = basedepth + depths_tmp[14]; 
 	depths[15] = basedepth + depths_tmp[15]; 
-	#else 
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[v] = vdata[v]; }
-	#endif 
+	// #else 
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[v] = vdata[v]; }
+	// #endif 
+	return;
+}
+
+void acts_all::MEMACCESS_SPL_RearrangeLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE]){
+	// #ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+	unsigned int s_ = s % VECTOR2_SIZE;
+ if(s_==0){ 
+		vdata2[0] = vdata[0]; 
+		vdata2[1] = vdata[1]; 
+		vdata2[2] = vdata[2]; 
+		vdata2[3] = vdata[3]; 
+		vdata2[4] = vdata[4]; 
+		vdata2[5] = vdata[5]; 
+		vdata2[6] = vdata[6]; 
+		vdata2[7] = vdata[7]; 
+		vdata2[8] = vdata[8]; 
+		vdata2[9] = vdata[9]; 
+		vdata2[10] = vdata[10]; 
+		vdata2[11] = vdata[11]; 
+		vdata2[12] = vdata[12]; 
+		vdata2[13] = vdata[13]; 
+		vdata2[14] = vdata[14]; 
+		vdata2[15] = vdata[15]; 
+	}
+else if(s_==1){ 
+		vdata2[15] = vdata[0]; 
+		vdata2[0] = vdata[1]; 
+		vdata2[1] = vdata[2]; 
+		vdata2[2] = vdata[3]; 
+		vdata2[3] = vdata[4]; 
+		vdata2[4] = vdata[5]; 
+		vdata2[5] = vdata[6]; 
+		vdata2[6] = vdata[7]; 
+		vdata2[7] = vdata[8]; 
+		vdata2[8] = vdata[9]; 
+		vdata2[9] = vdata[10]; 
+		vdata2[10] = vdata[11]; 
+		vdata2[11] = vdata[12]; 
+		vdata2[12] = vdata[13]; 
+		vdata2[13] = vdata[14]; 
+		vdata2[14] = vdata[15]; 
+	}
+else if(s_==2){ 
+		vdata2[14] = vdata[0]; 
+		vdata2[15] = vdata[1]; 
+		vdata2[0] = vdata[2]; 
+		vdata2[1] = vdata[3]; 
+		vdata2[2] = vdata[4]; 
+		vdata2[3] = vdata[5]; 
+		vdata2[4] = vdata[6]; 
+		vdata2[5] = vdata[7]; 
+		vdata2[6] = vdata[8]; 
+		vdata2[7] = vdata[9]; 
+		vdata2[8] = vdata[10]; 
+		vdata2[9] = vdata[11]; 
+		vdata2[10] = vdata[12]; 
+		vdata2[11] = vdata[13]; 
+		vdata2[12] = vdata[14]; 
+		vdata2[13] = vdata[15]; 
+	}
+else if(s_==3){ 
+		vdata2[13] = vdata[0]; 
+		vdata2[14] = vdata[1]; 
+		vdata2[15] = vdata[2]; 
+		vdata2[0] = vdata[3]; 
+		vdata2[1] = vdata[4]; 
+		vdata2[2] = vdata[5]; 
+		vdata2[3] = vdata[6]; 
+		vdata2[4] = vdata[7]; 
+		vdata2[5] = vdata[8]; 
+		vdata2[6] = vdata[9]; 
+		vdata2[7] = vdata[10]; 
+		vdata2[8] = vdata[11]; 
+		vdata2[9] = vdata[12]; 
+		vdata2[10] = vdata[13]; 
+		vdata2[11] = vdata[14]; 
+		vdata2[12] = vdata[15]; 
+	}
+else if(s_==4){ 
+		vdata2[12] = vdata[0]; 
+		vdata2[13] = vdata[1]; 
+		vdata2[14] = vdata[2]; 
+		vdata2[15] = vdata[3]; 
+		vdata2[0] = vdata[4]; 
+		vdata2[1] = vdata[5]; 
+		vdata2[2] = vdata[6]; 
+		vdata2[3] = vdata[7]; 
+		vdata2[4] = vdata[8]; 
+		vdata2[5] = vdata[9]; 
+		vdata2[6] = vdata[10]; 
+		vdata2[7] = vdata[11]; 
+		vdata2[8] = vdata[12]; 
+		vdata2[9] = vdata[13]; 
+		vdata2[10] = vdata[14]; 
+		vdata2[11] = vdata[15]; 
+	}
+else if(s_==5){ 
+		vdata2[11] = vdata[0]; 
+		vdata2[12] = vdata[1]; 
+		vdata2[13] = vdata[2]; 
+		vdata2[14] = vdata[3]; 
+		vdata2[15] = vdata[4]; 
+		vdata2[0] = vdata[5]; 
+		vdata2[1] = vdata[6]; 
+		vdata2[2] = vdata[7]; 
+		vdata2[3] = vdata[8]; 
+		vdata2[4] = vdata[9]; 
+		vdata2[5] = vdata[10]; 
+		vdata2[6] = vdata[11]; 
+		vdata2[7] = vdata[12]; 
+		vdata2[8] = vdata[13]; 
+		vdata2[9] = vdata[14]; 
+		vdata2[10] = vdata[15]; 
+	}
+else if(s_==6){ 
+		vdata2[10] = vdata[0]; 
+		vdata2[11] = vdata[1]; 
+		vdata2[12] = vdata[2]; 
+		vdata2[13] = vdata[3]; 
+		vdata2[14] = vdata[4]; 
+		vdata2[15] = vdata[5]; 
+		vdata2[0] = vdata[6]; 
+		vdata2[1] = vdata[7]; 
+		vdata2[2] = vdata[8]; 
+		vdata2[3] = vdata[9]; 
+		vdata2[4] = vdata[10]; 
+		vdata2[5] = vdata[11]; 
+		vdata2[6] = vdata[12]; 
+		vdata2[7] = vdata[13]; 
+		vdata2[8] = vdata[14]; 
+		vdata2[9] = vdata[15]; 
+	}
+else if(s_==7){ 
+		vdata2[9] = vdata[0]; 
+		vdata2[10] = vdata[1]; 
+		vdata2[11] = vdata[2]; 
+		vdata2[12] = vdata[3]; 
+		vdata2[13] = vdata[4]; 
+		vdata2[14] = vdata[5]; 
+		vdata2[15] = vdata[6]; 
+		vdata2[0] = vdata[7]; 
+		vdata2[1] = vdata[8]; 
+		vdata2[2] = vdata[9]; 
+		vdata2[3] = vdata[10]; 
+		vdata2[4] = vdata[11]; 
+		vdata2[5] = vdata[12]; 
+		vdata2[6] = vdata[13]; 
+		vdata2[7] = vdata[14]; 
+		vdata2[8] = vdata[15]; 
+	}
+else if(s_==8){ 
+		vdata2[8] = vdata[0]; 
+		vdata2[9] = vdata[1]; 
+		vdata2[10] = vdata[2]; 
+		vdata2[11] = vdata[3]; 
+		vdata2[12] = vdata[4]; 
+		vdata2[13] = vdata[5]; 
+		vdata2[14] = vdata[6]; 
+		vdata2[15] = vdata[7]; 
+		vdata2[0] = vdata[8]; 
+		vdata2[1] = vdata[9]; 
+		vdata2[2] = vdata[10]; 
+		vdata2[3] = vdata[11]; 
+		vdata2[4] = vdata[12]; 
+		vdata2[5] = vdata[13]; 
+		vdata2[6] = vdata[14]; 
+		vdata2[7] = vdata[15]; 
+	}
+else if(s_==9){ 
+		vdata2[7] = vdata[0]; 
+		vdata2[8] = vdata[1]; 
+		vdata2[9] = vdata[2]; 
+		vdata2[10] = vdata[3]; 
+		vdata2[11] = vdata[4]; 
+		vdata2[12] = vdata[5]; 
+		vdata2[13] = vdata[6]; 
+		vdata2[14] = vdata[7]; 
+		vdata2[15] = vdata[8]; 
+		vdata2[0] = vdata[9]; 
+		vdata2[1] = vdata[10]; 
+		vdata2[2] = vdata[11]; 
+		vdata2[3] = vdata[12]; 
+		vdata2[4] = vdata[13]; 
+		vdata2[5] = vdata[14]; 
+		vdata2[6] = vdata[15]; 
+	}
+else if(s_==10){ 
+		vdata2[6] = vdata[0]; 
+		vdata2[7] = vdata[1]; 
+		vdata2[8] = vdata[2]; 
+		vdata2[9] = vdata[3]; 
+		vdata2[10] = vdata[4]; 
+		vdata2[11] = vdata[5]; 
+		vdata2[12] = vdata[6]; 
+		vdata2[13] = vdata[7]; 
+		vdata2[14] = vdata[8]; 
+		vdata2[15] = vdata[9]; 
+		vdata2[0] = vdata[10]; 
+		vdata2[1] = vdata[11]; 
+		vdata2[2] = vdata[12]; 
+		vdata2[3] = vdata[13]; 
+		vdata2[4] = vdata[14]; 
+		vdata2[5] = vdata[15]; 
+	}
+else if(s_==11){ 
+		vdata2[5] = vdata[0]; 
+		vdata2[6] = vdata[1]; 
+		vdata2[7] = vdata[2]; 
+		vdata2[8] = vdata[3]; 
+		vdata2[9] = vdata[4]; 
+		vdata2[10] = vdata[5]; 
+		vdata2[11] = vdata[6]; 
+		vdata2[12] = vdata[7]; 
+		vdata2[13] = vdata[8]; 
+		vdata2[14] = vdata[9]; 
+		vdata2[15] = vdata[10]; 
+		vdata2[0] = vdata[11]; 
+		vdata2[1] = vdata[12]; 
+		vdata2[2] = vdata[13]; 
+		vdata2[3] = vdata[14]; 
+		vdata2[4] = vdata[15]; 
+	}
+else if(s_==12){ 
+		vdata2[4] = vdata[0]; 
+		vdata2[5] = vdata[1]; 
+		vdata2[6] = vdata[2]; 
+		vdata2[7] = vdata[3]; 
+		vdata2[8] = vdata[4]; 
+		vdata2[9] = vdata[5]; 
+		vdata2[10] = vdata[6]; 
+		vdata2[11] = vdata[7]; 
+		vdata2[12] = vdata[8]; 
+		vdata2[13] = vdata[9]; 
+		vdata2[14] = vdata[10]; 
+		vdata2[15] = vdata[11]; 
+		vdata2[0] = vdata[12]; 
+		vdata2[1] = vdata[13]; 
+		vdata2[2] = vdata[14]; 
+		vdata2[3] = vdata[15]; 
+	}
+else if(s_==13){ 
+		vdata2[3] = vdata[0]; 
+		vdata2[4] = vdata[1]; 
+		vdata2[5] = vdata[2]; 
+		vdata2[6] = vdata[3]; 
+		vdata2[7] = vdata[4]; 
+		vdata2[8] = vdata[5]; 
+		vdata2[9] = vdata[6]; 
+		vdata2[10] = vdata[7]; 
+		vdata2[11] = vdata[8]; 
+		vdata2[12] = vdata[9]; 
+		vdata2[13] = vdata[10]; 
+		vdata2[14] = vdata[11]; 
+		vdata2[15] = vdata[12]; 
+		vdata2[0] = vdata[13]; 
+		vdata2[1] = vdata[14]; 
+		vdata2[2] = vdata[15]; 
+	}
+else if(s_==14){ 
+		vdata2[2] = vdata[0]; 
+		vdata2[3] = vdata[1]; 
+		vdata2[4] = vdata[2]; 
+		vdata2[5] = vdata[3]; 
+		vdata2[6] = vdata[4]; 
+		vdata2[7] = vdata[5]; 
+		vdata2[8] = vdata[6]; 
+		vdata2[9] = vdata[7]; 
+		vdata2[10] = vdata[8]; 
+		vdata2[11] = vdata[9]; 
+		vdata2[12] = vdata[10]; 
+		vdata2[13] = vdata[11]; 
+		vdata2[14] = vdata[12]; 
+		vdata2[15] = vdata[13]; 
+		vdata2[0] = vdata[14]; 
+		vdata2[1] = vdata[15]; 
+	}
+else { 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+	// #else 
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[v] = vdata[v]; }
+	// #endif 
 	return;
 }
 
@@ -706,6 +1003,7 @@ void acts_all::MEMACCESS_SPL_readvdata_slide(bool_type enable, unsigned int s, u
 	keyvalue_t keyvalue14; keyvalue14.key = 777; keyvalue14.value = 777;
 	keyvalue_t keyvalue15; keyvalue15.key = 777; keyvalue15.value = 777;
 	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata[v] = 0; vdata2[v] = 0; }
+	unsigned int basedepth = 0;
 	
 	unsigned int index2 = 0;
 	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
@@ -747,15 +1045,19 @@ void acts_all::MEMACCESS_SPL_readvdata_slide(bool_type enable, unsigned int s, u
 		vdata[15] = kvdram[baseoffset_kvs + offset_kvs + i].data[7].value;
 		#endif
 		
-		#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
-		unsigned int x = index2 + s;
-		unsigned int basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutV(x, vdata, vdata2, depths, basedepth);
+		#ifdef CONFIG_READVDATA_SLIDE
+			#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
+			unsigned int x = index2 + s;
+			basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
+			MEMACCESS_SPL_GetXYLayoutV(x, vdata, vdata2, depths, basedepth);
 MEMCA_WRITEVDATASTOBUFFER_WITHDEPTHS(depths, buffer, vdata2);	
-		index2 += NUM_PEs;
-		#else
-		MEMACCESS_SPL_GetXYLayoutV(s, vdata, vdata2, depths);
+			index2 += NUM_PEs;
+			#else
+			MEMACCESS_SPL_GetXYLayoutV(s, vdata, vdata2, depths, basedepth);
 MEMCA_WRITEVDATASTOBUFFER(bufferoffset_kvs + i, buffer, vdata2);	
+			#endif 
+		#else 
+MEMCA_WRITEVDATASTOBUFFER(bufferoffset_kvs + i, buffer, vdata);	
 		#endif 
 		
 		#ifdef _DEBUGMODE_STATS
@@ -773,17 +1075,96 @@ void acts_all::MEMACCESS_SPL_readvdatachunks(bool_type enable, uint512_dt * kvdr
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL REMOVEME.
+	
+	#ifdef _DEBUGMODE_CHECKS
+	unsigned int index = 0;
+	value_t * KV = (value_t *)&kvdram[vbaseoffset_kvs];
+	unsigned int mydepth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION * VECTOR2_SIZE;
+	for(unsigned int i=0; i<16384; i++){
+		for(unsigned int s=0; s<NUM_PEs; s++){
+			KV[s*mydepth + i] = index; index+=1;
+		}
+		if(index > 2*16384){ break; }
+	}
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		for(unsigned int i=0; i<2; i++){
+			cout<<"kvdram [s: "<<s<<", row "<<i<<"]: ";
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				cout<<kvdram[vbaseoffset_kvs + s*depth + i].data[v].key<<", "<<kvdram[vbaseoffset_kvs + s*depth + i].data[v].value<<", ";
+			}
+			cout<<endl;
+		}
+	}
+	cout<<endl;
+	// exit(EXIT_SUCCESS);
+	#endif 
+
+	#ifdef _DEBUGMODE_CHECKS
+	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			buffer[v][i].key = 0;
+			buffer[v][i].value = 0;
+		}
+	}
+	#endif 
+	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"MEMACCESS_SPL_readvdatachunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_readvdata_slide(enable, s, kvdram, buffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESS_SPL_readvdata_slide(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"+++ MEMACCESS_SPL_readvdatachunks:: total size loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE<<endl;
 	#endif
+	
+	#ifdef _DEBUGMODE_CHECKS
+	for(unsigned int i=0; i<32; i++){
+		cout<<"buffer row "<<2*i<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<buffer[v][i].key<<", ";
+		}
+		cout<<endl;
+		cout<<"buffer row "<<2*i+1<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<buffer[v][i].value<<", ";
+		}
+		cout<<endl;
+	}
+	cout<<endl;
+	#endif 
+	
+	int limit = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE];
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READVDATASFROMBUFFER(i, tempbuffer, vdata);
+		if(i<limit){ cout<<"MEMACCESS_SPL_readvdatachunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdata[v]<<", "; } cout<<endl; }
+		MEMACCESS_SPL_RearrangeLayoutV(i, vdata, vdata2);
+		if(i<limit){ cout<<"MEMACCESS_SPL_readvdatachunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdata2[v]<<", "; } cout<<endl; }
+MEMCA_WRITEVDATASTOBUFFER(i, buffer, vdata2);
+	}
+	
+	#ifdef _DEBUGMODE_CHECKS
+	for(unsigned int i=0; i<64; i++){
+		cout<<"buffer row "<<2*i<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<buffer[v][i].key<<", ";
+		}
+		cout<<endl;
+		cout<<"buffer row "<<2*i+1<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<buffer[v][i].value<<", ";
+		}
+		cout<<endl;
+	}
+	cout<<endl;
+	#endif
+	// exit(EXIT_SUCCESS);
 	return;	
 }
 
@@ -897,7 +1278,7 @@ void acts_all::MEMACCESS_SPL_savevdata(bool_type enable, uint512_dt * kvdram, ke
 
 // -------------------- vmasks -------------------- //
 void acts_all::MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
-	#ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+	// #ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -1478,9 +1859,306 @@ else {
 	depths[13] = basedepth + depths_tmp[13]; 
 	depths[14] = basedepth + depths_tmp[14]; 
 	depths[15] = basedepth + depths_tmp[15]; 
-	#else 
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vmdata2[v] = vmdata[v]; }
-	#endif 
+	// #else 
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vmdata2[v] = vmdata[v]; }
+	// #endif 
+	return;
+}
+
+void acts_all::MEMACCESS_SPL_RearrangeLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
+	// #ifdef CONFIG_ACTSPROCESSEDGES_SPREADVTXREAD
+	unsigned int s_ = s % VECTOR2_SIZE;
+ if(s_==0){ 
+		vmdata2[0] = vmdata[0]; 
+		vmdata2[1] = vmdata[1]; 
+		vmdata2[2] = vmdata[2]; 
+		vmdata2[3] = vmdata[3]; 
+		vmdata2[4] = vmdata[4]; 
+		vmdata2[5] = vmdata[5]; 
+		vmdata2[6] = vmdata[6]; 
+		vmdata2[7] = vmdata[7]; 
+		vmdata2[8] = vmdata[8]; 
+		vmdata2[9] = vmdata[9]; 
+		vmdata2[10] = vmdata[10]; 
+		vmdata2[11] = vmdata[11]; 
+		vmdata2[12] = vmdata[12]; 
+		vmdata2[13] = vmdata[13]; 
+		vmdata2[14] = vmdata[14]; 
+		vmdata2[15] = vmdata[15]; 
+	}
+else if(s_==1){ 
+		vmdata2[15] = vmdata[0]; 
+		vmdata2[0] = vmdata[1]; 
+		vmdata2[1] = vmdata[2]; 
+		vmdata2[2] = vmdata[3]; 
+		vmdata2[3] = vmdata[4]; 
+		vmdata2[4] = vmdata[5]; 
+		vmdata2[5] = vmdata[6]; 
+		vmdata2[6] = vmdata[7]; 
+		vmdata2[7] = vmdata[8]; 
+		vmdata2[8] = vmdata[9]; 
+		vmdata2[9] = vmdata[10]; 
+		vmdata2[10] = vmdata[11]; 
+		vmdata2[11] = vmdata[12]; 
+		vmdata2[12] = vmdata[13]; 
+		vmdata2[13] = vmdata[14]; 
+		vmdata2[14] = vmdata[15]; 
+	}
+else if(s_==2){ 
+		vmdata2[14] = vmdata[0]; 
+		vmdata2[15] = vmdata[1]; 
+		vmdata2[0] = vmdata[2]; 
+		vmdata2[1] = vmdata[3]; 
+		vmdata2[2] = vmdata[4]; 
+		vmdata2[3] = vmdata[5]; 
+		vmdata2[4] = vmdata[6]; 
+		vmdata2[5] = vmdata[7]; 
+		vmdata2[6] = vmdata[8]; 
+		vmdata2[7] = vmdata[9]; 
+		vmdata2[8] = vmdata[10]; 
+		vmdata2[9] = vmdata[11]; 
+		vmdata2[10] = vmdata[12]; 
+		vmdata2[11] = vmdata[13]; 
+		vmdata2[12] = vmdata[14]; 
+		vmdata2[13] = vmdata[15]; 
+	}
+else if(s_==3){ 
+		vmdata2[13] = vmdata[0]; 
+		vmdata2[14] = vmdata[1]; 
+		vmdata2[15] = vmdata[2]; 
+		vmdata2[0] = vmdata[3]; 
+		vmdata2[1] = vmdata[4]; 
+		vmdata2[2] = vmdata[5]; 
+		vmdata2[3] = vmdata[6]; 
+		vmdata2[4] = vmdata[7]; 
+		vmdata2[5] = vmdata[8]; 
+		vmdata2[6] = vmdata[9]; 
+		vmdata2[7] = vmdata[10]; 
+		vmdata2[8] = vmdata[11]; 
+		vmdata2[9] = vmdata[12]; 
+		vmdata2[10] = vmdata[13]; 
+		vmdata2[11] = vmdata[14]; 
+		vmdata2[12] = vmdata[15]; 
+	}
+else if(s_==4){ 
+		vmdata2[12] = vmdata[0]; 
+		vmdata2[13] = vmdata[1]; 
+		vmdata2[14] = vmdata[2]; 
+		vmdata2[15] = vmdata[3]; 
+		vmdata2[0] = vmdata[4]; 
+		vmdata2[1] = vmdata[5]; 
+		vmdata2[2] = vmdata[6]; 
+		vmdata2[3] = vmdata[7]; 
+		vmdata2[4] = vmdata[8]; 
+		vmdata2[5] = vmdata[9]; 
+		vmdata2[6] = vmdata[10]; 
+		vmdata2[7] = vmdata[11]; 
+		vmdata2[8] = vmdata[12]; 
+		vmdata2[9] = vmdata[13]; 
+		vmdata2[10] = vmdata[14]; 
+		vmdata2[11] = vmdata[15]; 
+	}
+else if(s_==5){ 
+		vmdata2[11] = vmdata[0]; 
+		vmdata2[12] = vmdata[1]; 
+		vmdata2[13] = vmdata[2]; 
+		vmdata2[14] = vmdata[3]; 
+		vmdata2[15] = vmdata[4]; 
+		vmdata2[0] = vmdata[5]; 
+		vmdata2[1] = vmdata[6]; 
+		vmdata2[2] = vmdata[7]; 
+		vmdata2[3] = vmdata[8]; 
+		vmdata2[4] = vmdata[9]; 
+		vmdata2[5] = vmdata[10]; 
+		vmdata2[6] = vmdata[11]; 
+		vmdata2[7] = vmdata[12]; 
+		vmdata2[8] = vmdata[13]; 
+		vmdata2[9] = vmdata[14]; 
+		vmdata2[10] = vmdata[15]; 
+	}
+else if(s_==6){ 
+		vmdata2[10] = vmdata[0]; 
+		vmdata2[11] = vmdata[1]; 
+		vmdata2[12] = vmdata[2]; 
+		vmdata2[13] = vmdata[3]; 
+		vmdata2[14] = vmdata[4]; 
+		vmdata2[15] = vmdata[5]; 
+		vmdata2[0] = vmdata[6]; 
+		vmdata2[1] = vmdata[7]; 
+		vmdata2[2] = vmdata[8]; 
+		vmdata2[3] = vmdata[9]; 
+		vmdata2[4] = vmdata[10]; 
+		vmdata2[5] = vmdata[11]; 
+		vmdata2[6] = vmdata[12]; 
+		vmdata2[7] = vmdata[13]; 
+		vmdata2[8] = vmdata[14]; 
+		vmdata2[9] = vmdata[15]; 
+	}
+else if(s_==7){ 
+		vmdata2[9] = vmdata[0]; 
+		vmdata2[10] = vmdata[1]; 
+		vmdata2[11] = vmdata[2]; 
+		vmdata2[12] = vmdata[3]; 
+		vmdata2[13] = vmdata[4]; 
+		vmdata2[14] = vmdata[5]; 
+		vmdata2[15] = vmdata[6]; 
+		vmdata2[0] = vmdata[7]; 
+		vmdata2[1] = vmdata[8]; 
+		vmdata2[2] = vmdata[9]; 
+		vmdata2[3] = vmdata[10]; 
+		vmdata2[4] = vmdata[11]; 
+		vmdata2[5] = vmdata[12]; 
+		vmdata2[6] = vmdata[13]; 
+		vmdata2[7] = vmdata[14]; 
+		vmdata2[8] = vmdata[15]; 
+	}
+else if(s_==8){ 
+		vmdata2[8] = vmdata[0]; 
+		vmdata2[9] = vmdata[1]; 
+		vmdata2[10] = vmdata[2]; 
+		vmdata2[11] = vmdata[3]; 
+		vmdata2[12] = vmdata[4]; 
+		vmdata2[13] = vmdata[5]; 
+		vmdata2[14] = vmdata[6]; 
+		vmdata2[15] = vmdata[7]; 
+		vmdata2[0] = vmdata[8]; 
+		vmdata2[1] = vmdata[9]; 
+		vmdata2[2] = vmdata[10]; 
+		vmdata2[3] = vmdata[11]; 
+		vmdata2[4] = vmdata[12]; 
+		vmdata2[5] = vmdata[13]; 
+		vmdata2[6] = vmdata[14]; 
+		vmdata2[7] = vmdata[15]; 
+	}
+else if(s_==9){ 
+		vmdata2[7] = vmdata[0]; 
+		vmdata2[8] = vmdata[1]; 
+		vmdata2[9] = vmdata[2]; 
+		vmdata2[10] = vmdata[3]; 
+		vmdata2[11] = vmdata[4]; 
+		vmdata2[12] = vmdata[5]; 
+		vmdata2[13] = vmdata[6]; 
+		vmdata2[14] = vmdata[7]; 
+		vmdata2[15] = vmdata[8]; 
+		vmdata2[0] = vmdata[9]; 
+		vmdata2[1] = vmdata[10]; 
+		vmdata2[2] = vmdata[11]; 
+		vmdata2[3] = vmdata[12]; 
+		vmdata2[4] = vmdata[13]; 
+		vmdata2[5] = vmdata[14]; 
+		vmdata2[6] = vmdata[15]; 
+	}
+else if(s_==10){ 
+		vmdata2[6] = vmdata[0]; 
+		vmdata2[7] = vmdata[1]; 
+		vmdata2[8] = vmdata[2]; 
+		vmdata2[9] = vmdata[3]; 
+		vmdata2[10] = vmdata[4]; 
+		vmdata2[11] = vmdata[5]; 
+		vmdata2[12] = vmdata[6]; 
+		vmdata2[13] = vmdata[7]; 
+		vmdata2[14] = vmdata[8]; 
+		vmdata2[15] = vmdata[9]; 
+		vmdata2[0] = vmdata[10]; 
+		vmdata2[1] = vmdata[11]; 
+		vmdata2[2] = vmdata[12]; 
+		vmdata2[3] = vmdata[13]; 
+		vmdata2[4] = vmdata[14]; 
+		vmdata2[5] = vmdata[15]; 
+	}
+else if(s_==11){ 
+		vmdata2[5] = vmdata[0]; 
+		vmdata2[6] = vmdata[1]; 
+		vmdata2[7] = vmdata[2]; 
+		vmdata2[8] = vmdata[3]; 
+		vmdata2[9] = vmdata[4]; 
+		vmdata2[10] = vmdata[5]; 
+		vmdata2[11] = vmdata[6]; 
+		vmdata2[12] = vmdata[7]; 
+		vmdata2[13] = vmdata[8]; 
+		vmdata2[14] = vmdata[9]; 
+		vmdata2[15] = vmdata[10]; 
+		vmdata2[0] = vmdata[11]; 
+		vmdata2[1] = vmdata[12]; 
+		vmdata2[2] = vmdata[13]; 
+		vmdata2[3] = vmdata[14]; 
+		vmdata2[4] = vmdata[15]; 
+	}
+else if(s_==12){ 
+		vmdata2[4] = vmdata[0]; 
+		vmdata2[5] = vmdata[1]; 
+		vmdata2[6] = vmdata[2]; 
+		vmdata2[7] = vmdata[3]; 
+		vmdata2[8] = vmdata[4]; 
+		vmdata2[9] = vmdata[5]; 
+		vmdata2[10] = vmdata[6]; 
+		vmdata2[11] = vmdata[7]; 
+		vmdata2[12] = vmdata[8]; 
+		vmdata2[13] = vmdata[9]; 
+		vmdata2[14] = vmdata[10]; 
+		vmdata2[15] = vmdata[11]; 
+		vmdata2[0] = vmdata[12]; 
+		vmdata2[1] = vmdata[13]; 
+		vmdata2[2] = vmdata[14]; 
+		vmdata2[3] = vmdata[15]; 
+	}
+else if(s_==13){ 
+		vmdata2[3] = vmdata[0]; 
+		vmdata2[4] = vmdata[1]; 
+		vmdata2[5] = vmdata[2]; 
+		vmdata2[6] = vmdata[3]; 
+		vmdata2[7] = vmdata[4]; 
+		vmdata2[8] = vmdata[5]; 
+		vmdata2[9] = vmdata[6]; 
+		vmdata2[10] = vmdata[7]; 
+		vmdata2[11] = vmdata[8]; 
+		vmdata2[12] = vmdata[9]; 
+		vmdata2[13] = vmdata[10]; 
+		vmdata2[14] = vmdata[11]; 
+		vmdata2[15] = vmdata[12]; 
+		vmdata2[0] = vmdata[13]; 
+		vmdata2[1] = vmdata[14]; 
+		vmdata2[2] = vmdata[15]; 
+	}
+else if(s_==14){ 
+		vmdata2[2] = vmdata[0]; 
+		vmdata2[3] = vmdata[1]; 
+		vmdata2[4] = vmdata[2]; 
+		vmdata2[5] = vmdata[3]; 
+		vmdata2[6] = vmdata[4]; 
+		vmdata2[7] = vmdata[5]; 
+		vmdata2[8] = vmdata[6]; 
+		vmdata2[9] = vmdata[7]; 
+		vmdata2[10] = vmdata[8]; 
+		vmdata2[11] = vmdata[9]; 
+		vmdata2[12] = vmdata[10]; 
+		vmdata2[13] = vmdata[11]; 
+		vmdata2[14] = vmdata[12]; 
+		vmdata2[15] = vmdata[13]; 
+		vmdata2[0] = vmdata[14]; 
+		vmdata2[1] = vmdata[15]; 
+	}
+else { 
+		vmdata2[1] = vmdata[0]; 
+		vmdata2[2] = vmdata[1]; 
+		vmdata2[3] = vmdata[2]; 
+		vmdata2[4] = vmdata[3]; 
+		vmdata2[5] = vmdata[4]; 
+		vmdata2[6] = vmdata[5]; 
+		vmdata2[7] = vmdata[6]; 
+		vmdata2[8] = vmdata[7]; 
+		vmdata2[9] = vmdata[8]; 
+		vmdata2[10] = vmdata[9]; 
+		vmdata2[11] = vmdata[10]; 
+		vmdata2[12] = vmdata[11]; 
+		vmdata2[13] = vmdata[12]; 
+		vmdata2[14] = vmdata[13]; 
+		vmdata2[15] = vmdata[14]; 
+		vmdata2[0] = vmdata[15]; 
+	}
+	// #else 
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata2[v] = vdata[v]; }
+	// #endif 
 	return;
 }
 
@@ -1606,6 +2284,7 @@ void acts_all::MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, 
 	// u32 => u16bits
 	buffer_type i = 0;
 	unsigned int index2 = 0;
+	unsigned int basedepth = 0;
 	LOADVMASKS_LOOP2: for (i=0; i<size_kvs; i++){ // transfsize, reducebuffersz
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount3 avg=analysis_loopcount3
 	#pragma HLS PIPELINE II=2
@@ -1683,15 +2362,19 @@ void acts_all::MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, 
 		}
 		#endif
 		
-		#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
-		unsigned int x = index2 + s;
-		unsigned int basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
+		#ifdef CONFIG_READVDATA_SLIDE
+			#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
+			unsigned int x = index2 + s;
+			basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
+			MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
 MEMCA_WRITEVMASKSTOBUFFER_WITHDEPTHS(depths, vmaskBITS, vmdata2);
-		index2 += NUM_PEs;
-		#else 
-		MEMACCESS_SPL_GetXYLayoutVM(s, vmdata, vmdata2, depths);
+			index2 += NUM_PEs;
+			#else 
+			MEMACCESS_SPL_GetXYLayoutVM(s, vmdata, vmdata2, depths, basedepth);
 MEMCA_WRITEVMASKSTOBUFFER(bufferoffset + i, vmaskBITS, vmdata2);
+			#endif 
+		#else
+MEMCA_WRITEVMASKSTOBUFFER(bufferoffset + i, vmaskBITS, vmdata);	
 		#endif 
 	}
 	return;
@@ -1702,26 +2385,38 @@ void acts_all::MEMACCESS_SPL_readvmaskschunks(bool_type enable, uint512_dt * kvd
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
+	unit1_type tempvmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // CRITICAL REMOVEME.
+	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"MEMACCESS_SPL_readvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, vmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
-	/* //////////////////////////////////////////////////////////////////
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	int limit = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			if(vmaskBITS[v][i] == 1){
-				cout<<"------------ MEMACCESS_SPL_readvmaskschunks: 1 SEEN: vmaskBITS["<<v<<"]["<<i<<"]("<<vmaskBITS[v][i]<<") == 1"<<endl;
-			}
-		}
+MEMCA_READVMASKSFROMBUFFER(i, tempvmaskBITS, vmdata);
+		if(i<limit){ cout<<"MEMACCESS_SPL_readvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+		MEMACCESS_SPL_RearrangeLayoutVM(i, vmdata, vmdata2);
+		if(i<limit){ cout<<"MEMACCESS_SPL_readvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+MEMCA_WRITEVMASKSTOBUFFER(i, vmaskBITS, vmdata2);
 	}
-	#endif 
-	////////////////////////////////////////////////////////////////// */
+	
+	#ifdef _DEBUGMODE_CHECKS
+	for(unsigned int i=0; i<32; i++){
+		cout<<"vmask buffer row "<<i<<": ";
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+			cout<<vmaskBITS[v][i]<<", ";
+		}
+		cout<<endl;
+	}
+	cout<<endl;
+	#endif
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"+++ MEMACCESS_SPL_readvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
