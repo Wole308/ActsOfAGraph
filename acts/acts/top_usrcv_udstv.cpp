@@ -1,20 +1,14 @@
 #include "top_usrcv_udstv.h"
 using namespace std;
 
-// unsigned int mask_subp_is_zero;
-// unsigned int mask_subp_is_not_zero;
-// unsigned int _stages[8];
-// unsigned int _chkpartitions[MAX_NUM_PARTITIONS];
-
 #ifdef SW
 top_usrcv_udstv::top_usrcv_udstv(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
 	acts_utilobj = new acts_util(_mydebugobj); 
-	processedgesobj = new processedgesu(_mydebugobj);
 	processedges_splitdstvxsobj = new processedges_splitdstvxs(_mydebugobj);
 	partitionupdatesobj = new partitionupdates(_mydebugobj);
 	reduceupdatesobj = new reduceupdates(_mydebugobj);
-	mem_accessobj = new mem_access(_mydebugobj);
+	mem_access_splitdstvxsobj = new mem_access_splitdstvxs(_mydebugobj);
 	actsobj = new acts(_mydebugobj);
 	mydebugobj = _mydebugobj;
 }
@@ -52,7 +46,7 @@ void acts_all::processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VE
 	
 	avtravstate.begin_kvs = 0;
 	avtravstate.end_kvs = avtravstate.begin_kvs + (globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE); avtravstate.size_kvs = globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
-	if(globalposition.source_partition == globalposition.first_source_partition){ MEMACCESS_readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); } // CRITICAL NEWCHANGE.
+	if(globalposition.source_partition == globalposition.first_source_partition){ MEMACCESS_SPL_readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); } // CRITICAL NEWCHANGE.
 	if(globalposition.source_partition == globalposition.first_source_partition){ UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0); } // CRITICAL NEWCHANGE.
 
 	batch_type vptrbaseoffset_kvs = globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR + (globalparamsVPTRS.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE. NOTE: no need to include v_chunkids[32] because source_partition handles it
@@ -94,7 +88,7 @@ void acts_all::processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VE
 			if(mask_subp == 0){ continue; }
 		}
 		
-		tuple_t tup = MEMACCESS_getvptrs_opt( kvdram, vptrbaseoffset_kvs, (voffset_kvs + lvid_kvs) * VECTOR2_SIZE, (voffset_kvs + lvid_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
+		tuple_t tup = MEMACCESS_SPL_getvptrs_opt( kvdram, vptrbaseoffset_kvs, (voffset_kvs + lvid_kvs) * VECTOR2_SIZE, (voffset_kvs + lvid_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
 		keyy_t beginvptr = tup.A;
 		keyy_t endvptr = tup.B; 
 		
@@ -149,7 +143,7 @@ ACTS_tradit
 			resetenv, flush, edgebankID);
 	}
 	
-MEMACCESS_saveglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); // CRITICAL OPTIMIZEME. should be called only once
+MEMACCESS_SPL_saveglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); // CRITICAL OPTIMIZEME. should be called only once
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalvars();
@@ -197,7 +191,7 @@ UTIL_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 	travstate_t ptravstate = UTIL_gettravstate(ON, kvdram, globalparams, globalposition.currentLOP, globalposition.sourcestatsmarker);
 	
 	// collect stats
-MEMACCESS_readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparams);
+MEMACCESS_SPL_readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparams);
 UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 	
 	// partition
@@ -224,7 +218,7 @@ ACTS_tradit
 			globalparams, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp);
 			
-MEMACCESS_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparams); 
+MEMACCESS_SPL_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparams); 
 	
 	#ifdef _DEBUGMODE_CHECKS
 	if(config.enablereduce == ON){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
@@ -511,7 +505,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE 
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask1(vdram, vmask0_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask1(vdram, vmask0_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -614,9 +608,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0); // CRITICAL NOTEME. POSSIBLE 
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks1(enable_loadmasks, vdram, vmaskREAD0, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks1(enable_loadmasks, vdram, vmaskREAD0, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask1(enable_loadmasks, vmask0, vmask0_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask1(enable_loadmasks, vmask0, vmask0_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate1vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate1vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0, 8, 0, reducebuffersz, globalparamsV); 
@@ -645,7 +639,7 @@ MEMACCESS_readmanyspmask1(enable_loadmasks, vmask0, vmask0_subp, vmaskbuffersz_k
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -791,7 +785,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask2(vdram, vmask0_p,vmask1_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask2(vdram, vmask0_p,vmask1_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -895,9 +889,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks2(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks2(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask2(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask2(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate2vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate2vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1, 8, 0, reducebuffersz, globalparamsV); 
@@ -927,7 +921,7 @@ MEMACCESS_readmanyspmask2(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp, vma
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -1091,7 +1085,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask3(vdram, vmask0_p,vmask1_p,vmask2_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask3(vdram, vmask0_p,vmask1_p,vmask2_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -1196,9 +1190,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks3(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks3(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask3(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask3(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate3vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate3vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2, 8, 0, reducebuffersz, globalparamsV); 
@@ -1229,7 +1223,7 @@ MEMACCESS_readmanyspmask3(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmas
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -1411,7 +1405,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask4(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask4(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -1517,9 +1511,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks4(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks4(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask4(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask4(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate4vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate4vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3, 8, 0, reducebuffersz, globalparamsV); 
@@ -1551,7 +1545,7 @@ MEMACCESS_readmanyspmask4(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmas
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -1751,7 +1745,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask5(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask5(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -1858,9 +1852,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks5(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks5(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask5(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask5(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate5vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate5vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, 8, 0, reducebuffersz, globalparamsV); 
@@ -1893,7 +1887,7 @@ MEMACCESS_readmanyspmask5(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmas
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -2111,7 +2105,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask6(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask6(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -2219,9 +2213,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks6(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks6(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask6(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask6(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate6vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate6vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, 8, 0, reducebuffersz, globalparamsV); 
@@ -2255,7 +2249,7 @@ MEMACCESS_readmanyspmask6(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmas
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -2491,7 +2485,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask7(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask7(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -2600,9 +2594,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks7(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks7(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask7(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask7(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate7vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate7vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, 8, 0, reducebuffersz, globalparamsV); 
@@ -2637,7 +2631,7 @@ MEMACCESS_readmanyspmask7(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmas
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -2891,7 +2885,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask8(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask8(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -3001,9 +2995,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks8(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks8(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask8(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask8(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate8vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate8vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, 8, 0, reducebuffersz, globalparamsV); 
@@ -3039,7 +3033,7 @@ MEMACCESS_readmanyspmask8(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmas
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -3311,7 +3305,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask9(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask9(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -3422,9 +3416,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks9(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks9(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask9(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask9(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate9vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate9vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, 8, 0, reducebuffersz, globalparamsV); 
@@ -3461,7 +3455,7 @@ MEMACCESS_readmanyspmask9(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmas
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -3751,7 +3745,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask10(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask10(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -3863,9 +3857,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks10(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks10(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask10(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask10(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate10vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate10vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, 8, 0, reducebuffersz, globalparamsV); 
@@ -3903,7 +3897,7 @@ MEMACCESS_readmanyspmask10(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vma
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -4211,7 +4205,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask11(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p,vmask10_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask11(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p,vmask10_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -4324,9 +4318,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks11(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9,vmaskREAD10, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks11(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9,vmaskREAD10, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask11(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp,vmask10_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask11(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp,vmask10_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate11vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate11vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, 8, 0, reducebuffersz, globalparamsV); 
@@ -4365,7 +4359,7 @@ MEMACCESS_readmanyspmask11(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vma
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
@@ -4691,7 +4685,7 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 	batch_type num_source_partitions = 0; 
 
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){ buffer[i] = 0; } 
-	if(GraphAlgo != PAGERANK){ MEMACCESS_readmanypmask12(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p,vmask10_p,vmask11_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	if(GraphAlgo != PAGERANK){ MEMACCESS_SPL_readmanypmask12(vdram, vmask0_p,vmask1_p,vmask2_p,vmask3_p,vmask4_p,vmask5_p,vmask6_p,vmask7_p,vmask8_p,vmask9_p,vmask10_p,vmask11_p, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
 	if(GraphAlgo != PAGERANK){ UTIL_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = NUM_EDGE_BANKS; }
@@ -4805,9 +4799,9 @@ globalparamsKs[0] = UTIL_getglobalparams(kvdram0);globalparamsKs[1] = UTIL_getgl
 						if((globalposition.EN_PROCESS == ON && enableprocess == ON) || (globalposition.EN_REDUCE == ON && enablereduce == ON)){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }
 		
 						// read vertices
-MEMACCESS_readmanyvmasks12(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9,vmaskREAD10,vmaskREAD11, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
+MEMACCESS_SPL_readmanyvmasks12(enable_loadmasks, vdram, vmaskREAD0,vmaskREAD1,vmaskREAD2,vmaskREAD3,vmaskREAD4,vmaskREAD5,vmaskREAD6,vmaskREAD7,vmaskREAD8,vmaskREAD9,vmaskREAD10,vmaskREAD11, vbuffer0, globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + vmaskoffset_kvs, vmaskbuffersz_kvs, globalparamsV); 
 						#ifdef ENABLE_SUBVMASKING
-MEMACCESS_readmanyspmask12(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp,vmask10_subp,vmask11_subp, vmaskbuffersz_kvs); 
+MEMACCESS_SPL_readmanyspmask12(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vmask2_subp,vmask3_subp,vmask4_subp,vmask5_subp,vmask6_subp,vmask7_subp,vmask8_subp,vmask9_subp,vmask10_subp,vmask11_subp, vmaskbuffersz_kvs); 
 						#endif
 						mergeobj->MERGE_readandreplicate12vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 0, 0, reducebuffersz, globalparamsV); 
 						mergeobj->MERGE_readandreplicate12vdata(enable_readandreplicatevdata, vdram, globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + vreadoffset_kvs + reducebuffersz, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, 8, 0, reducebuffersz, globalparamsV); 
@@ -4847,7 +4841,7 @@ MEMACCESS_readmanyspmask12(enable_loadmasks, vmask0, vmask0_subp,vmask1_subp,vma
 		} // v_chunkid
 	} // edgebankID
 	
-MEMACCESS_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
+MEMACCESS_SPL_commitkvstats(vdram, buffer, globalparamsV, reducesourcestatsmarker);
 	
 	#ifdef _WIDEWORD
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here

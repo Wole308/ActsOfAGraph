@@ -10,7 +10,6 @@
 #include <iostream>
 #include <string.h>
 #include <mutex>
-#include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
 #include "../src/algorithm/algorithm.h"
 #include "../src/graphs/graph.h"
@@ -37,9 +36,6 @@ goclkernel::goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _st
 	statsobj = _statsobj;
 	graphobj = _graphobj;
 	algorithmobj = _algorithmobj;
-	#ifndef ACTS_1by1
-	// kernelobjs_synchronize = new actssync();
-	#endif 
 }
 goclkernel::~goclkernel(){} 
 

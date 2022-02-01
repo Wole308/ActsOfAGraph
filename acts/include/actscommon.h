@@ -27,7 +27,7 @@ using namespace std;
 
 // #define _DEBUGMODE_KERNELPRINTS_TRACE
 #ifndef ALLVERTEXISACTIVE_ALGORITHM
-// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 #endif 
 // #define _DEBUGMODE_SUBPMASKING_TRACE
 
@@ -152,10 +152,14 @@ using namespace std;
 
 #define NOBUFFERADDRESS 999999999
 
-#define SIZEOF_KEY 22
-#define SIZEOF_VALUE 10
 #define SIZEOF_VDATAKEY 16
 #define SIZEOF_VDATAVALUE 16
+#define SIZEOF_VMASK0 1
+#define SIZEOF_VDATA0 15
+#define SIZEOF_VMASK1 1
+#define SIZEOF_VDATA1 15
+// #define MAXVDATA 0xFFFFFFFF
+#define MAXVDATA 0b00000000000000000111111111111111
 
 #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
@@ -201,7 +205,9 @@ typedef struct {
 typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
 #else
 typedef struct {
+	unsigned int mask0;
 	unsigned int key;
+	unsigned int mask1;
 	unsigned int value;
 } keyvalue_vbuffer_t;
 #endif 

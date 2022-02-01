@@ -1,39 +1,3 @@
-#ifndef ACTS_H
-#define ACTS_H
-#ifdef SW 
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <vector>
-#include <string.h>
-#include <stdio.h>
-#include <ctime>
-#include <functional>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-#include <iomanip>
-#include <cmath>
-#include <fstream>
-#endif 
-#include "../../include/config_params.h"
-#include "../../include/common.h"
-#include "../include/actscommon.h"
-#ifdef SW 
-#include "../../src/utility/utility.h"
-#include "../../acts/actsutility/actsutility.h"
-#endif
-#include "processedges_splitdstvxs.h"
-#include "partitionupdates.h"
-#include "reduceupdates.h"
-#include "mem_access_splitdstvxs.h"
-#include "mydebug.h"
-
-class acts {
-public:
-	acts(mydebug * _mydebugobj);
-	~acts();
-
 fetchmessage_t ACTS_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 	batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams, unsigned int edgebankID);
 
@@ -62,17 +26,4 @@ void ACTS_priorit(bool_type enable, unsigned int mode,
 void ACTS_tradit(bool_type enable, unsigned int mode,
  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
-		bool_type resetenv, bool_type flush, unsigned int edgebankID);	
-		
-private:
-	#ifdef SW
-	actsutility * actsutilityobj;
-	acts_util * acts_utilobj;
-	processedges_splitdstvxs * processedgesobj;
-	partitionupdates * partitionupdatesobj;
-	reduceupdates * reduceupdatesobj;
-	mem_access_splitdstvxs * mem_access_splitdstvxsobj;
-	mydebug * mydebugobj;
-	#endif
-};
-#endif 
+		bool_type resetenv, bool_type flush, unsigned int edgebankID);

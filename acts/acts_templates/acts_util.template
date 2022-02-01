@@ -82,6 +82,40 @@ void {{context['classname__acts_util']}}UTIL_WRITETO_UINT(unsigned int * data, u
 	#endif
 	return; 
 }
+unsigned int {{context['classname__acts_util']}}UTIL_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(index + size - 1, index); 
+	#else
+	return UTIL_READFROM_UINT(data, index, size);
+	#endif
+}
+unsigned int {{context['classname__acts_util']}}UTIL_READBITSFROM_UINT32(uint32_type data, unsigned int index, unsigned int size){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return data.range(index + size - 1, index); 
+	#else
+	return UTIL_READFROM_UINT(data, index, size);
+	#endif
+}
+void {{context['classname__acts_util']}}UTIL_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	data.range(index + size - 1, index) = value; 
+	#else
+	UTIL_WRITETO_UINT(data, index, size, value);
+	#endif
+	return; 
+}
+void {{context['classname__acts_util']}}UTIL_WRITEBITSTO_UINT32(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	data.range(index + size - 1, index) = value; 
+	#else
+	UTIL_WRITETO_UINT(data, index, size, value);
+	#endif
+	return; 
+}
 
 // converters
 keyvalue_t {{context['classname__acts_util']}}UTIL_GETKV(keyvalue_buffer_t data){
@@ -120,46 +154,6 @@ value_t {{context['classname__acts_util']}}UTIL_GETV(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_VALUE - 1, 0);
-	#else
-	return data;
-	#endif
-}
-keyvalue_t {{context['classname__acts_util']}}UTIL_GETKV2(keyvalue_vbuffer_t data){
-	#pragma HLS INLINE
-	keyvalue_t res;
-	#ifdef _WIDEWORD
-	res.key = data.range(SIZEOF_VDATAKEY - 1, 0); 
-	res.value = data.range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY);
-	#else 
-	res.key = data.key;
-	res.value = data.value;	
-	#endif 
-	return res;
-}
-keyvalue_vbuffer_t {{context['classname__acts_util']}}UTIL_GETKV2(keyvalue_t data){
-	#pragma HLS INLINE
-	keyvalue_vbuffer_t res;
-	#ifdef _WIDEWORD
-	res.range(SIZEOF_VDATAKEY - 1, 0) = data.key; 
-	res.range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY) = data.value;
-	#else
-	res.key = data.key;
-	res.value = data.value;
-	#endif 
-	return res;
-}
-keyy_t {{context['classname__acts_util']}}UTIL_GETK2(uint32_type data){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	return data.range(SIZEOF_VDATAKEY - 1, 0);
-	#else
-	return data;
-	#endif
-}
-value_t {{context['classname__acts_util']}}UTIL_GETV2(uint32_type data){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	return data.range(SIZEOF_VDATAKEY - 1, 0);
 	#else
 	return data;
 	#endif

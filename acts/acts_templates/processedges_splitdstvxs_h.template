@@ -19,7 +19,6 @@
 #include <cmath>
 #include <fstream>
 #endif 
-#include "mem_access.h"
 #include "acts_util.h"
 #include "mydebug.h"
 using namespace std;
@@ -35,7 +34,6 @@ private:
 	#ifdef SW
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
-	mem_access * mem_accessobj;
 	mydebug * mydebugobj;
 	#endif
 };

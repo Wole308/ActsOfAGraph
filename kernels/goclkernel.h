@@ -6,7 +6,6 @@
 #include <fstream>
 #include <CL/cl_ext_xilinx.h>
 #endif 
-#include "../acts/acts/actssync.h"
 #include "../src/stats/stats.h"
 #include "../src/graphs/graph.h"
 #include "../src/utility/utility.h"
@@ -39,10 +38,6 @@ private:
 	
 	size_t inputvdata_size_bytes;
 	size_t inputdata_size_bytes;
-	
-	#ifndef ACTS_1by1
-	// actssync * kernelobjs_synchronize;
-	#endif 
 	
 	uint512_vec_dt * tempkvsourcedram_proc;
 	uint512_vec_dt * tempkvsourcedrams_proc[NUMSUBCPUTHREADS]; // REMOVEME

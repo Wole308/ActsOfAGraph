@@ -5,11 +5,10 @@ using namespace std;
 acts_merge_splitdstvxs::acts_merge_splitdstvxs(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
 	acts_utilobj = new acts_util(_mydebugobj); 
-	processedgesobj = new processedgesu(_mydebugobj);
 	processedges_splitdstvxsobj = new processedges_splitdstvxs(_mydebugobj);
 	partitionupdatesobj = new partitionupdates(_mydebugobj);
 	reduceupdatesobj = new reduceupdates(_mydebugobj);
-	mem_accessobj = new mem_access(_mydebugobj);
+	mem_accessobj = new mem_access_splitdstvxs(_mydebugobj);
 	actsobj = new acts(_mydebugobj);
 	mydebugobj = _mydebugobj;
 }
@@ -266,13 +265,13 @@ void {{context['classname__acts_merge_splitdstvxs']}}MERGE_SPLIT_mergeVs{{n}}({%
 	#endif	
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
-	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_retreievekvstats(kvdram{{i}}, psizes_kvs[{{i}}], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
+	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_SPL_retreievekvstats(kvdram{{i}}, psizes_kvs[{{i}}], globalparams, actvpstats_beginoffset, globalparams.NUM_REDUCEPARTITIONS);
 	{%endif%}
 	{%endfor%}	
 	
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
-	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_commitkvstats2(vdram, psizes_kvs[{{i}}], globalparamsv, actvpstats_beginoffset + {{i}} * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
+	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_SPL_commitkvstats2(vdram, psizes_kvs[{{i}}], globalparamsv, actvpstats_beginoffset + {{i}} * globalparams.NUM_REDUCEPARTITIONS, globalparams.NUM_REDUCEPARTITIONS);
 	{%endif%}
 	{%endfor%}
 	
@@ -425,9 +424,9 @@ void {{context['classname__acts_merge_splitdstvxs']}}MERGE_SPLIT_exchangeVs(uint
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::EXCHANGE:: retrieving stats from vdramA, vdramB & vdramC. "<<endl; 
 	#endif 
-	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_retreievekvstats(vdramA, statssizes_kvs[0], globalparamsvA, actvpstats_beginoffset, _TOTALNUMREDUCEPARTITIONS_SLR2);
-	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_retreievekvstats(vdramB, statssizes_kvs[1], globalparamsvB, actvpstats_beginoffset, _TOTALNUMREDUCEPARTITIONS_SLR1);
-	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_retreievekvstats(vdramC, statssizes_kvs[2], globalparamsvC, actvpstats_beginoffset, _TOTALNUMREDUCEPARTITIONS_SLR0);
+	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_SPL_retreievekvstats(vdramA, statssizes_kvs[0], globalparamsvA, actvpstats_beginoffset, _TOTALNUMREDUCEPARTITIONS_SLR2);
+	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_SPL_retreievekvstats(vdramB, statssizes_kvs[1], globalparamsvB, actvpstats_beginoffset, _TOTALNUMREDUCEPARTITIONS_SLR1);
+	{%if(context['XWARE']=="SW")%}mem_accessobj->{%endif%}MEMACCESS_SPL_retreievekvstats(vdramC, statssizes_kvs[2], globalparamsvC, actvpstats_beginoffset, _TOTALNUMREDUCEPARTITIONS_SLR0);
 
 	// vertices
 	partitionoffseti = 0;

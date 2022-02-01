@@ -23,11 +23,9 @@
 #include "../../src/utility/utility.h"
 #include "../../acts/actsutility/actsutility.h"
 #endif
-#include "processedgesu.h"
 #include "processedges_splitdstvxs.h"
 #include "partitionupdates.h"
 #include "reduceupdates.h"
-#include "mem_access.h"
 #include "acts_util.h"
 #include "acts.h"
 #include "mydebug.h"
@@ -72,11 +70,9 @@ private:
 	#ifdef SW
 	actsutility * actsutilityobj;
 	acts_util * acts_utilobj;
-	processedgesu * processedgesobj;
 	processedges_splitdstvxs * processedges_splitdstvxsobj;
 	partitionupdates * partitionupdatesobj;
 	reduceupdates * reduceupdatesobj;
-	mem_access * mem_accessobj;
 	acts * actsobj;
 	mydebug * mydebugobj;
 	#endif

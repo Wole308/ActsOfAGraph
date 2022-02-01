@@ -14,10 +14,8 @@
 #include "../include/common.h"
 #include "../src/stats/stats.h"
 #include "../src/graphs/graph.h"
-#include "../acts/acts/actsproc.h"
 #include "../acts/acts/acts_merge.h"
 #include "../acts/acts/acts_merge_splitdstvxs.h"
-#include "../acts/acts/actssync.h"
 #include "../src/utility/utility.h"
 #include "../src/algorithm/algorithm.h"
 #include "../acts/acts/top_usrcv_udstv.h"
@@ -49,7 +47,6 @@ private:
 	graph * graphobj;
 	algorithm * algorithmobj;
 	
-	// actsproc * kernelobjs_process[NUMSUBCPUTHREADS];
 	acts_all * kernelobjs_process[NUMSUBCPUTHREADS];
 	// top_usrcv_udstv * kernelobjs_process[NUMSUBCPUTHREADS];
 	// top_nusrcv_nudstv * kernelobjs_process[NUMSUBCPUTHREADS]; // Recent.

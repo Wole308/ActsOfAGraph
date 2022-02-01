@@ -891,18 +891,36 @@ void loadedges_splitdstvxs::setrootvid(uint512_vec_dt * kvbuffer, vector<vertex_
 		for(unsigned int partition=0; partition<NUMREDUCEPARTITIONS; partition++){
 			for(unsigned int k=0; k<REDUCEPARTITIONSZ_KVS2; k++){
 				for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
-					// unsigned int lvid = (i * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2 * VDATA_PACKINGSIZE) + (partition * REDUCEPARTITIONSZ_KVS2 * VDATA_PACKINGSIZE) + (k * VDATA_PACKINGSIZE) + v;
 					unsigned int lvid = (partition * REDUCEPARTITIONSZ_KVS2 * VDATA_PACKINGSIZE) + (k * VDATA_PACKINGSIZE) + v;
 					unsigned int vid = utilityobj->UTIL_GETREALVID(lvid, i);
+					
+					vbuffer[v][k] = 0;
 					if(vid == 1){
 						#ifdef _DEBUGMODE_HOSTPRINTS
 						cout<<"loadedges_splitdstvxs::setrootvid::(1) vid == 1 seen. i: "<<i<<", partition: "<<partition<<", k: "<<k<<", v: "<<v<<", lvid: "<<lvid<<", vid: "<<vid<<endl;
 						#endif 
+						
+						#ifdef CONFIG_MERGEVMASKSWITHVBUFFERDATA
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], SIZEOF_VDATA0, SIZEOF_VMASK0, 1);//1);
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], 0, SIZEOF_VDATA0, 0);
+						#else 
 						vbuffer[v][k] = 0;
+						#endif 
 						vmask[v][k] = 1;
+						
+						// vbuffer[v][k] = 0;
+						// vmask[v][k] = 1;
 					} else {
+						#ifdef CONFIG_MERGEVMASKSWITHVBUFFERDATA
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], 0, SIZEOF_VDATA0, MAXVDATA); //algorithmobj->vertex_initdata()); //32767
+						#else 
 						vbuffer[v][k] = algorithmobj->vertex_initdata();
+						#endif 
 						vmask[v][k] = 0;
+						
+						// vbuffer[v][k] = algorithmobj->vertex_initdata();
+						// vmask[v][k] = 0;
 					}
 				}
 			}

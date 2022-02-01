@@ -12,8 +12,7 @@ using namespace std;
 #ifdef SW
 processedges_splitdstvxs::processedges_splitdstvxs(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(_mydebugobj); 
-	mem_accessobj = new mem_access(_mydebugobj);
+	acts_utilobj = new acts_util(_mydebugobj);
 	mydebugobj = _mydebugobj;
 }
 processedges_splitdstvxs::~processedges_splitdstvxs(){}
@@ -22,15 +21,15 @@ processedges_splitdstvxs::~processedges_splitdstvxs(){}
 //
 value_t acts_all::PROCESS_SPL_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
-	/* if(GraphAlgo == PAGERANK){
-		res = udata;
-	} else if(GraphAlgo == BFS){
-		res = NAp;
-	} else if(GraphAlgo == SSSP){
-		res = udata + edgew;
-	} else {
-		res = NAp;
-	} */
+	// if(GraphAlgo == PAGERANK){
+		// res = udata;
+	// } else if(GraphAlgo == BFS){
+		// res = NAp;
+	// } else if(GraphAlgo == SSSP){
+		// res = udata + edgew;
+	// } else {
+		// res = NAp;
+	// }
 	
 	res = udata + edgew;
 	return res;
@@ -50,7 +49,7 @@ parsededge_t acts_all::PARSE_EDGE(uint32_type data){
 
 void acts_all::PROCESS_SPL_debug(unsigned int debugid,
 	unsigned int i, value_t E[VECTOR2_SIZE], bool_type ens[VECTOR2_SIZE], unsigned int mask[VECTOR2_SIZE],
-		value_t udataset[MAX_NUM_UNIQ_EDGES_PER_VEC], value_t maskset[VECTOR2_SIZE], value_t Vset[2][VECTOR2_SIZE], unit1_type VMset[2][VECTOR2_SIZE], vertex_t lvids[VECTOR2_SIZE],
+		value_t udataset[MAX_NUM_UNIQ_EDGES_PER_VEC], value_t maskset[VECTOR2_SIZE], value_t Vset[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMset[MAX_NUM_UNIQ_EDGES_PER_VEC], vertex_t lvids[VECTOR2_SIZE],
 			unsigned int incr[VECTOR2_SIZE], unsigned int lsrcvids[VECTOR2_SIZE], unsigned int ldstvids[VECTOR2_SIZE], value_t res[VECTOR2_SIZE], keyvalue_t mykeyvalue[VECTOR2_SIZE], sweepparams_t sweepparams, globalparams_t globalparams,
 				unsigned int lvid_head, unsigned int srcvid_head, travstate_t travstate, unsigned int chunk_size, sliceinfos_t sliceinfos, unsigned int * activeloadcount, unsigned int * inactiveloadcount, unsigned int * debug_numinvalidheads
 				){
@@ -498,6 +497,7 @@ void acts_all::PROCESS_SPL_debug(unsigned int debugid,
 		if(ens[14] == ON && mask[14] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", udata: "<<udataset[incr[14]]<<"], [ens[14]: "<<ens[14]<<", mask[14]: "<<mask[14]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
 		if(ens[15] == ON && mask[15] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", udata: "<<udataset[incr[15]]<<"], [ens[15]: "<<ens[15]<<", mask[15]: "<<mask[15]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
 	
+		// for(unsigned int v=0; v<MAX_NUM_UNIQ_EDGES_PER_VEC; v++){ cout<<"readandprocess(15)::DEBUG CODE 5:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 		#endif
 	}
 	
@@ -561,225 +561,7 @@ void acts_all::PROCESS_SPL_debug(unsigned int debugid,
 	return;
 }
 
-void acts_all::PROCESS_SPL_getslice(sliceinfo_t slice, int id, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[VECTOR2_SIZE], unit1_type VMdatas[VECTOR2_SIZE], unsigned int depths[16], globalparams_t globalparams){
-	// if(slice.active == false){ return; }
-	int s_base_row = slice.s_base * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs);
-	
-	int s_0 = slice.s_base + 0;
-	bool en0=false; if(0>=slice.beginoffset && 0<slice.endoffset){ en0 = true; } else { en0 = false; }
-	int rowoffseti0 = 0; if(en0==true){ rowoffseti0 = s_base_row + depths[0]; } 
-	// int rowoffseti0 = s_base_row + depths[0];
-	unsigned int row0 = rowoffseti0 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en0==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row0", row0, DOUBLE_BLOCKRAM_SIZE, rowoffseti0, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_1 = slice.s_base + 1;
-	bool en1=false; if(1>=slice.beginoffset && 1<slice.endoffset){ en1 = true; } else { en1 = false; }
-	int rowoffseti1 = 0; if(en1==true){ rowoffseti1 = s_base_row + depths[1]; } 
-	// int rowoffseti1 = s_base_row + depths[1];
-	unsigned int row1 = rowoffseti1 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en1==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row1", row1, DOUBLE_BLOCKRAM_SIZE, rowoffseti1, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_2 = slice.s_base + 2;
-	bool en2=false; if(2>=slice.beginoffset && 2<slice.endoffset){ en2 = true; } else { en2 = false; }
-	int rowoffseti2 = 0; if(en2==true){ rowoffseti2 = s_base_row + depths[2]; } 
-	// int rowoffseti2 = s_base_row + depths[2];
-	unsigned int row2 = rowoffseti2 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en2==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row2", row2, DOUBLE_BLOCKRAM_SIZE, rowoffseti2, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_3 = slice.s_base + 3;
-	bool en3=false; if(3>=slice.beginoffset && 3<slice.endoffset){ en3 = true; } else { en3 = false; }
-	int rowoffseti3 = 0; if(en3==true){ rowoffseti3 = s_base_row + depths[3]; } 
-	// int rowoffseti3 = s_base_row + depths[3];
-	unsigned int row3 = rowoffseti3 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en3==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row3", row3, DOUBLE_BLOCKRAM_SIZE, rowoffseti3, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_4 = slice.s_base + 4;
-	bool en4=false; if(4>=slice.beginoffset && 4<slice.endoffset){ en4 = true; } else { en4 = false; }
-	int rowoffseti4 = 0; if(en4==true){ rowoffseti4 = s_base_row + depths[4]; } 
-	// int rowoffseti4 = s_base_row + depths[4];
-	unsigned int row4 = rowoffseti4 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en4==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row4", row4, DOUBLE_BLOCKRAM_SIZE, rowoffseti4, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_5 = slice.s_base + 5;
-	bool en5=false; if(5>=slice.beginoffset && 5<slice.endoffset){ en5 = true; } else { en5 = false; }
-	int rowoffseti5 = 0; if(en5==true){ rowoffseti5 = s_base_row + depths[5]; } 
-	// int rowoffseti5 = s_base_row + depths[5];
-	unsigned int row5 = rowoffseti5 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en5==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row5", row5, DOUBLE_BLOCKRAM_SIZE, rowoffseti5, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_6 = slice.s_base + 6;
-	bool en6=false; if(6>=slice.beginoffset && 6<slice.endoffset){ en6 = true; } else { en6 = false; }
-	int rowoffseti6 = 0; if(en6==true){ rowoffseti6 = s_base_row + depths[6]; } 
-	// int rowoffseti6 = s_base_row + depths[6];
-	unsigned int row6 = rowoffseti6 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en6==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row6", row6, DOUBLE_BLOCKRAM_SIZE, rowoffseti6, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_7 = slice.s_base + 7;
-	bool en7=false; if(7>=slice.beginoffset && 7<slice.endoffset){ en7 = true; } else { en7 = false; }
-	int rowoffseti7 = 0; if(en7==true){ rowoffseti7 = s_base_row + depths[7]; } 
-	// int rowoffseti7 = s_base_row + depths[7];
-	unsigned int row7 = rowoffseti7 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en7==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row7", row7, DOUBLE_BLOCKRAM_SIZE, rowoffseti7, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_8 = slice.s_base + 8;
-	bool en8=false; if(8>=slice.beginoffset && 8<slice.endoffset){ en8 = true; } else { en8 = false; }
-	int rowoffseti8 = 0; if(en8==true){ rowoffseti8 = s_base_row + depths[8]; } 
-	// int rowoffseti8 = s_base_row + depths[8];
-	unsigned int row8 = rowoffseti8 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en8==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row8", row8, DOUBLE_BLOCKRAM_SIZE, rowoffseti8, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_9 = slice.s_base + 9;
-	bool en9=false; if(9>=slice.beginoffset && 9<slice.endoffset){ en9 = true; } else { en9 = false; }
-	int rowoffseti9 = 0; if(en9==true){ rowoffseti9 = s_base_row + depths[9]; } 
-	// int rowoffseti9 = s_base_row + depths[9];
-	unsigned int row9 = rowoffseti9 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en9==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row9", row9, DOUBLE_BLOCKRAM_SIZE, rowoffseti9, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_10 = slice.s_base + 10;
-	bool en10=false; if(10>=slice.beginoffset && 10<slice.endoffset){ en10 = true; } else { en10 = false; }
-	int rowoffseti10 = 0; if(en10==true){ rowoffseti10 = s_base_row + depths[10]; } 
-	// int rowoffseti10 = s_base_row + depths[10];
-	unsigned int row10 = rowoffseti10 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en10==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row10", row10, DOUBLE_BLOCKRAM_SIZE, rowoffseti10, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_11 = slice.s_base + 11;
-	bool en11=false; if(11>=slice.beginoffset && 11<slice.endoffset){ en11 = true; } else { en11 = false; }
-	int rowoffseti11 = 0; if(en11==true){ rowoffseti11 = s_base_row + depths[11]; } 
-	// int rowoffseti11 = s_base_row + depths[11];
-	unsigned int row11 = rowoffseti11 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en11==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row11", row11, DOUBLE_BLOCKRAM_SIZE, rowoffseti11, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_12 = slice.s_base + 12;
-	bool en12=false; if(12>=slice.beginoffset && 12<slice.endoffset){ en12 = true; } else { en12 = false; }
-	int rowoffseti12 = 0; if(en12==true){ rowoffseti12 = s_base_row + depths[12]; } 
-	// int rowoffseti12 = s_base_row + depths[12];
-	unsigned int row12 = rowoffseti12 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en12==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row12", row12, DOUBLE_BLOCKRAM_SIZE, rowoffseti12, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_13 = slice.s_base + 13;
-	bool en13=false; if(13>=slice.beginoffset && 13<slice.endoffset){ en13 = true; } else { en13 = false; }
-	int rowoffseti13 = 0; if(en13==true){ rowoffseti13 = s_base_row + depths[13]; } 
-	// int rowoffseti13 = s_base_row + depths[13];
-	unsigned int row13 = rowoffseti13 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en13==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row13", row13, DOUBLE_BLOCKRAM_SIZE, rowoffseti13, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_14 = slice.s_base + 14;
-	bool en14=false; if(14>=slice.beginoffset && 14<slice.endoffset){ en14 = true; } else { en14 = false; }
-	int rowoffseti14 = 0; if(en14==true){ rowoffseti14 = s_base_row + depths[14]; } 
-	// int rowoffseti14 = s_base_row + depths[14];
-	unsigned int row14 = rowoffseti14 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en14==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row14", row14, DOUBLE_BLOCKRAM_SIZE, rowoffseti14, slice.local_rowoffset, NAp); }
-	#endif 
-	int s_15 = slice.s_base + 15;
-	bool en15=false; if(15>=slice.beginoffset && 15<slice.endoffset){ en15 = true; } else { en15 = false; }
-	int rowoffseti15 = 0; if(en15==true){ rowoffseti15 = s_base_row + depths[15]; } 
-	// int rowoffseti15 = s_base_row + depths[15];
-	unsigned int row15 = rowoffseti15 + slice.local_rowoffset;
-	#ifdef _DEBUGMODE_CHECKS2
-	if(en15==true){ actsutilityobj->checkoutofbounds("PROCESS_SPL_getslicee. row15", row15, DOUBLE_BLOCKRAM_SIZE, rowoffseti15, slice.local_rowoffset, NAp); }
-	#endif 
-	
-	VMdatas[0] = vmaskBITS[0][row0];	
-	keyvalue_t V0; if(en0==true){ V0 = UTIL_GETKV2(vbuffer[0][row0/2]); }
-	if(en0==true){ if(s_0%2==0){ Vdatas[0] = V0.key; } else { Vdatas[0] = V0.value; }}
-	VMdatas[1] = vmaskBITS[1][row1];	
-	keyvalue_t V1; if(en1==true){ V1 = UTIL_GETKV2(vbuffer[1][row1/2]); }
-	if(en1==true){ if(s_1%2==0){ Vdatas[1] = V1.key; } else { Vdatas[1] = V1.value; }}
-	VMdatas[2] = vmaskBITS[2][row2];	
-	keyvalue_t V2; if(en2==true){ V2 = UTIL_GETKV2(vbuffer[2][row2/2]); }
-	if(en2==true){ if(s_2%2==0){ Vdatas[2] = V2.key; } else { Vdatas[2] = V2.value; }}
-	VMdatas[3] = vmaskBITS[3][row3];	
-	keyvalue_t V3; if(en3==true){ V3 = UTIL_GETKV2(vbuffer[3][row3/2]); }
-	if(en3==true){ if(s_3%2==0){ Vdatas[3] = V3.key; } else { Vdatas[3] = V3.value; }}
-	VMdatas[4] = vmaskBITS[4][row4];	
-	keyvalue_t V4; if(en4==true){ V4 = UTIL_GETKV2(vbuffer[4][row4/2]); }
-	if(en4==true){ if(s_4%2==0){ Vdatas[4] = V4.key; } else { Vdatas[4] = V4.value; }}
-	VMdatas[5] = vmaskBITS[5][row5];	
-	keyvalue_t V5; if(en5==true){ V5 = UTIL_GETKV2(vbuffer[5][row5/2]); }
-	if(en5==true){ if(s_5%2==0){ Vdatas[5] = V5.key; } else { Vdatas[5] = V5.value; }}
-	VMdatas[6] = vmaskBITS[6][row6];	
-	keyvalue_t V6; if(en6==true){ V6 = UTIL_GETKV2(vbuffer[6][row6/2]); }
-	if(en6==true){ if(s_6%2==0){ Vdatas[6] = V6.key; } else { Vdatas[6] = V6.value; }}
-	VMdatas[7] = vmaskBITS[7][row7];	
-	keyvalue_t V7; if(en7==true){ V7 = UTIL_GETKV2(vbuffer[7][row7/2]); }
-	if(en7==true){ if(s_7%2==0){ Vdatas[7] = V7.key; } else { Vdatas[7] = V7.value; }}
-	VMdatas[8] = vmaskBITS[8][row8];	
-	keyvalue_t V8; if(en8==true){ V8 = UTIL_GETKV2(vbuffer[8][row8/2]); }
-	if(en8==true){ if(s_8%2==0){ Vdatas[8] = V8.key; } else { Vdatas[8] = V8.value; }}
-	VMdatas[9] = vmaskBITS[9][row9];	
-	keyvalue_t V9; if(en9==true){ V9 = UTIL_GETKV2(vbuffer[9][row9/2]); }
-	if(en9==true){ if(s_9%2==0){ Vdatas[9] = V9.key; } else { Vdatas[9] = V9.value; }}
-	VMdatas[10] = vmaskBITS[10][row10];	
-	keyvalue_t V10; if(en10==true){ V10 = UTIL_GETKV2(vbuffer[10][row10/2]); }
-	if(en10==true){ if(s_10%2==0){ Vdatas[10] = V10.key; } else { Vdatas[10] = V10.value; }}
-	VMdatas[11] = vmaskBITS[11][row11];	
-	keyvalue_t V11; if(en11==true){ V11 = UTIL_GETKV2(vbuffer[11][row11/2]); }
-	if(en11==true){ if(s_11%2==0){ Vdatas[11] = V11.key; } else { Vdatas[11] = V11.value; }}
-	VMdatas[12] = vmaskBITS[12][row12];	
-	keyvalue_t V12; if(en12==true){ V12 = UTIL_GETKV2(vbuffer[12][row12/2]); }
-	if(en12==true){ if(s_12%2==0){ Vdatas[12] = V12.key; } else { Vdatas[12] = V12.value; }}
-	VMdatas[13] = vmaskBITS[13][row13];	
-	keyvalue_t V13; if(en13==true){ V13 = UTIL_GETKV2(vbuffer[13][row13/2]); }
-	if(en13==true){ if(s_13%2==0){ Vdatas[13] = V13.key; } else { Vdatas[13] = V13.value; }}
-	VMdatas[14] = vmaskBITS[14][row14];	
-	keyvalue_t V14; if(en14==true){ V14 = UTIL_GETKV2(vbuffer[14][row14/2]); }
-	if(en14==true){ if(s_14%2==0){ Vdatas[14] = V14.key; } else { Vdatas[14] = V14.value; }}
-	VMdatas[15] = vmaskBITS[15][row15];	
-	keyvalue_t V15; if(en15==true){ V15 = UTIL_GETKV2(vbuffer[15][row15/2]); }
-	if(en15==true){ if(s_15%2==0){ Vdatas[15] = V15.key; } else { Vdatas[15] = V15.value; }}
-	return;
-}
-
 //
-value_t acts_all::PROCESS_SPL_GETVTXDATA(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<">>> PROCESS_SPL_GETVTXDATA: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
-		#endif 
-		loc = 0; }
-	
-	unsigned int instid = loc % NUM_PEs;
-	unsigned int lloc = UTIL_GETLOCALVID(loc, instid);
-	unsigned int rowoffset = instid * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
-	
-	unsigned int col = lloc % 16;
-	unsigned int row = lloc / 16;
-	unsigned int realcol = col;
-	unsigned int realrow = (rowoffset + row) / 2;
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<">>> PROCESS_SPL_GETVTXDATA: loc: "<<loc<<", instid: "<<instid<<", lloc: "<<lloc<<", col: "<<col<<", row: "<<row<<", realrow: "<<realrow<<", rowoffset: "<<rowoffset<<", (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs): "<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs<<endl;
-	#endif 
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA.lloc", lloc, (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs) * VECTOR2_SIZE, loc, rowoffset, NAp); 
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA.rowoffset", rowoffset, REDUCEPARTITIONSZ_KVS2, loc, rowoffset, NAp); 
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA.realcol", realcol, VDATA_PACKINGSIZE, loc, rowoffset, NAp);
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA.realrow", realrow, BLOCKRAM_SIZE, loc, rowoffset, NAp);
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA.row", rowoffset + row, REDUCEPARTITIONSZ_KVS2, loc, rowoffset, NAp);
-	#endif 
-	
-	value_t data = 0;
-	if(row % 2 == 0){ data = UTIL_GETKV2(vbuffer[realcol][realrow]).key; } 
-	else { data = UTIL_GETKV2(vbuffer[realcol][realrow]).value; }
-	return data;
-}
-
 value_t acts_all::PROCESS_SPL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
@@ -807,42 +589,6 @@ value_t acts_all::PROCESS_SPL_GETVTXMASK(unit1_type vmaskBITS[VMASK_PACKINGSIZE]
 	#endif 
 	
 	value_t data = vmaskBITS[realcol][realrow];
-	return data;
-}
-
-value_t acts_all::PROCESS_SPL_GETVTXDATA_SLIDED(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<">>> PROCESS_SPL_GETVTXDATA_SLIDED: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
-		#endif 
-		loc = 0; }
-	
-	unsigned int s = loc % NUM_PEs;
-	unsigned int lloc = UTIL_GETLOCALVID(loc, s);
-	unsigned int rowoffset = s * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs); // TOO EXPENSIVE.
-	
-	unsigned int col = lloc % 16;
-	unsigned int row = lloc / 16;
-	unsigned int realcol = col;
-	unsigned int rrealcol = (s + realcol) % 16;
-	unsigned int realrow = (rowoffset + row) / 2;
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<">>> PROCESS_SPL_GETVTXDATA_SLIDED: loc: "<<loc<<", instid: "<<s<<", lloc: "<<lloc<<", col: "<<col<<", row: "<<row<<", realrow: "<<realrow<<", rowoffset: "<<rowoffset<<", (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs): "<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs<<endl;
-	#endif 
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA_SLIDED.lloc", lloc, (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs) * VECTOR2_SIZE, loc, rowoffset, NAp); 
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA_SLIDED.rowoffset", rowoffset, REDUCEPARTITIONSZ_KVS2, loc, rowoffset, NAp); 
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA_SLIDED.realcol", realcol, VDATA_PACKINGSIZE, loc, rowoffset, NAp);
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA_SLIDED.rrealcol", rrealcol, VDATA_PACKINGSIZE, loc, rowoffset, NAp);
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA_SLIDED.realrow", realrow, BLOCKRAM_SIZE, loc, rowoffset, NAp);
-	actsutilityobj->checkoutofbounds("PROCESS_SPL_GETVTXDATA_SLIDED.row", rowoffset + row, REDUCEPARTITIONSZ_KVS2, loc, rowoffset, NAp);
-	#endif 
-	
-	value_t data = 0;
-	if(row % 2 == 0){ data = UTIL_GETKV2(vbuffer[rrealcol][realrow]).key; } 
-	else { data = UTIL_GETKV2(vbuffer[rrealcol][realrow]).value; }
 	return data;
 }
 
@@ -1005,22 +751,11 @@ sliceinfo_t acts_all::PROCESS_SPL_GETVTXSLICE(unsigned int id, unsigned int loc,
 	return sliceinfo;
 }
 
-void acts_all::PROCESS_SPL_GETVTXDATASET(sliceinfo_t slice, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[VECTOR2_SIZE], unit1_type VMdatas[VECTOR2_SIZE], unsigned int depths[16], globalparams_t globalparams){					
-	#pragma HLS INLINE
-	PROCESS_SPL_getslice(slice, 0, vbuffer, vmaskBITS, Vdatas, VMdatas, depths, globalparams);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	for(unsigned int t=0; t<VECTOR2_SIZE; t++){ cout<<"PROCESS_SPL_GETVTXDATASET:: VMdatas["<<t<<"]: "<<VMdatas[t]<<endl; }
-	for(unsigned int t=0; t<VECTOR2_SIZE; t++){ cout<<"PROCESS_SPL_GETVTXDATASET:: VMdatas["<<t<<"]: "<<VMdatas[t]<<endl; }
-	#endif
-	return;
-}
-
 void acts_all::PROCESS_SPL1_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], globalparams_t globalparams){
 	#pragma HLS INLINE
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<">>> PROCESS_SPL_GETVTXDATA: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
+		cout<<">>> PROCESS_SPL1_GETVTXDATASET: ERROR DETECTED (23). loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE("<<globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE<<"). loc: "<<loc<<endl;
 		#endif 
 		loc = 0; }
 
@@ -1038,13 +773,16 @@ void acts_all::PROCESS_SPL1_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t v
 		actsutilityobj->checkoutofbounds("PROCESS_SPL3_GETVTXDATASET.realcol", realcol, VECTOR2_SIZE, realcol, loc, v);
 		actsutilityobj->checkoutofbounds("PROCESS_SPL3_GETVTXDATASET.realrow", realrow, DOUBLE_BLOCKRAM_SIZE, realrow, loc, v);
 		#endif
-		if(row % 2 == 0){ Vdatas[v] = UTIL_GETKV2(vbuffer[realcol][realrow]).key; } 
-		else { Vdatas[v] = UTIL_GETKV2(vbuffer[realcol][realrow]).value; }
-		VMdatas[v] = vmaskBITS[realcol][realrow];
+		// if(row % 2 == 0){ Vdatas[v] = UTIL_GETKV2(vbuffer[realcol][realrow]).key; } 
+		// else { Vdatas[v] = UTIL_GETKV2(vbuffer[realcol][realrow]).value; }
+		// VMdatas[v] = vmaskBITS[realcol][realrow];
 		
-		VMdatas[v] = vmaskBITS[realcol][realrow];
-		keyvalue_t KV = UTIL_GETKV2(vbuffer[realcol][realrow/2]);
-		if(realrow%2==0){ Vdatas[v] = KV.key; } else { Vdatas[v] = KV.value; }
+		// VMdatas[v] = vmaskBITS[realcol][realrow];
+		// keyvalue_t KV = UTIL_GETKV2(vbuffer[realcol][realrow/2]);
+		// if(realrow%2==0){ Vdatas[v] = KV.key; } else { Vdatas[v] = KV.value; }
+
+		VMdatas[v] = MEMCA_READFROMBUFFER_VMASK(realrow, vmaskBITS[realcol], 0);
+		Vdatas[v] = MEMCA_READFROMBUFFER_VDATA(realrow, vbuffer[realcol], 0);
 	}
 	return;
 }
@@ -1091,9 +829,11 @@ void acts_all::PROCESS_SPL2_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t v
 		actsutilityobj->checkoutofbounds("PROCESS_SPL2_GETVTXDATASET.col_dim16", col_dim16, VECTOR2_SIZE, col_dim16, index, loc);
 		actsutilityobj->checkoutofbounds("PROCESS_SPL2_GETVTXDATASET.truerow_dim16", truerow_dim16, DOUBLE_BLOCKRAM_SIZE, truerow_dim16, index, loc);
 		#endif 
-		VMdatas[v] = vmaskBITS[col_dim16][truerow_dim16];
-		keyvalue_t KV = UTIL_GETKV2(vbuffer[col_dim16][truerow_dim16/2]);
-		if(truerow_dim16%2==0){ Vdatas[v] = KV.key; } else { Vdatas[v] = KV.value; }
+		// VMdatas[v] = vmaskBITS[col_dim16][truerow_dim16];
+		// keyvalue_t KV = UTIL_GETKV2(vbuffer[col_dim16][truerow_dim16/2]);
+		// if(truerow_dim16%2==0){ Vdatas[v] = KV.key; } else { Vdatas[v] = KV.value; }
+		VMdatas[v] = MEMCA_READFROMBUFFER_VMASK(truerow_dim16, vmaskBITS[col_dim16], 0);
+		Vdatas[v] = MEMCA_READFROMBUFFER_VDATA(truerow_dim16, vbuffer[col_dim16], 0);
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		if(VMdatas[v] == 1){ cout<<"PROCESS_SPL2_GETVTXDATASET: MASK=1 FOUND: VMdatas["<<v<<"]: "<<VMdatas[v]<<", vmaskBITS["<<col_dim16<<"]["<<truerow_dim16<<"]: "<<vmaskBITS[col_dim16][truerow_dim16]<<", (loc + v): "<<loc + v<<", loc: "<<loc<<", v: "<<v<<endl; }
@@ -1102,77 +842,6 @@ void acts_all::PROCESS_SPL2_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t v
 	return;
 }
 
-/** void acts_all::PROCESS_SPL2_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], globalparams_t globalparams){					
-	// if(index >= globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE){ index = 0; }
-	
-	//
-	int index = 0;
-	
-	//
-	unsigned int col_dim32 = loc % NUM_PEs;
-	unsigned int row_dim32 = loc / NUM_PEs; // OPTIMIZE: follow with processedges_splitdstvxs
-	unsigned int basecol_dim16 = 0;
-	unsigned int col_dim16 = loc % VECTOR2_SIZE;
-	unsigned int row_dim16 = loc / VECTOR2_SIZE;
-	
-	unsigned int block = loc / 512;
-	unsigned int baserow_dim16 = ((loc / 512) * 512) / VECTOR2_SIZE;
-	unsigned int localrow_16 = row_dim16 - baserow_dim16;
-	localrow_16 = localrow_16 / 2; if(col_dim32 < 16){ localrow_16 = localrow_16; } else{ localrow_16 = localrow_16 + 16; }
-	unsigned int truerow_dim16 = baserow_dim16 + localrow_16;
-			
-	for(unsigned int v=col_dim16; v<VECTOR2_SIZE; v++){
-		if(index < MAX_NUM_UNIQ_EDGES_PER_VEC && loc+v-col_dim16 < (globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE)){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("PROCESS_SPL2_GETVTXDATASET(A).col_dim16", col_dim16, VECTOR2_SIZE, col_dim16, v, loc);
-			actsutilityobj->checkoutofbounds("PROCESS_SPL2_GETVTXDATASET(A).truerow_dim16", truerow_dim16, DOUBLE_BLOCKRAM_SIZE, truerow_dim16, v, loc);
-			#endif
-			VMdatas[index] = vmaskBITS[v][truerow_dim16];
-			keyvalue_t KV = UTIL_GETKV2(vbuffer[v][truerow_dim16/2]);
-			if(truerow_dim16%2==0){ Vdatas[index] = KV.key; } else { Vdatas[index] = KV.value; }
-		}
-		index += 1;
-	}
-	
-	//
-	loc = loc + (VECTOR2_SIZE - col_dim16);
-	#ifdef _DEBUGMODE_CHECKS2
-	if(loc % VECTOR2_SIZE != 0){ cout<<"PROCESS_SPL2_GETVTXDATASET:: loc("<<loc<<") % VECTOR2_SIZE != 0"<<endl; exit(EXIT_FAILURE); }
-	#endif 
-	
-	//
-	col_dim32 = loc % NUM_PEs;
-	row_dim32 = loc / NUM_PEs; // OPTIMIZE: follow with processedges_splitdstvxs
-	basecol_dim16 = 0;
-	col_dim16 = loc % VECTOR2_SIZE;
-	row_dim16 = loc / VECTOR2_SIZE;
-	
-	block = loc / 512;
-	baserow_dim16 = ((loc / 512) * 512) / VECTOR2_SIZE;
-	localrow_16 = row_dim16 - baserow_dim16;
-	localrow_16 = localrow_16 / 2; if(col_dim32 < 16){ localrow_16 = localrow_16; } else{ localrow_16 = localrow_16 + 16; }
-	truerow_dim16 = baserow_dim16 + localrow_16;
-	
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-		if(index < MAX_NUM_UNIQ_EDGES_PER_VEC && loc+v < (globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE)){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("PROCESS_SPL2_GETVTXDATASET(B).col_dim16", col_dim16, VECTOR2_SIZE, col_dim16, v, loc+v);
-			actsutilityobj->checkoutofbounds("PROCESS_SPL2_GETVTXDATASET(B).truerow_dim16", truerow_dim16, DOUBLE_BLOCKRAM_SIZE, truerow_dim16, v, loc+v);
-			#endif
-			VMdatas[index] = vmaskBITS[v][truerow_dim16];
-			keyvalue_t KV = UTIL_GETKV2(vbuffer[v][truerow_dim16/2]);
-			if(truerow_dim16%2==0){ Vdatas[index] = KV.key; } else { Vdatas[index] = KV.value; }
-		}
-		index += 1;
-	}
-	
-	// for(unsigned int v=0; v<MAX_NUM_UNIQ_EDGES_PER_VEC; v++){
-		// VMdatas[v] = vmaskBITS[col_dim16][truerow_dim16];
-		// keyvalue_t KV = UTIL_GETKV2(vbuffer[col_dim16][truerow_dim16/2]);
-		// if(truerow_dim16%2==0){ Vdatas[v] = KV.key; } else { Vdatas[v] = KV.value; }
-	// }
-	return;
-} */
 unsigned int acts_all::PROCESS_SPL3_GETROW(unsigned int loc){					
 	unsigned int col_dim32 = loc % NUM_PEs;
 	unsigned int row_dim32 = loc / NUM_PEs; // OPTIMIZE: follow with processedges_splitdstvxs
@@ -1188,37 +857,44 @@ unsigned int acts_all::PROCESS_SPL3_GETROW(unsigned int loc){
 	
 	return truerow_dim16;
 }
-void acts_all::PROCESS_SPL3_GETSET(keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type VMdatas_tmp[32], value_t Vdatas_tmp[32], unsigned int row, unsigned int offset, globalparams_t globalparams){					
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-		if(row < globalparams.SIZEKVS2_REDUCEPARTITION){
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("PROCESS_SPL2_GETVTXDATASET(A).row", row, DOUBLE_BLOCKRAM_SIZE, row, v, NAp);
-			#endif
-			VMdatas_tmp[offset + v] = vmaskBITS[v][row];
-			keyvalue_t KV = UTIL_GETKV2(vbuffer[v][row/2]);
-			if(row%2==0){ Vdatas_tmp[offset + v] = KV.key; } else { Vdatas_tmp[offset + v] = KV.value; }
-		}
-	}
-	return;
-}
 void acts_all::PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], globalparams_t globalparams){					
 	unit1_type VMdatas_tmp[32];
+	unit1_type VMdatas_tmpA[VECTOR2_SIZE];
+	unit1_type VMdatas_tmpB[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=VMdatas_tmp complete
+	#pragma HLS ARRAY_PARTITION variable=VMdatas_tmpA complete
+	#pragma HLS ARRAY_PARTITION variable=VMdatas_tmpB complete
 	value_t Vdatas_tmp[32];
+	value_t Vdatas_tmpA[VECTOR2_SIZE];
+	value_t Vdatas_tmpB[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=Vdatas_tmp complete
+	#pragma HLS ARRAY_PARTITION variable=Vdatas_tmpA complete
+	#pragma HLS ARRAY_PARTITION variable=Vdatas_tmpB complete
 	
 	unsigned int fcol_dim16 = loc % VECTOR2_SIZE;
 	unsigned int col_dim16 = loc % VECTOR2_SIZE;
 	
 	unsigned int truerow1_dim16 = PROCESS_SPL3_GETROW(loc);
 	unsigned int truerow2_dim16 = PROCESS_SPL3_GETROW((loc + (VECTOR2_SIZE - col_dim16)));
-	PROCESS_SPL3_GETSET(vbuffer, vmaskBITS, VMdatas_tmp, Vdatas_tmp, truerow1_dim16, 0, globalparams);
-	PROCESS_SPL3_GETSET(vbuffer, vmaskBITS, VMdatas_tmp, Vdatas_tmp, truerow2_dim16, VECTOR2_SIZE, globalparams);
+
+	#ifdef CONFIG_MERGEVMASKSWITHVBUFFERDATA
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
+	#else 
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATAS(truerow1_dim16, vbuffer, Vdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATAS(truerow2_dim16, vbuffer, Vdatas_tmpB, 0); }
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VMASKS(truerow1_dim16, vmaskBITS, VMdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VMASKS(truerow2_dim16, vmaskBITS, VMdatas_tmpB, 0); }
+	#endif 
+	
+	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ VMdatas_tmp[v] = VMdatas_tmpA[v]; Vdatas_tmp[v] = Vdatas_tmpA[v]; }
+	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ VMdatas_tmp[VECTOR2_SIZE + v] = VMdatas_tmpB[v]; Vdatas_tmp[VECTOR2_SIZE + v] = Vdatas_tmpB[v]; }
 	
 	unsigned int index = 0;
 	for(unsigned int v=fcol_dim16; v<fcol_dim16 + MAX_NUM_UNIQ_EDGES_PER_VEC; v++){
 		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("PROCESS_SPL2_GETVTXDATASET(C).fcol_dim16", index, 32, v, NAp, NAp);
+		actsutilityobj->checkoutofbounds("PROCESS_SPL3_GETVTXDATASET(C).fcol_dim16", index, 32, v, NAp, NAp);
+		actsutilityobj->checkoutofbounds("PROCESS_SPL3_GETVTXDATASET(C).v", v, 32, v, NAp, NAp);
 		#endif
 		VMdatas[index] = VMdatas_tmp[v];
 		Vdatas[index] = Vdatas_tmp[v];
@@ -1302,6 +978,7 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 	
 	unsigned int debug_numinvalidheads = 0;
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
+	for(unsigned int v=0; v<MAX_NUM_UNIQ_EDGES_PER_VEC; v++){ udataset[v] = 0; }
 
 	unsigned int num_passes = 1;
 	buffer_type chunk_size = UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
@@ -1352,7 +1029,7 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 				E[15] = edges[offset_kvs + i].data[7].value;
 				#endif
 				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vsets, VMsets, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+				PROCESS_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 				#endif 
 					
 				srcvid_head = E[0];
@@ -1424,21 +1101,18 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 				
 				bool_type en = ON;
 				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vsets, VMsets, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+				PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 				#endif
 				
-				#ifdef CONFIG_READVDATA_SLIDE
-					#ifdef CONFIG_READVDATA_SLIDEANDREARRANGE
-					// PROCESS_SPL2_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
-					PROCESS_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
-					#else 
-					NOT IMPLEMENTED.
-					#endif 
-				#else 
-					PROCESS_SPL1_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
-				#endif 
+				#if defined(CONFIG_READVDATA_SLIDE)
+				NOT IMPLEMENTED.
+				#elif defined(CONFIG_READVDATA_SLIDEANDREARRANGE)
+				PROCESS_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
+				#else
+				PROCESS_SPL1_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
+				#endif
 				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vsets, VMsets, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+				PROCESS_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 				#endif 
 				
 				ens[0] = ON; if(E[0] == INVALIDDATA || lsrcvids[0] >= validbound){ ens[0] = OFF; }
@@ -1458,7 +1132,7 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 				ens[14] = ON; if(E[14] == INVALIDDATA || lsrcvids[14] >= validbound){ ens[14] = OFF; }
 				ens[15] = ON; if(E[15] == INVALIDDATA || lsrcvids[15] >= validbound){ ens[15] = OFF; }
 				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vsets, VMsets, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+				PROCESS_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 				#endif 
 				
  mask[0] = 0;  mask[1] = 0;  mask[2] = 0;  mask[3] = 0;  mask[4] = 0;  mask[5] = 0;  mask[6] = 0;  mask[7] = 0;  mask[8] = 0;  mask[9] = 0;  mask[10] = 0;  mask[11] = 0;  mask[12] = 0;  mask[13] = 0;  mask[14] = 0;  mask[15] = 0; 				if(GraphAlgo == PAGERANK){  mask[0] = 1;  mask[1] = 1;  mask[2] = 1;  mask[3] = 1;  mask[4] = 1;  mask[5] = 1;  mask[6] = 1;  mask[7] = 1;  mask[8] = 1;  mask[9] = 1;  mask[10] = 1;  mask[11] = 1;  mask[12] = 1;  mask[13] = 1;  mask[14] = 1;  mask[15] = 1;  } 
@@ -1499,7 +1173,7 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 				mask[0] = 0; 
 				ens[0] = OFF;
 				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vsets, VMsets, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+				PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 				#endif
 				
 				res[0] = PROCESS_SPL_processfunc(udata[0], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
@@ -1537,7 +1211,7 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 				mykeyvalue[0].key = INVALIDDATA;
 				mykeyvalue[0].value = INVALIDDATA;
 				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vsets, VMsets, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+				PROCESS_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 				#endif 
 		
 				buffer[0][loadcount] = UTIL_GETKV(mykeyvalue[0]);
@@ -1560,8 +1234,10 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 	
 				if(ens[1] == ON && mask[1] == 1){ loadcount += 2; }
 				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vsets, VMsets, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+				PROCESS_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 				#endif 
+				
+				// exit(EXIT_SUCCESS); ///
 			}
 		}
 	}

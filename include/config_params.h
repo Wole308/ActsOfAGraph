@@ -40,8 +40,10 @@
 // #define CONFIG_UNIFIED_DESTVDRAM
 #define CONFIG_SPLIT_DESTVTXS // {reduceupdates.cpp, acts_util.cpp, app.cpp, loadgraph.cpp, top_nusrcv_nudstv.cpp, reduceupdates.h, actscommon.h}
 
-#define CONFIG_READVDATA_SLIDE
+// #define CONFIG_READVDATA_SLIDE // access format for source vertices 
 #define CONFIG_READVDATA_SLIDEANDREARRANGE
+
+#define CONFIG_MERGEVMASKSWITHVBUFFERDATA // merging vmask and vbuffer datas {loadedges_splitdstvxs.cpp}
 
 #define CONFIG_ENABLEPROCESSMODULE
 #define CONFIG_ENABLEPARTITIONMODULE
@@ -118,8 +120,10 @@ void acts_all::MEMACCESS_SPL_readvdatachunks(bool_type enable, uint512_dt * kvdr
 		
 void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvdata_slide
 void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvdatachunks(
-void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVDATASTOBUFFER_WITHDEPTHS(
+void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS(
 READANDPROCESS_SPL_LOOP3C: for (buffer_type i=0; i<5; i++){ // CRITICAL REMOVEME.
+
+******** void {{context['classname__top_nusrcv_nudstv']}}dispatch_reduce({ ...  if(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID==0){
 
 */
 

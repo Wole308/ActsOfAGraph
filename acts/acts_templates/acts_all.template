@@ -15,15 +15,9 @@ acts_all::~acts_all(){}
 #ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 {% include 'mem_convert_and_access.template' %}	
 #endif 
-#ifdef CONFIG_ENABLECLASS_MEM_ACCESS
-{% include 'mem_access.template' %}	
-#endif 
 #ifdef CONFIG_ENABLECLASS_MEM_ACCESS_SPLITDSTVXS
 {% include 'mem_access_splitdstvxs.template' %}	
-#endif 	
-#ifdef CONFIG_ENABLECLASS_PROCESSEDGESU
-{% include 'processedgesu.template' %}	
-#endif 
+#endif
 #ifdef CONFIG_ENABLECLASS_PROCESSEDGES_SPLITDSTVXS
 {% include 'processedges_splitdstvxs.template' %}	
 #endif 
@@ -32,9 +26,6 @@ acts_all::~acts_all(){}
 #endif 
 #ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
 {% include 'reduceupdates.template' %}	
-#endif 
-#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
-{% include 'acts_merge.template' %}	
 #endif 
 #ifdef CONFIG_ENABLECLASS_ACTS_MERGE_SPLITDSTVXS
 {% include 'acts_merge_splitdstvxs.template' %}	

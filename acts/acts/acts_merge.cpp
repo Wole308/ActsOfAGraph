@@ -4,12 +4,10 @@ using namespace std;
 #ifdef SW
 acts_merge::acts_merge(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(_mydebugobj); 
-	processedgesobj = new processedgesu(_mydebugobj);
+	acts_utilobj = new acts_util(_mydebugobj);
 	processedges_splitdstvxsobj = new processedges_splitdstvxs(_mydebugobj);
 	partitionupdatesobj = new partitionupdates(_mydebugobj);
 	reduceupdatesobj = new reduceupdates(_mydebugobj);
-	mem_accessobj = new mem_access(_mydebugobj);
 	actsobj = new acts(_mydebugobj);
 	mydebugobj = _mydebugobj;
 }

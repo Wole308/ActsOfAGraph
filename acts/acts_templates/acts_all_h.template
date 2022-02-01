@@ -36,16 +36,10 @@ public:
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 	{% include 'mem_convert_and_access_mf.template' %}	
-	#endif 
-	#ifdef CONFIG_ENABLECLASS_MEM_ACCESS
-	{% include 'mem_access_mf.template' %}	
-	#endif 
+	#endif
 	#ifdef CONFIG_ENABLECLASS_MEM_ACCESS_SPLITDSTVXS
 	{% include 'mem_access_splitdstvxs_mf.template' %}	
-	#endif 
-	#ifdef CONFIG_ENABLECLASS_PROCESSEDGESU
-	{% include 'processedgesu_mf.template' %}	
-	#endif 
+	#endif
 	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES_SPLITDSTVXS
 	{% include 'processedges_splitdstvxs_mf.template' %}	
 	#endif 
@@ -54,10 +48,7 @@ public:
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
 	{% include 'reduceupdates_mf.template' %}	
-	#endif 
-	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
-	{% include 'acts_merge_mf.template' %}	
-	#endif 
+	#endif
 	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE_SPLITDSTVXS
 	{% include 'acts_merge_splitdstvxs_mf.template' %}	
 	#endif 

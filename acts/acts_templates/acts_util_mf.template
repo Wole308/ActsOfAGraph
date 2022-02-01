@@ -12,16 +12,16 @@ batch_type UTIL_allignhigher_KV2(batch_type val);
 unsigned int UTIL_GETMASK_UINT(unsigned int index, unsigned int size);
 unsigned int UTIL_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
 void UTIL_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
+unsigned int UTIL_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
+unsigned int UTIL_READBITSFROM_UINT32(uint32_type data, unsigned int index, unsigned int size);
+void UTIL_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
+void UTIL_WRITEBITSTO_UINT32(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 
 // functions (converters)
 keyvalue_t UTIL_GETKV(keyvalue_buffer_t data);
 keyvalue_buffer_t UTIL_GETKV(keyvalue_t data);
 keyy_t UTIL_GETK(uint32_type data);
 value_t UTIL_GETV(uint32_type data);
-keyvalue_t UTIL_GETKV2(keyvalue_vbuffer_t data);
-keyvalue_vbuffer_t UTIL_GETKV2(keyvalue_t data);
-keyy_t UTIL_GETK2(uint32_type data);
-value_t UTIL_GETV2(uint32_type data);
 keyy_t UTIL_GETKEYENTRY(uint512_dt data, unsigned int v);
 value_t UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);	
 uint32_type UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int index);	

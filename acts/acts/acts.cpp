@@ -5,14 +5,11 @@ using namespace std;
 acts::acts(mydebug * _mydebugobj){
 	actsutilityobj = new actsutility(); 
 	acts_utilobj = new acts_util(_mydebugobj);
-	#ifdef CONFIG_SPLIT_DESTVTXS
-		processedgesobj = new processedges_splitdstvxs(_mydebugobj);
-		#else 
-		processedgesobj = new processedgesu(_mydebugobj);
-		#endif 
+	processedgesobj = new processedges_splitdstvxs(_mydebugobj);
 	partitionupdatesobj = new partitionupdates(_mydebugobj);
 	reduceupdatesobj = new reduceupdates(_mydebugobj);
 	mem_accessobj = new mem_access(_mydebugobj);
+	mem_access_splitdstvxsobj = new mem_access_splitdstvxs(_mydebugobj);
 	mydebugobj = _mydebugobj;
 }
 acts::~acts(){}
@@ -67,12 +64,10 @@ fetchmessage_t acts_all::ACTS_fetchkeyvalues(bool_type enable, unsigned int mode
 				fetchmessage = PROCESS_SPL_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 			}
 		#else 
-		// fetchmessage = PROCESS_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams); // CRITICAL REMOVEME.
 		fetchmessage = PROCESS_SPL_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
-		// fetchmessage = PROCESS_SPL2_readandprocess(enable, kvdram, kvdram, vbuffer, vmaskBITS, vmask_subp, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 		#endif
 	} else {
-		fetchmessage = MEMACCESS_readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
+		fetchmessage = MEMACCESS_SPL_readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
 	}
 	return fetchmessage; 
 }
@@ -83,7 +78,7 @@ void acts_all::ACTS_commitkeyvalues(bool_type enable1, bool_type enable2, unsign
 	if(mode == REDUCEMODE){
 REDUCE_reduceandbuffer(enable1, destbuffer, localcapsule, vbuffer, vmaskBITS, sweepparams, globalparams);
 	} else {
-MEMACCESS_savekeyvalues(enable1, kvdram, destbuffer, globalcapsule, localcapsule, destbaseaddr_kvs, globalparams); 
+MEMACCESS_SPL_savekeyvalues(enable1, kvdram, destbuffer, globalcapsule, localcapsule, destbaseaddr_kvs, globalparams); 
 	}
 	return;
 }
@@ -94,7 +89,7 @@ void acts_all::ACTSprior_commitkeyvalues(bool_type enable1, bool_type enable2, u
 	if(mode == REDUCEMODE){
 REDUCE_priorreduceandbuffer(enable1, sourcebuffer, localcapsule, vbuffer, vmaskBITS, chunk_size, sweepparams, globalparams); // REMOVEME.
 	} else {
-MEMACCESS_savekeyvalues(enable1, kvdram, destbuffer, globalcapsule, localcapsule, destbaseaddr_kvs, globalparams); 
+MEMACCESS_SPL_savekeyvalues(enable1, kvdram, destbuffer, globalcapsule, localcapsule, destbaseaddr_kvs, globalparams); 
 	}
 	return;
 }
