@@ -1,6 +1,7 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 #include "../../include/common.h"
+#include "../../acts/include/actscommon.h"
 
 class algorithm {
 public:

@@ -116,7 +116,12 @@ void {{context['classname__partitionupdates']}}PARTITION_preparekeyvalues(bool_t
 			actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues.localcapsule[v][p].key", localcapsule[v][p].key, 4);
 		}
 	}
-	#endif 
+	buffer_type maxcutoff = 0;
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ if(cutoffs[v] > maxcutoff){ maxcutoff = cutoffs[v]; }}
+	if(maxcutoff % 4 != 0){ for(int v=0; v<VECTOR_SIZE; v++){ cout<<"------------------- preparekeyvalues:cutoffs["<<v<<"]: "<<cutoffs[v]<<endl; } exit(EXIT_FAILURE); }
+	actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:maxcutoff", maxcutoff, 4);
+	{%for v in context['VECTOR_SIZE_seq']%}actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[{{v}}]", emptyslot[{{v}}], 4);{%endfor%}	
+	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("[after]preparekeyvalues.localcapsule[0].2", (keyvalue_t *)localcapsule[0], MAX_NUM_PARTITIONS);
 	actsutilityobj->printvalues("preparekeyvalues:cutoffs", cutoffs, VECTOR_SIZE);

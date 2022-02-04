@@ -60,23 +60,20 @@ void {{context['classname__reduceupdates']}}REDUCE_reducevector(unsigned int col
 	if(en == true){ cout<<"REDUCE_reducevector:: REDUCEFUNC RESULT @ new_vprop: "<<new_vprop<<", curr_vprop: "<<curr_vprop<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
-	#ifdef CONFIG_MERGEVMASKSWITHVBUFFERDATA
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
+		if(en == true){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VDATA(loc, destbuffer, new_vprop, destoffset); }
+		if(en == true && new_vprop != curr_vprop){ vmaskBITS[loc] = 1; }
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		if(en == true && new_vprop != curr_vprop){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
+		#endif
+	#else 
 		unit1_type vmdata = 0;
 		if(en == true && new_vprop != curr_vprop){ vmdata = 1; }
-		// vmdata = 0; // REMOVEME
 		if(en == true && new_vprop != curr_vprop){ vmaskBITS[loc] = 1; } // REMOVEME.
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		if(en == true && new_vprop != curr_vprop){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
 		#endif
 		if(en == true){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VDATAWITHVMASK(loc, destbuffer, new_vprop, vmdata, destoffset); }
-	#else 
-		if(en == true){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VDATA(loc, destbuffer, new_vprop, destoffset); }
-		#ifdef CONFIG_COLLECTMASKINFOSDURINGREDUCE
-		if(en == true && new_vprop != curr_vprop){ vmaskBITS[loc] = 1; }
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		if(en == true && new_vprop != curr_vprop){ cout<<"REDUCE_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
-		#endif 
-		#endif
 	#endif 
 	return;
 }

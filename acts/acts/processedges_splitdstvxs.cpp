@@ -9,6 +9,10 @@ using namespace std;
 
 // int programglobalvar_numvtxsprocessed = 0; // program global variables
 
+#define VSETSZ 32
+#define VMSETSZ 32
+#define PE_SETSZ 16
+
 #ifdef SW
 processedges_splitdstvxs::processedges_splitdstvxs(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
@@ -346,133 +350,157 @@ void acts_all::PROCESS_SPL_debug(unsigned int debugid,
 	}
 	
 	if(debugid == 4){
-		#ifdef _DEBUGMODE_CHECKS2
+		#ifdef _DEBUGMODE_CHECKS2	
+		//  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
+		// for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
+		// cout<<"SUCCESS? @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
+		// cout<<"SUCCESS? @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+		
+		// for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
+			
+		
 		if(ens[0] == ON && mask[0] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[0].2. i: "<<i<<", mask[0]: "<<mask[0]<<", incr[0]: "<<incr[0]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[0]: "<<mask[0]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[1] == ON && mask[1] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[1].2. i: "<<i<<", mask[1]: "<<mask[1]<<", incr[1]: "<<incr[1]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[1]: "<<mask[1]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[2] == ON && mask[2] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[2].2. i: "<<i<<", mask[2]: "<<mask[2]<<", incr[2]: "<<incr[2]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[2]: "<<mask[2]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[3] == ON && mask[3] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[3].2. i: "<<i<<", mask[3]: "<<mask[3]<<", incr[3]: "<<incr[3]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[3]: "<<mask[3]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[4] == ON && mask[4] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[4].2. i: "<<i<<", mask[4]: "<<mask[4]<<", incr[4]: "<<incr[4]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[4]: "<<mask[4]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[5] == ON && mask[5] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[5].2. i: "<<i<<", mask[5]: "<<mask[5]<<", incr[5]: "<<incr[5]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[5]: "<<mask[5]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[6] == ON && mask[6] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[6].2. i: "<<i<<", mask[6]: "<<mask[6]<<", incr[6]: "<<incr[6]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[6]: "<<mask[6]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[7] == ON && mask[7] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[7].2. i: "<<i<<", mask[7]: "<<mask[7]<<", incr[7]: "<<incr[7]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[7]: "<<mask[7]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[8] == ON && mask[8] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[8].2. i: "<<i<<", mask[8]: "<<mask[8]<<", incr[8]: "<<incr[8]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[8]: "<<mask[8]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[9] == ON && mask[9] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[9].2. i: "<<i<<", mask[9]: "<<mask[9]<<", incr[9]: "<<incr[9]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[9]: "<<mask[9]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[10] == ON && mask[10] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[10].2. i: "<<i<<", mask[10]: "<<mask[10]<<", incr[10]: "<<incr[10]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[10]: "<<mask[10]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[11] == ON && mask[11] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[11].2. i: "<<i<<", mask[11]: "<<mask[11]<<", incr[11]: "<<incr[11]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[11]: "<<mask[11]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[12] == ON && mask[12] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[12].2. i: "<<i<<", mask[12]: "<<mask[12]<<", incr[12]: "<<incr[12]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[12]: "<<mask[12]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[13] == ON && mask[13] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[13].2. i: "<<i<<", mask[13]: "<<mask[13]<<", incr[13]: "<<incr[13]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[13]: "<<mask[13]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[14] == ON && mask[14] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[14].2. i: "<<i<<", mask[14]: "<<mask[14]<<", incr[14]: "<<incr[14]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[14]: "<<mask[14]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		if(ens[15] == ON && mask[15] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[15].2. i: "<<i<<", mask[15]: "<<mask[15]<<", incr[15]: "<<incr[15]<<endl;
- cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[15]: "<<mask[15]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
+ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[0]: "<<E[0]<<", lvid_head: "<<lvid_head<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", incr[0]: "<<incr[0]<<", mask[0]: "<<mask[0]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[1]: "<<E[1]<<", lvid_head: "<<lvid_head<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", incr[1]: "<<incr[1]<<", mask[1]: "<<mask[1]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[2]: "<<E[2]<<", lvid_head: "<<lvid_head<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", incr[2]: "<<incr[2]<<", mask[2]: "<<mask[2]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[3]: "<<E[3]<<", lvid_head: "<<lvid_head<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", incr[3]: "<<incr[3]<<", mask[3]: "<<mask[3]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[4]: "<<E[4]<<", lvid_head: "<<lvid_head<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", incr[4]: "<<incr[4]<<", mask[4]: "<<mask[4]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[5]: "<<E[5]<<", lvid_head: "<<lvid_head<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", incr[5]: "<<incr[5]<<", mask[5]: "<<mask[5]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[6]: "<<E[6]<<", lvid_head: "<<lvid_head<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", incr[6]: "<<incr[6]<<", mask[6]: "<<mask[6]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[7]: "<<E[7]<<", lvid_head: "<<lvid_head<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", incr[7]: "<<incr[7]<<", mask[7]: "<<mask[7]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[8]: "<<E[8]<<", lvid_head: "<<lvid_head<<", lsrcvids[8]: "<<lsrcvids[8]<<", ldstvids[8]: "<<ldstvids[8]<<", incr[8]: "<<incr[8]<<", mask[8]: "<<mask[8]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[9]: "<<E[9]<<", lvid_head: "<<lvid_head<<", lsrcvids[9]: "<<lsrcvids[9]<<", ldstvids[9]: "<<ldstvids[9]<<", incr[9]: "<<incr[9]<<", mask[9]: "<<mask[9]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[10]: "<<E[10]<<", lvid_head: "<<lvid_head<<", lsrcvids[10]: "<<lsrcvids[10]<<", ldstvids[10]: "<<ldstvids[10]<<", incr[10]: "<<incr[10]<<", mask[10]: "<<mask[10]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[11]: "<<E[11]<<", lvid_head: "<<lvid_head<<", lsrcvids[11]: "<<lsrcvids[11]<<", ldstvids[11]: "<<ldstvids[11]<<", incr[11]: "<<incr[11]<<", mask[11]: "<<mask[11]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[12]: "<<E[12]<<", lvid_head: "<<lvid_head<<", lsrcvids[12]: "<<lsrcvids[12]<<", ldstvids[12]: "<<ldstvids[12]<<", incr[12]: "<<incr[12]<<", mask[12]: "<<mask[12]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[13]: "<<E[13]<<", lvid_head: "<<lvid_head<<", lsrcvids[13]: "<<lsrcvids[13]<<", ldstvids[13]: "<<ldstvids[13]<<", incr[13]: "<<incr[13]<<", mask[13]: "<<mask[13]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[14]: "<<E[14]<<", lvid_head: "<<lvid_head<<", lsrcvids[14]: "<<lsrcvids[14]<<", ldstvids[14]: "<<ldstvids[14]<<", incr[14]: "<<incr[14]<<", mask[14]: "<<mask[14]<<endl;  cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[15]: "<<E[15]<<", lvid_head: "<<lvid_head<<", lsrcvids[15]: "<<lsrcvids[15]<<", ldstvids[15]: "<<ldstvids[15]<<", incr[15]: "<<incr[15]<<", mask[15]: "<<mask[15]<<endl;  
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		#endif
@@ -857,7 +885,8 @@ unsigned int acts_all::PROCESS_SPL3_GETROW(unsigned int loc){
 	
 	return truerow_dim16;
 }
-void acts_all::PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], globalparams_t globalparams){					
+
+unsigned int acts_all::PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[VSETSZ], unit1_type VMdatas[VMSETSZ], globalparams_t globalparams){					
 	unit1_type VMdatas_tmp[32];
 	unit1_type VMdatas_tmpA[VECTOR2_SIZE];
 	unit1_type VMdatas_tmpB[VECTOR2_SIZE];
@@ -877,30 +906,82 @@ void acts_all::PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t v
 	unsigned int truerow1_dim16 = PROCESS_SPL3_GETROW(loc);
 	unsigned int truerow2_dim16 = PROCESS_SPL3_GETROW((loc + (VECTOR2_SIZE - col_dim16)));
 
-	#ifdef CONFIG_MERGEVMASKSWITHVBUFFERDATA
-	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
-	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
-	#else 
+	// CRITICAL REMOVEME.
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATAS(truerow1_dim16, vbuffer, Vdatas_tmpA, 0); }
 	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATAS(truerow2_dim16, vbuffer, Vdatas_tmpB, 0); }
 	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VMASKS(truerow1_dim16, vmaskBITS, VMdatas_tmpA, 0); }
 	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VMASKS(truerow2_dim16, vmaskBITS, VMdatas_tmpB, 0); }
+	#else 
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
 	#endif 
-	
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ VMdatas_tmp[v] = VMdatas_tmpA[v]; Vdatas_tmp[v] = Vdatas_tmpA[v]; }
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ VMdatas_tmp[VECTOR2_SIZE + v] = VMdatas_tmpB[v]; Vdatas_tmp[VECTOR2_SIZE + v] = Vdatas_tmpB[v]; }
-	
-	unsigned int index = 0;
-	for(unsigned int v=fcol_dim16; v<fcol_dim16 + MAX_NUM_UNIQ_EDGES_PER_VEC; v++){
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("PROCESS_SPL3_GETVTXDATASET(C).fcol_dim16", index, 32, v, NAp, NAp);
-		actsutilityobj->checkoutofbounds("PROCESS_SPL3_GETVTXDATASET(C).v", v, 32, v, NAp, NAp);
-		#endif
-		VMdatas[index] = VMdatas_tmp[v];
-		Vdatas[index] = Vdatas_tmp[v];
-		index += 1;
-	}
-	return;
+
+	Vdatas[0] = Vdatas_tmpA[0]; 
+	VMdatas[0] = VMdatas_tmpA[0];
+	Vdatas[1] = Vdatas_tmpA[1]; 
+	VMdatas[1] = VMdatas_tmpA[1];
+	Vdatas[2] = Vdatas_tmpA[2]; 
+	VMdatas[2] = VMdatas_tmpA[2];
+	Vdatas[3] = Vdatas_tmpA[3]; 
+	VMdatas[3] = VMdatas_tmpA[3];
+	Vdatas[4] = Vdatas_tmpA[4]; 
+	VMdatas[4] = VMdatas_tmpA[4];
+	Vdatas[5] = Vdatas_tmpA[5]; 
+	VMdatas[5] = VMdatas_tmpA[5];
+	Vdatas[6] = Vdatas_tmpA[6]; 
+	VMdatas[6] = VMdatas_tmpA[6];
+	Vdatas[7] = Vdatas_tmpA[7]; 
+	VMdatas[7] = VMdatas_tmpA[7];
+	Vdatas[8] = Vdatas_tmpA[8]; 
+	VMdatas[8] = VMdatas_tmpA[8];
+	Vdatas[9] = Vdatas_tmpA[9]; 
+	VMdatas[9] = VMdatas_tmpA[9];
+	Vdatas[10] = Vdatas_tmpA[10]; 
+	VMdatas[10] = VMdatas_tmpA[10];
+	Vdatas[11] = Vdatas_tmpA[11]; 
+	VMdatas[11] = VMdatas_tmpA[11];
+	Vdatas[12] = Vdatas_tmpA[12]; 
+	VMdatas[12] = VMdatas_tmpA[12];
+	Vdatas[13] = Vdatas_tmpA[13]; 
+	VMdatas[13] = VMdatas_tmpA[13];
+	Vdatas[14] = Vdatas_tmpA[14]; 
+	VMdatas[14] = VMdatas_tmpA[14];
+	Vdatas[15] = Vdatas_tmpA[15]; 
+	VMdatas[15] = VMdatas_tmpA[15];
+	Vdatas[16] = Vdatas_tmpB[0];
+	VMdatas[16] = VMdatas_tmpB[0]; 
+	Vdatas[17] = Vdatas_tmpB[1];
+	VMdatas[17] = VMdatas_tmpB[1]; 
+	Vdatas[18] = Vdatas_tmpB[2];
+	VMdatas[18] = VMdatas_tmpB[2]; 
+	Vdatas[19] = Vdatas_tmpB[3];
+	VMdatas[19] = VMdatas_tmpB[3]; 
+	Vdatas[20] = Vdatas_tmpB[4];
+	VMdatas[20] = VMdatas_tmpB[4]; 
+	Vdatas[21] = Vdatas_tmpB[5];
+	VMdatas[21] = VMdatas_tmpB[5]; 
+	Vdatas[22] = Vdatas_tmpB[6];
+	VMdatas[22] = VMdatas_tmpB[6]; 
+	Vdatas[23] = Vdatas_tmpB[7];
+	VMdatas[23] = VMdatas_tmpB[7]; 
+	Vdatas[24] = Vdatas_tmpB[8];
+	VMdatas[24] = VMdatas_tmpB[8]; 
+	Vdatas[25] = Vdatas_tmpB[9];
+	VMdatas[25] = VMdatas_tmpB[9]; 
+	Vdatas[26] = Vdatas_tmpB[10];
+	VMdatas[26] = VMdatas_tmpB[10]; 
+	Vdatas[27] = Vdatas_tmpB[11];
+	VMdatas[27] = VMdatas_tmpB[11]; 
+	Vdatas[28] = Vdatas_tmpB[12];
+	VMdatas[28] = VMdatas_tmpB[12]; 
+	Vdatas[29] = Vdatas_tmpB[13];
+	VMdatas[29] = VMdatas_tmpB[13]; 
+	Vdatas[30] = Vdatas_tmpB[14];
+	VMdatas[30] = VMdatas_tmpB[14]; 
+	Vdatas[31] = Vdatas_tmpB[15];
+	VMdatas[31] = VMdatas_tmpB[15]; 
+	return fcol_dim16;
 }
 
 fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
@@ -955,9 +1036,9 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 	unit1_type VMsets[2][VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=VMset complete
 	
-	value_t Vset[MAX_NUM_UNIQ_EDGES_PER_VEC];
+	value_t Vset[VSETSZ];
 	#pragma HLS ARRAY_PARTITION variable=Vset complete
-	unit1_type VMset[MAX_NUM_UNIQ_EDGES_PER_VEC];
+	unit1_type VMset[VMSETSZ];
 	#pragma HLS ARRAY_PARTITION variable=VMset complete
 	
 	sliceinfos_t sliceinfos;
@@ -979,266 +1060,398 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 	unsigned int debug_numinvalidheads = 0;
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	for(unsigned int v=0; v<MAX_NUM_UNIQ_EDGES_PER_VEC; v++){ udataset[v] = 0; }
-
-	unsigned int num_passes = 1;
+	unsigned int offset = 0;
+	keyvalue_t dummykeyvalue; dummykeyvalue.key = INVALIDDATA; dummykeyvalue.value = INVALIDDATA;
+	
+	incr[0] = 0;
+	lsrcvids[0] = 0;
+	ldstvids[0] = 0;	
+	E[0] = 0;
+	ens[0] = 0;
+	udata[0] = 0;
+	mask[0] = 0;
+	incr[1] = 0;
+	lsrcvids[1] = 0;
+	ldstvids[1] = 0;	
+	E[1] = 0;
+	ens[1] = 0;
+	udata[1] = 0;
+	mask[1] = 0;
+	incr[2] = 0;
+	lsrcvids[2] = 0;
+	ldstvids[2] = 0;	
+	E[2] = 0;
+	ens[2] = 0;
+	udata[2] = 0;
+	mask[2] = 0;
+	incr[3] = 0;
+	lsrcvids[3] = 0;
+	ldstvids[3] = 0;	
+	E[3] = 0;
+	ens[3] = 0;
+	udata[3] = 0;
+	mask[3] = 0;
+	incr[4] = 0;
+	lsrcvids[4] = 0;
+	ldstvids[4] = 0;	
+	E[4] = 0;
+	ens[4] = 0;
+	udata[4] = 0;
+	mask[4] = 0;
+	incr[5] = 0;
+	lsrcvids[5] = 0;
+	ldstvids[5] = 0;	
+	E[5] = 0;
+	ens[5] = 0;
+	udata[5] = 0;
+	mask[5] = 0;
+	incr[6] = 0;
+	lsrcvids[6] = 0;
+	ldstvids[6] = 0;	
+	E[6] = 0;
+	ens[6] = 0;
+	udata[6] = 0;
+	mask[6] = 0;
+	incr[7] = 0;
+	lsrcvids[7] = 0;
+	ldstvids[7] = 0;	
+	E[7] = 0;
+	ens[7] = 0;
+	udata[7] = 0;
+	mask[7] = 0;
+	incr[8] = 0;
+	lsrcvids[8] = 0;
+	ldstvids[8] = 0;	
+	E[8] = 0;
+	ens[8] = 0;
+	udata[8] = 0;
+	mask[8] = 0;
+	incr[9] = 0;
+	lsrcvids[9] = 0;
+	ldstvids[9] = 0;	
+	E[9] = 0;
+	ens[9] = 0;
+	udata[9] = 0;
+	mask[9] = 0;
+	incr[10] = 0;
+	lsrcvids[10] = 0;
+	ldstvids[10] = 0;	
+	E[10] = 0;
+	ens[10] = 0;
+	udata[10] = 0;
+	mask[10] = 0;
+	incr[11] = 0;
+	lsrcvids[11] = 0;
+	ldstvids[11] = 0;	
+	E[11] = 0;
+	ens[11] = 0;
+	udata[11] = 0;
+	mask[11] = 0;
+	incr[12] = 0;
+	lsrcvids[12] = 0;
+	ldstvids[12] = 0;	
+	E[12] = 0;
+	ens[12] = 0;
+	udata[12] = 0;
+	mask[12] = 0;
+	incr[13] = 0;
+	lsrcvids[13] = 0;
+	ldstvids[13] = 0;	
+	E[13] = 0;
+	ens[13] = 0;
+	udata[13] = 0;
+	mask[13] = 0;
+	incr[14] = 0;
+	lsrcvids[14] = 0;
+	ldstvids[14] = 0;	
+	E[14] = 0;
+	ens[14] = 0;
+	udata[14] = 0;
+	mask[14] = 0;
+	incr[15] = 0;
+	lsrcvids[15] = 0;
+	ldstvids[15] = 0;	
+	E[15] = 0;
+	ens[15] = 0;
+	udata[15] = 0;
+	mask[15] = 0;
+	
 	buffer_type chunk_size = UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
-	READANDPROCESS_SPL_LOOP3A:  for(buffer_type part=0; part<1; part++){
-		READANDPROCESS_SPL_LOOP3B:  for(buffer_type m=0; m<num_passes; m++){
-			loadcount = 0;
-			debug_numinvalidheads = 0;
-			READANDPROCESS_SPL_LOOP3C: for (buffer_type i=0; i<chunk_size; i++){
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
-			#pragma HLS PIPELINE II=1
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				cout<<"--- PROCESS_SPL_readandprocess: m: "<<m<<", i: "<<i<<" (of "<<chunk_size<<")"<<endl;
-				#endif
+	READANDPROCESS_SPL_LOOP3C: for(buffer_type setoffset=0; setoffset<VECTOR2_SIZE; setoffset+=PE_SETSZ){
+		READANDPROCESS_SPL_LOOP3D: for (buffer_type i=0; i<chunk_size; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
+		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"--- PROCESS_SPL_readandprocess: setoffset: "<<setoffset<<", i: "<<i<<" (of setsize: "<<VECTOR2_SIZE<<", of "<<chunk_size<<")"<<endl;
+			#endif
 
-				#ifdef _WIDEWORD
-				E[0] = edges[offset_kvs + i].range(31, 0); 
-				E[1] = edges[offset_kvs + i].range(63, 32); 
-				E[2] = edges[offset_kvs + i].range(95, 64); 
-				E[3] = edges[offset_kvs + i].range(127, 96); 
-				E[4] = edges[offset_kvs + i].range(159, 128); 
-				E[5] = edges[offset_kvs + i].range(191, 160); 
-				E[6] = edges[offset_kvs + i].range(223, 192); 
-				E[7] = edges[offset_kvs + i].range(255, 224); 
-				E[8] = edges[offset_kvs + i].range(287, 256); 
-				E[9] = edges[offset_kvs + i].range(319, 288); 
-				E[10] = edges[offset_kvs + i].range(351, 320); 
-				E[11] = edges[offset_kvs + i].range(383, 352); 
-				E[12] = edges[offset_kvs + i].range(415, 384); 
-				E[13] = edges[offset_kvs + i].range(447, 416); 
-				E[14] = edges[offset_kvs + i].range(479, 448); 
-				E[15] = edges[offset_kvs + i].range(511, 480); 
-				#else 
-				E[0] = edges[offset_kvs + i].data[0].key; 
-				E[1] = edges[offset_kvs + i].data[0].value;
-				E[2] = edges[offset_kvs + i].data[1].key; 
-				E[3] = edges[offset_kvs + i].data[1].value;
-				E[4] = edges[offset_kvs + i].data[2].key; 
-				E[5] = edges[offset_kvs + i].data[2].value;
-				E[6] = edges[offset_kvs + i].data[3].key; 
-				E[7] = edges[offset_kvs + i].data[3].value;
-				E[8] = edges[offset_kvs + i].data[4].key; 
-				E[9] = edges[offset_kvs + i].data[4].value;
-				E[10] = edges[offset_kvs + i].data[5].key; 
-				E[11] = edges[offset_kvs + i].data[5].value;
-				E[12] = edges[offset_kvs + i].data[6].key; 
-				E[13] = edges[offset_kvs + i].data[6].value;
-				E[14] = edges[offset_kvs + i].data[7].key; 
-				E[15] = edges[offset_kvs + i].data[7].value;
-				#endif
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-					
-				srcvid_head = E[0];
-				lvid_head = srcvid_head - travstate.i2;	
-				parsededge_t parsed_edge0 = PARSE_EDGE(E[0]);
-				incr[0] = parsed_edge0.incr;
-				lsrcvids[0] = lvid_head + incr[0];
-				ldstvids[0] = parsed_edge0.dstvid;	
-				parsededge_t parsed_edge1 = PARSE_EDGE(E[1]);
-				incr[1] = parsed_edge1.incr;
-				lsrcvids[1] = lvid_head + incr[1];
-				ldstvids[1] = parsed_edge1.dstvid;	
-				parsededge_t parsed_edge2 = PARSE_EDGE(E[2]);
-				incr[2] = parsed_edge2.incr;
-				lsrcvids[2] = lvid_head + incr[2];
-				ldstvids[2] = parsed_edge2.dstvid;	
-				parsededge_t parsed_edge3 = PARSE_EDGE(E[3]);
-				incr[3] = parsed_edge3.incr;
-				lsrcvids[3] = lvid_head + incr[3];
-				ldstvids[3] = parsed_edge3.dstvid;	
-				parsededge_t parsed_edge4 = PARSE_EDGE(E[4]);
-				incr[4] = parsed_edge4.incr;
-				lsrcvids[4] = lvid_head + incr[4];
-				ldstvids[4] = parsed_edge4.dstvid;	
-				parsededge_t parsed_edge5 = PARSE_EDGE(E[5]);
-				incr[5] = parsed_edge5.incr;
-				lsrcvids[5] = lvid_head + incr[5];
-				ldstvids[5] = parsed_edge5.dstvid;	
-				parsededge_t parsed_edge6 = PARSE_EDGE(E[6]);
-				incr[6] = parsed_edge6.incr;
-				lsrcvids[6] = lvid_head + incr[6];
-				ldstvids[6] = parsed_edge6.dstvid;	
-				parsededge_t parsed_edge7 = PARSE_EDGE(E[7]);
-				incr[7] = parsed_edge7.incr;
-				lsrcvids[7] = lvid_head + incr[7];
-				ldstvids[7] = parsed_edge7.dstvid;	
-				parsededge_t parsed_edge8 = PARSE_EDGE(E[8]);
-				incr[8] = parsed_edge8.incr;
-				lsrcvids[8] = lvid_head + incr[8];
-				ldstvids[8] = parsed_edge8.dstvid;	
-				parsededge_t parsed_edge9 = PARSE_EDGE(E[9]);
-				incr[9] = parsed_edge9.incr;
-				lsrcvids[9] = lvid_head + incr[9];
-				ldstvids[9] = parsed_edge9.dstvid;	
-				parsededge_t parsed_edge10 = PARSE_EDGE(E[10]);
-				incr[10] = parsed_edge10.incr;
-				lsrcvids[10] = lvid_head + incr[10];
-				ldstvids[10] = parsed_edge10.dstvid;	
-				parsededge_t parsed_edge11 = PARSE_EDGE(E[11]);
-				incr[11] = parsed_edge11.incr;
-				lsrcvids[11] = lvid_head + incr[11];
-				ldstvids[11] = parsed_edge11.dstvid;	
-				parsededge_t parsed_edge12 = PARSE_EDGE(E[12]);
-				incr[12] = parsed_edge12.incr;
-				lsrcvids[12] = lvid_head + incr[12];
-				ldstvids[12] = parsed_edge12.dstvid;	
-				parsededge_t parsed_edge13 = PARSE_EDGE(E[13]);
-				incr[13] = parsed_edge13.incr;
-				lsrcvids[13] = lvid_head + incr[13];
-				ldstvids[13] = parsed_edge13.dstvid;	
-				parsededge_t parsed_edge14 = PARSE_EDGE(E[14]);
-				incr[14] = parsed_edge14.incr;
-				lsrcvids[14] = lvid_head + incr[14];
-				ldstvids[14] = parsed_edge14.dstvid;	
-				parsededge_t parsed_edge15 = PARSE_EDGE(E[15]);
-				incr[15] = parsed_edge15.incr;
-				lsrcvids[15] = lvid_head + incr[15];
-				ldstvids[15] = parsed_edge15.dstvid;	
+			#ifdef _WIDEWORD
+			E[0] = edges[offset_kvs + i].range(31, 0); 
+			E[1] = edges[offset_kvs + i].range(63, 32); 
+			E[2] = edges[offset_kvs + i].range(95, 64); 
+			E[3] = edges[offset_kvs + i].range(127, 96); 
+			E[4] = edges[offset_kvs + i].range(159, 128); 
+			E[5] = edges[offset_kvs + i].range(191, 160); 
+			E[6] = edges[offset_kvs + i].range(223, 192); 
+			E[7] = edges[offset_kvs + i].range(255, 224); 
+			E[8] = edges[offset_kvs + i].range(287, 256); 
+			E[9] = edges[offset_kvs + i].range(319, 288); 
+			E[10] = edges[offset_kvs + i].range(351, 320); 
+			E[11] = edges[offset_kvs + i].range(383, 352); 
+			E[12] = edges[offset_kvs + i].range(415, 384); 
+			E[13] = edges[offset_kvs + i].range(447, 416); 
+			E[14] = edges[offset_kvs + i].range(479, 448); 
+			E[15] = edges[offset_kvs + i].range(511, 480); 
+			#else 
+			E[0] = edges[offset_kvs + i].data[0].key; 
+			E[1] = edges[offset_kvs + i].data[0].value;
+			E[2] = edges[offset_kvs + i].data[1].key; 
+			E[3] = edges[offset_kvs + i].data[1].value;
+			E[4] = edges[offset_kvs + i].data[2].key; 
+			E[5] = edges[offset_kvs + i].data[2].value;
+			E[6] = edges[offset_kvs + i].data[3].key; 
+			E[7] = edges[offset_kvs + i].data[3].value;
+			E[8] = edges[offset_kvs + i].data[4].key; 
+			E[9] = edges[offset_kvs + i].data[4].value;
+			E[10] = edges[offset_kvs + i].data[5].key; 
+			E[11] = edges[offset_kvs + i].data[5].value;
+			E[12] = edges[offset_kvs + i].data[6].key; 
+			E[13] = edges[offset_kvs + i].data[6].value;
+			E[14] = edges[offset_kvs + i].data[7].key; 
+			E[15] = edges[offset_kvs + i].data[7].value;
+			#endif
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif 
 				
-				bool_type en = ON;
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif
-				
-				#if defined(CONFIG_READVDATA_SLIDE)
-				NOT IMPLEMENTED.
-				#elif defined(CONFIG_READVDATA_SLIDEANDREARRANGE)
-				PROCESS_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
-				#else
-				PROCESS_SPL1_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
-				#endif
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-				
-				ens[0] = ON; if(E[0] == INVALIDDATA || lsrcvids[0] >= validbound){ ens[0] = OFF; }
-				ens[1] = ON; if(E[1] == INVALIDDATA || lsrcvids[1] >= validbound){ ens[1] = OFF; }
-				ens[2] = ON; if(E[2] == INVALIDDATA || lsrcvids[2] >= validbound){ ens[2] = OFF; }
-				ens[3] = ON; if(E[3] == INVALIDDATA || lsrcvids[3] >= validbound){ ens[3] = OFF; }
-				ens[4] = ON; if(E[4] == INVALIDDATA || lsrcvids[4] >= validbound){ ens[4] = OFF; }
-				ens[5] = ON; if(E[5] == INVALIDDATA || lsrcvids[5] >= validbound){ ens[5] = OFF; }
-				ens[6] = ON; if(E[6] == INVALIDDATA || lsrcvids[6] >= validbound){ ens[6] = OFF; }
-				ens[7] = ON; if(E[7] == INVALIDDATA || lsrcvids[7] >= validbound){ ens[7] = OFF; }
-				ens[8] = ON; if(E[8] == INVALIDDATA || lsrcvids[8] >= validbound){ ens[8] = OFF; }
-				ens[9] = ON; if(E[9] == INVALIDDATA || lsrcvids[9] >= validbound){ ens[9] = OFF; }
-				ens[10] = ON; if(E[10] == INVALIDDATA || lsrcvids[10] >= validbound){ ens[10] = OFF; }
-				ens[11] = ON; if(E[11] == INVALIDDATA || lsrcvids[11] >= validbound){ ens[11] = OFF; }
-				ens[12] = ON; if(E[12] == INVALIDDATA || lsrcvids[12] >= validbound){ ens[12] = OFF; }
-				ens[13] = ON; if(E[13] == INVALIDDATA || lsrcvids[13] >= validbound){ ens[13] = OFF; }
-				ens[14] = ON; if(E[14] == INVALIDDATA || lsrcvids[14] >= validbound){ ens[14] = OFF; }
-				ens[15] = ON; if(E[15] == INVALIDDATA || lsrcvids[15] >= validbound){ ens[15] = OFF; }
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-				
- mask[0] = 0;  mask[1] = 0;  mask[2] = 0;  mask[3] = 0;  mask[4] = 0;  mask[5] = 0;  mask[6] = 0;  mask[7] = 0;  mask[8] = 0;  mask[9] = 0;  mask[10] = 0;  mask[11] = 0;  mask[12] = 0;  mask[13] = 0;  mask[14] = 0;  mask[15] = 0; 				if(GraphAlgo == PAGERANK){  mask[0] = 1;  mask[1] = 1;  mask[2] = 1;  mask[3] = 1;  mask[4] = 1;  mask[5] = 1;  mask[6] = 1;  mask[7] = 1;  mask[8] = 1;  mask[9] = 1;  mask[10] = 1;  mask[11] = 1;  mask[12] = 1;  mask[13] = 1;  mask[14] = 1;  mask[15] = 1;  } 
-				else {
-					udata[0] = Vset[incr[0]]; 
-					mask[0] = VMset[incr[0]];
-					udata[1] = Vset[incr[1]]; 
-					mask[1] = VMset[incr[1]];
-					udata[2] = Vset[incr[2]]; 
-					mask[2] = VMset[incr[2]];
-					udata[3] = Vset[incr[3]]; 
-					mask[3] = VMset[incr[3]];
-					udata[4] = Vset[incr[4]]; 
-					mask[4] = VMset[incr[4]];
-					udata[5] = Vset[incr[5]]; 
-					mask[5] = VMset[incr[5]];
-					udata[6] = Vset[incr[6]]; 
-					mask[6] = VMset[incr[6]];
-					udata[7] = Vset[incr[7]]; 
-					mask[7] = VMset[incr[7]];
-					udata[8] = Vset[incr[8]]; 
-					mask[8] = VMset[incr[8]];
-					udata[9] = Vset[incr[9]]; 
-					mask[9] = VMset[incr[9]];
-					udata[10] = Vset[incr[10]]; 
-					mask[10] = VMset[incr[10]];
-					udata[11] = Vset[incr[11]]; 
-					mask[11] = VMset[incr[11]];
-					udata[12] = Vset[incr[12]]; 
-					mask[12] = VMset[incr[12]];
-					udata[13] = Vset[incr[13]]; 
-					mask[13] = VMset[incr[13]];
-					udata[14] = Vset[incr[14]]; 
-					mask[14] = VMset[incr[14]];
-					udata[15] = Vset[incr[15]]; 
-					mask[15] = VMset[incr[15]];
-				}
-				mask[0] = 0; 
-				ens[0] = OFF;
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif
-				
-				res[0] = PROCESS_SPL_processfunc(udata[0], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[1] = PROCESS_SPL_processfunc(udata[1], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[2] = PROCESS_SPL_processfunc(udata[2], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[3] = PROCESS_SPL_processfunc(udata[3], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[4] = PROCESS_SPL_processfunc(udata[4], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[5] = PROCESS_SPL_processfunc(udata[5], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[6] = PROCESS_SPL_processfunc(udata[6], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[7] = PROCESS_SPL_processfunc(udata[7], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[8] = PROCESS_SPL_processfunc(udata[8], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[9] = PROCESS_SPL_processfunc(udata[9], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[10] = PROCESS_SPL_processfunc(udata[10], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[11] = PROCESS_SPL_processfunc(udata[11], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[12] = PROCESS_SPL_processfunc(udata[12], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[13] = PROCESS_SPL_processfunc(udata[13], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[14] = PROCESS_SPL_processfunc(udata[14], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				res[15] = PROCESS_SPL_processfunc(udata[15], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				if(ens[0] == ON && mask[0] == 1){ mykeyvalue[0].key = ldstvids[0]; mykeyvalue[0].value = res[0]; } else { mykeyvalue[0].key = INVALIDDATA; mykeyvalue[0].value = INVALIDDATA;  }
-				if(ens[1] == ON && mask[1] == 1){ mykeyvalue[1].key = ldstvids[1]; mykeyvalue[1].value = res[1]; } else { mykeyvalue[1].key = INVALIDDATA; mykeyvalue[1].value = INVALIDDATA;  }
-				if(ens[2] == ON && mask[2] == 1){ mykeyvalue[2].key = ldstvids[2]; mykeyvalue[2].value = res[2]; } else { mykeyvalue[2].key = INVALIDDATA; mykeyvalue[2].value = INVALIDDATA;  }
-				if(ens[3] == ON && mask[3] == 1){ mykeyvalue[3].key = ldstvids[3]; mykeyvalue[3].value = res[3]; } else { mykeyvalue[3].key = INVALIDDATA; mykeyvalue[3].value = INVALIDDATA;  }
-				if(ens[4] == ON && mask[4] == 1){ mykeyvalue[4].key = ldstvids[4]; mykeyvalue[4].value = res[4]; } else { mykeyvalue[4].key = INVALIDDATA; mykeyvalue[4].value = INVALIDDATA;  }
-				if(ens[5] == ON && mask[5] == 1){ mykeyvalue[5].key = ldstvids[5]; mykeyvalue[5].value = res[5]; } else { mykeyvalue[5].key = INVALIDDATA; mykeyvalue[5].value = INVALIDDATA;  }
-				if(ens[6] == ON && mask[6] == 1){ mykeyvalue[6].key = ldstvids[6]; mykeyvalue[6].value = res[6]; } else { mykeyvalue[6].key = INVALIDDATA; mykeyvalue[6].value = INVALIDDATA;  }
-				if(ens[7] == ON && mask[7] == 1){ mykeyvalue[7].key = ldstvids[7]; mykeyvalue[7].value = res[7]; } else { mykeyvalue[7].key = INVALIDDATA; mykeyvalue[7].value = INVALIDDATA;  }
-				if(ens[8] == ON && mask[8] == 1){ mykeyvalue[8].key = ldstvids[8]; mykeyvalue[8].value = res[8]; } else { mykeyvalue[8].key = INVALIDDATA; mykeyvalue[8].value = INVALIDDATA;  }
-				if(ens[9] == ON && mask[9] == 1){ mykeyvalue[9].key = ldstvids[9]; mykeyvalue[9].value = res[9]; } else { mykeyvalue[9].key = INVALIDDATA; mykeyvalue[9].value = INVALIDDATA;  }
-				if(ens[10] == ON && mask[10] == 1){ mykeyvalue[10].key = ldstvids[10]; mykeyvalue[10].value = res[10]; } else { mykeyvalue[10].key = INVALIDDATA; mykeyvalue[10].value = INVALIDDATA;  }
-				if(ens[11] == ON && mask[11] == 1){ mykeyvalue[11].key = ldstvids[11]; mykeyvalue[11].value = res[11]; } else { mykeyvalue[11].key = INVALIDDATA; mykeyvalue[11].value = INVALIDDATA;  }
-				if(ens[12] == ON && mask[12] == 1){ mykeyvalue[12].key = ldstvids[12]; mykeyvalue[12].value = res[12]; } else { mykeyvalue[12].key = INVALIDDATA; mykeyvalue[12].value = INVALIDDATA;  }
-				if(ens[13] == ON && mask[13] == 1){ mykeyvalue[13].key = ldstvids[13]; mykeyvalue[13].value = res[13]; } else { mykeyvalue[13].key = INVALIDDATA; mykeyvalue[13].value = INVALIDDATA;  }
-				if(ens[14] == ON && mask[14] == 1){ mykeyvalue[14].key = ldstvids[14]; mykeyvalue[14].value = res[14]; } else { mykeyvalue[14].key = INVALIDDATA; mykeyvalue[14].value = INVALIDDATA;  }
-				if(ens[15] == ON && mask[15] == 1){ mykeyvalue[15].key = ldstvids[15]; mykeyvalue[15].value = res[15]; } else { mykeyvalue[15].key = INVALIDDATA; mykeyvalue[15].value = INVALIDDATA;  }
-				mykeyvalue[0].key = INVALIDDATA;
-				mykeyvalue[0].value = INVALIDDATA;
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-		
-				buffer[0][loadcount] = UTIL_GETKV(mykeyvalue[0]);
-				buffer[1][loadcount] = UTIL_GETKV(mykeyvalue[1]);
-				buffer[2][loadcount] = UTIL_GETKV(mykeyvalue[2]);
-				buffer[3][loadcount] = UTIL_GETKV(mykeyvalue[3]);
-				buffer[4][loadcount] = UTIL_GETKV(mykeyvalue[4]);
-				buffer[5][loadcount] = UTIL_GETKV(mykeyvalue[5]);
-				buffer[6][loadcount] = UTIL_GETKV(mykeyvalue[6]);
-				buffer[7][loadcount] = UTIL_GETKV(mykeyvalue[7]);
-	
-				buffer[0][loadcount + 1] = UTIL_GETKV(mykeyvalue[8]);
-				buffer[1][loadcount + 1] = UTIL_GETKV(mykeyvalue[9]);
-				buffer[2][loadcount + 1] = UTIL_GETKV(mykeyvalue[10]);
-				buffer[3][loadcount + 1] = UTIL_GETKV(mykeyvalue[11]);
-				buffer[4][loadcount + 1] = UTIL_GETKV(mykeyvalue[12]);
-				buffer[5][loadcount + 1] = UTIL_GETKV(mykeyvalue[13]);
-				buffer[6][loadcount + 1] = UTIL_GETKV(mykeyvalue[14]);
-				buffer[7][loadcount + 1] = UTIL_GETKV(mykeyvalue[15]);
-	
-				if(ens[1] == ON && mask[1] == 1){ loadcount += 2; }
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-				
-				// exit(EXIT_SUCCESS); ///
+			srcvid_head = E[0];
+			lvid_head = srcvid_head - travstate.i2;	
+			
+			parsededge_t parsed_edgeSTD0 = PARSE_EDGE(E[0]); unsigned int incrSTD0 = parsed_edgeSTD0.incr; unsigned int lsrcvidsSTD0 = lvid_head + incrSTD0; unsigned int ldstvidsSTD0 = parsed_edgeSTD0.dstvid; // STD0
+			parsededge_t parsed_edgeSTD1 = PARSE_EDGE(E[1]); unsigned int incrSTD1 = parsed_edgeSTD1.incr; unsigned int lsrcvidsSTD1 = lvid_head + incrSTD1; unsigned int ldstvidsSTD1 = parsed_edgeSTD1.dstvid; // STD1
+			parsededge_t parsed_edge0 = PARSE_EDGE(E[setoffset + 0]);
+			incr[0] = parsed_edge0.incr;
+			lsrcvids[0] = lvid_head + incr[0];
+			ldstvids[0] = parsed_edge0.dstvid;	
+			parsededge_t parsed_edge1 = PARSE_EDGE(E[setoffset + 1]);
+			incr[1] = parsed_edge1.incr;
+			lsrcvids[1] = lvid_head + incr[1];
+			ldstvids[1] = parsed_edge1.dstvid;	
+			parsededge_t parsed_edge2 = PARSE_EDGE(E[setoffset + 2]);
+			incr[2] = parsed_edge2.incr;
+			lsrcvids[2] = lvid_head + incr[2];
+			ldstvids[2] = parsed_edge2.dstvid;	
+			parsededge_t parsed_edge3 = PARSE_EDGE(E[setoffset + 3]);
+			incr[3] = parsed_edge3.incr;
+			lsrcvids[3] = lvid_head + incr[3];
+			ldstvids[3] = parsed_edge3.dstvid;	
+			parsededge_t parsed_edge4 = PARSE_EDGE(E[setoffset + 4]);
+			incr[4] = parsed_edge4.incr;
+			lsrcvids[4] = lvid_head + incr[4];
+			ldstvids[4] = parsed_edge4.dstvid;	
+			parsededge_t parsed_edge5 = PARSE_EDGE(E[setoffset + 5]);
+			incr[5] = parsed_edge5.incr;
+			lsrcvids[5] = lvid_head + incr[5];
+			ldstvids[5] = parsed_edge5.dstvid;	
+			parsededge_t parsed_edge6 = PARSE_EDGE(E[setoffset + 6]);
+			incr[6] = parsed_edge6.incr;
+			lsrcvids[6] = lvid_head + incr[6];
+			ldstvids[6] = parsed_edge6.dstvid;	
+			parsededge_t parsed_edge7 = PARSE_EDGE(E[setoffset + 7]);
+			incr[7] = parsed_edge7.incr;
+			lsrcvids[7] = lvid_head + incr[7];
+			ldstvids[7] = parsed_edge7.dstvid;	
+			parsededge_t parsed_edge8 = PARSE_EDGE(E[setoffset + 8]);
+			incr[8] = parsed_edge8.incr;
+			lsrcvids[8] = lvid_head + incr[8];
+			ldstvids[8] = parsed_edge8.dstvid;	
+			parsededge_t parsed_edge9 = PARSE_EDGE(E[setoffset + 9]);
+			incr[9] = parsed_edge9.incr;
+			lsrcvids[9] = lvid_head + incr[9];
+			ldstvids[9] = parsed_edge9.dstvid;	
+			parsededge_t parsed_edge10 = PARSE_EDGE(E[setoffset + 10]);
+			incr[10] = parsed_edge10.incr;
+			lsrcvids[10] = lvid_head + incr[10];
+			ldstvids[10] = parsed_edge10.dstvid;	
+			parsededge_t parsed_edge11 = PARSE_EDGE(E[setoffset + 11]);
+			incr[11] = parsed_edge11.incr;
+			lsrcvids[11] = lvid_head + incr[11];
+			ldstvids[11] = parsed_edge11.dstvid;	
+			parsededge_t parsed_edge12 = PARSE_EDGE(E[setoffset + 12]);
+			incr[12] = parsed_edge12.incr;
+			lsrcvids[12] = lvid_head + incr[12];
+			ldstvids[12] = parsed_edge12.dstvid;	
+			parsededge_t parsed_edge13 = PARSE_EDGE(E[setoffset + 13]);
+			incr[13] = parsed_edge13.incr;
+			lsrcvids[13] = lvid_head + incr[13];
+			ldstvids[13] = parsed_edge13.dstvid;	
+			parsededge_t parsed_edge14 = PARSE_EDGE(E[setoffset + 14]);
+			incr[14] = parsed_edge14.incr;
+			lsrcvids[14] = lvid_head + incr[14];
+			ldstvids[14] = parsed_edge14.dstvid;	
+			parsededge_t parsed_edge15 = PARSE_EDGE(E[setoffset + 15]);
+			incr[15] = parsed_edge15.incr;
+			lsrcvids[15] = lvid_head + incr[15];
+			ldstvids[15] = parsed_edge15.dstvid;	
+			
+			bool_type en = ON;
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif
+			
+			#if defined(CONFIG_READVDATA_SLIDE)
+			NOT IMPLEMENTED.
+			#elif defined(CONFIG_READVDATA_SLIDEANDREARRANGE)
+			offset = PROCESS_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
+			#else
+			PROCESS_SPL1_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif 
+			
+			bool_type ensSTD0 = ON; if(E[0] == INVALIDDATA || lsrcvidsSTD0 >= validbound){ ensSTD0 = OFF; } // STD0.
+			bool_type ensSTD1 = ON; if(E[1] == INVALIDDATA || lsrcvidsSTD1 >= validbound){ ensSTD1 = OFF; } // STD1.
+			ens[0] = ON; if(E[setoffset + 0] == INVALIDDATA || lsrcvids[0] >= validbound){ ens[0] = OFF; }
+			ens[1] = ON; if(E[setoffset + 1] == INVALIDDATA || lsrcvids[1] >= validbound){ ens[1] = OFF; }
+			ens[2] = ON; if(E[setoffset + 2] == INVALIDDATA || lsrcvids[2] >= validbound){ ens[2] = OFF; }
+			ens[3] = ON; if(E[setoffset + 3] == INVALIDDATA || lsrcvids[3] >= validbound){ ens[3] = OFF; }
+			ens[4] = ON; if(E[setoffset + 4] == INVALIDDATA || lsrcvids[4] >= validbound){ ens[4] = OFF; }
+			ens[5] = ON; if(E[setoffset + 5] == INVALIDDATA || lsrcvids[5] >= validbound){ ens[5] = OFF; }
+			ens[6] = ON; if(E[setoffset + 6] == INVALIDDATA || lsrcvids[6] >= validbound){ ens[6] = OFF; }
+			ens[7] = ON; if(E[setoffset + 7] == INVALIDDATA || lsrcvids[7] >= validbound){ ens[7] = OFF; }
+			ens[8] = ON; if(E[setoffset + 8] == INVALIDDATA || lsrcvids[8] >= validbound){ ens[8] = OFF; }
+			ens[9] = ON; if(E[setoffset + 9] == INVALIDDATA || lsrcvids[9] >= validbound){ ens[9] = OFF; }
+			ens[10] = ON; if(E[setoffset + 10] == INVALIDDATA || lsrcvids[10] >= validbound){ ens[10] = OFF; }
+			ens[11] = ON; if(E[setoffset + 11] == INVALIDDATA || lsrcvids[11] >= validbound){ ens[11] = OFF; }
+			ens[12] = ON; if(E[setoffset + 12] == INVALIDDATA || lsrcvids[12] >= validbound){ ens[12] = OFF; }
+			ens[13] = ON; if(E[setoffset + 13] == INVALIDDATA || lsrcvids[13] >= validbound){ ens[13] = OFF; }
+			ens[14] = ON; if(E[setoffset + 14] == INVALIDDATA || lsrcvids[14] >= validbound){ ens[14] = OFF; }
+			ens[15] = ON; if(E[setoffset + 15] == INVALIDDATA || lsrcvids[15] >= validbound){ ens[15] = OFF; }
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif 
+			
+			unsigned int udataSTD0 = 0; unsigned int maskSTD0 = 0; // STD0.
+			unsigned int udataSTD1 = 0; unsigned int maskSTD1 = 0; // STD1.
+ mask[0] = 0;  mask[1] = 0;  mask[2] = 0;  mask[3] = 0;  mask[4] = 0;  mask[5] = 0;  mask[6] = 0;  mask[7] = 0;  mask[8] = 0;  mask[9] = 0;  mask[10] = 0;  mask[11] = 0;  mask[12] = 0;  mask[13] = 0;  mask[14] = 0;  mask[15] = 0; 			if(GraphAlgo == PAGERANK){  mask[0] = 1;  mask[1] = 1;  mask[2] = 1;  mask[3] = 1;  mask[4] = 1;  mask[5] = 1;  mask[6] = 1;  mask[7] = 1;  mask[8] = 1;  mask[9] = 1;  mask[10] = 1;  mask[11] = 1;  mask[12] = 1;  mask[13] = 1;  mask[14] = 1;  mask[15] = 1;  } 
+			else {
+				udataSTD0 = Vset[offset + incrSTD0]; // STD0.
+				maskSTD0 = VMset[offset + incrSTD0]; // STD0.
+				udataSTD1 = Vset[offset + incrSTD1]; // STD1.
+				maskSTD1 = VMset[offset + incrSTD1]; // STD1.
+				udata[0] = Vset[offset + incr[0]]; 
+				mask[0] = VMset[offset + incr[0]];
+				udata[1] = Vset[offset + incr[1]]; 
+				mask[1] = VMset[offset + incr[1]];
+				udata[2] = Vset[offset + incr[2]]; 
+				mask[2] = VMset[offset + incr[2]];
+				udata[3] = Vset[offset + incr[3]]; 
+				mask[3] = VMset[offset + incr[3]];
+				udata[4] = Vset[offset + incr[4]]; 
+				mask[4] = VMset[offset + incr[4]];
+				udata[5] = Vset[offset + incr[5]]; 
+				mask[5] = VMset[offset + incr[5]];
+				udata[6] = Vset[offset + incr[6]]; 
+				mask[6] = VMset[offset + incr[6]];
+				udata[7] = Vset[offset + incr[7]]; 
+				mask[7] = VMset[offset + incr[7]];
+				udata[8] = Vset[offset + incr[8]]; 
+				mask[8] = VMset[offset + incr[8]];
+				udata[9] = Vset[offset + incr[9]]; 
+				mask[9] = VMset[offset + incr[9]];
+				udata[10] = Vset[offset + incr[10]]; 
+				mask[10] = VMset[offset + incr[10]];
+				udata[11] = Vset[offset + incr[11]]; 
+				mask[11] = VMset[offset + incr[11]];
+				udata[12] = Vset[offset + incr[12]]; 
+				mask[12] = VMset[offset + incr[12]];
+				udata[13] = Vset[offset + incr[13]]; 
+				mask[13] = VMset[offset + incr[13]];
+				udata[14] = Vset[offset + incr[14]]; 
+				mask[14] = VMset[offset + incr[14]];
+				udata[15] = Vset[offset + incr[15]]; 
+				mask[15] = VMset[offset + incr[15]];
 			}
+			maskSTD0 = 0; // STD0
+			ensSTD0 = OFF; // STD0
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif
+			
+			res[0] = PROCESS_SPL_processfunc(udata[0], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[1] = PROCESS_SPL_processfunc(udata[1], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[2] = PROCESS_SPL_processfunc(udata[2], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[3] = PROCESS_SPL_processfunc(udata[3], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[4] = PROCESS_SPL_processfunc(udata[4], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[5] = PROCESS_SPL_processfunc(udata[5], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[6] = PROCESS_SPL_processfunc(udata[6], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[7] = PROCESS_SPL_processfunc(udata[7], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[8] = PROCESS_SPL_processfunc(udata[8], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[9] = PROCESS_SPL_processfunc(udata[9], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[10] = PROCESS_SPL_processfunc(udata[10], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[11] = PROCESS_SPL_processfunc(udata[11], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[12] = PROCESS_SPL_processfunc(udata[12], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[13] = PROCESS_SPL_processfunc(udata[13], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[14] = PROCESS_SPL_processfunc(udata[14], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[15] = PROCESS_SPL_processfunc(udata[15], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			if(ens[0] == ON && mask[0] == 1){ mykeyvalue[0].key = ldstvids[0]; mykeyvalue[0].value = res[0]; } else { mykeyvalue[0].key = INVALIDDATA; mykeyvalue[0].value = INVALIDDATA;  }
+			if(ens[1] == ON && mask[1] == 1){ mykeyvalue[1].key = ldstvids[1]; mykeyvalue[1].value = res[1]; } else { mykeyvalue[1].key = INVALIDDATA; mykeyvalue[1].value = INVALIDDATA;  }
+			if(ens[2] == ON && mask[2] == 1){ mykeyvalue[2].key = ldstvids[2]; mykeyvalue[2].value = res[2]; } else { mykeyvalue[2].key = INVALIDDATA; mykeyvalue[2].value = INVALIDDATA;  }
+			if(ens[3] == ON && mask[3] == 1){ mykeyvalue[3].key = ldstvids[3]; mykeyvalue[3].value = res[3]; } else { mykeyvalue[3].key = INVALIDDATA; mykeyvalue[3].value = INVALIDDATA;  }
+			if(ens[4] == ON && mask[4] == 1){ mykeyvalue[4].key = ldstvids[4]; mykeyvalue[4].value = res[4]; } else { mykeyvalue[4].key = INVALIDDATA; mykeyvalue[4].value = INVALIDDATA;  }
+			if(ens[5] == ON && mask[5] == 1){ mykeyvalue[5].key = ldstvids[5]; mykeyvalue[5].value = res[5]; } else { mykeyvalue[5].key = INVALIDDATA; mykeyvalue[5].value = INVALIDDATA;  }
+			if(ens[6] == ON && mask[6] == 1){ mykeyvalue[6].key = ldstvids[6]; mykeyvalue[6].value = res[6]; } else { mykeyvalue[6].key = INVALIDDATA; mykeyvalue[6].value = INVALIDDATA;  }
+			if(ens[7] == ON && mask[7] == 1){ mykeyvalue[7].key = ldstvids[7]; mykeyvalue[7].value = res[7]; } else { mykeyvalue[7].key = INVALIDDATA; mykeyvalue[7].value = INVALIDDATA;  }
+			if(ens[8] == ON && mask[8] == 1){ mykeyvalue[8].key = ldstvids[8]; mykeyvalue[8].value = res[8]; } else { mykeyvalue[8].key = INVALIDDATA; mykeyvalue[8].value = INVALIDDATA;  }
+			if(ens[9] == ON && mask[9] == 1){ mykeyvalue[9].key = ldstvids[9]; mykeyvalue[9].value = res[9]; } else { mykeyvalue[9].key = INVALIDDATA; mykeyvalue[9].value = INVALIDDATA;  }
+			if(ens[10] == ON && mask[10] == 1){ mykeyvalue[10].key = ldstvids[10]; mykeyvalue[10].value = res[10]; } else { mykeyvalue[10].key = INVALIDDATA; mykeyvalue[10].value = INVALIDDATA;  }
+			if(ens[11] == ON && mask[11] == 1){ mykeyvalue[11].key = ldstvids[11]; mykeyvalue[11].value = res[11]; } else { mykeyvalue[11].key = INVALIDDATA; mykeyvalue[11].value = INVALIDDATA;  }
+			if(ens[12] == ON && mask[12] == 1){ mykeyvalue[12].key = ldstvids[12]; mykeyvalue[12].value = res[12]; } else { mykeyvalue[12].key = INVALIDDATA; mykeyvalue[12].value = INVALIDDATA;  }
+			if(ens[13] == ON && mask[13] == 1){ mykeyvalue[13].key = ldstvids[13]; mykeyvalue[13].value = res[13]; } else { mykeyvalue[13].key = INVALIDDATA; mykeyvalue[13].value = INVALIDDATA;  }
+			if(ens[14] == ON && mask[14] == 1){ mykeyvalue[14].key = ldstvids[14]; mykeyvalue[14].value = res[14]; } else { mykeyvalue[14].key = INVALIDDATA; mykeyvalue[14].value = INVALIDDATA;  }
+			if(ens[15] == ON && mask[15] == 1){ mykeyvalue[15].key = ldstvids[15]; mykeyvalue[15].value = res[15]; } else { mykeyvalue[15].key = INVALIDDATA; mykeyvalue[15].value = INVALIDDATA;  }
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif 
+			
+			#if PE_SETSZ==8
+			buffer[0][loadcount] = UTIL_GETKV(mykeyvalue[0]);
+			buffer[1][loadcount] = UTIL_GETKV(mykeyvalue[1]);
+			buffer[2][loadcount] = UTIL_GETKV(mykeyvalue[2]);
+			buffer[3][loadcount] = UTIL_GETKV(mykeyvalue[3]);
+			buffer[4][loadcount] = UTIL_GETKV(mykeyvalue[4]);
+			buffer[5][loadcount] = UTIL_GETKV(mykeyvalue[5]);
+			buffer[6][loadcount] = UTIL_GETKV(mykeyvalue[6]);
+			buffer[7][loadcount] = UTIL_GETKV(mykeyvalue[7]);
+	
+			if(setoffset == 0){ buffer[0][loadcount] = UTIL_GETKV(dummykeyvalue); } // STD0
+			if(ensSTD1 == ON && maskSTD1 == 1){ loadcount += 1; } 
+			#else
+			buffer[0][loadcount] = UTIL_GETKV(mykeyvalue[0]);
+			buffer[1][loadcount] = UTIL_GETKV(mykeyvalue[1]);
+			buffer[2][loadcount] = UTIL_GETKV(mykeyvalue[2]);
+			buffer[3][loadcount] = UTIL_GETKV(mykeyvalue[3]);
+			buffer[4][loadcount] = UTIL_GETKV(mykeyvalue[4]);
+			buffer[5][loadcount] = UTIL_GETKV(mykeyvalue[5]);
+			buffer[6][loadcount] = UTIL_GETKV(mykeyvalue[6]);
+			buffer[7][loadcount] = UTIL_GETKV(mykeyvalue[7]);
+	
+			buffer[0][loadcount + 1] = UTIL_GETKV(mykeyvalue[8]);
+			buffer[1][loadcount + 1] = UTIL_GETKV(mykeyvalue[9]);
+			buffer[2][loadcount + 1] = UTIL_GETKV(mykeyvalue[10]);
+			buffer[3][loadcount + 1] = UTIL_GETKV(mykeyvalue[11]);
+			buffer[4][loadcount + 1] = UTIL_GETKV(mykeyvalue[12]);
+			buffer[5][loadcount + 1] = UTIL_GETKV(mykeyvalue[13]);
+			buffer[6][loadcount + 1] = UTIL_GETKV(mykeyvalue[14]);
+			buffer[7][loadcount + 1] = UTIL_GETKV(mykeyvalue[15]);
+			buffer[0][loadcount] = UTIL_GETKV(dummykeyvalue); // STD0
+			if(ensSTD1 == ON && maskSTD1 == 1){ loadcount += 2; }
+			#endif
+	
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif
 		}
 	}
 	// cout<<">>> readandprocess: loadcount: "<<loadcount<<", activeloadcount: "<<activeloadcount<<", inactiveloadcount: "<<inactiveloadcount<<endl;
@@ -1246,4 +1459,6 @@ fetchmessage_t acts_all::PROCESS_SPL_readandprocess(bool_type enable, uint512_dt
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
 }
+
+
 

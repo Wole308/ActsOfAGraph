@@ -15,6 +15,8 @@ acts_merge_splitdstvxs::acts_merge_splitdstvxs(mydebug * _mydebugobj){
 acts_merge_splitdstvxs::~acts_merge_splitdstvxs(){}
 #endif
 
+// debug 
+
 unsigned int acts_all::MERGE_SPLIT_actvpstatsoffset(globalparams_t globalparams){
 	unsigned int actvpstats_beginoffset = 0;
 	#ifdef ENABLERECURSIVEPARTITIONING
@@ -73,7 +75,7 @@ void acts_all::MERGE_SPLIT_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram1]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram1]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -100,7 +102,7 @@ void acts_all::MERGE_SPLIT_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram1]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -122,7 +124,8 @@ void acts_all::MERGE_SPLIT_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram1]."<<endl; 			 
 	#endif
@@ -130,82 +133,6 @@ void acts_all::MERGE_SPLIT_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram
 		#pragma HLS PIPELINE II=1
 		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
@@ -240,7 +167,7 @@ void acts_all::MERGE_SPLIT_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram2]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram2]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -268,7 +195,7 @@ void acts_all::MERGE_SPLIT_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram2]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -291,7 +218,8 @@ void acts_all::MERGE_SPLIT_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram2]."<<endl; 			 
 	#endif
@@ -300,82 +228,6 @@ void acts_all::MERGE_SPLIT_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram
 		kvdram0[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram){
@@ -410,7 +262,7 @@ void acts_all::MERGE_SPLIT_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram3]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram3]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -439,7 +291,7 @@ void acts_all::MERGE_SPLIT_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram3]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -463,7 +315,8 @@ void acts_all::MERGE_SPLIT_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram3]."<<endl; 			 
 	#endif
@@ -473,82 +326,6 @@ void acts_all::MERGE_SPLIT_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram
 		kvdram1[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram){
@@ -583,7 +360,7 @@ void acts_all::MERGE_SPLIT_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram4]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram4]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -613,7 +390,7 @@ void acts_all::MERGE_SPLIT_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram4]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -638,7 +415,8 @@ void acts_all::MERGE_SPLIT_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram4]."<<endl; 			 
 	#endif
@@ -649,82 +427,6 @@ void acts_all::MERGE_SPLIT_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram
 		kvdram2[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram){
@@ -759,7 +461,7 @@ void acts_all::MERGE_SPLIT_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram5]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram5]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -790,7 +492,7 @@ void acts_all::MERGE_SPLIT_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram5]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -816,7 +518,8 @@ void acts_all::MERGE_SPLIT_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram5]."<<endl; 			 
 	#endif
@@ -828,82 +531,6 @@ void acts_all::MERGE_SPLIT_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram
 		kvdram3[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram){
@@ -938,7 +565,7 @@ void acts_all::MERGE_SPLIT_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram6]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram6]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -970,7 +597,7 @@ void acts_all::MERGE_SPLIT_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram6]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -997,7 +624,8 @@ void acts_all::MERGE_SPLIT_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram6]."<<endl; 			 
 	#endif
@@ -1010,82 +638,6 @@ void acts_all::MERGE_SPLIT_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram
 		kvdram4[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram){
@@ -1120,7 +672,7 @@ void acts_all::MERGE_SPLIT_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram7]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram7]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -1153,7 +705,7 @@ void acts_all::MERGE_SPLIT_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram7]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -1181,7 +733,8 @@ void acts_all::MERGE_SPLIT_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram7]."<<endl; 			 
 	#endif
@@ -1195,82 +748,6 @@ void acts_all::MERGE_SPLIT_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram
 		kvdram5[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram6[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram){
@@ -1305,7 +782,7 @@ void acts_all::MERGE_SPLIT_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram8]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram8]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -1339,7 +816,7 @@ void acts_all::MERGE_SPLIT_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram8]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -1368,7 +845,8 @@ void acts_all::MERGE_SPLIT_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram8]."<<endl; 			 
 	#endif
@@ -1383,82 +861,6 @@ void acts_all::MERGE_SPLIT_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram
 		kvdram6[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram7[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram){
@@ -1493,7 +895,7 @@ void acts_all::MERGE_SPLIT_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram9]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram9]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -1528,7 +930,7 @@ void acts_all::MERGE_SPLIT_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram9]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -1558,7 +960,8 @@ void acts_all::MERGE_SPLIT_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram9]."<<endl; 			 
 	#endif
@@ -1574,82 +977,6 @@ void acts_all::MERGE_SPLIT_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram
 		kvdram7[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram8[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram){
@@ -1684,7 +1011,7 @@ void acts_all::MERGE_SPLIT_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdra
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram10]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram10]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -1720,7 +1047,7 @@ void acts_all::MERGE_SPLIT_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdra
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram10]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -1751,7 +1078,8 @@ void acts_all::MERGE_SPLIT_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdra
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram10]."<<endl; 			 
 	#endif
@@ -1768,82 +1096,6 @@ void acts_all::MERGE_SPLIT_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdra
 		kvdram8[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram9[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram){
@@ -1878,7 +1130,7 @@ void acts_all::MERGE_SPLIT_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdra
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram11]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram11]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -1915,7 +1167,7 @@ void acts_all::MERGE_SPLIT_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdra
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram11]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -1947,7 +1199,8 @@ void acts_all::MERGE_SPLIT_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdra
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram11]."<<endl; 			 
 	#endif
@@ -1965,82 +1218,6 @@ void acts_all::MERGE_SPLIT_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdra
 		kvdram9[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram10[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 void acts_all::MERGE_SPLIT_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram){
@@ -2075,7 +1252,7 @@ void acts_all::MERGE_SPLIT_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdra
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram12]."<<endl; 	
+	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram12]."<<endl; 	
 	#endif
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -2113,7 +1290,7 @@ void acts_all::MERGE_SPLIT_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdra
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices masks from vdram to [kvdram0:kvdram12]."<<endl; 	
 	#endif
-	
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	offseti_kvs = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		unsigned int p_index = 0;
@@ -2146,7 +1323,8 @@ void acts_all::MERGE_SPLIT_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdra
 			}
 		}
 	}
-
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram12]."<<endl; 			 
 	#endif
@@ -2165,82 +1343,6 @@ void acts_all::MERGE_SPLIT_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdra
 		kvdram10[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 		kvdram11[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
 	}
-	
-	/////////////////////////////////////////////// REMOVEME
-	// #ifdef _DEBUGMODE_CHECKS2
-	// for(unsigned int t=0; t<globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER; t++){
-		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			// unsigned int vmdata;
-			// unsigned int data;
-			// if(v%2==0){ data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].key; } else { data = kvdram0[globalparams.BASEOFFSETKVS_VERTICESDATAMASK + t].data[v/2].value; }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 0, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 1, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 2, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 3, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 4, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 5, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 6, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 7, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 8, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 9, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 10, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 11, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 12, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 13, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 14, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 15, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 16, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 17, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 18, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 19, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 20, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 21, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 22, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 23, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 24, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 25, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 26, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 27, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 28, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 29, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 30, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 			// vmdata = UTIL_READFROM_UINT(data, 31, 1);
-			// if(vmdata==1){ mydebugobj->increment(3, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-			// 		// }
-	// }
-	// #endif 
-	///////////////////////////////////////////////
 	return;
 }
 

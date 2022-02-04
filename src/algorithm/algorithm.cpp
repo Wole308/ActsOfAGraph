@@ -102,7 +102,7 @@ value_t algorithm::cummulate(value_t data1, value_t data2){
 	else { return data2; }
 }
 value_t algorithm::vertex_initdata(){ 
-	return 0xFFFFFFFF;
+	return MAXVDATA; // 0xFFFFFFFF;
 }
 value_t algorithm::vertex_inittempdata(){ return 0xFFFFFFFF; }
 uint32_t algorithm::apply(value_t vtempdata, value_t vdata){

@@ -63,18 +63,6 @@ void {{context['classname__top_nusrcv_nudstv']}}processit_splitdstvxs({%for n in
 		cout<<"processit_splitdstvxs: processing [source_partition: "<<source_partition<<"]: [voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<"]: [vreadoffset: "<<vreadoffset_kvs2 * NUM_PEs * VECTOR2_SIZE<<"] ... "<<endl;
 		#endif
 		
-		/* ///////////////////////////////////////////////// REMOVEME
-		#ifdef _DEBUGMODE_CHECKS2
-		if(globalparamsK.ACTSPARAMS_INSTID == 0){
-			for(buffer_type k=0; k<globalparamsK.SIZEKVS2_REDUCEPARTITION; k+=1){
-				for(unsigned int v=0; v<VECTOR2_SIZE; v+=1){
-					if(vmaskREAD[v][k]==1){ mydebugobj->increment(1, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-				}
-			}
-		}
-		#endif 
-		///////////////////////////////////////////////// */
-		
 		if(voffset_kvs2 >= avtravstate.end_kvs){ voffset_kvs2 += globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION; vreadoffset_kvs2 += vreadskipsz_kvs2; continue; }
 		if(GraphAlgo != PAGERANK) { if(vmask_p[source_partition] == 0){ voffset_kvs2 += globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION; vreadoffset_kvs2 += vreadskipsz_kvs2; continue; }}
 		#ifdef _DEBUGMODE_KERNELPRINTsS
@@ -87,21 +75,11 @@ void {{context['classname__top_nusrcv_nudstv']}}processit_splitdstvxs({%for n in
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->print5("### processit_splitdstvxs:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs2 * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
+		#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS_SPL_readvmaskschunks(ON, kvdram, vmaskREAD, vbuffer, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
-		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS_SPL_readvdatachunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
-		
-		/* ///////////////////////////////////////////////// REMOVEME
-		#ifdef _DEBUGMODE_CHECKS2
-		if(globalparamsK.ACTSPARAMS_INSTID == 0){
-			for(buffer_type k=0; k<globalparamsK.SIZEKVS2_REDUCEPARTITION; k+=1){
-				for(unsigned int v=0; v<VECTOR2_SIZE; v+=1){
-					if(vmaskREAD[v][k]==1){ mydebugobj->increment(0, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-				}
-			}
-		}
 		#endif 
-		///////////////////////////////////////////////// */
-		
+		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS_SPL_readvdatachunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
+	
 		vertex_t srcvlocaloffset = (voffset_kvs2 * VECTOR2_SIZE);
 		vertex_t beginsrcvid = globalparamsK.ACTSPARAMS_SRCVOFFSET + (voffset_kvs2 * VECTOR2_SIZE);
 		vertex_t endsrcvid = beginsrcvid + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR);
@@ -241,7 +219,7 @@ void {{context['classname__top_nusrcv_nudstv']}}partitionit({%for n in context['
 			{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_resetvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 			bool_type resetenv; if(source_partition==0){ resetenv = ON; } else { resetenv = OFF; }
 			
-			#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
+			#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY) // CRITICAL REMOVEME.
 			{%if(context['XWARE']=="SW")%}actsobj->{%endif%}ACTS_actit
 			#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
 			{%if(context['XWARE']=="SW")%}actsobj->{%endif%}ACTS_priorit	
@@ -377,7 +355,6 @@ void {{context['classname__top_nusrcv_nudstv']}}dispatch_reduce({%for n in conte
 
 	bool_type enablereduce = ON;
 	
-	if(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID==0){ // CRITICAL REMOVEME.
 	DISPATCHREDUCE_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#ifdef _DEBUGMODE_KERNELPRINTS2
@@ -390,7 +367,7 @@ void {{context['classname__top_nusrcv_nudstv']}}dispatch_reduce({%for n in conte
 		
 		// read vertices
 		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS_SPL_readvdata(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
-		#ifdef CONFIG_COLLECTMASKINFOSDURINGREDUCE
+		#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_reset(vmaskWRITE);
 		#endif 
 		
@@ -399,7 +376,7 @@ void {{context['classname__top_nusrcv_nudstv']}}dispatch_reduce({%for n in conte
 		
 		// writeback vertices
 		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS_SPL_savevdataandmasks(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
-		#ifdef CONFIG_COLLECTMASKINFOSDURINGREDUCE
+		#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS_SPL_savemasks(enablereduce, kvdram, vmaskWRITE, globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK, vmask_offset_kvs, globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + vmaskp_offset_kvs, globalparamsK); // NEW
 		#endif 
 		
@@ -412,8 +389,6 @@ void {{context['classname__top_nusrcv_nudstv']}}dispatch_reduce({%for n in conte
 		vmaskp_offset_kvs += 1;	
 		#endif
 	}
-	}
-	// if(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID==1){ exit(EXIT_SUCCESS); } // REMOVEME.
 	return;
 } 
 
@@ -433,13 +408,10 @@ void {{context['classname__top_nusrcv_nudstv']}}topkernelproc_embedded(
 	keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vbuffer
 	unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE];
-	// #pragma HLS DATA_PACK variable = vmaskREAD
 	#pragma HLS array_partition variable = vmaskREAD
-	unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // NEWCHANGE.
-	// #pragma HLS DATA_PACK variable = vmaskWRITE
+	unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = vmaskWRITE
 	unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE];
-	// #pragma HLS DATA_PACK variable = vmask_subp
 	#pragma HLS array_partition variable = vmask_subp
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
@@ -637,14 +609,17 @@ void {{context['classname__top_nusrcv_nudstv']}}topkernelP{{n}}(
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ {%if(context['XWARE']=="SW")%}acts_merge_splitdstvxsobj->{%endif%}MERGE_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram); }
-	
+	// {%if(context['XWARE']=="SW")%}acts_merge_splitdstvxsobj->{%endif%}MERGE_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);
+
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP{{n}}: processing instance {{i}}"<<endl;
 	#endif 
 	topkernelproc_embedded(kvdram{{i}});	
+	// exit(EXIT_SUCCESS); //	
 	{%endif%}
 	{%endfor%}
 	
@@ -659,7 +634,7 @@ void {{context['classname__top_nusrcv_nudstv']}}topkernelP{{n}}(
 	{%endif%}
 	{%endif%}
 	{%endfor%} */
-	
+
 	{%if(context['XWARE']=="SW")%}acts_merge_splitdstvxsobj->{%endif%}MERGE_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);
 	return;
 }

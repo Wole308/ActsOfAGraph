@@ -1315,39 +1315,12 @@ void acts_all::MEMACCESS_SPL_readvdatachunks(bool_type enable, uint512_dt * kvdr
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
 	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL REMOVEME.
-	
-	#ifdef _DEBUGMODE_CHECKS
-	unsigned int index = 0;
-	value_t * KV = (value_t *)&kvdram[vbaseoffset_kvs];
-	unsigned int mydepth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION * VECTOR2_SIZE;
-	for(unsigned int i=0; i<16384; i++){
-		for(unsigned int s=0; s<NUM_PEs; s++){
-			KV[s*mydepth + i] = index; index+=1;
-		}
-		if(index > 2*16384){ break; }
-	}
-	
-	for(unsigned int s=0; s<NUM_PEs; s++){
-		for(unsigned int i=0; i<2; i++){
-			cout<<"kvdram [s: "<<s<<", row "<<i<<"]: ";
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				cout<<kvdram[vbaseoffset_kvs + s*depth + i].data[v].key<<", "<<kvdram[vbaseoffset_kvs + s*depth + i].data[v].value<<", ";
-			}
-			cout<<endl;
-		}
-	}
-	cout<<endl;
-	// exit(EXIT_SUCCESS);
-	#endif 
-	#ifdef _DEBUGMODE_CHECKS
-	for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			buffer[v][i].key = 0;
-			buffer[v][i].value = 0;
-		}
-	}
-	#endif 
+	#pragma HLS array_partition variable = tempbuffer
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1358,48 +1331,17 @@ void acts_all::MEMACCESS_SPL_readvdatachunks(bool_type enable, uint512_dt * kvdr
 		bdepth_i += bdepth;
 	}
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_readvdatachunks:: total size loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE<<endl;
-	#endif
-	#ifdef _DEBUGMODE_CHECKS
-	for(unsigned int i=0; i<32; i++){
-		cout<<"buffer row "<<2*i<<": ";
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			cout<<buffer[v][i].key<<", ";
-		}
-		cout<<endl;
-		cout<<"buffer row "<<2*i+1<<": ";
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			cout<<buffer[v][i].value<<", ";
-		}
-		cout<<endl;
-	}
-	cout<<endl;
-	#endif 
-	
 	int limit = 0;
-	value_t vdata[VECTOR2_SIZE];
-	value_t vdata2[VECTOR2_SIZE]; 
 	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata[v] = 0; vdata2[v] = 0; }
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
 MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, tempbuffer, vdata, 0);
-		if(i<limit){ cout<<"MEMACCESS_SPL_readvdatachunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdata[v]<<", "; } cout<<endl; }
-		if(i<limit){ cout<<"MEMACCESS_SPL_readvdatachunks:BEFORE2:["<<i<<"]: "; 
-			for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
-				cout<<UTIL_READBITSFROM_UINTV(vdata[v], 0, SIZEOF_VDATA0)<<""; 
-				cout<<"("<<UTIL_READBITSFROM_UINTV(vdata[v], SIZEOF_VDATA0, SIZEOF_VMASK0)<<"), "; 
-			}
-			cout<<endl; 
-		}
-		MEMACCESS_SPL_RearrangeLayoutV(i, vdata, vdata2);
-		if(i<limit){ cout<<"MEMACCESS_SPL_readvdatachunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdata2[v]<<", "; } cout<<endl; }
-		if(i<limit){ cout<<"MEMACCESS_SPL_readvdatachunks:AFTER2:["<<i<<"]: "; 
-			for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
-				cout<<UTIL_READBITSFROM_UINTV(vdata2[v], 0, SIZEOF_VDATA0)<<""; 
-				cout<<"("<<UTIL_READBITSFROM_UINTV(vdata2[v], SIZEOF_VDATA0, SIZEOF_VMASK0)<<"), "; 
-			}
-			cout<<endl; 
-		}
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		if(i<limit){ mydebugobj->printvdata(vdata, 0, i); }
+		#endif 
+		MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + i, vdata, vdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		if(i<limit){ mydebugobj->printvdata(vdata2, 1, i); }
+		#endif 
 MEMCA_WRITETOBUFFER_VDATASANDVMASKS(i, buffer, vdata2, 0);
 	}
 	
@@ -1436,7 +1378,7 @@ void acts_all::MEMACCESS_SPL_savevdataandmasks(bool_type enable, uint512_dt * kv
 	
 MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vdatas, bufferoffset_kvs);
 		
-		unsigned int vdata1;
+		/* unsigned int vdata1;
 		unsigned int vdata2;
 		unsigned int vmdata1;
 		unsigned int vmdata2;
@@ -1488,6 +1430,7 @@ MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vdatas, bufferoffset_kvs);
 		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[15], SIZEOF_VDATA0, SIZEOF_VMASK0);
 		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[14]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
 		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[15]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
+ */
 		
 		
 MEMCA_WRITETOKVDRAM_VDATASANDVMASKS(i, kvdram, vdatas, baseoffset_kvs, offset_kvs);
@@ -1496,7 +1439,7 @@ MEMCA_WRITETOKVDRAM_VDATASANDVMASKS(i, kvdram, vdatas, baseoffset_kvs, offset_kv
 		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
 		#endif
 	}
-	if(isfail == 1 && count > 64){ exit(EXIT_FAILURE); } ////////////////////////////
+	// if(isfail == 1 && count > 64){ exit(EXIT_FAILURE); } ////////////////////////////
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"savevdata:: vertices saved: offset: "<<(offset_kvs) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
 	#endif
@@ -2603,7 +2546,12 @@ void acts_all::MEMACCESS_SPL_readvmaskschunks(bool_type enable, uint512_dt * kvd
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
 	unit1_type tempvmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -2615,13 +2563,15 @@ void acts_all::MEMACCESS_SPL_readvmaskschunks(bool_type enable, uint512_dt * kvd
 	}
 	
 	int limit = 0;
-	unit1_type vmdata[VECTOR2_SIZE];
-	unit1_type vmdata2[VECTOR2_SIZE];
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
 MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		if(i<limit){ cout<<"MEMACCESS_SPL_readvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
-		MEMACCESS_SPL_RearrangeLayoutVM(i, vmdata, vmdata2);
+		#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2); // CRITICAL FIXME. should be 'voffset + i' instead of just 'i'
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		if(i<limit){ cout<<"MEMACCESS_SPL_readvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+		#endif 
 MEMCA_WRITETOBUFFER_VMASKS(i, vmaskBITS, vmdata2, 0);
 	}
 	

@@ -302,7 +302,12 @@ UTIL_calculatemanyunallignedoffsets(localcapsule, MAX_NUM_PARTITIONS, 0, 0);
 			actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues.localcapsule[v][p].key", localcapsule[v][p].key, 4);
 		}
 	}
-	#endif 
+	buffer_type maxcutoff = 0;
+	for(vector_type v=0; v<VECTOR_SIZE; v++){ if(cutoffs[v] > maxcutoff){ maxcutoff = cutoffs[v]; }}
+	if(maxcutoff % 4 != 0){ for(int v=0; v<VECTOR_SIZE; v++){ cout<<"------------------- preparekeyvalues:cutoffs["<<v<<"]: "<<cutoffs[v]<<endl; } exit(EXIT_FAILURE); }
+	actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:maxcutoff", maxcutoff, 4);
+actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[0]", emptyslot[0], 4);actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[1]", emptyslot[1], 4);actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[2]", emptyslot[2], 4);actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[3]", emptyslot[3], 4);actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[4]", emptyslot[4], 4);actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[5]", emptyslot[5], 4);actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[6]", emptyslot[6], 4);actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[7]", emptyslot[7], 4);	
+	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("[after]preparekeyvalues.localcapsule[0].2", (keyvalue_t *)localcapsule[0], MAX_NUM_PARTITIONS);
 	actsutilityobj->printvalues("preparekeyvalues:cutoffs", cutoffs, VECTOR_SIZE);

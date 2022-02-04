@@ -523,7 +523,7 @@ globalparams_TWOt loadedges_splitdstvxs::loadoffsetmarkers(vptr_type * vptrs[NUM
 	cout<<"loadedges_splitdstvxs::loadoffsetmarkers:: loading offset markers... "<<endl;
 	#endif
 	
-	globalparams.globalparamsK.BASEOFFSETKVS_STATSDRAM = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + (globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK / VECTOR_SIZE);
+	globalparams.globalparamsK.BASEOFFSETKVS_STATSDRAM = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + (globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK / VECTOR2_SIZE);
 	globalparams.globalparamsK.SIZE_KVSTATSDRAM = ACTIVE_KVSTATSDRAMSZ *
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 		NUM_EDGE_BANKS;
@@ -531,7 +531,7 @@ globalparams_TWOt loadedges_splitdstvxs::loadoffsetmarkers(vptr_type * vptrs[NUM
 		1;	
 		#endif
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparams.globalparamsE.BASEOFFSETKVS_STATSDRAM = globalparams.globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK + (globalparams.globalparamsE.SIZE_VERTICESPARTITIONMASK / VECTOR_SIZE);
+	globalparams.globalparamsE.BASEOFFSETKVS_STATSDRAM = globalparams.globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK + (globalparams.globalparamsE.SIZE_VERTICESPARTITIONMASK / VECTOR2_SIZE);
 	globalparams.globalparamsE.SIZE_KVSTATSDRAM = ACTIVE_KVSTATSDRAMSZ; // * NUM_EDGE_BANKS; // NEWCHANGE.
 	#endif 
 	
@@ -772,7 +772,7 @@ globalparams_TWOt loadedges_splitdstvxs::generatevmaskdata(vector<vertex_t> &act
 	globalparams.globalparamsK.SIZE_VERTICESDATAMASK = VERTICESDATAMASKSZ;
 	
 	globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsK.SIZE_VERTICESDATAMASK / VECTOR2_SIZE);
-	globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK = (NUMPROCESSEDGESPARTITIONS * 2) * VECTOR_SIZE; // '*2' is padding value. AUTOMATEME.
+	globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK = (NUMPROCESSEDGESPARTITIONS * 2) * VECTOR2_SIZE; // '*2' is padding value. AUTOMATEME.
 	
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	globalparams.globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEVERTICES + ((globalparams.globalparamsE.SIZE_ACTIVEVERTICES/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
@@ -786,7 +786,7 @@ globalparams_TWOt loadedges_splitdstvxs::generatevmaskdata(vector<vertex_t> &act
 	globalparams.globalparamsV.SIZE_VERTICESDATAMASK = VERTICESDATAMASKSZ;
 	
 	globalparams.globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsV.BASEOFFSETKVS_VERTICESDATAMASK + (globalparams.globalparamsV.SIZE_VERTICESDATAMASK / VECTOR2_SIZE);
-	globalparams.globalparamsV.SIZE_VERTICESPARTITIONMASK = (NUMPROCESSEDGESPARTITIONS * 2) * VECTOR_SIZE;
+	globalparams.globalparamsV.SIZE_VERTICESPARTITIONMASK = (NUMPROCESSEDGESPARTITIONS * 2) * VECTOR2_SIZE;
 	
 	unsigned int _BASEOFFSET_VERTICESDATAMASK_KVS = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK;
 	unsigned int _BASEOFFSET_VERTICESPARTITIONMASK_KVS = globalparams.globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK;
@@ -802,29 +802,33 @@ globalparams_TWOt loadedges_splitdstvxs::generatevmaskdata(vector<vertex_t> &act
 	cout<<"[globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK: "<<globalparams.globalparamsK.BASEOFFSETKVS_VERTICESDATAMASK<<"]"<<endl;
 	#endif
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		for(unsigned int partition=0; partition<NUMPROCESSEDGESPARTITIONS; partition++){
-			for(unsigned int k=0; k<VMASKBUFFERSZ_KVS; k++){
-				#ifdef _DEBUGMODE_CHECKS3
-				utilityobj->checkoutofbounds("loadgraph::generatevmaskdata 2._BASEOFFSET_VERTICESDATAMASK_KVS", _BASEOFFSET_VERTICESDATAMASK_KVS + k, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
-				#endif
+	for(unsigned int partition=0; partition<NUMPROCESSEDGESPARTITIONS; partition++){
+		for(unsigned int k=0; k<VMASKBUFFERSZ_KVS; k++){
+			#ifdef _DEBUGMODE_CHECKS3
+			utilityobj->checkoutofbounds("loadgraph::generatevmaskdata 2._BASEOFFSET_VERTICESDATAMASK_KVS", _BASEOFFSET_VERTICESDATAMASK_KVS + k, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
+			#endif
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
 				for(unsigned int v=0; v<VECTOR_SIZE; v++){
 					kvbuffer[i][_BASEOFFSET_VERTICESDATAMASK_KVS + (partition * VMASKBUFFERSZ_KVS) + k].data[v].key = 0;
 					kvbuffer[i][_BASEOFFSET_VERTICESDATAMASK_KVS + (partition * VMASKBUFFERSZ_KVS) + k].data[v].value = 0;
 				}
 			}
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				vdram[_BASEOFFSETV_VERTICESDATAMASK_KVS + (partition * VMASKBUFFERSZ_KVS) + k].data[v].key = 0;
+				vdram[_BASEOFFSETV_VERTICESDATAMASK_KVS + (partition * VMASKBUFFERSZ_KVS) + k].data[v].value = 0;
+			}
 		}
 	}
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		for(unsigned int k=0; k<globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK; k++){
-			#ifdef _DEBUGMODE_CHECKS3
-			utilityobj->checkoutofbounds("loadedges::generatevmaskdata 2._BASEOFFSET_VERTICESPARTITIONMASK_KVS", _BASEOFFSET_VERTICESPARTITIONMASK_KVS + k, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
-			#endif
-			kvbuffer[i][_BASEOFFSET_VERTICESPARTITIONMASK_KVS + k].data[0].key = 0;
-		}
-		kvbuffer[i][_BASEOFFSET_VERTICESPARTITIONMASK_KVS].data[0].key = 1; 
+	for(unsigned int k=0; k<globalparams.globalparamsK.SIZE_VERTICESPARTITIONMASK; k++){
+		#ifdef _DEBUGMODE_CHECKS3
+		utilityobj->checkoutofbounds("loadedges::generatevmaskdata 2._BASEOFFSET_VERTICESPARTITIONMASK_KVS", _BASEOFFSET_VERTICESPARTITIONMASK_KVS + k, PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);
+		#endif
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i][_BASEOFFSET_VERTICESPARTITIONMASK_KVS + k].data[0].key = 0; }
+		vdram[_BASEOFFSETV_VERTICESPARTITIONMASK_KVS + k].data[0].key = 0;
 	}
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i][_BASEOFFSET_VERTICESPARTITIONMASK_KVS].data[0].key = 1; }
+	vdram[_BASEOFFSETV_VERTICESPARTITIONMASK_KVS].data[0].key = 1;
 	return globalparams;
 }
 
@@ -900,22 +904,22 @@ void loadedges_splitdstvxs::setrootvid(uint512_vec_dt * kvbuffer, vector<vertex_
 						cout<<"loadedges_splitdstvxs::setrootvid::(1) vid == 1 seen. i: "<<i<<", partition: "<<partition<<", k: "<<k<<", v: "<<v<<", lvid: "<<lvid<<", vid: "<<vid<<endl;
 						#endif 
 						
-						#ifdef CONFIG_MERGEVMASKSWITHVBUFFERDATA
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], SIZEOF_VDATA0, SIZEOF_VMASK0, 1);//1);
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], 0, SIZEOF_VDATA0, 0);
-						#else 
+						#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 						vbuffer[v][k] = 0;
+						#else 
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], SIZEOF_VDATA0, SIZEOF_VMASK0, 1);
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], 0, SIZEOF_VDATA0, 0);
 						#endif 
 						vmask[v][k] = 1;
 						
 						// vbuffer[v][k] = 0;
 						// vmask[v][k] = 1;
 					} else {
-						#ifdef CONFIG_MERGEVMASKSWITHVBUFFERDATA
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], 0, SIZEOF_VDATA0, MAXVDATA); //algorithmobj->vertex_initdata()); //32767
+						#ifdef CONFIG_SEPERATEVMASKFROMVDATA
+						vbuffer[v][k] = algorithmobj->vertex_initdata();		
 						#else 
-						vbuffer[v][k] = algorithmobj->vertex_initdata();
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], 0, SIZEOF_VDATA0, algorithmobj->vertex_initdata()); // MAXVDATA, algorithmobj->vertex_initdata()), 32767
 						#endif 
 						vmask[v][k] = 0;
 						

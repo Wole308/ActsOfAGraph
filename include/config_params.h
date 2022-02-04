@@ -43,30 +43,23 @@
 // #define CONFIG_READVDATA_SLIDE // access format for source vertices 
 #define CONFIG_READVDATA_SLIDEANDREARRANGE
 
-#define CONFIG_MERGEVMASKSWITHVBUFFERDATA // merging vmask and vbuffer datas {loadedges_splitdstvxs.cpp}
+#define CONFIG_SEPERATEVMASKFROMVDATA // seperating vmask and vbuffer datas {loadedges_splitdstvxs.cpp, processedges_splitdstvxs.cpp, reduceupdates.cpp, acts_merge_splitdstvxs.cpp}
 
 #define CONFIG_ENABLEPROCESSMODULE
 #define CONFIG_ENABLEPARTITIONMODULE
 #define CONFIG_ENABLEREDUCEMODULE //
 #define CONFIG_ENABLESYNCHRONIZEMODULE //
 
-#ifdef CONFIG_SPLIT_DESTVTXS
-#define CONFIG_COLLECTMASKINFOSDURINGREDUCE
-#endif 
-
 #define CONFIG_ENABLECLASS_ACTSUTILITY
-// #define CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
-#define CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
-#define CONFIG_ENABLECLASS_PROCESSEDGESU
+#define CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
+// #define CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
 #define CONFIG_ENABLECLASS_PROCESSEDGES_SPLITDSTVXS
 #define CONFIG_ENABLECLASS_PARTITIONUPDATES
 #define CONFIG_ENABLECLASS_REDUCEUPDATES
-#define CONFIG_ENABLECLASS_MEM_ACCESS
 #define CONFIG_ENABLECLASS_MEM_ACCESS_SPLITDSTVXS
 #define CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 #define CONFIG_ENABLECLASS_ACTS_UTIL
 #define CONFIG_ENABLECLASS_ACTS
-// #define CONFIG_ENABLECLASS_ACTS_MERGE
 #define CONFIG_ENABLECLASS_ACTS_MERGE_SPLITDSTVXS
 #define CONFIG_ENABLECLASS_MYDEBUG
 
@@ -89,9 +82,9 @@ classname__top_nusrcv_nudstv.unit1_type: use data packing throughout instead to 
 
 fetchmessage_t {{context['classname__acts']}}ACTS_fetchkeyvalues -> {%if(context['XWARE']=="SW")%}processedgesobj->{%endif%}PROCESS_SPL2_readandprocess
 void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvdata_slide
-context['MQ_seq'] = []
+context['PE_SETSZ_seq'] = []
 for i in range (0,8):
-		context['MQ_seq'].append(i)
+		context['PE_SETSZ_seq'].append(i)
 // if(GraphAlgo == PAGERANK){
 		// res = udata;
 	// } else if(GraphAlgo == BFS){
@@ -124,7 +117,38 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPT
 READANDPROCESS_SPL_LOOP3C: for (buffer_type i=0; i<5; i++){ // CRITICAL REMOVEME.
 
 ******** void {{context['classname__top_nusrcv_nudstv']}}dispatch_reduce({ ...  if(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID==0){
+if(globalparams.ALGORITHMINFO_GRAPHITERATIONID==1){ exit(EXIT_SUCCESS); }
+algorithm.cpp -> value_t algorithm::vertex_initdata(){ 
+	return MAXVDATA; 0xFFFFFFFF;
 
+actscommon-> #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
+#define NUMPIPELINES_PARTITIONUPDATES 2 // REMOVEME.
+}
+
+acts.cpp -> #ifdef ALLVERTEXISACTIVE_ALGORITHM
+	if(maxcutoff % 4 != 0){ maxcutoff = 4; } // FIXME.
+	#endif 
+	
+void {{context['classname__top_nusrcv_nudstv']}}dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, {%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
+				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
+	// if(en_process == ON){ processit_splitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
+	// if(en_partition == ON){ partitionit({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE,  vmask_subp, globalparamsK, NAp); } 
+	if(en_reduce == ON){ reduceit({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmaskREAD, vmaskWRITE, vmask_subp, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
+	return;
+}
+
+void {{context['classname__acts_util']}}UTIL_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value)
+
+// CRITICAL REMOVEME.
+	// if(GraphIter > 0){ {%if(context['XWARE']=="SW")%}acts_merge_splitdstvxsobj->{%endif%}MERGE_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram); }
+// {%if(context['XWARE']=="SW")%}acts_merge_splitdstvxsobj->{%endif%}MERGE_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram);
+	
+context['PE_SETSZ_seq'] = []
+for i in range (0,8):
+		context['PE_SETSZ_seq'].append(i)
+		
+READANDPROCESS_SPL_LOOP3D: for (buffer_type i=0; i<24; i++){
 */
 
 

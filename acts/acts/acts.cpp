@@ -132,8 +132,12 @@ UTIL_resetvalues(capsule_so8, MAX_NUM_PARTITIONS, 0);
 		if(cutoffs[v] > maxcutoff){ maxcutoff = cutoffs[v]; }
 	}
 	#ifdef _DEBUGMODE_CHECKS2
+	if(maxcutoff % 4 != 0){ for(int v=0; v<VECTOR_SIZE; v++){ cout<<"------------------- actspipeline:cutoffs["<<v<<"]: "<<cutoffs[v]<<endl; } exit(EXIT_FAILURE); }
 	actsutilityobj->checkfordivisibleby(ON, "actspipeline:maxcutoff", maxcutoff, 4);
 	#endif
+	#ifdef ALLVERTEXISACTIVE_ALGORITHM
+	if(maxcutoff % 4 != 0){ maxcutoff = 4; } // FIXME.
+	#endif 
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
@@ -343,7 +347,6 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 		
 		ptravstatepp0.i_kvs = offset_kvs;
 		fetchmessagepp0 = ACTS_fetchkeyvalues(ON, mode,  kvdram, vbuffer, vmaskREAD, vmask_subp, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalparams, edgebankID);
-		// CRITICAL ADDMEBACK.
 		#ifdef PUP1
 		ACTS_actspipeline(pp1runpipelineen, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 

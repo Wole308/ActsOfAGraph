@@ -9,6 +9,10 @@ using namespace std;
 
 // int programglobalvar_numvtxsprocessed = 0; // program global variables
 
+#define VSETSZ 32
+#define VMSETSZ 32
+#define PE_SETSZ {{context['PE_SETSZ']}}
+
 #ifdef SW
 processedges_splitdstvxs::processedges_splitdstvxs(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
@@ -91,25 +95,25 @@ void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigne
 	
 	if(debugid == 3){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%for v in context['PE_SETSZ_seq']%}
 		cout<<"readandprocess(3)::DEBUG CODE 3:: E[{{v}}]: "<<E[{{v}}]<<", lvid_head: "<<lvid_head<<", incr[{{v}}]: "<<incr[{{v}}]<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ens[{{v}}]: "<<ens[{{v}}]<<endl;
 		{%endfor%}
 		#endif
 		#ifdef _DEBUGMODE_CHECKS2
-		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%for v in context['PE_SETSZ_seq']%}
 		if(ens[{{v}}] == ON && incr[{{v}}] >= MAX_NUM_UNIQ_EDGES_PER_VEC){ 
 			cout<<"readandprocess(12)::DEBUG CODE 3:: incr[{{v}}]("<<incr[{{v}}]<<") > MAX_NUM_UNIQ_EDGES_PER_VEC("<<MAX_NUM_UNIQ_EDGES_PER_VEC<<"). lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<endl;
-			{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(12)::DEBUG CODE 3::mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
+			{%for n in context['PE_SETSZ_seq']%} cout<<">>> readandprocess(12)::DEBUG CODE 3::mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(12)::DEBUG CODE 3::mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		{%endfor%}
 		#endif
 		#ifdef _DEBUGMODE_CHECKS2
-		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%for v in context['PE_SETSZ_seq']%}
 		if(lsrcvids[{{v}}] >= validbound){
 			if(*debug_numinvalidheads > 32){
-			{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(17)::DEBUG CODE 3:: mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
+			{%for n in context['PE_SETSZ_seq']%} cout<<">>> readandprocess(17)::DEBUG CODE 3:: mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<endl; {%endfor%} 
 			cout<<"readandprocess::::DEBUG CODE 3::ERROR(17): "<<*debug_numinvalidheads<<" srcv heads found (4 was limit set). i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, validbound: "<<validbound<<", *debug_numinvalidheads: "<<*debug_numinvalidheads<<". EXITING..."<<endl; exit(EXIT_FAILURE); } 
 			else {
 			// cout<<"readandprocess:: i: "<<i<<" (of "<<chunk_size<<"), v: {{v}}, validbound: "<<validbound<<", *debug_numinvalidheads: "<<*debug_numinvalidheads<<endl;
@@ -119,14 +123,23 @@ void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigne
 	}
 	
 	if(debugid == 4){
-		#ifdef _DEBUGMODE_CHECKS2
-		{%for v in context['VECTOR2_SIZE_seq']%}
+		#ifdef _DEBUGMODE_CHECKS2	
+		// {%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<", mask[{{n}}]: "<<mask[{{n}}]<<endl; {%endfor%} 
+		// for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
+		// cout<<"SUCCESS? @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
+		// cout<<"SUCCESS? @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+		
+		// for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
+			
+		
+		{%for v in context['PE_SETSZ_seq']%}
 		if(ens[{{v}}] == ON && mask[{{v}}] > 2){ 
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::mask[{{v}}].2. i: "<<i<<", mask[{{v}}]: "<<mask[{{v}}]<<", incr[{{v}}]: "<<incr[{{v}}]<<endl;
-			{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<", mask[{{v}}]: "<<mask[{{v}}]<<endl; {%endfor%} 
+			{%for n in context['VECTOR2_SIZE_seq']%} cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: E[{{n}}]: "<<E[{{n}}]<<", lvid_head: "<<lvid_head<<", lsrcvids[{{n}}]: "<<lsrcvids[{{n}}]<<", ldstvids[{{n}}]: "<<ldstvids[{{n}}]<<", incr[{{n}}]: "<<incr[{{n}}]<<", mask[{{n}}]: "<<mask[{{n}}]<<endl; {%endfor%} 
 			for(unsigned int r=0; r<MAX_NUM_UNIQ_EDGES_PER_VEC; r++){ cout<<">>> readandprocess(14)::DEBUG CODE 4:: mask: udataset["<<r<<"]: "<<udataset[r]<<", maskset["<<r<<"]: "<<maskset[r]<<endl; }
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[0].beginoffset: "<<sliceinfos.slice[0].beginoffset<<", sliceinfos.slice[0].endoffset: "<<sliceinfos.slice[0].endoffset<<endl;
 			cout<<"ERROR @ readandprocess(14)::DEBUG CODE 4::. sliceinfos.slice[1].beginoffset: "<<sliceinfos.slice[1].beginoffset<<", sliceinfos.slice[1].endoffset: "<<sliceinfos.slice[1].endoffset<<endl;
+			for(unsigned int v=0; v<VSETSZ; v++){ cout<<"readandprocess(14)::DEBUG CODE 4:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 			exit(EXIT_FAILURE); 
 		}
 		{%endfor%}
@@ -135,7 +148,7 @@ void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigne
 	
 	if(debugid == 5){
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%for v in context['PE_SETSZ_seq']%}
 		if(ens[{{v}}] == ON && mask[{{v}}] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<", udata: "<<udataset[incr[{{v}}]]<<"], [ens[{{v}}]: "<<ens[{{v}}]<<", mask[{{v}}]: "<<mask[{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
 		{%endfor%}	
 		// for(unsigned int v=0; v<MAX_NUM_UNIQ_EDGES_PER_VEC; v++){ cout<<"readandprocess(15)::DEBUG CODE 5:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
@@ -144,7 +157,7 @@ void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigne
 	
 	if(debugid == 6){
 		#ifdef _DEBUGMODE_CHECKS3
-		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%for v in context['PE_SETSZ_seq']%}
 		if(mykeyvalue[{{v}}].key == INVALIDDATA || mykeyvalue[{{v}}].value == INVALIDDATA){ *inactiveloadcount += 1; } else { *activeloadcount += 1; } 
 		{%endfor%}
 		#endif 
@@ -152,7 +165,7 @@ void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigne
 
 	if(debugid == 7){
 		#ifdef _DEBUGMODE_STATS
-		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%for v in context['PE_SETSZ_seq']%}
 		actsutilityobj->globalstats_countkvsprocessed(1);
 		if(ens[{{v}}] == ON && mask[{{v}}] == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
 		{%endfor%}
@@ -457,7 +470,8 @@ unsigned int {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL3_GETR
 	
 	return truerow_dim16;
 }
-void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMdatas[MAX_NUM_UNIQ_EDGES_PER_VEC], globalparams_t globalparams){					
+
+unsigned int {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], value_t Vdatas[VSETSZ], unit1_type VMdatas[VMSETSZ], globalparams_t globalparams){					
 	unit1_type VMdatas_tmp[32];
 	unit1_type VMdatas_tmpA[VECTOR2_SIZE];
 	unit1_type VMdatas_tmpB[VECTOR2_SIZE];
@@ -477,30 +491,26 @@ void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL3_GETVTXDATASE
 	unsigned int truerow1_dim16 = PROCESS_SPL3_GETROW(loc);
 	unsigned int truerow2_dim16 = PROCESS_SPL3_GETROW((loc + (VECTOR2_SIZE - col_dim16)));
 
-	#ifdef CONFIG_MERGEVMASKSWITHVBUFFERDATA
-	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
-	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
-	#else 
+	// CRITICAL REMOVEME.
+	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATAS(truerow1_dim16, vbuffer, Vdatas_tmpA, 0); }
 	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATAS(truerow2_dim16, vbuffer, Vdatas_tmpB, 0); }
 	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VMASKS(truerow1_dim16, vmaskBITS, VMdatas_tmpA, 0); }
 	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VMASKS(truerow2_dim16, vmaskBITS, VMdatas_tmpB, 0); }
+	#else 
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
 	#endif 
-	
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ VMdatas_tmp[v] = VMdatas_tmpA[v]; Vdatas_tmp[v] = Vdatas_tmpA[v]; }
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ VMdatas_tmp[VECTOR2_SIZE + v] = VMdatas_tmpB[v]; Vdatas_tmp[VECTOR2_SIZE + v] = Vdatas_tmpB[v]; }
-	
-	unsigned int index = 0;
-	for(unsigned int v=fcol_dim16; v<fcol_dim16 + MAX_NUM_UNIQ_EDGES_PER_VEC; v++){
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("PROCESS_SPL3_GETVTXDATASET(C).fcol_dim16", index, 32, v, NAp, NAp);
-		actsutilityobj->checkoutofbounds("PROCESS_SPL3_GETVTXDATASET(C).v", v, 32, v, NAp, NAp);
-		#endif
-		VMdatas[index] = VMdatas_tmp[v];
-		Vdatas[index] = Vdatas_tmp[v];
-		index += 1;
-	}
-	return;
+
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	Vdatas[{{v}}] = Vdatas_tmpA[{{v}}]; 
+	VMdatas[{{v}}] = VMdatas_tmpA[{{v}}];
+	{%endfor%}
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	Vdatas[{{context['VECTOR2_SIZE'] + v}}] = Vdatas_tmpB[{{v}}];
+	VMdatas[{{context['VECTOR2_SIZE'] + v}}] = VMdatas_tmpB[{{v}}]; 
+	{%endfor%}
+	return fcol_dim16;
 }
 
 fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
@@ -555,9 +565,9 @@ fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_rea
 	unit1_type VMsets[2][VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=VMset complete
 	
-	value_t Vset[MAX_NUM_UNIQ_EDGES_PER_VEC];
+	value_t Vset[VSETSZ];
 	#pragma HLS ARRAY_PARTITION variable=Vset complete
-	unit1_type VMset[MAX_NUM_UNIQ_EDGES_PER_VEC];
+	unit1_type VMset[VMSETSZ];
 	#pragma HLS ARRAY_PARTITION variable=VMset complete
 	
 	sliceinfos_t sliceinfos;
@@ -579,105 +589,129 @@ fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_rea
 	unsigned int debug_numinvalidheads = 0;
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	for(unsigned int v=0; v<MAX_NUM_UNIQ_EDGES_PER_VEC; v++){ udataset[v] = 0; }
-
-	unsigned int num_passes = 1;
+	unsigned int offset = 0;
+	keyvalue_t dummykeyvalue; dummykeyvalue.key = INVALIDDATA; dummykeyvalue.value = INVALIDDATA;
+	
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	incr[{{v}}] = 0;
+	lsrcvids[{{v}}] = 0;
+	ldstvids[{{v}}] = 0;	
+	E[{{v}}] = 0;
+	ens[{{v}}] = 0;
+	udata[{{v}}] = 0;
+	mask[{{v}}] = 0;
+	{%endfor%}
+	
 	buffer_type chunk_size = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
-	READANDPROCESS_SPL_LOOP3A:  for(buffer_type part=0; part<1; part++){
-		READANDPROCESS_SPL_LOOP3B:  for(buffer_type m=0; m<num_passes; m++){
-			loadcount = 0;
-			debug_numinvalidheads = 0;
-			READANDPROCESS_SPL_LOOP3C: for (buffer_type i=0; i<chunk_size; i++){
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
-			#pragma HLS PIPELINE II=1
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				cout<<"--- PROCESS_SPL_readandprocess: m: "<<m<<", i: "<<i<<" (of "<<chunk_size<<")"<<endl;
-				#endif
+	READANDPROCESS_SPL_LOOP3C: for(buffer_type setoffset=0; setoffset<VECTOR2_SIZE; setoffset+=PE_SETSZ){
+		READANDPROCESS_SPL_LOOP3D: for (buffer_type i=0; i<chunk_size; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
+		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"--- PROCESS_SPL_readandprocess: setoffset: "<<setoffset<<", i: "<<i<<" (of setsize: "<<VECTOR2_SIZE<<", of "<<chunk_size<<")"<<endl;
+			#endif
 
-				#ifdef _WIDEWORD
-				{%for v in context['MQ_seq']%}
-				E[{{v}}] = edges[offset_kvs + i].range({{((v + 1) * 32) - 1}}, {{v * 32}}); 
-				{%endfor%}
-				#else 
-				{%for v in context['VECTOR_SIZE_seq']%}
-				E[{{2*v}}] = edges[offset_kvs + i].data[{{v}}].key; 
-				E[{{2*v+1}}] = edges[offset_kvs + i].data[{{v}}].value;
-				{%endfor%}
-				#endif
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-					
-				srcvid_head = E[0];
-				lvid_head = srcvid_head - travstate.i2;	
-				{%for v in context['MQ_seq']%}
-				parsededge_t parsed_edge{{v}} = PARSE_EDGE(E[{{v}}]);
-				incr[{{v}}] = parsed_edge{{v}}.incr;
-				lsrcvids[{{v}}] = lvid_head + incr[{{v}}];
-				ldstvids[{{v}}] = parsed_edge{{v}}.dstvid;	
-				{%endfor%}
+			#ifdef _WIDEWORD
+			{%for v in context['VECTOR2_SIZE_seq']%}
+			E[{{v}}] = edges[offset_kvs + i].range({{((v + 1) * 32) - 1}}, {{v * 32}}); 
+			{%endfor%}
+			#else 
+			{%for v in context['VECTOR_SIZE_seq']%}
+			E[{{2*v}}] = edges[offset_kvs + i].data[{{v}}].key; 
+			E[{{2*v+1}}] = edges[offset_kvs + i].data[{{v}}].value;
+			{%endfor%}
+			#endif
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif 
 				
-				bool_type en = ON;
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif
-				
-				#if defined(CONFIG_READVDATA_SLIDE)
-				NOT IMPLEMENTED.
-				#elif defined(CONFIG_READVDATA_SLIDEANDREARRANGE)
-				PROCESS_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
-				#else
-				PROCESS_SPL1_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
-				#endif
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-				
-				{%for v in context['MQ_seq']%}
-				ens[{{v}}] = ON; if(E[{{v}}] == INVALIDDATA || lsrcvids[{{v}}] >= validbound){ ens[{{v}}] = OFF; }
+			srcvid_head = E[0];
+			lvid_head = srcvid_head - travstate.i2;	
+			
+			parsededge_t parsed_edgeSTD0 = PARSE_EDGE(E[0]); unsigned int incrSTD0 = parsed_edgeSTD0.incr; unsigned int lsrcvidsSTD0 = lvid_head + incrSTD0; unsigned int ldstvidsSTD0 = parsed_edgeSTD0.dstvid; // STD0
+			parsededge_t parsed_edgeSTD1 = PARSE_EDGE(E[1]); unsigned int incrSTD1 = parsed_edgeSTD1.incr; unsigned int lsrcvidsSTD1 = lvid_head + incrSTD1; unsigned int ldstvidsSTD1 = parsed_edgeSTD1.dstvid; // STD1
+			{%for v in context['PE_SETSZ_seq']%}
+			parsededge_t parsed_edge{{v}} = PARSE_EDGE(E[setoffset + {{v}}]);
+			incr[{{v}}] = parsed_edge{{v}}.incr;
+			lsrcvids[{{v}}] = lvid_head + incr[{{v}}];
+			ldstvids[{{v}}] = parsed_edge{{v}}.dstvid;	
+			{%endfor%}
+			
+			bool_type en = ON;
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif
+			
+			#if defined(CONFIG_READVDATA_SLIDE)
+			NOT IMPLEMENTED.
+			#elif defined(CONFIG_READVDATA_SLIDEANDREARRANGE)
+			offset = PROCESS_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
+			#else
+			PROCESS_SPL1_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
+			#endif
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif 
+			
+			bool_type ensSTD0 = ON; if(E[0] == INVALIDDATA || lsrcvidsSTD0 >= validbound){ ensSTD0 = OFF; } // STD0.
+			bool_type ensSTD1 = ON; if(E[1] == INVALIDDATA || lsrcvidsSTD1 >= validbound){ ensSTD1 = OFF; } // STD1.
+			{%for v in context['PE_SETSZ_seq']%}
+			ens[{{v}}] = ON; if(E[setoffset + {{v}}] == INVALIDDATA || lsrcvids[{{v}}] >= validbound){ ens[{{v}}] = OFF; }
+			{%endfor%}
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif 
+			
+			unsigned int udataSTD0 = 0; unsigned int maskSTD0 = 0; // STD0.
+			unsigned int udataSTD1 = 0; unsigned int maskSTD1 = 0; // STD1.
+			{%for v in context['PE_SETSZ_seq']%} mask[{{v}}] = 0; {%endfor%}
+			if(GraphAlgo == PAGERANK){ {%for v in context['PE_SETSZ_seq']%} mask[{{v}}] = 1; {%endfor%} } 
+			else {
+				udataSTD0 = Vset[offset + incrSTD0]; // STD0.
+				maskSTD0 = VMset[offset + incrSTD0]; // STD0.
+				udataSTD1 = Vset[offset + incrSTD1]; // STD1.
+				maskSTD1 = VMset[offset + incrSTD1]; // STD1.
+				{%for v in context['PE_SETSZ_seq']%}
+				udata[{{v}}] = Vset[offset + incr[{{v}}]]; 
+				mask[{{v}}] = VMset[offset + incr[{{v}}]];
 				{%endfor%}
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-				
-				{%for v in context['MQ_seq']%} mask[{{v}}] = 0; {%endfor%}
-				if(GraphAlgo == PAGERANK){ {%for v in context['MQ_seq']%} mask[{{v}}] = 1; {%endfor%} } 
-				else {
-					{%for v in context['MQ_seq']%}
-					udata[{{v}}] = Vset[incr[{{v}}]]; 
-					mask[{{v}}] = VMset[incr[{{v}}]];
-					{%endfor%}
-				}
-				mask[0] = 0; 
-				ens[0] = OFF;
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif
-				
-				{%for v in context['MQ_seq']%}
-				res[{{v}}] = PROCESS_SPL_processfunc(udata[{{v}}], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-				{%endfor%}
-				{%for v in context['MQ_seq']%}
-				if(ens[{{v}}] == ON && mask[{{v}}] == 1){ mykeyvalue[{{v}}].key = ldstvids[{{v}}]; mykeyvalue[{{v}}].value = res[{{v}}]; } else { mykeyvalue[{{v}}].key = INVALIDDATA; mykeyvalue[{{v}}].value = INVALIDDATA;  }
-				{%endfor%}
-				mykeyvalue[0].key = INVALIDDATA;
-				mykeyvalue[0].value = INVALIDDATA;
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-		
-				{%for v in context['VECTOR_SIZE_seq']%}
-				buffer[{{v}}][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{v}}]);
-				{%endfor%}	
-				{%for v in context['VECTOR_SIZE_seq']%}
-				buffer[{{v}}][loadcount + 1] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{8+v}}]);
-				{%endfor%}	
-				if(ens[1] == ON && mask[1] == 1){ loadcount += 2; }
-				#ifdef _DEBUGMODE_CHECKS3
-				PROCESS_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-				#endif 
-				
-				// exit(EXIT_SUCCESS); ///
 			}
+			maskSTD0 = 0; // STD0
+			ensSTD0 = OFF; // STD0
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif
+			
+			{%for v in context['PE_SETSZ_seq']%}
+			res[{{v}}] = PROCESS_SPL_processfunc(udata[{{v}}], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			{%endfor%}
+			{%for v in context['PE_SETSZ_seq']%}
+			if(ens[{{v}}] == ON && mask[{{v}}] == 1){ mykeyvalue[{{v}}].key = ldstvids[{{v}}]; mykeyvalue[{{v}}].value = res[{{v}}]; } else { mykeyvalue[{{v}}].key = INVALIDDATA; mykeyvalue[{{v}}].value = INVALIDDATA;  }
+			{%endfor%}
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif 
+			
+			#if PE_SETSZ==8
+			{%for v in context['VECTOR_SIZE_seq']%}
+			buffer[{{v}}][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{v}}]);
+			{%endfor%}	
+			if(setoffset == 0){ buffer[0][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(dummykeyvalue); } // STD0
+			if(ensSTD1 == ON && maskSTD1 == 1){ loadcount += 1; } 
+			#else
+			{%for v in context['VECTOR_SIZE_seq']%}
+			buffer[{{v}}][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{v}}]);
+			{%endfor%}	
+			{%for v in context['VECTOR_SIZE_seq']%}
+			buffer[{{v}}][loadcount + 1] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{context['VECTOR_SIZE']+v}}]);
+			{%endfor%}
+			buffer[0][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(dummykeyvalue); // STD0
+			if(ensSTD1 == ON && maskSTD1 == 1){ loadcount += 2; }
+			#endif
+	
+			#ifdef _DEBUGMODE_CHECKS3
+			PROCESS_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			#endif
 		}
 	}
 	// cout<<">>> readandprocess: loadcount: "<<loadcount<<", activeloadcount: "<<activeloadcount<<", inactiveloadcount: "<<inactiveloadcount<<endl;
@@ -685,5 +719,7 @@ fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_rea
 	fetchmessage.chunksize_kvs = loadcount;
 	return fetchmessage;
 }
+
+
 
 

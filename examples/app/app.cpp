@@ -226,7 +226,7 @@ runsummary_t app::run_hw(){
 	// dest vertices data 
 	cout<<"app::loadvertexdata:: loading dest vertex datas... "<<endl;
 	globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + ((globalparams.globalparamsK.SIZE_SRCVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
-	globalparams.globalparamsK.SIZE_DESTVERTICESDATA =
+	globalparams.globalparamsK.SIZE_DESTVERTICESDATA = 
 		#ifdef CONFIG_UNIFIED_DESTVDRAM
 		0;
 		#else 
@@ -419,14 +419,14 @@ void app::verifyresults_splitdstvtxs(uint512_vec_dt * vbuffer, uint512_vec_dt * 
 				unsigned int vdata1 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
 				unsigned int vdata2 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
 				
-				vdata1 = utilityobj->READFROM_UINT(vdata1, 0, SIZEOF_VDATA0);
-				vdata2 = utilityobj->READFROM_UINT(vdata2, 0, SIZEOF_VDATA1);
+				unsigned int vdata1_tmp = utilityobj->READFROM_UINT(vdata1, 0, SIZEOF_VDATA0);
+				unsigned int vdata2_tmp = utilityobj->READFROM_UINT(vdata2, 0, SIZEOF_VDATA1);
 				
-				if(vdata1 < 64){
-					vdatas[vdata1] += 1; 
+				if(vdata1_tmp < 64){
+					vdatas[vdata1_tmp] += 1; 
 				}
-				if(vdata2 < 64){
-					vdatas[vdata2] += 1; 
+				if(vdata2_tmp < 64){
+					vdatas[vdata2_tmp] += 1; 
 				}
 			}
 		}

@@ -62,7 +62,9 @@ unsigned int acts_all::UTIL_GETMASK_UINT(unsigned int index, unsigned int size){
 	return B;
 }
 unsigned int acts_all::UTIL_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
-	return (((data) & UTIL_GETMASK_UINT((index), (size))) >> (index)); 
+	unsigned int res = 0;
+	res = (((data) & UTIL_GETMASK_UINT((index), (size))) >> (index)); 
+	return res;
 }
 void acts_all::UTIL_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
@@ -84,24 +86,28 @@ void acts_all::UTIL_WRITETO_UINT(unsigned int * data, unsigned int index, unsign
 }
 unsigned int acts_all::UTIL_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
 	#pragma HLS INLINE
+	unsigned int res = 0;
 	#ifdef _WIDEWORD
-	return data.range(index + size - 1, index); 
+	res = data.range(index + size - 1, index); 
 	#else
-	return UTIL_READFROM_UINT(data, index, size);
+	res = UTIL_READFROM_UINT(data, index, size);
 	#endif
+	return res;
 }
 unsigned int acts_all::UTIL_READBITSFROM_UINT32(uint32_type data, unsigned int index, unsigned int size){
 	#pragma HLS INLINE
+	unsigned int res = 0;
 	#ifdef _WIDEWORD
-	return data.range(index + size - 1, index); 
+	res = data.range(index + size - 1, index); 
 	#else
-	return UTIL_READFROM_UINT(data, index, size);
+	res = UTIL_READFROM_UINT(data, index, size);
 	#endif
+	return res;
 }
 void acts_all::UTIL_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	data.range(index + size - 1, index) = value; 
+	data->range(index + size - 1, index) = value;
 	#else
 	UTIL_WRITETO_UINT(data, index, size, value);
 	#endif
@@ -110,7 +116,7 @@ void acts_all::UTIL_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, un
 void acts_all::UTIL_WRITEBITSTO_UINT32(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	data.range(index + size - 1, index) = value; 
+	data->range(index + size - 1, index) = value;
 	#else
 	UTIL_WRITETO_UINT(data, index, size, value);
 	#endif

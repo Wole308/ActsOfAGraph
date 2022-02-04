@@ -33,9 +33,9 @@ acts_all::~acts_all(){}
 #ifdef CONFIG_ENABLECLASS_ACTS
 {% include 'acts.template' %}	
 #endif 
-#ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
-{% include 'top_usrcv_udstv.template' %}	
-#endif 
 #ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
 {% include 'top_nusrcv_nudstv.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
+{% include 'top_usrcv_udstv.template' %}	
 #endif 

@@ -17,18 +17,21 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATA(u
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
+	
+	value_t vdatas_tmp = 0;
+	vdatas_tmp = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(vdata, 0, SIZEOF_VDATA0);
 
 	#ifdef _WIDEWORD
 	if(index%2==0){
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0, vdata);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0, vdatas_tmp);
 	} else{
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdata);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdatas_tmp);
 	}
 	#else 
 	if(index%2==0){
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2].key, 0, SIZEOF_VDATA0, vdata);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2].key, 0, SIZEOF_VDATA0, vdatas_tmp);
 	} else{
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2].value, 0, SIZEOF_VDATA1, vdata);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2].value, 0, SIZEOF_VDATA1, vdatas_tmp);
 	}	
 	#endif 
 	return;
@@ -42,16 +45,22 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATAS(
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
+	value_t vdatas_tmp[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=Vdatas_tmp complete
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	vdatas_tmp[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(vdatas[{{v}}], 0, SIZEOF_VDATA0);
+	{%endfor%}
+	
 	#ifdef _WIDEWORD
 	if(index%2==0){ 
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0, vdatas[{{v}}]);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0, vdatas_tmp[{{v}}]);
 		{%endfor%}
 	} else {
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, 0);
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdatas[{{v}}]);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdatas_tmp[{{v}}]);
 		{%endfor%}
 	}
 	#else 
@@ -61,7 +70,7 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATAS(
 		{%endfor%}
 		{%for v in context['VECTOR2_SIZE_seq']%}	
 		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].key, SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].key, 0, SIZEOF_VDATA0, vdatas[{{v}}]);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].key, 0, SIZEOF_VDATA0, vdatas_tmp[{{v}}]);
 		{%endfor%}
 	} else {
 		{%for v in context['VECTOR2_SIZE_seq']%}
@@ -69,7 +78,7 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATAS(
 		{%endfor%}
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].value, SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].value, 0, SIZEOF_VDATA0, vdatas[{{v}}]);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].value, 0, SIZEOF_VDATA0, vdatas_tmp[{{v}}]);
 		{%endfor%}
 	}	
 	#endif
@@ -114,11 +123,11 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VDATAS
 	#ifdef _WIDEWORD
 	if(index%2==0){ 
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		vdata = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[{{v}}][bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0);
+		vdatas[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[{{v}}][bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0);
 		{%endfor%}
 	} else {
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		vdata = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1);
+		vdatas[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1);
 		{%endfor%}
 	}
 	#else 
@@ -139,7 +148,7 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VDATAS
 unit1_type {{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VMASK(unsigned int index, unit1_type vmaskBITS[DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VMASK:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	unit1_type vmdata = vmaskBITS[bufferoffset_kvs + index];
@@ -197,8 +206,8 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VDATAS
 		{%endfor%}
 	} else {
 		{%for v in context['VECTOR2_SIZE_seq']%}	
-		vmdatas[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[bufferoffset_kvs + index/2].value, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1);
-		vdatas[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[bufferoffset_kvs + index/2].value, SIZEOF_VDATAKEY, SIZEOF_VDATA1);
+		vmdatas[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1);
+		vdatas[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1);
 		{%endfor%}
 	}
 	#else 
@@ -236,12 +245,12 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VDATAS
 	}
 	#else 
 	if(index%2==0){ 
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		vdatas[{{v}}] = buffer[{{v}}][bufferoffset_kvs + index/2].key;
+		{%for v in context['VECTOR2_SIZE_seq']%}	
+		vdatas[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[{{v}}][bufferoffset_kvs + index/2].key, 0, SIZEOF_VDATAKEY);		
 		{%endfor%}
 	} else {
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		vdatas[{{v}}] = buffer[{{v}}][bufferoffset_kvs + index/2].value;
+		vdatas[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(buffer[{{v}}][bufferoffset_kvs + index/2].value, 0, SIZEOF_VDATAVALUE);
 		{%endfor%}
 	}
 	#endif
@@ -254,21 +263,24 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATAWI
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATAWITHVMASK:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
+	unsigned int vdata_tmp = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(vdata, 0, SIZEOF_VDATA0);
+	unsigned int vmdata_tmp = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(vmdata, 0, SIZEOF_VMASK0);
+	
 	#ifdef _WIDEWORD
 	if(index%2==0){
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV((unsigned int *)&buffer[bufferoffset_kvs + index/2], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata);
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV((unsigned int *)&buffer[bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0, vdata);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata_tmp);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0, vdata_tmp);
 	} else{
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV((unsigned int *)&buffer[bufferoffset_kvs + index/2].value, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, vmdata);
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV((unsigned int *)&buffer[bufferoffset_kvs + index/2].value, SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdata);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2], SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, vmdata_tmp);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdata_tmp);
 	}
 	#else 
 	if(index%2==0){
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV((unsigned int *)&buffer[bufferoffset_kvs + index/2].key, SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata);
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV((unsigned int *)&buffer[bufferoffset_kvs + index/2].key, 0, SIZEOF_VDATA0, vdata);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2].key, SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata_tmp);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2].key, 0, SIZEOF_VDATA0, vdata_tmp);
 	} else{
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV((unsigned int *)&buffer[bufferoffset_kvs + index/2].value, SIZEOF_VDATA1, SIZEOF_VMASK1, vmdata);
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV((unsigned int *)&buffer[bufferoffset_kvs + index/2].value, 0, SIZEOF_VDATA1, vdata);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2].value, SIZEOF_VDATA1, SIZEOF_VMASK1, vmdata_tmp);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[bufferoffset_kvs + index/2].value, 0, SIZEOF_VDATA1, vdata_tmp);
 	}	
 	#endif 
 	return;
@@ -281,24 +293,29 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATASA
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
+	value_t vdatas_tmp[VECTOR2_SIZE];
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	vdatas_tmp[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(vdatas[{{v}}], 0, SIZEOF_VDATAKEY);
+	{%endfor%}
+	
 	#ifdef _WIDEWORD
 	if(index%2==0){ 
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], 0, SIZEOF_VDATAKEY, vdatas[{{v}}]);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], 0, SIZEOF_VDATAKEY, vdatas_tmp[{{v}}]);
 		{%endfor%}
 	} else {
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATAVALUE, vdatas[{{v}}]);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATAVALUE, vdatas_tmp[{{v}}]);
 		{%endfor%}
 	}
 	#else 
 	if(index%2==0){ 
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		buffer[{{v}}][bufferoffset_kvs + index/2].key = vdatas[{{v}}];
+		buffer[{{v}}][bufferoffset_kvs + index/2].key = vdatas_tmp[{{v}}];
 		{%endfor%}
 	} else {
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		buffer[{{v}}][bufferoffset_kvs + index/2].value = vdatas[{{v}}];
+		buffer[{{v}}][bufferoffset_kvs + index/2].value = vdatas_tmp[{{v}}];
 		{%endfor%}
 	}
 	#endif 
@@ -314,12 +331,17 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPT
 	{%endfor%}
 	#endif
 	
-	#ifdef _WIDEWORD
+	value_t vdatas_tmp[VECTOR2_SIZE];
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	vdatas_tmp[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(vdatas[{{v}}], 0, SIZEOF_VDATAKEY);
+	{%endfor%}
+	
+	#ifdef _WIDEWORD // FIXME.
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		if(indexes[{{v}}]%2==0){ 
-			{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2], 0, SIZEOF_VDATAKEY, vdatas[{{v}}]);
+			{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2], 0, SIZEOF_VDATAKEY, vdatas_tmp[{{v}}]);
 		} else{ 
-			{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2], SIZEOF_VDATAKEY, SIZEOF_VDATAVALUE, vdatas[{{v}}]);
+			{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2], SIZEOF_VDATAKEY, SIZEOF_VDATAVALUE, vdatas_tmp[{{v}}]);
 		}
 		{%endfor%}	
 	#else 
@@ -328,9 +350,9 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPT
 		actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[{{v}}]/2, BLOCKRAM_SIZE, indexes[{{v}}], NAp, NAp);
 		#endif
 		if(indexes[{{v}}]%2==0){ 
-			buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2].key = vdatas[{{v}}]; 
+			buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2].key = vdatas_tmp[{{v}}]; 
 		} else{ 
-			buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2].value = vdatas[{{v}}]; 
+			buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2].value = vdatas_tmp[{{v}}]; 
 		}
 		{%endfor%}
 	#endif 
@@ -345,13 +367,13 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_READFROMKVDRAM_VDATAS
 	
 	#ifdef _WIDEWORD
 	{%for v in context['VECTOR_SIZE_seq']%}
-	vdatas[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-	vdatas[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	vdatas[{{2*v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}), 0, SIZEOF_VDATAKEY); 
+	vdatas[{{2*v+1}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}), 0, SIZEOF_VDATAVALUE); 
 	{%endfor%}
 	#else 
 	{%for v in context['VECTOR_SIZE_seq']%}
-	vdatas[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key;
-	vdatas[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value;
+	vdatas[{{2*v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key, 0, SIZEOF_VDATAKEY);
+	vdatas[{{2*v+1}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value, 0, SIZEOF_VDATAVALUE); 
 	{%endfor%}
 	#endif
 	return;
@@ -363,31 +385,95 @@ void {{context['classname__mem_convert_and_access']}}MEMCA_WRITETOKVDRAM_VDATASA
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA_WRITETOKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
-	unsigned int vdata1;
-	unsigned int vdata2;
-	unsigned int vmdata1;
-	unsigned int vmdata2;
+	value_t vdatas_tmp[VECTOR2_SIZE];
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	vdatas_tmp[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(vdatas[{{v}}], 0, SIZEOF_VDATAKEY);
+	{%endfor%}
 
 	#ifdef _WIDEWORD
 	{%for v in context['VECTOR_SIZE_seq']%}
-	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = vdatas[{{2*v}}];
-	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = vdatas[{{2*v+1}}];
+	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = vdatas_tmp[{{2*v}}];
+	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = vdatas_tmp[{{2*v+1}}];
 	{%endfor%}
 	#else 
 	{%for v in context['VECTOR_SIZE_seq']%}
-	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key = vdatas[{{2*v}}];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value = vdatas[{{2*v+1}}];
-	
-	vdata1 = UTIL_READBITSFROM_UINTV(vdatas[{{2*v}}], 0, SIZEOF_VDATA0);
-	vdata2 = UTIL_READBITSFROM_UINTV(vdatas[{{2*v+1}}], 0, SIZEOF_VDATA0);
-	vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[{{2*v}}], SIZEOF_VDATA0, SIZEOF_VMASK0);
-	vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[{{2*v+1}}], SIZEOF_VDATA0, SIZEOF_VMASK0);
-	if(vdata1 < 64){ cout<<"MEMCA_WRITETOKVDRAM_VDATASANDVMASKS: vdatas[{{2*v}}]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; }
-	if(vdata2 < 64){ cout<<"MEMCA_WRITETOKVDRAM_VDATASANDVMASKS: vdatas[{{2*v+1}}]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; }
-	
+	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key = vdatas_tmp[{{2*v}}];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value = vdatas_tmp[{{2*v+1}}];
 	{%endfor%}
 	#endif
 	return;
 }
 
+//
+#ifdef XXXXXXXXXXXXXXXXXXXXXXXXXXx
+void {{context['classname__mem_convert_and_access']}}MEMCA_READFROMKVDRAM_WRITETOBUFFER_VDATAS(unsigned int index, uint512_dt * kvdram, value_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA_READFROMKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	unsigned int vdatas[{{2*v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}), 0, SIZEOF_VDATA0); 
+	unsigned int vdatas[{{2*v+1}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}), 0, SIZEOF_VDATA1); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	unsigned int vdatas[{{2*v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key, 0, SIZEOF_VDATA0);
+	unsigned int vdatas[{{2*v+1}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value, 0, SIZEOF_VDATA1); 
+	{%endfor%}
+	#endif
+	
+	if(index%2==0){ 
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2] = vdatas[{{v}}], SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0, vdatas_tmp[{{v}}]);
+		{%endfor%}
+	} else {
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, 0);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdatas_tmp[{{v}}]);
+		{%endfor%}
+	}
+	
+	value_t vdatas_tmp[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=Vdatas_tmp complete
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	vdatas_tmp[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READBITSFROM_UINTV(vdatas[{{v}}], 0, SIZEOF_VDATA0);
+	{%endfor%}
+	
+	#ifdef _WIDEWORD
+	if(index%2==0){ 
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], 0, SIZEOF_VDATA0, vdatas_tmp[{{v}}]);
+		{%endfor%}
+	} else {
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, 0);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITEBITSTO_UINTV(&buffer[{{v}}][bufferoffset_kvs + index/2], SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdatas_tmp[{{v}}]);
+		{%endfor%}
+	}
+	#else 
+	if(index%2==0){ 
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		buffer[{{v}}][bufferoffset_kvs + index/2].key = 0; 
+		{%endfor%}
+		{%for v in context['VECTOR2_SIZE_seq']%}	
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].key, SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].key, 0, SIZEOF_VDATA0, vdatas_tmp[{{v}}]);
+		{%endfor%}
+	} else {
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		buffer[{{v}}][bufferoffset_kvs + index/2].value = 0; 
+		{%endfor%}
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].value, SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
+		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&buffer[{{v}}][bufferoffset_kvs + index/2].value, 0, SIZEOF_VDATA0, vdatas_tmp[{{v}}]);
+		{%endfor%}
+	}	
+	#endif
+	return;
+}
+#endif 
 
