@@ -471,16 +471,16 @@ void graph::loadvertexptrsfromfile(int col, size_t fdoffset, edge_t * buffer, ve
 	if(size > 0){ if(pread(nvmeFd_vertexptrs_r2[col], &buffer[bufferoffset], size * sizeof(edge_t), fdoffset * sizeof(edge_t)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient vertexptrs at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}
 	return;
 }
-value_t * graph::generateverticesdata(){ 
+value_t * graph::generateverticesdata(unsigned int Algo){ 
 	cout<<"generating vertices data... "<<endl;
 	for(unsigned int k=0; k<KVDATA_RANGE; k++){
-		vertexdatabuffer[k] = algorithmobj->vertex_initdata(); 
+		vertexdatabuffer[k] = algorithmobj->vertex_initdata(Algo, k); 
 	} 
 	return vertexdatabuffer;
 }
-value_t * graph::generatetempverticesdata(){ 
+value_t * graph::generatetempverticesdata(unsigned int Algo){ 
 	cout<<"generating temp vertices data... "<<endl;
-	for(unsigned int k=0; k<KVDATA_RANGE; k++){ tempvertexdatabuffer[k] = algorithmobj->vertex_initdata(); }					 
+	for(unsigned int k=0; k<KVDATA_RANGE; k++){ tempvertexdatabuffer[k] = algorithmobj->vertex_initdata(Algo, k); }					 
 	return tempvertexdatabuffer;
 }
 void graph::loadedgesfromfile(int col, size_t fdoffset, edge2_type * buffer, vertex_t bufferoffset, vertex_t size){

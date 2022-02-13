@@ -1,10 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
-#define SW_ALLINONE // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define BFS_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM
+#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, CC_ALGORITHM, CF_ALGORITHM
 #define _ORKUT_3M_106M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -21,7 +24,7 @@
 #ifdef FPGA_IMPL
 #define _WIDEWORD
 #endif
-#ifdef PR_ALGORITHM
+#if defined(PR_ALGORITHM) || defined(CC_ALGORITHM) || defined(CF_ALGORITHM)
 #define ALLVERTEXISACTIVE_ALGORITHM
 #else 
 #define RANDOMVERTEXISACTIVE_ALGORITHM
@@ -72,12 +75,15 @@
 #define PAGERANK 222
 #define BFS 333
 #define SSSP 444
-#define BETWEENNESSCENTRALITY 555
+#define CF 555
+#define CC 666
+#define ALGORITHMCLASS_ALLVERTEXISACTIVE 2222 // {classname__top_usrcv_udstv, classname__processedges_splitdstvxs, classname__top_nusrcv_nudstv}
+#define ALGORITHMCLASS_NOTALLVERTEXISACTIVE 3333
 
 ////////////////
 
-#define NUM_PEs 32
-#define NUMSUBCPUTHREADS 32
+#define NUM_PEs 24
+#define NUMSUBCPUTHREADS 24
 #define NUMSYNCTHREADS 3
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
@@ -90,6 +96,12 @@
 #define NUMCOMPUTEUNITS_SLR1 1
 #define NUMCOMPUTEUNITS_SLR2 1
 #else 
+	#if NUM_PEs==3
+	#define NUMCOMPUTEUNITS_SLR1AND2 1 
+	#define NUMCOMPUTEUNITS_SLR0 1
+	#define NUMCOMPUTEUNITS_SLR1 1
+	#define NUMCOMPUTEUNITS_SLR2 1
+	#endif 
 	#if NUM_PEs==12
 	#define NUMCOMPUTEUNITS_SLR1AND2 5 
 	#define NUMCOMPUTEUNITS_SLR0 5
@@ -129,13 +141,17 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS 32
+#define NUMCOMPUTEUNITS 24
 #define NUMCOMPUTEUNITS_HALF (NUMCOMPUTEUNITS / 2)
 #define NUMINTSINKEYVALUETYPE 2
 #define VDATA_PACKINGSIZE_POW 4 // AUTOMATEME.
 #define VMASK_PACKINGSIZE_POW 4 // AUTOMATEME
 #define VDATA_PACKINGSIZE (1 << VDATA_PACKINGSIZE_POW) //
+#ifdef CONFIG_SEPERATEVMASKFROMVDATA
 #define VMASK_PACKINGSIZE (1 << VMASK_PACKINGSIZE_POW) //
+#else 
+#define VMASK_PACKINGSIZE 0	
+#endif 
 
 #define NUMDRAMBANKS 4
 #define NUMINSTANCES 1
@@ -316,7 +332,7 @@
 
 ////////////////
 
-#define MAX_NUM_UNIQ_EDGES_PER_VEC 8 // 8
+#define MAX_NUM_UNIQ_EDGES_PER_VEC 16 // 8, 16
 
 ////////////////
 
@@ -393,6 +409,13 @@ struct _bitData {
 
 #define SNAP 1
 #define SYNTHETIC 2
+
+// #define KVDRAMWORKCAPACITY_BYTES 256000000 // HBM has 256MB capacity
+#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+#define KVDRAMWORKCAPACITY_BYTES (256000000 / 2)
+#else 
+#define KVDRAMWORKCAPACITY_BYTES 256000000	
+#endif 
 
 typedef unsigned int vertex_t;
 #if (defined(_LARGEDATASET_1B) || defined(_LARGEDATASET_4B))

@@ -1,6 +1,3 @@
-#include "mem_access_splitdstvxs.h"
-using namespace std;
-
 #ifdef SW
 mem_access_splitdstvxs::mem_access_splitdstvxs(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
@@ -11,7 +8,7 @@ mem_access_splitdstvxs::~mem_access_splitdstvxs(){}
 #endif
 
 // -------------------- key values -------------------- //
-fetchmessage_t acts_all::MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
+fetchmessage_t MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -91,7 +88,7 @@ fetchmessage_t acts_all::MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_d
 	return fetchmessage;
 }
 
-void acts_all::MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+void MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_destpartitionsz = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 	
@@ -170,7 +167,7 @@ void acts_all::MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram
 		}
 	}
 	SAVEPARTITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; }
-	
+
 	#if defined(ENABLE_PERFECTACCURACY) && defined(_DEBUGMODE_CHECKS2)
 	for(unsigned int i=0; i<NUM_PARTITIONS-1; i++){ 
 		if(globalcapsule[i].key + globalcapsule[i].value >= globalcapsule[i+1].key && globalcapsule[i].value > 0){ 
@@ -192,7 +189,7 @@ void acts_all::MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -267,7 +264,7 @@ void acts_all::MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  BLOCKRAM_SIZE;
 	
@@ -334,7 +331,7 @@ void acts_all::MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram
 }
 
 // -------------------- vdata -------------------- //
-void acts_all::MEMACCESS_SPL_GetXYLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+void MEMACCESS_SPL_GetXYLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -918,7 +915,7 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_RearrangeLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE]){
+void MEMACCESS_SPL_RearrangeLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -1211,97 +1208,104 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_readvdata(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
-	unsigned int index = 0;
-	value_t vdata[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=vdata complete
-	keyvalue_t keyvalue0; keyvalue0.key = 777; keyvalue0.value = 777;
-	keyvalue_t keyvalue1; keyvalue1.key = 777; keyvalue1.value = 777;
-	keyvalue_t keyvalue2; keyvalue2.key = 777; keyvalue2.value = 777;
-	keyvalue_t keyvalue3; keyvalue3.key = 777; keyvalue3.value = 777;
-	keyvalue_t keyvalue4; keyvalue4.key = 777; keyvalue4.value = 777;
-	keyvalue_t keyvalue5; keyvalue5.key = 777; keyvalue5.value = 777;
-	keyvalue_t keyvalue6; keyvalue6.key = 777; keyvalue6.value = 777;
-	keyvalue_t keyvalue7; keyvalue7.key = 777; keyvalue7.value = 777;
-	keyvalue_t keyvalue8; keyvalue8.key = 777; keyvalue8.value = 777;
-	keyvalue_t keyvalue9; keyvalue9.key = 777; keyvalue9.value = 777;
-	keyvalue_t keyvalue10; keyvalue10.key = 777; keyvalue10.value = 777;
-	keyvalue_t keyvalue11; keyvalue11.key = 777; keyvalue11.value = 777;
-	keyvalue_t keyvalue12; keyvalue12.key = 777; keyvalue12.value = 777;
-	keyvalue_t keyvalue13; keyvalue13.key = 777; keyvalue13.value = 777;
-	keyvalue_t keyvalue14; keyvalue14.key = 777; keyvalue14.value = 777;
-	keyvalue_t keyvalue15; keyvalue15.key = 777; keyvalue15.value = 777;
+	value_t vandmdata1[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
 	
 	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1	
-MEMCA_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vdata, baseoffset_kvs, offset_kvs);
-MEMCA_WRITETOBUFFER_VDATAS(bufferoffset_kvs + i, buffer, vdata, 0);	
-		
+	#pragma HLS PIPELINE II=1
+		unsigned int index = i; unsigned int j = i%2;
+MEMCA_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
+		if(j==0){ vandmdataM[0] = vandmdata1[0];vandmdataM[1] = vandmdata1[1];vandmdataM[2] = vandmdata1[2];vandmdataM[3] = vandmdata1[3];vandmdataM[4] = vandmdata1[4];vandmdataM[5] = vandmdata1[5];vandmdataM[6] = vandmdata1[6];vandmdataM[7] = vandmdata1[7];vandmdataM[8] = vandmdata1[8];vandmdataM[9] = vandmdata1[9];vandmdataM[10] = vandmdata1[10];vandmdataM[11] = vandmdata1[11];vandmdataM[12] = vandmdata1[12];vandmdataM[13] = vandmdata1[13];vandmdataM[14] = vandmdata1[14];vandmdataM[15] = vandmdata1[15];} else { vandmdataN[0] = vandmdata1[0];vandmdataN[1] = vandmdata1[1];vandmdataN[2] = vandmdata1[2];vandmdataN[3] = vandmdata1[3];vandmdataN[4] = vandmdata1[4];vandmdataN[5] = vandmdata1[5];vandmdataN[6] = vandmdata1[6];vandmdataN[7] = vandmdata1[7];vandmdataN[8] = vandmdata1[8];vandmdataN[9] = vandmdata1[9];vandmdataN[10] = vandmdata1[10];vandmdataN[11] = vandmdata1[11];vandmdataN[12] = vandmdata1[12];vandmdataN[13] = vandmdata1[13];vandmdataN[14] = vandmdata1[14];vandmdataN[15] = vandmdata1[15];	  }
+			
+		if(j==1){ 
+			vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+			vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+			vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+			vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+			vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+			vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+			vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+			vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+			vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+			vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+			vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+			vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+			vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+			vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+			vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+			vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);
+		}
 		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+		actsutilityobj->globalstats_countvsread(VECTOR2_SIZE);
 		#endif
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"savevdata:: vertices saved: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
-	#endif
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_readvdata_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_SLreadV(bool_type enable, unsigned int s, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  REDUCESZ / 2;
-	
-	unsigned int index = 0;
-	value_t vdata[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=vdata complete
-	value_t vdata2[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	analysis_type analysis_loopcount =  REDUCESZ / NUM_PEs;
+
+	unsigned int basedepth = 0;
 	unsigned int depths[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=depths complete
-	keyvalue_t keyvalue0; keyvalue0.key = 777; keyvalue0.value = 777;
-	keyvalue_t keyvalue1; keyvalue1.key = 777; keyvalue1.value = 777;
-	keyvalue_t keyvalue2; keyvalue2.key = 777; keyvalue2.value = 777;
-	keyvalue_t keyvalue3; keyvalue3.key = 777; keyvalue3.value = 777;
-	keyvalue_t keyvalue4; keyvalue4.key = 777; keyvalue4.value = 777;
-	keyvalue_t keyvalue5; keyvalue5.key = 777; keyvalue5.value = 777;
-	keyvalue_t keyvalue6; keyvalue6.key = 777; keyvalue6.value = 777;
-	keyvalue_t keyvalue7; keyvalue7.key = 777; keyvalue7.value = 777;
-	keyvalue_t keyvalue8; keyvalue8.key = 777; keyvalue8.value = 777;
-	keyvalue_t keyvalue9; keyvalue9.key = 777; keyvalue9.value = 777;
-	keyvalue_t keyvalue10; keyvalue10.key = 777; keyvalue10.value = 777;
-	keyvalue_t keyvalue11; keyvalue11.key = 777; keyvalue11.value = 777;
-	keyvalue_t keyvalue12; keyvalue12.key = 777; keyvalue12.value = 777;
-	keyvalue_t keyvalue13; keyvalue13.key = 777; keyvalue13.value = 777;
-	keyvalue_t keyvalue14; keyvalue14.key = 777; keyvalue14.value = 777;
-	keyvalue_t keyvalue15; keyvalue15.key = 777; keyvalue15.value = 777;
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata[v] = 0; vdata2[v] = 0; }
-	unsigned int basedepth = 0;
+	
+	value_t vandmdata1[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
 	
 	unsigned int index2 = 0;
-	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+	
+	SLREADVDATA_LOOP1: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
-MEMCA_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vdata, baseoffset_kvs, offset_kvs);
-		
-		#if defined(CONFIG_READVDATA_SLIDE)
-		MEMACCESS_SPL_GetXYLayoutV(s, vdata, vdata2, depths, basedepth);
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS(bufferoffset_kvs + i, buffer, vdata2, 0);	
-		#elif defined(CONFIG_READVDATA_SLIDEANDREARRANGE)
-		unsigned int x = index2 + s;
-		basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutV(x, vdata, vdata2, depths, basedepth);
-MEMCA_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(depths, buffer, vdata2, 0);	
+		unsigned int index = i; unsigned int j = i%2;
+MEMCA_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
+		unsigned int x = index2 + s; basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
+		MEMACCESS_SPL_GetXYLayoutV(x, vandmdata1, vandmdata2, depths, basedepth);
+		if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+		if(j==1){ 
+			vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+			vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+			vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+			vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+			vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+			vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+			vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+			vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+			vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+			vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+			vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+			vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+			vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+			vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+			vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+			vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(depths, buffer, vsandmsdata, 0);
+		}
 		index2 += NUM_PEs;
-		#else
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS(bufferoffset_kvs + i, buffer, vdata, 0);	
-		#endif
 		
 		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
+		actsutilityobj->globalstats_countvsread(VECTOR2_SIZE);
 		#endif
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -1310,7 +1314,158 @@ MEMCA_WRITETOBUFFER_VDATASANDVMASKS(bufferoffset_kvs + i, buffer, vdata, 0);
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_readvdatachunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readVchunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	// read vertices data
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME?
+	#pragma HLS array_partition variable = tempbuffer
+	READVDATACHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams);
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+
+void MEMACCESS_SPL_saveVandMs(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount =  REDUCESZ / 2;
+	
+	keyvalue_vbuffer_t vdatas[VECTOR2_SIZE];
+	value_t vandmdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata complete
+	
+	SAVEVDATAANDMASKS_LOOP: for(buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+	#pragma HLS PIPELINE II=1
+		// CRITICAL FIXME.
+		
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vandmdata, 0);	
+		
+		// 	
+		// vdatas[0] = buffer[0][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[1] = buffer[1][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[2] = buffer[2][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[3] = buffer[3][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[4] = buffer[4][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[5] = buffer[5][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[6] = buffer[6][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[7] = buffer[7][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[8] = buffer[8][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[9] = buffer[9][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[10] = buffer[10][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[11] = buffer[11][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[12] = buffer[12][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[13] = buffer[13][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[14] = buffer[14][bufferoffset_kvs + i/2];	
+		// 	
+		// vdatas[15] = buffer[15][bufferoffset_kvs + i/2];	
+		// 		
+		#ifdef _WIDEWORD
+		kvdram[baseoffset_kvs + offset_kvs + i].range(31, 0) = vandmdata[0];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(63, 32) = vandmdata[1];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(95, 64) = vandmdata[2];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(127, 96) = vandmdata[3];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(159, 128) = vandmdata[4];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(191, 160) = vandmdata[5];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(223, 192) = vandmdata[6];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(255, 224) = vandmdata[7];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(287, 256) = vandmdata[8];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(319, 288) = vandmdata[9];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(351, 320) = vandmdata[10];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(383, 352) = vandmdata[11];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(415, 384) = vandmdata[12];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(447, 416) = vandmdata[13];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(479, 448) = vandmdata[14];
+		kvdram[baseoffset_kvs + offset_kvs + i].range(511, 480) = vandmdata[15];
+		#else 
+		kvdram[baseoffset_kvs + offset_kvs + i].data[0].key = vandmdata[0];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[0].value = vandmdata[1];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[1].key = vandmdata[2];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[1].value = vandmdata[3];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[2].key = vandmdata[4];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[2].value = vandmdata[5];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[3].key = vandmdata[6];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[3].value = vandmdata[7];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[4].key = vandmdata[8];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[4].value = vandmdata[9];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[5].key = vandmdata[10];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[5].value = vandmdata[11];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[6].key = vandmdata[12];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[6].value = vandmdata[13];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[7].key = vandmdata[14];
+		kvdram[baseoffset_kvs + offset_kvs + i].data[7].value = vandmdata[15];
+		#endif
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countvswritten(VECTOR2_SIZE);
+		#endif
+	}
+	return;
+}
+
+void MEMACCESS_SPL_readANDRVchunks1(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1319,135 +1474,756 @@ void acts_all::MEMACCESS_SPL_readvdatachunks(bool_type enable, uint512_dt * kvdr
 	value_t vdata2[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=vdata complete
 	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
-	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL REMOVEME.
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
 	#pragma HLS array_partition variable = tempbuffer
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readvdatachunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_readvdata_slide(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
-	int limit = 0;
-	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ vdata[v] = 0; vdata2[v] = 0; }
-	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, tempbuffer, vdata, 0);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(i<limit){ mydebugobj->printvdata(vdata, 0, i); }
-		#endif 
-		MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + i, vdata, vdata2);
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(i<limit){ mydebugobj->printvdata(vdata2, 1, i); }
-		#endif 
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS(i, buffer, vdata2, 0);
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(index, buffer0, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks2(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
 	}
 	
-	#ifdef _DEBUGMODE_CHECKS
-	for(unsigned int i=0; i<64; i++){
-		cout<<"buffer row "<<2*i<<": ";
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			cout<<buffer[v][i].key<<", ";
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(index, buffer0,buffer1, vsandmsdata, 0);	
+			}
 		}
-		cout<<endl;
-		cout<<"buffer row "<<2*i+1<<": ";
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			cout<<buffer[v][i].value<<", ";
-		}
-		cout<<endl;
 	}
-	cout<<endl;
-	#endif
-	// exit(EXIT_SUCCESS);
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks3(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(index, buffer0,buffer1,buffer2, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks4(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks5(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks6(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks7(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks8(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks9(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks10(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks11(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9,buffer10, vsandmsdata, 0);	
+			}
+		}
+	}
+	return;	
+}
+void MEMACCESS_SPL_readANDRVchunks12(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs / 2;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	value_t vdata[VECTOR2_SIZE];
+	value_t vdata2[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=vdata complete
+	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempbuffer
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){ 
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		#endif
+		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	// re-arrange vertices data 
+	value_t vandmdata1[VECTOR2_SIZE];
+	value_t vandmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
+	value_t vandmdataM[VECTOR2_SIZE]; 
+	value_t vandmdataN[VECTOR2_SIZE]; 
+	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
+	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
+	READVDATACHUNKS_REARRANGE_LOOP1: for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i+=2){
+	#pragma HLS PIPELINE II=1
+		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
+			unsigned int index = i+j;
+MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
+			
+			if(j==1){
+				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+	
+MEMCA_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9,buffer10,buffer11, vsandmsdata, 0);	
+			}
+		}
+	}
 	return;	
 }
 
-void acts_all::MEMACCESS_SPL_savevdataandmasks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  REDUCESZ / 2;
-	
-	unsigned int isfail = 0;
-	unsigned int count = 0;
-	
-	value_t vdatas[VECTOR2_SIZE]; for (unsigned int v=0; v<VECTOR2_SIZE; v++){ vdatas[v] = 0; }
-	SAVEVDATAANDMASKS_LOOP: for(buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-	
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vdatas, bufferoffset_kvs);
-		
-		/* unsigned int vdata1;
-		unsigned int vdata2;
-		unsigned int vmdata1;
-		unsigned int vmdata2;
-		vdata1 = UTIL_READBITSFROM_UINTV(vdatas[0], 0, SIZEOF_VDATA0);
-		vdata2 = UTIL_READBITSFROM_UINTV(vdatas[1], 0, SIZEOF_VDATA0);
-		vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[0], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[1], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[0]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
-		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[1]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
-		vdata1 = UTIL_READBITSFROM_UINTV(vdatas[2], 0, SIZEOF_VDATA0);
-		vdata2 = UTIL_READBITSFROM_UINTV(vdatas[3], 0, SIZEOF_VDATA0);
-		vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[2], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[3], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[2]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
-		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[3]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
-		vdata1 = UTIL_READBITSFROM_UINTV(vdatas[4], 0, SIZEOF_VDATA0);
-		vdata2 = UTIL_READBITSFROM_UINTV(vdatas[5], 0, SIZEOF_VDATA0);
-		vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[4], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[5], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[4]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
-		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[5]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
-		vdata1 = UTIL_READBITSFROM_UINTV(vdatas[6], 0, SIZEOF_VDATA0);
-		vdata2 = UTIL_READBITSFROM_UINTV(vdatas[7], 0, SIZEOF_VDATA0);
-		vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[6], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[7], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[6]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
-		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[7]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
-		vdata1 = UTIL_READBITSFROM_UINTV(vdatas[8], 0, SIZEOF_VDATA0);
-		vdata2 = UTIL_READBITSFROM_UINTV(vdatas[9], 0, SIZEOF_VDATA0);
-		vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[8], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[9], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[8]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
-		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[9]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
-		vdata1 = UTIL_READBITSFROM_UINTV(vdatas[10], 0, SIZEOF_VDATA0);
-		vdata2 = UTIL_READBITSFROM_UINTV(vdatas[11], 0, SIZEOF_VDATA0);
-		vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[10], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[11], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[10]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
-		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[11]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
-		vdata1 = UTIL_READBITSFROM_UINTV(vdatas[12], 0, SIZEOF_VDATA0);
-		vdata2 = UTIL_READBITSFROM_UINTV(vdatas[13], 0, SIZEOF_VDATA0);
-		vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[12], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[13], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[12]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
-		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[13]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
-		vdata1 = UTIL_READBITSFROM_UINTV(vdatas[14], 0, SIZEOF_VDATA0);
-		vdata2 = UTIL_READBITSFROM_UINTV(vdatas[15], 0, SIZEOF_VDATA0);
-		vmdata1 = UTIL_READBITSFROM_UINTV(vdatas[14], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		vmdata2 = UTIL_READBITSFROM_UINTV(vdatas[15], SIZEOF_VDATA0, SIZEOF_VMASK0);
-		if(vdata1 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[14]: "<<vdata1<<", mask: "<<vmdata1<<""<<endl; isfail = 1; count+=1; }
-		if(vdata2 < 64){ cout<<"MEMACCESS_SPL_savevdataandmasks: vdatas[15]: "<<vdata2<<", mask: "<<vmdata2<<""<<endl; isfail = 1; count+=1; }
- */
-		
-		
-MEMCA_WRITETOKVDRAM_VDATASANDVMASKS(i, kvdram, vdatas, baseoffset_kvs, offset_kvs);
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
-		#endif
-	}
-	// if(isfail == 1 && count > 64){ exit(EXIT_FAILURE); } ////////////////////////////
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"savevdata:: vertices saved: offset: "<<(offset_kvs) * VECTOR_SIZE<<"-"<<(offset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
-	#endif
-	return;
-}
-
-// -------------------- vmasks -------------------- //
-void acts_all::MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+// -------------------- vmasks (soon obsolete) -------------------- //
+void MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -2032,7 +2808,7 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_RearrangeLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
+void MEMACCESS_SPL_RearrangeLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;
  if(s_==0){ 
 		vmdata2[0] = vmdata[0]; 
@@ -2325,7 +3101,7 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
+void MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -2524,24 +3300,17 @@ void acts_all::MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, 
 			vmdata[15] = UTIL_READFROM_UINT(bitsbuffer[i/2], 31, 1);
 		}
 		#endif
-		
-		#if defined(CONFIG_READVDATA_SLIDE)
-		MEMACCESS_SPL_GetXYLayoutVM(s, vmdata, vmdata2, depths, basedepth);
-MEMCA_WRITETOBUFFER_VMASKS(bufferoffset + i, vmaskBITS, vmdata2, 0);
-		#elif defined(CONFIG_READVDATA_SLIDEANDREARRANGE)
+	
 		unsigned int x = index2 + s;
 		basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
 		MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
 MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS(depths, vmaskBITS, vmdata2, 0);
 		index2 += NUM_PEs;
-		#else
-MEMCA_WRITETOBUFFER_VMASKS(bufferoffset + i, vmaskBITS, vmdata, 0);
-		#endif
 	}
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_readvmaskschunks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void MEMACCESS_SPL_CKSreadvmaskschunks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -2550,78 +3319,513 @@ void acts_all::MEMACCESS_SPL_readvmaskschunks(bool_type enable, uint512_dt * kvd
 	unit1_type vmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vmdata complete
 	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
-	unit1_type tempvmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]; // CRITICAL REMOVEME.
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
 	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
 		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
-	int limit = 0;
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
 MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(i<limit){ cout<<"MEMACCESS_SPL_readvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+		if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 		#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2); // CRITICAL FIXME. should be 'voffset + i' instead of just 'i'
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(i<limit){ cout<<"MEMACCESS_SPL_readvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+		if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 		#endif 
 MEMCA_WRITETOBUFFER_VMASKS(i, vmaskBITS, vmdata2, 0);
 	}
 	
-	#ifdef _DEBUGMODE_CHECKS
-	for(unsigned int i=0; i<32; i++){
-		cout<<"vmask buffer row "<<i<<": ";
-		for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-			cout<<vmaskBITS[v][i]<<", ";
-		}
-		cout<<endl;
-	}
-	cout<<endl;
-	#endif
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_readvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
 
-void acts_all::MEMACCESS_SPL_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readANDRvmaskschunks1(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS1_ANDREPLICATE(i, vmaskBITS0, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks2(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS2_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks3(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS3_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks4(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS4_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks5(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS5_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks6(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS6_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks7(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS7_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks8(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS8_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks9(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS9_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks10(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS10_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks11(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS11_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9,vmaskBITS10, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+void MEMACCESS_SPL_readANDRvmaskschunks12(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int bdepth = vsz_kvs;
+	unsigned int depth_i = 0;
+	unsigned int bdepth_i = 0;
+	unit1_type vmdata[VECTOR2_SIZE];
+	unit1_type vmdata2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmdata complete
+	#pragma HLS ARRAY_PARTITION variable=vmdata2 complete
+	unit1_type tempvmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]; // CRITICAL REMOVEME.
+	#pragma HLS array_partition variable = tempvmaskBITS
+	int limit = 0;
+	
+	for(unsigned int s=0; s<NUM_PEs; s++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		#endif 
+		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		depth_i += depth;
+		bdepth_i += bdepth;
+	}
+	
+	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
+MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+				#endif 
+		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+				#endif 
+MEMCA_WRITETOBUFFER_VMASKS12_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9,vmaskBITS10,vmaskBITS11, vmdata2, 0);
+	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	#endif
+	return;	
+}
+
+void MEMACCESS_SPL_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MEMACCESS_SPL_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
 	#endif
 	
-	/* ///////////////////////////////////////////////// REMOVEME
-	#ifdef _DEBUGMODE_CHECKS2
-	for(buffer_type k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k+=1){
-		if(vmaskBITS[0][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[1][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[2][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[3][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[4][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[5][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[6][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[7][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[8][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[9][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[10][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[11][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[12][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[13][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[14][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-		if(vmaskBITS[15][k]==1){ mydebugobj->increment(2, globalparams.ALGORITHMINFO_GRAPHITERATIONID, 1); }
-	}
-	#endif 
-	///////////////////////////////////////////////// */
-	
-	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
+	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
 	#pragma HLS array_partition variable = tempbuffer
 	uint32_type cummvmask_sp = 0;
 	
@@ -2783,7 +3987,7 @@ UTIL_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmaskBITS[15][n_iplus1]);
 }
 
 // -------------------- pmasks -------------------- //
-void acts_all::MEMACCESS_SPL_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -2795,7 +3999,7 @@ void acts_all::MEMACCESS_SPL_readpmask(uint512_dt * kvdram, uint32_type vmask_p[
 }
 
 // -------------------- stats -------------------- //
-void acts_all::MEMACCESS_SPL_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
+void MEMACCESS_SPL_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
@@ -2859,7 +4063,7 @@ void acts_all::MEMACCESS_SPL_readglobalstats(bool_type enable, uint512_dt * kvdr
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
+void MEMACCESS_SPL_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -2955,7 +4159,7 @@ else {
 	return;
 }
 
-tuple_t acts_all::MEMACCESS_SPL_getvptrs( uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t MEMACCESS_SPL_getvptrs( uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -3071,7 +4275,7 @@ tuple_t acts_all::MEMACCESS_SPL_getvptrs( uint512_dt * kvdram, unsigned int begi
 	return t;
 }
 
-unsigned int acts_all::MEMACCESS_SPL_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
+unsigned int MEMACCESS_SPL_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (offset / 16)];
@@ -3149,7 +4353,7 @@ else {
 	else { return vptr_kv.value; }
 }
 
-tuple_t acts_all::MEMACCESS_SPL_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t MEMACCESS_SPL_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -3222,7 +4426,7 @@ tuple_t acts_all::MEMACCESS_SPL_getvptrs_opt( uint512_dt * kvdram, unsigned int 
 	return t;
 }
 
-void acts_all::MEMACCESS_SPL_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK){
+void MEMACCESS_SPL_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 	
@@ -3233,14 +4437,14 @@ void acts_all::MEMACCESS_SPL_copystats(uint512_dt * edges, uint512_dt * kvdram, 
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_copyallstats( uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
+void MEMACCESS_SPL_copyallstats( uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
+void MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -3259,7 +4463,7 @@ void acts_all::MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESS_SPL_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k]; 
@@ -3270,7 +4474,7 @@ void acts_all::MEMACCESS_SPL_commitkvstats2(uint512_dt * kvdram, value_t * buffe
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESS_SPL_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -3281,8 +4485,86 @@ void acts_all::MEMACCESS_SPL_retreievekvstats(uint512_dt * kvdram, value_t * buf
 	}
 }
 
-////
-void acts_all::MEMACCESS_SPL_readmanyvmasks1(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+	unsigned int totalnumpartitionsb4last = 0;
+	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
+	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+		#ifdef _WIDEWORD
+ if(globalparams.VARS_WORKBATCH == 0){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32); 
+		}
+else if(globalparams.VARS_WORKBATCH == 1){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(127, 96); 
+		}
+else if(globalparams.VARS_WORKBATCH == 2){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(191, 160); 
+		}
+else if(globalparams.VARS_WORKBATCH == 3){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(255, 224); 
+		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(319, 288); 
+		}
+else if(globalparams.VARS_WORKBATCH == 5){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(383, 352); 
+		}
+else if(globalparams.VARS_WORKBATCH == 6){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(447, 416); 
+		}
+else {
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(511, 480); 
+		}
+		#else 
+ if(globalparams.VARS_WORKBATCH == 0){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 1){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[1].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 2){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[2].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 3){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[3].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[4].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 5){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[5].value; 
+		}
+else if(globalparams.VARS_WORKBATCH == 6){
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[6].value; 
+		}
+else {
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[7].value; 
+		}
+		#endif
+	}
+	return;
+}
+
+void MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+	unsigned int totalnumpartitionsb4last = 0;
+	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
+	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
+		#ifdef _WIDEWORD
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(63, 32) = buffer[k]; 
+		#else
+		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[0].value = buffer[k]; 
+		#endif
+	}
+	
+	#ifdef _WIDEWORD
+	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
+	#else
+	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
+	#endif 
+	return;
+}
+
+// -------------------- multiple accesses -------------------- //
+void MEMACCESS_SPL_readmanyvmasks1(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -3471,7 +4753,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks1(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -3727,7 +5009,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -4050,7 +5332,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -4440,7 +5722,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -4897,7 +6179,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -5421,7 +6703,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -6012,7 +7294,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -6670,7 +7952,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -7395,7 +8677,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdr
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -8187,7 +9469,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvd
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -9046,7 +10328,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvd
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -9973,7 +11255,7 @@ void acts_all::MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvd
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_readmanyspmask1(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask1(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -10137,7 +11419,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask1(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask2(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask2(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -10336,7 +11618,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask2(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask3(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask3(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -10570,7 +11852,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask3(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask4(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask4(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -10839,7 +12121,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask4(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask5(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask5(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -11143,7 +12425,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask5(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask6(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask6(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -11482,7 +12764,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask6(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask7(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask7(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -11856,7 +13138,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask7(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask8(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask8(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -12265,7 +13547,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask8(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask9(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask9(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -12709,7 +13991,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask9(bool_type enable, unit1_type vmask0
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask10(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask10(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -13188,7 +14470,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask10(bool_type enable, unit1_type vmask
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask11(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask11(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -13702,7 +14984,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask11(bool_type enable, unit1_type vmask
 	#endif 
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanyspmask12(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],unit1_type vmask11_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], buffer_type size_kvs){
+void MEMACCESS_SPL_readmanyspmask12(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask11_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -14252,7 +15534,7 @@ void acts_all::MEMACCESS_SPL_readmanyspmask12(bool_type enable, unit1_type vmask
 	return;
 }
 
-void acts_all::MEMACCESS_SPL_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14262,7 +15544,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask1(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14274,7 +15556,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask2(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14288,7 +15570,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask3(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14304,7 +15586,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask4(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14322,7 +15604,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask5(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14342,7 +15624,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask6(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14364,7 +15646,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask7(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14388,7 +15670,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask8(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14414,7 +15696,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask9(uint512_dt * kvdram, uint32_type vma
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14442,7 +15724,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask10(uint512_dt * kvdram, uint32_type vm
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14472,7 +15754,7 @@ void acts_all::MEMACCESS_SPL_readmanypmask11(uint512_dt * kvdram, uint32_type vm
 	}
 	return;
 }
-void acts_all::MEMACCESS_SPL_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESS_SPL_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -14505,5 +15787,54 @@ void acts_all::MEMACCESS_SPL_readmanypmask12(uint512_dt * kvdram, uint32_type vm
 	return;
 }
 
-
+// -------------------- others -------------------- //
+void MEMACCESS_SPL_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
+	// NOT IMPLEMENTED.
+	/* analysis_type analysis_treedepth = TREE_DEPTH;
+	analysis_type analysis_loop1 = 1;
+	
+	travstate_t rtravstate;
+	
+	#ifdef ENABLERECURSIVEPARTITIONING
+	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
+	batch_type num_source_partitions = get_num_source_partitions(globalparamsK.ACTSPARAMS_TREEDEPTH);
+	#else
+	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH + 1;
+	batch_type num_source_partitions = NUM_PARTITIONS;
+	#endif
+	buffer_type reducebuffersz = globalparamsK.SIZE_REDUCE / 2; // 512
+	
+	unsigned int sourcestatsmarker = 0;
+	#ifdef ENABLERECURSIVEPARTITIONING
+	LOADSRCVS_LOOP1: for(unsigned int k=0; k<globalparamsK.ACTSPARAMS_TREEDEPTH-1; k++)
+	#else 
+	LOADSRCVS_LOOP1: for(unsigned int k=0; k<globalparamsK.ACTSPARAMS_TREEDEPTH; k++)
+	#endif 
+	{
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_treedepth avg=analysis_treedepth
+		sourcestatsmarker += (1 << (NUM_PARTITIONS_POW * k)); 
+	}
+	
+	unsigned int gmask_buffer[BLOCKRAM_SIZE]; // AUTOMATEME.
+	LOADSRCVS_LOOP2: for(unsigned int iterationidx=0; iterationidx<num_source_partitions; iterationidx++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		gmask_buffer[iterationidx] = kvdram[globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + iterationidx].range(31, 0);
+		#else 
+		gmask_buffer[iterationidx] = kvdram[globalparamsK.BASEOFFSETKVS_VERTICESPARTITIONMASK + iterationidx].data[0].key;
+		#endif
+	}
+	
+	LOADSRCVS_LOOP3: for(batch_type iterationidx=0; iterationidx<num_source_partitions; iterationidx+=1){
+	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
+		if(gmask_buffer[iterationidx] > 0){
+			readvdata(ON, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + (iterationidx * reducebuffersz * FETFACTOR), vbuffer, 0, 0, reducebuffersz, globalparamsK);
+			readvdata(ON, kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + (iterationidx * reducebuffersz * FETFACTOR) + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
+			
+			savevdata(ON, kvdram, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + (iterationidx * reducebuffersz * FETFACTOR), vbuffer, 0, 0, reducebuffersz, globalparamsK);
+			savevdata(ON, kvdram, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + (iterationidx * reducebuffersz * FETFACTOR) + reducebuffersz, vbuffer, 8, 0, reducebuffersz, globalparamsK);
+		}
+	} */
+	return;
+}
 

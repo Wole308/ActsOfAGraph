@@ -1,6 +1,3 @@
-#include "partitionupdates.h"
-using namespace std;
-
 #ifdef SW
 partitionupdates::partitionupdates(mydebug * _mydebugobj){ 
 	actsutilityobj = new actsutility(); 
@@ -29,7 +26,7 @@ void {{context['classname__partitionupdates']}}PARTITION_preparekeyvalues(bool_t
 		localcapsule[{{v}}][p].value = 0; 
 		{%endfor%}
 	}
-	
+
 	PREPAREKEYVALUES_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1	
 	#pragma HLS PIPELINE II=2

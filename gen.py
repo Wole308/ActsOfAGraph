@@ -28,10 +28,10 @@ context['LOCKE'] = sys.argv[9]
 context['EVALUATION_TYPE'] = sys.argv[10]
 context['EVALUATION_PARAM0'] = int(sys.argv[11])
 context['NUM_PEs'] = int(sys.argv[12])
-path = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
-isFile = os.path.isfile(path)  
-print(isFile) 
-
+awspath = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
+is_aws_path = os.path.isfile(awspath)  
+print(is_aws_path) 
+# quit()
 ###
 
 if ((context['EVALUATION_TYPE'] != "EV_CREATENDGRAPH") and ((context['DATASET'] == "_RMAT_RANGE0") or (context['DATASET'] == "_RMAT_RANGE1") or (context['DATASET'] == "_RMAT_RANGE2") or (context['DATASET'] == "_RMAT_RANGE3") or (context['DATASET'] == "_RMAT_RANGE4") or (context['DATASET'] == "_RMAT_RANGE5") or (context['DATASET'] == "_RMAT_RANGE6") or (context['DATASET'] == "_RMAT_RANGE7"))):                                     
@@ -48,6 +48,8 @@ context['NUMSUBWORKERS'] = 1 # 3#4
 
 context['NUM_EDGE_BANKS'] = 0
 context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
+# context['NUM_EDGE_BANKS'] = 1
+# context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
 
 context['NUM_PEs_seq'] = []
 for i in range (0,context['NUM_PEs']):
@@ -156,7 +158,7 @@ else:
 
 ###
 
-if (isFile):
+if (is_aws_path):
     context['PLATFORM'] = "AWS_PLATFORM"
 else:
     context['PLATFORM'] = "CRABTREE_PLATFORM"
@@ -256,11 +258,15 @@ else:
 
 ###
 
-relref=""
-# relref="../"
+cwd = os.getcwd()
+print (cwd)
+if (cwd=="/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/"):
+    relref="../"
+else:
+    relref=""
 	
 o_path0=relref+"acts/acts/acts.cpp"
-o_path1=relref+"acts/acts/acts.h"
+o_path1=relref+"acts/acts/acts.cpp"
 o_path2=relref+"acts/acts/acts.cpp"
 o_path3=relref+"acts/acts/acts.h"
 o_path4=relref+"include/common.h"
@@ -270,33 +276,33 @@ o_path7=relref+"include/common.h"
 o_path8=relref+"acts/acts/acts.cpp"
 o_path9=relref+"acts/acts/acts.h"
 o_path10=relref+"acts/acts/top_usrcv_udstv.cpp"
-o_path11=relref+"acts/acts/top_usrcv_udstv.h"
+o_path11=relref+"acts/acts/top_usrcv_udstv.cpp"
 o_path12=relref+"acts/acts/top_nusrcv_nudstv.cpp"
-o_path13=relref+"acts/acts/top_nusrcv_nudstv.h"
+o_path13=relref+"acts/acts/top_nusrcv_nudstv.cpp"
 o_path14=relref+"acts/acts/processedges_splitdstvxs.cpp"
-o_path15=relref+"acts/acts/processedges_splitdstvxs.h"
+o_path15=relref+"acts/acts/processedges_splitdstvxs.cpp"
 o_path16=relref+"acts/acts/acts.cpp"
-o_path17=relref+"acts/acts/acts.h"
+o_path17=relref+"acts/acts/acts.cpp"
 o_path18=relref+"acts/acts/reduceupdates.cpp"
-o_path19=relref+"acts/acts/reduceupdates.h"
+o_path19=relref+"acts/acts/reduceupdates.cpp"
 o_path20=relref+"acts/acts/acts_util.cpp"
-o_path21=relref+"acts/acts/acts_util.h"
+o_path21=relref+"acts/acts/acts_util.cpp"
 o_path22=relref+"acts/acts/acts.cpp"
-o_path23=relref+"acts/acts/acts.h"
+o_path23=relref+"acts/acts/acts.cpp"
 o_path24=relref+"acts/acts/acts.cpp"
-o_path25=relref+"acts/acts/acts.h"
+o_path25=relref+"acts/acts/acts.cpp"
 o_path26=relref+"acts/acts/partitionupdates.cpp"
-o_path27=relref+"acts/acts/partitionupdates.h"
+o_path27=relref+"acts/acts/partitionupdates.cpp"
 o_path28=relref+"acts/acts/acts.cpp"
-o_path29=relref+"acts/acts/acts.h"
+o_path29=relref+"acts/acts/acts.cpp"
 o_path30=relref+"acts/acts/mem_access_splitdstvxs.cpp"
-o_path31=relref+"acts/acts/mem_access_splitdstvxs.h"
+o_path31=relref+"acts/acts/mem_access_splitdstvxs.cpp"
 o_path32=relref+"acts/acts/acts_merge_splitdstvxs.cpp"
-o_path33=relref+"acts/acts/acts_merge_splitdstvxs.h"
+o_path33=relref+"acts/acts/acts_merge_splitdstvxs.cpp"
 o_path34=relref+"acts/acts/acts_all.cpp"
 o_path35=relref+"acts/acts/acts_all.h"
 o_path36=relref+"acts/acts/mem_convert_and_access.cpp"
-o_path37=relref+"acts/acts/mem_convert_and_access.h"
+o_path37=relref+"acts/acts/mem_convert_and_access.cpp"
 o_path100=relref+"acts/acts/top_usrcv_udstv_mf.h"
 o_path101=relref+"acts/acts/top_nusrcv_nudstv_mf.h"
 o_path102=relref+"acts/acts/processedges_splitdstvxs_mf.h"
@@ -621,7 +627,7 @@ context['NUMSYNCTHREADS_DIV_4__PLUS2_seq'] = []
 for i in range (0,(context['NUMSYNCTHREADS_DIV_4__PLUS2'])):
 		context['NUMSYNCTHREADS_DIV_4__PLUS2_seq'].append(i)
    
-context['PE_SETSZ'] = 16 #8, 16 # for classname__processedges_splitdstvxs.cpp
+context['PE_SETSZ'] = 8 #8, 16 # for classname__processedges_splitdstvxs.cpp
 context['PE_SETSZ_seq'] = []
 for i in range (0,context['PE_SETSZ']):
 		context['PE_SETSZ_seq'].append(i)
@@ -731,43 +737,43 @@ env111.globals.update(zip=zip)
 env112.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
-template1 = env1.get_template('acts_h.template')
+template1 = env1.get_template('acts.template')
 template2 = env2.get_template('acts.template')
-template3 = env3.get_template('acts_h.template')
+template3 = env3.get_template('acts.template')
 template4 = env4.get_template('common_h.template')
 template5 = env5.get_template('common_h.template')
 template6 = env6.get_template('common_h.template')
 template7 = env7.get_template('common_h.template')
 template8 = env8.get_template('acts.template')
-template9 = env9.get_template('acts_h.template')
+template9 = env9.get_template('acts.template')
 template10 = env10.get_template('top_usrcv_udstv.template')
-template11 = env11.get_template('top_usrcv_udstv_h.template')
+template11 = env11.get_template('top_usrcv_udstv.template')
 template12 = env12.get_template('top_nusrcv_nudstv.template')
-template13 = env13.get_template('top_nusrcv_nudstv_h.template')
+template13 = env13.get_template('top_nusrcv_nudstv.template')
 template14 = env14.get_template('processedges_splitdstvxs.template')
-template15 = env15.get_template('processedges_splitdstvxs_h.template')
+template15 = env15.get_template('processedges_splitdstvxs.template')
 template16 = env16.get_template('acts.template')
-template17 = env17.get_template('acts_h.template')
+template17 = env17.get_template('acts.template')
 template18 = env18.get_template('reduceupdates.template')
-template19 = env19.get_template('reduceupdates_h.template')
+template19 = env19.get_template('reduceupdates.template')
 template20 = env20.get_template('acts_util.template')
-template21 = env21.get_template('acts_util_h.template')
+template21 = env21.get_template('acts_util.template')
 template22 = env22.get_template('acts.template')
-template23 = env23.get_template('acts_h.template')
+template23 = env23.get_template('acts.template')
 template24 = env24.get_template('acts.template')
-template25 = env25.get_template('acts_h.template')
+template25 = env25.get_template('acts.template')
 template26 = env26.get_template('partitionupdates.template')
-template27 = env27.get_template('partitionupdates_h.template')
+template27 = env27.get_template('partitionupdates.template')
 template28 = env28.get_template('acts.template')
-template29 = env29.get_template('acts_h.template')
+template29 = env29.get_template('acts.template')
 template30 = env30.get_template('mem_access_splitdstvxs.template')
-template31 = env31.get_template('mem_access_splitdstvxs_h.template')
+template31 = env31.get_template('mem_access_splitdstvxs.template')
 template32 = env32.get_template('acts_merge_splitdstvxs.template')
-template33 = env33.get_template('acts_merge_splitdstvxs_h.template')
+template33 = env33.get_template('acts_merge_splitdstvxs.template')
 template34 = env34.get_template('acts_all.template')
 template35 = env35.get_template('acts_all_h.template')
 template36 = env36.get_template('mem_convert_and_access.template')
-template37 = env37.get_template('mem_convert_and_access_h.template')
+template37 = env37.get_template('mem_convert_and_access.template')
 template100 = env100.get_template('top_usrcv_udstv_mf.template')
 template101 = env101.get_template('top_nusrcv_nudstv_mf.template')
 template102 = env102.get_template('processedges_splitdstvxs_mf.template')

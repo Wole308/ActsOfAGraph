@@ -14,12 +14,8 @@
 #include "../include/common.h"
 #include "../src/stats/stats.h"
 #include "../src/graphs/graph.h"
-#include "../acts/acts/acts_merge.h"
-#include "../acts/acts/acts_merge_splitdstvxs.h"
 #include "../src/utility/utility.h"
 #include "../src/algorithm/algorithm.h"
-#include "../acts/acts/top_usrcv_udstv.h"
-#include "../acts/acts/top_nusrcv_nudstv.h"
 #include "../acts/acts/acts_all.h"
 #include "../acts/acts/mydebug.h"
 
@@ -42,20 +38,15 @@ public:
 	
 	void verifyresults_hw(uint512_vec_dt * kvdram, unsigned int _BASEOFFSETKVS_VERTICESDATA);
 private:
+	#ifndef HW
 	utility * utilityobj;
 	stats * statsobj;
 	graph * graphobj;
 	algorithm * algorithmobj;
 	
 	acts_all * kernelobjs_process[NUMSUBCPUTHREADS];
-	// top_usrcv_udstv * kernelobjs_process[NUMSUBCPUTHREADS];
-	// top_nusrcv_nudstv * kernelobjs_process[NUMSUBCPUTHREADS]; // Recent.
-	
-	#ifdef SW
-	acts_merge * kernelobjs_merge;
-	acts_merge_splitdstvxs * kernelobjs_merge_splitdstvxs;
-	#endif
 	mydebug * mydebugobj;
+	#endif 
 };
 #endif
 

@@ -1,6 +1,3 @@
-#include "acts.h"
-using namespace std;
-
 #ifdef SW
 acts::acts(mydebug * _mydebugobj){
 	actsutilityobj = new actsutility(); 
@@ -16,7 +13,7 @@ acts::~acts(){}
 #endif
 
 // actsproc 
-fetchmessage_t acts_all::ACTS_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t ACTS_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams,
 		unsigned int edgebankID){
 	fetchmessage_t fetchmessage;
@@ -72,7 +69,7 @@ fetchmessage_t acts_all::ACTS_fetchkeyvalues(bool_type enable, unsigned int mode
 	return fetchmessage; 
 }
 
-void acts_all::ACTS_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE],
+void ACTS_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],
 		keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 			batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(mode == REDUCEMODE){
@@ -83,7 +80,7 @@ MEMACCESS_SPL_savekeyvalues(enable1, kvdram, destbuffer, globalcapsule, localcap
 	return;
 }
 
-void acts_all::ACTSprior_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskBITS[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], 
+void ACTSprior_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], 
 		keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 				batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(mode == REDUCEMODE){
@@ -94,7 +91,7 @@ MEMACCESS_SPL_savekeyvalues(enable1, kvdram, destbuffer, globalcapsule, localcap
 	return;
 }
 
-void acts_all::ACTS_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void ACTS_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	analysis_type analysis_loop1 = SRCBUFFER_SIZE / 4;
@@ -131,13 +128,16 @@ UTIL_resetvalues(capsule_so8, MAX_NUM_PARTITIONS, 0);
 	#pragma HLS PIPELINE II=1
 		if(cutoffs[v] > maxcutoff){ maxcutoff = cutoffs[v]; }
 	}
-	#ifdef _DEBUGMODE_CHECKS2
+	#ifdef _DEBUGMODE_CHECKS2 // CRITICAL FIXME.
+	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	if(maxcutoff % 4 != 0){ for(int v=0; v<VECTOR_SIZE; v++){ cout<<"------------------- actspipeline:cutoffs["<<v<<"]: "<<cutoffs[v]<<endl; } exit(EXIT_FAILURE); }
 	actsutilityobj->checkfordivisibleby(ON, "actspipeline:maxcutoff", maxcutoff, 4);
 	#endif
+	#endif
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
-	if(maxcutoff % 4 != 0){ maxcutoff = 4; } // FIXME.
+	if(maxcutoff % 4 != 0){ maxcutoff = 0; } // 4, CRITICAL FIXME.
 	#endif 
+	// cout<<"------------------- ACTS_actspipeline: maxcutoff: "<<maxcutoff<<endl;
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
@@ -176,7 +176,7 @@ UTIL_resetvalues(capsule_so8, MAX_NUM_PARTITIONS, 0);
 			if(k < tempcutoffs[6+n]){ kvA6[0] = buffer_setof1[6+n][k]; kvA6[1] = buffer_setof1[6+n][k+1]; kvA6[2] = buffer_setof1[6+n][k+2]; kvA6[3] = buffer_setof1[6+n][k+3]; } 
 			else { kvA6[0] = dummykv; kvA6[1] = dummykv; kvA6[2] = dummykv; kvA6[3] = dummykv; }
 		
-			#ifdef _DEBUGMODE_KERNELPRINTS 
+			#ifdef _DEBUGMODE_KERNELPRINTS
 			for(unsigned int m=0; m<4; m++){ cout<<"kvA0["<<m<<"].key: "<<UTIL_GETKV(kvA0[m]).key<<", kvA0["<<m<<"].value: "<<UTIL_GETKV(kvA0[m]).value<<endl; }
 			for(unsigned int m=0; m<4; m++){ cout<<"kvA2["<<m<<"].key: "<<UTIL_GETKV(kvA2[m]).key<<", kvA2["<<m<<"].value: "<<UTIL_GETKV(kvA2[m]).value<<endl; }
 			for(unsigned int m=0; m<4; m++){ cout<<"kvA4["<<m<<"].key: "<<UTIL_GETKV(kvA4[m]).key<<", kvA4["<<m<<"].value: "<<UTIL_GETKV(kvA4[m]).value<<endl; }
@@ -285,8 +285,8 @@ UTIL_resetvalues(capsule_so8, MAX_NUM_PARTITIONS, 0);
 	return;
 }
 
-void acts_all::ACTS_actit(bool_type enable, unsigned int mode,
- uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 					
+void ACTS_actit(bool_type enable, unsigned int mode,
+ uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 					
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -372,8 +372,8 @@ PARTITION_preparekeyvalues(pp1partitionen, ON, mode, sourcebuffer, buffer_setof1
 	return;
 }
 
-void acts_all::ACTS_priorit(bool_type enable, unsigned int mode,
- uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+void ACTS_priorit(bool_type enable, unsigned int mode,
+ uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -441,8 +441,8 @@ PARTITION_priorpartitionkeyvalues(ON, ON, mode, sourcebufferpp1, bufferpp1_setof
 	return;
 }
 
-void acts_all::ACTS_tradit(bool_type enable, unsigned int mode,
- uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmaskWRITE[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+void ACTS_tradit(bool_type enable, unsigned int mode,
+ uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskREAD[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmaskWRITE[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);

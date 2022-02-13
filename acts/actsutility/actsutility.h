@@ -107,6 +107,12 @@ public:
 	void globalvar_inmemory_counttotalvalidkeyvalues(unsigned int count);
 	void globalstats_countkvsread(unsigned int count);
 	void globalstats_countkvswritten(unsigned int count);
+	void globalstats_countkvsread_partition(unsigned int count);
+	void globalstats_countkvswritten_partition(unsigned int count);
+	void globalstats_countkvsread_reduce(unsigned int count);
+	void globalstats_countkvswritten_reduce(unsigned int count);
+	void globalstats_countvsread(unsigned int count);
+	void globalstats_countvswritten(unsigned int count);
 	void globalstats_countkvspartitionswritten(unsigned int count);
 	void globalstats_countkvspartitionswritten_actual(unsigned int count);
 	void globalstats_countkvspartitioned(unsigned int count);
@@ -217,8 +223,16 @@ private:
 	unsigned int globalvar_savestats_totalstatswritten;
 	unsigned int globalvar_savepartitions_invalids;
 	unsigned int globalvar_inmemory_totalvalidkeyvalues;
+	
 	unsigned int globalvar_totalkvsread;
-	unsigned int globalstats_totalkvswritten;
+	unsigned int globalvar_totalkvswritten;
+	unsigned int globalvar_totalkvsread_partition;
+	unsigned int globalvar_totalkvswritten_partition;
+	unsigned int globalvar_totalkvsread_reduce;
+	unsigned int globalvar_totalkvswritten_reduce;
+	unsigned int globalvar_totalvsread;
+	unsigned int globalvar_totalvswritten;
+	
 	unsigned int globalstats_totalkvspartitioned;
 	unsigned int globalstats_totalkvspartitionswritten;
 	unsigned int globalstats_totalkvspartitionswritten_actual;

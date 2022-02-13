@@ -3,7 +3,7 @@
 #include "../../include/config_params.h"
 #include "../../include/common.h"
 #include "../include/actscommon.h"
-#ifdef SW_ALLINONE 
+#ifdef SW_ALLINONE
 #include <string>
 #include <string.h>
 #include <iostream>
@@ -19,13 +19,14 @@
 #include <cmath>
 #include <fstream>
 #endif 
-#ifdef SW_ALLINONE 
+#ifdef SW_ALLINONE
 #include "../../src/utility/utility.h"
 #include "../../acts/actsutility/actsutility.h"
-#endif
 #include "mydebug.h"
 using namespace std;
+#endif
 
+#ifdef SW_ALLINONE
 class acts_all {
 public:
 	acts_all(mydebug * _mydebugobj);
@@ -55,12 +56,8 @@ public:
 	#ifdef CONFIG_ENABLECLASS_ACTS
 	{% include 'acts_mf.template' %}	
 	#endif 
-	#ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
 	{% include 'top_usrcv_udstv_mf.template' %}	
-	#endif 
-	#ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
 	{% include 'top_nusrcv_nudstv_mf.template' %}	
-	#endif 
 	
 private:
 	#ifdef SW_ALLINONE 
@@ -68,6 +65,7 @@ private:
 	mydebug * mydebugobj;
 	#endif 
 };
+#endif 
 #endif 
 
 

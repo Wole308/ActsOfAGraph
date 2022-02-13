@@ -5,20 +5,14 @@ using namespace std;
 #define ENABLE_ACTSSYNC
 
 swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
+	#ifndef HW
 	utilityobj = new utility();
 	statsobj = _statsobj;
 	graphobj = _graphobj;
 	algorithmobj = _algorithmobj;
 	mydebugobj = new mydebug();
 	
-	// for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kernelobjs_process[i] = new actsproc(mydebugobj); }
 	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new acts_all(mydebugobj); }
-	// for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new actsproc(mydebugobj); }
-	// for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new top_nusrcv_nudstv(mydebugobj); } // Recent.
-	
-	#ifdef SW 
-	kernelobjs_merge = new acts_merge(mydebugobj);
-	kernelobjs_merge_splitdstvxs = new acts_merge_splitdstvxs(mydebugobj);
 	#endif 
 }
 swkernel::~swkernel(){}
@@ -106,20 +100,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		NOT DEFINED.
 		#endif
 		
-		#ifdef SW  // ADDMEBACK.
-		kernelobjs_merge_splitdstvxs->MERGE_SPLIT_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);
-		#else 
-		kernelobjs_process[0]->MERGE_SPLIT_exchangeVs((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);	
-		#endif 
-		
-		// cout<<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> swkernel::runapp:: Number of active vertices for next iteration (Iter "<<GraphIter+1<<"): mydebugobj->get("<<GraphIter<<"): "<<mydebugobj->get(0, GraphIter+1)<<endl;
-		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 0 (@ top_nusrcv_nudstv::topkernelP (before broadcast).cpp): mydebugobj->get(0, "<<t<<"): "<<mydebugobj->get(0, t)<<endl; }
-		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 1 (@ top_nusrcv_nudstv::topkernelP (after broadcast).cpp): mydebugobj->get(1, "<<t<<"): "<<mydebugobj->get(1, t)<<endl; }
-		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 2 (@ mem_access::MEMACCESS_SPL_savemasks.cpp): mydebugobj->get(2, "<<t<<"): "<<mydebugobj->get(2, t)<<endl; }
-		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 3 (@ acts_merge_splitdstvxss::MERGE_SPLIT_exchangeVs.cpp): mydebugobj->get(3, "<<t<<"): "<<mydebugobj->get(3, t)<<endl; }
-		
-		// for(unsigned int t=0; t<8; t++){ cout<<">>>>>> swkernel::[DEBUG]:: DEBUG 4 (@ dummy): mydebugobj->get(4, "<<t<<"): "<<mydebugobj->get(4, t)<<endl; }
-		// exit(EXIT_SUCCESS);
+		kernelobjs_process[0]->topkernelS((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);	
 		
 		long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 		cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;

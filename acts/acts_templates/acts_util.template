@@ -1,28 +1,3 @@
-#ifdef SW 
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <vector>
-#include <string.h>
-#include <stdio.h>
-#include <ctime>
-#include <functional>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-#include <iomanip>
-#include <cmath>
-#include <fstream>
-#endif 
-#include "../../include/config_params.h"
-#include "../../include/common.h"
-#include "../include/actscommon.h"
-#ifdef SW 
-#include "../actsutility/actsutility.h"
-#endif
-#include "acts_util.h"
-using namespace std;
-
 #ifdef SW
 acts_util::acts_util(mydebug * _mydebugobj){ actsutilityobj = new actsutility(); mydebugobj = _mydebugobj; }
 acts_util::~acts_util(){}
@@ -94,26 +69,7 @@ unsigned int {{context['classname__acts_util']}}UTIL_READBITSFROM_UINTV(uint32_t
 	#endif
 	return res;
 }
-unsigned int {{context['classname__acts_util']}}UTIL_READBITSFROM_UINT32(uint32_type data, unsigned int index, unsigned int size){
-	#pragma HLS INLINE
-	unsigned int res = 0;
-	#ifdef _WIDEWORD
-	res = data.range(index + size - 1, index); 
-	#else
-	res = UTIL_READFROM_UINT(data, index, size);
-	#endif
-	return res;
-}
 void {{context['classname__acts_util']}}UTIL_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	data->range(index + size - 1, index) = value;
-	#else
-	UTIL_WRITETO_UINT(data, index, size, value);
-	#endif
-	return; 
-}
-void {{context['classname__acts_util']}}UTIL_WRITEBITSTO_UINT32(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	data->range(index + size - 1, index) = value;
@@ -172,7 +128,7 @@ keyy_t {{context['classname__acts_util']}}UTIL_GETKEYENTRY(uint512_dt data, unsi
 	return data.data[v].key;	
 	#endif
 }	
-value_t {{context['classname__acts_util']}}UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t {{context['classname__acts_util']}}UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	loc = loc / SUBPMASKFACTOR; // convert-to-appropriate-skip-format // NEWCHANGE.
 
@@ -207,7 +163,7 @@ value_t {{context['classname__acts_util']}}UTIL_GETVTXMASK_SUBP(unit1_type vmask
 	value_t data = vmask[col][row];
 	return data;
 }
-uint32_type {{context['classname__acts_util']}}UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int index){
+uint32_type {{context['classname__acts_util']}}UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int index){
 	#pragma HLS INLINE
 	uint32_type res = 0;
 	#ifdef _WIDEWORD
@@ -446,6 +402,10 @@ globalparams_t {{context['classname__acts_util']}}UTIL_getglobalparams(uint512_d
 	#endif  
 	globalparams.VARS_WORKBATCH = 0;
 	
+	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo == PAGERANK || GraphAlgo == CF || GraphAlgo == CC){ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_ALLVERTEXISACTIVE; }
+	else{ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_NOTALLVERTEXISACTIVE; }
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalparameters("acts_util::getglobalparams:: printing global parameters", globalparams);
 	#endif
@@ -628,7 +588,7 @@ void {{context['classname__acts_util']}}UTIL_resetkvstatvalues(uint512_dt * kvdr
 	}
 	return;
 }
-void {{context['classname__acts_util']}}UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]){
+void {{context['classname__acts_util']}}UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]){
 	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<DOUBLE_BLOCKRAM_SIZE; k++){
 	#pragma HLS PIPELINE II=1
 		for(unsigned int i=0; i<VMASK_PACKINGSIZE; i++){
@@ -668,7 +628,7 @@ void {{context['classname__acts_util']}}UTIL_set_graphiteration(uint512_dt * kvd
 }
 void {{context['classname__acts_util']}}UTIL_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
 	#ifdef _WIDEWORD
-	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
+	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
 	#else
 	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
 	#endif 

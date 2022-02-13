@@ -406,25 +406,6 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	globalparams_t globalparamsVPTRS = globalparams.globalparamsK;
 	#endif 
 	
-	/* // calculate offsets
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
-		tempvptrs[i][0].key = 0;
-		for(unsigned int vid=1; vid<KVDATA_RANGE; vid++){	
-			// tempvptrs[i][vid].key = tempvptrs[i][vid-1].key + counts_alledges_for_channel[i][vid-1]; 
-			tempvptrs[i][vid].key = tempvptrs[i][vid-1].key + counts_alledges_for_channel[i][vid-1]; 
-		}
-	}
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		unsigned int _index = 0;
-		for(unsigned int vid=0; vid<KVDATA_RANGE; vid+=VPTR_SHRINK_RATIO){	
-			vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE) + _index].key = tempvptrs[i][vid].key; 
-			_index += 1;
-		}
-		for(unsigned int vid=0; vid<(DRAMPADD/2); vid++){ // dummy pads
-			vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE) + _index].key = counts_totalalledges_for_channel[i];
-			_index += 1;
-		}
-	} */
 	// calculate offsets
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
 		tempvptrs[i][0].key = 0;
@@ -500,6 +481,8 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	for(unsigned int i=0; i<0; i++){ utilityobj->printvalues("loadedges_splitdstvxs[after]::loadedges: printing counts_alledges_for_channel["+std::to_string(i)+"][~]", (value_t *)&counts_alledges_for_channel[i][0], 4); } 
 	for(unsigned int i=0; i<0; i++){ utilityobj->printkeyvalues("loadedges_splitdstvxs[after]::loadedges: printing edgedatabuffers_temp["+std::to_string(i)+"][~]", (keyvalue_t *)&edgedatabuffers_temp[i][0], 4); }
 	for(unsigned int i=0; i<0; i++){ utilityobj->printvalues("loadedges_splitdstvxs::loadedges: printing vptrs["+std::to_string(i)+"][~]", (value_t *)&vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE)], 8); } 
+	#endif 
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadedges_splitdstvxs::loadedges: totalcount_validedges_for_all_channels: "<<totalcount_validedges_for_all_channels<<", totalcount_alledges_for_all_channels: "<<totalcount_alledges_for_all_channels<<", *counts_alldata: "<<counts_alldata<<endl;
 	#endif 
 	// exit(EXIT_SUCCESS); //
@@ -551,8 +534,8 @@ globalparams_TWOt loadedges_splitdstvxs::loadoffsetmarkers(vptr_type * vptrs[NUM
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	unsigned int num_edges_per_channel = globalparams.globalparamsE.SIZE_EDGES;
 	unsigned int num_vertices_per_channel = KVDATA_RANGE;
-	unsigned int A = 4 * num_edges_per_channel;
-	unsigned int B = (256000000/4) - (3 * num_vertices_per_channel);
+	unsigned int A = 4 * num_edges_per_channel; // capacity for kv datas
+	unsigned int B = (KVDRAMWORKCAPACITY_BYTES/4) - (3 * num_vertices_per_channel); // total - capa 
 	unsigned int num_edgechunks_in_a_buffer = (A + (B-1)) / B; // 3V + 2E/N + 2E/N = (256MB/4)
 	cout<<"---------------------------------------------------------------------- A: "<<A<<", B: "<<B<<", num_edgechunks_in_a_buffer: "<<num_edgechunks_in_a_buffer<<endl;
 	#else 
@@ -629,18 +612,18 @@ globalparams_TWOt loadedges_splitdstvxs::loadoffsetmarkers(vptr_type * vptrs[NUM
 		unsigned int srC=0;
 		unsigned int SRC_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER+1];
 		unsigned int PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER+1];
+		unsigned int num_edges_in_a_chunk = container->edgessize[i] / _NUM_EDGECHUNKS_IN_A_BUFFER;
 		for(unsigned int k=0; k<_NUM_EDGECHUNKS_IN_A_BUFFER; k++){
 			unsigned int index = k * (container->edgessize[i] / _NUM_EDGECHUNKS_IN_A_BUFFER);
 			for(unsigned int t=0; t<16; t++){ if(edges_temp[i][index+t].status != EDGESTATUS_BITMAP){ srC = edges_temp[i][index+t].srcvid; break; }}
 			srC = (srC / (REDUCESZ * VDATA_PACKINGSIZE)) * (REDUCESZ * VDATA_PACKINGSIZE); // round down
 			SRC_CHKPT[k] = srC;
 			PARTITION_CHKPT[k] = srC / (REDUCESZ * VDATA_PACKINGSIZE);
-			#ifdef _DEBUGMODE_HOSTPRINTS
-			cout<<"loadedges_splitdstvxs::loadoffsetmarkers: k: "<<k<<", index: "<<index<<", srC: "<<srC<<", SRC_CHKPT["<<k<<"]: "<<SRC_CHKPT[k]<<", PARTITION_CHKPT["<<k<<"]: "<<PARTITION_CHKPT[k]<<", _NUM_EDGECHUNKS_IN_A_BUFFER: "<<_NUM_EDGECHUNKS_IN_A_BUFFER<<endl; 
+			#ifdef _DEBUGMODE_HOSTPRINTS3
+			cout<<"loadoffsetmarkers: k: "<<k<<", index: "<<index<<", srC: "<<srC<<", SRC_CHKPT["<<k<<"]: "<<SRC_CHKPT[k]<<", PARTITION_CHKPT["<<k<<"]: "<<PARTITION_CHKPT[k]<<", num_edges_in_a_chunk: "<<num_edges_in_a_chunk<<", _NUM_EDGECHUNKS_IN_A_BUFFER: "<<_NUM_EDGECHUNKS_IN_A_BUFFER<<endl; 
 			#endif
 		}
 		SRC_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = KVDATA_RANGE-1;
-		// PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = (1 << (NUM_PARTITIONS_POW * (TREE_DEPTH-1))); // 256
 		PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = KVDATA_RANGE / REDUCEPARTITIONSZ;
 		
 		for(unsigned int k=0; k<container->edgessize[i]; k++){
@@ -762,6 +745,22 @@ globalparams_TWOt loadedges_splitdstvxs::loadoffsetmarkers(vptr_type * vptrs[NUM
 	// exit(EXIT_SUCCESS); //
 	return globalparams;
 }
+void loadedges_splitdstvxs::accumstats(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * stats[NUMSUBCPUTHREADS], globalparams_TWOt globalparams){
+	#ifdef _DEBUGMODE_HOSTPRINTS2
+	cout<<"loadedges_splitdstvxs::accumstats:: accumulating stats to base... "<<endl;
+	#endif
+
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i+=NUM_EDGE_BANKS){
+		uint512_vec_dt * basestatsptrVec = (uint512_vec_dt *)&kvbuffer[i/NUM_EDGE_BANKS][globalparams.globalparamsK.BASEOFFSETKVS_STATSDRAM];
+		for(unsigned int j=0; j<NUM_EDGE_BANKS; j++){
+			uint512_vec_dt * statsptrVec = (uint512_vec_dt *)&stats[i + j][globalparams.globalparamsE.BASEOFFSETKVS_STATSDRAM];
+			for(unsigned int k=0; k<ACTIVE_KVSTATSSZ; k++){
+				basestatsptrVec[j*ACTIVE_KVSTATSSZ + k] = statsptrVec[k];
+			}
+		}
+	}
+	return;
+}
 
 globalparams_TWOt loadedges_splitdstvxs::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], uint512_vec_dt * vdram, globalparams_TWOt globalparams){ 
 	#ifdef _DEBUGMODE_HOSTPRINTS2
@@ -854,7 +853,7 @@ void loadedges_splitdstvxs::savemasks(uint512_vec_dt * kvdram, unit1_type vmaskB
 	
 	vmask_offset_kvs = vmask_offset_kvs / FACTOR_REDUCEPARTITIONSZ_VMASKSZ; // convert
 	
-	uint32_type tempbuffer[REDUCEPARTITIONSZ_KVS2];
+	unsigned int tempbuffer[REDUCEPARTITIONSZ_KVS2];
 	unsigned int indexx = 0;
 	
 	for(buffer_type k=0; k<REDUCEPARTITIONSZ_KVS2; k+=2){
@@ -884,7 +883,7 @@ void loadedges_splitdstvxs::savemasks(uint512_vec_dt * kvdram, unit1_type vmaskB
 	#endif
 	return;
 }
-void loadedges_splitdstvxs::setrootvid(uint512_vec_dt * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams){
+void loadedges_splitdstvxs::setrootvid(unsigned int Algo, uint512_vec_dt * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"loadgraph::setrootvid:: setting root vid(s)... "<<endl;
 	#endif 
@@ -916,10 +915,10 @@ void loadedges_splitdstvxs::setrootvid(uint512_vec_dt * kvbuffer, vector<vertex_
 						// vmask[v][k] = 1;
 					} else {
 						#ifdef CONFIG_SEPERATEVMASKFROMVDATA
-						vbuffer[v][k] = algorithmobj->vertex_initdata();		
+						vbuffer[v][k] = algorithmobj->vertex_initdata(Algo, vid);		
 						#else 
 						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], SIZEOF_VDATA0, SIZEOF_VMASK0, 0);
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], 0, SIZEOF_VDATA0, algorithmobj->vertex_initdata()); // MAXVDATA, algorithmobj->vertex_initdata()), 32767
+						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], 0, SIZEOF_VDATA0, algorithmobj->vertex_initdata(Algo, vid)); // MAXVDATA, algorithmobj->vertex_initdata()), 32767
 						#endif 
 						vmask[v][k] = 0;
 						

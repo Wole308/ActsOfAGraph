@@ -13,9 +13,7 @@ unsigned int UTIL_GETMASK_UINT(unsigned int index, unsigned int size);
 unsigned int UTIL_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
 void UTIL_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTIL_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
-unsigned int UTIL_READBITSFROM_UINT32(uint32_type data, unsigned int index, unsigned int size);
 void UTIL_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
-void UTIL_WRITEBITSTO_UINT32(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 
 // functions (converters)
 keyvalue_t UTIL_GETKV(keyvalue_buffer_t data);
@@ -23,8 +21,8 @@ keyvalue_buffer_t UTIL_GETKV(keyvalue_t data);
 keyy_t UTIL_GETK(uint32_type data);
 value_t UTIL_GETV(uint32_type data);
 keyy_t UTIL_GETKEYENTRY(uint512_dt data, unsigned int v);
-value_t UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int loc, globalparams_t globalparams);	
-uint32_type UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], unsigned int index);	
+value_t UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int loc, globalparams_t globalparams);	
+uint32_type UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int index);	
 unsigned int UTIL_GETLOCALVID(unsigned int vid, unsigned int instid);
 unsigned int UTIL_GETREALVID(unsigned int lvid, unsigned int instid);
 
@@ -49,7 +47,7 @@ void UTIL_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval)
 void UTIL_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 void UTIL_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams);
 void UTIL_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams);
-void UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE]);
+void UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]);
 void UTIL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 void UTIL_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);
 void UTIL_set_graphiteration(uint512_dt * kvdram, unsigned int GraphIter);

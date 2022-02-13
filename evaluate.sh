@@ -90,35 +90,17 @@ RESULTDIR_RESULT=""
 KERNEL_NAME=""
 RESULTDIR_PROFILESUMMARY=""
 
-SW__ACTGRAPH_SETUP__PR_ALGORITHM=1
-HW__ACTGRAPH_SETUP__PR_ALGORITHM=2
-SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM=3
-SW__GRAFBOOST_SETUP__PR_ALGORITHM=4
-SW__GUNROCK_SETUP__PR_ALGORITHM=5
+SW__ACTGRAPH_SETUP=1
+HW__ACTGRAPH_SETUP=2
+SWEMU__ACTGRAPH_SETUP=3
+SW__GRAFBOOST_SETUP=4
+SW__GUNROCK_SETUP=5
 
-SW__ACTGRAPH_SETUP__BFS_ALGORITHM=6
-HW__ACTGRAPH_SETUP__BFS_ALGORITHM=7
-SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM=8
-SW__GRAFBOOST_SETUP__BFS_ALGORITHM=9
-SW__GUNROCK_SETUP__BFS_ALGORITHM=10
+CTHWSYN__ACTGRAPH_SETUP=26
 
-SW__ACTGRAPH_SETUP__SSSP_ALGORITHM=11
-HW__ACTGRAPH_SETUP__SSSP_ALGORITHM=12
-SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM=13
-SW__GRAFBOOST_SETUP__SSSP_ALGORITHM=14
-SW__GUNROCK_SETUP__SSSP_ALGORITHM=15
+AWSHWSYN__ACTGRAPH_SETUP=30
 
-CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=26
-CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=27
-CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=28
-
-AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM=30
-AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM=31
-AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM=32
-
-HW__ACTGRAPH_SETUP__PR_VHLS=34
-HW__ACTGRAPH_SETUP__BFS_VHLS=35
-HW__ACTGRAPH_SETUP__SSSP_VHLS=36
+VHLSVHLSHW__ACTGRAPH_SETUP=34
 
 NODATASET=0
 ORKUT_3M_106M=1
@@ -232,6 +214,12 @@ NUM_PEs_EQX=64
 _LOCKE="LOCKE"
 _NOLOCKE="NOLOCKE"
 
+ALGORITHMABBRV="PR"
+# ALGORITHMABBRV="BFS"
+# ALGORITHMABBRV="SSSP"
+# ALGORITHMABBRV="CC"
+# ALGORITHMABBRV="CF"
+
 ### >>> LOOP0: evaluation types
 # for evaluation_type in EV_CREATENDGRAPH #
 for evaluation_type in EV_PERFORMANCEOFALGORITHM
@@ -244,309 +232,71 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $SW__GRAFBOOST_SETUP__PR_ALGORITHM
-	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_VHLS
-	# for setup in $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
-	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM
-	
-	for setup in $SW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $SW__GRAFBOOST_SETUP__BFS_ALGORITHM
-	# for setup in $SW__GUNROCK_SETUP__BFS_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__BFS_VHLS
-	# for setup in $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
-	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM
-	
-	# for setup in $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM
-	# for setup in $SW__GUNROCK_SETUP__SSSP_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__SSSP_VHLS
-	# for setup in $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM
-
-	# for setup in $SW__ACTGRAPH_SETUP__PR_ALGORITHM $SW__ACTGRAPH_SETUP__BFS_ALGORITHM $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $HW__ACTGRAPH_SETUP__PR_ALGORITHM $HW__ACTGRAPH_SETUP__BFS_ALGORITHM $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM
-	# for setup in $SW__GUNROCK_SETUP__PR_ALGORITHM $SW__GUNROCK_SETUP__BFS_ALGORITHM $SW__GUNROCK_SETUP__SSSP_ALGORITHM
+	# for setup in $SW__ACTGRAPH_SETUP
+	for setup in $HW__ACTGRAPH_SETUP
+	# for setup in $SWEMU__ACTGRAPH_SETUP
+	# for setup in $SW__GRAFBOOST_SETUP
+	# for setup in $SW__GUNROCK_SETUP
+	# for setup in $VHLSVHLSHW__ACTGRAPH_SETUP
+	# for setup in $CTHWSYN__ACTGRAPH_SETUP
+	# for setup in $AWSHWSYN__ACTGRAPH_SETUP
 	
 	do 
-		if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] # pr 
+		if [ $setup == $SW__ACTGRAPH_SETUP ] # pr 
 		then 
 			XWARE="SW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM"
-			ALGORITHMABBRV="pr"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_pr_sw"
-			else 
-				SETUP_NAME="actgraph_pr_sw"
-			fi
-		elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ]
+			ALGORITHM="${ALGORITHMABBRV}_ALGORITHM" 
+			SETUP_NAME="actgraph_${ALGORITHMABBRV}_sw"
+		elif [ $setup == $HW__ACTGRAPH_SETUP ]
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM" 
-			ALGORITHMABBRV="pr"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_pr_hw"
-			else 
-				SETUP_NAME="actgraph_pr_hw"
-			fi
-		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ]
+			ALGORITHM="${ALGORITHMABBRV}_ALGORITHM" 
+			SETUP_NAME="actgraph_${ALGORITHMABBRV}_hw"
+		elif [ $setup == $SWEMU__ACTGRAPH_SETUP ]
 		then
 			XWARE="SWEMU" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM"
-			ALGORITHMABBRV="pr"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_pr_swemu"
-			else 
-				SETUP_NAME="actgraph_pr_swemu"
-			fi
-		elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ]
+			ALGORITHM="${ALGORITHMABBRV}_ALGORITHM" 
+			SETUP_NAME="actgraph_${ALGORITHMABBRV}_swemu"
+		elif [ $setup == $SW__GRAFBOOST_SETUP ]
 		then
 			XWARE="SW" 
 			SETUP="GRAFBOOST_SETUP" 
-			ALGORITHM="PR_ALGORITHM" 
-			ALGORITHMABBRV="pr"
-			SETUP_NAME="grafboost_pr_sw"
-		elif [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ]
+			ALGORITHM="${ALGORITHMABBRV}_ALGORITHM" 
+			SETUP_NAME="grafboost_${ALGORITHMABBRV}_sw"
+		elif [ $setup == $SW__GUNROCK_SETUP ]
 		then
 			XWARE="SW" 
 			SETUP="GUNROCK_SETUP" 
-			ALGORITHM="PR_ALGORITHM" 
-			ALGORITHMABBRV="pr"
-			SETUP_NAME="gunrock_pr_sw"
+			ALGORITHM="${ALGORITHMABBRV}_ALGORITHM" 
+			SETUP_NAME="gunrock_${ALGORITHMABBRV}_sw"
+
+		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP ] # syn
+		then
+			XWARE="HW" 
+			SETUP="ACTGRAPH_SETUP" 
+			ALGORITHM="${ALGORITHMABBRV}_ALGORITHM" 
+			SETUP_NAME="actgraph_${ALGORITHMABBRV}_hw"
 			
-		elif [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] # bfs
-		then
-			XWARE="SW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BFS_ALGORITHM"
-			ALGORITHMABBRV="bfs"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bfs_sw"
-			else 
-				SETUP_NAME="actgraph_bfs_sw"
-			fi
-		elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ]
+		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP ]
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BFS_ALGORITHM" 
-			ALGORITHMABBRV="bfs"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bfs_hw"
-			else 
-				SETUP_NAME="actgraph_bfs_hw"
-			fi
-		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ]
-		then
-			XWARE="SWEMU" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BFS_ALGORITHM"
-			ALGORITHMABBRV="bfs"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bfs_swemu"
-			else 
-				SETUP_NAME="actgraph_bfs_swemu"
-			fi
-		elif [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="GRAFBOOST_SETUP" 
-			ALGORITHM="BFS_ALGORITHM" 
-			ALGORITHMABBRV="bfs"
-			SETUP_NAME="grafboost_bfs_sw"
-		elif [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="GUNROCK_SETUP" 
-			ALGORITHM="BFS_ALGORITHM" 
-			ALGORITHMABBRV="bfs"
-			SETUP_NAME="gunrock_bfs_sw"
+			ALGORITHM="${ALGORITHMABBRV}_ALGORITHM" 
+			SETUP_NAME="actgraph_${ALGORITHMABBRV}_hw"
 			
-		elif [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # sssp
-		then
-			XWARE="SW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="SSSP_ALGORITHM"
-			ALGORITHMABBRV="sssp"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_sssp_sw"
-			else 
-				SETUP_NAME="actgraph_sssp_sw"
-			fi
-		elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+		elif [ $setup == $VHLSVHLSHW__ACTGRAPH_SETUP ] #nothing
 		then
 			XWARE="HW" 
 			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="SSSP_ALGORITHM" 
-			ALGORITHMABBRV="sssp"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_sssp_hw"
-			else 
-				SETUP_NAME="actgraph_sssp_hw"
-			fi
-		elif [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-		then
-			XWARE="SWEMU" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="SSSP_ALGORITHM"
-			ALGORITHMABBRV="sssp"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_sssp_swemu"
-			else 
-				SETUP_NAME="actgraph_sssp_swemu"
-			fi
-		elif [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="GRAFBOOST_SETUP" 
-			ALGORITHM="SSSP_ALGORITHM" 
-			ALGORITHMABBRV="sssp"
-			SETUP_NAME="grafboost_sssp_sw"
-		elif [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
-		then
-			XWARE="SW" 
-			SETUP="GUNROCK_SETUP" 
-			ALGORITHM="SSSP_ALGORITHM" 
-			ALGORITHMABBRV="sssp"
-			SETUP_NAME="gunrock_sssp_sw"
-			
-		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] # syn
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM"
-			ALGORITHMABBRV="pr"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_pr_hw"
-			else 
-				SETUP_NAME="actgraph_pr_hw"
-			fi
-		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] # syn
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BFS_ALGORITHM"
-			ALGORITHMABBRV="bfs"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bfs_hw"
-			else 
-				SETUP_NAME="actgraph_bfs_hw"
-			fi
-		elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ] # syn
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="SSSP_ALGORITHM"
-			ALGORITHMABBRV="sssp"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_sssp_hw"
-			else 
-				SETUP_NAME="actgraph_sssp_hw"
-			fi
-			
-		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ]
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM"
-			ALGORITHMABBRV="pr"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_pr_hw"
-			else 
-				SETUP_NAME="actgraph_pr_hw"
-			fi
-		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ]
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BFS_ALGORITHM"
-			ALGORITHMABBRV="bfs"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bfs_hw"
-			else 
-				SETUP_NAME="actgraph_bfs_hw"
-			fi
-		elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="SSSP_ALGORITHM"
-			ALGORITHMABBRV="sssp"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_sssp_hw"
-			else 
-				SETUP_NAME="actgraph_sssp_hw"
-			fi
-			
-		elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ] #nothing
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="PR_ALGORITHM" 
-			ALGORITHMABBRV="pr"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_pr_hw"
-			else 
-				SETUP_NAME="actgraph_pr_hw"
-			fi
-			
-		elif [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ] #nothing
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP" 
-			ALGORITHM="BFS_ALGORITHM"
-			ALGORITHMABBRV="bfs"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_bfs_hw"
-			else 
-				SETUP_NAME="actgraph_bfs_hw"
-			fi
-			
-		elif [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ] #nothing
-		then
-			XWARE="HW" 
-			SETUP="ACTGRAPH_SETUP"
-			ALGORITHM="SSSP_ALGORITHM"
-			ALGORITHMABBRV="sssp"
-			if [ $KERNELTYPE == "ACTSMODEL_LW" ]
-			then 
-				SETUP_NAME="actgraphlw_sssp_hw"
-			else 
-				SETUP_NAME="actgraph_sssp_hw"
-			fi
+			ALGORITHM="${ALGORITHMABBRV}_ALGORITHM" 
+			SETUP_NAME="actgraph_${ALGORITHMABBRV}_hw"
 			
 		else 
 			XWARE="" 
-			SETUP="" 
-			ALGORITHM="" 
-			ALGORITHMABBRV=""
+			SETUP=""
 		fi
 
 		for numsupercputhreads in $THREADCOUNT_EQ1
@@ -629,7 +379,7 @@ do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						for num_pes in $NUM_PEs_EQ32
+						for num_pes in $NUM_PEs_EQ24
 						# for num_pes in $NUM_PEs_EQ1 $NUM_PEs_EQ2 $NUM_PEs_EQ3 $NUM_PEs_EQ4 $NUM_PEs_EQ5
 						# for num_pes in $NUM_PEs_EQ6 $NUM_PEs_EQ7 $NUM_PEs_EQ8 $NUM_PEs_EQ9 $NUM_PEs_EQ10
 						do
@@ -945,35 +695,27 @@ do
 								make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads NUMPARTITIONS=$numpartitions_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0 NUM_PEs=$num_pes												
 								
 								# ================================================ SW RUNS ================================================
-								if [ $setup == $SW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+								if [ $setup == $SW__ACTGRAPH_SETUP ]
 								then
 									make cleanall
 									# make build_acts_nthreads
 									make demo_acts_nthreads #> $RESULTDIR_RESULT
 									# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
-								elif [ $setup == $SW__GRAFBOOST_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GRAFBOOST_SETUP__SSSP_ALGORITHM ]
+								elif [ $setup == $SW__GRAFBOOST_SETUP ]
 								then
 									make cleanall
 									# make build_grafboost_nthreads
 									make demo_grafboost_nthreads > $RESULTDIR_RESULT
-								elif [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ] || [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ] || [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
+								elif [ $setup == $SW__GUNROCK_SETUP ]
 								then
-									echo 'SW__GUNROCK_SETUP__PR_ALGORITHM called.'
-									if [ $setup == $SW__GUNROCK_SETUP__PR_ALGORITHM ]
+									echo 'SW__GUNROCK_SETUP called.'
+									if [ $setup == $SW__GUNROCK_SETUP ]
 									then 
 										/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
-									elif [ $setup == $SW__GUNROCK_SETUP__BFS_ALGORITHM ]
-									then
-										/net/bigtemp/oj2zf/gunrock_wole/build/bin/bfs market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
-									elif [ $setup == $SW__GUNROCK_SETUP__SSSP_ALGORITHM ]
-									then
-										/net/bigtemp/oj2zf/gunrock_wole/build/bin/sssp market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
-									else
-										echo "..."
 									fi
 								
 								# ================================================ HW (FPGA) RUNS ================================================
-								elif [ $setup == $HW__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+								elif [ $setup == $HW__ACTGRAPH_SETUP ]
 								then
 									make cleanall
 									if [ $CRABTREE == $ON ]
@@ -999,330 +741,267 @@ do
 									fi	
 									
 								# ================================================ SIMULATIONS ================================================
-								elif [ $setup == $SWEMU__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $SWEMU__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+								elif [ $setup == $SWEMU__ACTGRAPH_SETUP ]
 								then
-									if [ $ACTS_2BY1BY1 == $ON ]
+									echo "crabtree.ACTS_1BY1BY1 setup specified. ----------------------------------- "
+									make cleanall
+									make host 
+									if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
 									then
-										echo "crabtree.ACTS_2BY1BY1 setup specified."
-										
-										make cleanall
-										make host 
-										make all_nk TARGET=sw_emu DEVICE=$DEVICEPATH 
-										cp xclbin/topkernelproc.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-										cp xclbin/topkernelsync.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
-										XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN1 $BACKUPDIR_KERNELXCLBIN2
-									elif [ $ACTS_1BY2BY1 == $ON ]
+										make all_procandsync_${ACTS_CONFIG}_25and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
 									then
-										echo "crabtree.ACTS_1BY1BY1 setup specified. ----------------------------------- "
-										make cleanall
-										make host 
+										make all_procandsync_${ACTS_CONFIG}_24and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
+									then
+										echo 'awwal.sw_emu.----------------------------------- 22and1'
+										make all_procandsync_${ACTS_CONFIG}_22and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
+									then
+										make all_procandsync_${ACTS_CONFIG}_20and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
+									then
+										make all_procandsync_${ACTS_CONFIG}_16and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
+									then
+										make all_procandsync_${ACTS_CONFIG}_14and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
+									then
+										make all_procandsync_${ACTS_CONFIG}_12and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_10and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_9and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_8and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_7and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_6and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_5and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
+									then
+										echo 'awwal.sw_emu'
+										make all_procandsync_${ACTS_CONFIG}_4and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_3and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_2and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
+									then
+										make all_procandsync_${ACTS_CONFIG}_1and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									else 
+										echo "NOT IMPLEMENTED (654)"
+									fi
+									if test -f "host"; then
 										if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_25and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_25and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_24and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_24and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
-										then
-											echo 'awwal.sw_emu.----------------------------------- 22and1'
-											make all_procandsync_${ACTS_CONFIG}_22and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_22and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_20and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_20and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_16and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_16and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_14and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_14and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_12and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_12and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_10and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_10and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_9and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_9and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_8and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_8and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_7and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_7and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_6and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_6and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_5and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_5and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
 										then
-											echo 'awwal.sw_emu'
-											make all_procandsync_${ACTS_CONFIG}_4and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_4and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_3and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_3and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_2and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_2and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_1and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_1and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
 										else 
-											echo "NOT IMPLEMENTED (654)"
+											echo "NOT IMPLEMENTED (554)"
 										fi
-										if test -f "host"; then
-											if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_25and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_24and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_22and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_20and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_16and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_14and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_12and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_10and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_9and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_8and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_7and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_6and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_5and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_4and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_3and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_2and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_1and1.sw_emu.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											else 
-												echo "NOT IMPLEMENTED (554)"
-											fi
-											echo "kernel.xclbin saved"
-										fi
-										XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN
-									else
-										echo "not specified (7). specify ACTS_2BY1BY1 or ACTS_1BY2BY1"
+										echo "kernel.xclbin saved"
 									fi
+									XCL_EMULATION_MODE=sw_emu ./host $BACKUPDIR_KERNELXCLBIN
 								
 								# ================================================ SYNTHESIS (CRABTREE) ================================================
-								elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $CTHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+								elif [ $setup == $CTHWSYN__ACTGRAPH_SETUP ]
 								then
-									if [ $ACTS_2BY1BY1 == $ON ]
+									make cleanall
+									rm -rf xclbin
+									if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
 									then
-										# make cleanall
-										# rm -rf xclbin
-										# make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
-										# if test -f "host"; then
-											# cp xclbin/topkernelproc.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-											# echo "kernel.xclbin saved"
-										# fi
-										# echo "sleeping for 5 seconds before continuing ...."
-										# sleep 5
-										
-										# make cleanall
-										# rm -rf xclbin
-										# make all_sync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_sync.out 
-										# if test -f "host"; then
-											# cp xclbin/topkernelsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN2
-											# echo "kernel.xclbin saved"
-										# fi
-										# echo "sleeping for 5 seconds before continuing ...."
-										# sleep 5
-										
-										make cleanall
-										rm -rf xclbin
-										make all_procandsync DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
-										if test -f "host"; then
-											cp xclbin/topkernelprocandsync.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN1
-											echo "kernel.xclbin saved"
-										fi
-										echo "sleeping for 5 seconds before continuing ...."
-										sleep 5
-										
-										# make cleanall
-										# rm -rf xclbin
-										# make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} #> nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
-										# if test -f "host"; then
-											# cp xclbin/topkernel.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											# echo "kernel.xclbin saved"
-										# fi
-										# echo "sleeping for 5 seconds before continuing ...."
-										# sleep 5
-										
-									elif [ $ACTS_1BY2BY1 == $ON ]
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_25and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
 									then
-										make cleanall
-										rm -rf xclbin
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_24and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_22and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_20and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_16and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_14and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_12and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_10and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_9and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_8and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_7and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_6and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_5and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_4and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_3and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_2and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
+									then
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_1and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+									else 
+										echo "NOT IMPLEMENTED (654)"
+									fi
+									if test -f "host"; then
 										if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_25and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_25and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_25and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_24and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_24and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_24and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_22and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_22and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_22and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_20and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_20and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_20and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_16and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_16and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_16and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_14and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_14and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_14and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
-										then
-											make all_procandsync_${ACTS_CONFIG}_12and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										then	
+											cp xclbin/topkernel_${ACTS_CONFIG}_12and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_12and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_10and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_10and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_10and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_9and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_9and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_9and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_8and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_8and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_8and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_7and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_7and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_7and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_6and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_6and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_6and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_5and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_5and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_5and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_4and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_4and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_3and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_3and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_3and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_2and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_2and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_2and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
 										then
-											make all_procandsync_${ACTS_CONFIG}_1and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+											cp xclbin/topkernel_${ACTS_CONFIG}_1and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+											cp v++_topkernel_${ACTS_CONFIG}_1and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
 										else 
-											echo "NOT IMPLEMENTED (654)"
+											echo "NOT IMPLEMENTED (554)"
 										fi
-										if test -f "host"; then
-											if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_25and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_25and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_24and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_24and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_22and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_22and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_20and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_20and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_16and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_16and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_14and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_14and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
-											then	
-												cp xclbin/topkernel_${ACTS_CONFIG}_12and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_12and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_10and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_10and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_9and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_9and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_8and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_8and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_7and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_7and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_6and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_6and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_5and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_5and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_4and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_3and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_3and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_2and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_2and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
-											then
-												cp xclbin/topkernel_${ACTS_CONFIG}_1and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-												cp v++_topkernel_${ACTS_CONFIG}_1and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
-											else 
-												echo "NOT IMPLEMENTED (554)"
-											fi
-											# cp xclbin/topkernel_1by2by1by2_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											# cp v++_topkernel_1by2by1by2_4and1.hw.xilinx_u280_xdma_201920_3.log $BACKUPDIR_NOHUPOUT
-											# topkernel_1by2by1by2_4and1.hw.xilinx_u280_xdma_201920_3.xclbin
-											echo "kernel.xclbin saved"
-										fi
-										echo "sleeping for 5 seconds before continuing ...."
-										sleep 5
-										
-									else
-										echo "not specified (7). specify ACTS_2BY1BY1 or ACTS_1BY2BY1"
+										# cp xclbin/topkernel_1by2by1by2_4and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
+										# cp v++_topkernel_1by2by1by2_4and1.hw.xilinx_u280_xdma_201920_3.log $BACKUPDIR_NOHUPOUT
+										# topkernel_1by2by1by2_4and1.hw.xilinx_u280_xdma_201920_3.xclbin
+										echo "kernel.xclbin saved"
 									fi
+									echo "sleeping for 5 seconds before continuing ...."
+									sleep 5
 								
 								# ================================================ SYNTHESIS (AWS) ================================================
-								elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__PR_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__BFS_ALGORITHM ] || [ $setup == $AWSHWSYN__ACTGRAPH_SETUP__SSSP_ALGORITHM ]
+								elif [ $setup == $AWSHWSYN__ACTGRAPH_SETUP ]
 								then
 									source /opt/xilinx/xrt/setup.sh 
 									source /opt/Xilinx/SDx/2019.1.op2552052/settings64.sh 
@@ -1330,36 +1009,15 @@ do
 									make cleanall
 									rm -rf xclbin
 									
-									if [ $ACTS_2BY1BY1 == $ON ]
-									then
-										# make all_nk DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out 
-										make all_proc DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz_proc.out 
-										# make all_sync DEVICE=$DEVICEPATH > nohupsyn_sync.out 
-										cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
-										# cp -rf xclbin/topkernelsync.hw.${DSA_NAME}.xclbin kernel.xclbin
-									elif [ $ACTS_1BY2BY1 == $ON ]
-									then
-										make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
-										cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
-									else
-										echo "not specified (7)."
-									fi
+									make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
+									cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
 										
 									echo "sleeping for 5 seconds before continuing ...."
 									sleep 5
 									
 									if test -f "host"; then
-										if [ $ACTS_2BY1BY1 == $ON ]
-										then
-											cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN1
-											# cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN2
-										elif [ $ACTS_1BY2BY1 == $ON ]
-										then
-											make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
-											cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
-										else
-											echo "not specified (7)."
-										fi
+										make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
+										cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
 										echo "host, kernel.xo, kernel.xclbin, nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out saved"
 									fi
 									echo "sleeping for 5 seconds before continuing ...."
@@ -1372,18 +1030,9 @@ do
 									echo "sleeping for 60 minuites before continuing ...."
 									sleep 3600
 									
-									if [ $ACTS_2BY1BY1 == $ON ]
-									then
-										cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN1
-										# cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN2
-									elif [ $ACTS_1BY2BY1 == $ON ]
-									then
-										cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
-									else
-										echo "not specified (7)."
-									fi
+									cp -rf /home/centos/src/project_data/aws-fpga/SDAccel/tools/build/kernel.awsxclbin $BACKUPDIR_AWSKERNELXCLBIN
 									
-								elif [ $setup == $HW__ACTGRAPH_SETUP__PR_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__BFS_VHLS ] || [ $setup == $HW__ACTGRAPH_SETUP__SSSP_VHLS ]
+								elif [ $setup == $VHLSVHLSHW__ACTGRAPH_SETUP ]
 								then
 									make cleanall
 									# open X2go

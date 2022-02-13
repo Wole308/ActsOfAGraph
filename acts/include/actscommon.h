@@ -27,8 +27,8 @@ using namespace std;
 
 // #define _DEBUGMODE_KERNELPRINTS_TRACE
 #ifndef ALLVERTEXISACTIVE_ALGORITHM
-// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
-#endif 
+#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#endif
 // #define _DEBUGMODE_SUBPMASKING_TRACE
 
 #define PROCESSMODE 0
@@ -37,9 +37,9 @@ using namespace std;
 
 // acts-main parameters 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
-#define NUMPIPELINES_PARTITIONUPDATES 2 // REMOVEME.
+#define NUMPIPELINES_PARTITIONUPDATES 2 
 #else 
-#define NUMPIPELINES_PARTITIONUPDATES 2 //1 // REMOVEME.
+#define NUMPIPELINES_PARTITIONUPDATES 2
 #endif 
 #if NUMPIPELINES_PARTITIONUPDATES==1
 #define PUP0
@@ -62,26 +62,33 @@ using namespace std;
 #define BLOCKRAM_SIZE 512
 #define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
 
+#define BLOCKRAM_VDATA_SIZE BLOCKRAM_SIZE // vertex and mask buffer
+#ifdef CONFIG_SEPERATEVMASKFROMVDATA
+#define BLOCKRAM_VMASK_SIZE DOUBLE_BLOCKRAM_SIZE
+#else 
+#define BLOCKRAM_VMASK_SIZE 0
+#endif 
+
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
 #define SRCBUFFER_SIZE (BLOCKRAM_SIZE - (4 * 4))
 #else 
 #define SRCBUFFER_SIZE (DOUBLE_BLOCKRAM_SIZE - (4 * 4))
 #endif
 
-#ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY // NEWCHANGE.
+#ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
 #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (NUM_PARTITIONS*4))
 #else 
 #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (NUM_PARTITIONS*1))
 #endif 
 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
-#define SOURCEBLOCKRAM_SIZE BLOCKRAM_SIZE // NEWCHANGE.
+#define SOURCEBLOCKRAM_SIZE BLOCKRAM_SIZE 
 #else 
-#define SOURCEBLOCKRAM_SIZE DOUBLE_BLOCKRAM_SIZE // NEWCHANGE.
+#define SOURCEBLOCKRAM_SIZE DOUBLE_BLOCKRAM_SIZE 
 #endif 
 #define DESTBLOCKRAM_SIZE SOURCEBLOCKRAM_SIZE
 
-#define DRAMPADD (16 * BLOCKRAM_SIZE * VECTOR_SIZE) // NEWCHANGE
+#define DRAMPADD (16 * BLOCKRAM_SIZE * VECTOR_SIZE) 
 #define DRAMPADD_KVS (DRAMPADD / VECTOR_SIZE) // to avoid any spill-overs 
 
 // global parameters
@@ -121,8 +128,13 @@ using namespace std;
 #define EDGESSTATSDRAMSZ 64
 
 #ifdef USEHBMMEMORY
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+	#define KVSOURCEDRAMSZ ((1 << 25) / 2)
+	#else 
+	#define KVSOURCEDRAMSZ (1 << 25)
+	#endif 
 	// #define KVSOURCEDRAMSZ (1 << 25) // max HBM capacity (256MB)
-	#define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
+	// #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
 	// #define KVSOURCEDRAMSZ (1 << 27) // max HBM capacity (1024MB) // CRITICAL REMOVEME.
 #endif 
 #ifdef USEDDRAMMEMORY
@@ -204,6 +216,15 @@ typedef struct {
 #endif 
 
 #ifdef _WIDEWORD
+typedef ap_uint<32> vmdata_t;
+#else 
+typedef struct {
+	unsigned int vmask;
+	unsigned int vdata;
+} vmdata_t;
+#endif 
+
+#ifdef _WIDEWORD
 typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
 #else
 typedef struct {
@@ -212,6 +233,10 @@ typedef struct {
 	unsigned int mask1;
 	unsigned int value;
 } keyvalue_vbuffer_t;
+// typedef struct {
+	// vmdata_t vmdata0;
+	// vmdata_t vmdata1;
+// } keyvalue_vbuffer_t;
 #endif 
 
 #ifdef _WIDEWORD
@@ -319,6 +344,7 @@ typedef struct {
 
 	unsigned int ALGORITHMINFO_GRAPHITERATIONID;
 	unsigned int ALGORITHMINFO_GRAPHALGORITHMID;
+	unsigned int ALGORITHMINFO_GRAPHALGORITHMCLASS; // computed online
 
 	unsigned int ACTSPARAMS_BEGINLOP;
 	unsigned int ACTSPARAMS_NUMLOPS;

@@ -236,9 +236,18 @@ void actsutility::printparameters(){
 }
 void actsutility::printglobalvars(){
 	cout<<"printglobalvars: "<<endl;
-	cout<<"acts::printglobalvars:: globalvar_totalkvsread: "<<globalvar_totalkvsread<<endl;
+	
 	cout<<"acts::printglobalvars:: globalvar_totalkvsreadV: "<<globalvar_totalkvsreadV<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvswritten: "<<globalstats_totalkvswritten<<endl;
+	
+	cout<<"acts::printglobalvars:: globalvar_totalkvsread: "<<globalvar_totalkvsread<<endl;
+	cout<<"acts::printglobalvars:: globalvar_totalkvswritten: "<<globalvar_totalkvswritten<<endl;
+	cout<<"acts::printglobalvars:: globalvar_totalkvsread_partition: "<<globalvar_totalkvsread_partition<<endl;
+	cout<<"acts::printglobalvars:: globalvar_totalkvswritten_partition: "<<globalvar_totalkvswritten_partition<<endl;
+	cout<<"acts::printglobalvars:: globalvar_totalkvsread_reduce: "<<globalvar_totalkvsread_reduce<<endl;
+	cout<<"acts::printglobalvars:: globalvar_totalkvswritten_reduce: "<<globalvar_totalkvswritten_reduce<<endl;
+	cout<<"acts::printglobalvars:: globalvar_totalvsread: "<<globalvar_totalvsread<<endl;
+	cout<<"acts::printglobalvars:: globalvar_totalvswritten: "<<globalvar_totalvswritten<<endl;
+	
 	cout<<"acts::printglobalvars:: globalvar_totalkvstatsread: "<<globalvar_totalkvstatsread<<endl;
 	cout<<"acts::printglobalvars:: globalvar_collectstats_totalkvsread: "<<globalvar_collectstats_totalkvsread<<endl;
 	cout<<"acts::printglobalvars:: globalvar_extractcapsules_totalkvsread: "<<globalvar_extractcapsules_totalkvsread<<endl;
@@ -382,8 +391,16 @@ void actsutility::clearglobalvars(){
 	#ifdef _DEBUGMODE_KERNELPRINTS2
 	cout<<"clearglobalvars: "<<endl;
 	#endif 
+	
 	globalvar_totalkvsread = 0;
-	globalstats_totalkvswritten = 0;
+	globalvar_totalkvswritten = 0;
+	globalvar_totalkvswritten_partition = 0;
+	globalvar_totalkvsread_partition = 0;
+	globalvar_totalkvswritten_reduce = 0;
+	globalvar_totalkvsread_reduce = 0;
+	globalvar_totalvsread = 0;
+	globalvar_totalvswritten = 0;
+	
 	globalstats_totalkvspartitionswritten = 0;
 	globalstats_totalkvspartitionswritten_actual = 0;
 	globalstats_totalkvspartitioned = 0;
@@ -575,14 +592,40 @@ void actsutility::globalvar_inmemory_counttotalvalidkeyvalues(unsigned int count
 	globalvar_inmemory_totalvalidkeyvalues += count;
 	return;
 }
+
 void actsutility::globalstats_countkvsread(unsigned int count){
 	globalvar_totalkvsread += count;
 	return;
 }
 void actsutility::globalstats_countkvswritten(unsigned int count){
-	globalstats_totalkvswritten += count;
+	globalvar_totalkvswritten += count;
 	return;
 }
+void actsutility::globalstats_countkvsread_partition(unsigned int count){
+	globalvar_totalkvsread_partition += count;
+	return;
+}
+void actsutility::globalstats_countkvswritten_partition(unsigned int count){
+	globalvar_totalkvswritten_partition += count;
+	return;
+}
+void actsutility::globalstats_countkvsread_reduce(unsigned int count){
+	globalvar_totalkvsread_reduce += count;
+	return;
+}
+void actsutility::globalstats_countkvswritten_reduce(unsigned int count){
+	globalvar_totalkvswritten_reduce += count;
+	return;
+}
+void actsutility::globalstats_countvsread(unsigned int count){
+	globalvar_totalvsread += count;
+	return;
+}
+void actsutility::globalstats_countvswritten(unsigned int count){
+	globalvar_totalvswritten += count;
+	return;
+}
+
 void actsutility::globalstats_countkvspartitionswritten(unsigned int count){
 	globalstats_totalkvspartitionswritten += count;
 	return;
@@ -613,10 +656,12 @@ void actsutility::globalstats_countkvsreducewritten(unsigned int count){
 }
 void actsutility::globalstats_countkvsprocessed(unsigned int count){
 	globalstats_totalkvsprocessed += count;
+	// cout<<" ------------------- actsutility::globalstats_countkvsprocessed: globalstats_totalkvsprocessed: "<<globalstats_totalkvsprocessed<<endl;
 	return;
 }
 void actsutility::globalstats_processedges_countvalidkvsprocessed(unsigned int count){
 	globalstats_processedges_validkvsprocessed += count;
+	// cout<<" ------------------- actsutility::globalstats_processedges_countvalidkvsprocessed: globalstats_processedges_validkvsprocessed: "<<globalstats_processedges_validkvsprocessed<<endl;
 	return;
 }
 void actsutility::globalstats_countkvsreadV(unsigned int count){

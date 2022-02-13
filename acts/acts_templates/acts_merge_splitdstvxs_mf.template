@@ -16,11 +16,11 @@ void MERGE_SPLIT_BASICbroadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}u
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void MERGE_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
+void MERGE_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, globalparams_t globalparams);
 {%endif%}
 {%endfor%}
 
-void MERGE_SPLIT_exchangeVs(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram);
+void topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram);
 
 
 
