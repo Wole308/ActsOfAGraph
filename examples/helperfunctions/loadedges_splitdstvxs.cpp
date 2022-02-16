@@ -220,6 +220,7 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	unsigned int counts_alldata = 0;
 	unsigned int srcvid_lastvechead = 0xFFFFFFFF;
 	unsigned int srcvid_lastseen = 0;
+	unsigned int numskippededges = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		cout<<"### loadedges_splitdstvxs::loadedges:: loading edges into PE: "<<i<<"..."<<endl;
 		tempe_index = 0; 
@@ -229,6 +230,9 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 		while(tempe_index < edgedatabuffers_temp2[i].size()){
 			if(tempe_index % 1000000 == 0 && false){ cout<<"loadedges_splitdstvxs::loadedges:: filling edges... tempe_index: "<<tempe_index<<endl; }
 			edge2_type edge = edgedatabuffers_temp2[i][tempe_index];
+			// if(index%VECTOR2_SIZE == 0 && edge.dstvid == 888888){ cout<<"loadedges_splitdstvxs: skipping edge (edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<")............."<<endl; }
+			if(index%VECTOR2_SIZE == 0 && edge.dstvid == 888888){ numskippededges += 1; tempe_index += 1; continue; }
+			
 			edge2_type last_edge; if(tempe_index==0){ last_edge = edge; } else { last_edge = edgedatabuffers_temp2[i][tempe_index-1]; }
 			if(debug2==true){ cout<<">>> edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<" [-]"<<endl; }
 		
@@ -278,6 +282,8 @@ globalparams_TWOt loadedges_splitdstvxs::loadedges(unsigned int col, graph * gra
 	cout<<">>> loadedges_splitdstvxs::[insert.edges] total number of edges in all memory channels: counts_alldata: "<<counts_alldata<<", NAp: "<<NAp<<endl;
 	#endif 
 	#endif 
+	cout<<"### loadedges_splitdstvxs::[insert.edges] total number of skipped edges: "<<numskippededges<<endl;
+	// exit(EXIT_SUCCESS);
 	
 	// CHECK 2: ensure all vertices are represented
 	#ifdef CHECK2_ENSUREALLVERTICESAREREPRESENTED

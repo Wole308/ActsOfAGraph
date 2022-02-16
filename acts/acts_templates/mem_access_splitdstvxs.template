@@ -1,21 +1,12 @@
-#ifdef SW
-mem_access_splitdstvxs::mem_access_splitdstvxs(mydebug * _mydebugobj){ 
-	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(_mydebugobj);
-	mydebugobj = _mydebugobj;
-}
-mem_access_splitdstvxs::~mem_access_splitdstvxs(){}
-#endif
-
 // -------------------- key values -------------------- //
-fetchmessage_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
+fetchmessage_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
 	if(enable == OFF){ return fetchmessage; }
 	
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
-	buffer_type chunk_size = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getchunksize_kvs(size_kvs, travstate, 0);
+	buffer_type chunk_size = UTIL{{context['id']}}_getchunksize_kvs(size_kvs, travstate, 0);
 	
 	fetchmessage.chunksize_kvs = chunk_size;
 	fetchmessage.nextoffset_kvs = NAp;
@@ -40,7 +31,7 @@ fetchmessage_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_rea
 		#endif 
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer[{{v}}][i] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue{{v}});
+		buffer[{{v}}][i] = UTIL{{context['id']}}_GETKV(mykeyvalue{{v}});
 		{%endfor%}
 		
 		#ifdef _DEBUGMODE_STATS
@@ -54,7 +45,7 @@ fetchmessage_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_rea
 	return fetchmessage;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_destpartitionsz = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 	
@@ -68,7 +59,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savekeyvalues
 		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
 		buffer_type bramoffset_kvs = localcapsule[p].key / VECTOR_SIZE;
 		buffer_type realsize_kvs = localcapsule[p].value / VECTOR_SIZE;
-		buffer_type size_kvs = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getpartitionwritesz(realsize_kvs, bramoffset_kvs);
+		buffer_type size_kvs = UTIL{{context['id']}}_getpartitionwritesz(realsize_kvs, bramoffset_kvs);
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("savekeyvalues 23", bramoffset_kvs + size_kvs, DESTBLOCKRAM_SIZE + 1, p, NAp, NAp);
@@ -79,7 +70,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savekeyvalues
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
 			#pragma HLS PIPELINE II=1
 				{%for v in context['VECTOR_SIZE_seq']%}
-				keyvalue_t mykeyvalue{{v}} = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(buffer[{{v}}][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue{{v}} = UTIL{{context['id']}}_GETKV(buffer[{{v}}][bramoffset_kvs + i]);
 				{%endfor%}
 				
 				#ifdef _WIDEWORD
@@ -126,7 +117,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savekeyvalues
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -149,7 +140,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readkeyvalues
 		{%endfor%}
 		
 		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer[{{v}}][bufferoffset_kvs + i] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue{{v}});
+		buffer[{{v}}][bufferoffset_kvs + i] = UTIL{{context['id']}}_GETKV(mykeyvalue{{v}});
 		{%endfor%}
 		
 		#endif 
@@ -167,7 +158,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readkeyvalues
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  BLOCKRAM_SIZE;
 	
@@ -175,7 +166,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savekeyvalues
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{v}} = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(buffer[{{v}}][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue{{v}} = UTIL{{context['id']}}_GETKV(buffer[{{v}}][bufferoffset_kvs + i]);
 		{%endfor%}
 	
 		#ifdef _WIDEWORD
@@ -205,7 +196,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savekeyvalues
 }
 
 // -------------------- vdata -------------------- //
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_GetXYLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -233,7 +224,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_GetXYLayoutV(
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_RearrangeLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE]){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_RearrangeLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	{%if(v>0)%}else{%endif%} {%if(v<16-1)%}if(s_=={{v}}){%endif%}{ 
@@ -248,14 +239,14 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_RearrangeLayo
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
-	value_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -263,14 +254,14 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readV(bool_ty
 	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS PIPELINE II=1
 		unsigned int index = i; unsigned int j = i%2;
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
 		if(j==0){ {%for v in context['VECTOR2_SIZE_seq']%}vandmdataM[{{v}}] = vandmdata1[{{v}}];{%endfor%}} else { {%for v in context['VECTOR2_SIZE_seq']%}vandmdataN[{{v}}] = vandmdata1[{{v}}];{%endfor%}	  }
 			
 		if(j==1){ 
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			vsandmsdata[{{v}}] = {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[{{v}}], vandmdataN[{{v}}]);
+			vsandmsdata[{{v}}] = {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_CREATEVBUFFERSTRUCT(vandmdataM[{{v}}], vandmdataN[{{v}}]);
 			{%endfor%}	
-			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);
+			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);
 		}
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countvsread(VECTOR2_SIZE);
@@ -279,7 +270,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readV(bool_ty
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_SLreadV(bool_type enable, unsigned int s, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_SLreadV(bool_type enable, unsigned int s, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / NUM_PEs;
 
@@ -287,12 +278,12 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_SLreadV(bool_
 	unsigned int depths[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=depths complete
 	
-	value_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -303,16 +294,18 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_SLreadV(bool_
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		unsigned int index = i; unsigned int j = i%2;
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
+		MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
 		unsigned int x = index2 + s; basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutV(x, vandmdata1, vandmdata2, depths, basedepth);
+		MEMACCESS{{context['id']}}_SPL_GetXYLayoutV(x, vandmdata1, vandmdata2, depths, basedepth);
 		if(j==0){ {%for v in context['VECTOR2_SIZE_seq']%}vandmdataM[{{v}}] = vandmdata2[{{v}}];{%endfor%}} else { {%for v in context['VECTOR2_SIZE_seq']%}vandmdataN[{{v}}] = vandmdata2[{{v}}];{%endfor%}	  }
 			
 		if(j==1){ 
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			vsandmsdata[{{v}}] = {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[{{v}}], vandmdataN[{{v}}]);
-			{%endfor%}	
-			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(depths, buffer, vsandmsdata, 0);
+			vsandmsdata[{{v}}] = MEMCA{{context['id']}}_CREATEVBUFFERSTRUCT(vandmdataM[{{v}}], vandmdataN[{{v}}]);	
+			// if(vsandmsdata[{{v}}].vmdata0.vmask > 0){ cout<<"------------- MEMACCESS{{context['id']}}_SPL_SLreadV:: vsandmsdata[{{v}}].vmdata0.vmask: "<<vsandmsdata[{{v}}].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[{{v}}].vmdata1.vmask > 0){ cout<<"------------- MEMACCESS{{context['id']}}_SPL_SLreadV:: vsandmsdata[{{v}}].vmdata1.vmask: "<<vsandmsdata[{{v}}].vmdata1.vmask<<endl; }	
+			{%endfor%}		
+			MEMCA{{context['id']}}_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(depths, buffer, vsandmsdata, 0);
 		}
 		index2 += NUM_PEs;
 		
@@ -326,7 +319,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_SLreadV(bool_
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readVchunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readVchunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	// read vertices data
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
@@ -336,20 +329,20 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readVchunks(b
 	#pragma HLS array_partition variable = tempbuffer
 	READVDATACHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESS{{context['id']}}_SPL_readVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams);
+		MEMACCESS{{context['id']}}_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams);
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -357,52 +350,36 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readVchunks(b
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS{{context['id']}}_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ {%for v in context['VECTOR2_SIZE_seq']%}vandmdataM[{{v}}] = vandmdata2[{{v}}];{%endfor%}} else { {%for v in context['VECTOR2_SIZE_seq']%}vandmdataN[{{v}}] = vandmdata2[{{v}}];{%endfor%}	  }
 			
 			if(j==1){
 				{%for v in context['VECTOR2_SIZE_seq']%}
-				vsandmsdata[{{v}}] = {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[{{v}}], vandmdataN[{{v}}]);
+				vsandmsdata[{{v}}] = {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_CREATEVBUFFERSTRUCT(vandmdataM[{{v}}], vandmdataN[{{v}}]);
 				{%endfor%}	
-				{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);	
+				{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_saveVandMs(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_saveVandMs(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
 	keyvalue_vbuffer_t vdatas[VECTOR2_SIZE];
-	value_t vandmdata[VECTOR2_SIZE];
+	vmdata_t vandmdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata complete
 	
 	SAVEVDATAANDMASKS_LOOP: for(buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		// CRITICAL FIXME.
-		
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vandmdata, 0);	
-		
-		// {%for v in context['VECTOR2_SIZE_seq']%}	
-		// vdatas[{{v}}] = buffer[{{v}}][bufferoffset_kvs + i/2];	
-		// {%endfor%}
-		
-		#ifdef _WIDEWORD
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram[baseoffset_kvs + offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = vandmdata[{{2*v}}];
-		kvdram[baseoffset_kvs + offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = vandmdata[{{2*v+1}}];
-		{%endfor%}
-		#else 
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram[baseoffset_kvs + offset_kvs + i].data[{{v}}].key = vandmdata[{{2*v}}];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[{{v}}].value = vandmdata[{{2*v+1}}];
-		{%endfor%}
-		#endif
-		
+		MEMCA{{context['id']}}_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vandmdata, 0);
+		MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata, baseoffset_kvs, offset_kvs);
+
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countvswritten(VECTOR2_SIZE);
 		#endif
@@ -411,7 +388,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_saveVandMs(bo
 }
 
 {%for n in context['T_seq']%}{%if(n>=1)%}
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readANDRVchunks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readANDRVchunks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -425,20 +402,20 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readANDRVchun
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESS{{context['id']}}_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESS{{context['id']}}_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -446,15 +423,15 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readANDRVchun
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+			{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESS{{context['id']}}_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ {%for v in context['VECTOR2_SIZE_seq']%}vandmdataM[{{v}}] = vandmdata2[{{v}}];{%endfor%}} else { {%for v in context['VECTOR2_SIZE_seq']%}vandmdataN[{{v}}] = vandmdata2[{{v}}];{%endfor%}	  }
 			
 			if(j==1){
 				{%for v in context['VECTOR2_SIZE_seq']%}
-				vsandmsdata[{{v}}] = {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[{{v}}], vandmdataN[{{v}}]);
+				vsandmsdata[{{v}}] = {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_CREATEVBUFFERSTRUCT(vandmdataM[{{v}}], vandmdataN[{{v}}]);
 				{%endfor%}	
-				{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VDATASANDVMASKS{{n}}_ANDREPLICATE(index, {%for i in context['T_seq']%}{%if(i<n)%}buffer{{i}},{%endif%}{%endfor%} vsandmsdata, 0);	
+				{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS{{n}}_ANDREPLICATE(index, {%for i in context['T_seq']%}{%if(i<n)%}buffer{{i}},{%endif%}{%endfor%} vsandmsdata, 0);	
 			}
 		}
 	}
@@ -463,7 +440,8 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readANDRVchun
 {%endif%}{%endfor%}
 
 // -------------------- vmasks (soon obsolete) -------------------- //
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+#ifdef CONFIG_SEPERATEVMASKFROMVDATA
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -491,7 +469,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_GetXYLayoutVM
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_RearrangeLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_RearrangeLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	{%if(v>0)%}else{%endif%} {%if(v<16-1)%}if(s_=={{v}}){%endif%}{ 
@@ -506,7 +484,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_RearrangeLayo
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -537,12 +515,12 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmasks_sl
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		tempbuffer[{{v}}][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[{{v}}].key;
-		tempbuffer[{{v}}][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[{{v}}].value; 
+		tempbuffer[{{v}}][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[{{v}}].key;
+		tempbuffer[{{v}}][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
 		#endif 
 		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("MEMACCESS_SPL_readvmasks_slide:", rlbaseoffset_kvs + roffset_kvs, NUMPROCESSEDGESPARTITIONS * VMASKBUFFERSZ_KVS, baseoffset_kvs, rlbaseoffset_kvs, roffset_kvs);
+		actsutilityobj->checkoutofbounds("MEMACCESS{{context['id']}}_SPL_readvmasks_slide:", rlbaseoffset_kvs + roffset_kvs, NUMPROCESSEDGESPARTITIONS * VMASKBUFFERSZ_KVS, baseoffset_kvs, rlbaseoffset_kvs, roffset_kvs);
 		#endif
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -560,8 +538,8 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmasks_sl
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		bitsbuffer[index + {{2*v}}] = tempbuffer[{{v}}][i].key;
-		bitsbuffer[index + {{2*v}} + 1] = tempbuffer[{{v}}][i].value;
+		bitsbuffer[index + {{2*v}}] = tempbuffer[{{v}}][i].vmdata0.vdata;
+		bitsbuffer[index + {{2*v}} + 1] = tempbuffer[{{v}}][i].vmdata1.vdata;
 		{%endfor%}
 		#endif 
 		
@@ -588,25 +566,25 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readvmasks_sl
 		#else 
 		if(i%2==0){
 			{%for v in context['16_seq']%}
-			vmdata[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(bitsbuffer[i/2], {{v}}, 1);
+			vmdata[{{v}}] = UTIL{{context['id']}}_READFROM_UINT(bitsbuffer[i/2], {{v}}, 1);
 			{%endfor%}
 		} else {
 			{%for v in context['16_seq']%}
-			vmdata[{{v}}] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(bitsbuffer[i/2], {{16+v}}, 1);
+			vmdata[{{v}}] = UTIL{{context['id']}}_READFROM_UINT(bitsbuffer[i/2], {{16+v}}, 1);
 			{%endfor%}
 		}
 		#endif
 	
 		unsigned int x = index2 + s;
 		basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS(depths, vmaskBITS, vmdata2, 0);
+		MEMACCESS{{context['id']}}_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_WRITETOBUFFER_VMASKS_WITHDEPTHS(depths, vmaskBITS, vmdata2, 0);
 		index2 += NUM_PEs;
 	}
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_CKSreadvmaskschunks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -621,33 +599,33 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_CKSreadvmasks
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESS{{context['id']}}_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+		if(i<limit){ cout<<"MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 		#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESS{{context['id']}}_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+		if(i<limit){ cout<<"MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 		#endif 
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VMASKS(i, vmaskBITS, vmdata2, 0);
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_WRITETOBUFFER_VMASKS(i, vmaskBITS, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
 
 {%for n in context['T_seq']%}{%if(n>=1)%}
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readANDRvmaskschunks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmaskBITS{{i}}[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readANDRvmaskschunks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmaskBITS{{i}}[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -662,36 +640,36 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readANDRvmask
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESS{{context['id']}}_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESS{{context['id']}}_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_WRITETOBUFFER_VMASKS{{n}}_ANDREPLICATE(i, {%for i in context['T_seq']%}{%if(i<n)%}vmaskBITS{{i}},{%endif%}{%endfor%} vmdata2, 0);
+		{%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_WRITETOBUFFER_VMASKS{{n}}_ANDREPLICATE(i, {%for i in context['T_seq']%}{%if(i<n)%}vmaskBITS{{i}},{%endif%}{%endfor%} vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESS{{context['id']}}_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
 {%endif%}{%endfor%}
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"MEMACCESS_SPL_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
+	cout<<"MEMACCESS{{context['id']}}_SPL_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
 	#endif
 	
 	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
@@ -722,30 +700,30 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savemasks(boo
 		{%endfor%}
 		#else
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{v}}, 1, vmaskBITS[{{v}}][n_i]);
+		UTIL{{context['id']}}_WRITETO_UINT(&tempbuffer[X][Y], {{v}}, 1, vmaskBITS[{{v}}][n_i]);
 		{%endfor%}
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		{%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_WRITETO_UINT(&tempbuffer[X][Y], {{16+v}}, 1, vmaskBITS[{{v}}][n_iplus1]);
+		UTIL{{context['id']}}_WRITETO_UINT(&tempbuffer[X][Y], {{16+v}}, 1, vmaskBITS[{{v}}][n_iplus1]);
 		{%endfor%}
 		#endif
 		index += 1;
 		
-		uint32_type maskA = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
-		uint32_type maskB = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
+		uint32_type maskA = UTIL{{context['id']}}_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
+		uint32_type maskB = UTIL{{context['id']}}_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
 		cummvmask_sp = cummvmask_sp | maskA | maskB;
-		// cout<<"MEMACCESS_SPL_savemasks:: maskA: "<<maskA<<", maskB: "<<maskB<<", cummvmask_sp: "<<cummvmask_sp<<endl;
+		// cout<<"MEMACCESS{{context['id']}}_SPL_savemasks:: maskA: "<<maskA<<", maskB: "<<maskB<<", cummvmask_sp: "<<cummvmask_sp<<endl;
 		
-		realvid = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
+		realvid = UTIL{{context['id']}}_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(realvid >= next_chpt){ cout<<"--- MEMACCESS_SPL_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(realvid >= next_chpt){ cout<<"--- MEMACCESS{{context['id']}}_SPL_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		#endif 
 		if(realvid >= next_chpt){ vpmasks[vpmasks_i] = cummvmask_sp; cummvmask_sp = 0; vpmasks_i += 1; next_chpt += processpartitionsz; } // CRITICAL FIXME. TOO EXPENSIVE. CRITICAL FIXME.
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<"--- MEMACCESS_SPL_savemasks:: FINISHED. realvid: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl;
+	cout<<"--- MEMACCESS{{context['id']}}_SPL_savemasks:: FINISHED. realvid: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_CHECKS3
-	if(vpmasks_i != NUM_PEs){ cout<<"--- MEMACCESS_SPL_savemasks:: ERROR: vpmasks_i("<<vpmasks_i<<") != NUM_PEs("<<NUM_PEs<<"). EXITING...."<<endl; exit(EXIT_FAILURE); }
+	if(vpmasks_i != NUM_PEs){ cout<<"--- MEMACCESS{{context['id']}}_SPL_savemasks:: ERROR: vpmasks_i("<<vpmasks_i<<") != NUM_PEs("<<NUM_PEs<<"). EXITING...."<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
 	SAVEVMASKS_LOOP2: for(buffer_type k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
@@ -778,9 +756,10 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_savemasks(boo
 	// exit(EXIT_SUCCESS); //////////////
 	return;
 }
+#endif 
 
 // -------------------- pmasks -------------------- //
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -792,7 +771,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readpmask(uin
 }
 
 // -------------------- stats -------------------- //
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
@@ -832,7 +811,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readglobalsta
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -871,12 +850,12 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_saveglobalsta
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	actsutilityobj->printkeyvalues("MEMACCESS_SPL_saveglobalstats.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
+	actsutilityobj->printkeyvalues("MEMACCESS{{context['id']}}_SPL_saveglobalstats.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
 	#endif
 	return;
 }
 
-tuple_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_getvptrs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_getvptrs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -992,7 +971,7 @@ tuple_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_getvptrs({
 	return t;
 }
 
-unsigned int {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
+unsigned int {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (offset / 16)];
@@ -1018,7 +997,7 @@ unsigned int {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_getvp
 	else { return vptr_kv.value; }
 }
 
-tuple_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -1027,47 +1006,47 @@ tuple_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_getvptrs_o
 	endoffset = endoffset / VPTR_SHRINK_RATIO;
 	
 	#if NUM_EDGE_BANKS==0
-		beginvptr = MEMACCESS_SPL_getvptr(kvdram, baseoffset_kvs, beginoffset);
-		endvptr = MEMACCESS_SPL_getvptr(kvdram, baseoffset_kvs, endoffset);
+		beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(kvdram, baseoffset_kvs, beginoffset);
+		endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(kvdram, baseoffset_kvs, endoffset);
 	#else
 		if(edgebankID == 0){
-			beginvptr = MEMACCESS_SPL_getvptr(edges0, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges0, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges0, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges0, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>1
 		else if(edgebankID == 1){
-			beginvptr = MEMACCESS_SPL_getvptr(edges1, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges1, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges1, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges1, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>2
 		else if(edgebankID == 2){
-			beginvptr = MEMACCESS_SPL_getvptr(edges2, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges2, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges2, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges2, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>3
 		else if(edgebankID == 3){
-			beginvptr = MEMACCESS_SPL_getvptr(edges3, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges3, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges3, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges3, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>4
 		else if(edgebankID == 4){
-			beginvptr = MEMACCESS_SPL_getvptr(edges4, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges4, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges4, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges4, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>5
 		else if(edgebankID == 5){
-			beginvptr = MEMACCESS_SPL_getvptr(edges5, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges5, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges5, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges5, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>6
 		else if(edgebankID == 6){
-			beginvptr = MEMACCESS_SPL_getvptr(edges6, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges6, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges6, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges6, baseoffset_kvs, endoffset);
 		}
 		#if NUM_EDGE_BANKS>7
 		else if(edgebankID == 7){
-			beginvptr = MEMACCESS_SPL_getvptr(edges7, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges7, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges7, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESS{{context['id']}}_SPL_getvptr(edges7, baseoffset_kvs, endoffset);
 		}
 	#endif
 	#endif 
@@ -1091,7 +1070,7 @@ tuple_t {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_getvptrs_o
 	return t;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 	
@@ -1102,7 +1081,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_copystats(uin
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_copyallstats({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_copyallstats({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 
@@ -1117,7 +1096,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_copyallstats(
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -1136,7 +1115,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_commitkvstats
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k]; 
@@ -1147,7 +1126,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_commitkvstats
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -1158,7 +1137,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_retreievekvst
 	}
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -1179,7 +1158,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_accumkvstats(
 	return;
 }
 
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -1201,7 +1180,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_commitkvstats
 // -------------------- multiple accesses -------------------- //
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanyvmasks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmaskBITS{{i}}[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readmanyvmasks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmaskBITS{{i}}[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -1220,8 +1199,8 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanyvmask
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		tempbuffer[{{v}}][i].key = kvdram[offset_kvs + i].data[{{v}}].key;
-		tempbuffer[{{v}}][i].value = kvdram[offset_kvs + i].data[{{v}}].value; 
+		tempbuffer[{{v}}][i].vmdata0.vdata = kvdram[offset_kvs + i].data[{{v}}].key;
+		tempbuffer[{{v}}][i].vmdata1.vdata = kvdram[offset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
 		
 		#endif 
@@ -1243,8 +1222,8 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanyvmask
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		bitsbuffer[index + {{2*v}}] = tempbuffer[{{v}}][i].key;
-		bitsbuffer[index + {{2*v + 1}}] = tempbuffer[{{v}}][i].value;
+		bitsbuffer[index + {{2*v}}] = tempbuffer[{{v}}][i].vmdata0.vdata;
+		bitsbuffer[index + {{2*v + 1}}] = tempbuffer[{{v}}][i].vmdata1.vdata;
 		{%endfor%}
 		#endif
 		
@@ -1267,10 +1246,10 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanyvmask
 		{%endfor%}
 		#else 
 		{%for v in context['16_seq']%}
-		vmaskBITS{{i}}[{{v}}][index2] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(bitsbuffer[i], {{v}}, 1);
+		vmaskBITS{{i}}[{{v}}][index2] = UTIL{{context['id']}}_READFROM_UINT(bitsbuffer[i], {{v}}, 1);
 		{%endfor%}
 		{%for v in context['16_seq']%}
-		vmaskBITS{{i}}[{{v}}][index2 + 1] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(bitsbuffer[i], {{16+v}}, 1);
+		vmaskBITS{{i}}[{{v}}][index2 + 1] = UTIL{{context['id']}}_READFROM_UINT(bitsbuffer[i], {{16+v}}, 1);
 		{%endfor%}
 		#endif
 		{%endif%}
@@ -1285,7 +1264,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanyvmask
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanyspmask{{n}}(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmask{{i}}_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],{%endif%}{%endfor%} buffer_type size_kvs){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readmanyspmask{{n}}(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmask{{i}}_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],{%endif%}{%endfor%} buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -1348,7 +1327,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanyspmas
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}uint32_type vmask{{i}}_p[BLOCKRAM_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}uint32_type vmask{{i}}_p[BLOCKRAM_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		{%for i in context['T_seq']%}
@@ -1370,7 +1349,7 @@ void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readmanypmask
 {%endfor%}
 
 // -------------------- others -------------------- //
-void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
+void {{context['classname__mem_access_splitdstvxs']}}MEMACCESS{{context['id']}}_SPL_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
 	// NOT IMPLEMENTED.
 	/* analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;

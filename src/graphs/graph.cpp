@@ -42,8 +42,8 @@ using namespace std;
 string datasetRootDir = "/oj2zf/";
 string tmpDatarootDir = "/oj2zf/";
 #else
-string datasetRootDir = "/localtmp/oj2zf/";
-string tmpDatarootDir = "/localtmp/oj2zf/";
+string datasetRootDir = "/home/oj2zf/";
+string tmpDatarootDir = "/home/oj2zf/";
 #endif
 	
 graph::graph(algorithm * _algorithmobj, unsigned int datasetid, unsigned int _numedgebanks, bool _initfiles, bool _initgraphstructures, bool _initstatstructures){
@@ -533,7 +533,28 @@ void graph::loadalldatasets(){
 	#ifdef AWS_PLATFORM
 	string rootDir = "/oj2zf/";
 	#else
-	string rootDir = "/localtmp/oj2zf/";
+	string rootDir = "/home/oj2zf/"; // /home/oj2zf
+	#endif
+	
+	load_realworld_datasets();
+	load_synthetic_datasets();
+	load_large_datasets();
+
+	for(unsigned int i=0; i<128; i++){
+		_datasets[i].groupvoffset[0] = 0;
+		_datasets[i].groupvoffset[1] = _datasets[i].num_vertices;
+	}
+	
+	cout<<"graph::loadalldatasets finished. "<<endl;
+	return;
+}
+void graph::load_realworld_datasets(){
+	cout<<"graph::loadalldatasets:: "<<endl;
+	
+	#ifdef AWS_PLATFORM
+	string rootDir = "/oj2zf/";
+	#else
+	string rootDir = "/home/oj2zf/"; // /home/oj2zf
 	#endif
 	
 	// small dataset
@@ -612,7 +633,107 @@ void graph::loadalldatasets(){
 	_datasets[5].graphorder = DST_SRC; // DST_SRC, SRC_DST;
 	_datasets[5].graphgroup = SYNTHETIC; // SKEWRATIO;
 	
-	/////////////////////////////////////////////////////////////////////
+	_datasets[6].graphtopname = "rgg_n_2_24_s0";
+	_datasets[6].graphname = "rgg_n_2_24_s0";
+	_datasets[6].graph_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx";
+	_datasets[6].vertices_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.vertices";
+	_datasets[6].edges_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.edges";	
+	_datasets[6].vertices_path_bin = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0_bin.vertices";
+	_datasets[6].edges_path_bin = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0_bin.edges";
+	_datasets[6].min_vertex = 0;
+	_datasets[6].max_vertex = 16777216; 
+	_datasets[6].num_vertices = 16777216;
+	_datasets[6].num_edges = 265114400 / 2;
+	_datasets[6].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[6].graphorder = DST_SRC;
+	_datasets[6].graphgroup = SNAP;
+	
+	_datasets[7].graphtopname = "europe_osm";
+	_datasets[7].graphname = "europe_osm";
+	_datasets[7].graph_path = rootDir + "dataset/europe_osm/europe_osm.mtx";
+	_datasets[7].vertices_path = rootDir + "dataset/europe_osm/europe_osm.vertices";
+	_datasets[7].edges_path = rootDir + "dataset/europe_osm/europe_osm.edges";	
+	_datasets[7].vertices_path_bin = rootDir + "dataset/europe_osm/europe_osm_bin.vertices";
+	_datasets[7].edges_path_bin = rootDir + "dataset/europe_osm/europe_osm_bin.edges";
+	_datasets[7].min_vertex = 0;
+	_datasets[7].max_vertex = 50912018; 
+	_datasets[7].num_vertices = 50912018;
+	_datasets[7].num_edges = 108109320 / 2;
+	_datasets[7].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[7].graphorder = DST_SRC;
+	_datasets[7].graphgroup = SNAP;
+	
+	_datasets[8].graphtopname = "kmer_V2a";
+	_datasets[8].graphname = "kmer_V2a";
+	_datasets[8].graph_path = rootDir + "dataset/kmer_V2a/kmer_V2a.mtx";
+	_datasets[8].vertices_path = rootDir + "dataset/kmer_V2a/kmer_V2a.vertices";
+	_datasets[8].edges_path = rootDir + "dataset/kmer_V2a/kmer_V2a.edges";	
+	_datasets[8].vertices_path_bin = rootDir + "dataset/kmer_V2a/kmer_V2a_bin.vertices";
+	_datasets[8].edges_path_bin = rootDir + "dataset/kmer_V2a/kmer_V2a_bin.edges";
+	_datasets[8].min_vertex = 0;
+	_datasets[8].max_vertex = 55042369; 
+	_datasets[8].num_vertices = 55042369;
+	_datasets[8].num_edges = 117217600 / 2;
+	_datasets[8].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[8].graphorder = DST_SRC;
+	_datasets[8].graphgroup = SNAP;
+	
+	_datasets[9].graphtopname = "hugebubbles_00020";
+	_datasets[9].graphname = "hugebubbles_00020";
+	_datasets[9].graph_path = rootDir + "dataset/hugebubbles_00020/hugebubbles_00020.mtx";
+	_datasets[9].vertices_path = rootDir + "dataset/hugebubbles_00020/hugebubbles_00020.vertices";
+	_datasets[9].edges_path = rootDir + "dataset/hugebubbles_00020/hugebubbles_00020.edges";	
+	_datasets[9].vertices_path_bin = rootDir + "dataset/hugebubbles_00020/hugebubbles_00020_bin.vertices";
+	_datasets[9].edges_path_bin = rootDir + "dataset/hugebubbles_00020/hugebubbles_00020_bin.edges";
+	_datasets[9].min_vertex = 0;
+	_datasets[9].max_vertex = 21198119; 
+	_datasets[9].num_vertices = 21198119;
+	_datasets[9].num_edges = 63580358 / 2;
+	_datasets[9].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[9].graphorder = DST_SRC;
+	_datasets[9].graphgroup = SNAP;
+	
+	_datasets[10].graphtopname = "kmer_U1a";
+	_datasets[10].graphname = "kmer_U1a";
+	_datasets[10].graph_path = rootDir + "dataset/kmer_U1a/kmer_U1a.mtx";
+	_datasets[10].vertices_path = rootDir + "dataset/kmer_U1a/kmer_U1a.vertices";
+	_datasets[10].edges_path = rootDir + "dataset/kmer_U1a/kmer_U1a.edges";	
+	_datasets[10].vertices_path_bin = rootDir + "dataset/kmer_U1a/kmer_U1a_bin.vertices";
+	_datasets[10].edges_path_bin = rootDir + "dataset/kmer_U1a/kmer_U1a_bin.edges";
+	_datasets[10].min_vertex = 0;
+	_datasets[10].max_vertex = 67716231; 
+	_datasets[10].num_vertices = 67716231;
+	_datasets[10].num_edges = 138778562 / 2;
+	_datasets[10].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[10].graphorder = DST_SRC;
+	_datasets[10].graphgroup = SNAP;
+	
+	// _datasets[].graphtopname = "?";
+	// _datasets[].graphname = "?";
+	// _datasets[].graph_path = rootDir + "dataset/?/?.mtx";
+	// _datasets[].vertices_path = rootDir + "dataset/?/?.vertices";
+	// _datasets[].edges_path = rootDir + "dataset/?/?.edges";	
+	// _datasets[].vertices_path_bin = rootDir + "dataset/?/?_bin.vertices";
+	// _datasets[].edges_path_bin = rootDir + "dataset/?/?_bin.edges";
+	// _datasets[].min_vertex = 0;
+	// _datasets[].max_vertex = ?; 
+	// _datasets[].num_vertices = ?;
+	// _datasets[].num_edges = ?;
+	// _datasets[].graphdirectiontype = UNDIRECTEDGRAPH;
+	// _datasets[].graphorder = DST_SRC;
+	// _datasets[].graphgroup = SNAP;
+	
+	cout<<"graph::loadalldatasets finished. "<<endl;
+	return;
+}
+void graph::load_synthetic_datasets(){
+	cout<<"graph::loadalldatasets:: "<<endl;
+	
+	#ifdef AWS_PLATFORM
+	string rootDir = "/oj2zf/";
+	#else
+	string rootDir = "/home/oj2zf/"; // /home/oj2zf
+	#endif
 	
 	_datasets[30].graphtopname = "RMAT22_SPARSE0";
 	_datasets[30].graphname = "RMAT22_SPARSE0";
@@ -734,7 +855,7 @@ void graph::loadalldatasets(){
 	_datasets[37].graphorder = DST_SRC; // DST_SRC, SRC_DST;
 	_datasets[37].graphgroup = SYNTHETIC; // SKEWRATIO;
 	
-	/////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////// synthetic datasets (II)
 	
 	_datasets[40].graphtopname = "RMAT_RANGE0";
 	_datasets[40].graphname = "RMAT_RANGE0";
@@ -856,88 +977,18 @@ void graph::loadalldatasets(){
 	_datasets[47].graphorder = DST_SRC; // DST_SRC, SRC_DST;
 	_datasets[47].graphgroup = SYNTHETIC; // SKEWRATIO;
 	
-	/////////////////////////////////////////////////////////////////////
+	cout<<"graph::loadalldatasets finished. "<<endl;
+	return;
+}
+void graph::load_large_datasets(){
+	cout<<"graph::loadalldatasets:: "<<endl;
 	
-	_datasets[10].graphtopname = "indochina-04";
-	_datasets[10].graphname = "indochina-04";
-	_datasets[10].graph_path = rootDir + "dataset/indochina-04/indochina-2004.mtx";
-	_datasets[10].vertices_path = rootDir + "dataset/indochina-04/indochina-2004.vertices";
-	_datasets[10].edges_path = rootDir + "dataset/indochina-04/indochina-2004.edges";	
-	_datasets[10].vertices_path_bin = rootDir + "dataset/indochina-04/indochina-2004_bin.vertices";
-	_datasets[10].edges_path_bin = rootDir + "dataset/indochina-04/indochina-2004_bin.edges";
-	_datasets[10].min_vertex = 0;
-	_datasets[10].max_vertex = 7414866; 
-	_datasets[10].num_vertices = 7414866;
-	_datasets[10].num_edges = 194109311;
-	_datasets[10].graphdirectiontype = UNDIRECTEDGRAPH;
-	_datasets[10].graphorder = DST_SRC;
-	_datasets[10].graphgroup = SNAP; // SKEWRATIO;
-	
-	// https://suitesparse-collection-website.herokuapp.com/MM/DIMACS10/rgg_n_2_22_s0.tar.gz
-	_datasets[11].graphtopname = "rgg_n_2_22_s0";
-	_datasets[11].graphname = "rgg_n_2_22_s0";
-	_datasets[11].graph_path = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0.mtx";
-	_datasets[11].vertices_path = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0.vertices";
-	_datasets[11].edges_path = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0.edges";	
-	_datasets[11].vertices_path_bin = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0_bin.vertices";
-	_datasets[11].edges_path_bin = rootDir + "dataset/rgg_n_2_22_s0/rgg_n_2_22_s0_bin.edges";
-	_datasets[11].min_vertex = 0;
-	_datasets[11].max_vertex = 4194304; 
-	_datasets[11].num_vertices = 4194304;
-	_datasets[11].num_edges = 30359198;
-	_datasets[11].graphdirectiontype = UNDIRECTEDGRAPH;
-	_datasets[11].graphorder = DST_SRC;
-	_datasets[11].graphgroup = SNAP; // SKEWRATIO;
-	
-	// https://suitesparse-collection-website.herokuapp.com/MM/DIMACS10/rgg_n_2_24_s0.tar.gz
-	_datasets[12].graphtopname = "rgg_n_2_24_s0";
-	_datasets[12].graphname = "rgg_n_2_24_s0";
-	_datasets[12].graph_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx";
-	_datasets[12].vertices_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.vertices";
-	_datasets[12].edges_path = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0.edges";	
-	_datasets[12].vertices_path_bin = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0_bin.vertices";
-	_datasets[12].edges_path_bin = rootDir + "dataset/rgg_n_2_24_s0/rgg_n_2_24_s0_bin.edges";
-	_datasets[12].min_vertex = 0;
-	_datasets[12].max_vertex = 16777216; 
-	_datasets[12].num_vertices = 16777216;
-	_datasets[12].num_edges = 132557200;
-	_datasets[12].graphdirectiontype = UNDIRECTEDGRAPH;
-	_datasets[12].graphorder = DST_SRC;
-	_datasets[12].graphgroup = SNAP; // SKEWRATIO;
-	
-	_datasets[13].graphtopname = "roadNet-CA";
-	_datasets[13].graphname = "roadNet-CA";
-	_datasets[13].graph_path = rootDir + "dataset/roadNet-CA/roadNet-CA.mtx";
-	_datasets[13].vertices_path = rootDir + "dataset/roadNet-CA/roadNet-CA.vertices";
-	_datasets[13].edges_path = rootDir + "dataset/roadNet-CA/roadNet-CA.edges";	
-	_datasets[13].vertices_path_bin = rootDir + "dataset/roadNet-CA/roadNet-CA_bin.vertices";
-	_datasets[13].edges_path_bin = rootDir + "dataset/roadNet-CA/roadNet-CA_bin.edges";
-	_datasets[13].min_vertex = 0;
-	_datasets[13].max_vertex = 1971281; 
-	_datasets[13].num_vertices = 1971281;
-	_datasets[13].num_edges = 2766607;
-	_datasets[13].graphdirectiontype = UNDIRECTEDGRAPH;
-	_datasets[13].graphorder = DST_SRC;
-	_datasets[13].graphgroup = SNAP; // SKEWRATIO;
-	
-	_datasets[14].graphtopname = "flickr";
-	_datasets[14].graphname = "flickr";
-	_datasets[14].graph_path = rootDir + "dataset/flickr/flickr.mtx";
-	_datasets[14].vertices_path = rootDir + "dataset/flickr/flickr.vertices";
-	_datasets[14].edges_path = rootDir + "dataset/flickr/flickr.edges";
-	_datasets[14].vertices_path_bin = rootDir + "dataset/flickr/flickr_bin.vertices";
-	_datasets[14].edges_path_bin = rootDir + "dataset/flickr/flickr_bin.edges";
-	_datasets[14].min_vertex = 0;
-	_datasets[14].max_vertex = 820878;
-	_datasets[14].num_vertices = 820879;
-	_datasets[14].num_edges = 9837214;
-	_datasets[14].graphdirectiontype = UNDIRECTEDGRAPH;
-	_datasets[14].graphorder = DST_SRC;
-	_datasets[14].graphgroup = SNAP; // SKEWRATIO;
-	
-	/////////////////////////////////////////////////////////////////////
-	
-	// large dataset
+	#ifdef AWS_PLATFORM
+	string rootDir = "/oj2zf/";
+	#else
+	string rootDir = "/home/oj2zf/"; // /home/oj2zf
+	#endif
+
 	_datasets[20].graphtopname = "twitter";
 	_datasets[20].graphname = "twitter";
 	_datasets[20].graph_path = rootDir + "dataset/twitter/twitter.mtx";
@@ -1043,14 +1094,10 @@ void graph::loadalldatasets(){
 	_datasets[26].graphorder = SRC_DST;
 	_datasets[26].graphgroup = SNAP; // SKEWRATIO;
 
-	for(unsigned int i=0; i<32; i++){
-		_datasets[i].groupvoffset[0] = 0;
-		_datasets[i].groupvoffset[1] = _datasets[i].num_vertices;
-	}
-	
 	cout<<"graph::loadalldatasets finished. "<<endl;
 	return;
 }
+
 void graph::setdataset(unsigned int id){
 	#ifdef _LARGEDATASET_67M
 	// if(id != 2 || id != 4){ cout<<"WARNING:DATASETS GRAPH "<<id<<"'S SIZE DOES NOT MATCH SPECIFIED CONFIGURATION. PLEASE SET CORRECT CONFIGURATION OR USE CORRECT GRAPH SIZE"<<endl; exit(EXIT_FAILURE); }

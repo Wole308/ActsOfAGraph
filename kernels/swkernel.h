@@ -17,6 +17,9 @@
 #include "../src/utility/utility.h"
 #include "../src/algorithm/algorithm.h"
 #include "../acts/acts/acts_all.h"
+// #include "../acts/acts/acts_allP0.h"
+// #include "../acts/acts/acts_allP1.h"
+// #include "../acts/acts/acts_allS.h"
 #include "../acts/acts/mydebug.h"
 
 class swkernel {
@@ -24,7 +27,7 @@ public:
 	swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj);
 	~swkernel();
 	
-	#ifndef HW
+	#ifndef FPGA_IMPL
 	void verifyresults(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int id);
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters);						
 	
@@ -38,7 +41,7 @@ public:
 	
 	void verifyresults_hw(uint512_vec_dt * kvdram, unsigned int _BASEOFFSETKVS_VERTICESDATA);
 private:
-	#ifndef HW
+	#ifndef FPGA_IMPL
 	utility * utilityobj;
 	stats * statsobj;
 	graph * graphobj;

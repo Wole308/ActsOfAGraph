@@ -1,50 +1,45 @@
-#ifdef SW
-acts_util::acts_util(mydebug * _mydebugobj){ actsutilityobj = new actsutility(); mydebugobj = _mydebugobj; }
-acts_util::~acts_util(){}
-#endif
-
 // basic
-unsigned int UTIL_amin(unsigned int val1, unsigned int val2){
+unsigned int acts_all::UTILP0_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
-unsigned int UTIL_aplus(unsigned int val1, unsigned int val2){
+unsigned int acts_all::UTILP0_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
 
 // allignment
-batch_type UTIL_allignlower_KV(batch_type val){
+batch_type acts_all::UTILP0_allignlower_KV(batch_type val){
 	batch_type fac = val / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-batch_type UTIL_allignhigher_KV(batch_type val){
+batch_type acts_all::UTILP0_allignhigher_KV(batch_type val){
 	batch_type fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-batch_type UTIL_allignlower_KV2(batch_type val){
+batch_type acts_all::UTILP0_allignlower_KV2(batch_type val){
 	batch_type fac = val / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
-batch_type UTIL_allignhigher_KV2(batch_type val){
+batch_type acts_all::UTILP0_allignhigher_KV2(batch_type val){
 	batch_type fac = (val + (VECTOR2_SIZE - 1)) / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
 
 // bit manipulation
-unsigned int UTIL_GETMASK_UINT(unsigned int index, unsigned int size){
+unsigned int acts_all::UTILP0_GETMASK_UINT(unsigned int index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
 }
-unsigned int UTIL_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
+unsigned int acts_all::UTILP0_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
 	unsigned int res = 0;
-	res = (((data) & UTIL_GETMASK_UINT((index), (size))) >> (index)); 
+	res = (((data) & UTILP0_GETMASK_UINT((index), (size))) >> (index)); 
 	return res;
 }
-void UTIL_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
+void acts_all::UTILP0_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
 	unsigned int A = ((value) << (index));
-	unsigned int B = (~UTIL_GETMASK_UINT((index), (size)));
+	unsigned int B = (~UTILP0_GETMASK_UINT((index), (size)));
 	unsigned int C = ((tempdata) & (B));
 	unsigned int D = (C) | A;
 	*data = D;
@@ -59,28 +54,28 @@ void UTIL_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int siz
 	#endif
 	return; 
 }
-unsigned int UTIL_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+unsigned int acts_all::UTILP0_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
 	#pragma HLS INLINE
 	unsigned int res = 0;
 	#ifdef _WIDEWORD
 	res = data.range(index + size - 1, index); 
 	#else
-	res = UTIL_READFROM_UINT(data, index, size);
+	res = UTILP0_READFROM_UINT(data, index, size);
 	#endif
 	return res;
 }
-void UTIL_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+void acts_all::UTILP0_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	data->range(index + size - 1, index) = value;
 	#else
-	UTIL_WRITETO_UINT(data, index, size, value);
+	UTILP0_WRITETO_UINT(data, index, size, value);
 	#endif
 	return; 
 }
 
 // converters
-keyvalue_t UTIL_GETKV(keyvalue_buffer_t data){
+keyvalue_t acts_all::UTILP0_GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
@@ -92,7 +87,7 @@ keyvalue_t UTIL_GETKV(keyvalue_buffer_t data){
 	#endif 
 	return res;
 }
-keyvalue_buffer_t UTIL_GETKV(keyvalue_t data){
+keyvalue_buffer_t acts_all::UTILP0_GETKV(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_buffer_t res;
 	#ifdef _WIDEWORD
@@ -104,7 +99,7 @@ keyvalue_buffer_t UTIL_GETKV(keyvalue_t data){
 	#endif 
 	return res;
 }
-keyy_t UTIL_GETK(uint32_type data){
+keyy_t acts_all::UTILP0_GETK(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_KEY - 1, 0);
@@ -112,7 +107,7 @@ keyy_t UTIL_GETK(uint32_type data){
 	return data;
 	#endif
 }
-value_t UTIL_GETV(uint32_type data){
+value_t acts_all::UTILP0_GETV(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_VALUE - 1, 0);
@@ -120,7 +115,7 @@ value_t UTIL_GETV(uint32_type data){
 	return data;
 	#endif
 }
-keyy_t UTIL_GETKEYENTRY(uint512_dt data, unsigned int v){
+keyy_t acts_all::UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
@@ -128,7 +123,7 @@ keyy_t UTIL_GETKEYENTRY(uint512_dt data, unsigned int v){
 	return data.data[v].key;	
 	#endif
 }	
-value_t UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int loc, globalparams_t globalparams){
+value_t acts_all::UTILP0_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int loc, globalparams_t globalparams){
 	#pragma HLS INLINE
 	loc = loc / SUBPMASKFACTOR; // convert-to-appropriate-skip-format // NEWCHANGE.
 
@@ -163,7 +158,7 @@ value_t UTIL_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_
 	value_t data = vmask[col][row];
 	return data;
 }
-uint32_type UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int index){
+uint32_type acts_all::UTILP0_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int index){
 	#pragma HLS INLINE
 	uint32_type res = 0;
 	#ifdef _WIDEWORD
@@ -184,36 +179,36 @@ uint32_type UTIL_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BL
 	res.range(14, 14) = vmaskBITS[14][index];
 	res.range(15, 15) = vmaskBITS[15][index];
 	#else 
-	UTIL_WRITETO_UINT(&res, 0, 1, vmaskBITS[0][index]);
-	UTIL_WRITETO_UINT(&res, 1, 1, vmaskBITS[1][index]);
-	UTIL_WRITETO_UINT(&res, 2, 1, vmaskBITS[2][index]);
-	UTIL_WRITETO_UINT(&res, 3, 1, vmaskBITS[3][index]);
-	UTIL_WRITETO_UINT(&res, 4, 1, vmaskBITS[4][index]);
-	UTIL_WRITETO_UINT(&res, 5, 1, vmaskBITS[5][index]);
-	UTIL_WRITETO_UINT(&res, 6, 1, vmaskBITS[6][index]);
-	UTIL_WRITETO_UINT(&res, 7, 1, vmaskBITS[7][index]);
-	UTIL_WRITETO_UINT(&res, 8, 1, vmaskBITS[8][index]);
-	UTIL_WRITETO_UINT(&res, 9, 1, vmaskBITS[9][index]);
-	UTIL_WRITETO_UINT(&res, 10, 1, vmaskBITS[10][index]);
-	UTIL_WRITETO_UINT(&res, 11, 1, vmaskBITS[11][index]);
-	UTIL_WRITETO_UINT(&res, 12, 1, vmaskBITS[12][index]);
-	UTIL_WRITETO_UINT(&res, 13, 1, vmaskBITS[13][index]);
-	UTIL_WRITETO_UINT(&res, 14, 1, vmaskBITS[14][index]);
-	UTIL_WRITETO_UINT(&res, 15, 1, vmaskBITS[15][index]);
+	UTILP0_WRITETO_UINT(&res, 0, 1, vmaskBITS[0][index]);
+	UTILP0_WRITETO_UINT(&res, 1, 1, vmaskBITS[1][index]);
+	UTILP0_WRITETO_UINT(&res, 2, 1, vmaskBITS[2][index]);
+	UTILP0_WRITETO_UINT(&res, 3, 1, vmaskBITS[3][index]);
+	UTILP0_WRITETO_UINT(&res, 4, 1, vmaskBITS[4][index]);
+	UTILP0_WRITETO_UINT(&res, 5, 1, vmaskBITS[5][index]);
+	UTILP0_WRITETO_UINT(&res, 6, 1, vmaskBITS[6][index]);
+	UTILP0_WRITETO_UINT(&res, 7, 1, vmaskBITS[7][index]);
+	UTILP0_WRITETO_UINT(&res, 8, 1, vmaskBITS[8][index]);
+	UTILP0_WRITETO_UINT(&res, 9, 1, vmaskBITS[9][index]);
+	UTILP0_WRITETO_UINT(&res, 10, 1, vmaskBITS[10][index]);
+	UTILP0_WRITETO_UINT(&res, 11, 1, vmaskBITS[11][index]);
+	UTILP0_WRITETO_UINT(&res, 12, 1, vmaskBITS[12][index]);
+	UTILP0_WRITETO_UINT(&res, 13, 1, vmaskBITS[13][index]);
+	UTILP0_WRITETO_UINT(&res, 14, 1, vmaskBITS[14][index]);
+	UTILP0_WRITETO_UINT(&res, 15, 1, vmaskBITS[15][index]);
 	#endif
 	return res;
 }	
-unsigned int UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){ // for CONFIG_SPLIT_DESTVTXS
+unsigned int acts_all::UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid){ // for CONFIG_SPLIT_DESTVTXS
 	#pragma HLS INLINE
 	return (vid - instid) / NUM_PEs;
 }
-unsigned int UTIL_GETREALVID(unsigned int lvid, unsigned int instid){ // for CONFIG_SPLIT_DESTVTXS
+unsigned int acts_all::UTILP0_GETREALVID(unsigned int lvid, unsigned int instid){ // for CONFIG_SPLIT_DESTVTXS
 	#pragma HLS INLINE
 	return (lvid * NUM_PEs) + instid;
 }
 
 // utilities
-batch_type UTIL_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
+batch_type acts_all::UTILP0_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	batch_type result;
 	
@@ -227,7 +222,7 @@ batch_type UTIL_getskipsize(step_type currentLOP, bool_type sourceORdest, global
 	}
 	return result;
 }
-batch_type UTIL_getrangeforeachllop(globalparams_t globalparams){
+batch_type acts_all::UTILP0_getrangeforeachllop(globalparams_t globalparams){
 	analysis_type analysis_loop1 = TREE_DEPTH;
 	unsigned int range = globalparams.SIZE_BATCHRANGE;
 	for(unsigned int i=0; i<globalparams.ACTSPARAMS_TREEDEPTH; i++){
@@ -236,7 +231,7 @@ batch_type UTIL_getrangeforeachllop(globalparams_t globalparams){
 	}
 	return range;
 }
-buffer_type UTIL_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
+buffer_type acts_all::UTILP0_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
 	buffer_type chunk_size = buffer_size;
 	batch_type i = travstate.i_kvs + localoffset;
 	if (i > travstate.end_kvs){ chunk_size = 0; }
@@ -244,21 +239,21 @@ buffer_type UTIL_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate
 	else {}
 	return chunk_size;
 }
-buffer_type UTIL_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+buffer_type acts_all::UTILP0_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	buffer_type size_kvs = 0;
 	size_kvs = realsize_kvs;
 	return size_kvs;
 }
-void UTIL_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size){
+void acts_all::UTILP0_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size){
 	unsigned int analysis_size = NUM_PARTITIONS;
 	for(buffer_type i=1; i<size; i++){ 
 	#pragma HLS PIPELINE II=2
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_size avg=analysis_size	
-		buffer[i].key = UTIL_allignhigher_KV(buffer[i-1].key + buffer[i-1].value); 
+		buffer[i].key = UTILP0_allignhigher_KV(buffer[i-1].key + buffer[i-1].value); 
 	}
 	return;
 }
-void UTIL_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+void acts_all::UTILP0_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = buffer[0][i-1].key + buffer[0][i-1].value + skipspacing; 
 		buffer[1][i].key = buffer[1][i-1].key + buffer[1][i-1].value + skipspacing; 
@@ -271,7 +266,7 @@ void UTIL_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][
 	}
 	return;
 }
-batch_type UTIL_get_num_source_partitions(step_type currentLOP){
+batch_type acts_all::UTILP0_get_num_source_partitions(step_type currentLOP){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
 	if(currentLOP == 0){ currentLOP = 1; }
@@ -282,7 +277,7 @@ batch_type UTIL_get_num_source_partitions(step_type currentLOP){
 	}
 	return pow;
 }
-globalparams_t UTIL_getglobalparams(uint512_dt * kvdram){
+globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram){
 	globalparams_t globalparams;
 	#ifdef _WIDEWORD
 	globalparams.ENABLE_RUNKERNELCOMMAND = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].range(31, 0);
@@ -442,9 +437,9 @@ globalparams_t UTIL_getglobalparams(uint512_dt * kvdram){
 	#endif
 	return globalparams;
 }
-sweepparams_t UTIL_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition){
+sweepparams_t acts_all::UTILP0_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition){
 	sweepparams_t sweepparams;
-	batch_type sourceskipsize = UTIL_getskipsize(currentLOP, SOURCE, globalparams);
+	batch_type sourceskipsize = UTILP0_getskipsize(currentLOP, SOURCE, globalparams);
 	
 	sweepparams.currentLOP = currentLOP;
 
@@ -464,7 +459,7 @@ sweepparams_t UTIL_getsweepparams(globalparams_t globalparams, step_type current
 	sweepparams.source_partition = source_partition;
 	return sweepparams;
 }
-travstate_t UTIL_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
+travstate_t acts_all::UTILP0_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
 	travstate_t travstate;
 	if(enable == OFF){ return travstate; }
 	keyvalue_t keyvalue;
@@ -564,7 +559,7 @@ else {
 	travstate.i_kvs = travstate.begin_kvs; 
 	return travstate;	
 }
-void UTIL_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value){			
+void acts_all::UTILP0_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value){			
 	if(enable == OFF){ return; }
 	#ifdef _WIDEWORD
 	kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset].range(31, 0) = value; // 64; 
@@ -575,19 +570,19 @@ void UTIL_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t glo
 	#endif
 	return;	
 }
-partition_type UTIL_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
+partition_type acts_all::UTILP0_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
 	partition_type partition;
-	keyvalue_t thiskeyvalue = UTIL_GETKV(keyvalue);
+	keyvalue_t thiskeyvalue = UTILP0_GETKV(keyvalue);
 	
 	#ifdef CONFIG_SPLIT_DESTVTXS
-	if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else {
 		keyy_t lkey = thiskeyvalue.key - upperlimit;
 		if(mode == REDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
 		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	}
 	#else 
-		if(thiskeyvalue.value == UTIL_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+		if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 		else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	#endif 
 	
@@ -614,32 +609,32 @@ partition_type UTIL_getpartition(bool_type enable, unsigned int mode, keyvalue_b
 }
 
 // resets 
-void UTIL_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+void acts_all::UTILP0_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i].value = resetval; 
 	}
 }
-void UTIL_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval){
+void acts_all::UTILP0_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i].value = resetval; 
 	}
 }
-void UTIL_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
+void acts_all::UTILP0_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i] = resetval; 
 	}
 }
-void UTIL_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+void acts_all::UTILP0_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){
 		buffer[i].key = resetval; 
 		buffer[i].value = resetval; 
 	}
 	return;
 }
-void UTIL_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
+void acts_all::UTILP0_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -666,7 +661,7 @@ void UTIL_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 	}
 	return;
 }
-void UTIL_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
+void acts_all::UTILP0_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
 	for(unsigned int k=0; k<size_kvs; k++){
 	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
 		#ifdef _WIDEWORD
@@ -691,7 +686,7 @@ void UTIL_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalpa
 	}
 	return;
 }
-void UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]){
+void acts_all::UTILP0_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]){
 	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<DOUBLE_BLOCKRAM_SIZE; k++){
 	#pragma HLS PIPELINE II=1
 		for(unsigned int i=0; i<VMASK_PACKINGSIZE; i++){
@@ -701,7 +696,7 @@ void UTIL_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]){
 	}
 	return;
 }
-void UTIL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void acts_all::UTILP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -759,7 +754,7 @@ else {
 	}
 	return;
 }
-void UTIL_set_graphiteration(uint512_dt * kvdram, unsigned int GraphIter){
+void acts_all::UTILP0_set_graphiteration(uint512_dt * kvdram, unsigned int GraphIter){
 	#ifdef _WIDEWORD
 	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = GraphIter;
 	#else
@@ -767,7 +762,7 @@ void UTIL_set_graphiteration(uint512_dt * kvdram, unsigned int GraphIter){
 	#endif 
 	return;
 }
-void UTIL_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
+void acts_all::UTILP0_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
 	#ifdef _WIDEWORD
 	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
 	#else
@@ -775,7 +770,7 @@ void UTIL_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalpar
 	#endif 
 	return;
 }
-void UTIL_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
+void acts_all::UTILP0_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so1[0][p].key = 0;
@@ -799,7 +794,7 @@ void UTIL_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PA
 	}
 	return;
 }
-void UTIL_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
+void acts_all::UTILP0_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so8[p].key = 0;

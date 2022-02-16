@@ -27,10 +27,10 @@
 #include "../../src/graphs/graph.h"
 #include "../../include/common.h"
 #include "../../include/host_common.h"
-// #include "mysort.h"
 #include "creategraphs.h"
 using namespace std;
 #define YES
+// https://networkrepository.com/soc-orkut.php
 
 unsigned int globalerrorfound1;
 
@@ -38,7 +38,6 @@ creategraphs::creategraphs(unsigned int datasetid){
 	algorithm * algorithmobj = new algorithm();
 	utilityobj = new utility();
 	graphobj = new graph(algorithmobj, datasetid, 1, true, false, false);
-	// mysortobj = new mysort(graphobj);
 	
 	cout<<"creategraphs:: constructor called: creating structures... "<<endl;
 	cout<<"creategraphs:: dataset.graph_path: "<<graphobj->getdataset().graph_path<<endl;
@@ -243,8 +242,11 @@ void creategraphs::writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNU
 			// cout<<"creategraphs::writeedgestofile: srcvid["<<i<<"]: "<<edgesbuffer[0][i].srcvid<<", dstvid["<<i<<"]: "<<edgesbuffer[0][i].dstvid<<endl;
 			if(edgesbuffer[0][i].srcvid > edgesbuffer[0][i+1].srcvid){ 
 				cout<<"ERROR: writeedgestofile: NON-INCREASING SOURCE VIDS. EXITING..."<<endl; 
-				cout<<"$$$ creategraphs::writeedgestofile: srcvid["<<i<<"]: "<<edgesbuffer[0][i].srcvid<<", dstvid["<<i<<"]: "<<edgesbuffer[0][i].dstvid;
-				cout<<", srcvid["<<i+1<<"]: "<<edgesbuffer[0][i+1].srcvid<<", dstvid["<<i+1<<"]: "<<edgesbuffer[0][i+1].dstvid<<endl;
+				cout<<"$$$ creategraphs::writeedgestofile: ";
+				cout<<", srcvid["<<i<<"]: "<<edgesbuffer[0][i].srcvid<<", dstvid["<<i<<"]: "<<edgesbuffer[0][i].dstvid; 
+				cout<<", srcvid["<<i+1<<"]: "<<edgesbuffer[0][i+1].srcvid<<", dstvid["<<i+1<<"]: "<<edgesbuffer[0][i+1].dstvid;
+				cout<<", srcvid["<<i+2<<"]: "<<edgesbuffer[0][i+2].srcvid<<", dstvid["<<i+2<<"]: "<<edgesbuffer[0][i+2].dstvid;
+				cout<<endl;
 				exit(EXIT_FAILURE); 
 			}
 		}
@@ -317,12 +319,6 @@ void creategraphs::writevertexptrstofile(){
 		for(unsigned int k=0; k<8; k++){ cout <<k<<": "<< vertexptrs[i][k]<<endl; }
 		#endif 
 		cout<<"creategraphs:: checking col "<<i<<"... "<<endl;
-
-		// #ifdef GRAPHISUNDIRECTED
-		// if(vertexptrs[i][KVDATA_RANGE-1] != 2*numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }		
-		// #else 
-		// if(vertexptrs[i][KVDATA_RANGE-1] != numedges[i]){ cout<<"creategraphs::writevertexptrstofile:ERROR: mismatch 34: vertexptrs["<<i<<"]["<<KVDATA_RANGE-1<<"]: "<<vertexptrs[i][KVDATA_RANGE-1]<<", numedges["<<i<<"]: "<<numedges[i]<<endl; exit(EXIT_FAILURE); }		
-		// #endif 
 	}
 	cout<<">>> creategraphs::writevertexptrstofile:: total number of vertices out-degree information written to all ["<<graphobj->getnumedgebanks()<<"] banks: "<<totalnumvertices<<endl;
 	return;
@@ -333,7 +329,7 @@ unsigned int creategraphs::getbank(vertex_t vertexid){
 	bank = vertexid / KVDATA_RANGE;
 	if(bank >= graphobj->getnumedgebanks()){
 		cout<<"creategraphs:: ERROR 32. invalid bank. bank: "<<bank<<", vertexid: "<<vertexid<<", graphobj->getdataset().num_vertices: "<<graphobj->getdataset().num_vertices<<", graphobj->getnumedgebanks(): "<<graphobj->getnumedgebanks()<<endl;
-		if(globalerrorfound1++ > 10000){ exit(EXIT_FAILURE); }
+		if(globalerrorfound1++ > 1000){ exit(EXIT_FAILURE); }
 		// exit(EXIT_FAILURE); 
 		bank = 0;
 	}  	

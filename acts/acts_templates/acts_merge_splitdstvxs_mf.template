@@ -1,26 +1,26 @@
-unsigned int MERGE_SPLIT_actvpstatsoffset(globalparams_t globalparams);
+unsigned int MERGE{{context['id']}}_SPLIT_actvpstatsoffset(globalparams_t globalparams);
 
-value_t MERGE_SPLIT_applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
+value_t MERGE{{context['id']}}_SPLIT_applyfunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo);
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void MERGE_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
+void MERGE{{context['id']}}_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
 {%endif%}
 {%endfor%}
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void MERGE_SPLIT_BASICbroadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
+void MERGE{{context['id']}}_SPLIT_BASICbroadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram);
 {%endif%}
 {%endfor%}
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void MERGE_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, globalparams_t globalparams);
+void MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, globalparams_t globalparams);
 {%endif%}
 {%endfor%}
 
-void topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram);
+void TOP{{context['id']}}_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram);
 
 
 

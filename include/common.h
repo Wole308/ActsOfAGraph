@@ -1,19 +1,15 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
-#include <cmath>
-#include <ap_int.h>
 
-#define HW // SWEMU, HW, SW
+#define SW_ALLINONE // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, CC_ALGORITHM, CF_ALGORITHM
-#define _ORKUT_3M_106M 
+#define DATASET_ORKUT_3M_212M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
 #define CRABTREE_PLATFORM // AWS_PLATFORM, CRABTREE_PLATFORM
-// #define SW_IMPL //
 
 #ifdef GRAFBOOST_SETUP
 #define SORTREDUCEMODEL
@@ -30,6 +26,7 @@
 #define RANDOMVERTEXISACTIVE_ALGORITHM
 #endif
 
+#define EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // {actscommon.h, common.h}
 #ifdef ACTS_1by1by1byN
 #define ALL_VERTEXPROPERTIES_IN_SINGLE_DRAM // NEWCHANGE.
 #endif 
@@ -150,7 +147,7 @@
 #ifdef CONFIG_SEPERATEVMASKFROMVDATA
 #define VMASK_PACKINGSIZE (1 << VMASK_PACKINGSIZE_POW) //
 #else 
-#define VMASK_PACKINGSIZE 0	
+#define VMASK_PACKINGSIZE 1	
 #endif 
 
 #define NUMDRAMBANKS 4
@@ -240,7 +237,7 @@
 
 #define NUMLASTLEVELPARTITIONS (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))
 
-#define NUM_EDGE_BANKS 0
+#define NUM_EDGE_BANKS 1
 #define MAX_NUM_EDGE_BANKS 16
 #define NUMSYNCTHREADS 3
 

@@ -10,17 +10,8 @@
 #define VMSETSZ 32
 #define PE_SETSZ {{context['PE_SETSZ']}}
 
-#ifdef SW
-processedges_splitdstvxs::processedges_splitdstvxs(mydebug * _mydebugobj){ 
-	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(_mydebugobj);
-	mydebugobj = _mydebugobj;
-}
-processedges_splitdstvxs::~processedges_splitdstvxs(){}
-#endif
-
 //
-value_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t {{context['classname__processedges_splitdstvxs']}}PROCESS{{context['id']}}_SPL_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -69,19 +60,19 @@ value_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_processfun
 	return res;
 }
 
-parsededge_t {{context['classname__processedges_splitdstvxs']}}PARSE_EDGE(uint32_type data){ 
+parsededge_t {{context['classname__processedges_splitdstvxs']}}PROCESS{{context['id']}}_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
 	#ifdef _WIDEWORD
 	parsededge.incr = data.range(31, 28);
 	parsededge.dstvid = data.range(28, 0);
 	#else
-	parsededge.incr = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(data, 28, 4);
-	parsededge.dstvid = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_READFROM_UINT(data, 0, 28);
+	parsededge.incr = UTIL{{context['id']}}_READFROM_UINT(data, 28, 4);
+	parsededge.dstvid = UTIL{{context['id']}}_READFROM_UINT(data, 0, 28);
 	#endif
 	return parsededge; 
 }
 
-void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigned int debugid,
+void {{context['classname__processedges_splitdstvxs']}}PROCESS{{context['id']}}_SPL_debug(unsigned int debugid,
 	unsigned int i, value_t E[VECTOR2_SIZE], bool_type ens[VECTOR2_SIZE], unsigned int mask[VECTOR2_SIZE],
 		value_t udataset[MAX_NUM_UNIQ_EDGES_PER_VEC], value_t maskset[VECTOR2_SIZE], value_t Vset[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMset[MAX_NUM_UNIQ_EDGES_PER_VEC], vertex_t lvids[VECTOR2_SIZE],
 			unsigned int incr[VECTOR2_SIZE], unsigned int lsrcvids[VECTOR2_SIZE], unsigned int ldstvids[VECTOR2_SIZE], value_t res[VECTOR2_SIZE], keyvalue_t mykeyvalue[VECTOR2_SIZE], sweepparams_t sweepparams, globalparams_t globalparams,
@@ -179,7 +170,7 @@ void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigne
 	if(debugid == 5){
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		{%for v in context['PE_SETSZ_seq']%}
-		if(ens[{{v}}] == ON && mask[{{v}}] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<", udata: "<<udataset[incr[{{v}}]]<<"], [ens[{{v}}]: "<<ens[{{v}}]<<", mask[{{v}}]: "<<mask[{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[{{v}}] == ON && mask[{{v}}] == 1){ cout<<"PROCESS{{context['id']}}_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[{{v}}]: "<<lsrcvids[{{v}}]<<", ldstvids[{{v}}]: "<<ldstvids[{{v}}]<<", udata: "<<udataset[incr[{{v}}]]<<"], [ens[{{v}}]: "<<ens[{{v}}]<<", mask[{{v}}]: "<<mask[{{v}}]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
 		{%endfor%}	
 		// for(unsigned int v=0; v<MAX_NUM_UNIQ_EDGES_PER_VEC; v++){ cout<<"readandprocess(15)::DEBUG CODE 5:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 		#endif
@@ -204,7 +195,7 @@ void {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_debug(unsigne
 	return;
 }
 
-unsigned int {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL3_GETROW(unsigned int loc){					
+unsigned int {{context['classname__processedges_splitdstvxs']}}PROCESS{{context['id']}}_SPL3_GETROW(unsigned int loc){					
 	unsigned int col_dim32 = loc % 32; // NUM_PEs;
 	unsigned int row_dim32 = loc / 32; // NUM_PEs; // OPTIMIZE: follow with processedges_splitdstvxs
 	unsigned int basecol_dim16 = 0;
@@ -220,7 +211,7 @@ unsigned int {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL3_GETR
 	return truerow_dim16;
 }
 
-unsigned int {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], value_t Vdatas[VSETSZ], unit1_type VMdatas[VMSETSZ], globalparams_t globalparams){					
+unsigned int {{context['classname__processedges_splitdstvxs']}}PROCESS{{context['id']}}_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], value_t Vdatas[VSETSZ], unit1_type VMdatas[VMSETSZ], globalparams_t globalparams){					
 	unit1_type VMdatas_tmp[32];
 	unit1_type VMdatas_tmpA[VECTOR2_SIZE];
 	unit1_type VMdatas_tmpB[VECTOR2_SIZE];
@@ -237,32 +228,34 @@ unsigned int {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL3_GETV
 	unsigned int fcol_dim16 = loc % VECTOR2_SIZE;
 	unsigned int col_dim16 = loc % VECTOR2_SIZE;
 	
-	unsigned int truerow1_dim16 = PROCESS_SPL3_GETROW(loc);
-	unsigned int truerow2_dim16 = PROCESS_SPL3_GETROW((loc + (VECTOR2_SIZE - col_dim16)));
+	unsigned int truerow1_dim16 = PROCESS{{context['id']}}_SPL3_GETROW(loc);
+	unsigned int truerow2_dim16 = PROCESS{{context['id']}}_SPL3_GETROW((loc + (VECTOR2_SIZE - col_dim16)));
 
 	// CRITICAL REMOVEME.
 	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
-	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATAS(truerow1_dim16, vbuffer, Vdatas_tmpA, 0); }
-	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATAS(truerow2_dim16, vbuffer, Vdatas_tmpB, 0); }
-	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VMASKS(truerow1_dim16, vmaskBITS, VMdatas_tmpA, 0); }
-	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VMASKS(truerow2_dim16, vmaskBITS, VMdatas_tmpB, 0); }
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VDATAS(truerow1_dim16, vbuffer, Vdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VDATAS(truerow2_dim16, vbuffer, Vdatas_tmpB, 0); }
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VMASKS(truerow1_dim16, vmaskBITS, VMdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VMASKS(truerow2_dim16, vmaskBITS, VMdatas_tmpB, 0); }
 	#else 
-	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
-	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ {%if(context['XWARE']=="SW")%}mem_convert_and_accessobj->{%endif%}MEMCA{{context['id']}}_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
 	#endif 
 
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	Vdatas[{{v}}] = Vdatas_tmpA[{{v}}]; 
-	VMdatas[{{v}}] = VMdatas_tmpA[{{v}}];
+	VMdatas[{{v}}] = VMdatas_tmpA[{{v}}];	
+	// if(VMdatas_tmpA[{{v}}] > 0){ cout<<"------------- PROCESS{{context['id']}}_SPL3_GETVTXDATASET:: VMdatas_tmpA[{{v}}]: "<<VMdatas_tmpA[{{v}}]<<endl; }	
 	{%endfor%}
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	Vdatas[{{context['VECTOR2_SIZE'] + v}}] = Vdatas_tmpB[{{v}}];
-	VMdatas[{{context['VECTOR2_SIZE'] + v}}] = VMdatas_tmpB[{{v}}]; 
+	VMdatas[{{context['VECTOR2_SIZE'] + v}}] = VMdatas_tmpB[{{v}}]; 	
+	// if(VMdatas_tmpB[{{v}}] > 0){ cout<<"------------- PROCESS{{context['id']}}_SPL3_GETVTXDATASET:: VMdatas_tmpB[{{v}}]: "<<VMdatas_tmpB[{{v}}]<<endl; }	
 	{%endfor%}
 	return fcol_dim16;
 }
 
-fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS{{context['id']}}_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
@@ -347,13 +340,13 @@ fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_rea
 	mask[{{v}}] = 0;
 	{%endfor%}
 	
-	buffer_type chunk_size = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
-	READANDPROCESS_SPL_LOOP3C: for(buffer_type setoffset=0; setoffset<VECTOR2_SIZE; setoffset+=PE_SETSZ){
-		READANDPROCESS_SPL_LOOP3D: for (buffer_type i=0; i<chunk_size; i++){
+	buffer_type chunk_size = UTIL{{context['id']}}_getchunksize_kvs(edgessize_kvs, travstate, 0);
+	READANDPROCESS{{context['id']}}_SPL_LOOP3C: for(buffer_type setoffset=0; setoffset<VECTOR2_SIZE; setoffset+=PE_SETSZ){
+		READANDPROCESS{{context['id']}}_SPL_LOOP3D: for (buffer_type i=0; i<chunk_size; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 		#pragma HLS PIPELINE II=1
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"--- PROCESS_SPL_readandprocess: setoffset: "<<setoffset<<", i: "<<i<<" (of setsize: "<<VECTOR2_SIZE<<", of "<<chunk_size<<")"<<endl;
+			cout<<"--- PROCESS{{context['id']}}_SPL_readandprocess: setoffset: "<<setoffset<<", i: "<<i<<" (of setsize: "<<VECTOR2_SIZE<<", of "<<chunk_size<<")"<<endl;
 			#endif
 
 			#ifdef _WIDEWORD
@@ -367,16 +360,16 @@ fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_rea
 			{%endfor%}
 			#endif
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESS{{context['id']}}_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
 				
 			srcvid_head = E[0];
 			lvid_head = srcvid_head - travstate.i2;	
 			
-			parsededge_t parsed_edgeSTD0 = PARSE_EDGE(E[0]); unsigned int incrSTD0 = parsed_edgeSTD0.incr; unsigned int lsrcvidsSTD0 = lvid_head + incrSTD0; unsigned int ldstvidsSTD0 = parsed_edgeSTD0.dstvid; // STD0
-			parsededge_t parsed_edgeSTD1 = PARSE_EDGE(E[1]); unsigned int incrSTD1 = parsed_edgeSTD1.incr; unsigned int lsrcvidsSTD1 = lvid_head + incrSTD1; unsigned int ldstvidsSTD1 = parsed_edgeSTD1.dstvid; // STD1
+			parsededge_t parsed_edgeSTD0 = PROCESS{{context['id']}}_PARSEEDGE(E[0]); unsigned int incrSTD0 = parsed_edgeSTD0.incr; unsigned int lsrcvidsSTD0 = lvid_head + incrSTD0; unsigned int ldstvidsSTD0 = parsed_edgeSTD0.dstvid; // STD0
+			parsededge_t parsed_edgeSTD1 = PROCESS{{context['id']}}_PARSEEDGE(E[1]); unsigned int incrSTD1 = parsed_edgeSTD1.incr; unsigned int lsrcvidsSTD1 = lvid_head + incrSTD1; unsigned int ldstvidsSTD1 = parsed_edgeSTD1.dstvid; // STD1
 			{%for v in context['PE_SETSZ_seq']%}
-			parsededge_t parsed_edge{{v}} = PARSE_EDGE(E[setoffset + {{v}}]);
+			parsededge_t parsed_edge{{v}} = PROCESS{{context['id']}}_PARSEEDGE(E[setoffset + {{v}}]);
 			incr[{{v}}] = parsed_edge{{v}}.incr;
 			lsrcvids[{{v}}] = lvid_head + incr[{{v}}];
 			ldstvids[{{v}}] = parsed_edge{{v}}.dstvid;	
@@ -384,12 +377,12 @@ fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_rea
 			
 			bool_type en = ON;
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESS{{context['id']}}_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif
 			
-			offset = PROCESS_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
+			offset = PROCESS{{context['id']}}_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESS{{context['id']}}_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
 			
 			bool_type ensSTD0 = ON; if(E[0] == INVALIDDATA || lsrcvidsSTD0 >= validbound){ ensSTD0 = OFF; } // STD0.
@@ -398,7 +391,7 @@ fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_rea
 			ens[{{v}}] = ON; if(E[setoffset + {{v}}] == INVALIDDATA || lsrcvids[{{v}}] >= validbound){ ens[{{v}}] = OFF; }
 			{%endfor%}
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESS{{context['id']}}_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
 			
 			unsigned int udataSTD0 = 0; unsigned int maskSTD0 = 0; // STD0.
@@ -418,40 +411,40 @@ fetchmessage_t {{context['classname__processedges_splitdstvxs']}}PROCESS_SPL_rea
 			maskSTD0 = 0; // STD0
 			ensSTD0 = OFF; // STD0
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESS{{context['id']}}_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif
 			
 			{%for v in context['PE_SETSZ_seq']%}
-			res[{{v}}] = PROCESS_SPL_processfunc(udata[{{v}}], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[{{v}}] = PROCESS{{context['id']}}_SPL_processfunc(udata[{{v}}], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
 			{%endfor%}
 			{%for v in context['PE_SETSZ_seq']%}
 			if(ens[{{v}}] == ON && mask[{{v}}] == 1){ mykeyvalue[{{v}}].key = ldstvids[{{v}}]; mykeyvalue[{{v}}].value = res[{{v}}]; } else { mykeyvalue[{{v}}].key = INVALIDDATA; mykeyvalue[{{v}}].value = INVALIDDATA;  }
 			{%endfor%}
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESS{{context['id']}}_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
 			
 			#if PE_SETSZ==8
 			{%for v in context['VECTOR_SIZEPLUS1_seq']%}
-			buffer[{{v}}][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{v}}]);
+			buffer[{{v}}][loadcount] = UTIL{{context['id']}}_GETKV(mykeyvalue[{{v}}]);
 			{%endfor%}	
-			if(setoffset == 0){ buffer[0][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(dummykeyvalue); }
-			else { buffer[0][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[0]); }
+			if(setoffset == 0){ buffer[0][loadcount] = UTIL{{context['id']}}_GETKV(dummykeyvalue); }
+			else { buffer[0][loadcount] = UTIL{{context['id']}}_GETKV(mykeyvalue[0]); }
 			if(ensSTD1 == ON && maskSTD1 == 1){ loadcount += 1; } 
 			#else
 			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{v}}]);
+			buffer[{{v}}][loadcount] = UTIL{{context['id']}}_GETKV(mykeyvalue[{{v}}]);
 			{%endfor%}	
 			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][loadcount + 1] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(mykeyvalue[{{context['VECTOR_SIZE']+v}}]);
+			buffer[{{v}}][loadcount + 1] = UTIL{{context['id']}}_GETKV(mykeyvalue[{{context['VECTOR_SIZE']+v}}]);
 			{%endfor%}
-			buffer[0][loadcount] = {%if(context['XWARE']=="SW")%}acts_utilobj->{%endif%}UTIL_GETKV(dummykeyvalue); // STD0
+			buffer[0][loadcount] = UTIL{{context['id']}}_GETKV(dummykeyvalue); // STD0
 			if(ensSTD1 == ON && maskSTD1 == 1){ loadcount += 2; }
 			#endif
 	
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-			PROCESS_SPL_debug(7, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESS{{context['id']}}_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESS{{context['id']}}_SPL_debug(7, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif
 		}
 	}

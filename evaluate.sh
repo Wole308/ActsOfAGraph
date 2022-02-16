@@ -102,43 +102,35 @@ AWSHWSYN__ACTGRAPH_SETUP=30
 
 VHLSVHLSHW__ACTGRAPH_SETUP=34
 
-NODATASET=0
-ORKUT_3M_106M=1
-HOLLYWOOD_1M_57M=2
-KRON20_1M_45M=3
-KRON21_2M_91M=4
-KRON22_4M_200M=5
+NODATASET=""
+ORKUT_3M_212M="ORKUT_3M_212M"
+HOLLYWOOD_1M_114M="HOLLYWOOD_1M_114M"
+KRON20_1M_45M="KRON20_1M_45M"
+KRON21_2M_91M="KRON21_2M_91M"
+KRON22_4M_200M="KRON22_4M_200M"
+RGG_N_2_24_S0_16M_265M="RGG_N_2_24_S0_16M_265M"
+EUROPE_OSM_50M_108M="EUROPE_OSM_50M_108M"
+KMER_V2A_55M_117M="KMER_V2A_55M_117M"
+HUGEBUBBLES_00020_21M_63M="HUGEBUBBLES_00020_21M_63M"
+KMER_U1A_67M_138M="KMER_U1A_67M_138M"
 
-RMAT22_SPARSE0=30
-RMAT22_SPARSE1=31
-RMAT22_SPARSE2=32
-RMAT22_SPARSE3=33
-RMAT22_SPARSE4=34
-RMAT22_SPARSE5=35
-RMAT22_SPARSE6=36
-RMAT22_SPARSE7=37
+RMAT22_SPARSE0="RMAT22_SPARSE0"
+RMAT22_SPARSE1="RMAT22_SPARSE1"
+RMAT22_SPARSE2="RMAT22_SPARSE2"
+RMAT22_SPARSE3="RMAT22_SPARSE3"
+RMAT22_SPARSE4="RMAT22_SPARSE4"
+RMAT22_SPARSE5="RMAT22_SPARSE5"
+RMAT22_SPARSE6="RMAT22_SPARSE6"
+RMAT22_SPARSE7="RMAT22_SPARSE7"
 
-RMAT_RANGE0=40
-RMAT_RANGE1=41
-RMAT_RANGE2=42
-RMAT_RANGE3=43
-RMAT_RANGE4=44
-RMAT_RANGE5=45
-RMAT_RANGE6=46
-RMAT_RANGE7=47
-
-INDOCHINA_7M_194M=10
-RGG_4M_32M=11
-RGG_17M_132M=12
-ROADNET_2M_3M=13
-FLICKR_1M_10M=14
-
-TWITTER_67M=20
-MOLIERE2016_33M=21
-LARGEDATASET_67M=22
-LARGEDATASET_268M=23
-LARGEDATASET_1B=24
-LARGEDATASET_4B=25
+RMAT_RANGE0="RMAT_RANGE0"
+RMAT_RANGE1="RMAT_RANGE1"
+RMAT_RANGE2="RMAT_RANGE2"
+RMAT_RANGE3="RMAT_RANGE3"
+RMAT_RANGE4="RMAT_RANGE4"
+RMAT_RANGE5="RMAT_RANGE5"
+RMAT_RANGE6="RMAT_RANGE6"
+RMAT_RANGE7="RMAT_RANGE7"
 
 THREADCOUNT_EQ1=1
 THREADCOUNT_EQ2=2
@@ -233,12 +225,12 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 do 
 	### >>> LOOP1: hardware types
 	# for setup in $SW__ACTGRAPH_SETUP
-	for setup in $HW__ACTGRAPH_SETUP
+	# for setup in $HW__ACTGRAPH_SETUP
 	# for setup in $SWEMU__ACTGRAPH_SETUP
 	# for setup in $SW__GRAFBOOST_SETUP
 	# for setup in $SW__GUNROCK_SETUP
 	# for setup in $VHLSVHLSHW__ACTGRAPH_SETUP
-	# for setup in $CTHWSYN__ACTGRAPH_SETUP
+	for setup in $CTHWSYN__ACTGRAPH_SETUP
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP
 	
 	do 
@@ -334,11 +326,16 @@ do
 			for locke in $_LOCKE
 			do
 				# for dataset in $NODATASET
-				for dataset in $ORKUT_3M_106M
-				# for dataset in $HOLLYWOOD_1M_57M
+				for dataset in $ORKUT_3M_212M
+				# for dataset in $HOLLYWOOD_1M_114M
 				# for dataset in $KRON20_1M_45M
 				# for dataset in $KRON21_2M_91M
 				# for dataset in $KRON22_4M_200M
+				# for dataset in $RGG_N_2_24_S0_16M_265M
+				# for dataset in $EUROPE_OSM_50M_108M
+				# for dataset in $KMER_V2A_55M_117M
+				# for dataset in $HUGEBUBBLES_00020_21M_63M
+				# for dataset in $KMER_U1A_67M_138M
 				
 				# for dataset in $RMAT22_SPARSE0
 				# for dataset in $RMAT22_SPARSE1
@@ -358,108 +355,19 @@ do
 				# for dataset in $RMAT_RANGE6
 				# for dataset in $RMAT_RANGE7
 				
-				# for dataset in $INDOCHINA_7M_194M
-				# for dataset in $RGG_4M_32M
-				# for dataset in $RGG_17M_132M
-				# for dataset in $ROADNET_2M_3M
-				# for dataset in $FLICKR_1M_10M
-				
-				# for dataset in $TWITTER_67M #
-				# for dataset in $MOLIERE2016_33M
-				# for dataset in $LARGEDATASET_67M
-				# for dataset in $LARGEDATASET_268M
-				# for dataset in $LARGEDATASET_1B
-				# for dataset in $LARGEDATASET_4B
-				# for dataset in $TWITTER_67M
-				
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4	
-				# for dataset in $ORKUT_3M_106M $HOLLYWOOD_1M_57M
+				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M $KMER_U1A_67M_138M	
+				# for dataset in $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M	
+				# for dataset in $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M
 				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4	
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						for num_pes in $NUM_PEs_EQ24
-						# for num_pes in $NUM_PEs_EQ1 $NUM_PEs_EQ2 $NUM_PEs_EQ3 $NUM_PEs_EQ4 $NUM_PEs_EQ5
-						# for num_pes in $NUM_PEs_EQ6 $NUM_PEs_EQ7 $NUM_PEs_EQ8 $NUM_PEs_EQ9 $NUM_PEs_EQ10
+						for num_pes in $NUM_PEs_EQ3
+						# for num_pes in $NUM_PEs_EQ16 $NUM_PEs_EQ22 $NUM_PEs_EQ24
 						do
-							if [ $num_pes == $NUM_PEs_EQ1 ]  
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=1
-							elif [ $num_pes == $NUM_PEs_EQ2 ]
-							then
-								ACTS_CONFIG="1by2by1by3"
-								numsubcputhreads=6
-							elif [ $num_pes == $NUM_PEs_EQ3 ]
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=3
-							elif [ $num_pes == $NUM_PEs_EQ4 ]
-							then
-								ACTS_CONFIG="1by2by1by2"
-								numsubcputhreads=8
-							elif [ $num_pes == $NUM_PEs_EQ5 ]
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=5
-							elif [ $num_pes == $NUM_PEs_EQ6 ]
-							then
-								ACTS_CONFIG="1by2by1by1"
-								numsubcputhreads=6
-							elif [ $num_pes == $NUM_PEs_EQ7 ]
-							then
-								ACTS_CONFIG="1by2by1by1"
-								numsubcputhreads=7
-							elif [ $num_pes == $NUM_PEs_EQ8 ]
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=8
-							elif [ $num_pes == $NUM_PEs_EQ9 ]
-							then
-								ACTS_CONFIG="1by2by1by1"
-								numsubcputhreads=9
-							elif [ $num_pes == $NUM_PEs_EQ10 ]
-							then
-								ACTS_CONFIG="1by2by1by1"
-								numsubcputhreads=10
-							elif [ $num_pes == $NUM_PEs_EQ12 ]
-							then
-								ACTS_CONFIG="1by1by1by1"
-								numsubcputhreads=12
-							elif [ $num_pes == $NUM_PEs_EQ14 ]
-							then
-								ACTS_CONFIG="1by1by1by1"
-								numsubcputhreads=14
-							elif [ $num_pes == $NUM_PEs_EQ16 ]
-							then
-								ACTS_CONFIG="1by2by1by0"
-								numsubcputhreads=16
-							elif [ $num_pes == $NUM_PEs_EQ20 ]
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=20
-							elif [ $num_pes == $NUM_PEs_EQ22 ]
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=22
-							elif [ $num_pes == $NUM_PEs_EQ24 ]
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=24
-							elif [ $num_pes == $NUM_PEs_EQ25 ]
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=25
-							elif [ $num_pes == $NUM_PEs_EQ32 ]
-							then
-								ACTS_CONFIG="1by1by1by0"
-								numsubcputhreads=32
-							else 
-								ACTS_CONFIG="1by2by1by0"
-								numsubcputhreads=numsubcputhreads
-								num_pes=numsubcputhreads
-							fi
+							ACTS_CONFIG="1by1by1by0"
+							numsubcputhreads=$num_pes
 
 							for synfreq in $SYNFREQUENCY_EQ300
 							# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
@@ -484,213 +392,10 @@ do
 								SYNLOGDIR_KERNELXCLBIN1="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelproc${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
 								SYNLOGDIR_KERNELXCLBIN2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
 								
-								if [ $dataset == $NODATASET ]  
-								then	
-									DATASET=""
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/small/bips98_606.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/bips98_606_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_bips98_606.csv"
-								elif [ $dataset == $ORKUT_3M_106M ]  
-								then	
-									DATASET="_ORKUT_3M_106M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/soc-orkut/soc-orkut.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/orkut_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_orkut.csv"
-								elif [ $dataset == $HOLLYWOOD_1M_57M ]  
-								then	
-									DATASET="_HOLLYWOOD_1M_57M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/hollywood-2009/hollywood-2009.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/hollywood_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_hollywood.csv"
-								elif [ $dataset == $KRON20_1M_45M ]  
-								then
-									DATASET="_KRON20_1M_45M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn20/kron_g500-logn20.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron20_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron20.csv"
-								elif [ $dataset == $KRON21_2M_91M ]  
-								then
-									DATASET="_KRON21_2M_91M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron21_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"
-								elif [ $dataset == $KRON22_4M_200M ]  
-								then
-									DATASET="_KRON22_4M_200M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/kron_g500-logn21/kron_g500-logn21.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron22_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron21.csv"	
-									
-								elif [ $dataset == $RMAT22_SPARSE0 ]  
-								then
-									DATASET="_RMAT22_SPARSE0"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE0/RMAT22_SPARSE0.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE0_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE0.csv"	
-								elif [ $dataset == $RMAT22_SPARSE1 ]  
-								then
-									DATASET="_RMAT22_SPARSE1"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE1/RMAT22_SPARSE1.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE1_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE1.csv"	
-								elif [ $dataset == $RMAT22_SPARSE2 ]  
-								then
-									DATASET="_RMAT22_SPARSE2"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE2/RMAT22_SPARSE2.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE2_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE2.csv"	
-								elif [ $dataset == $RMAT22_SPARSE3 ]  
-								then
-									DATASET="_RMAT22_SPARSE3"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE3/RMAT22_SPARSE3.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE3_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE0.csv"	
-								elif [ $dataset == $RMAT22_SPARSE4 ]  
-								then
-									DATASET="_RMAT22_SPARSE4"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE4/RMAT22_SPARSE4.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE4_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE4.csv"	
-								elif [ $dataset == $RMAT22_SPARSE5 ]  
-								then
-									DATASET="_RMAT22_SPARSE5"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE5/RMAT22_SPARSE5.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE5_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE5.csv"
-								elif [ $dataset == $RMAT22_SPARSE6 ]  
-								then
-									DATASET="_RMAT22_SPARSE6"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE6/RMAT22_SPARSE6.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE6_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE6.csv"
-								elif [ $dataset == $RMAT22_SPARSE7 ]  
-								then
-									DATASET="_RMAT22_SPARSE7"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT22_SPARSE7/RMAT22_SPARSE7.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMAT22SPARSE7_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMAT22SPARSE7.csv"
-
-								elif [ $dataset == $RMAT_RANGE0 ]  
-								then
-									DATASET="_RMAT_RANGE0"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT_RANGE0/RMAT_RANGE0.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMATRANGE0_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMATRANGE0.csv"
-								elif [ $dataset == $RMAT_RANGE1 ]  
-								then
-									DATASET="_RMAT_RANGE1"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT_RANGE1/RMAT_RANGE1.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMATRANGE1_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMATRANGE1.csv"
-								elif [ $dataset == $RMAT_RANGE2 ]  
-								then
-									DATASET="_RMAT_RANGE2"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT_RANGE2/RMAT_RANGE2.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMATRANGE2_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMATRANGE2.csv"
-								elif [ $dataset == $RMAT_RANGE3 ]  
-								then
-									DATASET="_RMAT_RANGE3"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT_RANGE3/RMAT_RANGE3.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMATRANGE3_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMATRANGE3.csv"
-								elif [ $dataset == $RMAT_RANGE4 ]  
-								then
-									DATASET="_RMAT_RANGE4"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT_RANGE4/RMAT_RANGE4.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMATRANGE4_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMATRANGE4.csv"
-								elif [ $dataset == $RMAT_RANGE5 ]  
-								then
-									DATASET="_RMAT_RANGE5"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT_RANGE5/RMAT_RANGE5.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMATRANGE5_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMATRANGE5.csv"
-								elif [ $dataset == $RMAT_RANGE6 ]  
-								then
-									DATASET="_RMAT_RANGE6"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT_RANGE6/RMAT_RANGE6.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMATRANGE6_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMATRANGE6.csv"
-								elif [ $dataset == $RMAT_RANGE7 ]  
-								then
-									DATASET="_RMAT_RANGE7"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/RMAT_RANGE7/RMAT_RANGE7.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/RMATRANGE7_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_RMATRANGE7.csv"
-							
-								elif [ $dataset == $INDOCHINA_7M_194M ]  
-								then	
-									DATASET="_INDOCHINA_7M_194M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/indochina-2004/indochina-2004.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/indochina_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_indochina.csv"
-								elif [ $dataset == $RGG_4M_32M ]  
-								then	
-									DATASET="_RGG_4M_32M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/rgg_n_2_22_s0/rgg_n_2_22_s0.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/rgg_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
-								elif [ $dataset == $RGG_17M_132M ]  
-								then	
-									DATASET="_RGG_17M_132M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/rgg_n_2_24_s0/rgg_n_2_24_s0.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/rgg_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_rgg.csv"
-								elif [ $dataset == $ROADNET_2M_3M ]  
-								then	
-									DATASET="_ROADNET_2M_3M"
-									datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/roadNet-CA/roadNet-CA.mtx"
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/roadnet_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_roadnet.csv"
-								elif [ $dataset == $FLICKR_1M_10M ]  
-								then	
-									DATASET="_FLICKR_1M_10M"
-									datasetpath=""
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/flickr_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_flickr.csv"
-									
-								elif [ $dataset == $TWITTER_67M ]  
-								then	
-									DATASET="_TWITTER_67M"
-									datasetpath=""
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/twitter26_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_twitter26.csv"
-								elif [ $dataset == $MOLIERE2016_33M ]  
-								then	
-									DATASET="_MOLIERE2016_33M"
-									datasetpath=""
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/moliere33_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_moliere33.csv"
-								elif [ $dataset == $LARGEDATASET_67M ]  
-								then	
-									DATASET="_LARGEDATASET_67M"
-									datasetpath=""
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron26_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron26.csv"		
-								elif [ $dataset == $LARGEDATASET_268M ]
-								then
-									DATASET="_LARGEDATASET_268M"
-									datasetpath=""
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron28_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron28.csv"
-								elif [ $dataset == $LARGEDATASET_1B ]
-								then
-									DATASET="_LARGEDATASET_1B"
-									datasetpath=""
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron30_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron30.csv"
-								elif [ $dataset == $LARGEDATASET_4B ]
-								then
-									DATASET="_LARGEDATASET_4B"
-									datasetpath=""
-									RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/kron32_${RESULT_NAME}.out"
-									RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_kron32.csv"
-								else 
-									DATASET=""
-									datasetpath=""
-									RESULTDIR_RESULT=""
-								fi
+								DATASET="DATASET_${dataset}"
+								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/${dataset}/${dataset}.mtx"
+								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${dataset}_${RESULT_NAME}.out"
+								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_${dataset}.csv"
 								
 								make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads NUMPARTITIONS=$numpartitions_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0 NUM_PEs=$num_pes												
 								
@@ -745,60 +450,61 @@ do
 								then
 									echo "crabtree.ACTS_1BY1BY1 setup specified. ----------------------------------- "
 									make cleanall
-									make host 
+									# make host 
 									if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
 									then
-										make all_procandsync_${ACTS_CONFIG}_25and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_25and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
 									then
-										make all_procandsync_${ACTS_CONFIG}_24and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										echo 'awwal.sw_emu.----------------------------------- 24and1'
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_24and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
 									then
 										echo 'awwal.sw_emu.----------------------------------- 22and1'
-										make all_procandsync_${ACTS_CONFIG}_22and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_22and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
 									then
-										make all_procandsync_${ACTS_CONFIG}_20and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_20and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
 									then
-										make all_procandsync_${ACTS_CONFIG}_16and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_16and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
 									then
-										make all_procandsync_${ACTS_CONFIG}_14and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_14and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
 									then
-										make all_procandsync_${ACTS_CONFIG}_12and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_12and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_10and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_10and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_9and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_9and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_8and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_8and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_7and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_7and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_6and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_6and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_5and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_5and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
 									then
 										echo 'awwal.sw_emu'
-										make all_procandsync_${ACTS_CONFIG}_4and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_4and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_3and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_3and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_2and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_2and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
 									then
-										make all_procandsync_${ACTS_CONFIG}_1and1 TARGET=sw_emu DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_1and1 TARGET=sw_emu PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									else 
 										echo "NOT IMPLEMENTED (654)"
 									fi
@@ -868,55 +574,55 @@ do
 									rm -rf xclbin
 									if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_25and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_25and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_24and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_24and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_22and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_22and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_20and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_20and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_16and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_16and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_14and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_14and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ12 ]  
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_12and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_12and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ10 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_10and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_10and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ9 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_9and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_9and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ8 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_8and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_8and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ7 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_7and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_7and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ6 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_6and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_6and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ5 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_5and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_5and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ4 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_4and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_4and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_3and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_3and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_2and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_2and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									elif [ $numsubcputhreads == $NUMTHREADS_EQ1 ]
 									then
-										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_1and1 DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq}
+										faketime -f "-1y" make all_procandsync_${ACTS_CONFIG}_1and1 PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq}
 									else 
 										echo "NOT IMPLEMENTED (654)"
 									fi
@@ -1009,14 +715,14 @@ do
 									make cleanall
 									rm -rf xclbin
 									
-									make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
+									make all PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
 									cp -rf xclbin/topkernelproc.hw.${DSA_NAME}.xclbin kernel.xclbin
 										
 									echo "sleeping for 5 seconds before continuing ...."
 									sleep 5
 									
 									if test -f "host"; then
-										make all DEVICE=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
+										make all PLATFORM=$DEVICEPATH SYNFREQUENCY=${synfreq} > nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out
 										cp kernel.xclbin $BACKUPDIR_KERNELXCLBIN
 										echo "host, kernel.xo, kernel.xclbin, nohupsyn${ALGORITHMABBRV}${synfreq}MHz.out saved"
 									fi

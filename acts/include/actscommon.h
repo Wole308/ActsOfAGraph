@@ -37,7 +37,7 @@ using namespace std;
 
 // acts-main parameters 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
-#define NUMPIPELINES_PARTITIONUPDATES 2 
+#define NUMPIPELINES_PARTITIONUPDATES 2//1,2* 
 #else 
 #define NUMPIPELINES_PARTITIONUPDATES 2
 #endif 
@@ -66,7 +66,7 @@ using namespace std;
 #ifdef CONFIG_SEPERATEVMASKFROMVDATA
 #define BLOCKRAM_VMASK_SIZE DOUBLE_BLOCKRAM_SIZE
 #else 
-#define BLOCKRAM_VMASK_SIZE 0
+#define BLOCKRAM_VMASK_SIZE 1
 #endif 
 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
@@ -215,28 +215,33 @@ typedef struct {
 } keyvalue_buffer_t;
 #endif 
 
-#ifdef _WIDEWORD
-typedef ap_uint<32> vmdata_t;
-#else 
+// #ifdef _WIDEWORD
+// typedef ap_uint<32> vmdata_t;
+// #else 
+// typedef struct {
+	// unsigned int vmask;
+	// unsigned int vdata;
+// } vmdata_t;
+// #endif 
+
 typedef struct {
 	unsigned int vmask;
 	unsigned int vdata;
 } vmdata_t;
-#endif 
 
 #ifdef _WIDEWORD
 typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
 #else
-typedef struct {
-	unsigned int mask0;
-	unsigned int key;
-	unsigned int mask1;
-	unsigned int value;
-} keyvalue_vbuffer_t;
 // typedef struct {
-	// vmdata_t vmdata0;
-	// vmdata_t vmdata1;
+	// unsigned int mask0;
+	// unsigned int key;
+	// unsigned int mask1;
+	// unsigned int value;
 // } keyvalue_vbuffer_t;
+typedef struct {
+	vmdata_t vmdata0;
+	vmdata_t vmdata1;
+} keyvalue_vbuffer_t;
 #endif 
 
 #ifdef _WIDEWORD

@@ -26,9 +26,6 @@ using namespace std;
 #define MAX_HBM_BANKCOUNT 32
 #define BANK_NAME(n) n | XCL_MEM_TOPOLOGY
 
-#define ENABLE_ACTSPROC
-// #define ENABLE_ACTSSYNC // NOTE: if this is used, adjust the value of context['NUMSYNCTHREADS'] in gen.py to 16
-
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
 goclkernel::goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
@@ -136,6 +133,18 @@ void set_callback2(cl::Event event, const char *queue_name){
 long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
+	#ifdef TESTRUN
+	unsigned int _NUMCOMPUTEUNITS_SLR1AND2 = 1;
+	unsigned int _NUMCOMPUTEUNITS_SLR0 = 1; 
+	unsigned int _NUMCOMPUTEUNITS_SLR1 = 1; 
+	unsigned int _NUMCOMPUTEUNITS_SLR2 = 1; 
+	#else 
+	unsigned int _NUMCOMPUTEUNITS_SLR1AND2 = NUMCOMPUTEUNITS_SLR1AND2;
+	unsigned int _NUMCOMPUTEUNITS_SLR0 = NUMCOMPUTEUNITS_SLR0; 
+	unsigned int _NUMCOMPUTEUNITS_SLR1 = NUMCOMPUTEUNITS_SLR1; 
+	unsigned int _NUMCOMPUTEUNITS_SLR2 = NUMCOMPUTEUNITS_SLR2; 	
+	#endif 
+	
 	unsigned int index_count = 0;
 	unsigned int edgessz_kvs = 0;
 	unsigned int kvdramsz_kvs = 0;
@@ -153,19 +162,13 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	
 	unsigned int hybridmodeoffset_kvs = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_OTHERINFOS].data[0].key;
 	for(unsigned int it=0; it<64; it++){ vdram[hybridmodeoffset_kvs + it].data[0].key = OFF; } // hybrid-mode enables
-	// vdram[hybridmodeoffset_kvs + 0].data[0].key = ON; // CRITICAL FIXME.
-	// vdram[hybridmodeoffset_kvs + 1].data[0].key = ON;
-	// vdram[hybridmodeoffset_kvs + 2].data[0].key = ON;
-	// vdram[hybridmodeoffset_kvs + 3].data[0].key = ON;
-	// vdram[hybridmodeoffset_kvs + 4].data[0].key = OFF;
-	// vdram[hybridmodeoffset_kvs + 5].data[0].key = OFF;
-	// vdram[hybridmodeoffset_kvs + 6].data[0].key = OFF;
-	// vdram[hybridmodeoffset_kvs + 7].data[0].key = ON;
-	
+
 	unsigned int baseoffsetkvs_verticesdata = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
 	kvdramsz_kvs = C + D;
 	edgessz_kvs = PADDEDKVSOURCEDRAMSZ_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
 	kvdramsz_kvs = PADDEDKVSOURCEDRAMSZ_KVS; // KVSOURCEDRAMSZ_KVS;
+	// edgessz_kvs = 10000; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
+	// kvdramsz_kvs = 10000; // KVSOURCEDRAMSZ_KVS;
 	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<endl;
 	
 	uint512_vec_dt * vdramtemp[3];
@@ -194,9 +197,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
                                  CL_QUEUE_PROFILING_ENABLE |
                                      CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE,
                                  &err));
-	/* OCL_CHECK( // CRITICAL RESTOREME.
-        err,
-        cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err)); */
+	// OCL_CHECK( // CRITICAL RESTOREME.
+        // err,
+        // cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err));
     std::string device_name = device.getInfo<CL_DEVICE_NAME>();
     std::cout << "Found Device=" << device_name.c_str() << std::endl;
 
@@ -230,9 +233,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	unsigned int hbmindex = 0;
 	unsigned int numI = 0;
 	for(unsigned int s=0; s<3; s+=1){
-		if(s==0){ numI = NUMCOMPUTEUNITS_SLR1AND2; } // SLR 2
-		if(s==1){ numI = NUMCOMPUTEUNITS_SLR1AND2; } // SLR 1
-		if(s==2){ numI = NUMCOMPUTEUNITS_SLR0; } // SLR 0
+		if(s==0){ numI = _NUMCOMPUTEUNITS_SLR1AND2; } // SLR 2
+		if(s==1){ numI = _NUMCOMPUTEUNITS_SLR1AND2; } // SLR 1
+		if(s==2){ numI = _NUMCOMPUTEUNITS_SLR0; } // SLR 0
 		for(unsigned int i=0; i<numI; i+=1){ 
 			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
 			for(unsigned int j=0; j<NUM_EDGE_BANKS; j++){ 
@@ -282,7 +285,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	#endif 
 	unsigned int NUM = 0;
 	for(unsigned int s=0; s<3; s+=1){
-		if(s==0 || s==1){ NUM=NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=NUMCOMPUTEUNITS_SLR0; }
+		if(s==0 || s==1){ NUM=_NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=_NUMCOMPUTEUNITS_SLR0; }
 		for(unsigned int i=0; i<NUM; i++){ 
 			OCL_CHECK(err,
 				  buffer_kvdram[s][i] =
@@ -313,7 +316,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 						 &inoutBufExt_vdram[3], 
 						 &err));
 	cout<<"+++ goclkernel: created buffer_vdram[3] "<<endl;
-
+	
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	printf("INFO: loading vmul kernel\n");
 	#endif
@@ -326,13 +329,11 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel:: creating kernel object..."<<endl;
 	#endif
-	std::string krnl1and2_name = "topkernelP"+std::to_string(NUMCOMPUTEUNITS_SLR1AND2);
-	std::string krnl3_name = "topkernelP"+std::to_string(NUMCOMPUTEUNITS_SLR0);	
-	#ifdef TESTRUN
-	unsigned int _C = 2;
-	#else
+	std::string krnl1and2_name = "TOPP0_U_topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR1AND2);
+	std::string krnl3_name = "TOPP1_U_topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR0);	
+	// std::string krnl1and2_name = "topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR1AND2);
+	// std::string krnl3_name = "topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR0);	
 	unsigned int _C = 0;
-	#endif 
 	for (int i = 0; i < 2; i++) {
 		std::string krnl_name = krnl1and2_name; 
 		std::string krnl_name_ = krnl_name + "_";
@@ -352,15 +353,20 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	#endif
 	OCL_CHECK(err, krnls_proc[2] = cl::Kernel(program, krnl_name_full.c_str(), &err));
 	
-	krnl_name = "topkernelsync";
+	krnl_name = "TOPP2_topkernelS";
 	cu_id = std::to_string((1));
-	std::string krnl2_name_full = krnl_name + ":{" + "topkernelsync_" + cu_id + "}"; 
+	std::string krnl2_name_full = krnl_name + ":{" + "TOPP2_topkernelS_" + cu_id + "}"; 
 	OCL_CHECK(err, krnls_sync = cl::Kernel(program, krnl2_name_full.c_str(), &err));
+	
+	// krnl_name = "topkernelS";
+	// cu_id = std::to_string((1));
+	// std::string krnl2_name_full = krnl_name + ":{" + "topkernelS_" + cu_id + "}"; 
+	// OCL_CHECK(err, krnls_sync = cl::Kernel(program, krnl2_name_full.c_str(), &err));
 	
 	// Setting kernel arguments...
 	cout<<"goclkernel:: Setting kernel (proc) arguments..."<<endl;
 	for(unsigned int s=0; s<3; s+=1){
-		if(s==0 || s==1){ NUM=NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=NUMCOMPUTEUNITS_SLR0; }
+		if(s==0 || s==1){ NUM=_NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=_NUMCOMPUTEUNITS_SLR0; }
 		for(unsigned int i=0; i<NUM; i+=1){
 			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
 			for(unsigned int j=0; j<NUM_EDGE_BANKS; j+=1){ 
@@ -418,7 +424,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 														buffer_vdram[3]}, 
 														0, NULL, &write_events[0]));
 		#else 
-		NOT IMPLEMENTED
+		// NOT IMPLEMENTED
 		#endif
 	#endif 
 	OCL_CHECK(err, err = write_events[0].wait());
@@ -433,9 +439,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		for (unsigned int s = 0; s < 3; s++){ 
 			std::cout <<">>> goclkernel: processing krnls_proc["<<s<<"] in iteration "<<GraphIter<<"..."<<endl;
 			OCL_CHECK(err, err = q.enqueueTask(krnls_proc[s], NULL, &kernel_events[s])); 
-			#ifdef TESTRUN
-			
-			#endif 
 		}
 		for (unsigned int s = 0; s < 3; s++){ OCL_CHECK(err, err = kernel_events[s].wait()); }
 		std::cout <<">>> goclkernel: processing krnls_sync in iteration "<<GraphIter<<"..."<<endl;
@@ -480,7 +483,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 														buffer_vdram[3]}, 
 														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 		#else 
-		NOT IMPLEMENTED
+		// NOT IMPLEMENTED
 		#endif
 	#endif
 	

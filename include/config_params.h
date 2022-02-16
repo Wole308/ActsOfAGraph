@@ -66,9 +66,11 @@
 #define CONFIG_ENABLECLASS_ACTS_MERGE_SPLITDSTVXS
 #define CONFIG_ENABLECLASS_MYDEBUG
 
+#define TESTRUN /////////////////// CRITICAL REMOVEME.
+
 #endif
 
-/*
+/**
 - AUTOMATE FOR LARGER GRAPHS: mem_access.cpp, acts_merge.cpp, mem_access.cpp->MEMACCESS_readvmasks
 - CRITICAL FIXME. mem_access.cpp
 - CRITICAL FIXME. TOO EXPENSIVE. mem_access.cpp, processedges_splitdstvxs.cpp MEMACCESS_SPL_GetXYLayoutV((i*NUM_PEs)+s, vdata, vdata2, depths); // FIXME. TOO EXPENSIVE.
@@ -78,16 +80,24 @@
 - NOT IMPLEMENTED. mem_access.cpp
 
 - // CRITICAL FIXME.
-acts.cpp : #ifdef _DEBUGMODE_CHECKS2 // CRITICAL CHECKME.
+- acts.cpp : #ifdef _DEBUGMODE_CHECKS2 // CRITICAL CHECKME.
 	if(maxcutoff % 4 != 0){ for(int v=0; v<VECTOR_SIZE; v++){ cout<<"------------------- actspipeline:cutoffs["<<v<<"]: "<<cutoffs[v]<<endl; } exit(EXIT_FAILURE); }
 	actsutilityobj->checkfordivisibleby(ON, "actspipeline:maxcutoff", maxcutoff, 4);
 	#endif
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	if(maxcutoff % 4 != 0){ maxcutoff = 4; } // FIXME.
 	#endif 
-#ifdef _WIDEWORD // CRITICAL FIXME. @ {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readVchunks
-#ifndef _WIDEWORD  // CRITICAL FIXME. @ {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_SLreadV
-// CRITICAL FIXME @ {{context['classname__mem_convert_and_access']}}MEMCA_CREATEVBUFFERSTRUCT
+- #ifdef _WIDEWORD // CRITICAL FIXME. @ {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readVchunks
+- #ifndef _WIDEWORD  // CRITICAL FIXME. @ {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_SLreadV
+- // CRITICAL FIXME @ {{context['classname__mem_convert_and_access']}}MEMCA_CREATEVBUFFERSTRUCT
+- reduceupdates.cpp: if(en == true){ curr_vprop = loc + destoffset; } // CRITICAL REMOVEME.	
+- NEWCHANGE: laodedges_splitdsxtvs: if(index%VECTOR2_SIZE == 0 && edge.dstvid == 888888){ numskippededges += 1; tempe_index += 1; continue; }
+- config.cpp: #define TESTRUN /////////////////// CRITICAL REMOVEME.
+- CRITICAL REMOVEME: /* cout<<"------------------------------------ topkernelP1: processing P9 instances ------------------------------------"<<endl;
+- CRITICAL REMOVEME: void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{{n}}: // num_stages = 1; // REMOVEME.
+- NEWCHANGE: processit: if(voffset_kvs == avtravstate.begin_kvs || globalposition.source_partition == globalposition.first_source_partition){ resetenv = ON; } else { resetenv = OFF; } // NEWCHANGE
+- CRITICAL REMOVEME: actscommon.h: #define NUMPIPELINES_PARTITIONUPDATES 1//2 
+- NEWCHANGE: top: batch_type vreadoffset_kvs2 = 0; // NEWCHANGE.
 */
 
 

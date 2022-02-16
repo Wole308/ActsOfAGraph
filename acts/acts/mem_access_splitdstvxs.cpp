@@ -1,21 +1,12 @@
-#ifdef SW
-mem_access_splitdstvxs::mem_access_splitdstvxs(mydebug * _mydebugobj){ 
-	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(_mydebugobj);
-	mydebugobj = _mydebugobj;
-}
-mem_access_splitdstvxs::~mem_access_splitdstvxs(){}
-#endif
-
 // -------------------- key values -------------------- //
-fetchmessage_t MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
+fetchmessage_t acts_all::MEMACCESSP0_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
 	if(enable == OFF){ return fetchmessage; }
 	
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
-	buffer_type chunk_size = UTIL_getchunksize_kvs(size_kvs, travstate, 0);
+	buffer_type chunk_size = UTILP0_getchunksize_kvs(size_kvs, travstate, 0);
 	
 	fetchmessage.chunksize_kvs = chunk_size;
 	fetchmessage.nextoffset_kvs = NAp;
@@ -68,14 +59,14 @@ fetchmessage_t MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram
 		mykeyvalue7.value = kvdram[offset_kvs + i].data[7].value; 
 		#endif 
 		
-		buffer[0][i] = UTIL_GETKV(mykeyvalue0);
-		buffer[1][i] = UTIL_GETKV(mykeyvalue1);
-		buffer[2][i] = UTIL_GETKV(mykeyvalue2);
-		buffer[3][i] = UTIL_GETKV(mykeyvalue3);
-		buffer[4][i] = UTIL_GETKV(mykeyvalue4);
-		buffer[5][i] = UTIL_GETKV(mykeyvalue5);
-		buffer[6][i] = UTIL_GETKV(mykeyvalue6);
-		buffer[7][i] = UTIL_GETKV(mykeyvalue7);
+		buffer[0][i] = UTILP0_GETKV(mykeyvalue0);
+		buffer[1][i] = UTILP0_GETKV(mykeyvalue1);
+		buffer[2][i] = UTILP0_GETKV(mykeyvalue2);
+		buffer[3][i] = UTILP0_GETKV(mykeyvalue3);
+		buffer[4][i] = UTILP0_GETKV(mykeyvalue4);
+		buffer[5][i] = UTILP0_GETKV(mykeyvalue5);
+		buffer[6][i] = UTILP0_GETKV(mykeyvalue6);
+		buffer[7][i] = UTILP0_GETKV(mykeyvalue7);
 		
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -88,7 +79,7 @@ fetchmessage_t MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram
 	return fetchmessage;
 }
 
-void MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t * globalcapsule, keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_destpartitionsz = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 	
@@ -102,7 +93,7 @@ void MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue
 		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
 		buffer_type bramoffset_kvs = localcapsule[p].key / VECTOR_SIZE;
 		buffer_type realsize_kvs = localcapsule[p].value / VECTOR_SIZE;
-		buffer_type size_kvs = UTIL_getpartitionwritesz(realsize_kvs, bramoffset_kvs);
+		buffer_type size_kvs = UTILP0_getpartitionwritesz(realsize_kvs, bramoffset_kvs);
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("savekeyvalues 23", bramoffset_kvs + size_kvs, DESTBLOCKRAM_SIZE + 1, p, NAp, NAp);
@@ -112,14 +103,14 @@ void MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue
 			SAVEPARTITIONS_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
 			#pragma HLS PIPELINE II=1
-				keyvalue_t mykeyvalue0 = UTIL_GETKV(buffer[0][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue1 = UTIL_GETKV(buffer[1][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue2 = UTIL_GETKV(buffer[2][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue3 = UTIL_GETKV(buffer[3][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue4 = UTIL_GETKV(buffer[4][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue5 = UTIL_GETKV(buffer[5][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue6 = UTIL_GETKV(buffer[6][bramoffset_kvs + i]);
-				keyvalue_t mykeyvalue7 = UTIL_GETKV(buffer[7][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue0 = UTILP0_GETKV(buffer[0][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue1 = UTILP0_GETKV(buffer[1][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue2 = UTILP0_GETKV(buffer[2][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue3 = UTILP0_GETKV(buffer[3][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue4 = UTILP0_GETKV(buffer[4][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue5 = UTILP0_GETKV(buffer[5][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue6 = UTILP0_GETKV(buffer[6][bramoffset_kvs + i]);
+				keyvalue_t mykeyvalue7 = UTILP0_GETKV(buffer[7][bramoffset_kvs + i]);
 				
 				#ifdef _WIDEWORD
 				kvdram[dramoffset_kvs + i].range(31, 0) = mykeyvalue0.key; 
@@ -189,7 +180,7 @@ void MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -240,14 +231,14 @@ void MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_ty
 		mykeyvalue7.key = kvdram[dramoffset_kvs + i].data[7].key;
 		mykeyvalue7.value = kvdram[dramoffset_kvs + i].data[7].value; 
 		
-		buffer[0][bufferoffset_kvs + i] = UTIL_GETKV(mykeyvalue0);
-		buffer[1][bufferoffset_kvs + i] = UTIL_GETKV(mykeyvalue1);
-		buffer[2][bufferoffset_kvs + i] = UTIL_GETKV(mykeyvalue2);
-		buffer[3][bufferoffset_kvs + i] = UTIL_GETKV(mykeyvalue3);
-		buffer[4][bufferoffset_kvs + i] = UTIL_GETKV(mykeyvalue4);
-		buffer[5][bufferoffset_kvs + i] = UTIL_GETKV(mykeyvalue5);
-		buffer[6][bufferoffset_kvs + i] = UTIL_GETKV(mykeyvalue6);
-		buffer[7][bufferoffset_kvs + i] = UTIL_GETKV(mykeyvalue7);
+		buffer[0][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue0);
+		buffer[1][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue1);
+		buffer[2][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue2);
+		buffer[3][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue3);
+		buffer[4][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue4);
+		buffer[5][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue5);
+		buffer[6][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue6);
+		buffer[7][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue7);
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -264,21 +255,21 @@ void MEMACCESS_SPL_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_ty
 	return;
 }
 
-void MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  BLOCKRAM_SIZE;
 	
 	SAVEKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue0 = UTIL_GETKV(buffer[0][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue1 = UTIL_GETKV(buffer[1][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue2 = UTIL_GETKV(buffer[2][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue3 = UTIL_GETKV(buffer[3][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue4 = UTIL_GETKV(buffer[4][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue5 = UTIL_GETKV(buffer[5][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue6 = UTIL_GETKV(buffer[6][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue7 = UTIL_GETKV(buffer[7][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue0 = UTILP0_GETKV(buffer[0][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue1 = UTILP0_GETKV(buffer[1][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue2 = UTILP0_GETKV(buffer[2][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue3 = UTILP0_GETKV(buffer[3][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue4 = UTILP0_GETKV(buffer[4][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue5 = UTILP0_GETKV(buffer[5][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue6 = UTILP0_GETKV(buffer[6][bufferoffset_kvs + i]);
+		keyvalue_t mykeyvalue7 = UTILP0_GETKV(buffer[7][bufferoffset_kvs + i]);
 	
 		#ifdef _WIDEWORD
 		kvdram[dramoffset_kvs + i].range(31, 0) = mykeyvalue0.key; 
@@ -331,7 +322,7 @@ void MEMACCESS_SPL_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_ty
 }
 
 // -------------------- vdata -------------------- //
-void MEMACCESS_SPL_GetXYLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+void acts_all::MEMACCESSP0_SPL_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -915,7 +906,7 @@ else {
 	return;
 }
 
-void MEMACCESS_SPL_RearrangeLayoutV(unsigned int s, value_t vdata[VECTOR2_SIZE], value_t vdata2[VECTOR2_SIZE]){
+void acts_all::MEMACCESSP0_SPL_RearrangeLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -1208,14 +1199,14 @@ else {
 	return;
 }
 
-void MEMACCESS_SPL_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
-	value_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1223,28 +1214,28 @@ void MEMACCESS_SPL_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer
 	READVDATA_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS PIPELINE II=1
 		unsigned int index = i; unsigned int j = i%2;
-MEMCA_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
+MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
 		if(j==0){ vandmdataM[0] = vandmdata1[0];vandmdataM[1] = vandmdata1[1];vandmdataM[2] = vandmdata1[2];vandmdataM[3] = vandmdata1[3];vandmdataM[4] = vandmdata1[4];vandmdataM[5] = vandmdata1[5];vandmdataM[6] = vandmdata1[6];vandmdataM[7] = vandmdata1[7];vandmdataM[8] = vandmdata1[8];vandmdataM[9] = vandmdata1[9];vandmdataM[10] = vandmdata1[10];vandmdataM[11] = vandmdata1[11];vandmdataM[12] = vandmdata1[12];vandmdataM[13] = vandmdata1[13];vandmdataM[14] = vandmdata1[14];vandmdataM[15] = vandmdata1[15];} else { vandmdataN[0] = vandmdata1[0];vandmdataN[1] = vandmdata1[1];vandmdataN[2] = vandmdata1[2];vandmdataN[3] = vandmdata1[3];vandmdataN[4] = vandmdata1[4];vandmdataN[5] = vandmdata1[5];vandmdataN[6] = vandmdata1[6];vandmdataN[7] = vandmdata1[7];vandmdataN[8] = vandmdata1[8];vandmdataN[9] = vandmdata1[9];vandmdataN[10] = vandmdata1[10];vandmdataN[11] = vandmdata1[11];vandmdataN[12] = vandmdata1[12];vandmdataN[13] = vandmdata1[13];vandmdataN[14] = vandmdata1[14];vandmdataN[15] = vandmdata1[15];	  }
 			
 		if(j==1){ 
-			vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-			vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-			vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-			vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-			vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-			vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-			vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-			vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-			vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-			vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-			vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-			vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-			vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-			vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-			vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-			vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+			vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+			vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+			vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+			vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+			vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+			vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+			vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+			vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+			vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+			vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+			vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+			vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+			vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+			vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+			vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+			vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);
 		}
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countvsread(VECTOR2_SIZE);
@@ -1253,7 +1244,7 @@ MEMCA_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);
 	return;
 }
 
-void MEMACCESS_SPL_SLreadV(bool_type enable, unsigned int s, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_SLreadV(bool_type enable, unsigned int s, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / NUM_PEs;
 
@@ -1261,12 +1252,12 @@ void MEMACCESS_SPL_SLreadV(bool_type enable, unsigned int s, uint512_dt * kvdram
 	unsigned int depths[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=depths complete
 	
-	value_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1277,30 +1268,62 @@ void MEMACCESS_SPL_SLreadV(bool_type enable, unsigned int s, uint512_dt * kvdram
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		unsigned int index = i; unsigned int j = i%2;
-MEMCA_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
+		MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata1, baseoffset_kvs, offset_kvs);
 		unsigned int x = index2 + s; basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutV(x, vandmdata1, vandmdata2, depths, basedepth);
+		MEMACCESSP0_SPL_GetXYLayoutV(x, vandmdata1, vandmdata2, depths, basedepth);
 		if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 		if(j==1){ 
-			vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-			vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-			vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-			vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-			vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-			vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-			vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-			vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-			vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-			vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-			vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-			vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-			vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-			vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-			vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-			vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
-	
-MEMCA_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(depths, buffer, vsandmsdata, 0);
+			vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);	
+			// if(vsandmsdata[0].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[0].vmdata0.vmask: "<<vsandmsdata[0].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[0].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[0].vmdata1.vmask: "<<vsandmsdata[0].vmdata1.vmask<<endl; }	
+			vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);	
+			// if(vsandmsdata[1].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[1].vmdata0.vmask: "<<vsandmsdata[1].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[1].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[1].vmdata1.vmask: "<<vsandmsdata[1].vmdata1.vmask<<endl; }	
+			vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);	
+			// if(vsandmsdata[2].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[2].vmdata0.vmask: "<<vsandmsdata[2].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[2].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[2].vmdata1.vmask: "<<vsandmsdata[2].vmdata1.vmask<<endl; }	
+			vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);	
+			// if(vsandmsdata[3].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[3].vmdata0.vmask: "<<vsandmsdata[3].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[3].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[3].vmdata1.vmask: "<<vsandmsdata[3].vmdata1.vmask<<endl; }	
+			vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);	
+			// if(vsandmsdata[4].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[4].vmdata0.vmask: "<<vsandmsdata[4].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[4].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[4].vmdata1.vmask: "<<vsandmsdata[4].vmdata1.vmask<<endl; }	
+			vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);	
+			// if(vsandmsdata[5].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[5].vmdata0.vmask: "<<vsandmsdata[5].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[5].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[5].vmdata1.vmask: "<<vsandmsdata[5].vmdata1.vmask<<endl; }	
+			vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);	
+			// if(vsandmsdata[6].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[6].vmdata0.vmask: "<<vsandmsdata[6].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[6].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[6].vmdata1.vmask: "<<vsandmsdata[6].vmdata1.vmask<<endl; }	
+			vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);	
+			// if(vsandmsdata[7].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[7].vmdata0.vmask: "<<vsandmsdata[7].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[7].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[7].vmdata1.vmask: "<<vsandmsdata[7].vmdata1.vmask<<endl; }	
+			vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);	
+			// if(vsandmsdata[8].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[8].vmdata0.vmask: "<<vsandmsdata[8].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[8].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[8].vmdata1.vmask: "<<vsandmsdata[8].vmdata1.vmask<<endl; }	
+			vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);	
+			// if(vsandmsdata[9].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[9].vmdata0.vmask: "<<vsandmsdata[9].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[9].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[9].vmdata1.vmask: "<<vsandmsdata[9].vmdata1.vmask<<endl; }	
+			vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);	
+			// if(vsandmsdata[10].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[10].vmdata0.vmask: "<<vsandmsdata[10].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[10].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[10].vmdata1.vmask: "<<vsandmsdata[10].vmdata1.vmask<<endl; }	
+			vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);	
+			// if(vsandmsdata[11].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[11].vmdata0.vmask: "<<vsandmsdata[11].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[11].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[11].vmdata1.vmask: "<<vsandmsdata[11].vmdata1.vmask<<endl; }	
+			vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);	
+			// if(vsandmsdata[12].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[12].vmdata0.vmask: "<<vsandmsdata[12].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[12].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[12].vmdata1.vmask: "<<vsandmsdata[12].vmdata1.vmask<<endl; }	
+			vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);	
+			// if(vsandmsdata[13].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[13].vmdata0.vmask: "<<vsandmsdata[13].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[13].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[13].vmdata1.vmask: "<<vsandmsdata[13].vmdata1.vmask<<endl; }	
+			vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);	
+			// if(vsandmsdata[14].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[14].vmdata0.vmask: "<<vsandmsdata[14].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[14].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[14].vmdata1.vmask: "<<vsandmsdata[14].vmdata1.vmask<<endl; }	
+			vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);	
+			// if(vsandmsdata[15].vmdata0.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[15].vmdata0.vmask: "<<vsandmsdata[15].vmdata0.vmask<<endl; }	
+			// if(vsandmsdata[15].vmdata1.vmask > 0){ cout<<"------------- MEMACCESSP0_SPL_SLreadV:: vsandmsdata[15].vmdata1.vmask: "<<vsandmsdata[15].vmdata1.vmask<<endl; }	
+		
+			MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(depths, buffer, vsandmsdata, 0);
 		}
 		index2 += NUM_PEs;
 		
@@ -1314,7 +1337,7 @@ MEMCA_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(depths, buffer, vsandmsdata, 0);
 	return;
 }
 
-void MEMACCESS_SPL_readVchunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readVchunks(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	// read vertices data
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
@@ -1324,20 +1347,20 @@ void MEMACCESS_SPL_readVchunks(bool_type enable, uint512_dt * kvdram, keyvalue_v
 	#pragma HLS array_partition variable = tempbuffer
 	READVDATACHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams);
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams);
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1345,119 +1368,50 @@ void MEMACCESS_SPL_readVchunks(bool_type enable, uint512_dt * kvdram, keyvalue_v
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS(index, buffer, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
 
-void MEMACCESS_SPL_saveVandMs(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_saveVandMs(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
 	keyvalue_vbuffer_t vdatas[VECTOR2_SIZE];
-	value_t vandmdata[VECTOR2_SIZE];
+	vmdata_t vandmdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata complete
 	
 	SAVEVDATAANDMASKS_LOOP: for(buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		// CRITICAL FIXME.
-		
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vandmdata, 0);	
-		
-		// 	
-		// vdatas[0] = buffer[0][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[1] = buffer[1][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[2] = buffer[2][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[3] = buffer[3][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[4] = buffer[4][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[5] = buffer[5][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[6] = buffer[6][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[7] = buffer[7][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[8] = buffer[8][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[9] = buffer[9][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[10] = buffer[10][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[11] = buffer[11][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[12] = buffer[12][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[13] = buffer[13][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[14] = buffer[14][bufferoffset_kvs + i/2];	
-		// 	
-		// vdatas[15] = buffer[15][bufferoffset_kvs + i/2];	
-		// 		
-		#ifdef _WIDEWORD
-		kvdram[baseoffset_kvs + offset_kvs + i].range(31, 0) = vandmdata[0];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(63, 32) = vandmdata[1];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(95, 64) = vandmdata[2];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(127, 96) = vandmdata[3];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(159, 128) = vandmdata[4];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(191, 160) = vandmdata[5];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(223, 192) = vandmdata[6];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(255, 224) = vandmdata[7];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(287, 256) = vandmdata[8];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(319, 288) = vandmdata[9];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(351, 320) = vandmdata[10];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(383, 352) = vandmdata[11];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(415, 384) = vandmdata[12];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(447, 416) = vandmdata[13];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(479, 448) = vandmdata[14];
-		kvdram[baseoffset_kvs + offset_kvs + i].range(511, 480) = vandmdata[15];
-		#else 
-		kvdram[baseoffset_kvs + offset_kvs + i].data[0].key = vandmdata[0];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[0].value = vandmdata[1];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[1].key = vandmdata[2];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[1].value = vandmdata[3];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[2].key = vandmdata[4];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[2].value = vandmdata[5];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[3].key = vandmdata[6];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[3].value = vandmdata[7];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[4].key = vandmdata[8];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[4].value = vandmdata[9];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[5].key = vandmdata[10];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[5].value = vandmdata[11];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[6].key = vandmdata[12];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[6].value = vandmdata[13];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[7].key = vandmdata[14];
-		kvdram[baseoffset_kvs + offset_kvs + i].data[7].value = vandmdata[15];
-		#endif
-		
+		MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vandmdata, 0);
+		MEMCAP0_WRITETOKVDRAM_VDATASANDVMASKS(i, kvdram, vandmdata, baseoffset_kvs, offset_kvs);
+
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countvswritten(VECTOR2_SIZE);
 		#endif
@@ -1465,7 +1419,7 @@ MEMCA_READFROMBUFFER_VDATASANDVMASKS(i, buffer, vandmdata, 0);
 	return;
 }
 
-void MEMACCESS_SPL_readANDRVchunks1(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks1(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1479,20 +1433,20 @@ void MEMACCESS_SPL_readANDRVchunks1(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1500,35 +1454,35 @@ void MEMACCESS_SPL_readANDRVchunks1(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(index, buffer0, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(index, buffer0, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks2(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks2(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1542,20 +1496,20 @@ void MEMACCESS_SPL_readANDRVchunks2(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1563,35 +1517,35 @@ void MEMACCESS_SPL_readANDRVchunks2(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(index, buffer0,buffer1, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(index, buffer0,buffer1, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks3(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks3(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1605,20 +1559,20 @@ void MEMACCESS_SPL_readANDRVchunks3(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1626,35 +1580,35 @@ void MEMACCESS_SPL_readANDRVchunks3(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(index, buffer0,buffer1,buffer2, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(index, buffer0,buffer1,buffer2, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks4(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks4(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1668,20 +1622,20 @@ void MEMACCESS_SPL_readANDRVchunks4(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1689,35 +1643,35 @@ void MEMACCESS_SPL_readANDRVchunks4(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks5(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks5(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1731,20 +1685,20 @@ void MEMACCESS_SPL_readANDRVchunks5(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1752,35 +1706,35 @@ void MEMACCESS_SPL_readANDRVchunks5(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks6(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks6(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1794,20 +1748,20 @@ void MEMACCESS_SPL_readANDRVchunks6(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1815,35 +1769,35 @@ void MEMACCESS_SPL_readANDRVchunks6(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks7(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks7(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1857,20 +1811,20 @@ void MEMACCESS_SPL_readANDRVchunks7(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1878,35 +1832,35 @@ void MEMACCESS_SPL_readANDRVchunks7(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks8(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks8(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1920,20 +1874,20 @@ void MEMACCESS_SPL_readANDRVchunks8(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -1941,35 +1895,35 @@ void MEMACCESS_SPL_readANDRVchunks8(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks9(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks9(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -1983,20 +1937,20 @@ void MEMACCESS_SPL_readANDRVchunks9(bool_type enable, uint512_dt * kvdram, keyva
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -2004,35 +1958,35 @@ void MEMACCESS_SPL_readANDRVchunks9(bool_type enable, uint512_dt * kvdram, keyva
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks10(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks10(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -2046,20 +2000,20 @@ void MEMACCESS_SPL_readANDRVchunks10(bool_type enable, uint512_dt * kvdram, keyv
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -2067,35 +2021,35 @@ void MEMACCESS_SPL_readANDRVchunks10(bool_type enable, uint512_dt * kvdram, keyv
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks11(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks11(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -2109,20 +2063,20 @@ void MEMACCESS_SPL_readANDRVchunks11(bool_type enable, uint512_dt * kvdram, keyv
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -2130,35 +2084,35 @@ void MEMACCESS_SPL_readANDRVchunks11(bool_type enable, uint512_dt * kvdram, keyv
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9,buffer10, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9,buffer10, vsandmsdata, 0);	
 			}
 		}
 	}
 	return;	
 }
-void MEMACCESS_SPL_readANDRVchunks12(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readANDRVchunks12(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs / 2;
 	unsigned int depth_i = 0;
@@ -2172,20 +2126,20 @@ void MEMACCESS_SPL_readANDRVchunks12(bool_type enable, uint512_dt * kvdram, keyv
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){ 
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
+		cout<<"MEMACCESSP0_SPL_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<endl;
 		#endif
-		MEMACCESS_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
+		MEMACCESSP0_SPL_SLreadV(enable, s, kvdram, tempbuffer, vbaseoffset_kvs, depth_i + voffset_kvs, bdepth_i, vsz_kvs, globalparams); // CRITICAL FIXME.
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	// re-arrange vertices data 
-	value_t vandmdata1[VECTOR2_SIZE];
-	value_t vandmdata2[VECTOR2_SIZE];
+	vmdata_t vandmdata1[VECTOR2_SIZE];
+	vmdata_t vandmdata2[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdata1 complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdata2 complete
-	value_t vandmdataM[VECTOR2_SIZE]; 
-	value_t vandmdataN[VECTOR2_SIZE]; 
+	vmdata_t vandmdataM[VECTOR2_SIZE]; 
+	vmdata_t vandmdataN[VECTOR2_SIZE]; 
 	keyvalue_vbuffer_t vsandmsdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vandmdataM complete
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
@@ -2193,29 +2147,29 @@ void MEMACCESS_SPL_readANDRVchunks12(bool_type enable, uint512_dt * kvdram, keyv
 	#pragma HLS PIPELINE II=1
 		READVDATACHUNKS_REARRANGE_LOOP1B: for(unsigned int j=0; j<2; j++){
 			unsigned int index = i+j;
-MEMCA_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
-			MEMACCESS_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
+MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(index, tempbuffer, vandmdata1, 0);	
+			MEMACCESSP0_SPL_RearrangeLayoutV(voffset_kvs + index, vandmdata1, vandmdata2);
 			if(j==0){ vandmdataM[0] = vandmdata2[0];vandmdataM[1] = vandmdata2[1];vandmdataM[2] = vandmdata2[2];vandmdataM[3] = vandmdata2[3];vandmdataM[4] = vandmdata2[4];vandmdataM[5] = vandmdata2[5];vandmdataM[6] = vandmdata2[6];vandmdataM[7] = vandmdata2[7];vandmdataM[8] = vandmdata2[8];vandmdataM[9] = vandmdata2[9];vandmdataM[10] = vandmdata2[10];vandmdataM[11] = vandmdata2[11];vandmdataM[12] = vandmdata2[12];vandmdataM[13] = vandmdata2[13];vandmdataM[14] = vandmdata2[14];vandmdataM[15] = vandmdata2[15];} else { vandmdataN[0] = vandmdata2[0];vandmdataN[1] = vandmdata2[1];vandmdataN[2] = vandmdata2[2];vandmdataN[3] = vandmdata2[3];vandmdataN[4] = vandmdata2[4];vandmdataN[5] = vandmdata2[5];vandmdataN[6] = vandmdata2[6];vandmdataN[7] = vandmdata2[7];vandmdataN[8] = vandmdata2[8];vandmdataN[9] = vandmdata2[9];vandmdataN[10] = vandmdata2[10];vandmdataN[11] = vandmdata2[11];vandmdataN[12] = vandmdata2[12];vandmdataN[13] = vandmdata2[13];vandmdataN[14] = vandmdata2[14];vandmdataN[15] = vandmdata2[15];	  }
 			
 			if(j==1){
-				vsandmsdata[0] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
-				vsandmsdata[1] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
-				vsandmsdata[2] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
-				vsandmsdata[3] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
-				vsandmsdata[4] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
-				vsandmsdata[5] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
-				vsandmsdata[6] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
-				vsandmsdata[7] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
-				vsandmsdata[8] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
-				vsandmsdata[9] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
-				vsandmsdata[10] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
-				vsandmsdata[11] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
-				vsandmsdata[12] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
-				vsandmsdata[13] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
-				vsandmsdata[14] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
-				vsandmsdata[15] = MEMCA_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
+				vsandmsdata[0] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[0], vandmdataN[0]);
+				vsandmsdata[1] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[1], vandmdataN[1]);
+				vsandmsdata[2] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[2], vandmdataN[2]);
+				vsandmsdata[3] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[3], vandmdataN[3]);
+				vsandmsdata[4] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[4], vandmdataN[4]);
+				vsandmsdata[5] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[5], vandmdataN[5]);
+				vsandmsdata[6] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[6], vandmdataN[6]);
+				vsandmsdata[7] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[7], vandmdataN[7]);
+				vsandmsdata[8] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[8], vandmdataN[8]);
+				vsandmsdata[9] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[9], vandmdataN[9]);
+				vsandmsdata[10] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[10], vandmdataN[10]);
+				vsandmsdata[11] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[11], vandmdataN[11]);
+				vsandmsdata[12] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[12], vandmdataN[12]);
+				vsandmsdata[13] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[13], vandmdataN[13]);
+				vsandmsdata[14] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[14], vandmdataN[14]);
+				vsandmsdata[15] = MEMCAP0_CREATEVBUFFERSTRUCT(vandmdataM[15], vandmdataN[15]);
 	
-MEMCA_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9,buffer10,buffer11, vsandmsdata, 0);	
+MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(index, buffer0,buffer1,buffer2,buffer3,buffer4,buffer5,buffer6,buffer7,buffer8,buffer9,buffer10,buffer11, vsandmsdata, 0);	
 			}
 		}
 	}
@@ -2223,7 +2177,8 @@ MEMCA_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(index, buffer0,buffer1,buffer
 }
 
 // -------------------- vmasks (soon obsolete) -------------------- //
-void MEMACCESS_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+#ifdef CONFIG_SEPERATEVMASKFROMVDATA
+void acts_all::MEMACCESSP0_SPL_GetXYLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -2808,7 +2763,7 @@ else {
 	return;
 }
 
-void MEMACCESS_SPL_RearrangeLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
+void acts_all::MEMACCESSP0_SPL_RearrangeLayoutVM(unsigned int s, unit1_type vmdata[VECTOR2_SIZE], unit1_type vmdata2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;
  if(s_==0){ 
 		vmdata2[0] = vmdata[0]; 
@@ -3101,7 +3056,7 @@ else {
 	return;
 }
 
-void MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
+void acts_all::MEMACCESSP0_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type lbaseoffset_kvs, batch_type offset_kvs, buffer_type bufferoffset, buffer_type size_kvs){			
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -3151,25 +3106,25 @@ void MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt
 		tempbuffer[14][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].range(511, 480);			
 		#else 
-		tempbuffer[0][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[baseoffset_kvs + rlbaseoffset_kvs + roffset_kvs + i].data[7].value; 
 		#endif 
 		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("MEMACCESS_SPL_readvmasks_slide:", rlbaseoffset_kvs + roffset_kvs, NUMPROCESSEDGESPARTITIONS * VMASKBUFFERSZ_KVS, baseoffset_kvs, rlbaseoffset_kvs, roffset_kvs);
+		actsutilityobj->checkoutofbounds("MEMACCESSP0_SPL_readvmasks_slide:", rlbaseoffset_kvs + roffset_kvs, NUMPROCESSEDGESPARTITIONS * VMASKBUFFERSZ_KVS, baseoffset_kvs, rlbaseoffset_kvs, roffset_kvs);
 		#endif
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
@@ -3199,22 +3154,22 @@ void MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 0 + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 2 + 1] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 4 + 1] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 6 + 1] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 8 + 1] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 10 + 1] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 12 + 1] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 14 + 1] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 0 + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 2 + 1] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 4 + 1] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 6 + 1] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 8 + 1] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 10 + 1] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 12 + 1] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 14 + 1] = tempbuffer[7][i].vmdata1.vdata;
 		#endif 
 		
 		index += VECTOR_SIZE * 2;
@@ -3265,52 +3220,52 @@ void MEMACCESS_SPL_readvmasks_slide(bool_type enable, unsigned int s, uint512_dt
 		}
 		#else 
 		if(i%2==0){
-			vmdata[0] = UTIL_READFROM_UINT(bitsbuffer[i/2], 0, 1);
-			vmdata[1] = UTIL_READFROM_UINT(bitsbuffer[i/2], 1, 1);
-			vmdata[2] = UTIL_READFROM_UINT(bitsbuffer[i/2], 2, 1);
-			vmdata[3] = UTIL_READFROM_UINT(bitsbuffer[i/2], 3, 1);
-			vmdata[4] = UTIL_READFROM_UINT(bitsbuffer[i/2], 4, 1);
-			vmdata[5] = UTIL_READFROM_UINT(bitsbuffer[i/2], 5, 1);
-			vmdata[6] = UTIL_READFROM_UINT(bitsbuffer[i/2], 6, 1);
-			vmdata[7] = UTIL_READFROM_UINT(bitsbuffer[i/2], 7, 1);
-			vmdata[8] = UTIL_READFROM_UINT(bitsbuffer[i/2], 8, 1);
-			vmdata[9] = UTIL_READFROM_UINT(bitsbuffer[i/2], 9, 1);
-			vmdata[10] = UTIL_READFROM_UINT(bitsbuffer[i/2], 10, 1);
-			vmdata[11] = UTIL_READFROM_UINT(bitsbuffer[i/2], 11, 1);
-			vmdata[12] = UTIL_READFROM_UINT(bitsbuffer[i/2], 12, 1);
-			vmdata[13] = UTIL_READFROM_UINT(bitsbuffer[i/2], 13, 1);
-			vmdata[14] = UTIL_READFROM_UINT(bitsbuffer[i/2], 14, 1);
-			vmdata[15] = UTIL_READFROM_UINT(bitsbuffer[i/2], 15, 1);
+			vmdata[0] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 0, 1);
+			vmdata[1] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 1, 1);
+			vmdata[2] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 2, 1);
+			vmdata[3] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 3, 1);
+			vmdata[4] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 4, 1);
+			vmdata[5] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 5, 1);
+			vmdata[6] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 6, 1);
+			vmdata[7] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 7, 1);
+			vmdata[8] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 8, 1);
+			vmdata[9] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 9, 1);
+			vmdata[10] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 10, 1);
+			vmdata[11] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 11, 1);
+			vmdata[12] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 12, 1);
+			vmdata[13] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 13, 1);
+			vmdata[14] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 14, 1);
+			vmdata[15] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 15, 1);
 		} else {
-			vmdata[0] = UTIL_READFROM_UINT(bitsbuffer[i/2], 16, 1);
-			vmdata[1] = UTIL_READFROM_UINT(bitsbuffer[i/2], 17, 1);
-			vmdata[2] = UTIL_READFROM_UINT(bitsbuffer[i/2], 18, 1);
-			vmdata[3] = UTIL_READFROM_UINT(bitsbuffer[i/2], 19, 1);
-			vmdata[4] = UTIL_READFROM_UINT(bitsbuffer[i/2], 20, 1);
-			vmdata[5] = UTIL_READFROM_UINT(bitsbuffer[i/2], 21, 1);
-			vmdata[6] = UTIL_READFROM_UINT(bitsbuffer[i/2], 22, 1);
-			vmdata[7] = UTIL_READFROM_UINT(bitsbuffer[i/2], 23, 1);
-			vmdata[8] = UTIL_READFROM_UINT(bitsbuffer[i/2], 24, 1);
-			vmdata[9] = UTIL_READFROM_UINT(bitsbuffer[i/2], 25, 1);
-			vmdata[10] = UTIL_READFROM_UINT(bitsbuffer[i/2], 26, 1);
-			vmdata[11] = UTIL_READFROM_UINT(bitsbuffer[i/2], 27, 1);
-			vmdata[12] = UTIL_READFROM_UINT(bitsbuffer[i/2], 28, 1);
-			vmdata[13] = UTIL_READFROM_UINT(bitsbuffer[i/2], 29, 1);
-			vmdata[14] = UTIL_READFROM_UINT(bitsbuffer[i/2], 30, 1);
-			vmdata[15] = UTIL_READFROM_UINT(bitsbuffer[i/2], 31, 1);
+			vmdata[0] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 16, 1);
+			vmdata[1] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 17, 1);
+			vmdata[2] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 18, 1);
+			vmdata[3] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 19, 1);
+			vmdata[4] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 20, 1);
+			vmdata[5] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 21, 1);
+			vmdata[6] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 22, 1);
+			vmdata[7] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 23, 1);
+			vmdata[8] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 24, 1);
+			vmdata[9] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 25, 1);
+			vmdata[10] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 26, 1);
+			vmdata[11] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 27, 1);
+			vmdata[12] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 28, 1);
+			vmdata[13] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 29, 1);
+			vmdata[14] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 30, 1);
+			vmdata[15] = UTILP0_READFROM_UINT(bitsbuffer[i/2], 31, 1);
 		}
 		#endif
 	
 		unsigned int x = index2 + s;
 		basedepth = (x / VECTOR2_SIZE) * VECTOR2_SIZE;
-		MEMACCESS_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
-MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS(depths, vmaskBITS, vmdata2, 0);
+		MEMACCESSP0_SPL_GetXYLayoutVM(x, vmdata, vmdata2, depths, basedepth);
+MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS(depths, vmaskBITS, vmdata2, 0);
 		index2 += NUM_PEs;
 	}
 	return;
 }
 
-void MEMACCESS_SPL_CKSreadvmaskschunks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_CKSreadvmaskschunks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3325,32 +3280,32 @@ void MEMACCESS_SPL_CKSreadvmaskschunks(bool_type enable, uint512_dt * kvdram, un
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+		if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 		#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+		if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 		#endif 
-MEMCA_WRITETOBUFFER_VMASKS(i, vmaskBITS, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS(i, vmaskBITS, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
 
-void MEMACCESS_SPL_readANDRvmaskschunks1(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks1(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3365,31 +3320,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks1(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS1_ANDREPLICATE(i, vmaskBITS0, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS1_ANDREPLICATE(i, vmaskBITS0, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks2(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks2(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3404,31 +3359,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks2(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS2_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS2_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks3(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks3(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3443,31 +3398,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks3(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS3_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS3_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks4(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks4(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3482,31 +3437,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks4(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS4_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS4_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks5(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks5(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3521,31 +3476,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks5(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS5_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS5_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks6(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks6(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3560,31 +3515,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks6(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS6_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS6_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks7(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks7(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3599,31 +3554,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks7(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS7_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS7_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks8(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks8(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3638,31 +3593,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks8(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS8_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS8_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks9(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks9(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3677,31 +3632,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks9(bool_type enable, uint512_dt * kvdram, 
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS9_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS9_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks10(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks10(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3716,31 +3671,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks10(bool_type enable, uint512_dt * kvdram,
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS10_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS10_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks11(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks11(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3755,31 +3710,31 @@ void MEMACCESS_SPL_readANDRvmaskschunks11(bool_type enable, uint512_dt * kvdram,
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS11_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9,vmaskBITS10, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS11_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9,vmaskBITS10, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
-void MEMACCESS_SPL_readANDRvmaskschunks12(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_SPL_readANDRvmaskschunks12(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type basevoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){				
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int bdepth = vsz_kvs;
 	unsigned int depth_i = 0;
@@ -3794,35 +3749,35 @@ void MEMACCESS_SPL_readANDRvmaskschunks12(bool_type enable, uint512_dt * kvdram,
 	
 	for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
+		cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:: size loaded @ s("<<s<<"): voffset_kvs: "<<voffset_kvs<<", sz: "<<(vsz_kvs * VECTOR2_SIZE)<<endl;
 		#endif 
-		MEMACCESS_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
+		MEMACCESSP0_SPL_readvmasks_slide(enable, s, kvdram, tempvmaskBITS, buffer, basevoffset_kvs, depth_i, voffset_kvs, bdepth_i, vsz_kvs); 
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
 	
 	for(unsigned int i=0; i<DOUBLE_BLOCKRAM_SIZE; i++){
-MEMCA_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
+MEMCAP0_READFROMBUFFER_VMASKS(i, tempvmaskBITS, vmdata, 0);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:BEFORE:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata[v]<<", "; } cout<<endl; }
 				#endif 
-		MEMACCESS_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
+		MEMACCESSP0_SPL_RearrangeLayoutVM(voffset_kvs + i, vmdata, vmdata2);
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-			if(i<limit){ cout<<"MEMACCESS_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
+			if(i<limit){ cout<<"MEMACCESSP0_SPL_CKSreadvmaskschunks:AFTER:["<<i<<"]: "; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vmdata2[v]<<", "; } cout<<endl; }
 				#endif 
-MEMCA_WRITETOBUFFER_VMASKS12_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9,vmaskBITS10,vmaskBITS11, vmdata2, 0);
+MEMCAP0_WRITETOBUFFER_VMASKS12_ANDREPLICATE(i, vmaskBITS0,vmaskBITS1,vmaskBITS2,vmaskBITS3,vmaskBITS4,vmaskBITS5,vmaskBITS6,vmaskBITS7,vmaskBITS8,vmaskBITS9,vmaskBITS10,vmaskBITS11, vmdata2, 0);
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"+++ MEMACCESS_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
+	cout<<"+++ MEMACCESSP0_SPL_CKSreadvmaskschunks:: total size (bits) loaded: "<<vsz_kvs * NUM_PEs * VECTOR2_SIZE * 32<<endl;
 	#endif
 	return;	
 }
 
-void MEMACCESS_SPL_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, unsigned int vmaskp_offset_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"MEMACCESS_SPL_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
+	cout<<"MEMACCESSP0_SPL_savemasks:: saving vmask saved: offset_kvs: "<<offset_kvs<<", vmaskp_offset_kvs: "<<vmaskp_offset_kvs<<""<<endl;
 	#endif
 	
 	uint32_type tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE]; // CRITICAL FIXME. TOO EXPENSIVE...........................
@@ -3878,57 +3833,57 @@ void MEMACCESS_SPL_savemasks(bool_type enable, uint512_dt * kvdram, unit1_type v
 		tempbuffer[X][Y].range(30, 30) = vmaskBITS[14][n_iplus1];
 		tempbuffer[X][Y].range(31, 31) = vmaskBITS[15][n_iplus1];
 		#else
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmaskBITS[0][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmaskBITS[1][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmaskBITS[2][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmaskBITS[3][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmaskBITS[4][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmaskBITS[5][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmaskBITS[6][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmaskBITS[7][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmaskBITS[8][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmaskBITS[9][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmaskBITS[10][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmaskBITS[11][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmaskBITS[12][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmaskBITS[13][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmaskBITS[14][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmaskBITS[15][n_i]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmaskBITS[0][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmaskBITS[1][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmaskBITS[2][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmaskBITS[3][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmaskBITS[4][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmaskBITS[5][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmaskBITS[6][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmaskBITS[7][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmaskBITS[8][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmaskBITS[9][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmaskBITS[10][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmaskBITS[11][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmaskBITS[12][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmaskBITS[13][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmaskBITS[14][n_iplus1]);
-UTIL_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmaskBITS[15][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 0, 1, vmaskBITS[0][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 1, 1, vmaskBITS[1][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 2, 1, vmaskBITS[2][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 3, 1, vmaskBITS[3][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 4, 1, vmaskBITS[4][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 5, 1, vmaskBITS[5][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 6, 1, vmaskBITS[6][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 7, 1, vmaskBITS[7][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 8, 1, vmaskBITS[8][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 9, 1, vmaskBITS[9][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 10, 1, vmaskBITS[10][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 11, 1, vmaskBITS[11][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 12, 1, vmaskBITS[12][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 13, 1, vmaskBITS[13][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 14, 1, vmaskBITS[14][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 15, 1, vmaskBITS[15][n_i]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 16, 1, vmaskBITS[0][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 17, 1, vmaskBITS[1][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 18, 1, vmaskBITS[2][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 19, 1, vmaskBITS[3][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 20, 1, vmaskBITS[4][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 21, 1, vmaskBITS[5][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 22, 1, vmaskBITS[6][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 23, 1, vmaskBITS[7][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 24, 1, vmaskBITS[8][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 25, 1, vmaskBITS[9][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 26, 1, vmaskBITS[10][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 27, 1, vmaskBITS[11][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 28, 1, vmaskBITS[12][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 29, 1, vmaskBITS[13][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 30, 1, vmaskBITS[14][n_iplus1]);
+		UTILP0_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmaskBITS[15][n_iplus1]);
 		#endif
 		index += 1;
 		
-		uint32_type maskA = UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
-		uint32_type maskB = UTIL_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
+		uint32_type maskA = UTILP0_CONVERTVMASKTOUINT32(vmaskBITS, n_i);
+		uint32_type maskB = UTILP0_CONVERTVMASKTOUINT32(vmaskBITS, n_iplus1);
 		cummvmask_sp = cummvmask_sp | maskA | maskB;
-		// cout<<"MEMACCESS_SPL_savemasks:: maskA: "<<maskA<<", maskB: "<<maskB<<", cummvmask_sp: "<<cummvmask_sp<<endl;
+		// cout<<"MEMACCESSP0_SPL_savemasks:: maskA: "<<maskA<<", maskB: "<<maskB<<", cummvmask_sp: "<<cummvmask_sp<<endl;
 		
-		realvid = UTIL_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
+		realvid = UTILP0_GETREALVID(((k/2) * 32) + 32, globalparams.ACTSPARAMS_INSTID);
 		#ifdef _DEBUGMODE_KERNELPRINTS
-		if(realvid >= next_chpt){ cout<<"--- MEMACCESS_SPL_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
+		if(realvid >= next_chpt){ cout<<"--- MEMACCESSP0_SPL_savemasks:: next checkpoint seen @ k: "<<k<<", realvid["<<k/2<<"]: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<", cummvmask_sp: "<<cummvmask_sp<<endl; }
 		#endif 
 		if(realvid >= next_chpt){ vpmasks[vpmasks_i] = cummvmask_sp; cummvmask_sp = 0; vpmasks_i += 1; next_chpt += processpartitionsz; } // CRITICAL FIXME. TOO EXPENSIVE. CRITICAL FIXME.
 	}
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	cout<<"--- MEMACCESS_SPL_savemasks:: FINISHED. realvid: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl;
+	cout<<"--- MEMACCESSP0_SPL_savemasks:: FINISHED. realvid: "<<realvid<<", vpmasks_i: "<<vpmasks_i<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_CHECKS3
-	if(vpmasks_i != NUM_PEs){ cout<<"--- MEMACCESS_SPL_savemasks:: ERROR: vpmasks_i("<<vpmasks_i<<") != NUM_PEs("<<NUM_PEs<<"). EXITING...."<<endl; exit(EXIT_FAILURE); }
+	if(vpmasks_i != NUM_PEs){ cout<<"--- MEMACCESSP0_SPL_savemasks:: ERROR: vpmasks_i("<<vpmasks_i<<") != NUM_PEs("<<NUM_PEs<<"). EXITING...."<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
 	SAVEVMASKS_LOOP2: for(buffer_type k=0; k<globalparams.SIZEKVS_VMASKBUFFER; k++){
@@ -3985,9 +3940,10 @@ UTIL_WRITETO_UINT(&tempbuffer[X][Y], 31, 1, vmaskBITS[15][n_iplus1]);
 	// exit(EXIT_SUCCESS); //////////////
 	return;
 }
+#endif 
 
 // -------------------- pmasks -------------------- //
-void MEMACCESS_SPL_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -3999,7 +3955,7 @@ void MEMACCESS_SPL_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_S
 }
 
 // -------------------- stats -------------------- //
-void MEMACCESS_SPL_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
+void acts_all::MEMACCESSP0_SPL_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
@@ -4063,7 +4019,7 @@ void MEMACCESS_SPL_readglobalstats(bool_type enable, uint512_dt * kvdram, keyval
 	return;
 }
 
-void MEMACCESS_SPL_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
+void acts_all::MEMACCESSP0_SPL_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -4154,12 +4110,12 @@ else {
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS2
-	actsutilityobj->printkeyvalues("MEMACCESS_SPL_saveglobalstats.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
+	actsutilityobj->printkeyvalues("MEMACCESSP0_SPL_saveglobalstats.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
 	#endif
 	return;
 }
 
-tuple_t MEMACCESS_SPL_getvptrs( uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t acts_all::MEMACCESSP0_SPL_getvptrs(uint512_dt * edges0, uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -4275,7 +4231,7 @@ tuple_t MEMACCESS_SPL_getvptrs( uint512_dt * kvdram, unsigned int beginoffset, u
 	return t;
 }
 
-unsigned int MEMACCESS_SPL_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
+unsigned int acts_all::MEMACCESSP0_SPL_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (offset / 16)];
@@ -4353,7 +4309,7 @@ else {
 	else { return vptr_kv.value; }
 }
 
-tuple_t MEMACCESS_SPL_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t acts_all::MEMACCESSP0_SPL_getvptrs_opt(uint512_dt * edges0, uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -4362,47 +4318,47 @@ tuple_t MEMACCESS_SPL_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset
 	endoffset = endoffset / VPTR_SHRINK_RATIO;
 	
 	#if NUM_EDGE_BANKS==0
-		beginvptr = MEMACCESS_SPL_getvptr(kvdram, baseoffset_kvs, beginoffset);
-		endvptr = MEMACCESS_SPL_getvptr(kvdram, baseoffset_kvs, endoffset);
+		beginvptr = MEMACCESSP0_SPL_getvptr(kvdram, baseoffset_kvs, beginoffset);
+		endvptr = MEMACCESSP0_SPL_getvptr(kvdram, baseoffset_kvs, endoffset);
 	#else
 		if(edgebankID == 0){
-			beginvptr = MEMACCESS_SPL_getvptr(edges0, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges0, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESSP0_SPL_getvptr(edges0, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESSP0_SPL_getvptr(edges0, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>1
 		else if(edgebankID == 1){
-			beginvptr = MEMACCESS_SPL_getvptr(edges1, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges1, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESSP0_SPL_getvptr(edges1, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESSP0_SPL_getvptr(edges1, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>2
 		else if(edgebankID == 2){
-			beginvptr = MEMACCESS_SPL_getvptr(edges2, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges2, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESSP0_SPL_getvptr(edges2, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESSP0_SPL_getvptr(edges2, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>3
 		else if(edgebankID == 3){
-			beginvptr = MEMACCESS_SPL_getvptr(edges3, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges3, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESSP0_SPL_getvptr(edges3, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESSP0_SPL_getvptr(edges3, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>4
 		else if(edgebankID == 4){
-			beginvptr = MEMACCESS_SPL_getvptr(edges4, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges4, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESSP0_SPL_getvptr(edges4, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESSP0_SPL_getvptr(edges4, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>5
 		else if(edgebankID == 5){
-			beginvptr = MEMACCESS_SPL_getvptr(edges5, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges5, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESSP0_SPL_getvptr(edges5, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESSP0_SPL_getvptr(edges5, baseoffset_kvs, endoffset);
 		} 
 		#if NUM_EDGE_BANKS>6
 		else if(edgebankID == 6){
-			beginvptr = MEMACCESS_SPL_getvptr(edges6, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges6, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESSP0_SPL_getvptr(edges6, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESSP0_SPL_getvptr(edges6, baseoffset_kvs, endoffset);
 		}
 		#if NUM_EDGE_BANKS>7
 		else if(edgebankID == 7){
-			beginvptr = MEMACCESS_SPL_getvptr(edges7, baseoffset_kvs, beginoffset);
-			endvptr = MEMACCESS_SPL_getvptr(edges7, baseoffset_kvs, endoffset);
+			beginvptr = MEMACCESSP0_SPL_getvptr(edges7, baseoffset_kvs, beginoffset);
+			endvptr = MEMACCESSP0_SPL_getvptr(edges7, baseoffset_kvs, endoffset);
 		}
 	#endif
 	#endif 
@@ -4426,7 +4382,7 @@ tuple_t MEMACCESS_SPL_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset
 	return t;
 }
 
-void MEMACCESS_SPL_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK){
+void acts_all::MEMACCESSP0_SPL_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 	
@@ -4437,14 +4393,20 @@ void MEMACCESS_SPL_copystats(uint512_dt * edges, uint512_dt * kvdram, globalpara
 	return;
 }
 
-void MEMACCESS_SPL_copyallstats( uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
+void acts_all::MEMACCESSP0_SPL_copyallstats(uint512_dt * edges0, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
 
+	if(edgebankID == 0){
+		COPYSTATS_LOOP0: for(unsigned int k=0; k<globalparamsK.SIZE_KVSTATSDRAM; k++){
+		#pragma HLS PIPELINE II=1
+			kvdram[globalparamsK.BASEOFFSETKVS_STATSDRAM + k] = edges0[globalparamsE.BASEOFFSETKVS_STATSDRAM + k];
+		}
+	}
 	return;
 }
 
-void MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
+void acts_all::MEMACCESSP0_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -4463,7 +4425,7 @@ void MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalpa
 	return;
 }
 
-void MEMACCESS_SPL_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void acts_all::MEMACCESSP0_SPL_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k]; 
@@ -4474,7 +4436,7 @@ void MEMACCESS_SPL_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalp
 	return;
 }
 
-void MEMACCESS_SPL_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void acts_all::MEMACCESSP0_SPL_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -4485,7 +4447,7 @@ void MEMACCESS_SPL_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globa
 	}
 }
 
-void MEMACCESS_SPL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -4544,7 +4506,7 @@ else {
 	return;
 }
 
-void MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -4564,7 +4526,7 @@ void MEMACCESS_SPL_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalpa
 }
 
 // -------------------- multiple accesses -------------------- //
-void MEMACCESS_SPL_readmanyvmasks1(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks1(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -4594,22 +4556,22 @@ void MEMACCESS_SPL_readmanyvmasks1(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -4655,22 +4617,22 @@ void MEMACCESS_SPL_readmanyvmasks1(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -4715,45 +4677,45 @@ void MEMACCESS_SPL_readmanyvmasks1(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -4783,22 +4745,22 @@ void MEMACCESS_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -4844,22 +4806,22 @@ void MEMACCESS_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -4904,38 +4866,38 @@ void MEMACCESS_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -4971,45 +4933,45 @@ void MEMACCESS_SPL_readmanyvmasks2(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -5039,22 +5001,22 @@ void MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -5100,22 +5062,22 @@ void MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -5160,38 +5122,38 @@ void MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -5227,38 +5189,38 @@ void MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -5294,45 +5256,45 @@ void MEMACCESS_SPL_readmanyvmasks3(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -5362,22 +5324,22 @@ void MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -5423,22 +5385,22 @@ void MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -5483,38 +5445,38 @@ void MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -5550,38 +5512,38 @@ void MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -5617,38 +5579,38 @@ void MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -5684,45 +5646,45 @@ void MEMACCESS_SPL_readmanyvmasks4(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -5752,22 +5714,22 @@ void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -5813,22 +5775,22 @@ void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -5873,38 +5835,38 @@ void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -5940,38 +5902,38 @@ void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6007,38 +5969,38 @@ void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6074,38 +6036,38 @@ void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS4[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6141,45 +6103,45 @@ void MEMACCESS_SPL_readmanyvmasks5(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS4[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS4[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS4[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS4[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS4[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS4[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS4[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS4[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS4[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS4[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS4[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS4[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS4[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS4[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS4[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS4[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS4[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS4[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS4[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS4[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS4[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS4[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS4[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS4[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS4[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS4[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS4[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS4[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS4[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS4[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS4[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS4[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS4[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS4[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS4[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -6209,22 +6171,22 @@ void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -6270,22 +6232,22 @@ void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -6330,38 +6292,38 @@ void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6397,38 +6359,38 @@ void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6464,38 +6426,38 @@ void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6531,38 +6493,38 @@ void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS4[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6598,38 +6560,38 @@ void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS4[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS4[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS4[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS4[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS4[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS4[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS4[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS4[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS4[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS4[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS4[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS4[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS4[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS4[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS4[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS4[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS4[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS4[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS4[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS4[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS4[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS4[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS4[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS4[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS4[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS4[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS4[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS4[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS4[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS4[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS4[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS4[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS4[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS4[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS4[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS5[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6665,45 +6627,45 @@ void MEMACCESS_SPL_readmanyvmasks6(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS5[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS5[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS5[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS5[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS5[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS5[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS5[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS5[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS5[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS5[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS5[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS5[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS5[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS5[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS5[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS5[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS5[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS5[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS5[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS5[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS5[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS5[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS5[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS5[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS5[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS5[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS5[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS5[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS5[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS5[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS5[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS5[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS5[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS5[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS5[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -6733,22 +6695,22 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -6794,22 +6756,22 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -6854,38 +6816,38 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6921,38 +6883,38 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -6988,38 +6950,38 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7055,38 +7017,38 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS4[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7122,38 +7084,38 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS4[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS4[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS4[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS4[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS4[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS4[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS4[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS4[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS4[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS4[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS4[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS4[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS4[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS4[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS4[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS4[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS4[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS4[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS4[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS4[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS4[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS4[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS4[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS4[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS4[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS4[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS4[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS4[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS4[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS4[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS4[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS4[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS4[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS4[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS4[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS5[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7189,38 +7151,38 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS5[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS5[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS5[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS5[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS5[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS5[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS5[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS5[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS5[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS5[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS5[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS5[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS5[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS5[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS5[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS5[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS5[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS5[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS5[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS5[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS5[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS5[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS5[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS5[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS5[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS5[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS5[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS5[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS5[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS5[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS5[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS5[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS5[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS5[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS5[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS6[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7256,45 +7218,45 @@ void MEMACCESS_SPL_readmanyvmasks7(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS6[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS6[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS6[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS6[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS6[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS6[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS6[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS6[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS6[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS6[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS6[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS6[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS6[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS6[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS6[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS6[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS6[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS6[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS6[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS6[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS6[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS6[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS6[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS6[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS6[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS6[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS6[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS6[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS6[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS6[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS6[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS6[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS6[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS6[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS6[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -7324,22 +7286,22 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -7385,22 +7347,22 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -7445,38 +7407,38 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7512,38 +7474,38 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7579,38 +7541,38 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7646,38 +7608,38 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS4[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7713,38 +7675,38 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS4[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS4[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS4[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS4[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS4[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS4[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS4[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS4[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS4[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS4[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS4[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS4[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS4[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS4[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS4[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS4[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS4[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS4[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS4[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS4[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS4[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS4[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS4[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS4[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS4[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS4[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS4[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS4[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS4[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS4[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS4[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS4[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS4[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS4[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS4[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS5[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7780,38 +7742,38 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS5[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS5[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS5[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS5[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS5[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS5[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS5[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS5[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS5[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS5[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS5[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS5[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS5[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS5[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS5[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS5[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS5[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS5[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS5[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS5[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS5[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS5[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS5[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS5[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS5[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS5[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS5[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS5[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS5[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS5[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS5[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS5[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS5[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS5[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS5[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS6[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7847,38 +7809,38 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS6[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS6[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS6[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS6[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS6[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS6[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS6[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS6[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS6[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS6[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS6[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS6[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS6[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS6[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS6[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS6[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS6[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS6[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS6[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS6[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS6[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS6[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS6[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS6[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS6[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS6[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS6[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS6[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS6[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS6[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS6[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS6[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS6[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS6[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS6[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS7[0][index2] = bitsbuffer[i].range(0, 0);
@@ -7914,45 +7876,45 @@ void MEMACCESS_SPL_readmanyvmasks8(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS7[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS7[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS7[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS7[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS7[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS7[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS7[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS7[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS7[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS7[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS7[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS7[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS7[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS7[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS7[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS7[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS7[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS7[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS7[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS7[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS7[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS7[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS7[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS7[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS7[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS7[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS7[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS7[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS7[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS7[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS7[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS7[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS7[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS7[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS7[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -7982,22 +7944,22 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -8043,22 +8005,22 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -8103,38 +8065,38 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8170,38 +8132,38 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8237,38 +8199,38 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8304,38 +8266,38 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS4[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8371,38 +8333,38 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS4[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS4[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS4[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS4[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS4[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS4[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS4[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS4[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS4[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS4[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS4[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS4[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS4[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS4[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS4[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS4[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS4[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS4[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS4[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS4[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS4[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS4[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS4[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS4[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS4[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS4[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS4[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS4[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS4[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS4[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS4[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS4[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS4[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS4[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS4[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS5[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8438,38 +8400,38 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS5[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS5[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS5[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS5[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS5[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS5[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS5[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS5[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS5[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS5[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS5[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS5[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS5[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS5[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS5[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS5[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS5[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS5[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS5[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS5[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS5[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS5[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS5[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS5[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS5[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS5[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS5[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS5[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS5[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS5[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS5[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS5[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS5[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS5[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS5[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS6[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8505,38 +8467,38 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS6[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS6[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS6[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS6[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS6[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS6[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS6[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS6[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS6[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS6[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS6[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS6[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS6[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS6[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS6[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS6[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS6[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS6[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS6[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS6[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS6[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS6[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS6[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS6[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS6[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS6[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS6[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS6[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS6[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS6[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS6[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS6[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS6[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS6[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS6[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS7[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8572,38 +8534,38 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS7[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS7[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS7[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS7[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS7[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS7[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS7[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS7[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS7[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS7[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS7[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS7[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS7[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS7[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS7[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS7[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS7[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS7[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS7[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS7[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS7[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS7[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS7[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS7[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS7[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS7[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS7[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS7[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS7[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS7[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS7[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS7[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS7[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS7[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS7[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS8[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8639,45 +8601,45 @@ void MEMACCESS_SPL_readmanyvmasks9(bool_type enable, uint512_dt * kvdram, unit1_
 		vmaskBITS8[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS8[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS8[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS8[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS8[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS8[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS8[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS8[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS8[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS8[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS8[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS8[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS8[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS8[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS8[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS8[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS8[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS8[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS8[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS8[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS8[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS8[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS8[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS8[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS8[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS8[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS8[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS8[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS8[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS8[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS8[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS8[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS8[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS8[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS8[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS8[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS8[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS8[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS8[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS8[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS8[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS8[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS8[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS8[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS8[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS8[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS8[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS8[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS8[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS8[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS8[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS8[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS8[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS8[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS8[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS8[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS8[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS8[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS8[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS8[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS8[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS8[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS8[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS8[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS8[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS8[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -8707,22 +8669,22 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -8768,22 +8730,22 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -8828,38 +8790,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8895,38 +8857,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -8962,38 +8924,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9029,38 +8991,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS4[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9096,38 +9058,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS4[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS4[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS4[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS4[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS4[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS4[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS4[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS4[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS4[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS4[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS4[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS4[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS4[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS4[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS4[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS4[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS4[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS4[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS4[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS4[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS4[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS4[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS4[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS4[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS4[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS4[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS4[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS4[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS4[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS4[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS4[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS4[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS4[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS4[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS4[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS5[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9163,38 +9125,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS5[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS5[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS5[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS5[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS5[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS5[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS5[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS5[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS5[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS5[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS5[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS5[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS5[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS5[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS5[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS5[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS5[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS5[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS5[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS5[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS5[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS5[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS5[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS5[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS5[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS5[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS5[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS5[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS5[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS5[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS5[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS5[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS5[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS5[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS5[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS6[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9230,38 +9192,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS6[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS6[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS6[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS6[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS6[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS6[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS6[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS6[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS6[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS6[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS6[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS6[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS6[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS6[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS6[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS6[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS6[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS6[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS6[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS6[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS6[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS6[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS6[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS6[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS6[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS6[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS6[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS6[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS6[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS6[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS6[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS6[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS6[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS6[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS6[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS7[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9297,38 +9259,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS7[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS7[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS7[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS7[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS7[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS7[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS7[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS7[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS7[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS7[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS7[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS7[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS7[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS7[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS7[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS7[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS7[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS7[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS7[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS7[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS7[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS7[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS7[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS7[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS7[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS7[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS7[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS7[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS7[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS7[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS7[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS7[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS7[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS7[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS7[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS8[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9364,38 +9326,38 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS8[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS8[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS8[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS8[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS8[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS8[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS8[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS8[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS8[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS8[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS8[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS8[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS8[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS8[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS8[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS8[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS8[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS8[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS8[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS8[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS8[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS8[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS8[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS8[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS8[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS8[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS8[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS8[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS8[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS8[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS8[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS8[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS8[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS8[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS8[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS8[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS8[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS8[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS8[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS8[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS8[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS8[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS8[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS8[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS8[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS8[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS8[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS8[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS8[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS8[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS8[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS8[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS8[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS8[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS8[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS8[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS8[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS8[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS8[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS8[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS8[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS8[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS8[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS8[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS8[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS8[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS9[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9431,45 +9393,45 @@ void MEMACCESS_SPL_readmanyvmasks10(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS9[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS9[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS9[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS9[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS9[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS9[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS9[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS9[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS9[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS9[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS9[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS9[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS9[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS9[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS9[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS9[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS9[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS9[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS9[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS9[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS9[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS9[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS9[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS9[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS9[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS9[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS9[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS9[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS9[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS9[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS9[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS9[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS9[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS9[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS9[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS9[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS9[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS9[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS9[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS9[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS9[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS9[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS9[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS9[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS9[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS9[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS9[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS9[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS9[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS9[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS9[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS9[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS9[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS9[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS9[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS9[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS9[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS9[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS9[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS9[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS9[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS9[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS9[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS9[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS9[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS9[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -9499,22 +9461,22 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -9560,22 +9522,22 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -9620,38 +9582,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9687,38 +9649,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9754,38 +9716,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9821,38 +9783,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS4[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9888,38 +9850,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS4[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS4[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS4[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS4[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS4[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS4[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS4[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS4[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS4[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS4[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS4[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS4[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS4[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS4[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS4[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS4[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS4[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS4[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS4[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS4[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS4[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS4[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS4[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS4[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS4[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS4[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS4[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS4[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS4[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS4[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS4[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS4[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS4[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS4[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS4[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS5[0][index2] = bitsbuffer[i].range(0, 0);
@@ -9955,38 +9917,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS5[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS5[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS5[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS5[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS5[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS5[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS5[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS5[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS5[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS5[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS5[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS5[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS5[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS5[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS5[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS5[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS5[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS5[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS5[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS5[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS5[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS5[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS5[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS5[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS5[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS5[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS5[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS5[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS5[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS5[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS5[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS5[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS5[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS5[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS5[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS6[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10022,38 +9984,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS6[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS6[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS6[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS6[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS6[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS6[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS6[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS6[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS6[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS6[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS6[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS6[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS6[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS6[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS6[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS6[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS6[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS6[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS6[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS6[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS6[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS6[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS6[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS6[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS6[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS6[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS6[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS6[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS6[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS6[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS6[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS6[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS6[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS6[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS6[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS7[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10089,38 +10051,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS7[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS7[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS7[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS7[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS7[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS7[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS7[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS7[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS7[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS7[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS7[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS7[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS7[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS7[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS7[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS7[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS7[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS7[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS7[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS7[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS7[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS7[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS7[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS7[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS7[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS7[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS7[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS7[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS7[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS7[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS7[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS7[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS7[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS7[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS7[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS8[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10156,38 +10118,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS8[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS8[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS8[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS8[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS8[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS8[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS8[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS8[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS8[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS8[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS8[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS8[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS8[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS8[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS8[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS8[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS8[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS8[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS8[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS8[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS8[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS8[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS8[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS8[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS8[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS8[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS8[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS8[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS8[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS8[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS8[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS8[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS8[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS8[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS8[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS8[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS8[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS8[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS8[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS8[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS8[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS8[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS8[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS8[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS8[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS8[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS8[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS8[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS8[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS8[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS8[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS8[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS8[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS8[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS8[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS8[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS8[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS8[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS8[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS8[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS8[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS8[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS8[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS8[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS8[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS8[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS9[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10223,38 +10185,38 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS9[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS9[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS9[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS9[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS9[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS9[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS9[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS9[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS9[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS9[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS9[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS9[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS9[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS9[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS9[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS9[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS9[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS9[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS9[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS9[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS9[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS9[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS9[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS9[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS9[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS9[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS9[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS9[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS9[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS9[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS9[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS9[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS9[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS9[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS9[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS9[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS9[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS9[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS9[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS9[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS9[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS9[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS9[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS9[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS9[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS9[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS9[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS9[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS9[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS9[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS9[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS9[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS9[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS9[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS9[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS9[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS9[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS9[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS9[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS9[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS9[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS9[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS9[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS9[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS9[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS9[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS10[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10290,45 +10252,45 @@ void MEMACCESS_SPL_readmanyvmasks11(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS10[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS10[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS10[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS10[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS10[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS10[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS10[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS10[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS10[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS10[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS10[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS10[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS10[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS10[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS10[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS10[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS10[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS10[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS10[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS10[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS10[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS10[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS10[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS10[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS10[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS10[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS10[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS10[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS10[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS10[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS10[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS10[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS10[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS10[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS10[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS10[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS10[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS10[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS10[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS10[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS10[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS10[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS10[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS10[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS10[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS10[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS10[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS10[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS10[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS10[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS10[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS10[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS10[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS10[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS10[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS10[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS10[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS10[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS10[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS10[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS10[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS10[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS10[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS10[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS10[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS10[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_vbuffer_t tempbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type offset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount1 = BLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = BLOCKRAM_SIZE / 16;
@@ -10358,22 +10320,22 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		tempbuffer[14][i] = kvdram[offset_kvs + i].range(479, 448); 
 		tempbuffer[15][i] = kvdram[offset_kvs + i].range(511, 480); 
 		#else 
-		tempbuffer[0][i].key = kvdram[offset_kvs + i].data[0].key;
-		tempbuffer[0][i].value = kvdram[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = kvdram[offset_kvs + i].data[1].key;
-		tempbuffer[1][i].value = kvdram[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = kvdram[offset_kvs + i].data[2].key;
-		tempbuffer[2][i].value = kvdram[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = kvdram[offset_kvs + i].data[3].key;
-		tempbuffer[3][i].value = kvdram[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = kvdram[offset_kvs + i].data[4].key;
-		tempbuffer[4][i].value = kvdram[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = kvdram[offset_kvs + i].data[5].key;
-		tempbuffer[5][i].value = kvdram[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = kvdram[offset_kvs + i].data[6].key;
-		tempbuffer[6][i].value = kvdram[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = kvdram[offset_kvs + i].data[7].key;
-		tempbuffer[7][i].value = kvdram[offset_kvs + i].data[7].value; 
+		tempbuffer[0][i].vmdata0.vdata = kvdram[offset_kvs + i].data[0].key;
+		tempbuffer[0][i].vmdata1.vdata = kvdram[offset_kvs + i].data[0].value; 
+		tempbuffer[1][i].vmdata0.vdata = kvdram[offset_kvs + i].data[1].key;
+		tempbuffer[1][i].vmdata1.vdata = kvdram[offset_kvs + i].data[1].value; 
+		tempbuffer[2][i].vmdata0.vdata = kvdram[offset_kvs + i].data[2].key;
+		tempbuffer[2][i].vmdata1.vdata = kvdram[offset_kvs + i].data[2].value; 
+		tempbuffer[3][i].vmdata0.vdata = kvdram[offset_kvs + i].data[3].key;
+		tempbuffer[3][i].vmdata1.vdata = kvdram[offset_kvs + i].data[3].value; 
+		tempbuffer[4][i].vmdata0.vdata = kvdram[offset_kvs + i].data[4].key;
+		tempbuffer[4][i].vmdata1.vdata = kvdram[offset_kvs + i].data[4].value; 
+		tempbuffer[5][i].vmdata0.vdata = kvdram[offset_kvs + i].data[5].key;
+		tempbuffer[5][i].vmdata1.vdata = kvdram[offset_kvs + i].data[5].value; 
+		tempbuffer[6][i].vmdata0.vdata = kvdram[offset_kvs + i].data[6].key;
+		tempbuffer[6][i].vmdata1.vdata = kvdram[offset_kvs + i].data[6].value; 
+		tempbuffer[7][i].vmdata0.vdata = kvdram[offset_kvs + i].data[7].key;
+		tempbuffer[7][i].vmdata1.vdata = kvdram[offset_kvs + i].data[7].value; 
 		
 		#endif 
 		#ifdef _DEBUGMODE_STATS
@@ -10419,22 +10381,22 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		bitsbuffer[index + 14] = tempbuffer[14][i];
 		bitsbuffer[index + 15] = tempbuffer[15][i];
 		#else 
-		bitsbuffer[index + 0] = tempbuffer[0][i].key;
-		bitsbuffer[index + 1] = tempbuffer[0][i].value;
-		bitsbuffer[index + 2] = tempbuffer[1][i].key;
-		bitsbuffer[index + 3] = tempbuffer[1][i].value;
-		bitsbuffer[index + 4] = tempbuffer[2][i].key;
-		bitsbuffer[index + 5] = tempbuffer[2][i].value;
-		bitsbuffer[index + 6] = tempbuffer[3][i].key;
-		bitsbuffer[index + 7] = tempbuffer[3][i].value;
-		bitsbuffer[index + 8] = tempbuffer[4][i].key;
-		bitsbuffer[index + 9] = tempbuffer[4][i].value;
-		bitsbuffer[index + 10] = tempbuffer[5][i].key;
-		bitsbuffer[index + 11] = tempbuffer[5][i].value;
-		bitsbuffer[index + 12] = tempbuffer[6][i].key;
-		bitsbuffer[index + 13] = tempbuffer[6][i].value;
-		bitsbuffer[index + 14] = tempbuffer[7][i].key;
-		bitsbuffer[index + 15] = tempbuffer[7][i].value;
+		bitsbuffer[index + 0] = tempbuffer[0][i].vmdata0.vdata;
+		bitsbuffer[index + 1] = tempbuffer[0][i].vmdata1.vdata;
+		bitsbuffer[index + 2] = tempbuffer[1][i].vmdata0.vdata;
+		bitsbuffer[index + 3] = tempbuffer[1][i].vmdata1.vdata;
+		bitsbuffer[index + 4] = tempbuffer[2][i].vmdata0.vdata;
+		bitsbuffer[index + 5] = tempbuffer[2][i].vmdata1.vdata;
+		bitsbuffer[index + 6] = tempbuffer[3][i].vmdata0.vdata;
+		bitsbuffer[index + 7] = tempbuffer[3][i].vmdata1.vdata;
+		bitsbuffer[index + 8] = tempbuffer[4][i].vmdata0.vdata;
+		bitsbuffer[index + 9] = tempbuffer[4][i].vmdata1.vdata;
+		bitsbuffer[index + 10] = tempbuffer[5][i].vmdata0.vdata;
+		bitsbuffer[index + 11] = tempbuffer[5][i].vmdata1.vdata;
+		bitsbuffer[index + 12] = tempbuffer[6][i].vmdata0.vdata;
+		bitsbuffer[index + 13] = tempbuffer[6][i].vmdata1.vdata;
+		bitsbuffer[index + 14] = tempbuffer[7][i].vmdata0.vdata;
+		bitsbuffer[index + 15] = tempbuffer[7][i].vmdata1.vdata;
 		#endif
 		
 		index += VECTOR_SIZE * 2;
@@ -10479,38 +10441,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS0[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS0[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS0[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS0[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS0[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS0[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS0[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS0[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS0[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS0[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS0[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS0[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS0[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS0[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS0[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS0[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS0[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS0[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS0[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS0[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS0[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS0[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS0[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS0[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS0[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS0[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS0[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS0[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS0[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS0[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS0[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS0[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS0[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS0[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS0[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS0[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS0[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS0[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS0[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS0[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS0[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS0[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS0[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS0[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS0[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS0[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS0[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS0[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS0[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS0[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS0[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS0[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS0[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS0[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS0[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS0[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS0[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS0[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS0[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS0[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS0[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS0[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS0[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS0[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS0[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS0[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS1[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10546,38 +10508,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS1[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS1[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS1[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS1[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS1[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS1[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS1[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS1[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS1[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS1[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS1[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS1[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS1[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS1[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS1[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS1[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS1[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS1[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS1[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS1[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS1[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS1[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS1[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS1[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS1[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS1[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS1[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS1[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS1[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS1[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS1[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS1[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS1[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS1[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS1[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS1[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS1[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS1[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS1[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS1[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS1[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS1[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS1[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS1[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS1[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS1[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS1[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS1[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS1[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS1[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS1[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS1[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS1[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS1[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS1[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS1[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS1[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS1[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS1[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS1[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS1[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS1[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS1[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS1[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS1[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS1[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS2[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10613,38 +10575,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS2[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS2[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS2[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS2[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS2[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS2[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS2[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS2[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS2[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS2[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS2[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS2[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS2[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS2[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS2[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS2[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS2[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS2[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS2[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS2[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS2[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS2[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS2[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS2[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS2[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS2[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS2[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS2[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS2[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS2[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS2[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS2[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS2[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS2[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS2[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS2[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS2[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS2[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS2[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS2[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS2[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS2[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS2[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS2[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS2[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS2[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS2[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS2[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS2[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS2[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS2[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS2[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS2[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS2[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS2[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS2[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS2[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS2[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS2[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS2[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS2[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS2[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS2[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS2[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS2[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS2[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS3[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10680,38 +10642,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS3[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS3[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS3[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS3[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS3[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS3[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS3[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS3[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS3[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS3[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS3[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS3[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS3[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS3[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS3[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS3[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS3[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS3[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS3[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS3[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS3[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS3[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS3[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS3[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS3[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS3[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS3[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS3[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS3[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS3[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS3[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS3[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS3[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS3[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS3[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS3[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS3[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS3[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS3[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS3[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS3[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS3[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS3[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS3[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS3[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS3[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS3[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS3[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS3[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS3[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS3[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS3[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS3[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS3[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS3[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS3[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS3[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS3[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS3[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS3[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS3[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS3[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS3[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS3[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS3[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS3[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS4[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10747,38 +10709,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS4[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS4[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS4[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS4[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS4[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS4[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS4[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS4[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS4[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS4[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS4[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS4[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS4[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS4[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS4[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS4[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS4[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS4[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS4[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS4[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS4[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS4[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS4[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS4[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS4[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS4[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS4[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS4[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS4[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS4[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS4[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS4[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS4[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS4[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS4[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS4[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS4[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS4[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS4[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS4[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS4[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS4[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS4[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS4[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS4[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS4[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS4[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS4[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS4[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS4[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS4[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS4[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS4[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS4[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS4[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS4[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS4[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS4[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS4[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS4[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS4[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS4[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS4[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS4[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS4[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS4[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS5[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10814,38 +10776,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS5[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS5[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS5[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS5[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS5[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS5[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS5[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS5[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS5[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS5[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS5[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS5[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS5[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS5[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS5[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS5[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS5[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS5[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS5[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS5[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS5[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS5[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS5[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS5[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS5[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS5[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS5[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS5[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS5[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS5[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS5[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS5[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS5[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS5[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS5[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS5[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS5[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS5[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS5[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS5[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS5[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS5[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS5[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS5[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS5[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS5[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS5[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS5[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS5[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS5[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS5[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS5[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS5[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS5[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS5[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS5[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS5[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS5[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS5[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS5[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS5[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS5[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS5[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS5[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS5[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS5[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS6[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10881,38 +10843,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS6[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS6[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS6[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS6[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS6[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS6[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS6[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS6[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS6[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS6[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS6[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS6[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS6[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS6[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS6[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS6[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS6[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS6[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS6[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS6[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS6[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS6[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS6[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS6[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS6[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS6[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS6[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS6[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS6[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS6[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS6[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS6[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS6[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS6[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS6[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS6[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS6[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS6[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS6[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS6[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS6[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS6[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS6[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS6[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS6[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS6[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS6[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS6[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS6[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS6[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS6[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS6[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS6[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS6[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS6[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS6[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS6[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS6[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS6[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS6[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS6[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS6[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS6[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS6[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS6[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS6[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS7[0][index2] = bitsbuffer[i].range(0, 0);
@@ -10948,38 +10910,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS7[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS7[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS7[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS7[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS7[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS7[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS7[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS7[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS7[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS7[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS7[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS7[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS7[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS7[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS7[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS7[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS7[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS7[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS7[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS7[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS7[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS7[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS7[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS7[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS7[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS7[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS7[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS7[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS7[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS7[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS7[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS7[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS7[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS7[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS7[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS7[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS7[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS7[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS7[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS7[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS7[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS7[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS7[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS7[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS7[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS7[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS7[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS7[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS7[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS7[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS7[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS7[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS7[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS7[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS7[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS7[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS7[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS7[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS7[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS7[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS7[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS7[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS7[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS7[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS7[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS7[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS8[0][index2] = bitsbuffer[i].range(0, 0);
@@ -11015,38 +10977,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS8[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS8[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS8[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS8[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS8[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS8[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS8[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS8[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS8[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS8[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS8[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS8[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS8[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS8[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS8[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS8[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS8[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS8[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS8[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS8[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS8[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS8[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS8[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS8[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS8[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS8[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS8[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS8[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS8[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS8[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS8[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS8[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS8[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS8[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS8[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS8[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS8[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS8[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS8[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS8[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS8[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS8[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS8[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS8[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS8[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS8[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS8[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS8[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS8[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS8[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS8[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS8[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS8[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS8[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS8[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS8[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS8[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS8[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS8[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS8[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS8[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS8[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS8[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS8[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS8[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS8[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS9[0][index2] = bitsbuffer[i].range(0, 0);
@@ -11082,38 +11044,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS9[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS9[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS9[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS9[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS9[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS9[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS9[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS9[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS9[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS9[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS9[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS9[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS9[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS9[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS9[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS9[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS9[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS9[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS9[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS9[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS9[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS9[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS9[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS9[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS9[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS9[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS9[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS9[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS9[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS9[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS9[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS9[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS9[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS9[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS9[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS9[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS9[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS9[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS9[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS9[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS9[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS9[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS9[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS9[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS9[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS9[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS9[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS9[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS9[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS9[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS9[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS9[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS9[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS9[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS9[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS9[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS9[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS9[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS9[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS9[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS9[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS9[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS9[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS9[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS9[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS9[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS10[0][index2] = bitsbuffer[i].range(0, 0);
@@ -11149,38 +11111,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS10[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS10[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS10[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS10[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS10[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS10[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS10[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS10[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS10[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS10[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS10[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS10[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS10[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS10[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS10[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS10[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS10[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS10[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS10[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS10[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS10[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS10[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS10[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS10[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS10[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS10[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS10[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS10[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS10[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS10[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS10[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS10[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS10[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS10[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS10[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS10[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS10[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS10[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS10[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS10[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS10[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS10[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS10[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS10[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS10[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS10[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS10[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS10[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS10[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS10[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS10[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS10[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS10[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS10[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS10[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS10[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS10[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS10[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS10[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS10[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS10[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS10[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS10[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS10[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS10[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS10[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		#ifdef _WIDEWORD
 		vmaskBITS11[0][index2] = bitsbuffer[i].range(0, 0);
@@ -11216,38 +11178,38 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 		vmaskBITS11[14][index2 + 1] = bitsbuffer[i].range(30, 30);
 		vmaskBITS11[15][index2 + 1] = bitsbuffer[i].range(31, 31);
 		#else 
-		vmaskBITS11[0][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 0, 1);
-		vmaskBITS11[1][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 1, 1);
-		vmaskBITS11[2][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 2, 1);
-		vmaskBITS11[3][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 3, 1);
-		vmaskBITS11[4][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 4, 1);
-		vmaskBITS11[5][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 5, 1);
-		vmaskBITS11[6][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 6, 1);
-		vmaskBITS11[7][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 7, 1);
-		vmaskBITS11[8][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 8, 1);
-		vmaskBITS11[9][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 9, 1);
-		vmaskBITS11[10][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 10, 1);
-		vmaskBITS11[11][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 11, 1);
-		vmaskBITS11[12][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 12, 1);
-		vmaskBITS11[13][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 13, 1);
-		vmaskBITS11[14][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 14, 1);
-		vmaskBITS11[15][index2] = UTIL_READFROM_UINT(bitsbuffer[i], 15, 1);
-		vmaskBITS11[0][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 16, 1);
-		vmaskBITS11[1][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 17, 1);
-		vmaskBITS11[2][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 18, 1);
-		vmaskBITS11[3][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 19, 1);
-		vmaskBITS11[4][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 20, 1);
-		vmaskBITS11[5][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 21, 1);
-		vmaskBITS11[6][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 22, 1);
-		vmaskBITS11[7][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 23, 1);
-		vmaskBITS11[8][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 24, 1);
-		vmaskBITS11[9][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 25, 1);
-		vmaskBITS11[10][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 26, 1);
-		vmaskBITS11[11][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 27, 1);
-		vmaskBITS11[12][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 28, 1);
-		vmaskBITS11[13][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 29, 1);
-		vmaskBITS11[14][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 30, 1);
-		vmaskBITS11[15][index2 + 1] = UTIL_READFROM_UINT(bitsbuffer[i], 31, 1);
+		vmaskBITS11[0][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 0, 1);
+		vmaskBITS11[1][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 1, 1);
+		vmaskBITS11[2][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 2, 1);
+		vmaskBITS11[3][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 3, 1);
+		vmaskBITS11[4][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 4, 1);
+		vmaskBITS11[5][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 5, 1);
+		vmaskBITS11[6][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 6, 1);
+		vmaskBITS11[7][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 7, 1);
+		vmaskBITS11[8][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 8, 1);
+		vmaskBITS11[9][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 9, 1);
+		vmaskBITS11[10][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 10, 1);
+		vmaskBITS11[11][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 11, 1);
+		vmaskBITS11[12][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 12, 1);
+		vmaskBITS11[13][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 13, 1);
+		vmaskBITS11[14][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 14, 1);
+		vmaskBITS11[15][index2] = UTILP0_READFROM_UINT(bitsbuffer[i], 15, 1);
+		vmaskBITS11[0][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 16, 1);
+		vmaskBITS11[1][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 17, 1);
+		vmaskBITS11[2][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 18, 1);
+		vmaskBITS11[3][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 19, 1);
+		vmaskBITS11[4][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 20, 1);
+		vmaskBITS11[5][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 21, 1);
+		vmaskBITS11[6][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 22, 1);
+		vmaskBITS11[7][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 23, 1);
+		vmaskBITS11[8][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 24, 1);
+		vmaskBITS11[9][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 25, 1);
+		vmaskBITS11[10][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 26, 1);
+		vmaskBITS11[11][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 27, 1);
+		vmaskBITS11[12][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 28, 1);
+		vmaskBITS11[13][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 29, 1);
+		vmaskBITS11[14][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 30, 1);
+		vmaskBITS11[15][index2 + 1] = UTILP0_READFROM_UINT(bitsbuffer[i], 31, 1);
 		#endif
 		
 		index2 += 2;
@@ -11255,7 +11217,7 @@ void MEMACCESS_SPL_readmanyvmasks12(bool_type enable, uint512_dt * kvdram, unit1
 	return;
 }
 
-void MEMACCESS_SPL_readmanyspmask1(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask1(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -11419,7 +11381,7 @@ void MEMACCESS_SPL_readmanyspmask1(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask2(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask2(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -11618,7 +11580,7 @@ void MEMACCESS_SPL_readmanyspmask2(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask3(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask3(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -11852,7 +11814,7 @@ void MEMACCESS_SPL_readmanyspmask3(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask4(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask4(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -12121,7 +12083,7 @@ void MEMACCESS_SPL_readmanyspmask4(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask5(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask5(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -12425,7 +12387,7 @@ void MEMACCESS_SPL_readmanyspmask5(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask6(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask6(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -12764,7 +12726,7 @@ void MEMACCESS_SPL_readmanyspmask6(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask7(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask7(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -13138,7 +13100,7 @@ void MEMACCESS_SPL_readmanyspmask7(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask8(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask8(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -13547,7 +13509,7 @@ void MEMACCESS_SPL_readmanyspmask8(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask9(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask9(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -13991,7 +13953,7 @@ void MEMACCESS_SPL_readmanyspmask9(bool_type enable, unit1_type vmask0[VMASK_PAC
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask10(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask10(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -14470,7 +14432,7 @@ void MEMACCESS_SPL_readmanyspmask10(bool_type enable, unit1_type vmask0[VMASK_PA
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask11(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask11(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -14984,7 +14946,7 @@ void MEMACCESS_SPL_readmanyspmask11(bool_type enable, unit1_type vmask0[VMASK_PA
 	#endif 
 	return;
 }
-void MEMACCESS_SPL_readmanyspmask12(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask11_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanyspmask12(bool_type enable, unit1_type vmask0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask0_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask1_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask2_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask3_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask4_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask5_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask6_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask7_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask8_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask9_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask10_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmask11_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type size_kvs){
 	
 	#ifdef NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNOTIMPLEMENTED // FIXME. NOT IMPLEMENTED.
 	
@@ -15534,7 +15496,7 @@ void MEMACCESS_SPL_readmanyspmask12(bool_type enable, unit1_type vmask0[VMASK_PA
 	return;
 }
 
-void MEMACCESS_SPL_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15544,7 +15506,7 @@ void MEMACCESS_SPL_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15556,7 +15518,7 @@ void MEMACCESS_SPL_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15570,7 +15532,7 @@ void MEMACCESS_SPL_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15586,7 +15548,7 @@ void MEMACCESS_SPL_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15604,7 +15566,7 @@ void MEMACCESS_SPL_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15624,7 +15586,7 @@ void MEMACCESS_SPL_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15646,7 +15608,7 @@ void MEMACCESS_SPL_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15670,7 +15632,7 @@ void MEMACCESS_SPL_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15696,7 +15658,7 @@ void MEMACCESS_SPL_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOC
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15724,7 +15686,7 @@ void MEMACCESS_SPL_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLO
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15754,7 +15716,7 @@ void MEMACCESS_SPL_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLO
 	}
 	return;
 }
-void MEMACCESS_SPL_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_SPL_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -15788,7 +15750,7 @@ void MEMACCESS_SPL_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLO
 }
 
 // -------------------- others -------------------- //
-void MEMACCESS_SPL_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
+void acts_all::MEMACCESSP0_SPL_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
 	// NOT IMPLEMENTED.
 	/* analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;

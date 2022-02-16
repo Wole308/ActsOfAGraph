@@ -11,6 +11,7 @@ print ('ACTGraph (Courtesy: Jinja 2.0)...')
 # context['XWARE'] = sys.argv[1]
 # context['XWARE'] = "SW_ALLINONE"
 
+context['id'] = "P0"
 context['XWARE'] = sys.argv[1]
 if context['XWARE'] == "SW":
     context['XWARE'] = "SW_ALLINONE"
@@ -28,6 +29,7 @@ context['LOCKE'] = sys.argv[9]
 context['EVALUATION_TYPE'] = sys.argv[10]
 context['EVALUATION_PARAM0'] = int(sys.argv[11])
 context['NUM_PEs'] = int(sys.argv[12])
+
 awspath = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 is_aws_path = os.path.isfile(awspath)  
 print(is_aws_path) 
@@ -85,74 +87,61 @@ EV_CREATENDGRAPH = [0, 1, 2, 3, 4]
 if context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH":
     context['VECTOR_SIZE'] = 8
     
-if context['DATASET'] == "_ORKUT_3M_106M": # small dataset
+if context['DATASET'] == "DATASET_ORKUT_3M_212M": # small dataset
     context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_HOLLYWOOD_1M_57M":
+elif context['DATASET'] == "DATASET_HOLLYWOOD_1M_114M":
     context['KVDATA_RANGE_POW'] = 21
-elif context['DATASET'] == "_KRON20_1M_45M":
+elif context['DATASET'] == "DATASET_KRON20_1M_45M":
     context['KVDATA_RANGE_POW'] = 20
-elif context['DATASET'] == "_KRON21_2M_91M":
+elif context['DATASET'] == "DATASET_KRON21_2M_91M":
     context['KVDATA_RANGE_POW'] = 21
-elif context['DATASET'] == "_KRON22_4M_200M":
+elif context['DATASET'] == "DATASET_KRON22_4M_200M":
     context['KVDATA_RANGE_POW'] = 22
-    
-elif context['DATASET'] == "_RMAT22_SPARSE0":
-    context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RMAT22_SPARSE1":
-    context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RMAT22_SPARSE2":
-    context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RMAT22_SPARSE3":
-    context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RMAT22_SPARSE4":
-    context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RMAT22_SPARSE5":
-    context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RMAT22_SPARSE6":
-    context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RMAT22_SPARSE7":
-    context['KVDATA_RANGE_POW'] = 22
-    
-elif context['DATASET'] == "_RMAT_RANGE0":
-    context['KVDATA_RANGE_POW'] = 20
-elif context['DATASET'] == "_RMAT_RANGE1":
-    context['KVDATA_RANGE_POW'] = 21
-elif context['DATASET'] == "_RMAT_RANGE2":
-    context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RMAT_RANGE3":
-    context['KVDATA_RANGE_POW'] = 23
-elif context['DATASET'] == "_RMAT_RANGE4":
+elif context['DATASET'] == "DATASET_RGG_N_2_24_S0_16M_265M":
     context['KVDATA_RANGE_POW'] = 24
-elif context['DATASET'] == "_RMAT_RANGE5":
-    context['KVDATA_RANGE_POW'] = 25
-elif context['DATASET'] == "_RMAT_RANGE6":
+elif context['DATASET'] == "DATASET_EUROPE_OSM_50M_108M":
     context['KVDATA_RANGE_POW'] = 26
-elif context['DATASET'] == "_RMAT_RANGE7":
-    context['KVDATA_RANGE_POW'] = 27
-    
-elif context['DATASET'] == "_INDOCHINA_7M_194M":
-    context['KVDATA_RANGE_POW'] = 23
-elif context['DATASET'] == "_RGG_4M_32M":
+elif context['DATASET'] == "DATASET_KMER_V2A_55M_117M":
+    context['KVDATA_RANGE_POW'] = 26
+elif context['DATASET'] == "DATASET_HUGEBUBBLES_00020_21M_63M":
+    context['KVDATA_RANGE_POW'] = 25
+elif context['DATASET'] == "DATASET_KMER_U1A_67M_138M":
+    context['KVDATA_RANGE_POW'] = 26
+
+elif context['DATASET'] == "DATASET_RMAT22_SPARSE0":
     context['KVDATA_RANGE_POW'] = 22
-elif context['DATASET'] == "_RGG_17M_132M":
-    context['KVDATA_RANGE_POW'] = 25
-elif context['DATASET'] == "_ROADNET_2M_3M":
-    context['KVDATA_RANGE_POW'] = 21
-elif context['DATASET'] == "_FLICKR_1M_10M":
-    context['KVDATA_RANGE_POW'] = 20
+elif context['DATASET'] == "DATASET_RMAT22_SPARSE1":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "DATASET_RMAT22_SPARSE2":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "DATASET_RMAT22_SPARSE3":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "DATASET_RMAT22_SPARSE4":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "DATASET_RMAT22_SPARSE5":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "DATASET_RMAT22_SPARSE6":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "DATASET_RMAT22_SPARSE7":
+    context['KVDATA_RANGE_POW'] = 22
     
-elif context['DATASET'] == "_TWITTER_67M": # large dataset
-    context['KVDATA_RANGE_POW'] = 26
-elif context['DATASET'] == "_MOLIERE2016_33M":
+elif context['DATASET'] == "DATASET_RMAT_RANGE0":
+    context['KVDATA_RANGE_POW'] = 20
+elif context['DATASET'] == "DATASET_RMAT_RANGE1":
+    context['KVDATA_RANGE_POW'] = 21
+elif context['DATASET'] == "DATASET_RMAT_RANGE2":
+    context['KVDATA_RANGE_POW'] = 22
+elif context['DATASET'] == "DATASET_RMAT_RANGE3":
+    context['KVDATA_RANGE_POW'] = 23
+elif context['DATASET'] == "DATASET_RMAT_RANGE4":
+    context['KVDATA_RANGE_POW'] = 24
+elif context['DATASET'] == "DATASET_RMAT_RANGE5":
     context['KVDATA_RANGE_POW'] = 25
-elif context['DATASET'] == "_LARGEDATASET_67M":
+elif context['DATASET'] == "DATASET_RMAT_RANGE6":
     context['KVDATA_RANGE_POW'] = 26
-elif context['DATASET'] == "_LARGEDATASET_268M":
-    context['KVDATA_RANGE_POW'] = 28
-elif context['DATASET'] == "_LARGEDATASET_1B":
-    context['KVDATA_RANGE_POW'] = 30
-elif context['DATASET'] == "_LARGEDATASET_4B":
-    context['KVDATA_RANGE_POW'] = 32
+elif context['DATASET'] == "DATASET_RMAT_RANGE7":
+    context['KVDATA_RANGE_POW'] = 27
+
 else:
     context['KVDATA_RANGE_POW'] = 0
 
@@ -258,13 +247,17 @@ else:
 
 ###
 
-cwd = os.getcwd()
-print (cwd)
-if (cwd=="/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/"):
-    relref="../"
-else:
-    relref=""
-	
+# cwd = os.getcwd()
+# print (cwd)
+# if (cwd=="/home/oj2zf/Documents/ActsOfAGraph/ztest_portal/"):
+    # print ('gen.py: YYYYYYYYYYYYYYYEEEEEEEEEESSSSSSSSSSSSSSSS...')
+    # relref="../"
+# else:
+    # print ('gen.py: NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO...')
+    # relref=""
+relref=""
+# relref="../"
+
 o_path0=relref+"acts/acts/acts.cpp"
 o_path1=relref+"acts/acts/acts.cpp"
 o_path2=relref+"acts/acts/acts.cpp"
@@ -316,6 +309,13 @@ o_path109=relref+"acts/acts/mem_access_splitdstvxs_mf.h"
 o_path110=relref+"acts/acts/acts_merge_splitdstvxs_mf.h"
 o_path111=relref+"acts/acts/mem_convert_and_access_mf.h"
 o_path112=relref+"acts/acts/acts_util_mf.h"
+o_path200=relref+"acts/acts/acts_allP0.cpp"
+o_path201=relref+"acts/acts/acts_allP0.h"
+o_path202=relref+"acts/acts/acts_allP1.cpp"
+o_path203=relref+"acts/acts/acts_allP1.h"
+o_path204=relref+"acts/acts/acts_allS.cpp"
+o_path205=relref+"acts/acts/acts_allS.h"
+o_path206=relref+"acts/acts/acts_allS.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -368,6 +368,13 @@ out_path109=os.path.abspath(o_path109)
 out_path110=os.path.abspath(o_path110)
 out_path111=os.path.abspath(o_path111)
 out_path112=os.path.abspath(o_path112)
+out_path200=os.path.abspath(o_path200)
+out_path201=os.path.abspath(o_path201)
+out_path202=os.path.abspath(o_path202)
+out_path203=os.path.abspath(o_path203)
+out_path204=os.path.abspath(o_path204)
+out_path205=os.path.abspath(o_path205)
+out_path206=os.path.abspath(o_path206)
 
 templ_path0=relref+"acts/acts_templates"
 templ_path1=relref+"acts/acts_templates"
@@ -420,6 +427,13 @@ templ_path109=relref+"acts/acts_templates"
 templ_path110=relref+"acts/acts_templates"
 templ_path111=relref+"acts/acts_templates"
 templ_path112=relref+"acts/acts_templates"
+templ_path200=relref+"acts/acts_templates"
+templ_path201=relref+"acts/acts_templates"
+templ_path202=relref+"acts/acts_templates"
+templ_path203=relref+"acts/acts_templates"
+templ_path204=relref+"acts/acts_templates"
+templ_path205=relref+"acts/acts_templates"
+templ_path206=relref+"acts/acts_templates"
 
 ###
 context['1_seq'] = []
@@ -683,6 +697,13 @@ env109 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path109)), tr
 env110 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path110)), trim_blocks=True, lstrip_blocks=True)
 env111 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path111)), trim_blocks=True, lstrip_blocks=True)
 env112 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path112)), trim_blocks=True, lstrip_blocks=True)
+env200 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path200)), trim_blocks=True, lstrip_blocks=True)
+env201 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path201)), trim_blocks=True, lstrip_blocks=True)
+env202 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path202)), trim_blocks=True, lstrip_blocks=True)
+env203 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path203)), trim_blocks=True, lstrip_blocks=True)
+env204 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path204)), trim_blocks=True, lstrip_blocks=True)
+env205 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path205)), trim_blocks=True, lstrip_blocks=True)
+env206 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path206)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -735,6 +756,13 @@ env109.globals.update(zip=zip)
 env110.globals.update(zip=zip)
 env111.globals.update(zip=zip)
 env112.globals.update(zip=zip)
+env200.globals.update(zip=zip)
+env201.globals.update(zip=zip)
+env202.globals.update(zip=zip)
+env203.globals.update(zip=zip)
+env204.globals.update(zip=zip)
+env205.globals.update(zip=zip)
+env206.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts.template')
@@ -787,6 +815,13 @@ template109 = env109.get_template('mem_access_splitdstvxs_mf.template')
 template110 = env110.get_template('acts_merge_splitdstvxs_mf.template')
 template111 = env111.get_template('mem_convert_and_access_mf.template')
 template112 = env112.get_template('acts_util_mf.template')
+template200 = env200.get_template('acts_all.template')
+template201 = env201.get_template('acts_all_h.template')
+template202 = env202.get_template('acts_all.template')
+template203 = env203.get_template('acts_all_h.template')
+template204 = env204.get_template('acts_all.template')
+template205 = env205.get_template('acts_all_h.template')
+template206 = env206.get_template('acts_all_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -839,6 +874,16 @@ rendered_file109 = template109.render(context=context)
 rendered_file110 = template110.render(context=context)
 rendered_file111 = template111.render(context=context)
 rendered_file112 = template12.render(context=context)
+context['id'] = "P0"
+rendered_file200 = template200.render(context=context)
+rendered_file201 = template201.render(context=context)
+context['id'] = "P1"
+rendered_file202 = template202.render(context=context)
+rendered_file203 = template203.render(context=context)
+context['id'] = "P2"
+rendered_file204 = template204.render(context=context)
+rendered_file205 = template205.render(context=context)
+rendered_file206 = template206.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -942,6 +987,20 @@ with open(out_path111, 'w') as outFile111:
 	outFile111.write(rendered_file111)
 with open(out_path112, 'w') as outFile112:
 	outFile112.write(rendered_file112)
+with open(out_path200, 'w') as outFile200:
+	outFile200.write(rendered_file200)
+with open(out_path201, 'w') as outFile201:
+	outFile201.write(rendered_file201)
+with open(out_path202, 'w') as outFile202:
+	outFile202.write(rendered_file202)
+with open(out_path203, 'w') as outFile203:
+	outFile203.write(rendered_file203) 
+with open(out_path204, 'w') as outFile204:
+	outFile204.write(rendered_file204) 
+with open(out_path205, 'w') as outFile205:
+	outFile205.write(rendered_file205)
+with open(out_path206, 'w') as outFile206:
+	outFile206.write(rendered_file206)
 
 print ("successful!")
 print ("...")

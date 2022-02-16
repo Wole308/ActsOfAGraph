@@ -79,10 +79,10 @@ void mydebug::printvdatas(keyvalue_vbuffer_t vdatas[VDATA_PACKINGSIZE][BLOCKRAM_
 		for(unsigned int i=0; i<BLOCKRAM_SIZE; i++){
 			if(i < limit){ 
 				cout<<"["<<2*i<<"]:"; 
-				for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdatas[v][i].key<<", "; } 
+				for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdatas[v][i].vmdata0.vdata<<", "; } 
 				cout<<endl; 
 				cout<<"["<<2*i+1<<"]:"; 
-				for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdatas[v][i].value<<", "; }
+				for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<vdatas[v][i].vmdata1.vdata<<", "; }
 				cout<<endl; 
 			}
 		}

@@ -8,14 +8,14 @@ using namespace std;
 
 class dataset {
 public:
-	dataset();
+	dataset(unsigned int id);
 	~dataset();
 	
 	unsigned int getdatasetid();
-	void loadalldatasets();
 
 private:
 	dataset_t datasets[32];
+	unsigned int mydatasetid;
 };
 #endif
 

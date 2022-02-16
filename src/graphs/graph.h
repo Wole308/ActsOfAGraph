@@ -103,6 +103,10 @@ public:
 	void generatevertexproperties();
 	
 	void loadalldatasets();
+	void load_realworld_datasets();
+	void load_synthetic_datasets();
+	void load_large_datasets();
+	
 	void setdataset(unsigned int id);
 	dataset_t getdataset();
 	void printdataset();

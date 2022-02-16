@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-{%if(context['XWARE'] == "HW")%}
+{%if(context['XWARE'] == "HW" or context['XWARE'] == "SWEMU")%}
 #include <string.h>
 #include <cmath>
 #include <ap_int.h>
@@ -15,7 +15,6 @@
 #define FPGA_IMPL
 #endif 
 #define {{context['PLATFORM']}} // AWS_PLATFORM, CRABTREE_PLATFORM
-// #define SW_IMPL //
 
 #ifdef GRAFBOOST_SETUP
 #define SORTREDUCEMODEL
@@ -64,8 +63,8 @@
 #define TESTKERNEL
 {%endif%}
 {%if(context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH")%}
-// #define _GENERATE2DGRAPH
-#define _GENERATEUNDIRECTEDGRAPH //
+#define _GENERATE2DGRAPH
+// #define _GENERATEUNDIRECTEDGRAPH //
 {%endif%}
 ////////////////
 
@@ -184,7 +183,7 @@
 #ifdef CONFIG_SEPERATEVMASKFROMVDATA
 #define VMASK_PACKINGSIZE (1 << VMASK_PACKINGSIZE_POW) //
 #else 
-#define VMASK_PACKINGSIZE 0	
+#define VMASK_PACKINGSIZE 1	
 #endif 
 
 #define NUMDRAMBANKS {{context['NUMDRAMBANKS']}}

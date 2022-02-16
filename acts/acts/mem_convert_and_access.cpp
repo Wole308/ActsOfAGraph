@@ -1,294 +1,487 @@
-#ifdef SW
-mem_convert_and_access::mem_convert_and_access(mydebug * _mydebugobj){ 
-	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(_mydebugobj); 
-	mydebugobj = _mydebugobj; 
-}
-mem_convert_and_access::~mem_convert_and_access(){}
-#endif
-
-// util 
-unsigned int MEMCA_READVDATA0(keyvalue_vbuffer_t wideword){
+// primitives
+unsigned int acts_all::MEMCAP0_READVDATA0(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	return UTIL_READBITSFROM_UINTV(wideword, 0, SIZEOF_VDATA0);
+	return UTILP0_READBITSFROM_UINTV(wideword, 0, SIZEOF_VDATA0);
 	#else 
-	return wideword.key;
+	return wideword.vmdata0.vdata;
 	#endif
 }
-unsigned int MEMCA_READVDATA1(keyvalue_vbuffer_t wideword){
+unsigned int acts_all::MEMCAP0_READVDATA1(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	return UTIL_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1);
+	return UTILP0_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1);
 	#else 
-	return wideword.value;
+	return wideword.vmdata1.vdata;
 	#endif
 }
-unsigned int MEMCA_READVMASK0(keyvalue_vbuffer_t wideword){
+unsigned int acts_all::MEMCAP0_READVMASK0(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	return UTIL_READBITSFROM_UINTV(wideword, SIZEOF_VDATA0, SIZEOF_VMASK0);
+	return UTILP0_READBITSFROM_UINTV(wideword, SIZEOF_VDATA0, SIZEOF_VMASK0);
 	#else 
-	return wideword.mask0;
+	return wideword.vmdata0.vmask;
 	#endif
 }
-unsigned int MEMCA_READVMASK1(keyvalue_vbuffer_t wideword){
+unsigned int acts_all::MEMCAP0_READVMASK1(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-	return UTIL_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1);
+	return UTILP0_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1);
 	#else 
-	return wideword.mask1;
+	return wideword.vmdata1.vmask;
 	#endif
 }
-unsigned int MEMCA_READVDATA0ANDVMASK0(keyvalue_vbuffer_t wideword){
+vmdata_t acts_all::MEMCAP0_READVDATA0ANDVMASK0(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
+	vmdata_t vmdata;
 	#ifdef _WIDEWORD
-	return UTIL_READBITSFROM_UINTV(wideword, 0, SIZEOF_VDATAKEY);
+	vmdata.vdata = UTILP0_READBITSFROM_UINTV(wideword, 0, SIZEOF_VDATA0);
+	vmdata.vmask = UTILP0_READBITSFROM_UINTV(wideword, SIZEOF_VDATA0, SIZEOF_VMASK0);
 	#else 
-	value_t vdata = wideword.key; unit1_type mask = wideword.mask0; value_t res = 0;
-	UTIL_WRITEBITSTO_UINTV(&res, 0, SIZEOF_VDATA0, vdata);
-	UTIL_WRITEBITSTO_UINTV(&res, SIZEOF_VDATA0, SIZEOF_VMASK0, mask);
-	return res;
-	// return UTIL_READBITSFROM_UINTV(wideword.key, 0, SIZEOF_VDATAKEY);
+	vmdata.vdata = wideword.vmdata0.vdata;
+	vmdata.vmask = wideword.vmdata0.vmask;
 	#endif
+	return vmdata;
 }
-unsigned int MEMCA_READVDATA1ANDVMASK1(keyvalue_vbuffer_t wideword){
+vmdata_t acts_all::MEMCAP0_READVDATA1ANDVMASK1(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
+	vmdata_t vmdata;	
 	#ifdef _WIDEWORD
-	return UTIL_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATAVALUE);
+	vmdata.vmask = UTILP0_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1);
+	vmdata.vdata = UTILP0_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1);
 	#else 
-	value_t vdata = wideword.value; unit1_type mask = wideword.mask0; value_t res = 0;
-	UTIL_WRITEBITSTO_UINTV(&res, 0, SIZEOF_VDATA1, vdata);
-	UTIL_WRITEBITSTO_UINTV(&res, SIZEOF_VDATA1, SIZEOF_VMASK1, mask);
-	return res;
-	// return UTIL_READBITSFROM_UINTV(wideword.value, 0, SIZEOF_VDATAVALUE);
+	vmdata.vmask = wideword.vmdata1.vmask;
+	vmdata.vdata = wideword.vmdata1.vdata;
 	#endif
+	return vmdata;
 }	
 
-void MEMCA_WRITEVDATA0(keyvalue_vbuffer_t * wideword, value_t vdata){
+void acts_all::MEMCAP0_WRITEVDATA0(keyvalue_vbuffer_t * wideword, value_t vdata){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-UTIL_WRITEBITSTO_UINTV(wideword, 0, SIZEOF_VDATA0, vdata);
+	UTILP0_WRITEBITSTO_UINTV(wideword, 0, SIZEOF_VDATA0, vdata);
 	#else 
-	wideword->key = vdata;
-	// UTIL_WRITEBITSTO_UINTV(&wideword->key, 0, SIZEOF_VDATA0, vdata);
+	wideword->vmdata0.vdata = vdata;
 	#endif 
 	return;
 }
-void MEMCA_WRITEVDATA1(keyvalue_vbuffer_t * wideword, value_t vdata){
+void acts_all::MEMCAP0_WRITEVDATA1(keyvalue_vbuffer_t * wideword, value_t vdata){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-UTIL_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdata);
+	UTILP0_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdata);
 	#else 
-	wideword->value = vdata;
-	// UTIL_WRITEBITSTO_UINTV(&wideword->value, 0, SIZEOF_VDATA1, vdata);
+	wideword->vmdata1.vdata = vdata;
 	#endif 
 	return;
 }
-void MEMCA_WRITEVMASK0(keyvalue_vbuffer_t * wideword, unit1_type vmask){
+void acts_all::MEMCAP0_WRITEVMASK0(keyvalue_vbuffer_t * wideword, unit1_type vmask){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-UTIL_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATA0, SIZEOF_VMASK0, vmask);
-	#else 
-	wideword->mask0 = vmask;
-	// UTIL_WRITEBITSTO_UINTV(&wideword->key, SIZEOF_VDATA0, SIZEOF_VMASK0, vmask);
+	UTILP0_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATA0, SIZEOF_VMASK0, vmask);
+	#else
+	wideword->vmdata0.vmask = vmask;
 	#endif 
 	return;
 }
-void MEMCA_WRITEVMASK1(keyvalue_vbuffer_t * wideword, unit1_type vmask){
+void acts_all::MEMCAP0_WRITEVMASK1(keyvalue_vbuffer_t * wideword, unit1_type vmask){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
-UTIL_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, vmask);
+	UTILP0_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, vmask);
 	#else 
-	wideword->mask1 = vmask;
-	// UTIL_WRITEBITSTO_UINTV(&wideword->value, SIZEOF_VDATA1, SIZEOF_VMASK1, vmask);
+	wideword->vmdata1.vmask = vmask;
 	#endif 
 	return;
 }
 
-keyvalue_vbuffer_t MEMCA_CREATEVBUFFERSTRUCT(value_t data0, value_t data1){
+keyvalue_vbuffer_t acts_all::MEMCAP0_CREATEVBUFFERSTRUCT(vmdata_t data0, vmdata_t data1){
 	#pragma HLS INLINE
 	keyvalue_vbuffer_t _wideword;
 	#ifdef _WIDEWORD
 	_wideword = 0;
-	_wideword.range(SIZEOF_VDATAKEY - 1, 0) = data0;
-	_wideword.range(SIZEOF_VDATAKEY + SIZEOF_VDATAVALUE - 1, SIZEOF_VDATAKEY) = data1;
-	#else 
-	// NOT IMPLEMENTED // CRITICAL FIXME
-	_wideword.mask0 = 0; // CRITICAL FIXME
-	_wideword.key = data0;
-	_wideword.mask1 = 0; // CRITICAL FIXME
-	_wideword.value = data1;
+	UTILP0_WRITEBITSTO_UINTV(&_wideword, 0, SIZEOF_VDATA0, data0.vdata);
+	UTILP0_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATA0, SIZEOF_VMASK0, data0.vmask);
+	UTILP0_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1, data1.vdata);
+	UTILP0_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, data1.vmask);
+	#else
+	_wideword.vmdata0.vmask = data0.vmask; 
+	_wideword.vmdata0.vdata = data0.vdata;
+	_wideword.vmdata1.vmask = data1.vmask; 
+	_wideword.vmdata1.vdata = data1.vdata;
 	#endif
 	return _wideword;
 }
 
-tuple_t MEMCA_READVDATA0WITHVMASK0(keyvalue_vbuffer_t wideword){
+void acts_all::MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	value_t datas[VECTOR2_SIZE];
+	#ifdef _WIDEWORD // CRITICAL FIXME.
+	datas[0] = kvdram[baseoffset_kvs + offset_kvs + index].range(31, 0); 
+	datas[1] = kvdram[baseoffset_kvs + offset_kvs + index].range(63, 32); 
+	datas[2] = kvdram[baseoffset_kvs + offset_kvs + index].range(95, 64); 
+	datas[3] = kvdram[baseoffset_kvs + offset_kvs + index].range(127, 96); 
+	datas[4] = kvdram[baseoffset_kvs + offset_kvs + index].range(159, 128); 
+	datas[5] = kvdram[baseoffset_kvs + offset_kvs + index].range(191, 160); 
+	datas[6] = kvdram[baseoffset_kvs + offset_kvs + index].range(223, 192); 
+	datas[7] = kvdram[baseoffset_kvs + offset_kvs + index].range(255, 224); 
+	datas[8] = kvdram[baseoffset_kvs + offset_kvs + index].range(287, 256); 
+	datas[9] = kvdram[baseoffset_kvs + offset_kvs + index].range(319, 288); 
+	datas[10] = kvdram[baseoffset_kvs + offset_kvs + index].range(351, 320); 
+	datas[11] = kvdram[baseoffset_kvs + offset_kvs + index].range(383, 352); 
+	datas[12] = kvdram[baseoffset_kvs + offset_kvs + index].range(415, 384); 
+	datas[13] = kvdram[baseoffset_kvs + offset_kvs + index].range(447, 416); 
+	datas[14] = kvdram[baseoffset_kvs + offset_kvs + index].range(479, 448); 
+	datas[15] = kvdram[baseoffset_kvs + offset_kvs + index].range(511, 480); 
+	#else 
+	datas[0] = kvdram[baseoffset_kvs + offset_kvs + index].data[0].key;
+	datas[1] = kvdram[baseoffset_kvs + offset_kvs + index].data[0].value; 
+	datas[2] = kvdram[baseoffset_kvs + offset_kvs + index].data[1].key;
+	datas[3] = kvdram[baseoffset_kvs + offset_kvs + index].data[1].value; 
+	datas[4] = kvdram[baseoffset_kvs + offset_kvs + index].data[2].key;
+	datas[5] = kvdram[baseoffset_kvs + offset_kvs + index].data[2].value; 
+	datas[6] = kvdram[baseoffset_kvs + offset_kvs + index].data[3].key;
+	datas[7] = kvdram[baseoffset_kvs + offset_kvs + index].data[3].value; 
+	datas[8] = kvdram[baseoffset_kvs + offset_kvs + index].data[4].key;
+	datas[9] = kvdram[baseoffset_kvs + offset_kvs + index].data[4].value; 
+	datas[10] = kvdram[baseoffset_kvs + offset_kvs + index].data[5].key;
+	datas[11] = kvdram[baseoffset_kvs + offset_kvs + index].data[5].value; 
+	datas[12] = kvdram[baseoffset_kvs + offset_kvs + index].data[6].key;
+	datas[13] = kvdram[baseoffset_kvs + offset_kvs + index].data[6].value; 
+	datas[14] = kvdram[baseoffset_kvs + offset_kvs + index].data[7].key;
+	datas[15] = kvdram[baseoffset_kvs + offset_kvs + index].data[7].value; 
+	#endif
+	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[0].vdata = UTILP0_READBITSFROM_UINTV(datas[0], 0, SIZEOF_VDATA0); 
+	vdatas[0].vmask = UTILP0_READBITSFROM_UINTV(datas[0], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[0].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[0].vmask: "<<vdatas[0].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[1].vdata = UTILP0_READBITSFROM_UINTV(datas[1], 0, SIZEOF_VDATA0); 
+	vdatas[1].vmask = UTILP0_READBITSFROM_UINTV(datas[1], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[1].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[1].vmask: "<<vdatas[1].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[2].vdata = UTILP0_READBITSFROM_UINTV(datas[2], 0, SIZEOF_VDATA0); 
+	vdatas[2].vmask = UTILP0_READBITSFROM_UINTV(datas[2], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[2].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[2].vmask: "<<vdatas[2].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[3].vdata = UTILP0_READBITSFROM_UINTV(datas[3], 0, SIZEOF_VDATA0); 
+	vdatas[3].vmask = UTILP0_READBITSFROM_UINTV(datas[3], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[3].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[3].vmask: "<<vdatas[3].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[4].vdata = UTILP0_READBITSFROM_UINTV(datas[4], 0, SIZEOF_VDATA0); 
+	vdatas[4].vmask = UTILP0_READBITSFROM_UINTV(datas[4], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[4].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[4].vmask: "<<vdatas[4].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[5].vdata = UTILP0_READBITSFROM_UINTV(datas[5], 0, SIZEOF_VDATA0); 
+	vdatas[5].vmask = UTILP0_READBITSFROM_UINTV(datas[5], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[5].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[5].vmask: "<<vdatas[5].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[6].vdata = UTILP0_READBITSFROM_UINTV(datas[6], 0, SIZEOF_VDATA0); 
+	vdatas[6].vmask = UTILP0_READBITSFROM_UINTV(datas[6], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[6].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[6].vmask: "<<vdatas[6].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[7].vdata = UTILP0_READBITSFROM_UINTV(datas[7], 0, SIZEOF_VDATA0); 
+	vdatas[7].vmask = UTILP0_READBITSFROM_UINTV(datas[7], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[7].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[7].vmask: "<<vdatas[7].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[8].vdata = UTILP0_READBITSFROM_UINTV(datas[8], 0, SIZEOF_VDATA0); 
+	vdatas[8].vmask = UTILP0_READBITSFROM_UINTV(datas[8], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[8].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[8].vmask: "<<vdatas[8].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[9].vdata = UTILP0_READBITSFROM_UINTV(datas[9], 0, SIZEOF_VDATA0); 
+	vdatas[9].vmask = UTILP0_READBITSFROM_UINTV(datas[9], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[9].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[9].vmask: "<<vdatas[9].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[10].vdata = UTILP0_READBITSFROM_UINTV(datas[10], 0, SIZEOF_VDATA0); 
+	vdatas[10].vmask = UTILP0_READBITSFROM_UINTV(datas[10], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[10].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[10].vmask: "<<vdatas[10].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[11].vdata = UTILP0_READBITSFROM_UINTV(datas[11], 0, SIZEOF_VDATA0); 
+	vdatas[11].vmask = UTILP0_READBITSFROM_UINTV(datas[11], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[11].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[11].vmask: "<<vdatas[11].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[12].vdata = UTILP0_READBITSFROM_UINTV(datas[12], 0, SIZEOF_VDATA0); 
+	vdatas[12].vmask = UTILP0_READBITSFROM_UINTV(datas[12], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[12].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[12].vmask: "<<vdatas[12].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[13].vdata = UTILP0_READBITSFROM_UINTV(datas[13], 0, SIZEOF_VDATA0); 
+	vdatas[13].vmask = UTILP0_READBITSFROM_UINTV(datas[13], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[13].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[13].vmask: "<<vdatas[13].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[14].vdata = UTILP0_READBITSFROM_UINTV(datas[14], 0, SIZEOF_VDATA0); 
+	vdatas[14].vmask = UTILP0_READBITSFROM_UINTV(datas[14], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[14].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[14].vmask: "<<vdatas[14].vmask<<endl; }	
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	vdatas[15].vdata = UTILP0_READBITSFROM_UINTV(datas[15], 0, SIZEOF_VDATA0); 
+	vdatas[15].vmask = UTILP0_READBITSFROM_UINTV(datas[15], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
+	// if(vdatas[15].vmask > 0){ cout<<"------------- MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[15].vmask: "<<vdatas[15].vmask<<endl; }	
+	return;
+}
+
+void acts_all::MEMCAP0_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vmdata[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){			
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	uint32_type datas[VECTOR2_SIZE];
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[0], 0, SIZEOF_VDATA0, vmdata[0].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[0], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[0].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[1], 0, SIZEOF_VDATA0, vmdata[1].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[1], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[1].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[2], 0, SIZEOF_VDATA0, vmdata[2].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[2], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[2].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[3], 0, SIZEOF_VDATA0, vmdata[3].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[3], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[3].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[4], 0, SIZEOF_VDATA0, vmdata[4].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[4], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[4].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[5], 0, SIZEOF_VDATA0, vmdata[5].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[5], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[5].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[6], 0, SIZEOF_VDATA0, vmdata[6].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[6], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[6].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[7], 0, SIZEOF_VDATA0, vmdata[7].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[7], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[7].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[8], 0, SIZEOF_VDATA0, vmdata[8].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[8], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[8].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[9], 0, SIZEOF_VDATA0, vmdata[9].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[9], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[9].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[10], 0, SIZEOF_VDATA0, vmdata[10].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[10], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[10].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[11], 0, SIZEOF_VDATA0, vmdata[11].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[11], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[11].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[12], 0, SIZEOF_VDATA0, vmdata[12].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[12], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[12].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[13], 0, SIZEOF_VDATA0, vmdata[13].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[13], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[13].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[14], 0, SIZEOF_VDATA0, vmdata[14].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[14], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[14].vmask); 
+ // CRITICAL FIXME. can be better for _WIDEWORD
+	UTILP0_WRITEBITSTO_UINTV(&datas[15], 0, SIZEOF_VDATA0, vmdata[15].vdata); 
+	UTILP0_WRITEBITSTO_UINTV(&datas[15], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[15].vmask); 
+	
+	#ifdef _WIDEWORD // CRITICAL FIXME.
+	kvdram[baseoffset_kvs + offset_kvs + index].range(31, 0) = datas[0];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(63, 32) = datas[1];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(95, 64) = datas[2];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(127, 96) = datas[3];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(159, 128) = datas[4];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(191, 160) = datas[5];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(223, 192) = datas[6];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(255, 224) = datas[7];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(287, 256) = datas[8];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(319, 288) = datas[9];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(351, 320) = datas[10];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(383, 352) = datas[11];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(415, 384) = datas[12];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(447, 416) = datas[13];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(479, 448) = datas[14];
+	kvdram[baseoffset_kvs + offset_kvs + index].range(511, 480) = datas[15];
+	#else 
+	kvdram[baseoffset_kvs + offset_kvs + index].data[0].key = datas[0];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[0].value = datas[1];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[1].key = datas[2];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[1].value = datas[3];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[2].key = datas[4];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[2].value = datas[5];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[3].key = datas[6];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[3].value = datas[7];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[4].key = datas[8];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[4].value = datas[9];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[5].key = datas[10];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[5].value = datas[11];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[6].key = datas[12];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[6].value = datas[13];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[7].key = datas[14];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[7].value = datas[15];
+	#endif
+	return;
+}
+
+// non-primitives
+tuple_t acts_all::MEMCAP0_READVDATA0WITHVMASK0(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	tuple_t res;
-	res.A = MEMCA_READVDATA0(wideword); 
-	res.B = MEMCA_READVMASK0(wideword); 
+	res.A = MEMCAP0_READVDATA0(wideword); 
+	res.B = MEMCAP0_READVMASK0(wideword); 
 	return res;
 }
-tuple_t MEMCA_READVDATA1WITHVMASK1(keyvalue_vbuffer_t wideword){
+tuple_t acts_all::MEMCAP0_READVDATA1WITHVMASK1(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	tuple_t res;
-	res.A = MEMCA_READVDATA1(wideword); 
-	res.B = MEMCA_READVMASK1(wideword); 
+	res.A = MEMCAP0_READVDATA1(wideword); 
+	res.B = MEMCAP0_READVMASK1(wideword); 
 	return res;
 }
 
-void MEMCA_WRITEVDATA0WITHVMASK0(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
+void acts_all::MEMCAP0_WRITEVDATA0WITHVMASK0(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
-	MEMCA_WRITEVDATA0(wideword, vdata);
-	MEMCA_WRITEVMASK0(wideword, vmask);
+	MEMCAP0_WRITEVDATA0(wideword, vdata);
+	MEMCAP0_WRITEVMASK0(wideword, vmask);
 	return;
 }
-void MEMCA_WRITEVDATA1WITHVMASK1(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
+void acts_all::MEMCAP0_WRITEVDATA1WITHVMASK1(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
-	MEMCA_WRITEVDATA1(wideword, vdata);
-	MEMCA_WRITEVMASK1(wideword, vmask);
+	MEMCAP0_WRITEVDATA1(wideword, vdata);
+	MEMCAP0_WRITEVMASK1(wideword, vmask);
 	return;
 }
 
 // vdata 
 // vdata:: used in {reduceupdates.cpp} 
-void MEMCA_WRITETOBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], value_t vdata, batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], value_t vdata, batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	if(index%2==0){
-		MEMCA_WRITEVDATA0(&buffer[bufferoffset_kvs + index/2], vdata);
+		MEMCAP0_WRITEVDATA0(&buffer[bufferoffset_kvs + index/2], vdata);
 	} else{
-		MEMCA_WRITEVDATA1(&buffer[bufferoffset_kvs + index/2], vdata);
+		MEMCAP0_WRITEVDATA1(&buffer[bufferoffset_kvs + index/2], vdata);
 	}
 	return;
 }
 
-// vdata:: used in {dispatch_reduce -> mem_access_splitdstvxs.cpp -> MEMACCESS_SPL_readV} 
-void MEMCA_WRITETOBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+// vdata:: used in {dispatch_reduce -> mem_access_splitdstvxs.cpp -> MEMACCESSP0_SPL_readV} 
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	if(index%2==0){
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[0][bufferoffset_kvs + index/2], vdatas[0], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[1][bufferoffset_kvs + index/2], vdatas[1], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[2][bufferoffset_kvs + index/2], vdatas[2], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[3][bufferoffset_kvs + index/2], vdatas[3], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[4][bufferoffset_kvs + index/2], vdatas[4], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[5][bufferoffset_kvs + index/2], vdatas[5], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[6][bufferoffset_kvs + index/2], vdatas[6], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[7][bufferoffset_kvs + index/2], vdatas[7], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[8][bufferoffset_kvs + index/2], vdatas[8], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[9][bufferoffset_kvs + index/2], vdatas[9], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[10][bufferoffset_kvs + index/2], vdatas[10], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[11][bufferoffset_kvs + index/2], vdatas[11], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[12][bufferoffset_kvs + index/2], vdatas[12], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[13][bufferoffset_kvs + index/2], vdatas[13], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[14][bufferoffset_kvs + index/2], vdatas[14], 0);
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[15][bufferoffset_kvs + index/2], vdatas[15], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[0][bufferoffset_kvs + index/2], vdatas[0], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[1][bufferoffset_kvs + index/2], vdatas[1], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[2][bufferoffset_kvs + index/2], vdatas[2], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[3][bufferoffset_kvs + index/2], vdatas[3], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[4][bufferoffset_kvs + index/2], vdatas[4], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[5][bufferoffset_kvs + index/2], vdatas[5], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[6][bufferoffset_kvs + index/2], vdatas[6], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[7][bufferoffset_kvs + index/2], vdatas[7], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[8][bufferoffset_kvs + index/2], vdatas[8], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[9][bufferoffset_kvs + index/2], vdatas[9], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[10][bufferoffset_kvs + index/2], vdatas[10], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[11][bufferoffset_kvs + index/2], vdatas[11], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[12][bufferoffset_kvs + index/2], vdatas[12], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[13][bufferoffset_kvs + index/2], vdatas[13], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[14][bufferoffset_kvs + index/2], vdatas[14], 0);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[15][bufferoffset_kvs + index/2], vdatas[15], 0);
 	} else{
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[0][bufferoffset_kvs + index/2], vdatas[0], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[1][bufferoffset_kvs + index/2], vdatas[1], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[2][bufferoffset_kvs + index/2], vdatas[2], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[3][bufferoffset_kvs + index/2], vdatas[3], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[4][bufferoffset_kvs + index/2], vdatas[4], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[5][bufferoffset_kvs + index/2], vdatas[5], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[6][bufferoffset_kvs + index/2], vdatas[6], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[7][bufferoffset_kvs + index/2], vdatas[7], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[8][bufferoffset_kvs + index/2], vdatas[8], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[9][bufferoffset_kvs + index/2], vdatas[9], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[10][bufferoffset_kvs + index/2], vdatas[10], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[11][bufferoffset_kvs + index/2], vdatas[11], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[12][bufferoffset_kvs + index/2], vdatas[12], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[13][bufferoffset_kvs + index/2], vdatas[13], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[14][bufferoffset_kvs + index/2], vdatas[14], 0);
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[15][bufferoffset_kvs + index/2], vdatas[15], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[0][bufferoffset_kvs + index/2], vdatas[0], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[1][bufferoffset_kvs + index/2], vdatas[1], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[2][bufferoffset_kvs + index/2], vdatas[2], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[3][bufferoffset_kvs + index/2], vdatas[3], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[4][bufferoffset_kvs + index/2], vdatas[4], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[5][bufferoffset_kvs + index/2], vdatas[5], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[6][bufferoffset_kvs + index/2], vdatas[6], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[7][bufferoffset_kvs + index/2], vdatas[7], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[8][bufferoffset_kvs + index/2], vdatas[8], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[9][bufferoffset_kvs + index/2], vdatas[9], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[10][bufferoffset_kvs + index/2], vdatas[10], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[11][bufferoffset_kvs + index/2], vdatas[11], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[12][bufferoffset_kvs + index/2], vdatas[12], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[13][bufferoffset_kvs + index/2], vdatas[13], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[14][bufferoffset_kvs + index/2], vdatas[14], 0);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[15][bufferoffset_kvs + index/2], vdatas[15], 0);
 	}
 	return;
 }
 
 // vdata:: used in {reduceupdates.cpp, processedges_splitdstvxs.cpp} 
-value_t MEMCA_READFROMBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], batch_type bufferoffset_kvs){
+value_t acts_all::MEMCAP0_READFROMBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_READFROMBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_READFROMBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	value_t vdata = 0;
 	if(index%2==0){
-		vdata = MEMCA_READVDATA0(buffer[bufferoffset_kvs + index/2]);
+		vdata = MEMCAP0_READVDATA0(buffer[bufferoffset_kvs + index/2]);
 	} else{
-		vdata = MEMCA_READVDATA1(buffer[bufferoffset_kvs + index/2]);
+		vdata = MEMCAP0_READVDATA1(buffer[bufferoffset_kvs + index/2]);
 	}
 	return vdata;
 }
 
 // vdata:: used in {processedges_splitdstvxs.cpp} // soon obsolete 
-void MEMCA_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_READFROMBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_READFROMBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	if(index%2==0){
-		vdatas[0] = MEMCA_READVDATA0(buffer[0][bufferoffset_kvs + index/2]);
-		vdatas[1] = MEMCA_READVDATA0(buffer[1][bufferoffset_kvs + index/2]);
-		vdatas[2] = MEMCA_READVDATA0(buffer[2][bufferoffset_kvs + index/2]);
-		vdatas[3] = MEMCA_READVDATA0(buffer[3][bufferoffset_kvs + index/2]);
-		vdatas[4] = MEMCA_READVDATA0(buffer[4][bufferoffset_kvs + index/2]);
-		vdatas[5] = MEMCA_READVDATA0(buffer[5][bufferoffset_kvs + index/2]);
-		vdatas[6] = MEMCA_READVDATA0(buffer[6][bufferoffset_kvs + index/2]);
-		vdatas[7] = MEMCA_READVDATA0(buffer[7][bufferoffset_kvs + index/2]);
-		vdatas[8] = MEMCA_READVDATA0(buffer[8][bufferoffset_kvs + index/2]);
-		vdatas[9] = MEMCA_READVDATA0(buffer[9][bufferoffset_kvs + index/2]);
-		vdatas[10] = MEMCA_READVDATA0(buffer[10][bufferoffset_kvs + index/2]);
-		vdatas[11] = MEMCA_READVDATA0(buffer[11][bufferoffset_kvs + index/2]);
-		vdatas[12] = MEMCA_READVDATA0(buffer[12][bufferoffset_kvs + index/2]);
-		vdatas[13] = MEMCA_READVDATA0(buffer[13][bufferoffset_kvs + index/2]);
-		vdatas[14] = MEMCA_READVDATA0(buffer[14][bufferoffset_kvs + index/2]);
-		vdatas[15] = MEMCA_READVDATA0(buffer[15][bufferoffset_kvs + index/2]);
+		vdatas[0] = MEMCAP0_READVDATA0(buffer[0][bufferoffset_kvs + index/2]);
+		vdatas[1] = MEMCAP0_READVDATA0(buffer[1][bufferoffset_kvs + index/2]);
+		vdatas[2] = MEMCAP0_READVDATA0(buffer[2][bufferoffset_kvs + index/2]);
+		vdatas[3] = MEMCAP0_READVDATA0(buffer[3][bufferoffset_kvs + index/2]);
+		vdatas[4] = MEMCAP0_READVDATA0(buffer[4][bufferoffset_kvs + index/2]);
+		vdatas[5] = MEMCAP0_READVDATA0(buffer[5][bufferoffset_kvs + index/2]);
+		vdatas[6] = MEMCAP0_READVDATA0(buffer[6][bufferoffset_kvs + index/2]);
+		vdatas[7] = MEMCAP0_READVDATA0(buffer[7][bufferoffset_kvs + index/2]);
+		vdatas[8] = MEMCAP0_READVDATA0(buffer[8][bufferoffset_kvs + index/2]);
+		vdatas[9] = MEMCAP0_READVDATA0(buffer[9][bufferoffset_kvs + index/2]);
+		vdatas[10] = MEMCAP0_READVDATA0(buffer[10][bufferoffset_kvs + index/2]);
+		vdatas[11] = MEMCAP0_READVDATA0(buffer[11][bufferoffset_kvs + index/2]);
+		vdatas[12] = MEMCAP0_READVDATA0(buffer[12][bufferoffset_kvs + index/2]);
+		vdatas[13] = MEMCAP0_READVDATA0(buffer[13][bufferoffset_kvs + index/2]);
+		vdatas[14] = MEMCAP0_READVDATA0(buffer[14][bufferoffset_kvs + index/2]);
+		vdatas[15] = MEMCAP0_READVDATA0(buffer[15][bufferoffset_kvs + index/2]);
 	} else{
-		vdatas[0] = MEMCA_READVDATA1(buffer[0][bufferoffset_kvs + index/2]);
-		vdatas[1] = MEMCA_READVDATA1(buffer[1][bufferoffset_kvs + index/2]);
-		vdatas[2] = MEMCA_READVDATA1(buffer[2][bufferoffset_kvs + index/2]);
-		vdatas[3] = MEMCA_READVDATA1(buffer[3][bufferoffset_kvs + index/2]);
-		vdatas[4] = MEMCA_READVDATA1(buffer[4][bufferoffset_kvs + index/2]);
-		vdatas[5] = MEMCA_READVDATA1(buffer[5][bufferoffset_kvs + index/2]);
-		vdatas[6] = MEMCA_READVDATA1(buffer[6][bufferoffset_kvs + index/2]);
-		vdatas[7] = MEMCA_READVDATA1(buffer[7][bufferoffset_kvs + index/2]);
-		vdatas[8] = MEMCA_READVDATA1(buffer[8][bufferoffset_kvs + index/2]);
-		vdatas[9] = MEMCA_READVDATA1(buffer[9][bufferoffset_kvs + index/2]);
-		vdatas[10] = MEMCA_READVDATA1(buffer[10][bufferoffset_kvs + index/2]);
-		vdatas[11] = MEMCA_READVDATA1(buffer[11][bufferoffset_kvs + index/2]);
-		vdatas[12] = MEMCA_READVDATA1(buffer[12][bufferoffset_kvs + index/2]);
-		vdatas[13] = MEMCA_READVDATA1(buffer[13][bufferoffset_kvs + index/2]);
-		vdatas[14] = MEMCA_READVDATA1(buffer[14][bufferoffset_kvs + index/2]);
-		vdatas[15] = MEMCA_READVDATA1(buffer[15][bufferoffset_kvs + index/2]);
+		vdatas[0] = MEMCAP0_READVDATA1(buffer[0][bufferoffset_kvs + index/2]);
+		vdatas[1] = MEMCAP0_READVDATA1(buffer[1][bufferoffset_kvs + index/2]);
+		vdatas[2] = MEMCAP0_READVDATA1(buffer[2][bufferoffset_kvs + index/2]);
+		vdatas[3] = MEMCAP0_READVDATA1(buffer[3][bufferoffset_kvs + index/2]);
+		vdatas[4] = MEMCAP0_READVDATA1(buffer[4][bufferoffset_kvs + index/2]);
+		vdatas[5] = MEMCAP0_READVDATA1(buffer[5][bufferoffset_kvs + index/2]);
+		vdatas[6] = MEMCAP0_READVDATA1(buffer[6][bufferoffset_kvs + index/2]);
+		vdatas[7] = MEMCAP0_READVDATA1(buffer[7][bufferoffset_kvs + index/2]);
+		vdatas[8] = MEMCAP0_READVDATA1(buffer[8][bufferoffset_kvs + index/2]);
+		vdatas[9] = MEMCAP0_READVDATA1(buffer[9][bufferoffset_kvs + index/2]);
+		vdatas[10] = MEMCAP0_READVDATA1(buffer[10][bufferoffset_kvs + index/2]);
+		vdatas[11] = MEMCAP0_READVDATA1(buffer[11][bufferoffset_kvs + index/2]);
+		vdatas[12] = MEMCAP0_READVDATA1(buffer[12][bufferoffset_kvs + index/2]);
+		vdatas[13] = MEMCAP0_READVDATA1(buffer[13][bufferoffset_kvs + index/2]);
+		vdatas[14] = MEMCAP0_READVDATA1(buffer[14][bufferoffset_kvs + index/2]);
+		vdatas[15] = MEMCAP0_READVDATA1(buffer[15][bufferoffset_kvs + index/2]);
 	}
 	return;
 }
 
 // vmasks (soon OBSOLETE)
-unit1_type MEMCA_READFROMBUFFER_VMASK(unsigned int index, unit1_type vmaskBITS[DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset_kvs){
+unit1_type acts_all::MEMCAP0_READFROMBUFFER_VMASK(unsigned int index, unit1_type vmaskBITS[DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VMASK:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_READFROMBUFFER_VMASK:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	unit1_type vmdata = vmaskBITS[bufferoffset_kvs + index];
 	return vmdata;
 }
 
-void MEMCA_READFROMBUFFER_VMASKS(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_READFROMBUFFER_VMASKS(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_READFROMBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_READFROMBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmdatas[0] = vmaskBITS[0][bufferoffset_kvs + index];
@@ -310,10 +503,10 @@ void MEMCA_READFROMBUFFER_VMASKS(unsigned int index, unit1_type vmaskBITS[VMASK_
 	return;
 }
 
-void MEMCA_WRITETOBUFFER_VMASKS(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -335,10 +528,10 @@ void MEMCA_WRITETOBUFFER_VMASKS(unsigned int index, unit1_type vmaskBITS[VMASK_P
 	return;
 }
 
-void MEMCA_WRITETOBUFFER_VMASKS1_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS1_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -359,10 +552,10 @@ void MEMCA_WRITETOBUFFER_VMASKS1_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS0[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS2_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS2_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -399,10 +592,10 @@ void MEMCA_WRITETOBUFFER_VMASKS2_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS1[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS3_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS3_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -455,10 +648,10 @@ void MEMCA_WRITETOBUFFER_VMASKS3_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS2[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS4_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS4_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -527,10 +720,10 @@ void MEMCA_WRITETOBUFFER_VMASKS4_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS3[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS5_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS5_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -615,10 +808,10 @@ void MEMCA_WRITETOBUFFER_VMASKS5_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS4[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS6_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS6_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -719,10 +912,10 @@ void MEMCA_WRITETOBUFFER_VMASKS6_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS5[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS7_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS7_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -839,10 +1032,10 @@ void MEMCA_WRITETOBUFFER_VMASKS7_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS6[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS8_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS8_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -975,10 +1168,10 @@ void MEMCA_WRITETOBUFFER_VMASKS8_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS7[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS9_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS9_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -1127,10 +1320,10 @@ void MEMCA_WRITETOBUFFER_VMASKS9_ANDREPLICATE(unsigned int index, unit1_type vma
 	vmaskBITS8[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS10_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS10_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -1295,10 +1488,10 @@ void MEMCA_WRITETOBUFFER_VMASKS10_ANDREPLICATE(unsigned int index, unit1_type vm
 	vmaskBITS9[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS11_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS11_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -1479,10 +1672,10 @@ void MEMCA_WRITETOBUFFER_VMASKS11_ANDREPLICATE(unsigned int index, unit1_type vm
 	vmaskBITS10[15][bufferoffset_kvs + index] = vmdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VMASKS12_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS12_ANDREPLICATE(unsigned int index, unit1_type vmaskBITS0[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS1[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS2[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS3[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS4[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS5[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS6[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS7[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS8[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS9[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS10[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],unit1_type vmaskBITS11[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){					
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS:", index, DOUBLE_BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmaskBITS0[0][bufferoffset_kvs + index] = vmdatas[0];
@@ -1680,70 +1873,70 @@ void MEMCA_WRITETOBUFFER_VMASKS12_ANDREPLICATE(unsigned int index, unit1_type vm
 	return;
 }
 
-void MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS(unsigned int indexes[VDATA_PACKINGSIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS(unsigned int indexes[VDATA_PACKINGSIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[0], DOUBLE_BLOCKRAM_SIZE, indexes[0], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[0], DOUBLE_BLOCKRAM_SIZE, indexes[0], NAp, NAp);
 	#endif
 	vmaskBITS[0][bufferoffset_kvs + indexes[0]] = vmdatas[0];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[1], DOUBLE_BLOCKRAM_SIZE, indexes[1], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[1], DOUBLE_BLOCKRAM_SIZE, indexes[1], NAp, NAp);
 	#endif
 	vmaskBITS[1][bufferoffset_kvs + indexes[1]] = vmdatas[1];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[2], DOUBLE_BLOCKRAM_SIZE, indexes[2], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[2], DOUBLE_BLOCKRAM_SIZE, indexes[2], NAp, NAp);
 	#endif
 	vmaskBITS[2][bufferoffset_kvs + indexes[2]] = vmdatas[2];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[3], DOUBLE_BLOCKRAM_SIZE, indexes[3], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[3], DOUBLE_BLOCKRAM_SIZE, indexes[3], NAp, NAp);
 	#endif
 	vmaskBITS[3][bufferoffset_kvs + indexes[3]] = vmdatas[3];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[4], DOUBLE_BLOCKRAM_SIZE, indexes[4], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[4], DOUBLE_BLOCKRAM_SIZE, indexes[4], NAp, NAp);
 	#endif
 	vmaskBITS[4][bufferoffset_kvs + indexes[4]] = vmdatas[4];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[5], DOUBLE_BLOCKRAM_SIZE, indexes[5], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[5], DOUBLE_BLOCKRAM_SIZE, indexes[5], NAp, NAp);
 	#endif
 	vmaskBITS[5][bufferoffset_kvs + indexes[5]] = vmdatas[5];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[6], DOUBLE_BLOCKRAM_SIZE, indexes[6], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[6], DOUBLE_BLOCKRAM_SIZE, indexes[6], NAp, NAp);
 	#endif
 	vmaskBITS[6][bufferoffset_kvs + indexes[6]] = vmdatas[6];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[7], DOUBLE_BLOCKRAM_SIZE, indexes[7], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[7], DOUBLE_BLOCKRAM_SIZE, indexes[7], NAp, NAp);
 	#endif
 	vmaskBITS[7][bufferoffset_kvs + indexes[7]] = vmdatas[7];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[8], DOUBLE_BLOCKRAM_SIZE, indexes[8], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[8], DOUBLE_BLOCKRAM_SIZE, indexes[8], NAp, NAp);
 	#endif
 	vmaskBITS[8][bufferoffset_kvs + indexes[8]] = vmdatas[8];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[9], DOUBLE_BLOCKRAM_SIZE, indexes[9], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[9], DOUBLE_BLOCKRAM_SIZE, indexes[9], NAp, NAp);
 	#endif
 	vmaskBITS[9][bufferoffset_kvs + indexes[9]] = vmdatas[9];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[10], DOUBLE_BLOCKRAM_SIZE, indexes[10], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[10], DOUBLE_BLOCKRAM_SIZE, indexes[10], NAp, NAp);
 	#endif
 	vmaskBITS[10][bufferoffset_kvs + indexes[10]] = vmdatas[10];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[11], DOUBLE_BLOCKRAM_SIZE, indexes[11], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[11], DOUBLE_BLOCKRAM_SIZE, indexes[11], NAp, NAp);
 	#endif
 	vmaskBITS[11][bufferoffset_kvs + indexes[11]] = vmdatas[11];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[12], DOUBLE_BLOCKRAM_SIZE, indexes[12], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[12], DOUBLE_BLOCKRAM_SIZE, indexes[12], NAp, NAp);
 	#endif
 	vmaskBITS[12][bufferoffset_kvs + indexes[12]] = vmdatas[12];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[13], DOUBLE_BLOCKRAM_SIZE, indexes[13], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[13], DOUBLE_BLOCKRAM_SIZE, indexes[13], NAp, NAp);
 	#endif
 	vmaskBITS[13][bufferoffset_kvs + indexes[13]] = vmdatas[13];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[14], DOUBLE_BLOCKRAM_SIZE, indexes[14], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[14], DOUBLE_BLOCKRAM_SIZE, indexes[14], NAp, NAp);
 	#endif
 	vmaskBITS[14][bufferoffset_kvs + indexes[14]] = vmdatas[14];
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[15], DOUBLE_BLOCKRAM_SIZE, indexes[15], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VMASKS_WITHDEPTHS:", indexes[15], DOUBLE_BLOCKRAM_SIZE, indexes[15], NAp, NAp);
 	#endif
 	vmaskBITS[15][bufferoffset_kvs + indexes[15]] = vmdatas[15];
 	return;
@@ -1751,210 +1944,212 @@ void MEMCA_WRITETOBUFFER_VMASKS_WITHDEPTHS(unsigned int indexes[VDATA_PACKINGSIZ
 
 // vdata & vmasks 
 // used in {classname__processedges_splitdstvxs.cpp} 
-void MEMCA_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_READFROMBUFFER_VDATASWITHVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_READFROMBUFFER_VDATASWITHVMASKS:", bufferoffset_kvs + index/2, BLOCKRAM_VDATA_SIZE, index, NAp, NAp);
 	#endif
 	
 	if(index%2==0){
-		tuple_t tup0 = MEMCA_READVDATA0WITHVMASK0(buffer[0][bufferoffset_kvs + index/2]);
+		tuple_t tup0 = MEMCAP0_READVDATA0WITHVMASK0(buffer[0][bufferoffset_kvs + index/2]);
 		vdatas[0] = tup0.A;
 		vmdatas[0] = tup0.B;
-		tuple_t tup1 = MEMCA_READVDATA0WITHVMASK0(buffer[1][bufferoffset_kvs + index/2]);
+		tuple_t tup1 = MEMCAP0_READVDATA0WITHVMASK0(buffer[1][bufferoffset_kvs + index/2]);
 		vdatas[1] = tup1.A;
 		vmdatas[1] = tup1.B;
-		tuple_t tup2 = MEMCA_READVDATA0WITHVMASK0(buffer[2][bufferoffset_kvs + index/2]);
+		tuple_t tup2 = MEMCAP0_READVDATA0WITHVMASK0(buffer[2][bufferoffset_kvs + index/2]);
 		vdatas[2] = tup2.A;
 		vmdatas[2] = tup2.B;
-		tuple_t tup3 = MEMCA_READVDATA0WITHVMASK0(buffer[3][bufferoffset_kvs + index/2]);
+		tuple_t tup3 = MEMCAP0_READVDATA0WITHVMASK0(buffer[3][bufferoffset_kvs + index/2]);
 		vdatas[3] = tup3.A;
 		vmdatas[3] = tup3.B;
-		tuple_t tup4 = MEMCA_READVDATA0WITHVMASK0(buffer[4][bufferoffset_kvs + index/2]);
+		tuple_t tup4 = MEMCAP0_READVDATA0WITHVMASK0(buffer[4][bufferoffset_kvs + index/2]);
 		vdatas[4] = tup4.A;
 		vmdatas[4] = tup4.B;
-		tuple_t tup5 = MEMCA_READVDATA0WITHVMASK0(buffer[5][bufferoffset_kvs + index/2]);
+		tuple_t tup5 = MEMCAP0_READVDATA0WITHVMASK0(buffer[5][bufferoffset_kvs + index/2]);
 		vdatas[5] = tup5.A;
 		vmdatas[5] = tup5.B;
-		tuple_t tup6 = MEMCA_READVDATA0WITHVMASK0(buffer[6][bufferoffset_kvs + index/2]);
+		tuple_t tup6 = MEMCAP0_READVDATA0WITHVMASK0(buffer[6][bufferoffset_kvs + index/2]);
 		vdatas[6] = tup6.A;
 		vmdatas[6] = tup6.B;
-		tuple_t tup7 = MEMCA_READVDATA0WITHVMASK0(buffer[7][bufferoffset_kvs + index/2]);
+		tuple_t tup7 = MEMCAP0_READVDATA0WITHVMASK0(buffer[7][bufferoffset_kvs + index/2]);
 		vdatas[7] = tup7.A;
 		vmdatas[7] = tup7.B;
-		tuple_t tup8 = MEMCA_READVDATA0WITHVMASK0(buffer[8][bufferoffset_kvs + index/2]);
+		tuple_t tup8 = MEMCAP0_READVDATA0WITHVMASK0(buffer[8][bufferoffset_kvs + index/2]);
 		vdatas[8] = tup8.A;
 		vmdatas[8] = tup8.B;
-		tuple_t tup9 = MEMCA_READVDATA0WITHVMASK0(buffer[9][bufferoffset_kvs + index/2]);
+		tuple_t tup9 = MEMCAP0_READVDATA0WITHVMASK0(buffer[9][bufferoffset_kvs + index/2]);
 		vdatas[9] = tup9.A;
 		vmdatas[9] = tup9.B;
-		tuple_t tup10 = MEMCA_READVDATA0WITHVMASK0(buffer[10][bufferoffset_kvs + index/2]);
+		tuple_t tup10 = MEMCAP0_READVDATA0WITHVMASK0(buffer[10][bufferoffset_kvs + index/2]);
 		vdatas[10] = tup10.A;
 		vmdatas[10] = tup10.B;
-		tuple_t tup11 = MEMCA_READVDATA0WITHVMASK0(buffer[11][bufferoffset_kvs + index/2]);
+		tuple_t tup11 = MEMCAP0_READVDATA0WITHVMASK0(buffer[11][bufferoffset_kvs + index/2]);
 		vdatas[11] = tup11.A;
 		vmdatas[11] = tup11.B;
-		tuple_t tup12 = MEMCA_READVDATA0WITHVMASK0(buffer[12][bufferoffset_kvs + index/2]);
+		tuple_t tup12 = MEMCAP0_READVDATA0WITHVMASK0(buffer[12][bufferoffset_kvs + index/2]);
 		vdatas[12] = tup12.A;
 		vmdatas[12] = tup12.B;
-		tuple_t tup13 = MEMCA_READVDATA0WITHVMASK0(buffer[13][bufferoffset_kvs + index/2]);
+		tuple_t tup13 = MEMCAP0_READVDATA0WITHVMASK0(buffer[13][bufferoffset_kvs + index/2]);
 		vdatas[13] = tup13.A;
 		vmdatas[13] = tup13.B;
-		tuple_t tup14 = MEMCA_READVDATA0WITHVMASK0(buffer[14][bufferoffset_kvs + index/2]);
+		tuple_t tup14 = MEMCAP0_READVDATA0WITHVMASK0(buffer[14][bufferoffset_kvs + index/2]);
 		vdatas[14] = tup14.A;
 		vmdatas[14] = tup14.B;
-		tuple_t tup15 = MEMCA_READVDATA0WITHVMASK0(buffer[15][bufferoffset_kvs + index/2]);
+		tuple_t tup15 = MEMCAP0_READVDATA0WITHVMASK0(buffer[15][bufferoffset_kvs + index/2]);
 		vdatas[15] = tup15.A;
 		vmdatas[15] = tup15.B;
 	} else{
-		tuple_t tup0 = MEMCA_READVDATA1WITHVMASK1(buffer[0][bufferoffset_kvs + index/2]);
+		tuple_t tup0 = MEMCAP0_READVDATA1WITHVMASK1(buffer[0][bufferoffset_kvs + index/2]);
 		vdatas[0] = tup0.A;
 		vmdatas[0] = tup0.B;
-		tuple_t tup1 = MEMCA_READVDATA1WITHVMASK1(buffer[1][bufferoffset_kvs + index/2]);
+		tuple_t tup1 = MEMCAP0_READVDATA1WITHVMASK1(buffer[1][bufferoffset_kvs + index/2]);
 		vdatas[1] = tup1.A;
 		vmdatas[1] = tup1.B;
-		tuple_t tup2 = MEMCA_READVDATA1WITHVMASK1(buffer[2][bufferoffset_kvs + index/2]);
+		tuple_t tup2 = MEMCAP0_READVDATA1WITHVMASK1(buffer[2][bufferoffset_kvs + index/2]);
 		vdatas[2] = tup2.A;
 		vmdatas[2] = tup2.B;
-		tuple_t tup3 = MEMCA_READVDATA1WITHVMASK1(buffer[3][bufferoffset_kvs + index/2]);
+		tuple_t tup3 = MEMCAP0_READVDATA1WITHVMASK1(buffer[3][bufferoffset_kvs + index/2]);
 		vdatas[3] = tup3.A;
 		vmdatas[3] = tup3.B;
-		tuple_t tup4 = MEMCA_READVDATA1WITHVMASK1(buffer[4][bufferoffset_kvs + index/2]);
+		tuple_t tup4 = MEMCAP0_READVDATA1WITHVMASK1(buffer[4][bufferoffset_kvs + index/2]);
 		vdatas[4] = tup4.A;
 		vmdatas[4] = tup4.B;
-		tuple_t tup5 = MEMCA_READVDATA1WITHVMASK1(buffer[5][bufferoffset_kvs + index/2]);
+		tuple_t tup5 = MEMCAP0_READVDATA1WITHVMASK1(buffer[5][bufferoffset_kvs + index/2]);
 		vdatas[5] = tup5.A;
 		vmdatas[5] = tup5.B;
-		tuple_t tup6 = MEMCA_READVDATA1WITHVMASK1(buffer[6][bufferoffset_kvs + index/2]);
+		tuple_t tup6 = MEMCAP0_READVDATA1WITHVMASK1(buffer[6][bufferoffset_kvs + index/2]);
 		vdatas[6] = tup6.A;
 		vmdatas[6] = tup6.B;
-		tuple_t tup7 = MEMCA_READVDATA1WITHVMASK1(buffer[7][bufferoffset_kvs + index/2]);
+		tuple_t tup7 = MEMCAP0_READVDATA1WITHVMASK1(buffer[7][bufferoffset_kvs + index/2]);
 		vdatas[7] = tup7.A;
 		vmdatas[7] = tup7.B;
-		tuple_t tup8 = MEMCA_READVDATA1WITHVMASK1(buffer[8][bufferoffset_kvs + index/2]);
+		tuple_t tup8 = MEMCAP0_READVDATA1WITHVMASK1(buffer[8][bufferoffset_kvs + index/2]);
 		vdatas[8] = tup8.A;
 		vmdatas[8] = tup8.B;
-		tuple_t tup9 = MEMCA_READVDATA1WITHVMASK1(buffer[9][bufferoffset_kvs + index/2]);
+		tuple_t tup9 = MEMCAP0_READVDATA1WITHVMASK1(buffer[9][bufferoffset_kvs + index/2]);
 		vdatas[9] = tup9.A;
 		vmdatas[9] = tup9.B;
-		tuple_t tup10 = MEMCA_READVDATA1WITHVMASK1(buffer[10][bufferoffset_kvs + index/2]);
+		tuple_t tup10 = MEMCAP0_READVDATA1WITHVMASK1(buffer[10][bufferoffset_kvs + index/2]);
 		vdatas[10] = tup10.A;
 		vmdatas[10] = tup10.B;
-		tuple_t tup11 = MEMCA_READVDATA1WITHVMASK1(buffer[11][bufferoffset_kvs + index/2]);
+		tuple_t tup11 = MEMCAP0_READVDATA1WITHVMASK1(buffer[11][bufferoffset_kvs + index/2]);
 		vdatas[11] = tup11.A;
 		vmdatas[11] = tup11.B;
-		tuple_t tup12 = MEMCA_READVDATA1WITHVMASK1(buffer[12][bufferoffset_kvs + index/2]);
+		tuple_t tup12 = MEMCAP0_READVDATA1WITHVMASK1(buffer[12][bufferoffset_kvs + index/2]);
 		vdatas[12] = tup12.A;
 		vmdatas[12] = tup12.B;
-		tuple_t tup13 = MEMCA_READVDATA1WITHVMASK1(buffer[13][bufferoffset_kvs + index/2]);
+		tuple_t tup13 = MEMCAP0_READVDATA1WITHVMASK1(buffer[13][bufferoffset_kvs + index/2]);
 		vdatas[13] = tup13.A;
 		vmdatas[13] = tup13.B;
-		tuple_t tup14 = MEMCA_READVDATA1WITHVMASK1(buffer[14][bufferoffset_kvs + index/2]);
+		tuple_t tup14 = MEMCAP0_READVDATA1WITHVMASK1(buffer[14][bufferoffset_kvs + index/2]);
 		vdatas[14] = tup14.A;
 		vmdatas[14] = tup14.B;
-		tuple_t tup15 = MEMCA_READVDATA1WITHVMASK1(buffer[15][bufferoffset_kvs + index/2]);
+		tuple_t tup15 = MEMCAP0_READVDATA1WITHVMASK1(buffer[15][bufferoffset_kvs + index/2]);
 		vdatas[15] = tup15.A;
 		vmdatas[15] = tup15.B;
 	}
 	return;
 }
 
-// used in {classname__top_nusrcv_nudstv.cpp->processit_splitdstvxs->MEMACCESS_SPL_readVchunks} 
-void MEMCA_READFROMBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+// used in {classname__top_nusrcv_nudstv.cpp->processit_splitdstvxs->MEMACCESSP0_SPL_readVchunks} 
+void acts_all::MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], vmdata_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_READFROMBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_READFROMBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	if(index%2==0){
 	
-		datas[0] = MEMCA_READVDATA0ANDVMASK0(buffer[0][bufferoffset_kvs + index/2]);	
+		datas[0] = MEMCAP0_READVDATA0ANDVMASK0(buffer[0][bufferoffset_kvs + index/2]);	
 	
-		datas[1] = MEMCA_READVDATA0ANDVMASK0(buffer[1][bufferoffset_kvs + index/2]);	
+		datas[1] = MEMCAP0_READVDATA0ANDVMASK0(buffer[1][bufferoffset_kvs + index/2]);	
 	
-		datas[2] = MEMCA_READVDATA0ANDVMASK0(buffer[2][bufferoffset_kvs + index/2]);	
+		datas[2] = MEMCAP0_READVDATA0ANDVMASK0(buffer[2][bufferoffset_kvs + index/2]);	
 	
-		datas[3] = MEMCA_READVDATA0ANDVMASK0(buffer[3][bufferoffset_kvs + index/2]);	
+		datas[3] = MEMCAP0_READVDATA0ANDVMASK0(buffer[3][bufferoffset_kvs + index/2]);	
 	
-		datas[4] = MEMCA_READVDATA0ANDVMASK0(buffer[4][bufferoffset_kvs + index/2]);	
+		datas[4] = MEMCAP0_READVDATA0ANDVMASK0(buffer[4][bufferoffset_kvs + index/2]);	
 	
-		datas[5] = MEMCA_READVDATA0ANDVMASK0(buffer[5][bufferoffset_kvs + index/2]);	
+		datas[5] = MEMCAP0_READVDATA0ANDVMASK0(buffer[5][bufferoffset_kvs + index/2]);	
 	
-		datas[6] = MEMCA_READVDATA0ANDVMASK0(buffer[6][bufferoffset_kvs + index/2]);	
+		datas[6] = MEMCAP0_READVDATA0ANDVMASK0(buffer[6][bufferoffset_kvs + index/2]);	
 	
-		datas[7] = MEMCA_READVDATA0ANDVMASK0(buffer[7][bufferoffset_kvs + index/2]);	
+		datas[7] = MEMCAP0_READVDATA0ANDVMASK0(buffer[7][bufferoffset_kvs + index/2]);	
 	
-		datas[8] = MEMCA_READVDATA0ANDVMASK0(buffer[8][bufferoffset_kvs + index/2]);	
+		datas[8] = MEMCAP0_READVDATA0ANDVMASK0(buffer[8][bufferoffset_kvs + index/2]);	
 	
-		datas[9] = MEMCA_READVDATA0ANDVMASK0(buffer[9][bufferoffset_kvs + index/2]);	
+		datas[9] = MEMCAP0_READVDATA0ANDVMASK0(buffer[9][bufferoffset_kvs + index/2]);	
 	
-		datas[10] = MEMCA_READVDATA0ANDVMASK0(buffer[10][bufferoffset_kvs + index/2]);	
+		datas[10] = MEMCAP0_READVDATA0ANDVMASK0(buffer[10][bufferoffset_kvs + index/2]);	
 	
-		datas[11] = MEMCA_READVDATA0ANDVMASK0(buffer[11][bufferoffset_kvs + index/2]);	
+		datas[11] = MEMCAP0_READVDATA0ANDVMASK0(buffer[11][bufferoffset_kvs + index/2]);	
 	
-		datas[12] = MEMCA_READVDATA0ANDVMASK0(buffer[12][bufferoffset_kvs + index/2]);	
+		datas[12] = MEMCAP0_READVDATA0ANDVMASK0(buffer[12][bufferoffset_kvs + index/2]);	
 	
-		datas[13] = MEMCA_READVDATA0ANDVMASK0(buffer[13][bufferoffset_kvs + index/2]);	
+		datas[13] = MEMCAP0_READVDATA0ANDVMASK0(buffer[13][bufferoffset_kvs + index/2]);	
 	
-		datas[14] = MEMCA_READVDATA0ANDVMASK0(buffer[14][bufferoffset_kvs + index/2]);	
+		datas[14] = MEMCAP0_READVDATA0ANDVMASK0(buffer[14][bufferoffset_kvs + index/2]);	
 	
-		datas[15] = MEMCA_READVDATA0ANDVMASK0(buffer[15][bufferoffset_kvs + index/2]);	
+		datas[15] = MEMCAP0_READVDATA0ANDVMASK0(buffer[15][bufferoffset_kvs + index/2]);	
 	} else{
 	
-		datas[0] = MEMCA_READVDATA1ANDVMASK1(buffer[0][bufferoffset_kvs + index/2]);	
+		datas[0] = MEMCAP0_READVDATA1ANDVMASK1(buffer[0][bufferoffset_kvs + index/2]);	
 	
-		datas[1] = MEMCA_READVDATA1ANDVMASK1(buffer[1][bufferoffset_kvs + index/2]);	
+		datas[1] = MEMCAP0_READVDATA1ANDVMASK1(buffer[1][bufferoffset_kvs + index/2]);	
 	
-		datas[2] = MEMCA_READVDATA1ANDVMASK1(buffer[2][bufferoffset_kvs + index/2]);	
+		datas[2] = MEMCAP0_READVDATA1ANDVMASK1(buffer[2][bufferoffset_kvs + index/2]);	
 	
-		datas[3] = MEMCA_READVDATA1ANDVMASK1(buffer[3][bufferoffset_kvs + index/2]);	
+		datas[3] = MEMCAP0_READVDATA1ANDVMASK1(buffer[3][bufferoffset_kvs + index/2]);	
 	
-		datas[4] = MEMCA_READVDATA1ANDVMASK1(buffer[4][bufferoffset_kvs + index/2]);	
+		datas[4] = MEMCAP0_READVDATA1ANDVMASK1(buffer[4][bufferoffset_kvs + index/2]);	
 	
-		datas[5] = MEMCA_READVDATA1ANDVMASK1(buffer[5][bufferoffset_kvs + index/2]);	
+		datas[5] = MEMCAP0_READVDATA1ANDVMASK1(buffer[5][bufferoffset_kvs + index/2]);	
 	
-		datas[6] = MEMCA_READVDATA1ANDVMASK1(buffer[6][bufferoffset_kvs + index/2]);	
+		datas[6] = MEMCAP0_READVDATA1ANDVMASK1(buffer[6][bufferoffset_kvs + index/2]);	
 	
-		datas[7] = MEMCA_READVDATA1ANDVMASK1(buffer[7][bufferoffset_kvs + index/2]);	
+		datas[7] = MEMCAP0_READVDATA1ANDVMASK1(buffer[7][bufferoffset_kvs + index/2]);	
 	
-		datas[8] = MEMCA_READVDATA1ANDVMASK1(buffer[8][bufferoffset_kvs + index/2]);	
+		datas[8] = MEMCAP0_READVDATA1ANDVMASK1(buffer[8][bufferoffset_kvs + index/2]);	
 	
-		datas[9] = MEMCA_READVDATA1ANDVMASK1(buffer[9][bufferoffset_kvs + index/2]);	
+		datas[9] = MEMCAP0_READVDATA1ANDVMASK1(buffer[9][bufferoffset_kvs + index/2]);	
 	
-		datas[10] = MEMCA_READVDATA1ANDVMASK1(buffer[10][bufferoffset_kvs + index/2]);	
+		datas[10] = MEMCAP0_READVDATA1ANDVMASK1(buffer[10][bufferoffset_kvs + index/2]);	
 	
-		datas[11] = MEMCA_READVDATA1ANDVMASK1(buffer[11][bufferoffset_kvs + index/2]);	
+		datas[11] = MEMCAP0_READVDATA1ANDVMASK1(buffer[11][bufferoffset_kvs + index/2]);	
 	
-		datas[12] = MEMCA_READVDATA1ANDVMASK1(buffer[12][bufferoffset_kvs + index/2]);	
+		datas[12] = MEMCAP0_READVDATA1ANDVMASK1(buffer[12][bufferoffset_kvs + index/2]);	
 	
-		datas[13] = MEMCA_READVDATA1ANDVMASK1(buffer[13][bufferoffset_kvs + index/2]);	
+		datas[13] = MEMCAP0_READVDATA1ANDVMASK1(buffer[13][bufferoffset_kvs + index/2]);	
 	
-		datas[14] = MEMCA_READVDATA1ANDVMASK1(buffer[14][bufferoffset_kvs + index/2]);	
+		datas[14] = MEMCAP0_READVDATA1ANDVMASK1(buffer[14][bufferoffset_kvs + index/2]);	
 	
-		datas[15] = MEMCA_READVDATA1ANDVMASK1(buffer[15][bufferoffset_kvs + index/2]);	
+		datas[15] = MEMCAP0_READVDATA1ANDVMASK1(buffer[15][bufferoffset_kvs + index/2]);	
 	}
 	return;
 }
  
-void MEMCA_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], value_t vdata, unit1_type vmdata, batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], value_t vdata, unit1_type vmdata, batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFER_VDATAWITHVMASK:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
+	
+	
 	if(index%2==0){
-		MEMCA_WRITEVDATA0WITHVMASK0(&buffer[bufferoffset_kvs + index/2], vdata, vmdata);
+		MEMCAP0_WRITEVDATA0WITHVMASK0(&buffer[bufferoffset_kvs + index/2], vdata, vmdata);
 	} else{
-		MEMCA_WRITEVDATA1WITHVMASK1(&buffer[bufferoffset_kvs + index/2], vdata, vmdata);
+		MEMCAP0_WRITEVDATA1WITHVMASK1(&buffer[bufferoffset_kvs + index/2], vdata, vmdata);
 	}
 	return;
 }
 
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer[0][bufferoffset_kvs + index/2] = datas[0];
@@ -1976,25 +2171,25 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t 
 	return;
 }
 
-void MEMCA_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[0]/2, BLOCKRAM_SIZE, indexes[0], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[1]/2, BLOCKRAM_SIZE, indexes[1], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[2]/2, BLOCKRAM_SIZE, indexes[2], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[3]/2, BLOCKRAM_SIZE, indexes[3], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[4]/2, BLOCKRAM_SIZE, indexes[4], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[5]/2, BLOCKRAM_SIZE, indexes[5], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[6]/2, BLOCKRAM_SIZE, indexes[6], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[7]/2, BLOCKRAM_SIZE, indexes[7], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[8]/2, BLOCKRAM_SIZE, indexes[8], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[9]/2, BLOCKRAM_SIZE, indexes[9], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[10]/2, BLOCKRAM_SIZE, indexes[10], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[11]/2, BLOCKRAM_SIZE, indexes[11], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[12]/2, BLOCKRAM_SIZE, indexes[12], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[13]/2, BLOCKRAM_SIZE, indexes[13], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[14]/2, BLOCKRAM_SIZE, indexes[14], NAp, NAp);
-	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA_WRITETOBUFFERWITHDEPTHS_VDATAS:", indexes[15]/2, BLOCKRAM_SIZE, indexes[15], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[1]/2, BLOCKRAM_VDATA_SIZE, indexes[1], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[2]/2, BLOCKRAM_VDATA_SIZE, indexes[2], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[3]/2, BLOCKRAM_VDATA_SIZE, indexes[3], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[4]/2, BLOCKRAM_VDATA_SIZE, indexes[4], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[5]/2, BLOCKRAM_VDATA_SIZE, indexes[5], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[6]/2, BLOCKRAM_VDATA_SIZE, indexes[6], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[7]/2, BLOCKRAM_VDATA_SIZE, indexes[7], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[8]/2, BLOCKRAM_VDATA_SIZE, indexes[8], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[9]/2, BLOCKRAM_VDATA_SIZE, indexes[9], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[10]/2, BLOCKRAM_VDATA_SIZE, indexes[10], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[11]/2, BLOCKRAM_VDATA_SIZE, indexes[11], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[12]/2, BLOCKRAM_VDATA_SIZE, indexes[12], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[13]/2, BLOCKRAM_VDATA_SIZE, indexes[13], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[14]/2, BLOCKRAM_VDATA_SIZE, indexes[14], NAp, NAp);
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[15]/2, BLOCKRAM_VDATA_SIZE, indexes[15], NAp, NAp);
 	#endif
 	
 	buffer[0][bufferoffset_kvs + indexes[0]/2] = vdatas[0];
@@ -2017,134 +2212,11 @@ void MEMCA_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(unsigned int indexes[VDATA_PA
 	return;
 }
 
-void MEMCA_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, value_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_READFROMKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
-	#endif
-	
-	vdatas[0] = 0; 
-	vdatas[1] = 0; 
-	vdatas[2] = 0; 
-	vdatas[3] = 0; 
-	vdatas[4] = 0; 
-	vdatas[5] = 0; 
-	vdatas[6] = 0; 
-	vdatas[7] = 0; 
-	vdatas[8] = 0; 
-	vdatas[9] = 0; 
-	vdatas[10] = 0; 
-	vdatas[11] = 0; 
-	vdatas[12] = 0; 
-	vdatas[13] = 0; 
-	vdatas[14] = 0; 
-	vdatas[15] = 0; 
-	
-	#ifdef _WIDEWORD
-	vdatas[0] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(31, 0), 0, SIZEOF_VDATAKEY); 
-	vdatas[1] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(63, 32), 0, SIZEOF_VDATAVALUE); 
-	vdatas[2] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(95, 64), 0, SIZEOF_VDATAKEY); 
-	vdatas[3] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(127, 96), 0, SIZEOF_VDATAVALUE); 
-	vdatas[4] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(159, 128), 0, SIZEOF_VDATAKEY); 
-	vdatas[5] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(191, 160), 0, SIZEOF_VDATAVALUE); 
-	vdatas[6] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(223, 192), 0, SIZEOF_VDATAKEY); 
-	vdatas[7] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(255, 224), 0, SIZEOF_VDATAVALUE); 
-	vdatas[8] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(287, 256), 0, SIZEOF_VDATAKEY); 
-	vdatas[9] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(319, 288), 0, SIZEOF_VDATAVALUE); 
-	vdatas[10] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(351, 320), 0, SIZEOF_VDATAKEY); 
-	vdatas[11] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(383, 352), 0, SIZEOF_VDATAVALUE); 
-	vdatas[12] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(415, 384), 0, SIZEOF_VDATAKEY); 
-	vdatas[13] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(447, 416), 0, SIZEOF_VDATAVALUE); 
-	vdatas[14] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(479, 448), 0, SIZEOF_VDATAKEY); 
-	vdatas[15] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].range(511, 480), 0, SIZEOF_VDATAVALUE); 
-	#else 
-	vdatas[0] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[0].key, 0, SIZEOF_VDATAKEY);
-	vdatas[1] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[0].value, 0, SIZEOF_VDATAVALUE); 
-	vdatas[2] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[1].key, 0, SIZEOF_VDATAKEY);
-	vdatas[3] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[1].value, 0, SIZEOF_VDATAVALUE); 
-	vdatas[4] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[2].key, 0, SIZEOF_VDATAKEY);
-	vdatas[5] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[2].value, 0, SIZEOF_VDATAVALUE); 
-	vdatas[6] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[3].key, 0, SIZEOF_VDATAKEY);
-	vdatas[7] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[3].value, 0, SIZEOF_VDATAVALUE); 
-	vdatas[8] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[4].key, 0, SIZEOF_VDATAKEY);
-	vdatas[9] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[4].value, 0, SIZEOF_VDATAVALUE); 
-	vdatas[10] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[5].key, 0, SIZEOF_VDATAKEY);
-	vdatas[11] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[5].value, 0, SIZEOF_VDATAVALUE); 
-	vdatas[12] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[6].key, 0, SIZEOF_VDATAKEY);
-	vdatas[13] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[6].value, 0, SIZEOF_VDATAVALUE); 
-	vdatas[14] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[7].key, 0, SIZEOF_VDATAKEY);
-	vdatas[15] = UTIL_READBITSFROM_UINTV(kvdram[baseoffset_kvs + offset_kvs + index].data[7].value, 0, SIZEOF_VDATAVALUE); 
-	#endif
-	return;
-}
-
-void MEMCA_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, value_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){			
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
-	#endif
-	
-	value_t vdatas_tmp[VECTOR2_SIZE];
-	vdatas_tmp[0] = UTIL_READBITSFROM_UINTV(vdatas[0], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[1] = UTIL_READBITSFROM_UINTV(vdatas[1], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[2] = UTIL_READBITSFROM_UINTV(vdatas[2], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[3] = UTIL_READBITSFROM_UINTV(vdatas[3], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[4] = UTIL_READBITSFROM_UINTV(vdatas[4], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[5] = UTIL_READBITSFROM_UINTV(vdatas[5], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[6] = UTIL_READBITSFROM_UINTV(vdatas[6], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[7] = UTIL_READBITSFROM_UINTV(vdatas[7], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[8] = UTIL_READBITSFROM_UINTV(vdatas[8], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[9] = UTIL_READBITSFROM_UINTV(vdatas[9], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[10] = UTIL_READBITSFROM_UINTV(vdatas[10], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[11] = UTIL_READBITSFROM_UINTV(vdatas[11], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[12] = UTIL_READBITSFROM_UINTV(vdatas[12], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[13] = UTIL_READBITSFROM_UINTV(vdatas[13], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[14] = UTIL_READBITSFROM_UINTV(vdatas[14], 0, SIZEOF_VDATAKEY);
-	vdatas_tmp[15] = UTIL_READBITSFROM_UINTV(vdatas[15], 0, SIZEOF_VDATAKEY);
-
-	#ifdef _WIDEWORD
-	kvdram[baseoffset_kvs + offset_kvs + index].range(31, 0) = vdatas_tmp[0];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(63, 32) = vdatas_tmp[1];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(95, 64) = vdatas_tmp[2];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(127, 96) = vdatas_tmp[3];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(159, 128) = vdatas_tmp[4];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(191, 160) = vdatas_tmp[5];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(223, 192) = vdatas_tmp[6];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(255, 224) = vdatas_tmp[7];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(287, 256) = vdatas_tmp[8];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(319, 288) = vdatas_tmp[9];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(351, 320) = vdatas_tmp[10];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(383, 352) = vdatas_tmp[11];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(415, 384) = vdatas_tmp[12];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(447, 416) = vdatas_tmp[13];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(479, 448) = vdatas_tmp[14];
-	kvdram[baseoffset_kvs + offset_kvs + index].range(511, 480) = vdatas_tmp[15];
-	#else 
-	kvdram[baseoffset_kvs + offset_kvs + index].data[0].key = vdatas_tmp[0];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[0].value = vdatas_tmp[1];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[1].key = vdatas_tmp[2];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[1].value = vdatas_tmp[3];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[2].key = vdatas_tmp[4];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[2].value = vdatas_tmp[5];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[3].key = vdatas_tmp[6];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[3].value = vdatas_tmp[7];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[4].key = vdatas_tmp[8];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[4].value = vdatas_tmp[9];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[5].key = vdatas_tmp[10];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[5].value = vdatas_tmp[11];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[6].key = vdatas_tmp[12];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[6].value = vdatas_tmp[13];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[7].key = vdatas_tmp[14];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[7].value = vdatas_tmp[15];
-	#endif
-	return;
-}
-
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2165,11 +2237,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(unsigned int index, keyva
 	buffer0[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2206,11 +2278,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(unsigned int index, keyva
 	buffer1[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2263,11 +2335,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(unsigned int index, keyva
 	buffer2[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2336,11 +2408,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(unsigned int index, keyva
 	buffer3[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2425,11 +2497,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(unsigned int index, keyva
 	buffer4[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2530,11 +2602,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(unsigned int index, keyva
 	buffer5[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2651,11 +2723,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(unsigned int index, keyva
 	buffer6[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2788,11 +2860,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(unsigned int index, keyva
 	buffer7[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -2941,11 +3013,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(unsigned int index, keyva
 	buffer8[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -3110,11 +3182,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(unsigned int index, keyv
 	buffer9[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];
@@ -3295,11 +3367,11 @@ void MEMCA_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(unsigned int index, keyv
 	buffer10[15][bufferoffset_kvs + index/2] = vdatas[15];
 	return;
 }
-void MEMCA_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index/2] = vdatas[0];

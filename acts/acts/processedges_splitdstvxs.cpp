@@ -10,17 +10,8 @@
 #define VMSETSZ 32
 #define PE_SETSZ 8
 
-#ifdef SW
-processedges_splitdstvxs::processedges_splitdstvxs(mydebug * _mydebugobj){ 
-	actsutilityobj = new actsutility(); 
-	acts_utilobj = new acts_util(_mydebugobj);
-	mydebugobj = _mydebugobj;
-}
-processedges_splitdstvxs::~processedges_splitdstvxs(){}
-#endif
-
 //
-value_t PROCESS_SPL_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t acts_all::PROCESSP0_SPL_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -69,19 +60,19 @@ value_t PROCESS_SPL_processfunc(value_t udata, value_t edgew, unsigned int Graph
 	return res;
 }
 
-parsededge_t PARSE_EDGE(uint32_type data){ 
+parsededge_t acts_all::PROCESSP0_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
 	#ifdef _WIDEWORD
 	parsededge.incr = data.range(31, 28);
 	parsededge.dstvid = data.range(28, 0);
 	#else
-	parsededge.incr = UTIL_READFROM_UINT(data, 28, 4);
-	parsededge.dstvid = UTIL_READFROM_UINT(data, 0, 28);
+	parsededge.incr = UTILP0_READFROM_UINT(data, 28, 4);
+	parsededge.dstvid = UTILP0_READFROM_UINT(data, 0, 28);
 	#endif
 	return parsededge; 
 }
 
-void PROCESS_SPL_debug(unsigned int debugid,
+void acts_all::PROCESSP0_SPL_debug(unsigned int debugid,
 	unsigned int i, value_t E[VECTOR2_SIZE], bool_type ens[VECTOR2_SIZE], unsigned int mask[VECTOR2_SIZE],
 		value_t udataset[MAX_NUM_UNIQ_EDGES_PER_VEC], value_t maskset[VECTOR2_SIZE], value_t Vset[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMset[MAX_NUM_UNIQ_EDGES_PER_VEC], vertex_t lvids[VECTOR2_SIZE],
 			unsigned int incr[VECTOR2_SIZE], unsigned int lsrcvids[VECTOR2_SIZE], unsigned int ldstvids[VECTOR2_SIZE], value_t res[VECTOR2_SIZE], keyvalue_t mykeyvalue[VECTOR2_SIZE], sweepparams_t sweepparams, globalparams_t globalparams,
@@ -354,14 +345,14 @@ void PROCESS_SPL_debug(unsigned int debugid,
 	
 	if(debugid == 5){
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		if(ens[0] == ON && mask[0] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", udata: "<<udataset[incr[0]]<<"], [ens[0]: "<<ens[0]<<", mask[0]: "<<mask[0]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		if(ens[1] == ON && mask[1] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", udata: "<<udataset[incr[1]]<<"], [ens[1]: "<<ens[1]<<", mask[1]: "<<mask[1]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		if(ens[2] == ON && mask[2] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", udata: "<<udataset[incr[2]]<<"], [ens[2]: "<<ens[2]<<", mask[2]: "<<mask[2]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		if(ens[3] == ON && mask[3] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", udata: "<<udataset[incr[3]]<<"], [ens[3]: "<<ens[3]<<", mask[3]: "<<mask[3]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		if(ens[4] == ON && mask[4] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", udata: "<<udataset[incr[4]]<<"], [ens[4]: "<<ens[4]<<", mask[4]: "<<mask[4]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		if(ens[5] == ON && mask[5] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", udata: "<<udataset[incr[5]]<<"], [ens[5]: "<<ens[5]<<", mask[5]: "<<mask[5]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		if(ens[6] == ON && mask[6] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", udata: "<<udataset[incr[6]]<<"], [ens[6]: "<<ens[6]<<", mask[6]: "<<mask[6]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
-		if(ens[7] == ON && mask[7] == 1){ cout<<"readandprocess(15)::DEBUG CODE 5:: [i: "<<i<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", udata: "<<udataset[incr[7]]<<"], [ens[7]: "<<ens[7]<<", mask[7]: "<<mask[7]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[0] == ON && mask[0] == 1){ cout<<"PROCESSP0_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[0]: "<<lsrcvids[0]<<", ldstvids[0]: "<<ldstvids[0]<<", udata: "<<udataset[incr[0]]<<"], [ens[0]: "<<ens[0]<<", mask[0]: "<<mask[0]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[1] == ON && mask[1] == 1){ cout<<"PROCESSP0_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[1]: "<<lsrcvids[1]<<", ldstvids[1]: "<<ldstvids[1]<<", udata: "<<udataset[incr[1]]<<"], [ens[1]: "<<ens[1]<<", mask[1]: "<<mask[1]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[2] == ON && mask[2] == 1){ cout<<"PROCESSP0_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[2]: "<<lsrcvids[2]<<", ldstvids[2]: "<<ldstvids[2]<<", udata: "<<udataset[incr[2]]<<"], [ens[2]: "<<ens[2]<<", mask[2]: "<<mask[2]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[3] == ON && mask[3] == 1){ cout<<"PROCESSP0_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[3]: "<<lsrcvids[3]<<", ldstvids[3]: "<<ldstvids[3]<<", udata: "<<udataset[incr[3]]<<"], [ens[3]: "<<ens[3]<<", mask[3]: "<<mask[3]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[4] == ON && mask[4] == 1){ cout<<"PROCESSP0_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[4]: "<<lsrcvids[4]<<", ldstvids[4]: "<<ldstvids[4]<<", udata: "<<udataset[incr[4]]<<"], [ens[4]: "<<ens[4]<<", mask[4]: "<<mask[4]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[5] == ON && mask[5] == 1){ cout<<"PROCESSP0_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[5]: "<<lsrcvids[5]<<", ldstvids[5]: "<<ldstvids[5]<<", udata: "<<udataset[incr[5]]<<"], [ens[5]: "<<ens[5]<<", mask[5]: "<<mask[5]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[6] == ON && mask[6] == 1){ cout<<"PROCESSP0_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[6]: "<<lsrcvids[6]<<", ldstvids[6]: "<<ldstvids[6]<<", udata: "<<udataset[incr[6]]<<"], [ens[6]: "<<ens[6]<<", mask[6]: "<<mask[6]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
+		if(ens[7] == ON && mask[7] == 1){ cout<<"PROCESSP0_SPL_readandprocess::PROCESS EDGE SEEN:: [i: "<<i<<", lsrcvids[7]: "<<lsrcvids[7]<<", ldstvids[7]: "<<ldstvids[7]<<", udata: "<<udataset[incr[7]]<<"], [ens[7]: "<<ens[7]<<", mask[7]: "<<mask[7]<<"]. sweepparams.source_partition: "<<sweepparams.source_partition<<endl; }			
 	
 		// for(unsigned int v=0; v<MAX_NUM_UNIQ_EDGES_PER_VEC; v++){ cout<<"readandprocess(15)::DEBUG CODE 5:: Vset["<<v<<"]: "<<Vset[v]<<", VMset["<<v<<"]: "<<VMset[v]<<endl; }
 		#endif
@@ -403,7 +394,7 @@ void PROCESS_SPL_debug(unsigned int debugid,
 	return;
 }
 
-unsigned int PROCESS_SPL3_GETROW(unsigned int loc){					
+unsigned int acts_all::PROCESSP0_SPL3_GETROW(unsigned int loc){					
 	unsigned int col_dim32 = loc % 32; // NUM_PEs;
 	unsigned int row_dim32 = loc / 32; // NUM_PEs; // OPTIMIZE: follow with processedges_splitdstvxs
 	unsigned int basecol_dim16 = 0;
@@ -419,7 +410,7 @@ unsigned int PROCESS_SPL3_GETROW(unsigned int loc){
 	return truerow_dim16;
 }
 
-unsigned int PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], value_t Vdatas[VSETSZ], unit1_type VMdatas[VMSETSZ], globalparams_t globalparams){					
+unsigned int acts_all::PROCESSP0_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], value_t Vdatas[VSETSZ], unit1_type VMdatas[VMSETSZ], globalparams_t globalparams){					
 	unit1_type VMdatas_tmp[32];
 	unit1_type VMdatas_tmpA[VECTOR2_SIZE];
 	unit1_type VMdatas_tmpB[VECTOR2_SIZE];
@@ -436,88 +427,120 @@ unsigned int PROCESS_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbu
 	unsigned int fcol_dim16 = loc % VECTOR2_SIZE;
 	unsigned int col_dim16 = loc % VECTOR2_SIZE;
 	
-	unsigned int truerow1_dim16 = PROCESS_SPL3_GETROW(loc);
-	unsigned int truerow2_dim16 = PROCESS_SPL3_GETROW((loc + (VECTOR2_SIZE - col_dim16)));
+	unsigned int truerow1_dim16 = PROCESSP0_SPL3_GETROW(loc);
+	unsigned int truerow2_dim16 = PROCESSP0_SPL3_GETROW((loc + (VECTOR2_SIZE - col_dim16)));
 
 	// CRITICAL REMOVEME.
 	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
-	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATAS(truerow1_dim16, vbuffer, Vdatas_tmpA, 0); }
-	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATAS(truerow2_dim16, vbuffer, Vdatas_tmpB, 0); }
-	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VMASKS(truerow1_dim16, vmaskBITS, VMdatas_tmpA, 0); }
-	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VMASKS(truerow2_dim16, vmaskBITS, VMdatas_tmpB, 0); }
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCAP0_READFROMBUFFER_VDATAS(truerow1_dim16, vbuffer, Vdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCAP0_READFROMBUFFER_VDATAS(truerow2_dim16, vbuffer, Vdatas_tmpB, 0); }
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCAP0_READFROMBUFFER_VMASKS(truerow1_dim16, vmaskBITS, VMdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCAP0_READFROMBUFFER_VMASKS(truerow2_dim16, vmaskBITS, VMdatas_tmpB, 0); }
 	#else 
-	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
-	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCA_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
+	if(truerow1_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCAP0_READFROMBUFFER_VDATASWITHVMASKS(truerow1_dim16, vbuffer, Vdatas_tmpA, VMdatas_tmpA, 0); }
+	if(truerow2_dim16 < globalparams.SIZEKVS2_REDUCEPARTITION){ MEMCAP0_READFROMBUFFER_VDATASWITHVMASKS(truerow2_dim16, vbuffer, Vdatas_tmpB, VMdatas_tmpB, 0); }
 	#endif 
 
 	Vdatas[0] = Vdatas_tmpA[0]; 
-	VMdatas[0] = VMdatas_tmpA[0];
+	VMdatas[0] = VMdatas_tmpA[0];	
+	// if(VMdatas_tmpA[0] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[0]: "<<VMdatas_tmpA[0]<<endl; }	
 	Vdatas[1] = Vdatas_tmpA[1]; 
-	VMdatas[1] = VMdatas_tmpA[1];
+	VMdatas[1] = VMdatas_tmpA[1];	
+	// if(VMdatas_tmpA[1] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[1]: "<<VMdatas_tmpA[1]<<endl; }	
 	Vdatas[2] = Vdatas_tmpA[2]; 
-	VMdatas[2] = VMdatas_tmpA[2];
+	VMdatas[2] = VMdatas_tmpA[2];	
+	// if(VMdatas_tmpA[2] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[2]: "<<VMdatas_tmpA[2]<<endl; }	
 	Vdatas[3] = Vdatas_tmpA[3]; 
-	VMdatas[3] = VMdatas_tmpA[3];
+	VMdatas[3] = VMdatas_tmpA[3];	
+	// if(VMdatas_tmpA[3] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[3]: "<<VMdatas_tmpA[3]<<endl; }	
 	Vdatas[4] = Vdatas_tmpA[4]; 
-	VMdatas[4] = VMdatas_tmpA[4];
+	VMdatas[4] = VMdatas_tmpA[4];	
+	// if(VMdatas_tmpA[4] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[4]: "<<VMdatas_tmpA[4]<<endl; }	
 	Vdatas[5] = Vdatas_tmpA[5]; 
-	VMdatas[5] = VMdatas_tmpA[5];
+	VMdatas[5] = VMdatas_tmpA[5];	
+	// if(VMdatas_tmpA[5] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[5]: "<<VMdatas_tmpA[5]<<endl; }	
 	Vdatas[6] = Vdatas_tmpA[6]; 
-	VMdatas[6] = VMdatas_tmpA[6];
+	VMdatas[6] = VMdatas_tmpA[6];	
+	// if(VMdatas_tmpA[6] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[6]: "<<VMdatas_tmpA[6]<<endl; }	
 	Vdatas[7] = Vdatas_tmpA[7]; 
-	VMdatas[7] = VMdatas_tmpA[7];
+	VMdatas[7] = VMdatas_tmpA[7];	
+	// if(VMdatas_tmpA[7] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[7]: "<<VMdatas_tmpA[7]<<endl; }	
 	Vdatas[8] = Vdatas_tmpA[8]; 
-	VMdatas[8] = VMdatas_tmpA[8];
+	VMdatas[8] = VMdatas_tmpA[8];	
+	// if(VMdatas_tmpA[8] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[8]: "<<VMdatas_tmpA[8]<<endl; }	
 	Vdatas[9] = Vdatas_tmpA[9]; 
-	VMdatas[9] = VMdatas_tmpA[9];
+	VMdatas[9] = VMdatas_tmpA[9];	
+	// if(VMdatas_tmpA[9] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[9]: "<<VMdatas_tmpA[9]<<endl; }	
 	Vdatas[10] = Vdatas_tmpA[10]; 
-	VMdatas[10] = VMdatas_tmpA[10];
+	VMdatas[10] = VMdatas_tmpA[10];	
+	// if(VMdatas_tmpA[10] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[10]: "<<VMdatas_tmpA[10]<<endl; }	
 	Vdatas[11] = Vdatas_tmpA[11]; 
-	VMdatas[11] = VMdatas_tmpA[11];
+	VMdatas[11] = VMdatas_tmpA[11];	
+	// if(VMdatas_tmpA[11] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[11]: "<<VMdatas_tmpA[11]<<endl; }	
 	Vdatas[12] = Vdatas_tmpA[12]; 
-	VMdatas[12] = VMdatas_tmpA[12];
+	VMdatas[12] = VMdatas_tmpA[12];	
+	// if(VMdatas_tmpA[12] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[12]: "<<VMdatas_tmpA[12]<<endl; }	
 	Vdatas[13] = Vdatas_tmpA[13]; 
-	VMdatas[13] = VMdatas_tmpA[13];
+	VMdatas[13] = VMdatas_tmpA[13];	
+	// if(VMdatas_tmpA[13] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[13]: "<<VMdatas_tmpA[13]<<endl; }	
 	Vdatas[14] = Vdatas_tmpA[14]; 
-	VMdatas[14] = VMdatas_tmpA[14];
+	VMdatas[14] = VMdatas_tmpA[14];	
+	// if(VMdatas_tmpA[14] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[14]: "<<VMdatas_tmpA[14]<<endl; }	
 	Vdatas[15] = Vdatas_tmpA[15]; 
-	VMdatas[15] = VMdatas_tmpA[15];
+	VMdatas[15] = VMdatas_tmpA[15];	
+	// if(VMdatas_tmpA[15] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpA[15]: "<<VMdatas_tmpA[15]<<endl; }	
 	Vdatas[16] = Vdatas_tmpB[0];
-	VMdatas[16] = VMdatas_tmpB[0]; 
+	VMdatas[16] = VMdatas_tmpB[0]; 	
+	// if(VMdatas_tmpB[0] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[0]: "<<VMdatas_tmpB[0]<<endl; }	
 	Vdatas[17] = Vdatas_tmpB[1];
-	VMdatas[17] = VMdatas_tmpB[1]; 
+	VMdatas[17] = VMdatas_tmpB[1]; 	
+	// if(VMdatas_tmpB[1] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[1]: "<<VMdatas_tmpB[1]<<endl; }	
 	Vdatas[18] = Vdatas_tmpB[2];
-	VMdatas[18] = VMdatas_tmpB[2]; 
+	VMdatas[18] = VMdatas_tmpB[2]; 	
+	// if(VMdatas_tmpB[2] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[2]: "<<VMdatas_tmpB[2]<<endl; }	
 	Vdatas[19] = Vdatas_tmpB[3];
-	VMdatas[19] = VMdatas_tmpB[3]; 
+	VMdatas[19] = VMdatas_tmpB[3]; 	
+	// if(VMdatas_tmpB[3] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[3]: "<<VMdatas_tmpB[3]<<endl; }	
 	Vdatas[20] = Vdatas_tmpB[4];
-	VMdatas[20] = VMdatas_tmpB[4]; 
+	VMdatas[20] = VMdatas_tmpB[4]; 	
+	// if(VMdatas_tmpB[4] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[4]: "<<VMdatas_tmpB[4]<<endl; }	
 	Vdatas[21] = Vdatas_tmpB[5];
-	VMdatas[21] = VMdatas_tmpB[5]; 
+	VMdatas[21] = VMdatas_tmpB[5]; 	
+	// if(VMdatas_tmpB[5] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[5]: "<<VMdatas_tmpB[5]<<endl; }	
 	Vdatas[22] = Vdatas_tmpB[6];
-	VMdatas[22] = VMdatas_tmpB[6]; 
+	VMdatas[22] = VMdatas_tmpB[6]; 	
+	// if(VMdatas_tmpB[6] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[6]: "<<VMdatas_tmpB[6]<<endl; }	
 	Vdatas[23] = Vdatas_tmpB[7];
-	VMdatas[23] = VMdatas_tmpB[7]; 
+	VMdatas[23] = VMdatas_tmpB[7]; 	
+	// if(VMdatas_tmpB[7] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[7]: "<<VMdatas_tmpB[7]<<endl; }	
 	Vdatas[24] = Vdatas_tmpB[8];
-	VMdatas[24] = VMdatas_tmpB[8]; 
+	VMdatas[24] = VMdatas_tmpB[8]; 	
+	// if(VMdatas_tmpB[8] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[8]: "<<VMdatas_tmpB[8]<<endl; }	
 	Vdatas[25] = Vdatas_tmpB[9];
-	VMdatas[25] = VMdatas_tmpB[9]; 
+	VMdatas[25] = VMdatas_tmpB[9]; 	
+	// if(VMdatas_tmpB[9] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[9]: "<<VMdatas_tmpB[9]<<endl; }	
 	Vdatas[26] = Vdatas_tmpB[10];
-	VMdatas[26] = VMdatas_tmpB[10]; 
+	VMdatas[26] = VMdatas_tmpB[10]; 	
+	// if(VMdatas_tmpB[10] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[10]: "<<VMdatas_tmpB[10]<<endl; }	
 	Vdatas[27] = Vdatas_tmpB[11];
-	VMdatas[27] = VMdatas_tmpB[11]; 
+	VMdatas[27] = VMdatas_tmpB[11]; 	
+	// if(VMdatas_tmpB[11] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[11]: "<<VMdatas_tmpB[11]<<endl; }	
 	Vdatas[28] = Vdatas_tmpB[12];
-	VMdatas[28] = VMdatas_tmpB[12]; 
+	VMdatas[28] = VMdatas_tmpB[12]; 	
+	// if(VMdatas_tmpB[12] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[12]: "<<VMdatas_tmpB[12]<<endl; }	
 	Vdatas[29] = Vdatas_tmpB[13];
-	VMdatas[29] = VMdatas_tmpB[13]; 
+	VMdatas[29] = VMdatas_tmpB[13]; 	
+	// if(VMdatas_tmpB[13] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[13]: "<<VMdatas_tmpB[13]<<endl; }	
 	Vdatas[30] = Vdatas_tmpB[14];
-	VMdatas[30] = VMdatas_tmpB[14]; 
+	VMdatas[30] = VMdatas_tmpB[14]; 	
+	// if(VMdatas_tmpB[14] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[14]: "<<VMdatas_tmpB[14]<<endl; }	
 	Vdatas[31] = Vdatas_tmpB[15];
-	VMdatas[31] = VMdatas_tmpB[15]; 
+	VMdatas[31] = VMdatas_tmpB[15]; 	
+	// if(VMdatas_tmpB[15] > 0){ cout<<"------------- PROCESSP0_SPL3_GETVTXDATASET:: VMdatas_tmpB[15]: "<<VMdatas_tmpB[15]<<endl; }	
 	return fcol_dim16;
 }
 
-fetchmessage_t PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmask_subp[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
@@ -705,13 +728,13 @@ fetchmessage_t PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, 
 	udata[15] = 0;
 	mask[15] = 0;
 	
-	buffer_type chunk_size = UTIL_getchunksize_kvs(edgessize_kvs, travstate, 0);
-	READANDPROCESS_SPL_LOOP3C: for(buffer_type setoffset=0; setoffset<VECTOR2_SIZE; setoffset+=PE_SETSZ){
-		READANDPROCESS_SPL_LOOP3D: for (buffer_type i=0; i<chunk_size; i++){
+	buffer_type chunk_size = UTILP0_getchunksize_kvs(edgessize_kvs, travstate, 0);
+	READANDPROCESSP0_SPL_LOOP3C: for(buffer_type setoffset=0; setoffset<VECTOR2_SIZE; setoffset+=PE_SETSZ){
+		READANDPROCESSP0_SPL_LOOP3D: for (buffer_type i=0; i<chunk_size; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop avg=analysis_loop	
 		#pragma HLS PIPELINE II=1
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"--- PROCESS_SPL_readandprocess: setoffset: "<<setoffset<<", i: "<<i<<" (of setsize: "<<VECTOR2_SIZE<<", of "<<chunk_size<<")"<<endl;
+			cout<<"--- PROCESSP0_SPL_readandprocess: setoffset: "<<setoffset<<", i: "<<i<<" (of setsize: "<<VECTOR2_SIZE<<", of "<<chunk_size<<")"<<endl;
 			#endif
 
 			#ifdef _WIDEWORD
@@ -750,55 +773,55 @@ fetchmessage_t PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, 
 			E[15] = edges[offset_kvs + i].data[7].value;
 			#endif
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESSP0_SPL_debug(0, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
 				
 			srcvid_head = E[0];
 			lvid_head = srcvid_head - travstate.i2;	
 			
-			parsededge_t parsed_edgeSTD0 = PARSE_EDGE(E[0]); unsigned int incrSTD0 = parsed_edgeSTD0.incr; unsigned int lsrcvidsSTD0 = lvid_head + incrSTD0; unsigned int ldstvidsSTD0 = parsed_edgeSTD0.dstvid; // STD0
-			parsededge_t parsed_edgeSTD1 = PARSE_EDGE(E[1]); unsigned int incrSTD1 = parsed_edgeSTD1.incr; unsigned int lsrcvidsSTD1 = lvid_head + incrSTD1; unsigned int ldstvidsSTD1 = parsed_edgeSTD1.dstvid; // STD1
-			parsededge_t parsed_edge0 = PARSE_EDGE(E[setoffset + 0]);
+			parsededge_t parsed_edgeSTD0 = PROCESSP0_PARSEEDGE(E[0]); unsigned int incrSTD0 = parsed_edgeSTD0.incr; unsigned int lsrcvidsSTD0 = lvid_head + incrSTD0; unsigned int ldstvidsSTD0 = parsed_edgeSTD0.dstvid; // STD0
+			parsededge_t parsed_edgeSTD1 = PROCESSP0_PARSEEDGE(E[1]); unsigned int incrSTD1 = parsed_edgeSTD1.incr; unsigned int lsrcvidsSTD1 = lvid_head + incrSTD1; unsigned int ldstvidsSTD1 = parsed_edgeSTD1.dstvid; // STD1
+			parsededge_t parsed_edge0 = PROCESSP0_PARSEEDGE(E[setoffset + 0]);
 			incr[0] = parsed_edge0.incr;
 			lsrcvids[0] = lvid_head + incr[0];
 			ldstvids[0] = parsed_edge0.dstvid;	
-			parsededge_t parsed_edge1 = PARSE_EDGE(E[setoffset + 1]);
+			parsededge_t parsed_edge1 = PROCESSP0_PARSEEDGE(E[setoffset + 1]);
 			incr[1] = parsed_edge1.incr;
 			lsrcvids[1] = lvid_head + incr[1];
 			ldstvids[1] = parsed_edge1.dstvid;	
-			parsededge_t parsed_edge2 = PARSE_EDGE(E[setoffset + 2]);
+			parsededge_t parsed_edge2 = PROCESSP0_PARSEEDGE(E[setoffset + 2]);
 			incr[2] = parsed_edge2.incr;
 			lsrcvids[2] = lvid_head + incr[2];
 			ldstvids[2] = parsed_edge2.dstvid;	
-			parsededge_t parsed_edge3 = PARSE_EDGE(E[setoffset + 3]);
+			parsededge_t parsed_edge3 = PROCESSP0_PARSEEDGE(E[setoffset + 3]);
 			incr[3] = parsed_edge3.incr;
 			lsrcvids[3] = lvid_head + incr[3];
 			ldstvids[3] = parsed_edge3.dstvid;	
-			parsededge_t parsed_edge4 = PARSE_EDGE(E[setoffset + 4]);
+			parsededge_t parsed_edge4 = PROCESSP0_PARSEEDGE(E[setoffset + 4]);
 			incr[4] = parsed_edge4.incr;
 			lsrcvids[4] = lvid_head + incr[4];
 			ldstvids[4] = parsed_edge4.dstvid;	
-			parsededge_t parsed_edge5 = PARSE_EDGE(E[setoffset + 5]);
+			parsededge_t parsed_edge5 = PROCESSP0_PARSEEDGE(E[setoffset + 5]);
 			incr[5] = parsed_edge5.incr;
 			lsrcvids[5] = lvid_head + incr[5];
 			ldstvids[5] = parsed_edge5.dstvid;	
-			parsededge_t parsed_edge6 = PARSE_EDGE(E[setoffset + 6]);
+			parsededge_t parsed_edge6 = PROCESSP0_PARSEEDGE(E[setoffset + 6]);
 			incr[6] = parsed_edge6.incr;
 			lsrcvids[6] = lvid_head + incr[6];
 			ldstvids[6] = parsed_edge6.dstvid;	
-			parsededge_t parsed_edge7 = PARSE_EDGE(E[setoffset + 7]);
+			parsededge_t parsed_edge7 = PROCESSP0_PARSEEDGE(E[setoffset + 7]);
 			incr[7] = parsed_edge7.incr;
 			lsrcvids[7] = lvid_head + incr[7];
 			ldstvids[7] = parsed_edge7.dstvid;	
 			
 			bool_type en = ON;
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESSP0_SPL_debug(1, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif
 			
-			offset = PROCESS_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
+			offset = PROCESSP0_SPL3_GETVTXDATASET(lvid_head, vbuffer, vmaskBITS, Vset, VMset, globalparams);
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESSP0_SPL_debug(2, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
 			
 			bool_type ensSTD0 = ON; if(E[0] == INVALIDDATA || lsrcvidsSTD0 >= validbound){ ensSTD0 = OFF; } // STD0.
@@ -812,7 +835,7 @@ fetchmessage_t PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, 
 			ens[6] = ON; if(E[setoffset + 6] == INVALIDDATA || lsrcvids[6] >= validbound){ ens[6] = OFF; }
 			ens[7] = ON; if(E[setoffset + 7] == INVALIDDATA || lsrcvids[7] >= validbound){ ens[7] = OFF; }
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESSP0_SPL_debug(3, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
 			
 			unsigned int udataSTD0 = 0; unsigned int maskSTD0 = 0; // STD0.
@@ -843,17 +866,17 @@ fetchmessage_t PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, 
 			maskSTD0 = 0; // STD0
 			ensSTD0 = OFF; // STD0
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESSP0_SPL_debug(4, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif
 			
-			res[0] = PROCESS_SPL_processfunc(udata[0], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-			res[1] = PROCESS_SPL_processfunc(udata[1], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-			res[2] = PROCESS_SPL_processfunc(udata[2], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-			res[3] = PROCESS_SPL_processfunc(udata[3], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-			res[4] = PROCESS_SPL_processfunc(udata[4], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-			res[5] = PROCESS_SPL_processfunc(udata[5], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-			res[6] = PROCESS_SPL_processfunc(udata[6], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-			res[7] = PROCESS_SPL_processfunc(udata[7], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[0] = PROCESSP0_SPL_processfunc(udata[0], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[1] = PROCESSP0_SPL_processfunc(udata[1], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[2] = PROCESSP0_SPL_processfunc(udata[2], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[3] = PROCESSP0_SPL_processfunc(udata[3], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[4] = PROCESSP0_SPL_processfunc(udata[4], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[5] = PROCESSP0_SPL_processfunc(udata[5], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[6] = PROCESSP0_SPL_processfunc(udata[6], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
+			res[7] = PROCESSP0_SPL_processfunc(udata[7], 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
 			if(ens[0] == ON && mask[0] == 1){ mykeyvalue[0].key = ldstvids[0]; mykeyvalue[0].value = res[0]; } else { mykeyvalue[0].key = INVALIDDATA; mykeyvalue[0].value = INVALIDDATA;  }
 			if(ens[1] == ON && mask[1] == 1){ mykeyvalue[1].key = ldstvids[1]; mykeyvalue[1].value = res[1]; } else { mykeyvalue[1].key = INVALIDDATA; mykeyvalue[1].value = INVALIDDATA;  }
 			if(ens[2] == ON && mask[2] == 1){ mykeyvalue[2].key = ldstvids[2]; mykeyvalue[2].value = res[2]; } else { mykeyvalue[2].key = INVALIDDATA; mykeyvalue[2].value = INVALIDDATA;  }
@@ -863,46 +886,46 @@ fetchmessage_t PROCESS_SPL_readandprocess(bool_type enable, uint512_dt * edges, 
 			if(ens[6] == ON && mask[6] == 1){ mykeyvalue[6].key = ldstvids[6]; mykeyvalue[6].value = res[6]; } else { mykeyvalue[6].key = INVALIDDATA; mykeyvalue[6].value = INVALIDDATA;  }
 			if(ens[7] == ON && mask[7] == 1){ mykeyvalue[7].key = ldstvids[7]; mykeyvalue[7].value = res[7]; } else { mykeyvalue[7].key = INVALIDDATA; mykeyvalue[7].value = INVALIDDATA;  }
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESSP0_SPL_debug(5, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif 
 			
 			#if PE_SETSZ==8
-			buffer[1][loadcount] = UTIL_GETKV(mykeyvalue[1]);
-			buffer[2][loadcount] = UTIL_GETKV(mykeyvalue[2]);
-			buffer[3][loadcount] = UTIL_GETKV(mykeyvalue[3]);
-			buffer[4][loadcount] = UTIL_GETKV(mykeyvalue[4]);
-			buffer[5][loadcount] = UTIL_GETKV(mykeyvalue[5]);
-			buffer[6][loadcount] = UTIL_GETKV(mykeyvalue[6]);
-			buffer[7][loadcount] = UTIL_GETKV(mykeyvalue[7]);
+			buffer[1][loadcount] = UTILP0_GETKV(mykeyvalue[1]);
+			buffer[2][loadcount] = UTILP0_GETKV(mykeyvalue[2]);
+			buffer[3][loadcount] = UTILP0_GETKV(mykeyvalue[3]);
+			buffer[4][loadcount] = UTILP0_GETKV(mykeyvalue[4]);
+			buffer[5][loadcount] = UTILP0_GETKV(mykeyvalue[5]);
+			buffer[6][loadcount] = UTILP0_GETKV(mykeyvalue[6]);
+			buffer[7][loadcount] = UTILP0_GETKV(mykeyvalue[7]);
 	
-			if(setoffset == 0){ buffer[0][loadcount] = UTIL_GETKV(dummykeyvalue); }
-			else { buffer[0][loadcount] = UTIL_GETKV(mykeyvalue[0]); }
+			if(setoffset == 0){ buffer[0][loadcount] = UTILP0_GETKV(dummykeyvalue); }
+			else { buffer[0][loadcount] = UTILP0_GETKV(mykeyvalue[0]); }
 			if(ensSTD1 == ON && maskSTD1 == 1){ loadcount += 1; } 
 			#else
-			buffer[0][loadcount] = UTIL_GETKV(mykeyvalue[0]);
-			buffer[1][loadcount] = UTIL_GETKV(mykeyvalue[1]);
-			buffer[2][loadcount] = UTIL_GETKV(mykeyvalue[2]);
-			buffer[3][loadcount] = UTIL_GETKV(mykeyvalue[3]);
-			buffer[4][loadcount] = UTIL_GETKV(mykeyvalue[4]);
-			buffer[5][loadcount] = UTIL_GETKV(mykeyvalue[5]);
-			buffer[6][loadcount] = UTIL_GETKV(mykeyvalue[6]);
-			buffer[7][loadcount] = UTIL_GETKV(mykeyvalue[7]);
+			buffer[0][loadcount] = UTILP0_GETKV(mykeyvalue[0]);
+			buffer[1][loadcount] = UTILP0_GETKV(mykeyvalue[1]);
+			buffer[2][loadcount] = UTILP0_GETKV(mykeyvalue[2]);
+			buffer[3][loadcount] = UTILP0_GETKV(mykeyvalue[3]);
+			buffer[4][loadcount] = UTILP0_GETKV(mykeyvalue[4]);
+			buffer[5][loadcount] = UTILP0_GETKV(mykeyvalue[5]);
+			buffer[6][loadcount] = UTILP0_GETKV(mykeyvalue[6]);
+			buffer[7][loadcount] = UTILP0_GETKV(mykeyvalue[7]);
 	
-			buffer[0][loadcount + 1] = UTIL_GETKV(mykeyvalue[8]);
-			buffer[1][loadcount + 1] = UTIL_GETKV(mykeyvalue[9]);
-			buffer[2][loadcount + 1] = UTIL_GETKV(mykeyvalue[10]);
-			buffer[3][loadcount + 1] = UTIL_GETKV(mykeyvalue[11]);
-			buffer[4][loadcount + 1] = UTIL_GETKV(mykeyvalue[12]);
-			buffer[5][loadcount + 1] = UTIL_GETKV(mykeyvalue[13]);
-			buffer[6][loadcount + 1] = UTIL_GETKV(mykeyvalue[14]);
-			buffer[7][loadcount + 1] = UTIL_GETKV(mykeyvalue[15]);
-			buffer[0][loadcount] = UTIL_GETKV(dummykeyvalue); // STD0
+			buffer[0][loadcount + 1] = UTILP0_GETKV(mykeyvalue[8]);
+			buffer[1][loadcount + 1] = UTILP0_GETKV(mykeyvalue[9]);
+			buffer[2][loadcount + 1] = UTILP0_GETKV(mykeyvalue[10]);
+			buffer[3][loadcount + 1] = UTILP0_GETKV(mykeyvalue[11]);
+			buffer[4][loadcount + 1] = UTILP0_GETKV(mykeyvalue[12]);
+			buffer[5][loadcount + 1] = UTILP0_GETKV(mykeyvalue[13]);
+			buffer[6][loadcount + 1] = UTILP0_GETKV(mykeyvalue[14]);
+			buffer[7][loadcount + 1] = UTILP0_GETKV(mykeyvalue[15]);
+			buffer[0][loadcount] = UTILP0_GETKV(dummykeyvalue); // STD0
 			if(ensSTD1 == ON && maskSTD1 == 1){ loadcount += 2; }
 			#endif
 	
 			#ifdef _DEBUGMODE_CHECKS3
-			PROCESS_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
-			PROCESS_SPL_debug(7, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESSP0_SPL_debug(6, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
+			PROCESSP0_SPL_debug(7, i, E, ens, mask, udataset, maskset, Vset, VMset, lvids, incr, lsrcvids, ldstvids, res, mykeyvalue, sweepparams, globalparams, lvid_head, srcvid_head, travstate, chunk_size, sliceinfos, &activeloadcount, &inactiveloadcount, &debug_numinvalidheads);
 			#endif
 		}
 	}
