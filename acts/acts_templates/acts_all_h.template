@@ -32,17 +32,26 @@ public:
 	acts_all(mydebug * _mydebugobj);
 	~acts_all();
 	
+	#ifdef CONFIG_ENABLECLASS_ALGO_FUNCS
+	{% include 'algo_funcs_mf.template' %}	
+	#endif 
 	#ifdef CONFIG_ENABLECLASS_ACTS_UTIL
 	{% include 'acts_util_mf.template' %}	
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 	{% include 'mem_convert_and_access_mf.template' %}	
 	#endif
-	#ifdef CONFIG_ENABLECLASS_MEM_ACCESS_SPLITDSTVXS
-	{% include 'mem_access_splitdstvxs_mf.template' %}	
+	#ifdef CONFIG_ENABLECLASS_MEM_ACCESS
+	{% include 'mem_access_mf.template' %}	
 	#endif
-	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES_SPLITDSTVXS
-	{% include 'processedges_splitdstvxs_mf.template' %}	
+	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES //////////
+	{% include 'processedges_and_reduceupdates_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES
+	{% include 'processedges_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES2
+	{% include 'processedges2_mf.template' %}	
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_PARTITIONUPDATES
 	{% include 'partitionupdates_mf.template' %}	
@@ -50,8 +59,11 @@ public:
 	#ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
 	{% include 'reduceupdates_mf.template' %}	
 	#endif
-	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE_SPLITDSTVXS
-	{% include 'acts_merge_splitdstvxs_mf.template' %}	
+	#ifdef CONFIG_ENABLECLASS_REDUCEUPDATES2
+	{% include 'reduceupdates2_mf.template' %}	
+	#endif
+	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
+	{% include 'acts_merge_mf.template' %}	
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_ACTS
 	{% include 'acts_mf.template' %}	

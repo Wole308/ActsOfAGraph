@@ -42,15 +42,15 @@ XCLBIN := ./xclbin
 SYNFREQUENCY := 300
 DSA = xilinx_u280_xdma_201920_3
 
-RELREF = /home/oj2zf/Documents/ActsOfAGraph/
+# RELREF = ../
 KERNEL_TOP_ALL += $(RELREF)acts/acts/acts_all.cpp
 KERNEL_TOP_DEBUG += $(RELREF)acts/acts/mydebug.cpp
 KERNEL_TOP_UTILITY += $(RELREF)acts/actsutility/actsutility.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/hostprocess.cpp
 HOST_SRCS_ACTS += $(RELREF)src/algorithm/algorithm.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadgraph.cpp
-HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadedges.cpp
-HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadedges_splitdstvxs.cpp
+HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadedges_sequential.cpp
+HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadedges_random.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/setupkernel.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/evalparams.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/app/app.cpp
@@ -118,25 +118,36 @@ ifneq ($(TARGET), hw)
 	VPP_FLAGS += -g
 endif
 
-# Kernel linker flags
-# VPP_LDFLAGS_vmult_vadd += --config ./vmult_vadd.cfg
-VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_3w.cfg
-# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_24w.cfg
-
 EXECUTABLE = ./slr_assign
 EMCONFIG_DIR = $(TEMP_DIR)
 
 ############################## Declaring Binary Containers ##############################
 # BINARY_CONTAINERS += $(BUILD_DIR)/vmult_vadd.xclbin
-BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_24and1.$(TARGET).$(DSA).xclbin
+# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
+BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_16and1.$(TARGET).$(DSA).xclbin
+# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_22and1.$(TARGET).$(DSA).xclbin
+# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_24and1.$(TARGET).$(DSA).xclbin
+
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vmult.xo
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vadd.xo
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vdiv.xo
 
+VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_3w.cfg
 KERNELP0_NAME = TOPP0_U_topkernelP1
 KERNELP1_NAME = TOPP1_U_topkernelP1
 KERNELP2_NAME = TOPP2_topkernelS
 
+# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_16w.cfg
+# KERNELP0_NAME = TOPP0_U_topkernelP6
+# KERNELP1_NAME = TOPP1_U_topkernelP4
+# KERNELP2_NAME = TOPP2_topkernelS
+
+# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_22w.cfg
+# KERNELP0_NAME = TOPP0_U_topkernelP8
+# KERNELP1_NAME = TOPP1_U_topkernelP6
+# KERNELP2_NAME = TOPP2_topkernelS
+
+# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_24w.cfg
 # KERNELP0_NAME = TOPP0_U_topkernelP9
 # KERNELP1_NAME = TOPP1_U_topkernelP6
 # KERNELP2_NAME = TOPP2_topkernelS
@@ -147,9 +158,13 @@ CP = cp -rf
 .PHONY: all clean cleanall docs emconfig
 # all: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 all: check-platform check-device $(BINARY_CONTAINERS) emconfig
+
 all_procandsync_1by1by1by0_3and1: check-platform check-device $(BINARY_CONTAINERS) emconfig
+all_procandsync_1by1by1by0_16and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 all_procandsync_1by1by1by0_20and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
+all_procandsync_1by1by1by0_22and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 all_procandsync_1by1by1by0_24and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
+# all_procandsync_1by1by1by0_25and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS_1by1by1by0_25AND1) emconfig
 
 .PHONY: host
 host: $(EXECUTABLE)
@@ -161,29 +176,37 @@ build: check-vitis check-device $(BINARY_CONTAINERS)
 xclbin: build
 
 ############################## Setting Rules for Binary Containers (Building Kernels) ##############################
-$(TEMP_DIR)/vmult.xo: /home/oj2zf/Documents/ActsOfAGraph/acts/acts/acts_allP0.cpp
+$(TEMP_DIR)/vmult.xo: $(RELREF)acts/acts/acts_allP0.cpp
 	mkdir -p $(TEMP_DIR)
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP0_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
-$(TEMP_DIR)/vadd.xo: /home/oj2zf/Documents/ActsOfAGraph/acts/acts/acts_allP1.cpp
+$(TEMP_DIR)/vadd.xo: $(RELREF)acts/acts/acts_allP1.cpp
 	mkdir -p $(TEMP_DIR)
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP1_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
-$(TEMP_DIR)/vdiv.xo: /home/oj2zf/Documents/ActsOfAGraph/acts/acts/acts_allS.cpp
+$(TEMP_DIR)/vdiv.xo: $(RELREF)acts/acts/acts_allS.cpp
 	mkdir -p $(TEMP_DIR)
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP2_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
-# $(BUILD_DIR)/vmult_vadd.xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
-	# mkdir -p $(BUILD_DIR)
-	# $(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
-	# $(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(BUILD_DIR)/vmult_vadd.xclbin
-$(XCLBIN)/topkernel_1by1by1by0_24and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
+$(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
 	mkdir -p $(BUILD_DIR)
 	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
 	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
-
+$(XCLBIN)/topkernel_1by1by1by0_16and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
+	mkdir -p $(BUILD_DIR)
+	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
+	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/topkernel_1by1by1by0_16and1.$(TARGET).$(DSA).xclbin
+$(XCLBIN)/topkernel_1by1by1by0_22and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
+	mkdir -p $(BUILD_DIR)
+	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
+	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/topkernel_1by1by1by0_22and1.$(TARGET).$(DSA).xclbin
+$(XCLBIN)/topkernel_1by1by1by0_24and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
+	mkdir -p $(BUILD_DIR)
+	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
+	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/topkernel_1by1by1by0_24and1.$(TARGET).$(DSA).xclbin
+	
 ############################## Setting Rules for Host (Building Host Executable) ##############################
 # $(EXECUTABLE): $(HOST_SRCS) | check-xrt
 		# $(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
 $(EXECUTABLE): $(HOST_SRCS) | check-xrt
-		$(CXX) -o $@ $^ $(CXXFLAGS) -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/./Vitis_HLS/2021.2/include/ -I/tools/Xilinx/Vitis/2021.2/runtime/ -I/tools/Xilinx/Vivado/2021.2/include/ -pthread -march=native -lrt /home/oj2zf/Documents/ActsOfAGraph/xcl.c -o host -L/opt/Xilinx/SDx/2021.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt $(LDFLAGS)			
+		$(CXX) -o $@ $^ $(CXXFLAGS) -I/opt/xilinx/xrt/include/ -I/tools/Xilinx/./Vitis_HLS/2021.2/include/ -I/tools/Xilinx/Vitis/2021.2/runtime/ -I/tools/Xilinx/Vivado/2021.2/include/ -pthread -march=native -lrt xcl.c -o host -L/opt/Xilinx/SDx/2021.2/runtime/lib/x86_64 -lOpenCL -pthread -lrt $(LDFLAGS)			
 
 emconfig:$(EMCONFIG_DIR)/emconfig.json
 $(EMCONFIG_DIR)/emconfig.json:

@@ -122,56 +122,7 @@ keyy_t {{context['classname__acts_util']}}UTIL{{context['id']}}_GETKEYENTRY(uint
 	#else 
 	return data.data[v].key;	
 	#endif
-}	
-value_t {{context['classname__acts_util']}}UTIL{{context['id']}}_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	loc = loc / SUBPMASKFACTOR; // convert-to-appropriate-skip-format // NEWCHANGE.
-
-	#ifdef ACTSPROC_AUTOMATE_ACROSSDATASETS
-	unsigned int col = loc >> (globalparams.POW_REDUCE - SUBPMASKFACTOR_POW);
-	unsigned int row;
-	if(globalparams.POW_REDUCE == 11){ 
-		row = loc % (1 << (11-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 10){
-		row = loc % (1 << (10-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 9){
-		row = loc % (1 << (9-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 8){
-		row = loc % (1 << (8-SUBPMASKFACTOR_POW));
-	} else {
-		row = 0;
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"GETVTXMASK_SUBP: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	#else 
-	unsigned int col = loc / (REDUCESZ/SUBPMASKFACTOR); 
-	unsigned int row = loc % (REDUCESZ/SUBPMASKFACTOR);
-	#endif
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("GETVTXMASK_SUBP.col", col, NUM_PARTITIONS, loc, NAp, NAp);
-	actsutilityobj->checkoutofbounds("GETVTXMASK_SUBP.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
-	#endif 
-	
-	value_t data = vmask[col][row];
-	return data;
-}
-uint32_type {{context['classname__acts_util']}}UTIL{{context['id']}}_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int index){
-	#pragma HLS INLINE
-	uint32_type res = 0;
-	#ifdef _WIDEWORD
-	{%for v in context['16_seq']%}
-	res.range({{1 * ((v * 1) + 1) - 1}}, {{(v * 1) * 1}}) = vmaskBITS[{{v}}][index];
-	{%endfor%}
-	#else 
-	{%for v in context['16_seq']%}
-	UTIL{{context['id']}}_WRITETO_UINT(&res, {{v}}, 1, vmaskBITS[{{v}}][index]);
-	{%endfor%}
-	#endif
-	return res;
-}	
+}		
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETLOCALVID(unsigned int vid, unsigned int instid){ // for CONFIG_SPLIT_DESTVTXS
 	#pragma HLS INLINE
 	return (vid - instid) / NUM_PEs;
@@ -495,7 +446,7 @@ partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getparti
 	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else {
 		keyy_t lkey = thiskeyvalue.key - upperlimit;
-		if(mode == REDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
+		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
 		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	}
 	#else 
@@ -580,16 +531,6 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetkvstatvalues(
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[{{v}}].value = 0; 
 		{%endfor%}
 		#endif
-	}
-	return;
-}
-void {{context['classname__acts_util']}}UTIL{{context['id']}}_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]){
-	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<DOUBLE_BLOCKRAM_SIZE; k++){
-	#pragma HLS PIPELINE II=1
-		for(unsigned int i=0; i<VMASK_PACKINGSIZE; i++){
-		#pragma HLS UNROLL
-			vmaskBITS[i][k] = 0;
-		}
 	}
 	return;
 }

@@ -32,21 +32,10 @@ value_t MEMCA{{context['id']}}_READFROMBUFFER_VDATA(unsigned int index, keyvalue
 
 void MEMCA{{context['id']}}_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 
-// vmasks
-unit1_type MEMCA{{context['id']}}_READFROMBUFFER_VMASK(unsigned int index, unit1_type vmaskBITS[DOUBLE_BLOCKRAM_SIZE], batch_type bufferoffset_kvs);
-
-void MEMCA{{context['id']}}_READFROMBUFFER_VMASKS(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs);
- 
-void MEMCA{{context['id']}}_WRITETOBUFFER_VMASKS(unsigned int index, unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs);
- 
-{%for n in context['T_seq']%}{%if(n>=1)%}
-void MEMCA{{context['id']}}_WRITETOBUFFER_VMASKS{{n}}_ANDREPLICATE(unsigned int index, {%for i in context['T_seq']%}{%if(i<n)%}unit1_type vmaskBITS{{i}}[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE],{%endif%}{%endfor%} unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs);
-{%endif%}{%endfor%}
- 
-void MEMCA{{context['id']}}_WRITETOBUFFER_VMASKS_WITHDEPTHS(unsigned int indexes[VDATA_PACKINGSIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs);
-
 // vdatas & vmasks 
-void MEMCA{{context['id']}}_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], unit1_type vmdatas[VMASK_PACKINGSIZE], batch_type bufferoffset_kvs);
+vmdata_t MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs);
+
+void MEMCA{{context['id']}}_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], unit1_type vmdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 
 void MEMCA{{context['id']}}_READFROMBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], vmdata_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 
@@ -54,14 +43,20 @@ void MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, key
 
 void MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 
-{%for n in context['T_seq']%}{%if(n>=1)%}
-void MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS{{n}}_ANDREPLICATE(unsigned int index, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
-{%endif%}{%endfor%}
-
 void MEMCA{{context['id']}}_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs);
 
 void MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
 
 void MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vmdata[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
+
+{%for n in context['T_seq']%}{%if(n>=1)%}
+void MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS{{n}}_ANDREPLICATE(unsigned int index, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
+{%endif%}{%endfor%}
+
+{%for n in context['T_seq']%}{%if(n>=1)%}
+void MEMCA{{context['id']}}_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS{{n}}_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
+{%endif%}{%endfor%}
+
+
 
 

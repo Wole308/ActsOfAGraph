@@ -543,6 +543,7 @@ void graph::loadalldatasets(){
 	for(unsigned int i=0; i<128; i++){
 		_datasets[i].groupvoffset[0] = 0;
 		_datasets[i].groupvoffset[1] = _datasets[i].num_vertices;
+		_datasets[i].max_vertex = _datasets[i].num_vertices - 1; // NEWCHANGE.
 	}
 	
 	cout<<"graph::loadalldatasets finished. "<<endl;

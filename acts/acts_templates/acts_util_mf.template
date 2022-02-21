@@ -21,8 +21,6 @@ keyvalue_buffer_t UTIL{{context['id']}}_GETKV(keyvalue_t data);
 keyy_t UTIL{{context['id']}}_GETK(uint32_type data);
 value_t UTIL{{context['id']}}_GETV(uint32_type data);
 keyy_t UTIL{{context['id']}}_GETKEYENTRY(uint512_dt data, unsigned int v);
-value_t UTIL{{context['id']}}_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int loc, globalparams_t globalparams);	
-uint32_type UTIL{{context['id']}}_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int index);	
 unsigned int UTIL{{context['id']}}_GETLOCALVID(unsigned int vid, unsigned int instid);
 unsigned int UTIL{{context['id']}}_GETREALVID(unsigned int lvid, unsigned int instid);
 
@@ -47,7 +45,6 @@ void UTIL{{context['id']}}_resetvalues(value_t * buffer, buffer_type size, unsig
 void UTIL{{context['id']}}_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 void UTIL{{context['id']}}_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams);
 void UTIL{{context['id']}}_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams);
-void UTIL{{context['id']}}_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]);
 void UTIL{{context['id']}}_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 void UTIL{{context['id']}}_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);
 void UTIL{{context['id']}}_set_graphiteration(uint512_dt * kvdram, unsigned int GraphIter);

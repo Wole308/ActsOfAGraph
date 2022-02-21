@@ -1,19 +1,36 @@
 #ifndef APP_H
 #define APP_H
+#include <chrono>
+#include <stdlib.h>
+#include <ctime>
+#include <map>
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <vector>
+#include <mutex>
+#include <bits/stdc++.h> 
+#include <iostream> 
+#include <sys/stat.h> 
+#include <sys/types.h>
+#include <algorithm>
+#include <thread>
+#include <iostream>
+#include <mutex>
+#include <vector>
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
-#include "../../examples/helperfunctions/loadedges.h"
-#include "../../examples/helperfunctions/loadedges_splitdstvxs.h"
+#include "../../examples/helperfunctions/loadedges_sequential.h"
+#include "../../examples/helperfunctions/loadedges_random.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
 #include "../../kernels/swkernel.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
-#include "app.h"
 
 class app {
 public:
@@ -32,10 +49,11 @@ private:
 	graph * graphobj;
 	utility * utilityobj;
 	loadgraph * loadgraphobj;
-	#ifdef CONFIG_SPLIT_DESTVTXS
-	loadedges_splitdstvxs * loadedgesobj;
-	#else 
-	loadedges * loadedgesobj;
+	#ifdef CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS
+	loadedges_sequential * loadedgesobj;
+	#endif 
+	#ifdef CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS
+	loadedges_random * loadedgesobj;
 	#endif 
 	setupkernel * setupkernelobj;
 	swkernel * swkernelobj;
@@ -49,7 +67,6 @@ private:
 	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
 	uint512_vec_dt * vdram;
 	edge_t * vptrs[NUMSUBCPUTHREADS];
-	// edge_type * edges[NUMSUBCPUTHREADS];
 	uint512_vec_dt * edges[NUMSUBCPUTHREADS];
 	
 	std::string binaryFile[2];

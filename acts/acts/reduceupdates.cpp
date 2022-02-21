@@ -1,99 +1,4 @@
-value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
-	value_t temp = 0;
-	#ifdef CUSTOMLOGICFOREACHALGORITHM
-		#if defined(PR_ALGORITHM)
-			temp = vtemp + res;
-		#elif defined(CF_ALGORITHM)
-			unsigned int ew = 1;
-			unsigned int lamda = 1;
-			temp = vtemp + ((ew - vtemp*res)*res - lamda*vtemp);
-		#elif defined(CC_ALGORITHM)
-			temp = UTILP0_amin(vtemp, res);
-		#elif defined(BFS_ALGORITHM)
-			temp = UTILP0_amin(vtemp, GraphIter);
-		#elif defined(SSSP_ALGORITHM)
-			temp = UTILP0_amin(vtemp, res);
-		#else 
-			NOT DEFINED.
-		#endif
-	#else 
-	if(GraphAlgo == PAGERANK){
-		temp = vtemp + res;
-	} else if(GraphAlgo == CF){
-		temp = vtemp + ((ew - vtemp*res)*res - lamda*vtemp);
-	} else if(GraphAlgo == CC){
-		temp = UTILP0_amin(vtemp, res);
-	} else if(GraphAlgo == BFS){
-		temp = UTILP0_amin(vtemp, GraphIter);
-	} else if(GraphAlgo == SSSP){
-		temp = UTILP0_amin(vtemp, res);
-	} else {
-		NOT DEFINED
-	}
-	#endif
-	return temp;
-}
-
-/** void acts_all::REDUCEP0_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_SIZE], unit1_type vmaskBITS[BLOCKRAM_VMASK_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
-	#pragma HLS PIPELINE II=3
-	analysis_type analysis_loop1 = VECTOR_SIZE;
-	
-	keyvalue_t mykeyvalue = UTILP0_GETKV(kvdata);
-	
-	#ifdef CONFIG_SPLIT_DESTVTXS
-	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
-	#else 
-	vertex_t loc = mykeyvalue.key - upperlimit;
-	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"REDUCEP0_reducevector:: col: "<<col<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<endl;
-	#endif 
-	
-	bool en = true; if(mykeyvalue.key != UTILP0_GETK(INVALIDDATA) && mykeyvalue.value != UTILP0_GETV(INVALIDDATA)){ en = true; } else { en = false; }
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3 // upperlimit + loc
-	if(en == true){ cout<<"REDUCEP0_reducevector:: REDUCE SEEN @ vid: "<<UTILP0_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
-	#endif 
-	
-	if(loc >= globalparams.SIZE_REDUCE && en == true){ 
-		#ifdef _DEBUGMODE_CHECKS2
-		if(true){ cout<<"REDUCEP0_reducevector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
-		actsutilityobj->reducehelper_checkreduceloc(0, loc, mykeyvalue, sweepparams, globalparams); 
-		#endif 
-		loc = 0; }
-		
-	value_t curr_vprop;
-	// if(en == true){ curr_vprop = MEMCAP0_READFROMBUFFER_VDATA(loc, destbuffer, destoffset); }
-	if(en == true){ curr_vprop = loc + destoffset; } // CRITICAL REMOVEME.
-
-	value_t new_vprop = REDUCEP0_reducefunc(curr_vprop, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(en == true){ cout<<"REDUCEP0_reducevector:: REDUCEFUNC RESULT @ new_vprop: "<<new_vprop<<", curr_vprop: "<<curr_vprop<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
-	#endif 
-	
-	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
-		if(en == true){ MEMCAP0_WRITETOBUFFER_VDATA(loc, destbuffer, new_vprop, destoffset); }
-		if(en == true && new_vprop != curr_vprop){ vmaskBITS[loc] = 1; }
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		if(en == true && new_vprop != curr_vprop){ cout<<"REDUCEP0_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
-		#endif
-	#else 
-		unit1_type vmask = 0;
-		if(en == true && new_vprop != curr_vprop){ vmask = 1; }
-		// if(en == true && new_vprop != curr_vprop){ vmaskBITS[loc] = 1; } // REMOVEME.
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		if(en == true && new_vprop != curr_vprop){ cout<<"REDUCEP0_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
-		#endif
-		if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(loc, destbuffer, new_vprop, vmask, destoffset); }
-	#endif 
-	
-	#ifdef _DEBUGMODE_STATS
-	actsutilityobj->globalstats_countkvsreduced(1);
-	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-	#endif
-	return;
-} */
-void acts_all::REDUCEP0_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[BLOCKRAM_VMASK_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+void acts_all::REDUCEP0_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS PIPELINE II=3
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 	
@@ -104,11 +9,7 @@ void acts_all::REDUCEP0_reducevector(unsigned int col, keyvalue_buffer_t kvdata,
 	
 	keyvalue_t mykeyvalue = UTILP0_GETKV(kvdata);
 	
-	#ifdef CONFIG_SPLIT_DESTVTXS
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
-	#else 
-	vertex_t loc = mykeyvalue.key - upperlimit;
-	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"REDUCEP0_reducevector:: col: "<<col<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<endl;
 	#endif 
@@ -142,25 +43,17 @@ void acts_all::REDUCEP0_reducevector(unsigned int col, keyvalue_buffer_t kvdata,
 	if(en == true){ cout<<"REDUCEP0_reducevector:: REDUCEFUNC RESULT @ new_vprop: "<<new_vprop<<", curr_vprop: "<<curr_vprop<<", mykeyvalue.value: "<<mykeyvalue.value<<", NAp: "<<NAp<<endl; }
 	#endif 
 	
-	#ifdef CONFIG_SEPERATEVMASKFROMVDATA
-		if(en == true){ MEMCAP0_WRITETOBUFFER_VDATA(loc, destbuffer, new_vprop, destoffset); }
-		if(en == true && new_vprop != curr_vprop){ vmaskBITS[loc] = 1; }
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		if(en == true && new_vprop != curr_vprop){ cout<<"REDUCEP0_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
-		#endif
+	unit1_type vmask = 0;
+	if(en == true && new_vprop != curr_vprop){ vmask = 1; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(en == true && new_vprop != curr_vprop){ cout<<"REDUCEP0_reducevector:: ACTIVE MASK SEEN AT: "<<loc<<""<<endl; }
+	#endif
+	
+	#ifdef _WIDEWORD
+	if(loc%2==0){ new_VPROP.range(SIZEOF_VDATA0 - 1, 0) = new_vprop; } else { new_VPROP.range(SIZEOF_VDATAKEY + SIZEOF_VDATA1 - 1, SIZEOF_VDATAKEY) = new_vprop; }
+	destbuffer[destoffset + loc/2] = new_VPROP;	
 	#else 
-		unit1_type vmask = 0;
-		if(en == true && new_vprop != curr_vprop){ vmask = 1; }
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		if(en == true && new_vprop != curr_vprop){ cout<<"REDUCEP0_reducevector:: ACTIVE MASK SEEN AT: vmaskBITS["<<loc<<"]: "<<vmaskBITS[loc]<<endl; }
-		#endif
-		
-		#ifdef _WIDEWORD
-		if(loc%2==0){ new_VPROP.range(SIZEOF_VDATA0 - 1, 0) = new_vprop; } else { new_VPROP.range(SIZEOF_VDATAKEY + SIZEOF_VDATA1 - 1, SIZEOF_VDATAKEY) = new_vprop; }
-		destbuffer[destoffset + loc/2] = new_VPROP;	
-		#else 
-		if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(loc, destbuffer, new_vprop, vmask, destoffset); }	
-		#endif 
+	if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(loc, destbuffer, new_vprop, vmask, destoffset); }	
 	#endif 
 	
 	#ifdef _DEBUGMODE_STATS
@@ -170,7 +63,7 @@ void acts_all::REDUCEP0_reducevector(unsigned int col, keyvalue_buffer_t kvdata,
 	return;
 }
 
-void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	#if REDUCEBUFFERFACTOR==8
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
@@ -239,31 +132,15 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 				kvdata5 = buffer[v][bramoffset_kvs[5] + i]; 	
 				kvdata6 = buffer[v][bramoffset_kvs[6] + i]; 	
 				kvdata7 = buffer[v][bramoffset_kvs[7] + i]; 	
-	
-				
-				#ifdef CONFIG_SEPERATEVMASKFROMVDATA
- vmask_v0 = it+0;  vmask_v1 = it+1;  vmask_v2 = it+2;  vmask_v3 = it+3;  vmask_v4 = it+4;  vmask_v5 = it+5;  vmask_v6 = it+6;  vmask_v7 = it+7; 	
-				#endif 
 
-				#ifdef CONFIG_SPLIT_DESTVTXS
-				if(i< size_kvs[0]){ REDUCEP0_reducevector(it+0, kvdata0, vbuffer[it+0], vmaskBITS[vmask_v0], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-				if(i< size_kvs[1]){ REDUCEP0_reducevector(it+1, kvdata1, vbuffer[it+1], vmaskBITS[vmask_v1], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-				if(i< size_kvs[2]){ REDUCEP0_reducevector(it+2, kvdata2, vbuffer[it+2], vmaskBITS[vmask_v2], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-				if(i< size_kvs[3]){ REDUCEP0_reducevector(it+3, kvdata3, vbuffer[it+3], vmaskBITS[vmask_v3], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-				if(i< size_kvs[4]){ REDUCEP0_reducevector(it+4, kvdata4, vbuffer[it+4], vmaskBITS[vmask_v4], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-				if(i< size_kvs[5]){ REDUCEP0_reducevector(it+5, kvdata5, vbuffer[it+5], vmaskBITS[vmask_v5], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-				if(i< size_kvs[6]){ REDUCEP0_reducevector(it+6, kvdata6, vbuffer[it+6], vmaskBITS[vmask_v6], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-				if(i< size_kvs[7]){ REDUCEP0_reducevector(it+7, kvdata7, vbuffer[it+7], vmaskBITS[vmask_v7], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-				#else 
-				if(i< size_kvs[0]){ REDUCEP0_reducevector(it+0, kvdata0, vbuffer[it+0], vmaskBITS[vmask_v0], 0, upperlimits[0], sweepparams, globalparams); }
-				if(i< size_kvs[1]){ REDUCEP0_reducevector(it+1, kvdata1, vbuffer[it+1], vmaskBITS[vmask_v1], 0, upperlimits[1], sweepparams, globalparams); }
-				if(i< size_kvs[2]){ REDUCEP0_reducevector(it+2, kvdata2, vbuffer[it+2], vmaskBITS[vmask_v2], 0, upperlimits[2], sweepparams, globalparams); }
-				if(i< size_kvs[3]){ REDUCEP0_reducevector(it+3, kvdata3, vbuffer[it+3], vmaskBITS[vmask_v3], 0, upperlimits[3], sweepparams, globalparams); }
-				if(i< size_kvs[4]){ REDUCEP0_reducevector(it+4, kvdata4, vbuffer[it+4], vmaskBITS[vmask_v4], 0, upperlimits[4], sweepparams, globalparams); }
-				if(i< size_kvs[5]){ REDUCEP0_reducevector(it+5, kvdata5, vbuffer[it+5], vmaskBITS[vmask_v5], 0, upperlimits[5], sweepparams, globalparams); }
-				if(i< size_kvs[6]){ REDUCEP0_reducevector(it+6, kvdata6, vbuffer[it+6], vmaskBITS[vmask_v6], 0, upperlimits[6], sweepparams, globalparams); }
-				if(i< size_kvs[7]){ REDUCEP0_reducevector(it+7, kvdata7, vbuffer[it+7], vmaskBITS[vmask_v7], 0, upperlimits[7], sweepparams, globalparams); }
-				#endif 
+				if(i< size_kvs[0]){ REDUCEP0_reducevector(it+0, kvdata0, vbuffer[it+0], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+				if(i< size_kvs[1]){ REDUCEP0_reducevector(it+1, kvdata1, vbuffer[it+1], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+				if(i< size_kvs[2]){ REDUCEP0_reducevector(it+2, kvdata2, vbuffer[it+2], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+				if(i< size_kvs[3]){ REDUCEP0_reducevector(it+3, kvdata3, vbuffer[it+3], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+				if(i< size_kvs[4]){ REDUCEP0_reducevector(it+4, kvdata4, vbuffer[it+4], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+				if(i< size_kvs[5]){ REDUCEP0_reducevector(it+5, kvdata5, vbuffer[it+5], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+				if(i< size_kvs[6]){ REDUCEP0_reducevector(it+6, kvdata6, vbuffer[it+6], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+				if(i< size_kvs[7]){ REDUCEP0_reducevector(it+7, kvdata7, vbuffer[it+7], 0, sweepparams.upperlimit, sweepparams, globalparams); }
 			}
 		}
 	}
@@ -305,48 +182,23 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 			kvdata13 = buffer[v][bramoffset_kvs[13] + i]; 	
 			kvdata14 = buffer[v][bramoffset_kvs[14] + i]; 	
 			kvdata15 = buffer[v][bramoffset_kvs[15] + i]; 	
-	
-			
-			#ifdef CONFIG_SEPERATEVMASKFROMVDATA
- vmask_v0 = 0;  vmask_v1 = 1;  vmask_v2 = 2;  vmask_v3 = 3;  vmask_v4 = 4;  vmask_v5 = 5;  vmask_v6 = 6;  vmask_v7 = 7;  vmask_v8 = 8;  vmask_v9 = 9;  vmask_v10 = 10;  vmask_v11 = 11;  vmask_v12 = 12;  vmask_v13 = 13;  vmask_v14 = 14;  vmask_v15 = 15; 	
-			#endif 
 
-			#ifdef CONFIG_SPLIT_DESTVTXS
-			if(i< size_kvs[0]){ REDUCEP0_reducevector(it+0, kvdata0, vbuffer[0], vmaskBITS[vmask_v0], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[1]){ REDUCEP0_reducevector(it+1, kvdata1, vbuffer[1], vmaskBITS[vmask_v1], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[2]){ REDUCEP0_reducevector(it+2, kvdata2, vbuffer[2], vmaskBITS[vmask_v2], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[3]){ REDUCEP0_reducevector(it+3, kvdata3, vbuffer[3], vmaskBITS[vmask_v3], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[4]){ REDUCEP0_reducevector(it+4, kvdata4, vbuffer[4], vmaskBITS[vmask_v4], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[5]){ REDUCEP0_reducevector(it+5, kvdata5, vbuffer[5], vmaskBITS[vmask_v5], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[6]){ REDUCEP0_reducevector(it+6, kvdata6, vbuffer[6], vmaskBITS[vmask_v6], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[7]){ REDUCEP0_reducevector(it+7, kvdata7, vbuffer[7], vmaskBITS[vmask_v7], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[8]){ REDUCEP0_reducevector(it+8, kvdata8, vbuffer[8], vmaskBITS[vmask_v8], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[9]){ REDUCEP0_reducevector(it+9, kvdata9, vbuffer[9], vmaskBITS[vmask_v9], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[10]){ REDUCEP0_reducevector(it+10, kvdata10, vbuffer[10], vmaskBITS[vmask_v10], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[11]){ REDUCEP0_reducevector(it+11, kvdata11, vbuffer[11], vmaskBITS[vmask_v11], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[12]){ REDUCEP0_reducevector(it+12, kvdata12, vbuffer[12], vmaskBITS[vmask_v12], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[13]){ REDUCEP0_reducevector(it+13, kvdata13, vbuffer[13], vmaskBITS[vmask_v13], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[14]){ REDUCEP0_reducevector(it+14, kvdata14, vbuffer[14], vmaskBITS[vmask_v14], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			if(i< size_kvs[15]){ REDUCEP0_reducevector(it+15, kvdata15, vbuffer[15], vmaskBITS[vmask_v15], 0, sweepparams.upperlimit, sweepparams, globalparams); }
-			#else 
-			if(i< size_kvs[0]){ REDUCEP0_reducevector(it+0, kvdata0, vbuffer[0], vmaskBITS[0], 0, upperlimits[0], sweepparams, globalparams); }
-			if(i< size_kvs[1]){ REDUCEP0_reducevector(it+1, kvdata1, vbuffer[1], vmaskBITS[1], 0, upperlimits[1], sweepparams, globalparams); }
-			if(i< size_kvs[2]){ REDUCEP0_reducevector(it+2, kvdata2, vbuffer[2], vmaskBITS[2], 0, upperlimits[2], sweepparams, globalparams); }
-			if(i< size_kvs[3]){ REDUCEP0_reducevector(it+3, kvdata3, vbuffer[3], vmaskBITS[3], 0, upperlimits[3], sweepparams, globalparams); }
-			if(i< size_kvs[4]){ REDUCEP0_reducevector(it+4, kvdata4, vbuffer[4], vmaskBITS[4], 0, upperlimits[4], sweepparams, globalparams); }
-			if(i< size_kvs[5]){ REDUCEP0_reducevector(it+5, kvdata5, vbuffer[5], vmaskBITS[5], 0, upperlimits[5], sweepparams, globalparams); }
-			if(i< size_kvs[6]){ REDUCEP0_reducevector(it+6, kvdata6, vbuffer[6], vmaskBITS[6], 0, upperlimits[6], sweepparams, globalparams); }
-			if(i< size_kvs[7]){ REDUCEP0_reducevector(it+7, kvdata7, vbuffer[7], vmaskBITS[7], 0, upperlimits[7], sweepparams, globalparams); }
-			if(i< size_kvs[8]){ REDUCEP0_reducevector(it+8, kvdata8, vbuffer[8], vmaskBITS[8], 0, upperlimits[8], sweepparams, globalparams); }
-			if(i< size_kvs[9]){ REDUCEP0_reducevector(it+9, kvdata9, vbuffer[9], vmaskBITS[9], 0, upperlimits[9], sweepparams, globalparams); }
-			if(i< size_kvs[10]){ REDUCEP0_reducevector(it+10, kvdata10, vbuffer[10], vmaskBITS[10], 0, upperlimits[10], sweepparams, globalparams); }
-			if(i< size_kvs[11]){ REDUCEP0_reducevector(it+11, kvdata11, vbuffer[11], vmaskBITS[11], 0, upperlimits[11], sweepparams, globalparams); }
-			if(i< size_kvs[12]){ REDUCEP0_reducevector(it+12, kvdata12, vbuffer[12], vmaskBITS[12], 0, upperlimits[12], sweepparams, globalparams); }
-			if(i< size_kvs[13]){ REDUCEP0_reducevector(it+13, kvdata13, vbuffer[13], vmaskBITS[13], 0, upperlimits[13], sweepparams, globalparams); }
-			if(i< size_kvs[14]){ REDUCEP0_reducevector(it+14, kvdata14, vbuffer[14], vmaskBITS[14], 0, upperlimits[14], sweepparams, globalparams); }
-			if(i< size_kvs[15]){ REDUCEP0_reducevector(it+15, kvdata15, vbuffer[15], vmaskBITS[15], 0, upperlimits[15], sweepparams, globalparams); }
-	
-			#endif 
+			if(i< size_kvs[0]){ REDUCEP0_reducevector(it+0, kvdata0, vbuffer[0], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[1]){ REDUCEP0_reducevector(it+1, kvdata1, vbuffer[1], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[2]){ REDUCEP0_reducevector(it+2, kvdata2, vbuffer[2], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[3]){ REDUCEP0_reducevector(it+3, kvdata3, vbuffer[3], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[4]){ REDUCEP0_reducevector(it+4, kvdata4, vbuffer[4], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[5]){ REDUCEP0_reducevector(it+5, kvdata5, vbuffer[5], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[6]){ REDUCEP0_reducevector(it+6, kvdata6, vbuffer[6], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[7]){ REDUCEP0_reducevector(it+7, kvdata7, vbuffer[7], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[8]){ REDUCEP0_reducevector(it+8, kvdata8, vbuffer[8], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[9]){ REDUCEP0_reducevector(it+9, kvdata9, vbuffer[9], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[10]){ REDUCEP0_reducevector(it+10, kvdata10, vbuffer[10], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[11]){ REDUCEP0_reducevector(it+11, kvdata11, vbuffer[11], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[12]){ REDUCEP0_reducevector(it+12, kvdata12, vbuffer[12], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[13]){ REDUCEP0_reducevector(it+13, kvdata13, vbuffer[13], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[14]){ REDUCEP0_reducevector(it+14, kvdata14, vbuffer[14], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+			if(i< size_kvs[15]){ REDUCEP0_reducevector(it+15, kvdata15, vbuffer[15], 0, sweepparams.upperlimit, sweepparams, globalparams); }
 		}
 	}
 	#endif 
@@ -354,7 +206,7 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	return;
 }
 
-void acts_all::REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
+void acts_all::REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
 	
@@ -378,7 +230,7 @@ void acts_all::REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t
 			cout<<"priorreduceandbuffer: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
 			#endif 
 			
-			if(p < VDATA_PACKINGSIZE){ REDUCEP0_reducevector(p, kv, vbuffer[p], vmaskBITS[p], 0, upperlimit, sweepparams, globalparams); } // REMOVEME.
+			if(p < VDATA_PACKINGSIZE){ REDUCEP0_reducevector(p, kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); } // REMOVEME.
 		}
 	}
 	return;
@@ -496,7 +348,7 @@ void acts_all::REDUCEP0_tradreduceandbuffer(bool_type enable, uint512_dt * kvdra
 				kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + row].data[7].value = vdata.data[7].value; 
 				#endif
 				
-				partition_type p = UTILP0_getpartition(ON, REDUCEMODE, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
+				partition_type p = UTILP0_getpartition(ON, ACTSREDUCEMODE, kv, sweepparams.currentLOP, sweepparams.upperlimit, sweepparams.upperpartition, globalparams.POW_BATCHRANGE);
 				globalstatsbuffer[p].value += 1;
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3

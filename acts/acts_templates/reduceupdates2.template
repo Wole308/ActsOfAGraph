@@ -1,0 +1,168 @@
+#define RU_SETSZ {{context['RU_SETSZ']}}
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+	#pragma HLS INLINE
+	keyvalue_t mykeyvalue = UTIL{{context['id']}}_GETKV(kvdata);
+	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
+	
+	bool en = true; if(mykeyvalue.key != UTIL{{context['id']}}_GETK(INVALIDDATA) && mykeyvalue.value != UTIL{{context['id']}}_GETV(INVALIDDATA) && enx == true){ en = true; } else { en = false; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(en == true){ cout<<"REDUCE{{context['id']}}_reducevector:: REDUCE SEEN @ vid: "<<UTIL{{context['id']}}_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
+	#endif 
+	
+	if(loc >= globalparams.SIZE_REDUCE && en == true){ 
+		#ifdef _DEBUGMODE_CHECKS2X
+		if(true){ cout<<"REDUCE{{context['id']}}_reducevector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+		actsutilityobj->reducehelper_checkreduceloc(0, loc, mykeyvalue, sweepparams, globalparams); 
+		#endif 
+		loc = 0; } //else{ loc = 0; }
+		
+	// read 
+	vmdata_t vmdata;
+	if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); }
+	
+	// reduce 
+	value_t new_vprop = REDUCE{{context['id']}}_reducefunc(vmdata.vdata, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	if(en == true && new_vprop != vmdata.vdata){ vmdata.vmask = 1; }
+	
+	// write 
+	if(en == true){ MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, vmdata.vdata, vmdata.vmask, 0); }
+	
+	#ifdef _DEBUGMODE_STATS
+	actsutilityobj->globalstats_countkvsreduced(1); 
+	// if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	if(enx == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	#endif
+	return;
+}
+
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+	unsigned int s_ = s % VECTOR_SIZE;
+	
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR_SIZE']-1)%}if(s_=={{v}}){%endif%}{ 
+		{%for v2 in context['VECTOR_SIZE_seq']%}{%if(v2<v)%}
+		depths[{{v2}}] = {{context['VECTOR_SIZE']-v+v2}}; 
+		{%endif%}{%endfor%}
+		{%for v2 in context['VECTOR_SIZE_seq']%}{%if(v2>=v)%}
+		depths[{{v2}}] = {{v2-v}}; 
+		{%endif%}{%endfor%}
+	}
+	{%endfor%}
+	return;
+}
+
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
+	unsigned int s_ = s;// % VECTOR_SIZE;
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR_SIZE']-1)%}if(s_=={{v}}){%endif%}{ 
+		{%for v2 in context['VECTOR_SIZE_seq']%}{%if(v2<v)%}
+		vdata2[{{context['VECTOR_SIZE']-v+v2}}] = vdata[{{v2}}]; 
+		{%endif%}{%endfor%}
+		{%for v2 in context['VECTOR_SIZE_seq']%}{%if(v2>=v)%}
+		vdata2[{{v2-v}}] = vdata[{{v2}}]; 
+		{%endif%}{%endfor%}
+	}
+	{%endfor%}
+	return;
+}
+
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
+	
+	keyvalue_buffer_t kvdata[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=kvdata complete
+	keyvalue_buffer_t kvdata2[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=kvdata2 complete
+	unsigned int depths[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=depths complete
+	bool enx[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=enx complete
+	unsigned int d_kvs[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=d_kvs complete
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
+	#endif
+	
+	buffer_type maxsize_kvs[2]; maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
+	buffer_type totalsize_kvs = 0;
+	unsigned int key_kvs[NUM_PARTITIONS];
+	unsigned int _poff = 0;
+	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){
+		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
+		#pragma HLS PIPELINE II=1
+			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR_SIZE;
+			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
+			totalsize_kvs += ssize_kvs;
+			key_kvs[_poff + p] = localcapsule[_poff + p].key / VECTOR_SIZE;
+		}
+		_poff += NUM_PARTITIONS/2;
+	}
+	buffer_type height_kvs = (localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value) / VECTOR_SIZE;
+	
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
+		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
+	}
+
+	REDUCEBUFFERPARTITIONS_LOOP2: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){
+		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
+		REDUCEBUFFERPARTITIONS_LOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
+			REDUCEBUFFERPARTITIONS_LOOP2C: for(buffer_type i=0; i<mmaxsz_kvs; i++){
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+			#pragma HLS PIPELINE II=3
+				// read updates
+				REDUCE{{context['id']}}_GetXYLayoutV(r, depths, 0);
+				
+				{%for v in context['VECTOR_SIZE_seq']%}
+				unsigned int tdepth{{v}} = capsule_offset + depths[{{v}}];
+				{%endfor%} 	
+				{%for v in context['VECTOR_SIZE_seq']%}
+				if(i < localcapsule[tdepth{{v}}].value){ enx[{{v}}] = true; } else { enx[{{v}}] = false; }
+				{%endfor%} 
+				
+				{%for v in context['VECTOR_SIZE_seq']%}
+				d_kvs[{{v}}] = localcapsule[tdepth{{v}}].key + i; 	
+				{%endfor%} 	
+				{%for v in context['VECTOR_SIZE_seq']%}
+				if(d_kvs[{{v}}] < height_kvs){ kvdata[{{v}}] = buffer[{{v}}][d_kvs[{{v}}]]; } else { }	
+				{%endfor%}
+				
+				// re-arrange 
+				REDUCE{{context['id']}}_RearrangeLayoutV(r, kvdata, kvdata2);
+			
+				// reduce 
+				{%for v in context['VECTOR_SIZE_seq']%}
+				REDUCE{{context['id']}}_reducevector(enx[{{v}}], {{v}}, kvdata2[{{v}}], vbuffer[capsule_offset + {{v}}], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				{%endfor%}
+			}
+		}
+	}
+	
+	// actsutilityobj->printglobalvars();
+	// exit(EXIT_SUCCESS); ////
+	return;
+}
+
+#ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"reduceupdates2: REDUCE{{context['id']}}_tradreduceandbuffer NOT DEFINED HERE."<<endl;
+	exit(EXIT_FAILURE);
+	#endif 
+	return;
+}
+#endif 
+
+#ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"reduceupdates2: REDUCE{{context['id']}}_tradreduceandbuffer NOT DEFINED HERE."<<endl;
+	exit(EXIT_FAILURE);
+	#endif 
+	return;
+}
+#endif 
+
+

@@ -122,82 +122,7 @@ keyy_t acts_all::UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v){
 	#else 
 	return data.data[v].key;	
 	#endif
-}	
-value_t acts_all::UTILP0_GETVTXMASK_SUBP(unit1_type vmask[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int loc, globalparams_t globalparams){
-	#pragma HLS INLINE
-	loc = loc / SUBPMASKFACTOR; // convert-to-appropriate-skip-format // NEWCHANGE.
-
-	#ifdef ACTSPROC_AUTOMATE_ACROSSDATASETS
-	unsigned int col = loc >> (globalparams.POW_REDUCE - SUBPMASKFACTOR_POW);
-	unsigned int row;
-	if(globalparams.POW_REDUCE == 11){ 
-		row = loc % (1 << (11-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 10){
-		row = loc % (1 << (10-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 9){
-		row = loc % (1 << (9-SUBPMASKFACTOR_POW));
-	} else if(globalparams.POW_REDUCE == 8){
-		row = loc % (1 << (8-SUBPMASKFACTOR_POW));
-	} else {
-		row = 0;
-		#ifdef _DEBUGMODE_CHECKS2
-		cout<<"GETVTXMASK_SUBP: ERROR: out of selection. globalparams.POW_REDUCE: "<<globalparams.POW_REDUCE<<". exiting..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	#else 
-	unsigned int col = loc / (REDUCESZ/SUBPMASKFACTOR); 
-	unsigned int row = loc % (REDUCESZ/SUBPMASKFACTOR);
-	#endif
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("GETVTXMASK_SUBP.col", col, NUM_PARTITIONS, loc, NAp, NAp);
-	actsutilityobj->checkoutofbounds("GETVTXMASK_SUBP.row", row, BLOCKRAM_SIZE, loc, NAp, NAp);
-	#endif 
-	
-	value_t data = vmask[col][row];
-	return data;
-}
-uint32_type acts_all::UTILP0_CONVERTVMASKTOUINT32(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE], unsigned int index){
-	#pragma HLS INLINE
-	uint32_type res = 0;
-	#ifdef _WIDEWORD
-	res.range(0, 0) = vmaskBITS[0][index];
-	res.range(1, 1) = vmaskBITS[1][index];
-	res.range(2, 2) = vmaskBITS[2][index];
-	res.range(3, 3) = vmaskBITS[3][index];
-	res.range(4, 4) = vmaskBITS[4][index];
-	res.range(5, 5) = vmaskBITS[5][index];
-	res.range(6, 6) = vmaskBITS[6][index];
-	res.range(7, 7) = vmaskBITS[7][index];
-	res.range(8, 8) = vmaskBITS[8][index];
-	res.range(9, 9) = vmaskBITS[9][index];
-	res.range(10, 10) = vmaskBITS[10][index];
-	res.range(11, 11) = vmaskBITS[11][index];
-	res.range(12, 12) = vmaskBITS[12][index];
-	res.range(13, 13) = vmaskBITS[13][index];
-	res.range(14, 14) = vmaskBITS[14][index];
-	res.range(15, 15) = vmaskBITS[15][index];
-	#else 
-	UTILP0_WRITETO_UINT(&res, 0, 1, vmaskBITS[0][index]);
-	UTILP0_WRITETO_UINT(&res, 1, 1, vmaskBITS[1][index]);
-	UTILP0_WRITETO_UINT(&res, 2, 1, vmaskBITS[2][index]);
-	UTILP0_WRITETO_UINT(&res, 3, 1, vmaskBITS[3][index]);
-	UTILP0_WRITETO_UINT(&res, 4, 1, vmaskBITS[4][index]);
-	UTILP0_WRITETO_UINT(&res, 5, 1, vmaskBITS[5][index]);
-	UTILP0_WRITETO_UINT(&res, 6, 1, vmaskBITS[6][index]);
-	UTILP0_WRITETO_UINT(&res, 7, 1, vmaskBITS[7][index]);
-	UTILP0_WRITETO_UINT(&res, 8, 1, vmaskBITS[8][index]);
-	UTILP0_WRITETO_UINT(&res, 9, 1, vmaskBITS[9][index]);
-	UTILP0_WRITETO_UINT(&res, 10, 1, vmaskBITS[10][index]);
-	UTILP0_WRITETO_UINT(&res, 11, 1, vmaskBITS[11][index]);
-	UTILP0_WRITETO_UINT(&res, 12, 1, vmaskBITS[12][index]);
-	UTILP0_WRITETO_UINT(&res, 13, 1, vmaskBITS[13][index]);
-	UTILP0_WRITETO_UINT(&res, 14, 1, vmaskBITS[14][index]);
-	UTILP0_WRITETO_UINT(&res, 15, 1, vmaskBITS[15][index]);
-	#endif
-	return res;
-}	
+}		
 unsigned int acts_all::UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid){ // for CONFIG_SPLIT_DESTVTXS
 	#pragma HLS INLINE
 	return (vid - instid) / NUM_PEs;
@@ -578,7 +503,7 @@ partition_type acts_all::UTILP0_getpartition(bool_type enable, unsigned int mode
 	if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	else {
 		keyy_t lkey = thiskeyvalue.key - upperlimit;
-		if(mode == REDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
+		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
 		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	}
 	#else 
@@ -683,16 +608,6 @@ void acts_all::UTILP0_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_k
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[6].value = 0; 
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[7].value = 0; 
 		#endif
-	}
-	return;
-}
-void acts_all::UTILP0_reset(unit1_type vmaskBITS[VMASK_PACKINGSIZE][BLOCKRAM_VMASK_SIZE]){
-	RESETVMASKBITS_LOOP: for(unsigned int k=0; k<DOUBLE_BLOCKRAM_SIZE; k++){
-	#pragma HLS PIPELINE II=1
-		for(unsigned int i=0; i<VMASK_PACKINGSIZE; i++){
-		#pragma HLS UNROLL
-			vmaskBITS[i][k] = 0;
-		}
 	}
 	return;
 }

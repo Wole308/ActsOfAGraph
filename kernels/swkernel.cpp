@@ -401,6 +401,7 @@ void swkernel::run24(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 		(uint512_dt *)vdramA
 	);
 	#endif 
+	// exit(EXIT_SUCCESS);///////////////
 	
 	cout<<"------------------------------------ topkernelP1: processing P9 instances ------------------------------------"<<endl;
 	#if NUM_EDGE_BANKS==0

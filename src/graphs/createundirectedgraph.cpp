@@ -226,6 +226,22 @@ void createundirectedgraph::start(){
 	}
 	file2_graph.close(); 
 	
+	cout<<"createundirectedgraph:: checking edge data for errors... "<<endl;
+	unsigned int numerrors = 0;
+	for(unsigned int t=1; t<edgedatabuffer_dup_size; t++){
+		if(edgedatabuffer_dup[t].srcvid < edgedatabuffer_dup[t-1].srcvid){
+			cout<<"createundirectedgraph::ERROR: edgedatabuffer_dup["<<t<<"].srcvid("<<edgedatabuffer_dup[t].srcvid<<") < edgedatabuffer_dup["<<t-1<<"].srcvid("<<edgedatabuffer_dup[t-1].srcvid<<")"<<endl;
+			for(unsigned int k=0; k<16; k++){ 
+				cout<<"... createundirectedgraph::loadedges:: edgedatabuffer_dup["<<k+t-8<<"].srcvid: "<<edgedatabuffer_dup[k+t-8].srcvid<<", edgedatabuffer_dup["<<k+t-8<<"].dstvid: "<<edgedatabuffer_dup[k+t-8].dstvid<<endl; 
+			}
+			numerrors += 1;
+			if(numerrors > 1000){ exit(EXIT_FAILURE); }
+			// exit(EXIT_FAILURE);
+		}
+	}
+	cout<<"Finished checking edge data for errors: numerrors: "<<numerrors<<endl;
+	// exit(EXIT_SUCCESS);
+	
 	cout<<"createundirectedgraph:: saving edge data... "<<endl;
 	string edgespath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".edges";
 	std::ofstream ofs1; ofs1.open(edgespath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs1.close();	

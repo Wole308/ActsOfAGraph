@@ -23,7 +23,7 @@
 #ifdef ENABLERECURSIVEPARTITIONING
 #define ACTS_PARTITION_AND_REDUCE_STRETEGY
 #else
-// #define BASIC_PARTITION_AND_REDUCE_STRETEGY
+// #define BASIC_PARTITION_AND_REDUCE_STRETEGY // {acts.cpp}
 #define TRAD_PARTITION_AND_REDUCE_STRETEGY
 #endif
 
@@ -35,35 +35,51 @@
 #define USEHBMMEMORY
 // #define USEDDRAMMEMORY
 
-#define CONFIG_SPLIT_DESTVTXS // {reduceupdates.cpp, acts_util.cpp, app.cpp, loadgraph.cpp, top_nusrcv_nudstv.cpp, reduceupdates.cpp, actscommon.h}
+////////////////////////////////////////////////////////////////////////////////////
+#define CONFIG_SPLIT_DESTVTXS // [OBSOLETE] // {reduceupdates.cpp, acts_util.cpp, app.cpp, loadgraph.cpp, top_nusrcv_nudstv.cpp, reduceupdates.cpp, actscommon.h}
+// #define CONFIG_SEPERATEVMASKFROMVDATA // [OBSOLETE] // seperating vmask and vbuffer datas {loadedges_sequential.cpp, processedges.cpp, reduceupdates.cpp, acts_merge.cpp, actscommon.h, common.h}
+////////////////////////////////////////////////////////////////////////////////////
+
 #define CONFIG_UNIFYSRCV // {app.cpp}
 
 // #define CONFIG_READVDATA_SLIDE // access format for source vertices 
 #define CONFIG_READVDATA_SLIDEANDREARRANGE
 
-// #define CONFIG_SEPERATEVMASKFROMVDATA // seperating vmask and vbuffer datas {loadedges_splitdstvxs.cpp, processedges_splitdstvxs.cpp, reduceupdates.cpp, acts_merge_splitdstvxs.cpp, actscommon.h, common.h}
+#define SEQUENTIALIZE_VIDS_IN_A_DRAM_ROW // uses MAX_NUM_UNIQ_EDGES_PER_VEC in {common.h}
 
-#define CUSTOMLOGICFOREACHALGORITHM // {processedges_splitdstvxs.cpp, reduceupdates.cpp}
+#define CUSTOMLOGICFOREACHALGORITHM // {processedges.cpp, reduceupdates.cpp}
+
+// #define CONFIG_PREPROCESS_EDGESREARRANGEDINDRAM // {classname__mem_access.template}
+// #define CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS // {classname__mem_access.template}
+#define CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS
 
 #define CONFIG_ENABLEPROCESSMODULE
 #define CONFIG_ENABLEPARTITIONMODULE
 #define CONFIG_ENABLEREDUCEMODULE //
 #define CONFIG_ENABLESYNCHRONIZEMODULE //
 
+#define CONFIG_ENABLECLASS_ALGO_FUNCS
 #define CONFIG_ENABLECLASS_ACTSUTILITY
 #ifdef CONFIG_UNIFYSRCV
-#define CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
-#else 
-#define CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
-#endif
-#define CONFIG_ENABLECLASS_PROCESSEDGES_SPLITDSTVXS
+	#define CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
+		#else 
+			#define CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
+				#endif
+#if defined(CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS)
+	#define CONFIG_ENABLECLASS_PROCESSEDGES	
+		#elif defined(CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS)
+			#define CONFIG_ENABLECLASS_PROCESSEDGES2
+				#else
+				NOT DEFINED.	
+					#endif	
+// #define CONFIG_ENABLECLASS_REDUCEUPDATES
+#define CONFIG_ENABLECLASS_REDUCEUPDATES2
 #define CONFIG_ENABLECLASS_PARTITIONUPDATES
-#define CONFIG_ENABLECLASS_REDUCEUPDATES
-#define CONFIG_ENABLECLASS_MEM_ACCESS_SPLITDSTVXS
+#define CONFIG_ENABLECLASS_MEM_ACCESS
 #define CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 #define CONFIG_ENABLECLASS_ACTS_UTIL
 #define CONFIG_ENABLECLASS_ACTS
-#define CONFIG_ENABLECLASS_ACTS_MERGE_SPLITDSTVXS
+#define CONFIG_ENABLECLASS_ACTS_MERGE
 #define CONFIG_ENABLECLASS_MYDEBUG
 
 #define TESTRUN /////////////////// CRITICAL REMOVEME.
@@ -73,10 +89,10 @@
 /**
 - AUTOMATE FOR LARGER GRAPHS: mem_access.cpp, acts_merge.cpp, mem_access.cpp->MEMACCESS_readvmasks
 - CRITICAL FIXME. mem_access.cpp
-- CRITICAL FIXME. TOO EXPENSIVE. mem_access.cpp, processedges_splitdstvxs.cpp MEMACCESS_SPL_GetXYLayoutV((i*NUM_PEs)+s, vdata, vdata2, depths); // FIXME. TOO EXPENSIVE.
+- CRITICAL FIXME. TOO EXPENSIVE. mem_access.cpp, processedges.cpp MEMACCESS_SPL_GetXYLayoutV((i*NUM_PEs)+s, vdata, vdata2, depths); // FIXME. TOO EXPENSIVE.
 - CRITICAL OPTIMIZEME: acts_merge.cpp
 - TOO EXPENSIVE. top_nusrcv_nudstv.cpp, processedges_slicedgraph.cpp, acts_merge.cpp
-- FIXME FOR DIFFERENT PARAMETERS: loadedges_splitdstvxs.cpp
+- FIXME FOR DIFFERENT PARAMETERS: loadedges_sequential.cpp
 - NOT IMPLEMENTED. mem_access.cpp
 
 - // CRITICAL FIXME.
@@ -87,8 +103,8 @@
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	if(maxcutoff % 4 != 0){ maxcutoff = 4; } // FIXME.
 	#endif 
-- #ifdef _WIDEWORD // CRITICAL FIXME. @ {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_readVchunks
-- #ifndef _WIDEWORD  // CRITICAL FIXME. @ {{context['classname__mem_access_splitdstvxs']}}MEMACCESS_SPL_SLreadV
+- #ifdef _WIDEWORD // CRITICAL FIXME. @ {{context['classname__mem_access']}}MEMACCESS_SPL_readVchunks
+- #ifndef _WIDEWORD  // CRITICAL FIXME. @ {{context['classname__mem_access']}}MEMACCESS_SPL_SLreadV
 - // CRITICAL FIXME @ {{context['classname__mem_convert_and_access']}}MEMCA_CREATEVBUFFERSTRUCT
 - reduceupdates.cpp: if(en == true){ curr_vprop = loc + destoffset; } // CRITICAL REMOVEME.	
 - NEWCHANGE: laodedges_splitdsxtvs: if(index%VECTOR2_SIZE == 0 && edge.dstvid == 888888){ numskippededges += 1; tempe_index += 1; continue; }
@@ -97,17 +113,22 @@
 - CRITICAL REMOVEME: void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{{n}}: // num_stages = 1; // REMOVEME.
 - NEWCHANGE: processit: if(voffset_kvs == avtravstate.begin_kvs || globalposition.source_partition == globalposition.first_source_partition){ resetenv = ON; } else { resetenv = OFF; } // NEWCHANGE
 - CRITICAL REMOVEME: actscommon.h: #define NUMPIPELINES_PARTITIONUPDATES 1//2 
+- REMOVEME: context['PE_SETSZ'] = 16 #8, 16 # for classname__processedges.cpp
 - NEWCHANGE: top: batch_type vreadoffset_kvs2 = 0; // NEWCHANGE.
+- NEWCHANGE: acts.cpp: // if(UTIL{{context['id']}}_GETKV(kvA0[0]).value != UTIL{{context['id']}}_GETV(INVALIDDATA)){ tempbufferDcapsule[pA0] += 4; }
+			if(UTIL{{context['id']}}_GETKV(kvA0[0]).value != UTIL{{context['id']}}_GETV(INVALIDDATA) && UTIL{{context['id']}}_GETKV(kvA0[1]).value != UTIL{{context['id']}}_GETV(INVALIDDATA) && UTIL{{context['id']}}_GETKV(kvA0[2]).value != UTIL{{context['id']}}_GETV(INVALIDDATA) && UTIL{{context['id']}}_GETKV(kvA0[3]).value != UTIL{{context['id']}}_GETV(INVALIDDATA)){ tempbufferDcapsule[pA0] += 4; }		
+- CRITICAL REMOVEME: MEMACCESS{{context['id']}}_readANDRVchunks{{n}}: #pragma HLS PIPELINE II=8 // CRITICAL REMOVEME.
+- CRITICAL FIXME: unsigned int incr = 5; // edges_temp[i][j+v].srcvid; // - srcvid_head; // CRITICAL FIXME.
 */
 
 
 /* *** IMPORTANT CHANGES ***
 #define CONFIG_SEPERATEVMASKFROMVDATA 
 evaluate.sh: for num_pes in $NUM_PEs_EQ24
-context['PE_SETSZ'] = 8 #8, 16 # for classname__processedges_splitdstvxs.cpp
+context['PE_SETSZ'] = 8 #8, 16 # for classname__processedges.cpp
 #define MAX_NUM_UNIQ_EDGES_PER_VEC 16
 // topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID  (REMOVEME)
-// if(GraphIter > 0){ {%if(context['XWARE']=="SW")%}acts_merge_splitdstvxsobj->{%e
+// if(GraphIter > 0){ {%if(context['XWARE']=="SW")%}acts_mergeobj->{%e
 void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVDATA0ANDVMASK0(k
 void {{context['classname__mem_convert_and_access']}}MEMCA_WRITEVDATA1ANDVMASK1(ke
 

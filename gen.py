@@ -29,7 +29,6 @@ context['LOCKE'] = sys.argv[9]
 context['EVALUATION_TYPE'] = sys.argv[10]
 context['EVALUATION_PARAM0'] = int(sys.argv[11])
 context['NUM_PEs'] = int(sys.argv[12])
-
 awspath = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 is_aws_path = os.path.isfile(awspath)  
 print(is_aws_path) 
@@ -202,45 +201,50 @@ context['KERNELTYPE'] = "_SINGLEKERNEL"
 if context['XWARE'] == "SW":
     context['classname__top_nusrcv_nudstv'] = "top_nusrcv_nudstv::"
     context['classname__top_usrcv_udstv'] = "top_usrcv_udstv::"
+    context['classname__processedges_and_reduceupdates'] = "processedge_and_reduceupdates::"
     context['classname__processedgesu'] = "processedgesu::"
-    context['classname__processedges_splitdstvxs'] = "processedges_splitdstvxs::"
+    context['classname__processedges'] = "processedges::"
     context['classname__partitionupdates'] = "partitionupdates::"
     context['classname__reduceupdates'] = "reduceupdates::"
     context['classname__mem_access'] = "mem_access::"
-    context['classname__mem_access_splitdstvxs'] = "mem_access_splitdstvxs::"
+    context['classname__mem_access'] = "mem_access::"
     context['classname__mem_convert_and_access'] = "mem_convert_and_access::" 
     context['classname__acts_util'] = "acts_util::"
+    context['classname__algofuncs'] = "algo_funcs::"
     context['classname__acts'] = "acts::"
     context['classname__acts_merge'] = "acts_merge::"
-    context['classname__acts_merge_splitdstvxs'] = "acts_merge_splitdstvxs::"
+    context['classname__acts_merge'] = "acts_merge::"
 elif (context['XWARE'] == "SW_ALLINONE"):
     context['classname__top_nusrcv_nudstv'] = "acts_all::"
     context['classname__top_usrcv_udstv'] = "acts_all::"
+    context['classname__processedges_and_reduceupdates'] = "acts_all::"
     context['classname__processedgesu'] = "acts_all::"
-    context['classname__processedges_splitdstvxs'] = "acts_all::"
+    context['classname__processedges'] = "acts_all::"
     context['classname__partitionupdates'] = "acts_all::"
     context['classname__reduceupdates'] = "acts_all::"
     context['classname__mem_access'] = "acts_all::"
-    context['classname__mem_access_splitdstvxs'] = "acts_all::" 
+    context['classname__mem_access'] = "acts_all::" 
     context['classname__mem_convert_and_access'] = "acts_all::" 
     context['classname__acts_util'] = "acts_all::"
+    context['classname__algofuncs'] = "acts_all::"
     context['classname__acts'] = "acts_all::"
     context['classname__acts_merge'] = "acts_all::"
-    context['classname__acts_merge_splitdstvxs'] = "acts_all::"
+    context['classname__acts_merge'] = "acts_all::"
 elif ((context['XWARE'] == "HW") or (context['XWARE'] == "SWEMU")):
     context['classname__top_nusrcv_nudstv'] = ""
     context['classname__top_usrcv_udstv'] = ""
     context['classname__processedgesu'] = ""
-    context['classname__processedges_splitdstvxs'] = ""
+    context['classname__processedges'] = ""
     context['classname__partitionupdates'] = ""
     context['classname__reduceupdates'] = ""
     context['classname__mem_access'] = ""
-    context['classname__mem_access_splitdstvxs'] = ""
+    context['classname__mem_access'] = ""
     context['classname__mem_convert_and_access'] = "" 
     context['classname__acts_util'] = ""
+    context['classname__algofuncs'] = ""
     context['classname__acts'] = ""
     context['classname__acts_merge'] = ""
-    context['classname__acts_merge_splitdstvxs'] = ""
+    context['classname__acts_merge'] = ""
 else:
     print ('gen.py: NOT YET IMPLEMENTED 38... EXITING...')
     quit()
@@ -255,8 +259,8 @@ else:
 # else:
     # print ('gen.py: NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO...')
     # relref=""
-relref=""
 # relref="../"
+relref=""
 
 o_path0=relref+"acts/acts/acts.cpp"
 o_path1=relref+"acts/acts/acts.cpp"
@@ -272,43 +276,44 @@ o_path10=relref+"acts/acts/top_usrcv_udstv.cpp"
 o_path11=relref+"acts/acts/top_usrcv_udstv.cpp"
 o_path12=relref+"acts/acts/top_nusrcv_nudstv.cpp"
 o_path13=relref+"acts/acts/top_nusrcv_nudstv.cpp"
-o_path14=relref+"acts/acts/processedges_splitdstvxs.cpp"
-o_path15=relref+"acts/acts/processedges_splitdstvxs.cpp"
-o_path16=relref+"acts/acts/acts.cpp"
+o_path14=relref+"acts/acts/processedges.cpp"
+o_path15=relref+"acts/acts/processedges.cpp"
+o_path16=relref+"acts/acts/processedges2.cpp"
 o_path17=relref+"acts/acts/acts.cpp"
 o_path18=relref+"acts/acts/reduceupdates.cpp"
 o_path19=relref+"acts/acts/reduceupdates.cpp"
 o_path20=relref+"acts/acts/acts_util.cpp"
-o_path21=relref+"acts/acts/acts_util.cpp"
-o_path22=relref+"acts/acts/acts.cpp"
-o_path23=relref+"acts/acts/acts.cpp"
+o_path21=relref+"acts/acts/algo_funcs.cpp"
+o_path22=relref+"acts/acts/reduceupdates2.cpp"
+o_path23=relref+"acts/acts/processedges_and_reduceupdates.cpp"
 o_path24=relref+"acts/acts/acts.cpp"
 o_path25=relref+"acts/acts/acts.cpp"
 o_path26=relref+"acts/acts/partitionupdates.cpp"
 o_path27=relref+"acts/acts/partitionupdates.cpp"
 o_path28=relref+"acts/acts/acts.cpp"
 o_path29=relref+"acts/acts/acts.cpp"
-o_path30=relref+"acts/acts/mem_access_splitdstvxs.cpp"
-o_path31=relref+"acts/acts/mem_access_splitdstvxs.cpp"
-o_path32=relref+"acts/acts/acts_merge_splitdstvxs.cpp"
-o_path33=relref+"acts/acts/acts_merge_splitdstvxs.cpp"
+o_path30=relref+"acts/acts/mem_access.cpp"
+o_path31=relref+"acts/acts/mem_access.cpp"
+o_path32=relref+"acts/acts/acts_merge.cpp"
+o_path33=relref+"acts/acts/acts_merge.cpp"
 o_path34=relref+"acts/acts/acts_all.cpp"
 o_path35=relref+"acts/acts/acts_all.h"
 o_path36=relref+"acts/acts/mem_convert_and_access.cpp"
 o_path37=relref+"acts/acts/mem_convert_and_access.cpp"
 o_path100=relref+"acts/acts/top_usrcv_udstv_mf.h"
 o_path101=relref+"acts/acts/top_nusrcv_nudstv_mf.h"
-o_path102=relref+"acts/acts/processedges_splitdstvxs_mf.h"
+o_path102=relref+"acts/acts/processedges_mf.h"
 o_path103=relref+"acts/acts/acts_mf.h"
 o_path104=relref+"acts/acts/reduceupdates_mf.h"
 o_path105=relref+"acts/acts/acts_util_mf.h"
-o_path106=relref+"acts/acts/acts_mf.h"
+o_path106=relref+"acts/acts/reduceupdates2_mf.h"
 o_path107=relref+"acts/acts/partitionupdates_mf.h"
-o_path108=relref+"acts/acts/acts_mf.h"
-o_path109=relref+"acts/acts/mem_access_splitdstvxs_mf.h"
-o_path110=relref+"acts/acts/acts_merge_splitdstvxs_mf.h"
+o_path108=relref+"acts/acts/processedges2_mf.h"
+o_path109=relref+"acts/acts/mem_access_mf.h"
+o_path110=relref+"acts/acts/acts_merge_mf.h"
 o_path111=relref+"acts/acts/mem_convert_and_access_mf.h"
-o_path112=relref+"acts/acts/acts_util_mf.h"
+o_path112=relref+"acts/acts/processedges_and_reduceupdates_mf.h"
+o_path113=relref+"acts/acts/algo_funcs_mf.h"
 o_path200=relref+"acts/acts/acts_allP0.cpp"
 o_path201=relref+"acts/acts/acts_allP0.h"
 o_path202=relref+"acts/acts/acts_allP1.cpp"
@@ -368,6 +373,7 @@ out_path109=os.path.abspath(o_path109)
 out_path110=os.path.abspath(o_path110)
 out_path111=os.path.abspath(o_path111)
 out_path112=os.path.abspath(o_path112)
+out_path113=os.path.abspath(o_path113)
 out_path200=os.path.abspath(o_path200)
 out_path201=os.path.abspath(o_path201)
 out_path202=os.path.abspath(o_path202)
@@ -427,6 +433,7 @@ templ_path109=relref+"acts/acts_templates"
 templ_path110=relref+"acts/acts_templates"
 templ_path111=relref+"acts/acts_templates"
 templ_path112=relref+"acts/acts_templates"
+templ_path113=relref+"acts/acts_templates"
 templ_path200=relref+"acts/acts_templates"
 templ_path201=relref+"acts/acts_templates"
 templ_path202=relref+"acts/acts_templates"
@@ -641,10 +648,15 @@ context['NUMSYNCTHREADS_DIV_4__PLUS2_seq'] = []
 for i in range (0,(context['NUMSYNCTHREADS_DIV_4__PLUS2'])):
 		context['NUMSYNCTHREADS_DIV_4__PLUS2_seq'].append(i)
    
-context['PE_SETSZ'] = 8 #8, 16 # for classname__processedges_splitdstvxs.cpp
+context['PE_SETSZ'] = 16 #8, 16 # for classname__processedges.cpp
 context['PE_SETSZ_seq'] = []
 for i in range (0,context['PE_SETSZ']):
 		context['PE_SETSZ_seq'].append(i)
+        
+context['RU_SETSZ'] = 8 #8, 16 # for classname__processedges.cpp
+context['RU_SETSZ_seq'] = []
+for i in range (0,context['RU_SETSZ']):
+		context['RU_SETSZ_seq'].append(i)
 		
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)
@@ -697,6 +709,7 @@ env109 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path109)), tr
 env110 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path110)), trim_blocks=True, lstrip_blocks=True)
 env111 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path111)), trim_blocks=True, lstrip_blocks=True)
 env112 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path112)), trim_blocks=True, lstrip_blocks=True)
+env113 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path113)), trim_blocks=True, lstrip_blocks=True)
 env200 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path200)), trim_blocks=True, lstrip_blocks=True)
 env201 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path201)), trim_blocks=True, lstrip_blocks=True)
 env202 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path202)), trim_blocks=True, lstrip_blocks=True)
@@ -756,6 +769,7 @@ env109.globals.update(zip=zip)
 env110.globals.update(zip=zip)
 env111.globals.update(zip=zip)
 env112.globals.update(zip=zip)
+env113.globals.update(zip=zip)
 env200.globals.update(zip=zip)
 env201.globals.update(zip=zip)
 env202.globals.update(zip=zip)
@@ -778,43 +792,44 @@ template10 = env10.get_template('top_usrcv_udstv.template')
 template11 = env11.get_template('top_usrcv_udstv.template')
 template12 = env12.get_template('top_nusrcv_nudstv.template')
 template13 = env13.get_template('top_nusrcv_nudstv.template')
-template14 = env14.get_template('processedges_splitdstvxs.template')
-template15 = env15.get_template('processedges_splitdstvxs.template')
-template16 = env16.get_template('acts.template')
+template14 = env14.get_template('processedges.template')
+template15 = env15.get_template('processedges.template')
+template16 = env16.get_template('processedges2.template')
 template17 = env17.get_template('acts.template')
 template18 = env18.get_template('reduceupdates.template')
 template19 = env19.get_template('reduceupdates.template')
 template20 = env20.get_template('acts_util.template')
-template21 = env21.get_template('acts_util.template')
-template22 = env22.get_template('acts.template')
-template23 = env23.get_template('acts.template')
+template21 = env21.get_template('algo_funcs.template')
+template22 = env22.get_template('reduceupdates2.template')
+template23 = env23.get_template('processedges_and_reduceupdates.template')
 template24 = env24.get_template('acts.template')
 template25 = env25.get_template('acts.template')
 template26 = env26.get_template('partitionupdates.template')
 template27 = env27.get_template('partitionupdates.template')
 template28 = env28.get_template('acts.template')
 template29 = env29.get_template('acts.template')
-template30 = env30.get_template('mem_access_splitdstvxs.template')
-template31 = env31.get_template('mem_access_splitdstvxs.template')
-template32 = env32.get_template('acts_merge_splitdstvxs.template')
-template33 = env33.get_template('acts_merge_splitdstvxs.template')
+template30 = env30.get_template('mem_access.template')
+template31 = env31.get_template('mem_access.template')
+template32 = env32.get_template('acts_merge.template')
+template33 = env33.get_template('acts_merge.template')
 template34 = env34.get_template('acts_all.template')
 template35 = env35.get_template('acts_all_h.template')
 template36 = env36.get_template('mem_convert_and_access.template')
 template37 = env37.get_template('mem_convert_and_access.template')
 template100 = env100.get_template('top_usrcv_udstv_mf.template')
 template101 = env101.get_template('top_nusrcv_nudstv_mf.template')
-template102 = env102.get_template('processedges_splitdstvxs_mf.template')
+template102 = env102.get_template('processedges_mf.template')
 template103 = env103.get_template('acts_mf.template')
 template104 = env104.get_template('reduceupdates_mf.template')
 template105 = env105.get_template('acts_util_mf.template')
-template106 = env106.get_template('acts_mf.template')
+template106 = env106.get_template('reduceupdates2_mf.template')
 template107 = env107.get_template('partitionupdates_mf.template')
-template108 = env108.get_template('acts_mf.template')
-template109 = env109.get_template('mem_access_splitdstvxs_mf.template')
-template110 = env110.get_template('acts_merge_splitdstvxs_mf.template')
+template108 = env108.get_template('processedges2_mf.template')
+template109 = env109.get_template('mem_access_mf.template')
+template110 = env110.get_template('acts_merge_mf.template')
 template111 = env111.get_template('mem_convert_and_access_mf.template')
-template112 = env112.get_template('acts_util_mf.template')
+template112 = env112.get_template('processedges_and_reduceupdates_mf.template')
+template113 = env113.get_template('algo_funcs_mf.template')
 template200 = env200.get_template('acts_all.template')
 template201 = env201.get_template('acts_all_h.template')
 template202 = env202.get_template('acts_all.template')
@@ -873,7 +888,8 @@ rendered_file108 = template108.render(context=context)
 rendered_file109 = template109.render(context=context)
 rendered_file110 = template110.render(context=context)
 rendered_file111 = template111.render(context=context)
-rendered_file112 = template12.render(context=context)
+rendered_file112 = template112.render(context=context)
+rendered_file113 = template113.render(context=context)
 context['id'] = "P0"
 rendered_file200 = template200.render(context=context)
 rendered_file201 = template201.render(context=context)
@@ -987,6 +1003,8 @@ with open(out_path111, 'w') as outFile111:
 	outFile111.write(rendered_file111)
 with open(out_path112, 'w') as outFile112:
 	outFile112.write(rendered_file112)
+with open(out_path113, 'w') as outFile113:
+	outFile113.write(rendered_file113)
 with open(out_path200, 'w') as outFile200:
 	outFile200.write(rendered_file200)
 with open(out_path201, 'w') as outFile201:
