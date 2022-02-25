@@ -19,6 +19,7 @@
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
+#include "../../acts/include/actscommon.h"
 #include "loadedges_random.h"
 using namespace std;
 
@@ -41,6 +42,8 @@ public:
 	unsigned int gethash(unsigned int vid);
 	unsigned int allignlower(unsigned int val, unsigned int V_SIZE);
 	unsigned int allignhigher(unsigned int val, unsigned int V_SIZE);
+	
+	unsigned int getpartition(unsigned int data, vertex_t upperlimit);
 	
 	globalparams_TWOt loadedges(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[NUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);					
 

@@ -11,12 +11,6 @@
 #include "../include/examplescommon.h"
 using namespace std;
 
-#define EDGESTATUS_VALIDEDGE 5
-#define EDGESTATUS_INVALIDEDGE 6
-#define EDGESTATUS_BITMAP 7
-#define EDGESTATUS_SOURCEV 8
-#define EDGESTATUS_DUMMYEDGE 9
-
 typedef struct {
 	edge2_type data[VECTOR_SIZE];
 } uint512_evec_dt;

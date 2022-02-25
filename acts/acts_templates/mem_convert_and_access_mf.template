@@ -1,13 +1,29 @@
 // util 
+#ifdef CONFIG_VDATAIS32BITSWIDE
+unsigned int MEMCA{{context['id']}}_READVDATA(keyvalue_vbuffer_t wideword);
+unsigned int MEMCA{{context['id']}}_READVMASK(keyvalue_vbuffer_t wideword);
+vmdata_t MEMCA{{context['id']}}_READVDATAANDVMASK(keyvalue_vbuffer_t wideword);
+void MEMCA{{context['id']}}_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata);
+void MEMCA{{context['id']}}_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask);
+tuple_t MEMCA{{context['id']}}_READVDATAWITHVMASK(keyvalue_vbuffer_t wideword);
+void MEMCA{{context['id']}}_WRITEVDATAWITHVMASK(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask);
+void MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
+void MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
+#endif 
+
+#ifndef CONFIG_VDATAIS32BITSWIDE
 unsigned int MEMCA{{context['id']}}_READVDATA0(keyvalue_vbuffer_t wideword);
 unsigned int MEMCA{{context['id']}}_READVDATA1(keyvalue_vbuffer_t wideword);
+
 unsigned int MEMCA{{context['id']}}_READVMASK0(keyvalue_vbuffer_t wideword);
 unsigned int MEMCA{{context['id']}}_READVMASK1(keyvalue_vbuffer_t wideword);
+
 vmdata_t MEMCA{{context['id']}}_READVDATA0ANDVMASK0(keyvalue_vbuffer_t wideword);
 vmdata_t MEMCA{{context['id']}}_READVDATA1ANDVMASK1(keyvalue_vbuffer_t wideword);
 
 void MEMCA{{context['id']}}_WRITEVDATA0(keyvalue_vbuffer_t * wideword, value_t vdata);
 void MEMCA{{context['id']}}_WRITEVDATA1(keyvalue_vbuffer_t * wideword, value_t vdata);
+
 void MEMCA{{context['id']}}_WRITEVMASK0(keyvalue_vbuffer_t * wideword, unit1_type vmask);
 void MEMCA{{context['id']}}_WRITEVMASK1(keyvalue_vbuffer_t * wideword, unit1_type vmask);
 
@@ -18,6 +34,11 @@ tuple_t MEMCA{{context['id']}}_READVDATA1WITHVMASK1(keyvalue_vbuffer_t wideword)
 
 void MEMCA{{context['id']}}_WRITEVDATA0WITHVMASK0(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask);
 void MEMCA{{context['id']}}_WRITEVDATA1WITHVMASK1(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask);
+
+void MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
+
+void MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vmdata[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
+#endif 
 
 // vdatas
 void MEMCA{{context['id']}}_WRITETOBUFFER_VDATA(unsigned int v, unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdata, batch_type bufferoffset_kvs);
@@ -44,10 +65,6 @@ void MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, key
 void MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 
 void MEMCA{{context['id']}}_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs);
-
-void MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
-
-void MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vmdata[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
 
 {%for n in context['T_seq']%}{%if(n>=1)%}
 void MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS{{n}}_ANDREPLICATE(unsigned int index, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);

@@ -16,7 +16,7 @@ void MERGE{{context['id']}}_SPLIT_BASICbroadcastVs{{n}}({%for i in context['T_se
 
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, globalparams_t globalparams, globalparams_t globalparamsv);
+void MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_SIZE],{%endif%}{%endfor%} globalparams_t globalparams, globalparams_t globalparamsv);				
 {%endif%}
 {%endfor%}
 

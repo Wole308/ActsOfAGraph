@@ -29,6 +29,8 @@ context['LOCKE'] = sys.argv[9]
 context['EVALUATION_TYPE'] = sys.argv[10]
 context['EVALUATION_PARAM0'] = int(sys.argv[11])
 context['NUM_PEs'] = int(sys.argv[12])
+context['TESTKERNEL'] = sys.argv[13]
+context['TESTKERNELARG'] = int(sys.argv[14])
 awspath = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 is_aws_path = os.path.isfile(awspath)  
 print(is_aws_path) 
@@ -47,7 +49,7 @@ context['VECTOR2_SIZE'] = 16
 context['DUMMY'] = 0
 context['NUMSUBWORKERS'] = 1 # 3#4
 
-context['NUM_EDGE_BANKS'] = 0
+context['NUM_EDGE_BANKS'] = 0 
 context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
 # context['NUM_EDGE_BANKS'] = 1
 # context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
@@ -88,62 +90,102 @@ if context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH":
     
 if context['DATASET'] == "DATASET_ORKUT_3M_212M": # small dataset
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_HOLLYWOOD_1M_114M":
     context['KVDATA_RANGE_POW'] = 21
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_KRON20_1M_45M":
     context['KVDATA_RANGE_POW'] = 20
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_KRON21_2M_91M":
     context['KVDATA_RANGE_POW'] = 21
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_KRON22_4M_200M":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RGG_N_2_24_S0_16M_265M":
     context['KVDATA_RANGE_POW'] = 24
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_EUROPE_OSM_50M_108M":
     context['KVDATA_RANGE_POW'] = 26
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_KMER_V2A_55M_117M":
     context['KVDATA_RANGE_POW'] = 26
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_HUGEBUBBLES_00020_21M_63M":
     context['KVDATA_RANGE_POW'] = 25
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_KMER_U1A_67M_138M":
     context['KVDATA_RANGE_POW'] = 26
+    context['NUM_EDGE_BANKS'] = 0 
 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE0":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE1":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE2":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE3":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE4":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE5":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE6":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE7":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
+    
+elif context['DATASET'] == "DATASET_RMAT24_268M":
+    context['KVDATA_RANGE_POW'] = 24
+    context['NUM_EDGE_BANKS'] = 1
+elif context['DATASET'] == "DATASET_RMAT25_268M":
+    context['KVDATA_RANGE_POW'] = 25
+    context['NUM_EDGE_BANKS'] = 1
+elif context['DATASET'] == "DATASET_RMAT26_268M":
+    context['KVDATA_RANGE_POW'] = 26
+    context['NUM_EDGE_BANKS'] = 1 
     
 elif context['DATASET'] == "DATASET_RMAT_RANGE0":
     context['KVDATA_RANGE_POW'] = 20
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT_RANGE1":
     context['KVDATA_RANGE_POW'] = 21
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT_RANGE2":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT_RANGE3":
     context['KVDATA_RANGE_POW'] = 23
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT_RANGE4":
     context['KVDATA_RANGE_POW'] = 24
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT_RANGE5":
     context['KVDATA_RANGE_POW'] = 25
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT_RANGE6":
     context['KVDATA_RANGE_POW'] = 26
+    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT_RANGE7":
     context['KVDATA_RANGE_POW'] = 27
-
+    context['NUM_EDGE_BANKS'] = 0 
 else:
     context['KVDATA_RANGE_POW'] = 0
 
+###
+
+if context['NUM_EDGE_BANKS'] > 0:
+    context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
+    
 ###
 
 if (is_aws_path):
@@ -194,6 +236,9 @@ print ('NUMINSTANCES: ' + str(context['NUMINSTANCES']))
 print ('NUMWORKERS: ' + str(context['NUMWORKERS'])) 
 print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
+print ('TESTKERNEL: ' + str(context['TESTKERNEL']))
+print ('TESTKERNELARG: ' + str(context['TESTKERNELARG']))
+print ('NUM_EDGE_BANKS: ' + str(context['NUM_EDGE_BANKS']))
 context['KERNELTYPE'] = "_SINGLEKERNEL"
 
 ###
@@ -657,7 +702,11 @@ context['RU_SETSZ'] = 8 #8, 16 # for classname__processedges.cpp
 context['RU_SETSZ_seq'] = []
 for i in range (0,context['RU_SETSZ']):
 		context['RU_SETSZ_seq'].append(i)
-		
+
+context['TESTKERNELARG_seq'] = []
+for i in range (0,(context['TESTKERNELARG'])):
+		context['TESTKERNELARG_seq'].append(i)
+        
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)
 env2 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path2)), trim_blocks=True, lstrip_blocks=True)

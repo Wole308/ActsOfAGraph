@@ -32,11 +32,11 @@ public:
 	acts_all(mydebug * _mydebugobj);
 	~acts_all();
 	
-	#ifdef CONFIG_ENABLECLASS_ALGO_FUNCS
-	{% include 'algo_funcs_mf.template' %}	
-	#endif 
 	#ifdef CONFIG_ENABLECLASS_ACTS_UTIL
 	{% include 'acts_util_mf.template' %}	
+	#endif 
+	#ifdef CONFIG_ENABLECLASS_ALGO_FUNCS
+	{% include 'algo_funcs_mf.template' %}	
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 	{% include 'mem_convert_and_access_mf.template' %}	

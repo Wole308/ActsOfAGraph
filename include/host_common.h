@@ -29,6 +29,7 @@ typedef struct {
 	string graphtopname;
 	string graphname;
 	string graph_path; // const char *
+	string rawgraph_path;
 	string vertices_path;
 	string edges_path;
 	string vertices_path_bin;

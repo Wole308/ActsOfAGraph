@@ -560,19 +560,27 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
 		skipspacing[p] = (B * C) + 128; 
 		
-		#ifdef TESTKERNEL
+		#ifdef CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS
+		skipspacing[p] = skipspacing[p] * 2;
+		#else 
+		skipspacing[p] = 0;	
+		#endif 
+			
+		/* #ifdef TESTKERNEL
 			skipspacing[p] = skipspacing[p] * 2;
 		#else 
-			#ifdef ALLVERTEXISACTIVE_ALGORITHM
-				#ifdef CONFIG_SPLIT_DESTVTXS
-				skipspacing[p] = skipspacing[p] * 2; // FIXME.
-				#else 
-				skipspacing[p] = 0;	
-				#endif 
+			#ifdef CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS
+			skipspacing[p] = skipspacing[p] * 2;
 			#else 
-			skipspacing[p] = 0; // CRITICAL FIXME
+			skipspacing[p] = 0;	
 			#endif 
-		#endif 
+			
+			// #ifdef ALLVERTEXISACTIVE_ALGORITHM
+			// skipspacing[p] = skipspacing[p] * 2; // FIXME.
+			// #else 
+			// skipspacing[p] = 0; // CRITICAL FIXME
+			// #endif 
+		#endif  */
 		
 		// cout<<"--- skipspacing["<<p<<"]: "<<skipspacing[p]<<endl;
 	}			

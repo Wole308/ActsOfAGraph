@@ -65,7 +65,12 @@ using namespace std;
 #define BLOCKRAM_SIZE 512
 #define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
 
-#define BLOCKRAM_VDATA_SIZE BLOCKRAM_SIZE // vertex and mask buffer
+// #define BLOCKRAM_VDATA_SIZE BLOCKRAM_SIZE // vertex and mask buffer
+#ifdef CONFIG_VDATAIS32BITSWIDE // vertex and mask buffer
+#define BLOCKRAM_VDATA_SIZE DOUBLE_BLOCKRAM_SIZE
+#else 
+#define BLOCKRAM_VDATA_SIZE BLOCKRAM_SIZE	
+#endif 
 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
 #define SRCBUFFER_SIZE (BLOCKRAM_SIZE - (4 * 4))
@@ -126,19 +131,31 @@ using namespace std;
 #define EDGESSTATSDRAMSZ 64
 
 #ifdef USEHBMMEMORY
+	#define TOTALDRAMCAPACITY_V ((1 << 28) / 4) // (256MB/4=64M)
+	#define TOTALDRAMCAPACITY_KV ((1 << 28) / 8) // (256MB/8=32M)
+	#define TOTALDRAMCAPACITY_VS (TOTALDRAMCAPACITY_V / VECTOR2_SIZE) // (64M/16=4M)
+	#define TOTALDRAMCAPACITY_KVS (TOTALDRAMCAPACITY_KV / VECTOR_SIZE) // (32M/8=4M)
+	
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	#define KVSOURCEDRAMSZ ((1 << 25) / 2)
+	#define KVSOURCEDRAMSZ (TOTALDRAMCAPACITY_KV / 2)
 	#else 
-	#define KVSOURCEDRAMSZ (1 << 25)
+	#define KVSOURCEDRAMSZ TOTALDRAMCAPACITY_KV // max HBM capacity (256MB)
+	// #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
+	// #define KVSOURCEDRAMSZ (1 << 27) // max HBM capacity (1024MB) // CRITICAL REMOVEME.
 	#endif 
 	// #define KVSOURCEDRAMSZ (1 << 25) // max HBM capacity (256MB)
 	// #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
 	// #define KVSOURCEDRAMSZ (1 << 27) // max HBM capacity (1024MB) // CRITICAL REMOVEME.
 #endif 
 #ifdef USEDDRAMMEMORY
+	#define TOTALDRAMCAPACITY_V ((1 << 33) / 4)
+	#define TOTALDRAMCAPACITY_KV ((1 << 33) / 8)
+	#define TOTALDRAMCAPACITY_VS (TOTALDRAMCAPACITY_V / VECTOR2_SIZE)
+	#define TOTALDRAMCAPACITY_KVS (TOTALDRAMCAPACITY_KV / VECTOR_SIZE)
+	
 	// #define KVSOURCEDRAMSZ ((1 << 27) + (1 << 26))
 	// #define KVSOURCEDRAMSZ ((1 << 29) - 1) // 2 workers
-	#define KVSOURCEDRAMSZ ((1 << 30) - 1) // 1 worker
+	#define KVSOURCEDRAMSZ (TOTALDRAMCAPACITY_KV - 1) // 1 worker
 #endif 
 #define KVSOURCEDRAMSZ_KVS (KVSOURCEDRAMSZ / VECTOR_SIZE)
 #define PADDEDKVSOURCEDRAMSZ KVSOURCEDRAMSZ
@@ -164,12 +181,21 @@ using namespace std;
 
 #define SIZEOF_KEY 22
 #define SIZEOF_VALUE 10
+
+#ifdef CONFIG_VDATAIS32BITSWIDE
+#define OFFSETOF_VDATA 0
+#define SIZEOF_VDATA 31
+#define OFFSETOF_VMASK 31
+#define SIZEOF_VMASK 1
+#endif 
+ 
 #define SIZEOF_VDATAKEY 16
 #define SIZEOF_VDATAVALUE 16
 #define SIZEOF_VMASK0 1
 #define SIZEOF_VDATA0 15
 #define SIZEOF_VMASK1 1
 #define SIZEOF_VDATA1 15
+
 // #define MAXVDATA 0xFFFFFFFF
 #define MAXVDATA 0b00000000000000000111111111111111
 
@@ -211,35 +237,28 @@ typedef struct {
 	unsigned int key;
 	unsigned int value;
 } keyvalue_buffer_t;
-#endif 
-
-// #ifdef _WIDEWORD
-// typedef ap_uint<32> vmdata_t;
-// #else 
-// typedef struct {
-	// unsigned int vmask;
-	// unsigned int vdata;
-// } vmdata_t;
-// #endif 
+#endif
 
 typedef struct {
 	unsigned int vmask;
 	unsigned int vdata;
 } vmdata_t;
 
-#ifdef _WIDEWORD
-typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
-#else
-// typedef struct {
-	// unsigned int mask0;
-	// unsigned int key;
-	// unsigned int mask1;
-	// unsigned int value;
-// } keyvalue_vbuffer_t;
-typedef struct {
-	vmdata_t vmdata0;
-	vmdata_t vmdata1;
-} keyvalue_vbuffer_t;
+#ifdef CONFIG_VDATAIS32BITSWIDE
+	#ifdef _WIDEWORD
+	typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
+	#else
+	typedef unsigned int keyvalue_vbuffer_t;
+	#endif 
+#else 
+	#ifdef _WIDEWORD
+	typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
+	#else
+	typedef struct {
+		vmdata_t vmdata0;
+		vmdata_t vmdata1;
+	} keyvalue_vbuffer_t;
+	#endif 
 #endif 
 
 #ifdef _WIDEWORD
@@ -287,6 +306,8 @@ typedef struct {
 } config_t;
 
 typedef struct {
+	unsigned int DRAM_BASE_KVS;
+	
 	unsigned int ENABLE_RUNKERNELCOMMAND;
 	unsigned int ENABLE_PROCESSCOMMAND;
 	unsigned int ENABLE_PARTITIONCOMMAND;

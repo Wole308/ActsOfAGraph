@@ -1,5 +1,5 @@
 #define RU_SETSZ 8
-void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+void REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS INLINE
 	keyvalue_t mykeyvalue = UTILP0_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
@@ -29,13 +29,13 @@ void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1); 
-	// if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-	if(enx == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	// if(enx == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
 	#endif
 	return;
 }
 
-void acts_all::REDUCEP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+void REDUCEP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR_SIZE;
 	
  if(s_==0){ 
@@ -121,7 +121,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP0_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
+void REDUCEP0_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -206,7 +206,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
 	
@@ -229,7 +229,7 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	buffer_type totalsize_kvs = 0;
 	unsigned int key_kvs[NUM_PARTITIONS];
 	unsigned int _poff = 0;
-	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){
+	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){ // NB: 'NUM_PARTITIONS is 16, but only 8 can be accessed per time, so we need 2 fetches'
 		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
 		#pragma HLS PIPELINE II=1
 			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR_SIZE;
@@ -314,7 +314,7 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 }
 
 #ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"reduceupdates2: REDUCEP0_tradreduceandbuffer NOT DEFINED HERE."<<endl;
 	exit(EXIT_FAILURE);
@@ -324,7 +324,7 @@ void acts_all::REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t
 #endif 
 
 #ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP0_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP0_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"reduceupdates2: REDUCEP0_tradreduceandbuffer NOT DEFINED HERE."<<endl;
 	exit(EXIT_FAILURE);

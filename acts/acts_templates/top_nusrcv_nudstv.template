@@ -6,7 +6,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_processi
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue_t globalstatsbuffer[NUM_PARTITIONS]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
 	
 	batch_type sourcestatsmarker = 0;
 	batch_type deststatsmarker = 1;
@@ -59,7 +59,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_processi
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->print5("### TOP{{context['id']}}_NU_processit_splitdstvxs:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs2 * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
-		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS{{context['id']}}_readVchunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
+		MEMACCESS{{context['id']}}_readANDRVchunks1(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
 	
 		vertex_t srcvlocaloffset = (voffset_kvs2 * VECTOR2_SIZE);
 		vertex_t beginsrcvid = globalparamsK.ACTSPARAMS_SRCVOFFSET + (voffset_kvs2 * VECTOR2_SIZE);
@@ -165,7 +165,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_partitio
 	unsigned int edgesdstv_sum = 0;
 	#endif
 	
-	keyvalue_t globalstatsbuffer[NUM_PARTITIONS]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
 	globalposition_t globalposition; // DUMMY.
 	
 	batch_type sourcestatsmarker = 1;
@@ -253,7 +253,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_reduceit
 	analysis_type analysis_numsourcepartitions = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
-	keyvalue_t globalstatsbuffer[NUM_PARTITIONS]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
 	globalposition_t globalposition; // DUMMY.
 	
 	config_t config;
@@ -353,13 +353,13 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_dispatch
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
 		// read vertices
-		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		
 		// reduce
 		TOP{{context['id']}}_NU_dispatch(OFF, OFF, enablereduce, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
 		
 		// writeback vertices
-		{%if(context['XWARE']=="SW")%}mem_access_splitdstvxsobj->{%endif%}MEMACCESS{{context['id']}}_saveVandMs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
@@ -385,12 +385,17 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 	#pragma HLS array_partition variable = vbuffer
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
-	globalparams_t globalparamsK = UTIL{{context['id']}}_getglobalparams(kvdram);
+	globalparams_t globalparamsK = UTIL{{context['id']}}_getglobalparams(kvdram, 0);
 	globalparams_t globalparamsE[MAX_NUM_EDGE_BANKS];
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	{%for n in context['NUM_EDGE_BANKS_seq']%}
-	globalparamsE[{{n}}] = UTIL{{context['id']}}_getglobalparams(edges{{n}});
-	{%endfor%}	
+	globalparamsEs[{{e}}] = UTIL{{context['id']}}_getglobalparams
+		#ifdef CONFIG_EDGESDRAM_MERGEDWITH_KVDRAM
+			(kvdram, {{e}}+1);
+				#else 
+					(edges{{n}}, 0);
+						#endif 
+	{%endfor%}
 	#else 
 	globalparamsE[0] = globalparamsK;
 	#endif 
@@ -576,8 +581,14 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	{%for i in context['T_seq']%}
+	{%if(i<n)%}
+	keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_SIZE];
+	{%endif%}
+	{%endfor%}
+	
 	// CRITICAL REMOVEME.
-	if(GraphIter > 0){ {%if(context['XWARE']=="SW")%}acts_merge_splitdstvxsobj->{%endif%}MERGE{{context['id']}}_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram); }
+	if(GraphIter > 0){ MERGE{{context['id']}}_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram); }
 	
 	{%for i in context['T_seq']%}
 	{%if(i<n)%}
@@ -600,8 +611,8 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 	{%endif%}
 	{%endfor%} */
 
-	globalparams_t globalparamsV = UTIL{{context['id']}}_getglobalparams(vdram);
-	{%if(context['XWARE']=="SW")%}acts_merge_splitdstvxsobj->{%endif%}MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTIL{{context['id']}}_getglobalparams(vdram, 0);
+	MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, {%for i in context['T_seq']%}{%if(i<n)%}globalstatsbuffer{{i}},{%endif%}{%endfor%} globalparams, globalparamsV);
 	return;
 }
 }

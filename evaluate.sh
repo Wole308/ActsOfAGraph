@@ -41,12 +41,20 @@ else
 	echo "no env specified. specify crabtree, aws or gunrock"
 fi
 
-SYNKERNELSPATHNAME="synkernels_acts"
+OUTPUTDIRNAME="outputs"
 RESULTSPATHNAME="results_acts"
-# SYNKERNELSPATHNAME="synkernels_prior"
-# RESULTSPATHNAME="results_prior"
-# SYNKERNELSPATHNAME="synkernels_trad"
-# RESULTSPATHNAME="results_trad"
+
+TESTKERNEL="RK"
+# TESTKERNEL="TESTKERNEL"
+TESTKERNELARG=1
+
+SYNKERNELSPATHNAME="xclbins_allgraphs"
+# SYNKERNELSPATHNAME="xclbins_largegraphs"
+# SYNKERNELSPATHNAME="xclbins_smallgraphs"
+# SYNKERNELSPATHNAME="xclbins_test1"
+# SYNKERNELSPATHNAME="xclbins_test2"
+# SYNKERNELSPATHNAME="xclbins_test3"
+# SYNKERNELSPATHNAME="xclbins_test4"
 
 # ACTS_1BY2BY1=$OFF
 # ACTS_2BY1BY1=$ON
@@ -122,6 +130,10 @@ RMAT22_SPARSE4="RMAT22_SPARSE4"
 RMAT22_SPARSE5="RMAT22_SPARSE5"
 RMAT22_SPARSE6="RMAT22_SPARSE6"
 RMAT22_SPARSE7="RMAT22_SPARSE7"
+
+RMAT24_268M="RMAT24_268M"
+RMAT25_268M="RMAT25_268M"
+RMAT26_268M="RMAT26_268M"
 
 RMAT_RANGE0="RMAT_RANGE0"
 RMAT_RANGE1="RMAT_RANGE1"
@@ -211,6 +223,7 @@ ALGORITHMABBRV="PR"
 # ALGORITHMABBRV="SSSP"
 # ALGORITHMABBRV="CC"
 # ALGORITHMABBRV="CF"
+# ALGORITHMABBRV="LP"
 
 ### >>> LOOP0: evaluation types
 # for evaluation_type in EV_CREATENDGRAPH #
@@ -224,13 +237,13 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	# for setup in $SW__ACTGRAPH_SETUP
+	for setup in $SW__ACTGRAPH_SETUP
 	# for setup in $HW__ACTGRAPH_SETUP
 	# for setup in $SWEMU__ACTGRAPH_SETUP
 	# for setup in $SW__GRAFBOOST_SETUP
 	# for setup in $SW__GUNROCK_SETUP
 	# for setup in $VHLSVHLSHW__ACTGRAPH_SETUP
-	for setup in $CTHWSYN__ACTGRAPH_SETUP
+	# for setup in $CTHWSYN__ACTGRAPH_SETUP
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP
 	
 	do 
@@ -326,7 +339,7 @@ do
 			for locke in $_LOCKE
 			do
 				# for dataset in $NODATASET
-				for dataset in $ORKUT_3M_212M
+				# for dataset in $ORKUT_3M_212M
 				# for dataset in $HOLLYWOOD_1M_114M
 				# for dataset in $KRON20_1M_45M
 				# for dataset in $KRON21_2M_91M
@@ -335,8 +348,7 @@ do
 				# for dataset in $EUROPE_OSM_50M_108M
 				# for dataset in $KMER_V2A_55M_117M
 				# for dataset in $HUGEBUBBLES_00020_21M_63M
-				# for dataset in $KMER_U1A_67M_138M
-				
+	
 				# for dataset in $RMAT22_SPARSE0
 				# for dataset in $RMAT22_SPARSE1
 				# for dataset in $RMAT22_SPARSE2
@@ -345,6 +357,10 @@ do
 				# for dataset in $RMAT22_SPARSE5
 				# for dataset in $RMAT22_SPARSE6
 				# for dataset in $RMAT22_SPARSE7
+				
+				for dataset in $RMAT24_268M
+				# for dataset in $RMAT25_268M
+				# for dataset in $RMAT26_268M
 				
 				# for dataset in $RMAT_RANGE0
 				# for dataset in $RMAT_RANGE1
@@ -355,15 +371,17 @@ do
 				# for dataset in $RMAT_RANGE6
 				# for dataset in $RMAT_RANGE7
 				
-				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M $KMER_U1A_67M_138M	
-				# for dataset in $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M	
-				# for dataset in $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M
+				# for dataset in $KMER_U1A_67M_138M
+				
+				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M	
 				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4	
+				# for dataset in $RMAT24_268M $RMAT25_268M $RMAT26_268M
+				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4 $RMAT24_268M $RMAT25_268M $RMAT26_268M	 
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						for num_pes in $NUM_PEs_EQ3
+						for num_pes in $NUM_PEs_EQ24
 						# for num_pes in $NUM_PEs_EQ16 $NUM_PEs_EQ22 $NUM_PEs_EQ24
 						do
 							ACTS_CONFIG="1by1by1by0"
@@ -372,32 +390,24 @@ do
 							for synfreq in $SYNFREQUENCY_EQ300
 							# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
 							do
-								BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernel${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.xclbin"
-								BACKUPDIR_KERNELXCLBIN1="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelproc${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.xclbin"
-								BACKUPDIR_KERNELXCLBIN2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.xclbin"
+								BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.xclbin"
+							
+								BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.awsxclbin"
 								
-								BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernel${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.awsxclbin"
-								BACKUPDIR_AWSKERNELXCLBIN1="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelproc${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.awsxclbin"
-								BACKUPDIR_AWSKERNELXCLBIN2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.awsxclbin"
+								BACKUPDIR_NOHUPOUT="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.out"
 								
-								BACKUPDIR_NOHUPOUT="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernel${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.out"
-								BACKUPDIR_NOHUPOUT1="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelproc${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.out"
-								BACKUPDIR_NOHUPOUT2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.out"
-								
-								RESULTSBACKUP_DIR="${ROOTDIR}/outputs/${RESULTSPATHNAME}"
+								RESULTSBACKUP_DIR="${ROOTDIR}/${OUTPUTDIRNAME}/${RESULTSPATHNAME}"
 								RESULT_NAME="${ALGORITHMABBRV}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz"
 								PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${num_pes}PEs${numsubcputhreads}Ws_${evaluation_type}_evp${evaluation_param0}"
 								
-								SYNLOGDIR_KERNELXCLBIN="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernel${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
-								SYNLOGDIR_KERNELXCLBIN1="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelproc${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
-								SYNLOGDIR_KERNELXCLBIN2="${ROOTDIR}/outputs/${SYNKERNELSPATHNAME}/goldenkernelsync${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
+								SYNLOGDIR_KERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
 								
 								DATASET="DATASET_${dataset}"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/${dataset}/${dataset}.mtx"
 								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${dataset}_${RESULT_NAME}.out"
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_${dataset}.csv"
 								
-								make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads NUMPARTITIONS=$numpartitions_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0 NUM_PEs=$num_pes												
+								make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads NUMPARTITIONS=$numpartitions_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0 NUM_PEs=$num_pes TESTKERNEL=$TESTKERNEL TESTKERNELARG=$TESTKERNELARG 												
 								
 								# ================================================ SW RUNS ================================================
 								if [ $setup == $SW__ACTGRAPH_SETUP ]
@@ -630,23 +640,23 @@ do
 										if [ $numsubcputhreads == $NUMTHREADS_EQ25 ]  
 										then	
 											cp xclbin/topkernel_${ACTS_CONFIG}_25and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											cp v++_topkernel_${ACTS_CONFIG}_25and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											cp v++_vmult_vadd.link.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ24 ]  
 										then	
 											cp xclbin/topkernel_${ACTS_CONFIG}_24and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											cp v++_topkernel_${ACTS_CONFIG}_24and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											cp v++_vmult_vadd.link.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ22 ]  
 										then	
 											cp xclbin/topkernel_${ACTS_CONFIG}_22and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											cp v++_topkernel_${ACTS_CONFIG}_22and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											cp v++_vmult_vadd.link.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ20 ]  
 										then	
 											cp xclbin/topkernel_${ACTS_CONFIG}_20and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											cp v++_topkernel_${ACTS_CONFIG}_20and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											cp v++_vmult_vadd.link.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ16 ]  
 										then	
 											cp xclbin/topkernel_${ACTS_CONFIG}_16and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											cp v++_topkernel_${ACTS_CONFIG}_16and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											cp v++_vmult_vadd.link.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ14 ]  
 										then	
 											cp xclbin/topkernel_${ACTS_CONFIG}_14and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
@@ -686,7 +696,7 @@ do
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ3 ]
 										then
 											cp xclbin/topkernel_${ACTS_CONFIG}_3and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN
-											cp v++_topkernel_${ACTS_CONFIG}_3and1.hw.xilinx_u280_xdma_201920_3.log $SYNLOGDIR_KERNELXCLBIN
+											cp v++_vmult_vadd.link.log $SYNLOGDIR_KERNELXCLBIN
 										elif [ $numsubcputhreads == $NUMTHREADS_EQ2 ]
 										then
 											cp xclbin/topkernel_${ACTS_CONFIG}_2and1.hw.${DSA_NAME}.xclbin $BACKUPDIR_KERNELXCLBIN

@@ -29,8 +29,8 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1); 
-	// if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-	if(enx == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
+	// if(enx == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
 	#endif
 	return;
 }
@@ -89,7 +89,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 	buffer_type totalsize_kvs = 0;
 	unsigned int key_kvs[NUM_PARTITIONS];
 	unsigned int _poff = 0;
-	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){
+	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){ // NB: 'NUM_PARTITIONS is 16, but only 8 can be accessed per time, so we need 2 fetches'
 		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
 		#pragma HLS PIPELINE II=1
 			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR_SIZE;

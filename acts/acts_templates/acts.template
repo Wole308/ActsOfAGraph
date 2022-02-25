@@ -196,7 +196,6 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actspipeline(bool_type 
 	return;
 }
 
-#ifndef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES
 fetchmessage_t {{context['classname__acts']}}ACTS{{context['id']}}_fetchkeyvalues(bool_type enable, unsigned int mode, {%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams,
 		unsigned int edgebankID){
@@ -265,7 +264,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_commitkeyvalues(bool_ty
 }
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable, unsigned int mode,
-		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 					
+		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 					
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -347,10 +346,10 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 		#endif
 		
 		itercount += NUMPIPELINES_PARTITIONUPDATES;
+		// exit(EXIT_SUCCESS); //////////////////////////
 	}
 	return;
 }
-#endif 
 
 #ifdef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES
 fetchmessage_t {{context['classname__acts']}}ACTS{{context['id']}}_magic(bool_type enable, unsigned int mode, unsigned int mode2,
@@ -391,7 +390,7 @@ fetchmessage_t {{context['classname__acts']}}ACTS{{context['id']}}_magic(bool_ty
 }
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable, unsigned int mode,
-		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 					
+		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 					
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -515,7 +514,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_PRIOR_commitkeyvalues(b
 }
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_priorit(bool_type enable, unsigned int mode,
-		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -586,7 +585,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_priorit(bool_type enabl
 
 #ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
 void {{context['classname__acts']}}ACTS{{context['id']}}_tradit(bool_type enable, unsigned int mode,
-		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+		{%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);

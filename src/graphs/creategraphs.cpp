@@ -237,6 +237,7 @@ void creategraphs::summary(){
 void creategraphs::writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNUMEDGEBANKS]){
 	cout<<"creategraphs::writeedgestofile<edge2_type>  started."<<endl;
 	
+	#ifdef CONFIG_CREATEGRAPHS_CHECK_FOR_NONINCREASINGEDGES
 	if(edgesbuffer[0].size() > 100){
 		for(unsigned int i=1; i<100; i++){
 			// cout<<"creategraphs::writeedgestofile: srcvid["<<i<<"]: "<<edgesbuffer[0][i].srcvid<<", dstvid["<<i<<"]: "<<edgesbuffer[0][i].dstvid<<endl;
@@ -251,6 +252,7 @@ void creategraphs::writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNU
 			}
 		}
 	}
+	#endif 
 
 	edge_t totalnumedges = 0;
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){

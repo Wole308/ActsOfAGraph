@@ -56,6 +56,7 @@ createundirectedgraph::createundirectedgraph(unsigned int datasetid){
 	
 	cout<<"createundirectedgraph:: constructor called: creating structures... "<<endl;
 	cout<<"createundirectedgraph:: dataset.graph_path: "<<graphobj->getdataset().graph_path<<endl;
+	cout<<"createundirectedgraph:: dataset.rawgraph_path: "<<graphobj->getdataset().rawgraph_path<<endl;
 	cout<<"createundirectedgraph:: dataset.vertices_path: "<<graphobj->getdataset().vertices_path<<endl;
 	cout<<"createundirectedgraph:: dataset.vertices_path_bin: "<<graphobj->getdataset().vertices_path_bin<<endl;
 	cout<<"createundirectedgraph:: dataset.edges_path: "<<graphobj->getdataset().edges_path<<endl;
@@ -90,15 +91,25 @@ void createundirectedgraph::start(){
 	
 	unsigned int num_edges = graphobj->getedgessize(0);
 	
+	// cout<<"createundirectedgraph::start: SEEN 1... num_edges: "<<num_edges<<endl;
+	// exit(EXIT_SUCCESS);/////////////;///////////////// REMOVEME.
+	
 	// populate edges 
-	std::ifstream file1_graph(graphobj->getdataset().graph_path);
+	// std::ifstream file1_graph(graphobj->getdataset().graph_path);
+	std::ifstream file1_graph(graphobj->getdataset().rawgraph_path); // NEWCHANGE
+	
+	// cout<<"createundirectedgraph::start: SEEN 2..."<<endl;
+	
 	if (file1_graph.is_open()) {
+	// cout<<"createundirectedgraph::start: SEEN 3..."<<endl;
 		std::string line;
 		unsigned int linecount = 0;
 		unsigned int alllinecount = 0;
 		while (getline(file1_graph, line)) {
 			if (line.find("%") == 0){ continue; }
 			if(graphobj->getdataset().graphgroup == SNAP){ if (alllinecount == 0){ alllinecount++; continue; }} // first entry for flickr is stats
+			
+			// cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl;///////////////// REMOVEME.
 			
 			if (linecount < 128){ cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
@@ -120,7 +131,9 @@ void createundirectedgraph::start(){
 			linecount += 1;
 			alllinecount += 1;
 			
-			if(linecount > num_edges){ cout<<"createundirectedgraph: linecount("<<linecount<<") > num_edges("<<num_edges<<"). srcv: "<<srcv<<", dstv: "<<dstv<<endl; exit(EXIT_FAILURE); }
+			// if(linecount > 1024){ break; } ///////////////// REMOVEME.
+			
+			if(linecount > num_edges){ cout<<"createundirectedgraph: ERROR: linecount("<<linecount<<") > num_edges("<<num_edges<<"). srcv: "<<srcv<<", dstv: "<<dstv<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
 		}
 		
 		cout<<"SUMMARY: alllinecount: "<<alllinecount<<endl;
@@ -128,6 +141,7 @@ void createundirectedgraph::start(){
 		cout<<"SUMMARY: num_edges: "<<num_edges<<endl;
 	}
 	file1_graph.close();
+	// exit(EXIT_SUCCESS);/////////////
 	
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){
 		inoutdegree_dup[i] = 0;
@@ -169,7 +183,8 @@ void createundirectedgraph::start(){
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){ inoutdegree_dup[i] = 0; }
 	
 	// re-writing graph with: 1) new vertex pointers
-	std::ifstream file2_graph(graphobj->getdataset().graph_path);
+	// std::ifstream file2_graph(graphobj->getdataset().graph_path);
+	std::ifstream file2_graph(graphobj->getdataset().rawgraph_path); // NEWCHANGE.
 	if (file2_graph.is_open()) {
 		std::string line;
 		unsigned int linecount = 0;
@@ -256,7 +271,8 @@ void createundirectedgraph::start(){
 		
 	cout<<"createundirectedgraph:: start finished. closing files... "<<endl;
 	graphobj->closefilesforreading();
-	cout<<"createundirectedgraph:: finished creating undirected 2D graph from "<<graphobj->getdataset().graph_path<<endl;
+	// cout<<"createundirectedgraph:: finished creating undirected 2D graph from "<<graphobj->getdataset().graph_path<<endl;
+	cout<<"createundirectedgraph:: finished creating undirected 2D graph from "<<graphobj->getdataset().rawgraph_path<<endl; // NEWCHANGE
 	return;
 }
 

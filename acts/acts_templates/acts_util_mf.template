@@ -32,7 +32,8 @@ buffer_type UTIL{{context['id']}}_getpartitionwritesz(buffer_type realsize_kvs, 
 void UTIL{{context['id']}}_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size);
 void UTIL{{context['id']}}_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing);
 batch_type UTIL{{context['id']}}_get_num_source_partitions(step_type currentLOP);
-globalparams_t UTIL{{context['id']}}_getglobalparams(uint512_dt * kvdram);
+globalparams_t UTIL{{context['id']}}_getglobalparams(uint512_dt * kvdram, unsigned int banksection);
+globalparams_t UTIL{{context['id']}}_getglobalparamsUNUSED(uint512_dt * kvdram, unsigned int banksection);
 sweepparams_t UTIL{{context['id']}}_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
 travstate_t UTIL{{context['id']}}_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
 void UTIL{{context['id']}}_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value);
@@ -47,7 +48,6 @@ void UTIL{{context['id']}}_resetkvstatvalues(uint512_dt * kvdram, globalparams_t
 void UTIL{{context['id']}}_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams);
 void UTIL{{context['id']}}_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 void UTIL{{context['id']}}_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);
-void UTIL{{context['id']}}_set_graphiteration(uint512_dt * kvdram, unsigned int GraphIter);
 void UTIL{{context['id']}}_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 void UTIL{{context['id']}}_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 

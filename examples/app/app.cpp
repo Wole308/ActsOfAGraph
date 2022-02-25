@@ -28,11 +28,11 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 
 	#ifndef SW_IMPL 
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }				
-	vdram = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt))); }				
+	vdram = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
 	#else
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS]; }
-	vdram = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS]; }
+	vdram = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
 	#endif
 	#endif 
 	
@@ -68,6 +68,9 @@ runsummary_t app::run(){
 }
 runsummary_t app::run_hw(){
 	cout<<"app::run_hw:: app algorithm started. "<<endl;
+	#ifdef TESTKERNEL
+	cout<< TIMINGRESULTSCOLOR <<"================================================================== APP: THIS IS A TEST RUN ==================================================================" << RESET<< endl;
+	#endif 
 	
 	unsigned int Algo;
 	#if defined(PR_ALGORITHM)
@@ -199,12 +202,8 @@ runsummary_t app::run_hw(){
 	globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR + ((globalparams.globalparamsE.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
 	globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_VERTEXPTR + ((globalparams.globalparamsV.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
-	globalparams.globalparamsV.SIZE_SRCVERTICESDATA =
-			#ifdef CONFIG_UNIFYSRCV
-			NUMREDUCEPARTITIONS * NUM_PEs * REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE; // KVDATA_RANGE * 2;
-			#else 
-			NUMREDUCEPARTITIONS * NUM_PEs * REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE; // KVDATA_RANGE * 2;
-			#endif 
+	// globalparams.globalparamsV.SIZE_SRCVERTICESDATA = NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2 * NUM_PEs * VECTOR2_SIZE;
+	globalparams.globalparamsV.SIZE_SRCVERTICESDATA = utilityobj->allignhigherto16_KV(graphobj->get_num_vertices() + 1000000); // NB: '1000000' is padding
 	
 	loadgraphobj->loadvertexdata(Algo, vertexdatabuffer, (keyvalue_t *)vdram, globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsV.SIZE_SRCVERTICESDATA, globalparams.globalparamsV, 0, SOURCE);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(Algo, vertexdatabuffer, (keyvalue_t *)kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsK.SIZE_SRCVERTICESDATA, globalparams.globalparamsK, 0, SOURCE); }					
@@ -217,7 +216,7 @@ runsummary_t app::run_hw(){
 	globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA + ((globalparams.globalparamsE.SIZE_SRCVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.globalparamsE.SIZE_DESTVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + ((globalparams.globalparamsV.SIZE_SRCVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
-	globalparams.globalparamsV.SIZE_DESTVERTICESDATA = KVDATA_RANGE * 2; // FIXME.
+	globalparams.globalparamsV.SIZE_DESTVERTICESDATA = 0; // KVDATA_RANGE * 2; // FIXME.
 	
 	loadgraphobj->loadvertexdata(Algo, vertexdatabuffer, (keyvalue_t *)vdram, globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsV.SIZE_DESTVERTICESDATA, globalparams.globalparamsV, 0, DEST);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(Algo, vertexdatabuffer, (keyvalue_t *)kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsK.SIZE_DESTVERTICESDATA, globalparams.globalparamsK, 0, DEST); }
@@ -249,7 +248,7 @@ runsummary_t app::run_hw(){
 	globalparams.globalparamsV = loadgraphobj->finishglobaparams(globalparams.globalparamsV);
 	cout<<"app::loadmessages:: loading messages... "<<endl;
 	globalparams = loadgraphobj->loadmessages(vdram, edges, kvbuffer, &container, NumGraphIters, Algo, globalparams);
-	exit(EXIT_SUCCESS); //
+	// exit(EXIT_SUCCESS); //
 	
 	// others
 	cout<<"app::appendkeyvaluecount:: appending value count... "<<endl;
@@ -329,6 +328,10 @@ runsummary_t app::run_hw(){
 	graphobj->closetemporaryfilesforwriting();
 	graphobj->closetemporaryfilesforreading();
 	graphobj->closefilesforreading();
+	
+	#ifdef TESTKERNEL
+	cout<< TIMINGRESULTSCOLOR <<"================================================================== APP: THIS WAS A TEST RUN ==================================================================" << RESET << endl;
+	#endif 
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 

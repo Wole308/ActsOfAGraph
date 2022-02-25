@@ -11,7 +11,7 @@
 // #define ACTS_1by2by1byN
 #define ACTS_1by1by1byN // (everything merged in one compute unit)
 
-#define ENABLE_PERFECTACCURACY //
+// #define ENABLE_PERFECTACCURACY //
 // #define ENABLE_VOICEOUTREDUCEERRORS //
 // #define ENABLE_VOICEOUTKERNELERRORS //
 // #define ENABLE_VOICEOUTPROCESSEDGESERRORS //
@@ -26,8 +26,6 @@
 // #define BASIC_PARTITION_AND_REDUCE_STRETEGY // {acts.cpp}
 #define TRAD_PARTITION_AND_REDUCE_STRETEGY
 #endif
-
-// #define DATA_SENSITIVE_ACTS //
 
 #define HWIMPLFOR_ACTSPROC
 #define HWIMPLFOR_ACTSSYNC
@@ -50,8 +48,12 @@
 #define CUSTOMLOGICFOREACHALGORITHM // {processedges.cpp, reduceupdates.cpp}
 
 // #define CONFIG_PREPROCESS_EDGESREARRANGEDINDRAM // {classname__mem_access.template}
-// #define CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS // {classname__mem_access.template}
-#define CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS
+// #define CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS // {classname__mem_access.template, utility.cpp}
+#define CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS // NEW {classname__top_usrcv_udstv.cpp}
+
+#ifdef CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS
+#define CONFIG_VDATAIS32BITSWIDE // NEW, FIXME. IMPLEMENT FOR ALL CASES.
+#endif 
 
 #define CONFIG_ENABLEPROCESSMODULE
 #define CONFIG_ENABLEPARTITIONMODULE
@@ -61,7 +63,7 @@
 #define CONFIG_ENABLECLASS_ALGO_FUNCS
 #define CONFIG_ENABLECLASS_ACTSUTILITY
 #ifdef CONFIG_UNIFYSRCV
-	#define CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
+	#define CONFIG_ENABLECLASS_TOP_USRCV_UDSTV // FIXME. should be 'CONFIG_ENABLECLASS_TOP_USRCV_NUDSTV'
 		#else 
 			#define CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
 				#endif
@@ -82,7 +84,8 @@
 #define CONFIG_ENABLECLASS_ACTS_MERGE
 #define CONFIG_ENABLECLASS_MYDEBUG
 
-#define TESTRUN /////////////////// CRITICAL REMOVEME.
+// creating graphs 
+// #define CONFIG_CREATEGRAPHS_CHECK_FOR_NONINCREASINGEDGES
 
 #endif
 
@@ -108,8 +111,7 @@
 - // CRITICAL FIXME @ {{context['classname__mem_convert_and_access']}}MEMCA_CREATEVBUFFERSTRUCT
 - reduceupdates.cpp: if(en == true){ curr_vprop = loc + destoffset; } // CRITICAL REMOVEME.	
 - NEWCHANGE: laodedges_splitdsxtvs: if(index%VECTOR2_SIZE == 0 && edge.dstvid == 888888){ numskippededges += 1; tempe_index += 1; continue; }
-- config.cpp: #define TESTRUN /////////////////// CRITICAL REMOVEME.
-- CRITICAL REMOVEME: /* cout<<"------------------------------------ topkernelP1: processing P9 instances ------------------------------------"<<endl;
+- CRITICAL REMOVEME: cout<<"------------------------------------ topkernelP1: processing P9 instances ------------------------------------"<<endl;
 - CRITICAL REMOVEME: void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{{n}}: // num_stages = 1; // REMOVEME.
 - NEWCHANGE: processit: if(voffset_kvs == avtravstate.begin_kvs || globalposition.source_partition == globalposition.first_source_partition){ resetenv = ON; } else { resetenv = OFF; } // NEWCHANGE
 - CRITICAL REMOVEME: actscommon.h: #define NUMPIPELINES_PARTITIONUPDATES 1//2 
@@ -119,6 +121,13 @@
 			if(UTIL{{context['id']}}_GETKV(kvA0[0]).value != UTIL{{context['id']}}_GETV(INVALIDDATA) && UTIL{{context['id']}}_GETKV(kvA0[1]).value != UTIL{{context['id']}}_GETV(INVALIDDATA) && UTIL{{context['id']}}_GETKV(kvA0[2]).value != UTIL{{context['id']}}_GETV(INVALIDDATA) && UTIL{{context['id']}}_GETKV(kvA0[3]).value != UTIL{{context['id']}}_GETV(INVALIDDATA)){ tempbufferDcapsule[pA0] += 4; }		
 - CRITICAL REMOVEME: MEMACCESS{{context['id']}}_readANDRVchunks{{n}}: #pragma HLS PIPELINE II=8 // CRITICAL REMOVEME.
 - CRITICAL FIXME: unsigned int incr = 5; // edges_temp[i][j+v].srcvid; // - srcvid_head; // CRITICAL FIXME.
+- CRITICAL REMOVEME: keyvalue_t mykeyvalue; 0 = edata.key; mykeyvalue.value = 0; // CRITICAL REMOVEME.
+- CRITICAL REMOVEME: #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME. actscommon.h
+- CRITICAL FIXME: top_nusrcv_nudstv.cpp: #ifndef ALLVERTEXISACTIVE_ALGORITHM // CRITICAL FIXME.
+	MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, globalparamsK, globalparamsV);
+	#endif 
+- FIXME: config_params.h // #define CUSTOMLOGICFOREACHALGORITHM // {processedges.cpp, reduceupdates.cpp}
+- FIXME: acts_util.cpp: // partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getpartition(
 */
 
 

@@ -32,7 +32,8 @@ buffer_type UTILP0_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bra
 void UTILP0_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size);
 void UTILP0_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing);
 batch_type UTILP0_get_num_source_partitions(step_type currentLOP);
-globalparams_t UTILP0_getglobalparams(uint512_dt * kvdram);
+globalparams_t UTILP0_getglobalparams(uint512_dt * kvdram, unsigned int banksection);
+globalparams_t UTILP0_getglobalparamsUNUSED(uint512_dt * kvdram, unsigned int banksection);
 sweepparams_t UTILP0_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
 travstate_t UTILP0_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
 void UTILP0_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value);
@@ -47,7 +48,6 @@ void UTILP0_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams);
 void UTILP0_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams);
 void UTILP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 void UTILP0_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);
-void UTILP0_set_graphiteration(uint512_dt * kvdram, unsigned int GraphIter);
 void UTILP0_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 void UTILP0_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 

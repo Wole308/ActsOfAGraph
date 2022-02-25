@@ -1,4 +1,4 @@
-void acts_all::TOPP0_NU_processit_splitdstvxs(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+void TOPP0_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -6,7 +6,7 @@ void acts_all::TOPP0_NU_processit_splitdstvxs(uint512_dt * edges0, uint512_dt * 
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue_t globalstatsbuffer[NUM_PARTITIONS]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
 	
 	batch_type sourcestatsmarker = 0;
 	batch_type deststatsmarker = 1;
@@ -59,7 +59,7 @@ void acts_all::TOPP0_NU_processit_splitdstvxs(uint512_dt * edges0, uint512_dt * 
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->print5("### TOPP0_NU_processit_splitdstvxs:: source_partition", "voffset", "vbegin", "vend", "vskip", source_partition, voffset_kvs2 * VECTOR_SIZE, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.size_kvs * VECTOR_SIZE, SRCBUFFER_SIZE * VECTOR_SIZE);
 		#endif
-MEMACCESSP0_readVchunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
+		MEMACCESSP0_readANDRVchunks1(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsK);
 	
 		vertex_t srcvlocaloffset = (voffset_kvs2 * VECTOR2_SIZE);
 		vertex_t beginsrcvid = globalparamsK.ACTSPARAMS_SRCVOFFSET + (voffset_kvs2 * VECTOR2_SIZE);
@@ -67,7 +67,7 @@ MEMACCESSP0_readVchunks(ON, kvdram, vbuffer, vdatabaseoffset_kvs, vreadoffset_kv
 		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endsrcvid = beginsrcvid; }
 		if((srcvlocaloffset < globalparamsK.ACTSPARAMS_SRCVSIZE) && (srcvlocaloffset + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR) >= globalparamsK.ACTSPARAMS_SRCVSIZE)){ endsrcvid = beginsrcvid + globalparamsK.ACTSPARAMS_SRCVSIZE - srcvlocaloffset; }
 		
-		tuple_t tup = MEMACCESSP0_getvptrs_opt(edges0, kvdram, vptrbaseoffset_kvs, voffset_kvs2 * VECTOR2_SIZE, (voffset_kvs2 + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
+		tuple_t tup = MEMACCESSP0_getvptrs_opt( kvdram, vptrbaseoffset_kvs, voffset_kvs2 * VECTOR2_SIZE, (voffset_kvs2 + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
 		keyy_t beginvptr = tup.A;
 		keyy_t endvptr = tup.B + VECTOR2_SIZE; // NEWCHANGE 
 	
@@ -117,7 +117,7 @@ ACTSP0_actit
 		#endif 
 		(
 			ON, ACTSPROCESSMODE,
-edges0, kvdram, sourcebuffer, vbuffer, globalstatsbuffer, 
+ kvdram, sourcebuffer, vbuffer, globalstatsbuffer, 
 			globalparamsK, globalposition, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE,
 			resetenv, flush, edgebankID);
 			
@@ -145,7 +145,7 @@ edges0, kvdram, sourcebuffer, vbuffer, globalstatsbuffer,
 	return;
 }
 
-void acts_all::TOPP0_NU_partitionit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID){
+void TOPP0_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -165,7 +165,7 @@ void acts_all::TOPP0_NU_partitionit(uint512_dt * edges0, uint512_dt * kvdram, ke
 	unsigned int edgesdstv_sum = 0;
 	#endif
 	
-	keyvalue_t globalstatsbuffer[NUM_PARTITIONS]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
 	globalposition_t globalposition; // DUMMY.
 	
 	batch_type sourcestatsmarker = 1;
@@ -213,7 +213,7 @@ void acts_all::TOPP0_NU_partitionit(uint512_dt * edges0, uint512_dt * kvdram, ke
 			ACTSP0_tradit
 			#endif
 			(config.enablepartition, ACTSPARTITIONMODE,
-edges0, kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
+ kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
 					globalparams, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 					ON, ON, NAp);
 					
@@ -247,13 +247,13 @@ edges0, kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
 	return;
 }
 
-void acts_all::TOPP0_NU_reduceit(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
+void TOPP0_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
-	keyvalue_t globalstatsbuffer[NUM_PARTITIONS]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
 	globalposition_t globalposition; // DUMMY.
 	
 	config_t config;
@@ -285,22 +285,22 @@ void acts_all::TOPP0_NU_reduceit(uint512_dt * edges0, uint512_dt * kvdram, keyva
 	ACTSP0_tradit
 	#endif
 	(config.enablereduce, ACTSREDUCEMODE,
-edges0, kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
+ kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
 			globalparams, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp); // REMOVEME.
 	return;
 }
 
-void acts_all::TOPP0_NU_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+void TOPP0_NU_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
-	if(en_process == ON){ TOPP0_NU_processit_splitdstvxs(edges0, kvdram, sourcebuffer, vbuffer, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
-	if(en_partition == ON){ TOPP0_NU_partitionit(edges0, kvdram, sourcebuffer, vbuffer, globalparamsK, NAp); } 
-	if(en_reduce == ON){ TOPP0_NU_reduceit(edges0, kvdram, sourcebuffer, vbuffer, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
+	if(en_process == ON){ TOPP0_NU_processit_splitdstvxs( kvdram, sourcebuffer, vbuffer, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
+	if(en_partition == ON){ TOPP0_NU_partitionit( kvdram, sourcebuffer, vbuffer, globalparamsK, NAp); } 
+	if(en_reduce == ON){ TOPP0_NU_reduceit( kvdram, sourcebuffer, vbuffer, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
 	return;
 }
 
-void acts_all::TOPP0_NU_dispatch_reduce(uint512_dt * edges0, uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+void TOPP0_NU_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -353,13 +353,13 @@ void acts_all::TOPP0_NU_dispatch_reduce(uint512_dt * edges0, uint512_dt * kvdram
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
 		
 		// read vertices
-MEMACCESSP0_readV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		MEMACCESSP0_readV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		
 		// reduce
-		TOPP0_NU_dispatch(OFF, OFF, enablereduce, edges0, kvdram, sourcebuffer, vbuffer, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
+		TOPP0_NU_dispatch(OFF, OFF, enablereduce,  kvdram, sourcebuffer, vbuffer, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
 		
 		// writeback vertices
-MEMACCESSP0_saveVandMs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		MEMACCESSP0_saveV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
@@ -371,7 +371,7 @@ MEMACCESSP0_saveVandMs(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKV
 
 // top
 #ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
-void acts_all::TOPP0_NU_topkernelproc_embedded(uint512_dt * edges0, uint512_dt * kvdram){
+void TOPP0_NU_topkernelproc_embedded( uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
@@ -385,11 +385,9 @@ void acts_all::TOPP0_NU_topkernelproc_embedded(uint512_dt * edges0, uint512_dt *
 	#pragma HLS array_partition variable = vbuffer
 	uint32_type vmask_p[BLOCKRAM_SIZE];
 	
-	globalparams_t globalparamsK = UTILP0_getglobalparams(kvdram);
+	globalparams_t globalparamsK = UTILP0_getglobalparams(kvdram, 0);
 	globalparams_t globalparamsE[MAX_NUM_EDGE_BANKS];
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparamsE[0] = UTILP0_getglobalparams(edges0);
-	
 	#else 
 	globalparamsE[0] = globalparamsK;
 	#endif 
@@ -414,10 +412,8 @@ void acts_all::TOPP0_NU_topkernelproc_embedded(uint512_dt * edges0, uint512_dt *
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){
 		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 			#ifdef _WIDEWORD
-			PARTITIONP0_CHKPT[0][u] = edges0[globalparamsE[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].range(31, 0); 
 	
 			#else
-			PARTITIONP0_CHKPT[0][u] = edges0[globalparamsE[0].BASEOFFSETKVS_EDGESSTATSDRAM + u].data[0].key; 
 	
 			#endif
 		#else 
@@ -458,7 +454,7 @@ void acts_all::TOPP0_NU_topkernelproc_embedded(uint512_dt * edges0, uint512_dt *
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelP: processing instance ... "<<endl;
 				#endif
-				TOPP0_NU_dispatch(ON, OFF, OFF, edges0, kvdram, sourcebuffer, vbuffer, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITIONP0_CHKPT[edgebankID], v_chunkid, edgebankID);
+				TOPP0_NU_dispatch(ON, OFF, OFF,  kvdram, sourcebuffer, vbuffer, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITIONP0_CHKPT[edgebankID], v_chunkid, edgebankID);
 			}
 			#endif
 			
@@ -468,7 +464,7 @@ void acts_all::TOPP0_NU_topkernelproc_embedded(uint512_dt * edges0, uint512_dt *
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelP: partitioning instance ... "<<endl;
 				#endif
-				TOPP0_NU_dispatch(OFF, ON, OFF, edges0, kvdram, sourcebuffer, vbuffer, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITIONP0_CHKPT[edgebankID], v_chunkid, NAp);
+				TOPP0_NU_dispatch(OFF, ON, OFF,  kvdram, sourcebuffer, vbuffer, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITIONP0_CHKPT[edgebankID], v_chunkid, NAp);
 			}
 			#endif
 			
@@ -478,7 +474,7 @@ void acts_all::TOPP0_NU_topkernelproc_embedded(uint512_dt * edges0, uint512_dt *
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelP: reducing instance ... "<<endl;
 				#endif
-				TOPP0_NU_dispatch_reduce(edges0, kvdram, sourcebuffer, vbuffer, vmask_p, _globalparamsE, globalparamsK, PARTITIONP0_CHKPT[edgebankID], v_chunkid, NAp);
+				TOPP0_NU_dispatch_reduce( kvdram, sourcebuffer, vbuffer, vmask_p, _globalparamsE, globalparamsK, PARTITIONP0_CHKPT[edgebankID], v_chunkid, NAp);
 			}
 			#endif
 			
@@ -512,12 +508,11 @@ void acts_all::TOPP0_NU_topkernelproc_embedded(uint512_dt * edges0, uint512_dt *
 }
 
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP1(
-uint512_dt * edges00,	uint512_dt * kvdram0,
+void TOPP0_NU_topkernelP1(
+	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem1
 #else 
@@ -526,7 +521,6 @@ uint512_dt * edges00,	uint512_dt * kvdram0,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 
@@ -535,7 +529,6 @@ uint512_dt * edges00,	uint512_dt * kvdram0,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = vdram
@@ -550,34 +543,34 @@ uint512_dt * edges00,	uint512_dt * kvdram0,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs1(kvdram0, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP1: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP1: processing instance 0"<<endl;
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs1(kvdram0, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs1(kvdram0, vdram, globalstatsbuffer0, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP2(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
+void TOPP0_NU_topkernelP2(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem2
 #else 
@@ -587,8 +580,6 @@ uint512_dt * edges10,	uint512_dt * kvdram1,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -598,8 +589,6 @@ uint512_dt * edges10,	uint512_dt * kvdram1,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -615,17 +604,20 @@ uint512_dt * edges10,	uint512_dt * kvdram1,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs2(kvdram0,kvdram1, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP2: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP2: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP2: processing instance 0"<<endl;
@@ -635,24 +627,21 @@ uint512_dt * edges10,	uint512_dt * kvdram1,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs2(kvdram0,kvdram1, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs2(kvdram0,kvdram1, vdram, globalstatsbuffer0,globalstatsbuffer1, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP3(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
+void TOPP0_NU_topkernelP3(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem3
 #else 
@@ -663,9 +652,6 @@ uint512_dt * edges20,	uint512_dt * kvdram2,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -676,9 +662,6 @@ uint512_dt * edges20,	uint512_dt * kvdram2,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -695,21 +678,25 @@ uint512_dt * edges20,	uint512_dt * kvdram2,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs3(kvdram0,kvdram1,kvdram2, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP3: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP3: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP3: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP3: processing instance 0"<<endl;
@@ -724,27 +711,23 @@ uint512_dt * edges20,	uint512_dt * kvdram2,
 	exit(EXIT_SUCCESS); //	
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs3(kvdram0,kvdram1,kvdram2, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs3(kvdram0,kvdram1,kvdram2, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP4(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
+void TOPP0_NU_topkernelP4(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem4
 #else 
@@ -756,10 +739,6 @@ uint512_dt * edges30,	uint512_dt * kvdram3,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -771,10 +750,6 @@ uint512_dt * edges30,	uint512_dt * kvdram3,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -792,25 +767,30 @@ uint512_dt * edges30,	uint512_dt * kvdram3,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP4: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP4: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP4: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP4: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP4: processing instance 0"<<endl;
@@ -828,30 +808,25 @@ uint512_dt * edges30,	uint512_dt * kvdram3,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP5(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
+void TOPP0_NU_topkernelP5(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = edges40 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem5
 #else 
@@ -864,11 +839,6 @@ uint512_dt * edges40,	uint512_dt * kvdram4,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges40 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -881,11 +851,6 @@ uint512_dt * edges40,	uint512_dt * kvdram4,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
-#pragma HLS DATA_PACK variable = edges40
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -904,29 +869,35 @@ uint512_dt * edges40,	uint512_dt * kvdram4,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP5: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP5: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP5: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP5: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP5: processing instance 4"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges40, kvdram4);	
+	TOPP0_NU_topkernelproc_embedded( kvdram4);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP5: processing instance 0"<<endl;
@@ -947,33 +918,27 @@ uint512_dt * edges40,	uint512_dt * kvdram4,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP6(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
+void TOPP0_NU_topkernelP6(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = edges40 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = edges50 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem6
 #else 
@@ -987,12 +952,6 @@ uint512_dt * edges50,	uint512_dt * kvdram5,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges40 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges50 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -1006,12 +965,6 @@ uint512_dt * edges50,	uint512_dt * kvdram5,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
-#pragma HLS DATA_PACK variable = edges40
-#pragma HLS DATA_PACK variable = edges50
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -1031,33 +984,40 @@ uint512_dt * edges50,	uint512_dt * kvdram5,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP6: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP6: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP6: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP6: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP6: processing instance 4"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges40, kvdram4);	
+	TOPP0_NU_topkernelproc_embedded( kvdram4);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP6: processing instance 5"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges50, kvdram5);	
+	TOPP0_NU_topkernelproc_embedded( kvdram5);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP6: processing instance 0"<<endl;
@@ -1081,36 +1041,29 @@ uint512_dt * edges50,	uint512_dt * kvdram5,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP7(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
+void TOPP0_NU_topkernelP7(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = edges40 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = edges50 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
-#pragma HLS INTERFACE m_axi port = edges60 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem7
 #else 
@@ -1125,13 +1078,6 @@ uint512_dt * edges60,	uint512_dt * kvdram6,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges40 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges50 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges60 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -1146,13 +1092,6 @@ uint512_dt * edges60,	uint512_dt * kvdram6,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
-#pragma HLS DATA_PACK variable = edges40
-#pragma HLS DATA_PACK variable = edges50
-#pragma HLS DATA_PACK variable = edges60
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -1173,37 +1112,45 @@ uint512_dt * edges60,	uint512_dt * kvdram6,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP7: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP7: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP7: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP7: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP7: processing instance 4"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges40, kvdram4);	
+	TOPP0_NU_topkernelproc_embedded( kvdram4);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP7: processing instance 5"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges50, kvdram5);	
+	TOPP0_NU_topkernelproc_embedded( kvdram5);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP7: processing instance 6"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges60, kvdram6);	
+	TOPP0_NU_topkernelproc_embedded( kvdram6);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP7: processing instance 0"<<endl;
@@ -1230,39 +1177,31 @@ uint512_dt * edges60,	uint512_dt * kvdram6,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP8(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
+void TOPP0_NU_topkernelP8(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = edges40 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = edges50 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
-#pragma HLS INTERFACE m_axi port = edges60 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
-#pragma HLS INTERFACE m_axi port = edges70 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem8
 #else 
@@ -1278,14 +1217,6 @@ uint512_dt * edges70,	uint512_dt * kvdram7,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges40 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges50 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges60 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges70 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -1301,14 +1232,6 @@ uint512_dt * edges70,	uint512_dt * kvdram7,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
-#pragma HLS DATA_PACK variable = edges40
-#pragma HLS DATA_PACK variable = edges50
-#pragma HLS DATA_PACK variable = edges60
-#pragma HLS DATA_PACK variable = edges70
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -1330,41 +1253,50 @@ uint512_dt * edges70,	uint512_dt * kvdram7,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 4"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges40, kvdram4);	
+	TOPP0_NU_topkernelproc_embedded( kvdram4);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 5"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges50, kvdram5);	
+	TOPP0_NU_topkernelproc_embedded( kvdram5);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 6"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges60, kvdram6);	
+	TOPP0_NU_topkernelproc_embedded( kvdram6);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 7"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges70, kvdram7);	
+	TOPP0_NU_topkernelproc_embedded( kvdram7);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP8: processing instance 0"<<endl;
@@ -1394,42 +1326,33 @@ uint512_dt * edges70,	uint512_dt * kvdram7,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP9(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
+void TOPP0_NU_topkernelP9(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = edges40 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = edges50 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
-#pragma HLS INTERFACE m_axi port = edges60 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
-#pragma HLS INTERFACE m_axi port = edges70 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
-#pragma HLS INTERFACE m_axi port = edges80 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem9
 #else 
@@ -1446,15 +1369,6 @@ uint512_dt * edges80,	uint512_dt * kvdram8,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges40 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges50 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges60 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges70 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges80 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -1471,15 +1385,6 @@ uint512_dt * edges80,	uint512_dt * kvdram8,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
-#pragma HLS DATA_PACK variable = edges40
-#pragma HLS DATA_PACK variable = edges50
-#pragma HLS DATA_PACK variable = edges60
-#pragma HLS DATA_PACK variable = edges70
-#pragma HLS DATA_PACK variable = edges80
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -1502,45 +1407,55 @@ uint512_dt * edges80,	uint512_dt * kvdram8,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 4"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges40, kvdram4);	
+	TOPP0_NU_topkernelproc_embedded( kvdram4);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 5"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges50, kvdram5);	
+	TOPP0_NU_topkernelproc_embedded( kvdram5);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 6"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges60, kvdram6);	
+	TOPP0_NU_topkernelproc_embedded( kvdram6);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 7"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges70, kvdram7);	
+	TOPP0_NU_topkernelproc_embedded( kvdram7);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 8"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges80, kvdram8);	
+	TOPP0_NU_topkernelproc_embedded( kvdram8);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP9: processing instance 0"<<endl;
@@ -1573,45 +1488,35 @@ uint512_dt * edges80,	uint512_dt * kvdram8,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP10(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
+void TOPP0_NU_topkernelP10(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = edges40 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = edges50 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
-#pragma HLS INTERFACE m_axi port = edges60 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
-#pragma HLS INTERFACE m_axi port = edges70 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
-#pragma HLS INTERFACE m_axi port = edges80 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
-#pragma HLS INTERFACE m_axi port = edges90 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem10
 #else 
@@ -1629,16 +1534,6 @@ uint512_dt * edges90,	uint512_dt * kvdram9,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges40 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges50 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges60 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges70 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges80 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges90 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -1656,16 +1551,6 @@ uint512_dt * edges90,	uint512_dt * kvdram9,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
-#pragma HLS DATA_PACK variable = edges40
-#pragma HLS DATA_PACK variable = edges50
-#pragma HLS DATA_PACK variable = edges60
-#pragma HLS DATA_PACK variable = edges70
-#pragma HLS DATA_PACK variable = edges80
-#pragma HLS DATA_PACK variable = edges90
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -1689,49 +1574,60 @@ uint512_dt * edges90,	uint512_dt * kvdram9,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 4"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges40, kvdram4);	
+	TOPP0_NU_topkernelproc_embedded( kvdram4);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 5"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges50, kvdram5);	
+	TOPP0_NU_topkernelproc_embedded( kvdram5);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 6"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges60, kvdram6);	
+	TOPP0_NU_topkernelproc_embedded( kvdram6);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 7"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges70, kvdram7);	
+	TOPP0_NU_topkernelproc_embedded( kvdram7);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 8"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges80, kvdram8);	
+	TOPP0_NU_topkernelproc_embedded( kvdram8);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 9"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges90, kvdram9);	
+	TOPP0_NU_topkernelproc_embedded( kvdram9);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP10: processing instance 0"<<endl;
@@ -1767,48 +1663,37 @@ uint512_dt * edges90,	uint512_dt * kvdram9,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP11(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
-uint512_dt * edges100,	uint512_dt * kvdram10,
+void TOPP0_NU_topkernelP11(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = edges40 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = edges50 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
-#pragma HLS INTERFACE m_axi port = edges60 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
-#pragma HLS INTERFACE m_axi port = edges70 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
-#pragma HLS INTERFACE m_axi port = edges80 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
-#pragma HLS INTERFACE m_axi port = edges90 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
-#pragma HLS INTERFACE m_axi port = edges100 offset = slave bundle = gmem10
 #pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem11
 #else 
@@ -1827,17 +1712,6 @@ uint512_dt * edges100,	uint512_dt * kvdram10,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges40 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges50 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges60 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges70 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges80 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges90 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges100 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -1856,17 +1730,6 @@ uint512_dt * edges100,	uint512_dt * kvdram10,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
-#pragma HLS DATA_PACK variable = edges40
-#pragma HLS DATA_PACK variable = edges50
-#pragma HLS DATA_PACK variable = edges60
-#pragma HLS DATA_PACK variable = edges70
-#pragma HLS DATA_PACK variable = edges80
-#pragma HLS DATA_PACK variable = edges90
-#pragma HLS DATA_PACK variable = edges100
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -1891,53 +1754,65 @@ uint512_dt * edges100,	uint512_dt * kvdram10,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 4"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges40, kvdram4);	
+	TOPP0_NU_topkernelproc_embedded( kvdram4);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 5"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges50, kvdram5);	
+	TOPP0_NU_topkernelproc_embedded( kvdram5);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 6"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges60, kvdram6);	
+	TOPP0_NU_topkernelproc_embedded( kvdram6);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 7"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges70, kvdram7);	
+	TOPP0_NU_topkernelproc_embedded( kvdram7);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 8"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges80, kvdram8);	
+	TOPP0_NU_topkernelproc_embedded( kvdram8);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 9"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges90, kvdram9);	
+	TOPP0_NU_topkernelproc_embedded( kvdram9);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 10"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges100, kvdram10);	
+	TOPP0_NU_topkernelproc_embedded( kvdram10);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP11: processing instance 0"<<endl;
@@ -1976,51 +1851,39 @@ uint512_dt * edges100,	uint512_dt * kvdram10,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9,globalstatsbuffer10, globalparams, globalparamsV);
 	return;
 }
 }
 extern "C" {
-void acts_all::TOPP0_NU_topkernelP12(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
-uint512_dt * edges100,	uint512_dt * kvdram10,
-uint512_dt * edges110,	uint512_dt * kvdram11,
+void TOPP0_NU_topkernelP12(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
+	uint512_dt * kvdram11,
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE m_axi port = edges00 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
-#pragma HLS INTERFACE m_axi port = edges10 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
-#pragma HLS INTERFACE m_axi port = edges20 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = edges30 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
-#pragma HLS INTERFACE m_axi port = edges40 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
-#pragma HLS INTERFACE m_axi port = edges50 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
-#pragma HLS INTERFACE m_axi port = edges60 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
-#pragma HLS INTERFACE m_axi port = edges70 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
-#pragma HLS INTERFACE m_axi port = edges80 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
-#pragma HLS INTERFACE m_axi port = edges90 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
-#pragma HLS INTERFACE m_axi port = edges100 offset = slave bundle = gmem10
 #pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
-#pragma HLS INTERFACE m_axi port = edges110 offset = slave bundle = gmem11
 #pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem12
 #else 
@@ -2040,18 +1903,6 @@ uint512_dt * edges110,	uint512_dt * kvdram11,
 #endif 
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS INTERFACE s_axilite port = edges00 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges10 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges20 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges30 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges40 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges50 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges60 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges70 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges80 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges90 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges100 bundle = control
-#pragma HLS INTERFACE s_axilite port = edges110 bundle = control
 #endif 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -2071,18 +1922,6 @@ uint512_dt * edges110,	uint512_dt * kvdram11,
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#pragma HLS DATA_PACK variable = edges00
-#pragma HLS DATA_PACK variable = edges10
-#pragma HLS DATA_PACK variable = edges20
-#pragma HLS DATA_PACK variable = edges30
-#pragma HLS DATA_PACK variable = edges40
-#pragma HLS DATA_PACK variable = edges50
-#pragma HLS DATA_PACK variable = edges60
-#pragma HLS DATA_PACK variable = edges70
-#pragma HLS DATA_PACK variable = edges80
-#pragma HLS DATA_PACK variable = edges90
-#pragma HLS DATA_PACK variable = edges100
-#pragma HLS DATA_PACK variable = edges110
 #endif 
 #pragma HLS DATA_PACK variable = kvdram0
 #pragma HLS DATA_PACK variable = kvdram1
@@ -2108,57 +1947,70 @@ uint512_dt * edges110,	uint512_dt * kvdram11,
 	cout<<">>> top_nusrcv_nudstv::runapp: Iteration: "<<GraphIter<<endl;
 	#endif
 	
+	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE];
+	keyvalue_t globalstatsbuffer11[BLOCKRAM_SIZE];
+	
 	// CRITICAL REMOVEME.
 	if(GraphIter > 0){ MERGEP0_SPLIT_broadcastVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram); }
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 0"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges00, kvdram0);	
+	TOPP0_NU_topkernelproc_embedded( kvdram0);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 1"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges10, kvdram1);	
+	TOPP0_NU_topkernelproc_embedded( kvdram1);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 2"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges20, kvdram2);	
+	TOPP0_NU_topkernelproc_embedded( kvdram2);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 3"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges30, kvdram3);	
+	TOPP0_NU_topkernelproc_embedded( kvdram3);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 4"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges40, kvdram4);	
+	TOPP0_NU_topkernelproc_embedded( kvdram4);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 5"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges50, kvdram5);	
+	TOPP0_NU_topkernelproc_embedded( kvdram5);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 6"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges60, kvdram6);	
+	TOPP0_NU_topkernelproc_embedded( kvdram6);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 7"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges70, kvdram7);	
+	TOPP0_NU_topkernelproc_embedded( kvdram7);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 8"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges80, kvdram8);	
+	TOPP0_NU_topkernelproc_embedded( kvdram8);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 9"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges90, kvdram9);	
+	TOPP0_NU_topkernelproc_embedded( kvdram9);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 10"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges100, kvdram10);	
+	TOPP0_NU_topkernelproc_embedded( kvdram10);	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 11"<<endl;
 	#endif 
-	TOPP0_NU_topkernelproc_embedded(edges110, kvdram11);	
+	TOPP0_NU_topkernelproc_embedded( kvdram11);	
 	
 	/* 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP12: processing instance 0"<<endl;
@@ -2200,8 +2052,8 @@ uint512_dt * edges110,	uint512_dt * kvdram11,
 	#endif 
  */
 
-	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram);
-MERGEP0_SPLIT_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram, globalparams, globalparamsV);
+	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
+	MERGEP0_SPLIT_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram, globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9,globalstatsbuffer10,globalstatsbuffer11, globalparams, globalparamsV);
 	return;
 }
 }

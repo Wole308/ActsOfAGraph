@@ -1,9 +1,18 @@
-value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
 			res = udata + edgew;
 		#elif defined(CF_ALGORITHM)
+			// source: https://mrmgroup.cs.princeton.edu/papers/taejun_micro16.pdf (Graphicionado)
+			// process edge & reduce combined here (source: graphicionado paper)
+			/* --- Collaborative Filtering ---:
+			Process Edges: Executed in Reduce. ({Ew, Uprop} from source is sent to destination vertex)
+			Reduce: Function of (uprop, Ew, Vprop) is executed 
+			Apply: Function of (Vprop, Vtemp) is executed 
+			Finish: */
+			res = udata;
+		#elif defined(LP_ALGORITHM)
 			// source: https://mrmgroup.cs.princeton.edu/papers/taejun_micro16.pdf (Graphicionado)
 			// process edge & reduce combined here (source: graphicionado paper)
 			/* --- Collaborative Filtering ---:
@@ -34,6 +43,8 @@ value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned i
 		res = udata + edgew;
 	} else if(GraphAlgo == CF){
 		res = udata;
+	} else if(GraphAlgo == LP){
+		res = udata;
 	} else if(GraphAlgo == CC){
 		res = udata;
 	} else if(GraphAlgo == BFS){
@@ -47,7 +58,7 @@ value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned i
 	return res;
 }
 
-value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+value_t REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -56,6 +67,8 @@ value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int G
 			unsigned int ew = 1;
 			unsigned int lamda = 1;
 			temp = vtemp + ((ew - vtemp*res)*res - lamda*vtemp);
+		#elif defined(LP_ALGORITHM)
+			temp = vtemp + res;
 		#elif defined(CC_ALGORITHM)
 			temp = UTILP0_amin(vtemp, res);
 		#elif defined(BFS_ALGORITHM)
@@ -70,6 +83,8 @@ value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int G
 		temp = vtemp + res;
 	} else if(GraphAlgo == CF){
 		temp = vtemp + ((ew - vtemp*res)*res - lamda*vtemp);
+	} else if(GraphAlgo == LP){
+		temp = vtemp + res;
 	} else if(GraphAlgo == CC){
 		temp = UTILP0_amin(vtemp, res);
 	} else if(GraphAlgo == BFS){
@@ -77,7 +92,8 @@ value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int G
 	} else if(GraphAlgo == SSSP){
 		temp = UTILP0_amin(vtemp, res);
 	} else {
-		NOT DEFINED
+		// NOT DEFINED
+		temp = 0;
 	}
 	#endif
 	return temp;

@@ -117,7 +117,7 @@ private:
 	algorithm * algorithmobj;
 	utility * utilityobj;
 
-	dataset_t _datasets[128];
+	dataset_t _datasets[1024];
 	dataset_t thisdataset;
 	unsigned int numedgebanks;
 	unsigned int numverticespervertexbank;

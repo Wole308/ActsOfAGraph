@@ -56,53 +56,63 @@ int main(int argc, char** argv){
 	#endif
 	
 	#ifdef DATASET_RMAT22_SPARSE0
-	datasetid = 30;
+	datasetid = 100;
 	#endif
 	#ifdef DATASET_RMAT22_SPARSE1
-	datasetid = 31;
+	datasetid = 101;
 	#endif
 	#ifdef DATASET_RMAT22_SPARSE2
-	datasetid = 32;
+	datasetid = 102;
 	#endif
 	#ifdef DATASET_RMAT22_SPARSE3
-	datasetid = 33;
+	datasetid = 103;
 	#endif
 	#ifdef DATASET_RMAT22_SPARSE4
-	datasetid = 34;
+	datasetid = 104;
 	#endif
 	#ifdef DATASET_RMAT22_SPARSE5
-	datasetid = 35;
+	datasetid = 105;
 	#endif
 	#ifdef DATASET_RMAT22_SPARSE6
-	datasetid = 36;
+	datasetid = 106;
 	#endif
 	#ifdef DATASET_RMAT22_SPARSE7
-	datasetid = 37;
+	datasetid = 107;
+	#endif
+	
+	#ifdef DATASET_RMAT24_268M
+	datasetid = 200;
+	#endif
+	#ifdef DATASET_RMAT25_268M
+	datasetid = 201;
+	#endif
+	#ifdef DATASET_RMAT26_268M
+	datasetid = 202;
 	#endif
 	
 	#ifdef DATASET_RMAT_RANGE0
-	datasetid = 40;
+	datasetid = 120;
 	#endif
 	#ifdef DATASET_RMAT_RANGE1
-	datasetid = 41;
+	datasetid = 121;
 	#endif
 	#ifdef DATASET_RMAT_RANGE2
-	datasetid = 42;
+	datasetid = 122;
 	#endif
 	#ifdef DATASET_RMAT_RANGE3
-	datasetid = 43;
+	datasetid = 123;
 	#endif
 	#ifdef DATASET_RMAT_RANGE4
-	datasetid = 44;
+	datasetid = 124;
 	#endif
 	#ifdef DATASET_RMAT_RANGE5
-	datasetid = 45;
+	datasetid = 125;
 	#endif
 	#ifdef DATASET_RMAT_RANGE6
-	datasetid = 46;
+	datasetid = 126;
 	#endif
 	#ifdef DATASET_RMAT_RANGE7
-	datasetid = 47;
+	datasetid = 127;
 	#endif
 	
 	std::string binaryFile1;
@@ -116,10 +126,10 @@ int main(int argc, char** argv){
     }
     binaryFile1 = argv[1];
 	binaryFile2 = binaryFile1;	
-	#ifdef TESTRUN
-	binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/synkernels_acts/goldenkernel3PEs3WsHW300MHz.xclbin";
-	binaryFile2 = binaryFile1;	
-	#endif 
+	// #ifdef TESTKERNEL
+	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/synkernels_acts/goldenkernel${TESTKERNEL}3PEs3WsHW300MHz.xclbin";
+	// binaryFile2 = binaryFile1;	
+	// #endif 
 	#endif
 	utilityobj->printallparameters();
 

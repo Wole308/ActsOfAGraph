@@ -325,7 +325,10 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_SRCVOFFSET: "<<globalparams.ACTSPARAMS_SRCVOFFSET<<endl;
 	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_SRCVSIZE: "<<globalparams.ACTSPARAMS_SRCVSIZE<<endl;
 	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_DESTVOFFSET: "<<globalparams.ACTSPARAMS_DESTVOFFSET<<endl;
-
+	
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER: "<<globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_INSTID: "<<globalparams.ACTSPARAMS_INSTID<<endl;
+	
 	std::cout<<"Kernel Started: globalparams.RETURN_RETURNVALUES: "<<globalparams.RETURN_RETURNVALUES<<endl;
 	
 	

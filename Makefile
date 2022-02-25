@@ -123,34 +123,34 @@ EMCONFIG_DIR = $(TEMP_DIR)
 
 ############################## Declaring Binary Containers ##############################
 # BINARY_CONTAINERS += $(BUILD_DIR)/vmult_vadd.xclbin
-# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
-BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_16and1.$(TARGET).$(DSA).xclbin
-# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_22and1.$(TARGET).$(DSA).xclbin
-# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_24and1.$(TARGET).$(DSA).xclbin
 
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vmult.xo
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vadd.xo
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vdiv.xo
 
-VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_3w.cfg
-KERNELP0_NAME = TOPP0_U_topkernelP1
-KERNELP1_NAME = TOPP1_U_topkernelP1
-KERNELP2_NAME = TOPP2_topkernelS
+# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
+# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_3w.cfg
+# KERNELP0_NAME = TOPP0_U_topkernelP1
+# KERNELP1_NAME = TOPP1_U_topkernelP1
+# KERNELP2_NAME = TOPP2_topkernelS
 
+# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_16and1.$(TARGET).$(DSA).xclbin
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_16w.cfg
 # KERNELP0_NAME = TOPP0_U_topkernelP6
 # KERNELP1_NAME = TOPP1_U_topkernelP4
 # KERNELP2_NAME = TOPP2_topkernelS
 
+# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_22and1.$(TARGET).$(DSA).xclbin
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_22w.cfg
 # KERNELP0_NAME = TOPP0_U_topkernelP8
 # KERNELP1_NAME = TOPP1_U_topkernelP6
 # KERNELP2_NAME = TOPP2_topkernelS
 
-# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_24w.cfg
-# KERNELP0_NAME = TOPP0_U_topkernelP9
-# KERNELP1_NAME = TOPP1_U_topkernelP6
-# KERNELP2_NAME = TOPP2_topkernelS
+BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_24and1.$(TARGET).$(DSA).xclbin
+VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_24w.cfg
+KERNELP0_NAME = TOPP0_U_topkernelP9
+KERNELP1_NAME = TOPP1_U_topkernelP6
+KERNELP2_NAME = TOPP2_topkernelS
 
 ############################## Setting Targets ##############################
 CP = cp -rf
@@ -244,7 +244,7 @@ run_nthreads_debug:
 	
 ############################## Generating source files (Jinja 2) ##############################
 generatesrcs:
-	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(NUMPARTITIONS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0) $(NUM_PEs)
+	python gen.py $(XWARE) $(SETUP) $(ALGORITHM) $(DATASET) $(NUMSUPERCPUTHREADS) $(NUMCPUTHREADS) $(NUMSUBCPUTHREADS) $(NUMPARTITIONS) $(LOCKE) $(EVALUATION_TYPE) $(EVALUATION_PARAM0) $(NUM_PEs) $(TESTKERNEL) $(TESTKERNELARG) 
 
 ############################## Cleaning Rules ##############################
 # Cleaning stuff

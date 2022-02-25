@@ -11,11 +11,11 @@ acts_all::~acts_all(){}
 // actsutility * actsutilityobj = new actsutility();
 #endif 
 
-#ifdef CONFIG_ENABLECLASS_ALGO_FUNCS
-{% include 'algo_funcs.template' %}	
-#endif 
 #ifdef CONFIG_ENABLECLASS_ACTS_UTIL
 {% include 'acts_util.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ALGO_FUNCS
+{% include 'algo_funcs.template' %}	
 #endif 
 #ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 {% include 'mem_convert_and_access.template' %}	

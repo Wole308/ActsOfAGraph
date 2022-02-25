@@ -28,6 +28,8 @@ using namespace std;
 
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
+// #define TESTHWKERNEL
+
 goclkernel::goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	utilityobj = new utility();
 	statsobj = _statsobj;
@@ -133,7 +135,7 @@ void set_callback2(cl::Event event, const char *queue_name){
 long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
-	#ifdef TESTRUN
+	#ifdef TESTHWKERNEL
 	unsigned int _NUMCOMPUTEUNITS_SLR1AND2 = 1;
 	unsigned int _NUMCOMPUTEUNITS_SLR0 = 1; 
 	unsigned int _NUMCOMPUTEUNITS_SLR1 = 1; 
@@ -144,6 +146,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	unsigned int _NUMCOMPUTEUNITS_SLR1 = NUMCOMPUTEUNITS_SLR1; 
 	unsigned int _NUMCOMPUTEUNITS_SLR2 = NUMCOMPUTEUNITS_SLR2; 	
 	#endif 
+	cout<<"--------------------------- goclkernel::runapp:: _NUMCOMPUTEUNITS_SLR0: "<<_NUMCOMPUTEUNITS_SLR0<<", _NUMCOMPUTEUNITS_SLR1: "<<_NUMCOMPUTEUNITS_SLR1<<", _NUMCOMPUTEUNITS_SLR2: "<<_NUMCOMPUTEUNITS_SLR2<<", _NUMCOMPUTEUNITS_SLR1AND2: "<<_NUMCOMPUTEUNITS_SLR1AND2<<endl;
 	
 	unsigned int index_count = 0;
 	unsigned int edgessz_kvs = 0;
@@ -236,7 +239,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		if(s==0){ numI = _NUMCOMPUTEUNITS_SLR1AND2; } // SLR 2
 		if(s==1){ numI = _NUMCOMPUTEUNITS_SLR1AND2; } // SLR 1
 		if(s==2){ numI = _NUMCOMPUTEUNITS_SLR0; } // SLR 0
-		for(unsigned int i=0; i<numI; i+=1){ 
+		/* for(unsigned int i=0; i<numI; i+=1){ 
 			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
 			for(unsigned int j=0; j<NUM_EDGE_BANKS; j++){ 
 				inoutBufExt_edges[s][edgesindex].obj = edges[edgesindex];
@@ -244,13 +247,27 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 				inoutBufExt_edges[s][edgesindex].flags = bank[hbmindex];
 				cout<<"attaching inoutBufExt_edges["<<s<<"]["<<edgesindex<<"] to Edges["<<edgesindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
 				edgesindex += 1;
-				hbmindex += 1;
+				// hbmindex += 1;
 			}
 			#endif 
 			inoutBufExt_kvdram[s][i].obj = kvsourcedram[kvindex];
 			inoutBufExt_kvdram[s][i].param = 0;
 			inoutBufExt_kvdram[s][i].flags = bank[hbmindex];
 			cout<<"attaching inoutBufExt_kvdram["<<s<<"]["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
+			kvindex += 1;
+			hbmindex += 1;
+		} */
+		for(unsigned int i=0; i<numI; i+=1){ 
+			inoutBufExt_kvdram[s][i].obj = kvsourcedram[kvindex];
+			inoutBufExt_kvdram[s][i].param = 0;
+			inoutBufExt_kvdram[s][i].flags = bank[hbmindex];
+			cout<<"attaching inoutBufExt_kvdram["<<s<<"]["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
+			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
+			inoutBufExt_edges[s][i].obj = edges[kvindex];
+			inoutBufExt_edges[s][i].param = 0;
+			inoutBufExt_edges[s][i].flags = bank[hbmindex];
+			cout<<"attaching inoutBufExt_edges["<<s<<"]["<<kvindex<<"] to Edges["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
+			#endif 
 			kvindex += 1;
 			hbmindex += 1;
 		}
@@ -270,7 +287,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	#endif
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
 	for(unsigned int s=0; s<3; s+=1){ 
-		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		cout<<"+++ goclkernel: creating......  buffer_edgesdram["<<s<<"] "<<endl;
+		for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS // FIXME ////////////////////////////////////////////////////////////////////////////////////////////
 			OCL_CHECK(err,
 				  buffer_edgesdram[s][i] =
 					  cl::Buffer(context,
@@ -357,27 +375,23 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	cu_id = std::to_string((1));
 	std::string krnl2_name_full = krnl_name + ":{" + "TOPP2_topkernelS_" + cu_id + "}"; 
 	OCL_CHECK(err, krnls_sync = cl::Kernel(program, krnl2_name_full.c_str(), &err));
-	
-	// krnl_name = "topkernelS";
-	// cu_id = std::to_string((1));
-	// std::string krnl2_name_full = krnl_name + ":{" + "topkernelS_" + cu_id + "}"; 
-	// OCL_CHECK(err, krnls_sync = cl::Kernel(program, krnl2_name_full.c_str(), &err));
-	
+
 	// Setting kernel arguments...
 	cout<<"goclkernel:: Setting kernel (proc) arguments..."<<endl;
 	for(unsigned int s=0; s<3; s+=1){
 		if(s==0 || s==1){ NUM=_NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=_NUMCOMPUTEUNITS_SLR0; }
+		unsigned int argindex = 0;
 		for(unsigned int i=0; i<NUM; i+=1){
 			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
-			for(unsigned int j=0; j<NUM_EDGE_BANKS; j+=1){ 
-				OCL_CHECK(err, err = krnls_proc[s].setArg(i, buffer_edgesdram[i+j]));
-				cout<<"setting argument krnls_proc["<<s<<"].setArg("<<i<<", buffer_edgesdram["<<i+j<<"])"<<endl;
-			}
+			OCL_CHECK(err, err = krnls_proc[s].setArg(argindex, buffer_edgesdram[s][i]));
+			argindex += 1;
+			cout<<"setting argument krnls_proc["<<s<<"].setArg("<<i<<", buffer_edgesdram["<<s<<"]["<<i<<"])"<<endl;
 			#endif 
-			OCL_CHECK(err, err = krnls_proc[s].setArg(i, buffer_kvdram[s][i]));
+			OCL_CHECK(err, err = krnls_proc[s].setArg(argindex, buffer_kvdram[s][i]));
+			argindex += 1;
 			cout<<"setting argument krnls_proc["<<s<<"].setArg("<<i<<", buffer_kvdram["<<s<<"]["<<i<<"])"<<endl;
 		}
-		OCL_CHECK(err, err = krnls_proc[s].setArg(NUM, buffer_vdram[s]));
+		OCL_CHECK(err, err = krnls_proc[s].setArg(argindex, buffer_vdram[s]));
 		cout<<"setting argument krnls_proc["<<s<<"].setArg("<<NUM<<", buffer_vdram["<<s<<"])"<<endl;
 	}
 	OCL_CHECK(err, err = q.finish());
@@ -392,17 +406,31 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	
 	// Migrating input data to device global memory...
 	cout<<"goclkernel:: Migrating input data to device global memory..."<<endl;
-	#ifdef TESTRUN
-	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
+	#ifdef TESTHWKERNEL
+		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[0][0], buffer_kvdram[0][0], buffer_vdram[0],
+														buffer_edgesdram[1][0], buffer_kvdram[1][0], buffer_vdram[1],
+														buffer_edgesdram[2][0], buffer_kvdram[2][0], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														0, NULL, &write_events[0]));
+		#else
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
 													buffer_kvdram[1][0], buffer_vdram[1],
 													buffer_kvdram[2][0], buffer_vdram[2],
 													buffer_vdram[3]}, 
 													0, NULL, &write_events[0]));
+		#endif 
 	#else 
 		#if NUM_PEs==12
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
 														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_vdram[1],
 														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														0, NULL, &write_events[0]));
+		#elif NUM_PEs==16
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2],
 														buffer_vdram[3]}, 
 														0, NULL, &write_events[0]));
 		#elif NUM_PEs==22
@@ -431,7 +459,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	OCL_CHECK(err, err = q.finish());
 	
 	std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
-	#ifdef TESTRUN // CRITICAL REMOVEME
+	#ifdef TESTHWKERNEL // CRITICAL REMOVEME
 	OCL_CHECK(err, err = q.enqueueTask(krnls_proc[0], NULL, &kernel_events[0])); // CRITICAL REMOVEME.
 	OCL_CHECK(err, err = kernel_events[0].wait());
 	#else 
@@ -451,17 +479,31 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	OCL_CHECK(err, err = q.finish());
 	
 	cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
-	#ifdef TESTRUN
-	OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
-													buffer_kvdram[1][0], buffer_vdram[1],
-													buffer_kvdram[2][0], buffer_vdram[2],
-													buffer_vdram[3]}, 
-													CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+	#ifdef TESTHWKERNEL
+		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[0][0], buffer_kvdram[0][0], buffer_vdram[0],
+														buffer_edgesdram[1][0], buffer_kvdram[1][0], buffer_vdram[1],
+														buffer_edgesdram[2][0], buffer_kvdram[2][0], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+		#else 
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+		#endif
 	#else 
 		#if NUM_PEs==12
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
 														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_vdram[1],
 														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_vdram[2],
+														buffer_vdram[3]}, 
+														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
+		#elif NUM_PEs==16
+		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_vdram[0],
+														buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_vdram[1],
+														buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2],
 														buffer_vdram[3]}, 
 														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 		#elif NUM_PEs==22
