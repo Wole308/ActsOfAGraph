@@ -20,6 +20,12 @@ void MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, key
 void MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams);
 {%endif%}{%endfor%}
 
+#ifdef RANDOMVERTEXISACTIVE_ALGORITHM_XXXXXXXXXXXXXX
+{%for n in context['T_seq']%}{%if(n>=1)%}
+void MEMACCESS{{context['id']}}_RANDreadANDRVchunks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+{%endif%}{%endfor%}
+#endif 
+
 // -------------------- pmasks -------------------- //
 void MEMACCESS{{context['id']}}_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
 
@@ -28,15 +34,11 @@ void MEMACCESS{{context['id']}}_readglobalstats(bool_type enable, uint512_dt * k
 
 void MEMACCESS{{context['id']}}_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams);
 
-tuple_t MEMACCESS{{context['id']}}_getvptrs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt *  kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
+tuple_t MEMACCESS{{context['id']}}_getvptrs( uint512_dt *  kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
 
 unsigned int MEMACCESS{{context['id']}}_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset);
 
-tuple_t MEMACCESS{{context['id']}}_getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt *  kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
-
-void MEMACCESS{{context['id']}}_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK);
-
-void MEMACCESS{{context['id']}}_copyallstats({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID);
+tuple_t MEMACCESS{{context['id']}}_getvptrs_opt( uint512_dt *  kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
 
 void MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset);
 

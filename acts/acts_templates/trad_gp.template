@@ -1,0 +1,39 @@
+
+fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
+	// read source vertices
+	
+	
+	{%for i in context['T_seq']%}{%if(i<n)%}
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	ES[{{v}}] = kvdram[offset{{i}}_kvs + i].range({{((v + 1) * 32) - 1}}, {{v * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	ES[{{2*v}}] = kvdram[offset{{i}}_kvs + i].data[{{v}}].key; 
+	ES[{{2*v+1}}] = kvdram[offset{{i}}_kvs + i].data[{{v}}].value;	
+	{%endfor%}
+	#endif
+	{%endif%}{%endfor%}
+	
+	
+	for(buffer_type i=0; i<chunk_size; i++){
+		for(vector_type v=0; v<VECTOR2_SIZE; v++){
+			uint32_type edge = tempubuffer[i][v];
+			
+			parsededge_t parsed_edge = PROCESS{{context['id']}}_PARSEEDGE(edge); 
+			unsigned int srcvid = parsed_edge.incr; // source info FIXME.
+			unsigned int dstvid = parsed_edge.dstvid;	
+				
+			value_t udata = readvdata(vdram, srcvid);
+			value_t vdata = readvdata(vdram, dstvid);
+			
+			value_t res = PROCESS{{context['id']}}_processfunc(udata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+			value_t vvdata = REDUCE{{context['id']}}_reducefunc(vdata, res, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+			
+			uint32_type edge = savevdata(vdram, dstvid);
+		}
+	}
+	return;
+}

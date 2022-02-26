@@ -153,6 +153,15 @@ elif context['DATASET'] == "DATASET_RMAT25_268M":
 elif context['DATASET'] == "DATASET_RMAT26_268M":
     context['KVDATA_RANGE_POW'] = 26
     context['NUM_EDGE_BANKS'] = 1 
+elif context['DATASET'] == "DATASET_RMAT24_380M":
+    context['KVDATA_RANGE_POW'] = 24
+    context['NUM_EDGE_BANKS'] = 1
+elif context['DATASET'] == "DATASET_RMAT25_380M":
+    context['KVDATA_RANGE_POW'] = 25
+    context['NUM_EDGE_BANKS'] = 1
+elif context['DATASET'] == "DATASET_RMAT26_380M":
+    context['KVDATA_RANGE_POW'] = 26
+    context['NUM_EDGE_BANKS'] = 1 
     
 elif context['DATASET'] == "DATASET_RMAT_RANGE0":
     context['KVDATA_RANGE_POW'] = 20
@@ -363,9 +372,10 @@ o_path200=relref+"acts/acts/acts_allP0.cpp"
 o_path201=relref+"acts/acts/acts_allP0.h"
 o_path202=relref+"acts/acts/acts_allP1.cpp"
 o_path203=relref+"acts/acts/acts_allP1.h"
-o_path204=relref+"acts/acts/acts_allS.cpp"
-o_path205=relref+"acts/acts/acts_allS.h"
-o_path206=relref+"acts/acts/acts_allS.h"
+o_path204=relref+"acts/acts/acts_allP2.cpp"
+o_path205=relref+"acts/acts/acts_allP2.h"
+o_path206=relref+"acts/acts/acts_allS.cpp"
+o_path207=relref+"acts/acts/acts_allS.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -426,6 +436,7 @@ out_path203=os.path.abspath(o_path203)
 out_path204=os.path.abspath(o_path204)
 out_path205=os.path.abspath(o_path205)
 out_path206=os.path.abspath(o_path206)
+out_path207=os.path.abspath(o_path207)
 
 templ_path0=relref+"acts/acts_templates"
 templ_path1=relref+"acts/acts_templates"
@@ -486,6 +497,7 @@ templ_path203=relref+"acts/acts_templates"
 templ_path204=relref+"acts/acts_templates"
 templ_path205=relref+"acts/acts_templates"
 templ_path206=relref+"acts/acts_templates"
+templ_path207=relref+"acts/acts_templates"
 
 ###
 context['1_seq'] = []
@@ -766,6 +778,7 @@ env203 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path203)), tr
 env204 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path204)), trim_blocks=True, lstrip_blocks=True)
 env205 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path205)), trim_blocks=True, lstrip_blocks=True)
 env206 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path206)), trim_blocks=True, lstrip_blocks=True)
+env207 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path207)), trim_blocks=True, lstrip_blocks=True)
 
 env0.globals.update(zip=zip)
 env1.globals.update(zip=zip)
@@ -826,6 +839,7 @@ env203.globals.update(zip=zip)
 env204.globals.update(zip=zip)
 env205.globals.update(zip=zip)
 env206.globals.update(zip=zip)
+env207.globals.update(zip=zip)
 
 template0 = env0.get_template('acts.template')
 template1 = env1.get_template('acts.template')
@@ -885,7 +899,8 @@ template202 = env202.get_template('acts_all.template')
 template203 = env203.get_template('acts_all_h.template')
 template204 = env204.get_template('acts_all.template')
 template205 = env205.get_template('acts_all_h.template')
-template206 = env206.get_template('acts_all_h.template')
+template206 = env206.get_template('acts_all.template')
+template207 = env207.get_template('acts_all_h.template')
 
 rendered_file0 = template0.render(context=context)
 rendered_file1 = template1.render(context=context)
@@ -948,7 +963,9 @@ rendered_file203 = template203.render(context=context)
 context['id'] = "P2"
 rendered_file204 = template204.render(context=context)
 rendered_file205 = template205.render(context=context)
+context['id'] = "S"
 rendered_file206 = template206.render(context=context)
+rendered_file207 = template207.render(context=context)
 
 with open(out_path0, 'w') as outFile0:
 	outFile0.write(rendered_file0)
@@ -1068,6 +1085,8 @@ with open(out_path205, 'w') as outFile205:
 	outFile205.write(rendered_file205)
 with open(out_path206, 'w') as outFile206:
 	outFile206.write(rendered_file206)
+with open(out_path207, 'w') as outFile207:
+	outFile207.write(rendered_file207)
 
 print ("successful!")
 print ("...")

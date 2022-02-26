@@ -1,4 +1,4 @@
-value_t PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -13,13 +13,11 @@ value_t PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAl
 			Finish: */
 			res = udata;
 		#elif defined(LP_ALGORITHM)
-			// source: https://mrmgroup.cs.princeton.edu/papers/taejun_micro16.pdf (Graphicionado)
-			// process edge & reduce combined here (source: graphicionado paper)
-			/* --- Collaborative Filtering ---:
-			Process Edges: Executed in Reduce. ({Ew, Uprop} from source is sent to destination vertex)
-			Reduce: Function of (uprop, Ew, Vprop) is executed 
-			Apply: Function of (Vprop, Vtemp) is executed 
-			Finish: */
+			// source: 
+			
+			
+			
+			
 			res = udata;
 		#elif defined(CC_ALGORITHM)
 			// source: https://www.baeldung.com/cs/graph-connected-components
@@ -58,15 +56,19 @@ value_t PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAl
 	return res;
 }
 
-value_t REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
-			temp = vtemp + res;
+			unsigned int alpha = 0.5;
+			unsigned int vdeg = 1;
+			temp = ((alpha + (1-alpha)*vtemp) / vdeg) + res;
+			// temp = vtemp + res;
 		#elif defined(CF_ALGORITHM)
 			unsigned int ew = 1;
-			unsigned int lamda = 1;
-			temp = vtemp + ((ew - vtemp*res)*res - lamda*vtemp);
+			unsigned int lamda = 0.5;
+			unsigned int gamma = 0.5;
+			temp = vtemp + gamma*(vtemp + ((ew - vtemp*res)*res - lamda*vtemp));
 		#elif defined(LP_ALGORITHM)
 			temp = vtemp + res;
 		#elif defined(CC_ALGORITHM)

@@ -168,8 +168,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_SPLIT_mergeVs{{n
 	#endif
 	unsigned int voffset_kvs2 = 0;
 	unsigned int voffseti_kvs2 = 0;
-	{%for i in context['T_seq']%}
-	{%if(i<n)%}
+	{%for i in context['T_seq']%}{%if(i<n)%}
 	voffseti_kvs2 = 0;
 	MERGE{{context['id']}}_SPLIT_MERGEVSLOOP{{i}}: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -190,8 +189,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_SPLIT_mergeVs{{n
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	{%endif%}
-	{%endfor%}
+	{%endif%}{%endfor%}
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
 	#endif

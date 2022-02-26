@@ -1,4 +1,4 @@
-void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_processit_splitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -67,7 +67,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_processi
 		if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endsrcvid = beginsrcvid; }
 		if((srcvlocaloffset < globalparamsK.ACTSPARAMS_SRCVSIZE) && (srcvlocaloffset + ((reducebuffersz * VECTOR2_SIZE) * FETFACTOR) >= globalparamsK.ACTSPARAMS_SRCVSIZE)){ endsrcvid = beginsrcvid + globalparamsK.ACTSPARAMS_SRCVSIZE - srcvlocaloffset; }
 		
-		tuple_t tup = MEMACCESS{{context['id']}}_getvptrs_opt({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, vptrbaseoffset_kvs, voffset_kvs2 * VECTOR2_SIZE, (voffset_kvs2 + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
+		tuple_t tup = MEMACCESS{{context['id']}}_getvptrs_opt( kvdram, vptrbaseoffset_kvs, voffset_kvs2 * VECTOR2_SIZE, (voffset_kvs2 + SKIP_KVS) * VECTOR2_SIZE, edgebankID); // CRITICAL NEWCHANGE.
 		keyy_t beginvptr = tup.A;
 		keyy_t endvptr = tup.B + VECTOR2_SIZE; // NEWCHANGE 
 	
@@ -117,7 +117,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_processi
 		#endif 
 		(
 			ON, ACTSPROCESSMODE,
-			{%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, globalstatsbuffer, 
+			 kvdram, sourcebuffer, vbuffer, globalstatsbuffer, 
 			globalparamsK, globalposition, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE,
 			resetenv, flush, edgebankID);
 			
@@ -145,7 +145,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_processi
 	return;
 }
 
-void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_partitionit({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID){
+void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -213,7 +213,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_partitio
 			ACTS{{context['id']}}_tradit
 			#endif
 			(config.enablepartition, ACTSPARTITIONMODE,
-					{%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
+					 kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
 					globalparams, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 					ON, ON, NAp);
 					
@@ -247,7 +247,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_partitio
 	return;
 }
 
-void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_reduceit({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
+void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -285,22 +285,22 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_reduceit
 	ACTS{{context['id']}}_tradit
 	#endif
 	(config.enablereduce, ACTSREDUCEMODE,
-			{%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
+			 kvdram, sourcebuffer, vbuffer, globalstatsbuffer, // CRITICAL FIXME.
 			globalparams, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp); // REMOVEME.
 	return;
 }
 
-void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce, {%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
-	if(en_process == ON){ TOP{{context['id']}}_NU_processit_splitdstvxs({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
-	if(en_partition == ON){ TOP{{context['id']}}_NU_partitionit({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, globalparamsK, NAp); } 
-	if(en_reduce == ON){ TOP{{context['id']}}_NU_reduceit({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
+	if(en_process == ON){ TOP{{context['id']}}_NU_processit_splitdstvxs( kvdram, sourcebuffer, vbuffer, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
+	if(en_partition == ON){ TOP{{context['id']}}_NU_partitionit( kvdram, sourcebuffer, vbuffer, globalparamsK, NAp); } 
+	if(en_reduce == ON){ TOP{{context['id']}}_NU_reduceit( kvdram, sourcebuffer, vbuffer, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
 	return;
 }
 
-void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -356,7 +356,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_dispatch
 		MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		
 		// reduce
-		TOP{{context['id']}}_NU_dispatch(OFF, OFF, enablereduce, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
+		TOP{{context['id']}}_NU_dispatch(OFF, OFF, enablereduce,  kvdram, sourcebuffer, vbuffer, vmask_p, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, v_chunkids, v_chunkid, NAp);
 		
 		// writeback vertices
 		MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
@@ -369,9 +369,10 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_dispatch
 	return;
 } 
 
-// top
+// top : OUT-OF-DATE (REMOVED)
+{%if(false)%} 
 #ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
-void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkernelproc_embedded({%for n in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{n}},{%endfor%} uint512_dt * kvdram){
+void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkernelproc_embedded(uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	#endif
@@ -389,12 +390,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 	globalparams_t globalparamsE[MAX_NUM_EDGE_BANKS];
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	{%for n in context['NUM_EDGE_BANKS_seq']%}
-	globalparamsEs[{{e}}] = UTIL{{context['id']}}_getglobalparams
-		#ifdef CONFIG_EDGESDRAM_MERGEDWITH_KVDRAM
-			(kvdram, {{e}}+1);
-				#else 
-					(edges{{n}}, 0);
-						#endif 
+	globalparamsEs[{{e}}] = UTIL{{context['id']}}_getglobalparams(kvdram, {{e}}+1);
 	{%endfor%}
 	#else 
 	globalparamsE[0] = globalparamsK;
@@ -466,7 +462,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelP: processing instance ... "<<endl;
 				#endif
-				TOP{{context['id']}}_NU_dispatch(ON, OFF, OFF, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION{{context['id']}}_CHKPT[edgebankID], v_chunkid, edgebankID);
+				TOP{{context['id']}}_NU_dispatch(ON, OFF, OFF,  kvdram, sourcebuffer, vbuffer, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION{{context['id']}}_CHKPT[edgebankID], v_chunkid, edgebankID);
 			}
 			#endif
 			
@@ -476,7 +472,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelP: partitioning instance ... "<<endl;
 				#endif
-				TOP{{context['id']}}_NU_dispatch(OFF, ON, OFF, {%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION{{context['id']}}_CHKPT[edgebankID], v_chunkid, NAp);
+				TOP{{context['id']}}_NU_dispatch(OFF, ON, OFF,  kvdram, sourcebuffer, vbuffer, vmask_p, NAp, NAp, _globalparamsE, globalparamsK, PARTITION{{context['id']}}_CHKPT[edgebankID], v_chunkid, NAp);
 			}
 			#endif
 			
@@ -486,7 +482,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 				#if defined(_DEBUGMODE_KERNELPRINTS2) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 				cout<<"topkernelP: reducing instance ... "<<endl;
 				#endif
-				TOP{{context['id']}}_NU_dispatch_reduce({%for n in context['NUM_EDGE_BANKS_seq']%}edges{{n}},{%endfor%} kvdram, sourcebuffer, vbuffer, vmask_p, _globalparamsE, globalparamsK, PARTITION{{context['id']}}_CHKPT[edgebankID], v_chunkid, NAp);
+				TOP{{context['id']}}_NU_dispatch_reduce( kvdram, sourcebuffer, vbuffer, vmask_p, _globalparamsE, globalparamsK, PARTITION{{context['id']}}_CHKPT[edgebankID], v_chunkid, NAp);
 			}
 			#endif
 			
@@ -524,16 +520,12 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 extern "C" {
 void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkernelP{{n}}(
 	{%for i in context['T_seq']%}{%if(i<n)%}
-	{%for k in context['NUM_EDGE_BANKS_seq']%}uint512_dt * edges{{i}}{{k}},{%endfor%}
 	uint512_dt * kvdram{{i}},
 	{%endif%}{%endfor%}
 	uint512_dt * vdram
 	){
 #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 {%for i in context['T_seq']%}{%if(i<n)%}
-{%for k in context['NUM_EDGE_BANKS_seq']%}
-#pragma HLS INTERFACE m_axi port = edges{{i}}{{k}} offset = slave bundle = gmem{{i}}
-{%endfor%}
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endif%}{%endfor%}
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{n}}
@@ -544,13 +536,6 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{n}}
 #endif 
 
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-{%for i in context['T_seq']%}{%if(i<n)%}
-{%for k in context['NUM_EDGE_BANKS_seq']%}
-#pragma HLS INTERFACE s_axilite port = edges{{i}}{{k}} bundle = control
-{%endfor%}
-{%endif%}{%endfor%}
-#endif 
 {%for i in context['T_seq']%}{%if(i<n)%}
 #pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control
 {%endif%}{%endfor%}
@@ -559,13 +544,6 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-{%for i in context['T_seq']%}{%if(i<n)%}
-{%for k in context['NUM_EDGE_BANKS_seq']%}
-#pragma HLS DATA_PACK variable = edges{{i}}{{k}}
-{%endfor%}
-{%endif%}{%endfor%}
-#endif 
 {%for i in context['T_seq']%}{%if(i<n)%}
 #pragma HLS DATA_PACK variable = kvdram{{i}}
 {%endif%}{%endfor%}
@@ -595,7 +573,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<">>> topkernelP{{n}}: processing instance {{i}}"<<endl;
 	#endif 
-	TOP{{context['id']}}_NU_topkernelproc_embedded({%for k in context['NUM_EDGE_BANKS_seq']%}edges{{i}}{{k}},{%endfor%} kvdram{{i}});	
+	TOP{{context['id']}}_NU_topkernelproc_embedded(kvdram{{i}});	
 	{%endif%}
 	{%endfor%}
 	
@@ -619,6 +597,7 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_topkerne
 {%endif%}
 {%endfor%}
 #endif
+{%endif%}
 
 
 

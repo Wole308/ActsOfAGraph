@@ -66,11 +66,7 @@ using namespace std;
 #define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
 
 // #define BLOCKRAM_VDATA_SIZE BLOCKRAM_SIZE // vertex and mask buffer
-#ifdef CONFIG_VDATAIS32BITSWIDE // vertex and mask buffer
 #define BLOCKRAM_VDATA_SIZE DOUBLE_BLOCKRAM_SIZE
-#else 
-#define BLOCKRAM_VDATA_SIZE BLOCKRAM_SIZE	
-#endif 
 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
 #define SRCBUFFER_SIZE (BLOCKRAM_SIZE - (4 * 4))
@@ -137,9 +133,9 @@ using namespace std;
 	#define TOTALDRAMCAPACITY_KVS (TOTALDRAMCAPACITY_KV / VECTOR_SIZE) // (32M/8=4M)
 	
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	#define KVSOURCEDRAMSZ (TOTALDRAMCAPACITY_KV / 2)
+	#define KVSOURCEDRAMSZ ((TOTALDRAMCAPACITY_KVS * VECTOR_SIZE) / 2) // (TOTALDRAMCAPACITY_KV / 2)
 	#else 
-	#define KVSOURCEDRAMSZ TOTALDRAMCAPACITY_KV // max HBM capacity (256MB)
+	#define KVSOURCEDRAMSZ (TOTALDRAMCAPACITY_KVS * VECTOR_SIZE) // TOTALDRAMCAPACITY_KV // max HBM capacity (256MB)
 	// #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME.
 	// #define KVSOURCEDRAMSZ (1 << 27) // max HBM capacity (1024MB) // CRITICAL REMOVEME.
 	#endif 
@@ -182,12 +178,10 @@ using namespace std;
 #define SIZEOF_KEY 22
 #define SIZEOF_VALUE 10
 
-#ifdef CONFIG_VDATAIS32BITSWIDE
 #define OFFSETOF_VDATA 0
 #define SIZEOF_VDATA 31
 #define OFFSETOF_VMASK 31
 #define SIZEOF_VMASK 1
-#endif 
  
 #define SIZEOF_VDATAKEY 16
 #define SIZEOF_VDATAVALUE 16
@@ -244,21 +238,10 @@ typedef struct {
 	unsigned int vdata;
 } vmdata_t;
 
-#ifdef CONFIG_VDATAIS32BITSWIDE
-	#ifdef _WIDEWORD
-	typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
-	#else
-	typedef unsigned int keyvalue_vbuffer_t;
-	#endif 
-#else 
-	#ifdef _WIDEWORD
-	typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
-	#else
-	typedef struct {
-		vmdata_t vmdata0;
-		vmdata_t vmdata1;
-	} keyvalue_vbuffer_t;
-	#endif 
+#ifdef _WIDEWORD
+typedef ap_uint<32> keyvalue_vbuffer_t; // DO NOT CHANGE.
+#else
+typedef unsigned int keyvalue_vbuffer_t;
 #endif 
 
 #ifdef _WIDEWORD
@@ -379,6 +362,8 @@ typedef struct {
 	unsigned int ACTSPARAMS_DESTVOFFSET;
 	unsigned int ACTSPARAMS_NUMEDGECHUNKSINABUFFER;
 	unsigned int ACTSPARAMS_INSTID;
+	unsigned int ACTSPARAMS_NUM_EDGE_BANKS;
+	unsigned int ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM;
 
 	unsigned int RETURN_RETURNVALUES;
 	

@@ -77,6 +77,8 @@ runsummary_t app::run_hw(){
 	Algo = PAGERANK;
 	#elif defined(CF_ALGORITHM)
 	Algo = CF;
+	#elif defined(LP_ALGORITHM)
+	Algo = LP;
 	#elif defined(CC_ALGORITHM)
 	Algo = CC;
 	#elif defined(BFS_ALGORITHM)

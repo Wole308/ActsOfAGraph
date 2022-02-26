@@ -46,7 +46,7 @@ acts_all::~acts_all(){}
 #endif 
 #ifdef CONFIG_ENABLECLASS_ACTS
 {% include 'acts.template' %}	
-#endif 
+#endif 			
 {% include 'top_nusrcv_nudstv.template' %}	
 {% include 'top_usrcv_udstv.template' %}	
 

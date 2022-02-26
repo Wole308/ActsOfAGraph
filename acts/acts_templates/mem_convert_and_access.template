@@ -1,5 +1,4 @@
 // primitives
-#ifdef CONFIG_VDATAIS32BITSWIDE
 unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA);
@@ -23,44 +22,6 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
 	#pragma HLS INLINE
 	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VMASK, vmask);
-	return;
-}
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
-	#endif
-	
-	#ifdef _WIDEWORD // CRITICAL FIXME.
-	{%for v in context['VECTOR_SIZE_seq']%}
-	vdatas[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-	vdatas[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
-	{%endfor%}
-	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	vdatas[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key;
-	vdatas[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value; 
-	{%endfor%}
-	#endif
-	return;
-}
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){			
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
-	#endif
-
-	#ifdef _WIDEWORD // CRITICAL FIXME.
-	{%for v in context['VECTOR_SIZE_seq']%}
-	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = vdatas[{{2*v}}];
-	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = vdatas[{{2*v+1}}];
-	{%endfor%}
-	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key = vdatas[{{2*v}}];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value = vdatas[{{2*v+1}}];
-	{%endfor%}
-	#endif
 	return;
 }
 
@@ -87,216 +48,77 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	#endif 
 	return;
 }
-#endif 
-
-// primitives
-#ifndef CONFIG_VDATAIS32BITSWIDE
-unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA0(keyvalue_vbuffer_t wideword){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, 0, SIZEOF_VDATA0);
-	#else 
-	return wideword.vmdata0.vdata;
-	#endif
-}
-unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA1(keyvalue_vbuffer_t wideword){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1);
-	#else 
-	return wideword.vmdata1.vdata;
-	#endif
-}
-
-unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVMASK0(keyvalue_vbuffer_t wideword){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, SIZEOF_VDATA0, SIZEOF_VMASK0);
-	#else 
-	return wideword.vmdata0.vmask;
-	#endif
-}
-unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVMASK1(keyvalue_vbuffer_t wideword){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1);
-	#else 
-	return wideword.vmdata1.vmask;
-	#endif
-}
-
-vmdata_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA0ANDVMASK0(keyvalue_vbuffer_t wideword){
-	#pragma HLS INLINE
-	vmdata_t vmdata;
-	#ifdef _WIDEWORD
-	vmdata.vdata = UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, 0, SIZEOF_VDATA0);
-	vmdata.vmask = UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, SIZEOF_VDATA0, SIZEOF_VMASK0);
-	#else 
-	vmdata.vdata = wideword.vmdata0.vdata;
-	vmdata.vmask = wideword.vmdata0.vmask;
-	#endif
-	return vmdata;
-}
-vmdata_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA1ANDVMASK1(keyvalue_vbuffer_t wideword){
-	#pragma HLS INLINE
-	vmdata_t vmdata;	
-	#ifdef _WIDEWORD
-	vmdata.vmask = UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1);
-	vmdata.vdata = UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1);
-	#else 
-	vmdata.vmask = wideword.vmdata1.vmask;
-	vmdata.vdata = wideword.vmdata1.vdata;
-	#endif
-	return vmdata;
-}	
-
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVDATA0(keyvalue_vbuffer_t * wideword, value_t vdata){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, 0, SIZEOF_VDATA0, vdata);
-	#else 
-	wideword->vmdata0.vdata = vdata;
-	#endif 
-	return;
-}
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVDATA1(keyvalue_vbuffer_t * wideword, value_t vdata){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1, vdata);
-	#else 
-	wideword->vmdata1.vdata = vdata;
-	#endif 
-	return;
-}
-
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVMASK0(keyvalue_vbuffer_t * wideword, unit1_type vmask){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATA0, SIZEOF_VMASK0, vmask);
-	#else
-	wideword->vmdata0.vmask = vmask;
-	#endif 
-	return;
-}
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVMASK1(keyvalue_vbuffer_t * wideword, unit1_type vmask){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, vmask);
-	#else 
-	wideword->vmdata1.vmask = vmask;
-	#endif 
-	return;
-}
-
-keyvalue_vbuffer_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_CREATEVBUFFERSTRUCT(vmdata_t data0, vmdata_t data1){
-	#pragma HLS INLINE
-	keyvalue_vbuffer_t _wideword;
-	#ifdef CONFIG_VDATAIS32BITSWIDE
-	_wideword = 0;
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(&_wideword, 0, SIZEOF_VDATA0, data0.vdata);
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATA0, SIZEOF_VMASK0, data0.vmask);
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1, data1.vdata);
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, data1.vmask);
-	#else 
-		#ifdef _WIDEWORD
-		_wideword = 0;
-		UTIL{{context['id']}}_WRITEBITSTO_UINTV(&_wideword, 0, SIZEOF_VDATA0, data0.vdata);
-		UTIL{{context['id']}}_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATA0, SIZEOF_VMASK0, data0.vmask);
-		UTIL{{context['id']}}_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATAKEY, SIZEOF_VDATA1, data1.vdata);
-		UTIL{{context['id']}}_WRITEBITSTO_UINTV(&_wideword, SIZEOF_VDATAKEY + SIZEOF_VDATA1, SIZEOF_VMASK1, data1.vmask);
-		#else
-		_wideword.vmdata0.vmask = data0.vmask; 
-		_wideword.vmdata0.vdata = data0.vdata;
-		_wideword.vmdata1.vmask = data1.vmask; 
-		_wideword.vmdata1.vdata = data1.vdata;
-		#endif
-	#endif 
-	return _wideword;
-}
-
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
-	#endif
-	
-	value_t datas[VECTOR2_SIZE];
-	#ifdef _WIDEWORD // CRITICAL FIXME.
-	{%for v in context['VECTOR_SIZE_seq']%}
-	datas[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-	datas[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
-	{%endfor%}
-	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	datas[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key;
-	datas[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value; 
-	{%endfor%}
-	#endif
-	
-	{%for v in context['VECTOR2_SIZE_seq']%} // CRITICAL FIXME. can be better for _WIDEWORD
-	vdatas[{{v}}].vdata = UTIL{{context['id']}}_READBITSFROM_UINTV(datas[{{v}}], 0, SIZEOF_VDATA0); 
-	vdatas[{{v}}].vmask = UTIL{{context['id']}}_READBITSFROM_UINTV(datas[{{v}}], SIZEOF_VDATA0, SIZEOF_VMASK0); 	
-	// if(vdatas[{{v}}].vmask > 0){ cout<<"------------- MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS:: vdatas[{{v}}].vmask: "<<vdatas[{{v}}].vmask<<endl; }	
-	{%endfor%}
-	return;
-}
-
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vmdata[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){			
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
-	#endif
-	
-	uint32_type datas[VECTOR2_SIZE];
-	{%for v in context['VECTOR2_SIZE_seq']%} // CRITICAL FIXME. can be better for _WIDEWORD
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(&datas[{{v}}], 0, SIZEOF_VDATA0, vmdata[{{v}}].vdata); 
-	UTIL{{context['id']}}_WRITEBITSTO_UINTV(&datas[{{v}}], SIZEOF_VDATA0, SIZEOF_VMASK0, vmdata[{{v}}].vmask); 
-	{%endfor%}
-	
-	#ifdef _WIDEWORD // CRITICAL FIXME.
-	{%for v in context['VECTOR_SIZE_seq']%}
-	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = datas[{{2*v}}];
-	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = datas[{{2*v+1}}];
-	{%endfor%}
-	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key = datas[{{2*v}}];
-	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value = datas[{{2*v+1}}];
-	{%endfor%}
-	#endif
-	return;
-}
-
-tuple_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA0WITHVMASK0(keyvalue_vbuffer_t wideword){
-	#pragma HLS INLINE
-	tuple_t res;
-	res.A = MEMCA{{context['id']}}_READVDATA0(wideword); 
-	res.B = MEMCA{{context['id']}}_READVMASK0(wideword); 
-	return res;
-}
-tuple_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA1WITHVMASK1(keyvalue_vbuffer_t wideword){
-	#pragma HLS INLINE
-	tuple_t res;
-	res.A = MEMCA{{context['id']}}_READVDATA1(wideword); 
-	res.B = MEMCA{{context['id']}}_READVMASK1(wideword); 
-	return res;
-}
-
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVDATA0WITHVMASK0(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
-	#pragma HLS INLINE
-	MEMCA{{context['id']}}_WRITEVDATA0(wideword, vdata);
-	MEMCA{{context['id']}}_WRITEVMASK0(wideword, vmask);
-	return;
-}
-void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVDATA1WITHVMASK1(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
-	#pragma HLS INLINE
-	MEMCA{{context['id']}}_WRITEVDATA1(wideword, vdata);
-	MEMCA{{context['id']}}_WRITEVMASK1(wideword, vmask);
-	return;
-}
-#endif 
 
 // non-primitives
+// any data 
+uint32_type {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READDATAFROMBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READDATAFROMBUFFER:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	return buffer[index % VECTOR2_SIZE][bufferoffset_kvs + (index / VECTOR2_SIZE)];
+}
+
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEDATATOBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type data, batch_type bufferoffset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEDATATOBUFFER:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	buffer[index % VECTOR2_SIZE][bufferoffset_kvs + (index / VECTOR2_SIZE)] = data;
+	return;
+}
+
+keyvalue_vbuffer_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READDATAFROMDRAM(unsigned int index, uint512_dt * kvdram, batch_type baseoffset_kvs, batch_type offset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READDATAFROMDRAM:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	keyvalue_vbuffer_t data[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=data complete
+	
+	#ifdef _WIDEWORD // CRITICAL FIXME.
+	{%for v in context['VECTOR_SIZE_seq']%}
+	data[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + (index / VECTOR2_SIZE)].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	data[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + (index / VECTOR2_SIZE)].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	data[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + (index / VECTOR2_SIZE)].data[{{v}}].key;
+	data[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + (index / VECTOR2_SIZE)].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	
+	return data[index % VECTOR2_SIZE];
+}
+
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEDATATODRAM(unsigned int index, uint512_dt * kvdram, uint32_type data, batch_type baseoffset_kvs, batch_type offset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEDATATODRAM:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} if((index % VECTOR2_SIZE) == {{v}}){
+		#ifdef _WIDEWORD
+		kvdram[offset_kvs + (index/VECTOR2_SIZE)].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}) = data;
+		#else 
+		if((index % VECTOR2_SIZE) % 2 == 0){ kvdram[offset_kvs + (index/VECTOR2_SIZE)].data[{{v}}].key = data; } 
+		else { kvdram[offset_kvs + (index/VECTOR2_SIZE)].data[{{v}}].value = data;  }
+		#endif 
+	}
+	{%endfor%}
+	else {
+		#ifdef _DEBUGMODE_CHECKS3
+		cout<<"MEMCA{{context['id']}}_WRITEDATATODRAM: NOT IMPLEMENTED. EXITING..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	return;
+}
+
 // vdata 
 // vdata:: used in {reduceupdates.cpp} 
 void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], value_t vdata, batch_type bufferoffset_kvs){
@@ -305,15 +127,7 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	MEMCA{{context['id']}}_WRITEVDATA(&buffer[bufferoffset_kvs + index], vdata);
-	#else 
-	if(index%2==0){
-		MEMCA{{context['id']}}_WRITEVDATA0(&buffer[bufferoffset_kvs + index/2], vdata);
-	} else{
-		MEMCA{{context['id']}}_WRITEVDATA1(&buffer[bufferoffset_kvs + index/2], vdata);
-	}
-	#endif 
 	return;
 }
 
@@ -325,21 +139,9 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	MEMCA{{context['id']}}_WRITEVDATAWITHVMASK(&buffer[{{v}}][bufferoffset_kvs + index], vdatas[{{v}}], 0);
 	{%endfor%}
-	#else 
-	if(index%2==0){
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		MEMCA{{context['id']}}_WRITEVDATA0WITHVMASK0(&buffer[{{v}}][bufferoffset_kvs + index/2], vdatas[{{v}}], 0);
-		{%endfor%}
-	} else{
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		MEMCA{{context['id']}}_WRITEVDATA1WITHVMASK1(&buffer[{{v}}][bufferoffset_kvs + index/2], vdatas[{{v}}], 0);
-		{%endfor%}
-	}
-	#endif 
 	return;
 }
 
@@ -350,16 +152,7 @@ value_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_R
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
-	value_t vdata = 0;
-	#ifdef CONFIG_VDATAIS32BITSWIDE
-	vdata = MEMCA{{context['id']}}_READVDATA(buffer[bufferoffset_kvs + index]);
-	#else 
-	if(index%2==0){
-		vdata = MEMCA{{context['id']}}_READVDATA0(buffer[bufferoffset_kvs + index/2]);
-	} else{
-		vdata = MEMCA{{context['id']}}_READVDATA1(buffer[bufferoffset_kvs + index/2]);
-	}
-	#endif 
+	value_t vdata = MEMCA{{context['id']}}_READVDATA(buffer[bufferoffset_kvs + index]);
 	return vdata;
 }
 
@@ -370,21 +163,9 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READ
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	vdatas[{{v}}] = MEMCA{{context['id']}}_READVDATA(buffer[{{v}}][bufferoffset_kvs + index]);
 	{%endfor%}
-	#else 
-	if(index%2==0){
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		vdatas[{{v}}] = MEMCA{{context['id']}}_READVDATA0(buffer[{{v}}][bufferoffset_kvs + index/2]);
-		{%endfor%}
-	} else{
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		vdatas[{{v}}] = MEMCA{{context['id']}}_READVDATA1(buffer[{{v}}][bufferoffset_kvs + index/2]);
-		{%endfor%}
-	}
-	#endif 
 	return;
 }
 
@@ -398,15 +179,7 @@ vmdata_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_
 	
 	vmdata_t vmdata;
 	tuple_t tup;
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	tup = MEMCA{{context['id']}}_READVDATAWITHVMASK(buffer[bufferoffset_kvs + index]);
-	#else 
-	if(index%2==0){
-		tup = MEMCA{{context['id']}}_READVDATA0WITHVMASK0(buffer[bufferoffset_kvs + index/2]);
-	} else{
-		tup = MEMCA{{context['id']}}_READVDATA1WITHVMASK1(buffer[bufferoffset_kvs + index/2]);
-	}
-	#endif 
 	vmdata.vdata = tup.A;
 	vmdata.vmask = tup.B;
 	return vmdata;
@@ -419,27 +192,11 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READ
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMBUFFER_VDATASWITHVMASKS:", bufferoffset_kvs + index/2, BLOCKRAM_VDATA_SIZE, index, NAp, NAp);
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	tuple_t tup{{v}} = MEMCA{{context['id']}}_READVDATAWITHVMASK(buffer[{{v}}][bufferoffset_kvs + index]);
 	vdatas[{{v}}] = tup{{v}}.A;
 	vmdatas[{{v}}] = tup{{v}}.B;
 	{%endfor%}
-	#else 
-	if(index%2==0){
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		tuple_t tup{{v}} = MEMCA{{context['id']}}_READVDATA0WITHVMASK0(buffer[{{v}}][bufferoffset_kvs + index/2]);
-		vdatas[{{v}}] = tup{{v}}.A;
-		vmdatas[{{v}}] = tup{{v}}.B;
-		{%endfor%}
-	} else{
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		tuple_t tup{{v}} = MEMCA{{context['id']}}_READVDATA1WITHVMASK1(buffer[{{v}}][bufferoffset_kvs + index/2]);
-		vdatas[{{v}}] = tup{{v}}.A;
-		vmdatas[{{v}}] = tup{{v}}.B;
-		{%endfor%}
-	}
-	#endif 
 	return;
 }
 
@@ -450,21 +207,9 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READ
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	{%for v in context['VECTOR2_SIZE_seq']%}	
 	datas[{{v}}] = MEMCA{{context['id']}}_READVDATAANDVMASK(buffer[{{v}}][bufferoffset_kvs + index]);	
 	{%endfor%}
-	#else 
-	if(index%2==0){
-		{%for v in context['VECTOR2_SIZE_seq']%}	
-		datas[{{v}}] = MEMCA{{context['id']}}_READVDATA0ANDVMASK0(buffer[{{v}}][bufferoffset_kvs + index/2]);	
-		{%endfor%}
-	} else{
-		{%for v in context['VECTOR2_SIZE_seq']%}	
-		datas[{{v}}] = MEMCA{{context['id']}}_READVDATA1ANDVMASK1(buffer[{{v}}][bufferoffset_kvs + index/2]);	
-		{%endfor%}
-	}
-	#endif 
 	return;
 }
  
@@ -474,15 +219,7 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	MEMCA{{context['id']}}_WRITEVDATAWITHVMASK(&buffer[bufferoffset_kvs + index], vdata, vmdata);
-	#else 
-	if(index%2==0){
-		MEMCA{{context['id']}}_WRITEVDATA0WITHVMASK0(&buffer[bufferoffset_kvs + index/2], vdata, vmdata);
-	} else{
-		MEMCA{{context['id']}}_WRITEVDATA1WITHVMASK1(&buffer[bufferoffset_kvs + index/2], vdata, vmdata);
-	}
-	#endif 
 	return;
 }
 
@@ -492,15 +229,9 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	buffer[{{v}}][bufferoffset_kvs + index] = datas[{{v}}];
 	{%endfor%}
-	#else 
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	buffer[{{v}}][bufferoffset_kvs + index/2] = datas[{{v}}];
-	{%endfor%}
-	#endif 
 	return;
 }
 
@@ -512,15 +243,9 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	{%endfor%}
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]] = vdatas[{{v}}];
 	{%endfor%}	
-	#else 
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	buffer[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2] = vdatas[{{v}}];
-	{%endfor%}	
-	#endif 
 	return;
 }
 
@@ -532,19 +257,11 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	{%for i in context['T_seq']%}{%if(i<n)%}
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	buffer{{i}}[{{v}}][bufferoffset_kvs + index] = vdatas[{{v}}];
 	{%endfor%}
 	{%endif%}{%endfor%}
-	#else 
-	{%for i in context['T_seq']%}{%if(i<n)%}
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	buffer{{i}}[{{v}}][bufferoffset_kvs + index/2] = vdatas[{{v}}];
-	{%endfor%}
-	{%endif%}{%endfor%}
-	#endif 
 	return;
 }
 {%endif%}{%endfor%}
@@ -558,19 +275,52 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	{%endfor%}
 	#endif
 	
-	#ifdef CONFIG_VDATAIS32BITSWIDE
 	{%for i in context['T_seq']%}{%if(i<n)%}
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	buffer{{i}}[{{v}}][bufferoffset_kvs + indexes[{{v}}]] = vdatas[{{v}}];
 	{%endfor%}	
 	{%endif%}{%endfor%}
-	#else 
-	{%for i in context['T_seq']%}{%if(i<n)%}
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	buffer{{i}}[{{v}}][bufferoffset_kvs + indexes[{{v}}]/2] = vdatas[{{v}}];
-	{%endfor%}	
-	{%endif%}{%endfor%}
-	#endif 
 	return;
 }
 {%endif%}{%endfor%}
+
+// kvdram 
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+	
+	#ifdef _WIDEWORD // CRITICAL FIXME.
+	{%for v in context['VECTOR_SIZE_seq']%}
+	vdatas[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	vdatas[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	vdatas[{{2*v}}] = kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key;
+	vdatas[{{2*v+1}}] = kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	return;
+}
+
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){			
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+
+	#ifdef _WIDEWORD // CRITICAL FIXME.
+	{%for v in context['VECTOR_SIZE_seq']%}
+	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = vdatas[{{2*v}}];
+	kvdram[baseoffset_kvs + offset_kvs + index].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = vdatas[{{2*v+1}}];
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].key = vdatas[{{2*v}}];
+	kvdram[baseoffset_kvs + offset_kvs + index].data[{{v}}].value = vdatas[{{2*v+1}}];
+	{%endfor%}
+	#endif
+	return;
+}

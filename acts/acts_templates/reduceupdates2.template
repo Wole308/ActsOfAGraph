@@ -165,4 +165,3 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_tradreducean
 }
 #endif 
 
-

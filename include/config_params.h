@@ -128,6 +128,11 @@
 	#endif 
 - FIXME: config_params.h // #define CUSTOMLOGICFOREACHALGORITHM // {processedges.cpp, reduceupdates.cpp}
 - FIXME: acts_util.cpp: // partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getpartition(
+- CRITICAL OPTIMIZEME: top_u: for(unsigned int i=0; i<globalposition.edgebankID; i++){ globalparamsK.BASEOFFSETKVS_STATSDRAM += ((globalparamsK.SIZE_KVSTATSDRAM / VECTOR_SIZE) / globalparams.ACTSPARAMS_NUM_EDGE_BANKS); } // CRITICAL OPTIMIZEME. TOO EXPENSIVE. IS THIS OPTIMIZED
+- CRITICAL OPTIMIZEME: top_u: for(unsigned int i=0; i<globalposition.edgebankID; i++){ globalparamsK.BASEOFFSETKVS_STATSDRAM += ((globalparamsK.SIZE_KVSTATSDRAM / VECTOR_SIZE) / globalparams.ACTSPARAMS_NUM_EDGE_BANKS); } // CRITICAL OPTIMIZEME. TOO EXPENSIVE.
+
+
+
 */
 
 

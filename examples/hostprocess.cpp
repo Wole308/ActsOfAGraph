@@ -89,6 +89,15 @@ int main(int argc, char** argv){
 	#ifdef DATASET_RMAT26_268M
 	datasetid = 202;
 	#endif
+	#ifdef DATASET_RMAT24_380M
+	datasetid = 203;
+	#endif
+	#ifdef DATASET_RMAT25_380M
+	datasetid = 204;
+	#endif
+	#ifdef DATASET_RMAT26_380M
+	datasetid = 205;
+	#endif
 	
 	#ifdef DATASET_RMAT_RANGE0
 	datasetid = 120;

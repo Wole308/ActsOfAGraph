@@ -67,9 +67,9 @@ public:
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_ACTS
 	{% include 'acts_mf.template' %}	
-	#endif 
-	{% include 'top_usrcv_udstv_mf.template' %}	
-	{% include 'top_nusrcv_nudstv_mf.template' %}	
+	#endif 		
+	{% include 'top_nusrcv_nudstv_mf.template' %}
+	{% include 'top_usrcv_udstv_mf.template' %}					
 	
 private:
 	#ifdef SW_ALLINONE 

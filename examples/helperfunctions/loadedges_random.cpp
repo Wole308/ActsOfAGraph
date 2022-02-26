@@ -154,40 +154,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	unsigned int block_partitions[NUM_PARTITIONS];
 	unsigned int numcheckpoints = 0;
 	bool enablestats = false;//true;
-					
-	/** for(unsigned int i=0; i<NUM_PEs; i++){
-		cout<<"### loadedges_random::loadedges:: loading edges into PE: "<<i<<"..."<<endl;
-		tempe_index = 0; 
-		index = 0;
-		srcvid_lastvechead = 0xFFFFFFFF;
-		srcvid_lastseen = 0;
-		while(tempe_index < edgedatabuffers_temp[i].size()){
-			if(tempe_index % 1000000 == 0 && false){ cout<<"loadedges_random::loadedges:: filling edges... tempe_index: "<<tempe_index<<endl; }
-			edge2_type edge = edgedatabuffers_temp[i][tempe_index];
-		
-			edge2_type last_edge; if(tempe_index==0){ last_edge = edge; } else { last_edge = edgedatabuffers_temp[i][tempe_index-1]; }
-			if(debug2b==true){ cout<<">>> edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<" [-]"<<endl; }
-		
-			// insert edge
-			edge3_type edge_temp; edge_temp.srcvid = edge.srcvid; edge_temp.dstvid = edge.dstvid; edge_temp.status = EDGESTATUS_VALIDEDGE; edge_temp.metadata = 0, edges_temp[i].push_back(edge_temp);
-			if(debugb==true){ cout<<">>> edge_temp.srcvid: "<<edge_temp.srcvid<<", edge_temp.dstvid: "<<edge_temp.dstvid<<" [3]"<<endl; }
-			srcvid_lastseen = edge_temp.srcvid;
-			tempe_index += 1;
-			index += 1;
-			counts_validedges_for_channel[i][edge_temp.srcvid] += 1;
-			counts_alledges_for_channel[i][edge_temp.srcvid] += 1;
-		}
-		
-		counts_alldatas[i] += index;
-		counts_alldata += index;
-		
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		cout<<"edges_temp["<<i<<"].size(): "<<edges_temp[i].size()<<endl;
-		utilityobj->printtriples("loadedges_random::[insert.edges] printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
-		cout<<"### loadedges_random::[insert.edges] memory channel "<<i<<": tempe_index: "<<tempe_index<<", index: "<<index<<endl;
-		#endif
-	} */
-	
+
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		cout<<"### loadedges_random::loadedges:: loading edges into PE: "<<i<<"..."<<endl;
 		tempe_index = 0; 
@@ -304,12 +271,12 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	cout<<"### loadedges_random::insert.bitmap::[insert.bitmap] bitmap inserted successfully"<<endl;
 	#endif
 	
-	// load edges 
+	// load edges
 	#ifdef LOADEDGES
 	cout<<"### loadedges_random::insert.bitmap:: loading edges..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		for(unsigned int k=0; k<edges_temp[i].size(); k++){
-			edges[i][TWOO*_BASEOFFSET_EDGESDATA + k].dstvid = edges_temp[i][k].dstvid;
+		for(unsigned int k=0; k<edges2_temp[i].size(); k++){
+			edges[i][TWOO*_BASEOFFSET_EDGESDATA + k].dstvid = edges2_temp[i][k].dstvid;
 		}
 		if(debug2b==true){ utilityobj->printvalues("loadedges_random[after]::loadedges: printing edges["+std::to_string(i)+"][~]", (value_t *)&edges[i][TWOO*_BASEOFFSET_EDGESDATA], 8); }
 	}

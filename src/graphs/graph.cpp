@@ -1036,7 +1036,52 @@ void graph::load_large_datasets(){
 	_datasets[202].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[202].graphorder = DST_SRC;
 	_datasets[202].graphgroup = SNAP; // SKEWRATIO;
-
+	
+	_datasets[203].graphtopname = "RMAT24_380M";
+	_datasets[203].graphname = "RMAT24_380M";
+	_datasets[203].graph_path = rootDir + "dataset/RMAT24_380M/RMAT24_380M.mtx";
+	_datasets[203].vertices_path = rootDir + "dataset/RMAT24_380M/RMAT24_380M.vertices";
+	_datasets[203].edges_path = rootDir + "dataset/RMAT24_380M/RMAT24_380M.edges";	
+	_datasets[203].vertices_path_bin = rootDir + "dataset/RMAT24_380M/RMAT24_380M_bin.vertices"; 
+	_datasets[203].edges_path_bin = rootDir + "dataset/RMAT24_380M/RMAT24_380M_bin.edges";
+	_datasets[203].min_vertex = 0;	
+	_datasets[203].max_vertex = 16777216; 
+	_datasets[203].num_vertices = 16777216; 
+	_datasets[203].num_edges = 380000000; 
+	_datasets[203].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[203].graphorder = DST_SRC;
+	_datasets[203].graphgroup = SNAP; // SKEWRATIO;
+	
+	_datasets[204].graphtopname = "RMAT25_380M";
+	_datasets[204].graphname = "RMAT25_380M";
+	_datasets[204].graph_path = rootDir + "dataset/RMAT25_380M/RMAT25_380M.mtx";
+	_datasets[204].vertices_path = rootDir + "dataset/RMAT25_380M/RMAT25_380M.vertices";
+	_datasets[204].edges_path = rootDir + "dataset/RMAT25_380M/RMAT25_380M.edges";	
+	_datasets[204].vertices_path_bin = rootDir + "dataset/RMAT25_380M/RMAT25_380M_bin.vertices"; 
+	_datasets[204].edges_path_bin = rootDir + "dataset/RMAT25_380M/RMAT25_380M_bin.edges";
+	_datasets[204].min_vertex = 0;	
+	_datasets[204].max_vertex = 33554432; 
+	_datasets[204].num_vertices = 33554432; 
+	_datasets[204].num_edges = 380000000; 
+	_datasets[204].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[204].graphorder = DST_SRC;
+	_datasets[204].graphgroup = SNAP; // SKEWRATIO;
+	
+	_datasets[205].graphtopname = "RMAT26_380M";
+	_datasets[205].graphname = "RMAT26_380M";
+	_datasets[205].graph_path = rootDir + "dataset/RMAT26_380M/RMAT26_380M.mtx";
+	_datasets[205].vertices_path = rootDir + "dataset/RMAT26_380M/RMAT26_380M.vertices";
+	_datasets[205].edges_path = rootDir + "dataset/RMAT26_380M/RMAT26_380M.edges";	
+	_datasets[205].vertices_path_bin = rootDir + "dataset/RMAT26_380M/RMAT26_380M_bin.vertices"; 
+	_datasets[205].edges_path_bin = rootDir + "dataset/RMAT26_380M/RMAT26_380M_bin.edges";
+	_datasets[205].min_vertex = 0;	
+	_datasets[205].max_vertex = 60000000; 
+	_datasets[205].num_vertices = 60000000; 
+	_datasets[205].num_edges = 380000000; 
+	_datasets[205].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[205].graphorder = DST_SRC;
+	_datasets[205].graphgroup = SNAP; // SKEWRATIO;
+	
 	_datasets[220].graphtopname = "twitter";
 	_datasets[220].graphname = "twitter";
 	_datasets[220].graph_path = rootDir + "dataset/twitter/twitter.mtx";

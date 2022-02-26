@@ -107,7 +107,6 @@ value_t REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, 
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 // util 
-#ifdef CONFIG_VDATAIS32BITSWIDE
 unsigned int MEMCAP0_READVDATA(keyvalue_vbuffer_t wideword);
 unsigned int MEMCAP0_READVMASK(keyvalue_vbuffer_t wideword);
 vmdata_t MEMCAP0_READVDATAANDVMASK(keyvalue_vbuffer_t wideword);
@@ -115,38 +114,15 @@ void MEMCAP0_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata);
 void MEMCAP0_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask);
 tuple_t MEMCAP0_READVDATAWITHVMASK(keyvalue_vbuffer_t wideword);
 void MEMCAP0_WRITEVDATAWITHVMASK(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask);
-void MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
-void MEMCAP0_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
-#endif 
 
-#ifndef CONFIG_VDATAIS32BITSWIDE
-unsigned int MEMCAP0_READVDATA0(keyvalue_vbuffer_t wideword);
-unsigned int MEMCAP0_READVDATA1(keyvalue_vbuffer_t wideword);
+// any data 
+uint32_type MEMCAP0_READDATAFROMBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs);
 
-unsigned int MEMCAP0_READVMASK0(keyvalue_vbuffer_t wideword);
-unsigned int MEMCAP0_READVMASK1(keyvalue_vbuffer_t wideword);
+void MEMCAP0_WRITEDATATOBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type data, batch_type bufferoffset_kvs);
 
-vmdata_t MEMCAP0_READVDATA0ANDVMASK0(keyvalue_vbuffer_t wideword);
-vmdata_t MEMCAP0_READVDATA1ANDVMASK1(keyvalue_vbuffer_t wideword);
+keyvalue_vbuffer_t MEMCAP0_READDATAFROMDRAM(unsigned int index, uint512_dt * kvdram, batch_type baseoffset_kvs, batch_type offset_kvs);
 
-void MEMCAP0_WRITEVDATA0(keyvalue_vbuffer_t * wideword, value_t vdata);
-void MEMCAP0_WRITEVDATA1(keyvalue_vbuffer_t * wideword, value_t vdata);
-
-void MEMCAP0_WRITEVMASK0(keyvalue_vbuffer_t * wideword, unit1_type vmask);
-void MEMCAP0_WRITEVMASK1(keyvalue_vbuffer_t * wideword, unit1_type vmask);
-
-keyvalue_vbuffer_t MEMCAP0_CREATEVBUFFERSTRUCT(vmdata_t data0, vmdata_t data1);
-
-tuple_t MEMCAP0_READVDATA0WITHVMASK0(keyvalue_vbuffer_t wideword);
-tuple_t MEMCAP0_READVDATA1WITHVMASK1(keyvalue_vbuffer_t wideword);
-
-void MEMCAP0_WRITEVDATA0WITHVMASK0(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask);
-void MEMCAP0_WRITEVDATA1WITHVMASK1(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask);
-
-void MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
-
-void MEMCAP0_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, vmdata_t vmdata[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
-#endif 
+void MEMCAP0_WRITEDATATODRAM(unsigned int index, uint512_dt * kvdram, uint32_type data, batch_type baseoffset_kvs, batch_type offset_kvs);
 
 // vdatas
 void MEMCAP0_WRITETOBUFFER_VDATA(unsigned int v, unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdata, batch_type bufferoffset_kvs);
@@ -157,7 +133,7 @@ void MEMCAP0_WRITETOBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[
 
 void MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATAS(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs);			
 
-value_t MEMCAP0_READFROMBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], batch_type bufferoffset_kvs);
+value_t MEMCAP0_READFROMBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs);
 
 void MEMCAP0_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 
@@ -200,6 +176,11 @@ void MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS10_ANDREPLICATE(unsigned int
 void MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS11_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 void MEMCAP0_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS12_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 
+// kvdram 
+void MEMCAP0_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
+
+void MEMCAP0_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs);
+
 
 
 	
@@ -236,6 +217,21 @@ void MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * kvdram, keyval
 void MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams);
 void MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams);
 
+#ifdef RANDOMVERTEXISACTIVE_ALGORITHM_XXXXXXXXXXXXXX
+void MEMACCESSP0_RANDreadANDRVchunks1(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks2(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks3(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks4(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks5(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks6(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks7(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks8(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks9(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks10(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks11(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+void MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, unsigned int randvids[BLOCKRAM_SIZE], unsigned int randvids_size, globalparams_t globalparams);			
+#endif 
+
 // -------------------- pmasks -------------------- //
 void MEMACCESSP0_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
 
@@ -249,10 +245,6 @@ tuple_t MEMACCESSP0_getvptrs( uint512_dt *  kvdram, unsigned int beginoffset, un
 unsigned int MEMACCESSP0_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset);
 
 tuple_t MEMACCESSP0_getvptrs_opt( uint512_dt *  kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID);
-
-void MEMACCESSP0_copystats(uint512_dt * edges, uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK);
-
-void MEMACCESSP0_copyallstats( uint512_dt * kvdram, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID);
 
 void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset);
 
@@ -492,24 +484,24 @@ void ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode
 						unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams);
 
 void ACTSP0_actit(bool_type enable, unsigned int mode,
- uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],					 
+		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS],					 
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID);
 
 void ACTSP0_priorit(bool_type enable, unsigned int mode,
- uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID);
 		
 void ACTSP0_tradit(bool_type enable, unsigned int mode,
- uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
+		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 fetchmessage_t ACTSP0_magic(bool_type enable, unsigned int mode, unsigned int mode2,
- uint512_dt * kvdram, 
+		 uint512_dt * kvdram, 
 			keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 				keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS],
 					batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, 
@@ -517,7 +509,147 @@ fetchmessage_t ACTSP0_magic(bool_type enable, unsigned int mode, unsigned int mo
 						
 						
 							
-	#endif 
+	#endif 		
+void TOPP0_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,
+		unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
+
+void TOPP0_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID);
+	
+void TOPP0_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID);					
+
+void TOPP0_NU_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+		batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
+			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
+
+void TOPP0_NU_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,
+		unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
+
+#ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
+void TOPP0_NU_topkernelproc_embedded(
+		
+	uint512_dt * kvdram);
+	
+void TOPP0_NU_topkernelP1(
+	uint512_dt * kvdram0,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP2(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP3(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP4(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP5(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP6(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP7(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP8(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP9(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP10(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP11(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
+	uint512_dt * vdram
+	);
+void TOPP0_NU_topkernelP12(
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
+	uint512_dt * kvdram11,
+	uint512_dt * vdram
+	);
+#endif 
+
+
+
+
+
+
 void TOPP0_U_processit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 		unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);							
 
@@ -525,7 +657,7 @@ void TOPP0_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en
 		batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
 
-void TOPP0_U_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+void TOPP0_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
 					
 #ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
@@ -655,148 +787,7 @@ void TOPP0_U_topkernelP12(
 
 
 
-	
-void TOPP0_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,
-		unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
-
-void TOPP0_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID);
-	
-void TOPP0_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID);					
-
-void TOPP0_NU_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
-		batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
-			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
-
-void TOPP0_NU_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,
-		unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID);
-
-#ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
-void TOPP0_NU_topkernelproc_embedded(
-	
-	uint512_dt * kvdram);
-	
-void TOPP0_NU_topkernelP1(
-	uint512_dt * kvdram0,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP2(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP3(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP4(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP5(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * kvdram4,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP6(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * kvdram4,
-	uint512_dt * kvdram5,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP7(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * kvdram4,
-	uint512_dt * kvdram5,
-	uint512_dt * kvdram6,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP8(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * kvdram4,
-	uint512_dt * kvdram5,
-	uint512_dt * kvdram6,
-	uint512_dt * kvdram7,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP9(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * kvdram4,
-	uint512_dt * kvdram5,
-	uint512_dt * kvdram6,
-	uint512_dt * kvdram7,
-	uint512_dt * kvdram8,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP10(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * kvdram4,
-	uint512_dt * kvdram5,
-	uint512_dt * kvdram6,
-	uint512_dt * kvdram7,
-	uint512_dt * kvdram8,
-	uint512_dt * kvdram9,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP11(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * kvdram4,
-	uint512_dt * kvdram5,
-	uint512_dt * kvdram6,
-	uint512_dt * kvdram7,
-	uint512_dt * kvdram8,
-	uint512_dt * kvdram9,
-	uint512_dt * kvdram10,
-	uint512_dt * vdram
-	);
-void TOPP0_NU_topkernelP12(
-	uint512_dt * kvdram0,
-	uint512_dt * kvdram1,
-	uint512_dt * kvdram2,
-	uint512_dt * kvdram3,
-	uint512_dt * kvdram4,
-	uint512_dt * kvdram5,
-	uint512_dt * kvdram6,
-	uint512_dt * kvdram7,
-	uint512_dt * kvdram8,
-	uint512_dt * kvdram9,
-	uint512_dt * kvdram10,
-	uint512_dt * kvdram11,
-	uint512_dt * vdram
-	);
-#endif 
-
-
-
-
-
-
-	
+					
 	
 private:
 	#ifdef SW_ALLINONE 

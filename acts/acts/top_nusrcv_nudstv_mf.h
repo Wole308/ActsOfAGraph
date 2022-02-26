@@ -14,7 +14,7 @@ void TOPP0_NU_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuff
 
 #ifdef CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV
 void TOPP0_NU_topkernelproc_embedded(
-	
+		
 	uint512_dt * kvdram);
 	
 void TOPP0_NU_topkernelP1(

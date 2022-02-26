@@ -86,7 +86,27 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ for(unsigned int t=0; t<(TOTALDRAMCAPACITY_KVS/2); t++){ kvsourcedram[i][(TOTALDRAMCAPACITY_KVS/2) + t] = edges[i][t]; }}
 	#endif 
-		
+	
+	// unsigned int vptrbaseoffset_kvs = (TOTALDRAMCAPACITY_KVS/2) + kvsourcedram[0][(TOTALDRAMCAPACITY_KVS/2) + BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
+	// cout<<"-----------+++++++++++++++++++--------------------------- TOP{{context['id']}}_U_processit:  vptrbaseoffset_kvs: "<<vptrbaseoffset_kvs<<", TOTALDRAMCAPACITY_KVS: "<<TOTALDRAMCAPACITY_KVS<<", (TOTALDRAMCAPACITY_KVS/2): "<<(TOTALDRAMCAPACITY_KVS/2)<<endl;
+	// for(unsigned int i=0; i<4; i++){
+		// for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			// cout<<"kvsourcedram[0]["<<vptrbaseoffset_kvs + i<<"].data["<<v<<"].key: "<<kvsourcedram[0][vptrbaseoffset_kvs + i].data[v].key<<endl;
+		// }
+	// }
+	
+	// unsigned int edgestatsbaseoffset_kvs = (TOTALDRAMCAPACITY_KVS/2) + kvsourcedram[0][(TOTALDRAMCAPACITY_KVS/2) + BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM].data[0].key;
+	// cout<<"-----------+++++++++++++++++++--------------------------- TOP{{context['id']}}_U_processit:  edgestatsbaseoffset_kvs: "<<edgestatsbaseoffset_kvs<<", TOTALDRAMCAPACITY_KVS: "<<TOTALDRAMCAPACITY_KVS<<", (TOTALDRAMCAPACITY_KVS/2): "<<(TOTALDRAMCAPACITY_KVS/2)<<endl;
+	// for(unsigned int i=0; i<4; i++){
+		// cout<<"swkernel:: kvsourcedram[0]["<<edgestatsbaseoffset_kvs + i<<"].data[0].key: "<<kvsourcedram[0][edgestatsbaseoffset_kvs + i].data[0].key<<endl;
+	// }
+	
+	// unsigned int edgestatsbaseoffset_kvs = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM].data[0].key;
+	// cout<<"-----------+++++++++++++++++++--------------------------- TOP{{context['id']}}_U_processit:  edgestatsbaseoffset_kvs: "<<edgestatsbaseoffset_kvs<<", TOTALDRAMCAPACITY_KVS: "<<TOTALDRAMCAPACITY_KVS<<", (TOTALDRAMCAPACITY_KVS/2): "<<(TOTALDRAMCAPACITY_KVS/2)<<endl;
+	// for(unsigned int i=0; i<4; i++){
+		// cout<<"swkernel:: kvsourcedram[0]["<<edgestatsbaseoffset_kvs + i<<"].data[0].key: "<<kvsourcedram[0][edgestatsbaseoffset_kvs + i].data[0].key<<endl;
+	// }
+	
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<< TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<numIters<<" iterations"<< RESET <<endl;
 		std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
@@ -253,7 +273,7 @@ void swkernel::run24(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 		(uint512_dt *)kvsourcedram[A_OFFSET + 8],
 		(uint512_dt *)vdramA
 	);
-	exit(EXIT_SUCCESS);///////////////
+	// exit(EXIT_SUCCESS);///////////////
 	
 	cout<<"------------------------------------ topkernelP1: processing P9 instances ------------------------------------"<<endl;
 	kernelobjs_process[0]->TOPP0_U_topkernelP9(

@@ -1,6 +1,6 @@
 # faketime -f "-1y" make all TARGET=sw_emu PLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 # faketime -f "-1y" make run TARGET=sw_emu PLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
-# v++ -t sw_emu --platform /opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm --save-temps  -g -c -k topkernelP9 --temp_dir ./_x.sw_emu.xilinx_u280_xdma_201920_3  -I'/home/oj2zf/Documents/ActsOfAGraph/acts/acts' -o'_x.sw_emu.xilinx_u280_xdma_201920_3/vmult.xo' '/home/oj2zf/Documents/ActsOfAGraph/acts/acts/acts_all.cpp'			
+# v++ -t sw_emu --platform /opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm --save-temps  -g -c -k topkernelP9 --temp_dir ./_x.sw_emu.xilinx_u280_xdma_201920_3  -I'/home/oj2zf/Documents/ActsOfAGraph/acts/acts' -o'_x.sw_emu.xilinx_u280_xdma_201920_3/vP0.xo' '/home/oj2zf/Documents/ActsOfAGraph/acts/acts/acts_all.cpp'			
 
 # datasets 
 # https://sparse.tamu.edu/DIMACS10/rgg_n_2_24_s0 (16,777,216 vertices, 265,114,400 edges, undirected)
@@ -124,33 +124,38 @@ EMCONFIG_DIR = $(TEMP_DIR)
 ############################## Declaring Binary Containers ##############################
 # BINARY_CONTAINERS += $(BUILD_DIR)/vmult_vadd.xclbin
 
-BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vmult.xo
-BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vadd.xo
-BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vdiv.xo
+BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP0.xo
+BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP1.xo
+BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP2.xo
+BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vS.xo
 
 # BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_3w.cfg
 # KERNELP0_NAME = TOPP0_U_topkernelP1
 # KERNELP1_NAME = TOPP1_U_topkernelP1
-# KERNELP2_NAME = TOPP2_topkernelS
+# KERNELP2_NAME = TOPP2_U_topkernelP1
+# KERNELS_NAME = TOPS_topkernelS
 
 # BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_16and1.$(TARGET).$(DSA).xclbin
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_16w.cfg
 # KERNELP0_NAME = TOPP0_U_topkernelP6
-# KERNELP1_NAME = TOPP1_U_topkernelP4
-# KERNELP2_NAME = TOPP2_topkernelS
+# KERNELP1_NAME = TOPP1_U_topkernelP6
+# KERNELP2_NAME = TOPP2_U_topkernelP4
+# KERNELS_NAME = TOPS_topkernelS
 
 # BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_22and1.$(TARGET).$(DSA).xclbin
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_22w.cfg
 # KERNELP0_NAME = TOPP0_U_topkernelP8
-# KERNELP1_NAME = TOPP1_U_topkernelP6
-# KERNELP2_NAME = TOPP2_topkernelS
+# KERNELP1_NAME = TOPP1_U_topkernelP8
+# KERNELP2_NAME = TOPP2_U_topkernelP6
+# KERNELS_NAME = TOPS_topkernelS
 
 BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_24and1.$(TARGET).$(DSA).xclbin
 VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_24w.cfg
 KERNELP0_NAME = TOPP0_U_topkernelP9
-KERNELP1_NAME = TOPP1_U_topkernelP6
-KERNELP2_NAME = TOPP2_topkernelS
+KERNELP1_NAME = TOPP1_U_topkernelP9
+KERNELP2_NAME = TOPP2_U_topkernelP6
+KERNELS_NAME = TOPS_topkernelS
 
 ############################## Setting Targets ##############################
 CP = cp -rf
@@ -176,15 +181,18 @@ build: check-vitis check-device $(BINARY_CONTAINERS)
 xclbin: build
 
 ############################## Setting Rules for Binary Containers (Building Kernels) ##############################
-$(TEMP_DIR)/vmult.xo: $(RELREF)acts/acts/acts_allP0.cpp
+$(TEMP_DIR)/vP0.xo: $(RELREF)acts/acts/acts_allP0.cpp
 	mkdir -p $(TEMP_DIR)
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP0_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
-$(TEMP_DIR)/vadd.xo: $(RELREF)acts/acts/acts_allP1.cpp
+$(TEMP_DIR)/vP1.xo: $(RELREF)acts/acts/acts_allP1.cpp
 	mkdir -p $(TEMP_DIR)
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP1_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
-$(TEMP_DIR)/vdiv.xo: $(RELREF)acts/acts/acts_allS.cpp
+$(TEMP_DIR)/vP2.xo: $(RELREF)acts/acts/acts_allP2.cpp
 	mkdir -p $(TEMP_DIR)
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNELP2_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
+$(TEMP_DIR)/vS.xo: $(RELREF)acts/acts/acts_allS.cpp
+	mkdir -p $(TEMP_DIR)
+	$(VPP) $(VPP_FLAGS) -c -k $(KERNELS_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
 $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
 	mkdir -p $(BUILD_DIR)
 	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
