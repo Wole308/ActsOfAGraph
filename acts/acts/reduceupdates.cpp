@@ -98,6 +98,32 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
 	#endif
+	
+	//////////////
+	// for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		// #ifdef _DEBUGMODE_KERNELPRINTS3
+		// cout<<"reduceupdates2: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
+		// #endif
+	// }
+	// for(unsigned int i=0; i<(localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value) / VECTOR2_SIZE; i++){
+		// 	
+		// cout<<"reduceupdates2: buffer[0]["<<i<<"].key: "<<buffer[0][i].key<<", buffer[0]["<<i<<"].value: "<<buffer[0][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[1]["<<i<<"].key: "<<buffer[1][i].key<<", buffer[1]["<<i<<"].value: "<<buffer[1][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[2]["<<i<<"].key: "<<buffer[2][i].key<<", buffer[2]["<<i<<"].value: "<<buffer[2][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[3]["<<i<<"].key: "<<buffer[3][i].key<<", buffer[3]["<<i<<"].value: "<<buffer[3][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[4]["<<i<<"].key: "<<buffer[4][i].key<<", buffer[4]["<<i<<"].value: "<<buffer[4][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[5]["<<i<<"].key: "<<buffer[5][i].key<<", buffer[5]["<<i<<"].value: "<<buffer[5][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[6]["<<i<<"].key: "<<buffer[6][i].key<<", buffer[6]["<<i<<"].value: "<<buffer[6][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[7]["<<i<<"].key: "<<buffer[7][i].key<<", buffer[7]["<<i<<"].value: "<<buffer[7][i].value<<endl;
+		// 	// }
+	//////////////
 
 	unsigned int tmplloprange = 0;
 	#if REDUCEBUFFERFACTOR==8
@@ -121,7 +147,7 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 		REDUCEBUFFERPARTITIONS_LOOP1D: for(buffer_type i=0; i<maxsize_kvs; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 		// #pragma HLS PIPELINE II=16
-		#pragma HLS PIPELINE II=32 // FIXME? USE THIS INSTEAD?
+		#pragma HLS PIPELINE II=32 // 16, 48, FIXME? USE THIS INSTEAD?
 		// #pragma HLS PIPELINE II=48 // FIXME? USE THIS INSTEAD?
 			for(vector_type v=0; v<VECTOR_SIZE; v++){
 				kvdata0 = buffer[v][bramoffset_kvs[0] + i]; 	
@@ -202,6 +228,9 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 		}
 	}
 	#endif 
+	// exit(EXIT_SUCCESS); ////
+	
+	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); ////
 	return;
 }

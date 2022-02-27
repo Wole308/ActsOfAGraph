@@ -214,6 +214,7 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 		exit(EXIT_FAILURE);
 		#endif 
 	}
+	// globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS;
 	
 	unsigned int buffer[BLOCKRAM_SIZE];
 	GETGLOBALPARAMS_LOOP1: for(unsigned int t=0; t<128; t++){
@@ -423,19 +424,19 @@ partition_type acts_all::UTILP0_getpartition(bool_type enable, unsigned int mode
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTILP0_GETKV(keyvalue);
 	
-	if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
-	
 	// if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-	// else {
-		// keyy_t lkey = thiskeyvalue.key - upperlimit;
-		// if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
-		// else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
-	// }
+	// else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	
+	if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	else {
+		keyy_t lkey = thiskeyvalue.key - upperlimit;
+		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
+		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	}
 
 	if(partition >= MAX_NUM_PARTITIONS){ 
 		#ifdef ENABLE_PERFECTACCURACY
-			#ifdef ENABLE_VOICEOUTKERNELERRORS
+			#ifdef _DEBUGMODE_CHECKS3 // ENABLE_VOICEOUTKERNELERRORS
 			cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<endl; 
 			#endif 
 		exit(EXIT_FAILURE); 

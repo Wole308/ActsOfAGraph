@@ -236,7 +236,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	cout<<"### loadedges_random::insert.bitmap:: calculating local edge dstvids..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		for(unsigned int k=0; k<edges_temp[i].size(); k++){
-			if(edges_temp[i][k].status == EDGESTATUS_VALIDEDGE){ edges_temp[i][k].dstvid = (edges_temp[i][k].dstvid - i) / NUM_PEs; }
+			if(edges_temp[i][k].status == EDGESTATUS_VALIDEDGE){ 
+				edges_temp[i][k].dstvid = (edges_temp[i][k].dstvid - i) / NUM_PEs; 
+				edges2_temp[i][k].dstvid = (edges2_temp[i][k].dstvid - i) / NUM_PEs; 
+			}
 		}
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printtriples("loadedges_random::[insert.local.edge.dstvids] printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
@@ -260,7 +263,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 				// if(incr > 15){ cout<<"loadedges_random::insert.bitmap:: ERROR 4. incr("<<incr<<") > 3. exiting..."<<endl; exit(EXIT_FAILURE); }
 				// if(loc > 15){ cout<<"loadedges_random::insert.bitmap:: ERROR 4. loc("<<loc<<") > 31. exiting..."<<endl; exit(EXIT_FAILURE); }
 				
-				WRITETO_UINT((unsigned int *)&edges2_temp[i][j+v].dstvid, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA, incr); // NEWCHANGE.
+				// WRITETO_UINT((unsigned int *)&edges2_temp[i][j+v].dstvid, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA, incr); // NEWCHANGE.
 				edges2_temp[i][j+v].metadata = incr; 
 			}
 		}

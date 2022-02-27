@@ -228,6 +228,7 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 		exit(EXIT_FAILURE);
 		#endif 
 	}
+	// globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS;
 	
 	unsigned int buffer[BLOCKRAM_SIZE];
 	GETGLOBALPARAMS_LOOP1: for(unsigned int t=0; t<128; t++){
@@ -437,19 +438,19 @@ partition_type acts_all::UTILP0_getpartition(bool_type enable, unsigned int mode
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTILP0_GETKV(keyvalue);
 	
-	if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
-	
 	// if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-	// else {
-		// keyy_t lkey = thiskeyvalue.key - upperlimit;
-		// if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
-		// else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
-	// }
+	// else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	
+	if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	else {
+		keyy_t lkey = thiskeyvalue.key - upperlimit;
+		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
+		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	}
 
 	if(partition >= MAX_NUM_PARTITIONS){ 
 		#ifdef ENABLE_PERFECTACCURACY
-			#ifdef ENABLE_VOICEOUTKERNELERRORS
+			#ifdef _DEBUGMODE_CHECKS3 // ENABLE_VOICEOUTKERNELERRORS
 			cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<endl; 
 			#endif 
 		exit(EXIT_FAILURE); 
@@ -11267,7 +11268,7 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 		localcapsule[NUM_PARTITIONS-1].value = 0;
 	}
 	PROCESSP0_calculateoffsets(localcapsule);
-	#ifdef _DEBUGMODE_CHECKS2
+	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->checkoutofbounds("processedges2(12)::DEBUG CODE 125::1", (chunk_size * VECTOR2_SIZE), localcapsule[NUM_PARTITIONS-2].value, localcapsule[NUM_PARTITIONS-2].value, NAp, NAp);
 	#endif
 	#ifdef DEBUGME_PROCESSEDGES2
@@ -11279,16 +11280,12 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 	// process edge block stats 
 	if(_processedgeblockstats == true){
 	maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
-	// buffer_type totalsize_kvs = 0;
-	// unsigned int key_kvs[NUM_PARTITIONS];
 	unsigned int _poff = 0;
 	PROCESSBUFFERPARTITIONS_LOOP3: for(unsigned int cid=0; cid<2; cid++){
 		PROCESSBUFFERPARTITIONS_LOOP3B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
 		#pragma HLS PIPELINE II=2
 			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR2_SIZE;
 			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
-			// totalsize_kvs += ssize_kvs;
-			// key_kvs[_poff + p] = localcapsule[_poff + p].key / VECTOR2_SIZE;
 		}
 		_poff += NUM_PARTITIONS/2;
 	}
@@ -11458,6 +11455,50 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 		}
 	}
 	}
+	/* // CRITICAL REMOVEME. //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	if(_processedgeblock == true){
+		for(buffer_type i=0; i<chunk_size; i++){ // processing next block set 
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+			#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
+			#endif
+			
+			buffer[0][2*i].key = tempbuffer[0][i];
+			buffer[0][2*i].value = 7;
+			buffer[1][2*i].key = tempbuffer[1][i];
+			buffer[1][2*i].value = 7;
+			buffer[2][2*i].key = tempbuffer[2][i];
+			buffer[2][2*i].value = 7;
+			buffer[3][2*i].key = tempbuffer[3][i];
+			buffer[3][2*i].value = 7;
+			buffer[4][2*i].key = tempbuffer[4][i];
+			buffer[4][2*i].value = 7;
+			buffer[5][2*i].key = tempbuffer[5][i];
+			buffer[5][2*i].value = 7;
+			buffer[6][2*i].key = tempbuffer[6][i];
+			buffer[6][2*i].value = 7;
+			buffer[7][2*i].key = tempbuffer[7][i];
+			buffer[7][2*i].value = 7;
+			buffer[0][2*i+1].key = tempbuffer[8][i];
+			buffer[0][2*i+1].value = 7;
+			buffer[1][2*i+1].key = tempbuffer[9][i];
+			buffer[1][2*i+1].value = 7;
+			buffer[2][2*i+1].key = tempbuffer[10][i];
+			buffer[2][2*i+1].value = 7;
+			buffer[3][2*i+1].key = tempbuffer[11][i];
+			buffer[3][2*i+1].value = 7;
+			buffer[4][2*i+1].key = tempbuffer[12][i];
+			buffer[4][2*i+1].value = 7;
+			buffer[5][2*i+1].key = tempbuffer[13][i];
+			buffer[5][2*i+1].value = 7;
+			buffer[6][2*i+1].key = tempbuffer[14][i];
+			buffer[6][2*i+1].value = 7;
+			buffer[7][2*i+1].key = tempbuffer[15][i];
+			buffer[7][2*i+1].value = 7;
+	}
+	} // CRITICAL REMOVEME.
+	// CRITICAL REMOVEME. ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 	
 	// process edge block (primitive)
 	#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
@@ -12010,6 +12051,32 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
 	#endif
+	
+	//////////////
+	// for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		// #ifdef _DEBUGMODE_KERNELPRINTS3
+		// cout<<"reduceupdates2: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
+		// #endif
+	// }
+	// for(unsigned int i=0; i<(localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value) / VECTOR2_SIZE; i++){
+		// 	
+		// cout<<"reduceupdates2: buffer[0]["<<i<<"].key: "<<buffer[0][i].key<<", buffer[0]["<<i<<"].value: "<<buffer[0][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[1]["<<i<<"].key: "<<buffer[1][i].key<<", buffer[1]["<<i<<"].value: "<<buffer[1][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[2]["<<i<<"].key: "<<buffer[2][i].key<<", buffer[2]["<<i<<"].value: "<<buffer[2][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[3]["<<i<<"].key: "<<buffer[3][i].key<<", buffer[3]["<<i<<"].value: "<<buffer[3][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[4]["<<i<<"].key: "<<buffer[4][i].key<<", buffer[4]["<<i<<"].value: "<<buffer[4][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[5]["<<i<<"].key: "<<buffer[5][i].key<<", buffer[5]["<<i<<"].value: "<<buffer[5][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[6]["<<i<<"].key: "<<buffer[6][i].key<<", buffer[6]["<<i<<"].value: "<<buffer[6][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[7]["<<i<<"].key: "<<buffer[7][i].key<<", buffer[7]["<<i<<"].value: "<<buffer[7][i].value<<endl;
+		// 	// }
+	//////////////
 
 	unsigned int tmplloprange = 0;
 	#if REDUCEBUFFERFACTOR==8
@@ -12033,7 +12100,7 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 		REDUCEBUFFERPARTITIONS_LOOP1D: for(buffer_type i=0; i<maxsize_kvs; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 		// #pragma HLS PIPELINE II=16
-		#pragma HLS PIPELINE II=32 // FIXME? USE THIS INSTEAD?
+		#pragma HLS PIPELINE II=32 // 16, 48, FIXME? USE THIS INSTEAD?
 		// #pragma HLS PIPELINE II=48 // FIXME? USE THIS INSTEAD?
 			for(vector_type v=0; v<VECTOR_SIZE; v++){
 				kvdata0 = buffer[v][bramoffset_kvs[0] + i]; 	
@@ -12114,6 +12181,9 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 		}
 	}
 	#endif 
+	// exit(EXIT_SUCCESS); ////
+	
+	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); ////
 	return;
 }
@@ -12505,26 +12575,52 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	#endif
 	
 	buffer_type maxsize_kvs[2]; maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
-	buffer_type totalsize_kvs = 0;
-	unsigned int key_kvs[NUM_PARTITIONS];
 	unsigned int _poff = 0;
 	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){ // NB: 'NUM_PARTITIONS is 16, but only 8 can be accessed per time, so we need 2 fetches'
 		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
 		#pragma HLS PIPELINE II=1
 			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR_SIZE;
 			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
-			totalsize_kvs += ssize_kvs;
-			key_kvs[_poff + p] = localcapsule[_poff + p].key / VECTOR_SIZE;
 		}
 		_poff += NUM_PARTITIONS/2;
 	}
 	buffer_type height_kvs = (localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value) / VECTOR_SIZE;
-	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"reduceupdates2: maxsize_kvs[0]: "<<maxsize_kvs[0]<<", maxsize_kvs[1]: "<<maxsize_kvs[1]<<", height_kvs: "<<height_kvs<<endl;
+	#endif
+		
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"reduceupdates2: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
+		#endif
 		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
 		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
 	}
-
+	
+	//////////////////////////
+	// #ifdef XXXX
+	// for(unsigned int i=0; i<16; i++){
+		// 	
+		// cout<<"reduceupdates2: buffer[0]["<<i<<"].key: "<<buffer[0][i].key<<", buffer[0]["<<i<<"].value: "<<buffer[0][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[1]["<<i<<"].key: "<<buffer[1][i].key<<", buffer[1]["<<i<<"].value: "<<buffer[1][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[2]["<<i<<"].key: "<<buffer[2][i].key<<", buffer[2]["<<i<<"].value: "<<buffer[2][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[3]["<<i<<"].key: "<<buffer[3][i].key<<", buffer[3]["<<i<<"].value: "<<buffer[3][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[4]["<<i<<"].key: "<<buffer[4][i].key<<", buffer[4]["<<i<<"].value: "<<buffer[4][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[5]["<<i<<"].key: "<<buffer[5][i].key<<", buffer[5]["<<i<<"].value: "<<buffer[5][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[6]["<<i<<"].key: "<<buffer[6][i].key<<", buffer[6]["<<i<<"].value: "<<buffer[6][i].value<<endl;
+		// 	
+		// cout<<"reduceupdates2: buffer[7]["<<i<<"].key: "<<buffer[7][i].key<<", buffer[7]["<<i<<"].value: "<<buffer[7][i].value<<endl;
+		// 	// }
+	// #endif 
+	//////////////////////////
+	
+	unsigned int tot = 0;
 	REDUCEBUFFERPARTITIONS_LOOP2: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
 		REDUCEBUFFERPARTITIONS_LOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
@@ -12587,6 +12683,7 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 		}
 	}
 	
+	// cout<<"------------------------ reduceupdates2: tot: "<<tot<<endl;
 	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); ////
 	return;

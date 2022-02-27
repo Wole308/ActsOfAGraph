@@ -209,6 +209,7 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 		exit(EXIT_FAILURE);
 		#endif 
 	}
+	// globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS;
 	
 	unsigned int buffer[BLOCKRAM_SIZE];
 	GETGLOBALPARAMS_LOOP1: for(unsigned int t=0; t<128; t++){
@@ -393,19 +394,19 @@ partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getparti
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTIL{{context['id']}}_GETKV(keyvalue);
 	
-	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-	else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
-	
 	// if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-	// else {
-		// keyy_t lkey = thiskeyvalue.key - upperlimit;
-		// if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
-		// else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
-	// }
+	// else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	
+	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	else {
+		keyy_t lkey = thiskeyvalue.key - upperlimit;
+		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
+		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	}
 
 	if(partition >= MAX_NUM_PARTITIONS){ 
 		#ifdef ENABLE_PERFECTACCURACY
-			#ifdef ENABLE_VOICEOUTKERNELERRORS
+			#ifdef _DEBUGMODE_CHECKS3 // ENABLE_VOICEOUTKERNELERRORS
 			cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<endl; 
 			#endif 
 		exit(EXIT_FAILURE); 

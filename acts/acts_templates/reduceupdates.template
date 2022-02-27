@@ -85,6 +85,19 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
 	#endif
+	
+	//////////////
+	// for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		// #ifdef _DEBUGMODE_KERNELPRINTS3
+		// cout<<"reduceupdates2: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
+		// #endif
+	// }
+	// for(unsigned int i=0; i<(localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value) / VECTOR2_SIZE; i++){
+		// {%for v in context['VECTOR_SIZE_seq']%}	
+		// cout<<"reduceupdates2: buffer[{{v}}]["<<i<<"].key: "<<buffer[{{v}}][i].key<<", buffer[{{v}}]["<<i<<"].value: "<<buffer[{{v}}][i].value<<endl;
+		// {%endfor%}
+	// }
+	//////////////
 
 	unsigned int tmplloprange = 0;
 	#if REDUCEBUFFERFACTOR==8
@@ -108,7 +121,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 		REDUCEBUFFERPARTITIONS_LOOP1D: for(buffer_type i=0; i<maxsize_kvs; i++){
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 		// #pragma HLS PIPELINE II=16
-		#pragma HLS PIPELINE II=32 // FIXME? USE THIS INSTEAD?
+		#pragma HLS PIPELINE II=32 // 16, 48, FIXME? USE THIS INSTEAD?
 		// #pragma HLS PIPELINE II=48 // FIXME? USE THIS INSTEAD?
 			for(vector_type v=0; v<VECTOR_SIZE; v++){
 				{%for p in context['8_seq']%}
@@ -153,6 +166,9 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 		}
 	}
 	#endif 
+	// exit(EXIT_SUCCESS); ////
+	
+	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); ////
 	return;
 }

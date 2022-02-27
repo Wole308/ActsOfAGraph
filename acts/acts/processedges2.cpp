@@ -387,7 +387,7 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 		localcapsule[NUM_PARTITIONS-1].value = 0;
 	}
 	PROCESSP0_calculateoffsets(localcapsule);
-	#ifdef _DEBUGMODE_CHECKS2
+	#ifdef _DEBUGMODE_CHECKS
 	actsutilityobj->checkoutofbounds("processedges2(12)::DEBUG CODE 125::1", (chunk_size * VECTOR2_SIZE), localcapsule[NUM_PARTITIONS-2].value, localcapsule[NUM_PARTITIONS-2].value, NAp, NAp);
 	#endif
 	#ifdef DEBUGME_PROCESSEDGES2
@@ -399,16 +399,12 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 	// process edge block stats 
 	if(_processedgeblockstats == true){
 	maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
-	// buffer_type totalsize_kvs = 0;
-	// unsigned int key_kvs[NUM_PARTITIONS];
 	unsigned int _poff = 0;
 	PROCESSBUFFERPARTITIONS_LOOP3: for(unsigned int cid=0; cid<2; cid++){
 		PROCESSBUFFERPARTITIONS_LOOP3B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
 		#pragma HLS PIPELINE II=2
 			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR2_SIZE;
 			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
-			// totalsize_kvs += ssize_kvs;
-			// key_kvs[_poff + p] = localcapsule[_poff + p].key / VECTOR2_SIZE;
 		}
 		_poff += NUM_PARTITIONS/2;
 	}
@@ -578,6 +574,50 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 		}
 	}
 	}
+	/* // CRITICAL REMOVEME. //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	if(_processedgeblock == true){
+		for(buffer_type i=0; i<chunk_size; i++){ // processing next block set 
+			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+			#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS2
+			actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
+			#endif
+			
+			buffer[0][2*i].key = tempbuffer[0][i];
+			buffer[0][2*i].value = 7;
+			buffer[1][2*i].key = tempbuffer[1][i];
+			buffer[1][2*i].value = 7;
+			buffer[2][2*i].key = tempbuffer[2][i];
+			buffer[2][2*i].value = 7;
+			buffer[3][2*i].key = tempbuffer[3][i];
+			buffer[3][2*i].value = 7;
+			buffer[4][2*i].key = tempbuffer[4][i];
+			buffer[4][2*i].value = 7;
+			buffer[5][2*i].key = tempbuffer[5][i];
+			buffer[5][2*i].value = 7;
+			buffer[6][2*i].key = tempbuffer[6][i];
+			buffer[6][2*i].value = 7;
+			buffer[7][2*i].key = tempbuffer[7][i];
+			buffer[7][2*i].value = 7;
+			buffer[0][2*i+1].key = tempbuffer[8][i];
+			buffer[0][2*i+1].value = 7;
+			buffer[1][2*i+1].key = tempbuffer[9][i];
+			buffer[1][2*i+1].value = 7;
+			buffer[2][2*i+1].key = tempbuffer[10][i];
+			buffer[2][2*i+1].value = 7;
+			buffer[3][2*i+1].key = tempbuffer[11][i];
+			buffer[3][2*i+1].value = 7;
+			buffer[4][2*i+1].key = tempbuffer[12][i];
+			buffer[4][2*i+1].value = 7;
+			buffer[5][2*i+1].key = tempbuffer[13][i];
+			buffer[5][2*i+1].value = 7;
+			buffer[6][2*i+1].key = tempbuffer[14][i];
+			buffer[6][2*i+1].value = 7;
+			buffer[7][2*i+1].key = tempbuffer[15][i];
+			buffer[7][2*i+1].value = 7;
+	}
+	} // CRITICAL REMOVEME.
+	// CRITICAL REMOVEME. ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 	
 	// process edge block (primitive)
 	#ifdef RANDOMVERTEXISACTIVE_ALGORITHM

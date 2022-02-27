@@ -86,26 +86,39 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 	#endif
 	
 	buffer_type maxsize_kvs[2]; maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
-	buffer_type totalsize_kvs = 0;
-	unsigned int key_kvs[NUM_PARTITIONS];
 	unsigned int _poff = 0;
 	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){ // NB: 'NUM_PARTITIONS is 16, but only 8 can be accessed per time, so we need 2 fetches'
 		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
 		#pragma HLS PIPELINE II=1
 			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR_SIZE;
 			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
-			totalsize_kvs += ssize_kvs;
-			key_kvs[_poff + p] = localcapsule[_poff + p].key / VECTOR_SIZE;
 		}
 		_poff += NUM_PARTITIONS/2;
 	}
 	buffer_type height_kvs = (localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value) / VECTOR_SIZE;
-	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"reduceupdates2: maxsize_kvs[0]: "<<maxsize_kvs[0]<<", maxsize_kvs[1]: "<<maxsize_kvs[1]<<", height_kvs: "<<height_kvs<<endl;
+	#endif
+		
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"reduceupdates2: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
+		#endif
 		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
 		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
 	}
-
+	
+	//////////////////////////
+	// #ifdef XXXX
+	// for(unsigned int i=0; i<16; i++){
+		// {%for v in context['VECTOR_SIZE_seq']%}	
+		// cout<<"reduceupdates2: buffer[{{v}}]["<<i<<"].key: "<<buffer[{{v}}][i].key<<", buffer[{{v}}]["<<i<<"].value: "<<buffer[{{v}}][i].value<<endl;
+		// {%endfor%}
+	// }
+	// #endif 
+	//////////////////////////
+	
+	unsigned int tot = 0;
 	REDUCEBUFFERPARTITIONS_LOOP2: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
 		REDUCEBUFFERPARTITIONS_LOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
@@ -140,6 +153,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 		}
 	}
 	
+	// cout<<"------------------------ reduceupdates2: tot: "<<tot<<endl;
 	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); ////
 	return;
