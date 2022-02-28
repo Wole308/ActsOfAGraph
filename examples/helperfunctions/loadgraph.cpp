@@ -267,9 +267,8 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(vptr_type * vptrs[NUMSUBCPUTHREAD
 			
 			if(edges_temp[i][k].status != EDGESTATUS_VALIDEDGE){ continue; }
 			
-			keyvalue_t keyvalue;
-			keyvalue.key = READFROM_UINT(edges_temp[i][k].dstvid, 0, 28); // NEWCHANGE.
-			unsigned int incr = READFROM_UINT(edges_temp[i][k].dstvid, 28, 4);
+			keyvalue_t keyvalue; 
+			keyvalue.key = edges_temp[i][k].dstvid;
 			keyvalue.value = 0;
 			
 			src2 = edges_temp[i][k].srcvid;

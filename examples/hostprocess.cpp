@@ -135,10 +135,23 @@ int main(int argc, char** argv){
     }
     binaryFile1 = argv[1];
 	binaryFile2 = binaryFile1;	
-	// #ifdef TESTKERNEL
-	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/synkernels_acts/goldenkernel${TESTKERNEL}3PEs3WsHW300MHz.xclbin";
-	// binaryFile2 = binaryFile1;	
+	#ifdef TESTKERNEL
+	binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsPRHW300MHz.xclbin";
+	// #ifdef PR_ALGORITHM
+	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsPRHW300MHz.xclbin";
+	// #elif defined(CF_ALGORITHM)
+	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsCFHW300MHz.xclbin";
+	// #elif defined(LP_ALGORITHM)
+	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsLPHW300MHz.xclbin";
+	// #elif defined(CC_ALGORITHM)
+	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsCCHW300MHz.xclbin";
+	// #elif defined(BFS_ALGORITHM)
+	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsBFSHW300MHz.xclbin";
+	// #else 
+	// NOT DEFINED.
 	// #endif 
+	binaryFile2 = binaryFile1;	
+	#endif 
 	#endif
 	utilityobj->printallparameters();
 

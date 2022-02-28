@@ -1,23 +1,24 @@
 #define PE_SETSZ 16
 // #define DEBUGME_PROCESSEDGES2
 
-void acts_all::PROCESSP0_processvector(bool enx, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
+void PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
 	#pragma HLS INLINE
 	bool en = true; if(edata.key != INVALIDDATA && edata.value != INVALIDDATA && enx == true){ en = true; } else { en = false; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true){ cout<<"PROCESSP0_processvector:: PROCESS SEEN @ vid: "<<UTILP0_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<", loc: "<<loc<<", edata.key(dstvid): "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", process size: "<<globalparams.SIZE_REDUCE<<endl; }
-	#endif 
-	
+
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){
-		#ifdef _DEBUGMODE_CHECKS2X
-		if(true){ cout<<"PROCESSP0_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+		#ifdef _DEBUGMODE_CHECKS3
+		if(true){ cout<<"PROCESSP0_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		#endif 
 		loc = 0; }
 	
 	// read 
 	vmdata_t vmdata;
 	if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); }
-	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; } 
+	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
+	// cout<<"PROCESSP0_processvector: SEEN @ v: "<<v<<", loc: "<<loc<<, edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vmdata.vmask: "<<vmdata.vmask<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<"PROCESS VECTOR:: ACTIVE MASK SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<endl; }
+	#endif
 			
 	// process
 	value_t res = PROCESSP0_processfunc(vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -37,7 +38,7 @@ void acts_all::PROCESSP0_processvector(bool enx, unsigned int loc, keyvalue_t ed
 	return;
 }
 
-void acts_all::PROCESSP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+void PROCESSP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR_SIZE;
 	
  if(s_==0){ 
@@ -123,7 +124,7 @@ else {
 	return;
 }
 
-void acts_all::PROCESSP0_RearrangeLayoutV(unsigned int s, uint32_type vdata[VECTOR_SIZE], uint32_type vdata2[VECTOR_SIZE]){
+void PROCESSP0_RearrangeLayoutV(unsigned int s, uint32_type vdata[VECTOR_SIZE], uint32_type vdata2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -237,7 +238,7 @@ else {
 	// 	return;
 }
 
-parsededge_t acts_all::PROCESSP0_PARSEEDGE(uint32_type data){ 
+parsededge_t PROCESSP0_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
 	#ifdef _WIDEWORD
 	parsededge.incr = data.range(31, OFFSETOF_SRCV_IN_EDGEDSTVDATA);
@@ -249,7 +250,7 @@ parsededge_t acts_all::PROCESSP0_PARSEEDGE(uint32_type data){
 	return parsededge; 
 }
 
-void acts_all::PROCESSP0_calculateoffsets(keyvalue_capsule_t * buffer){
+void PROCESSP0_calculateoffsets(keyvalue_capsule_t * buffer){
 	for(buffer_type i=1; i<NUM_PARTITIONS; i++){ 
 	#pragma HLS PIPELINE II=2	
 		buffer[i].key = UTILP0_allignlower_KV2(buffer[i-1].key + buffer[i-1].value); 
@@ -257,9 +258,8 @@ void acts_all::PROCESSP0_calculateoffsets(keyvalue_capsule_t * buffer){
 	return;
 }
 
-fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t PROCESSP0_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	// NB: localcapsule[x].key & localcapsule[x].key are all in _kvs formats
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -312,14 +312,28 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 	buffer_type maxsize_kvs[2]; 
 	buffer_type height_kvs = 0;
 	
-	bool _readedgeblock = true;
-	bool _readedgeblockstats = true;
-	bool _processedgeblockstats = true;
-	bool _processedgeblock = true;
-	bool _process_and_reduce_edgeblock = false; // true;
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
+		if(MEMCAP0_READVMASK(vbuffer[0][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 0"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[1][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 1"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[2][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 2"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[3][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 3"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[4][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 4"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[5][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 5"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[6][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 6"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[7][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 7"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[8][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 8"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[9][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 9"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[10][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 10"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[11][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 11"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[12][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 12"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[13][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 13"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[14][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 14"<<endl; }
+		if(MEMCAP0_READVMASK(vbuffer[15][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 15"<<endl; }
+	}
+	#endif 
 	
 	// read edge block
-	if(_readedgeblock == true){
 	#ifdef DEBUGME_PROCESSEDGES2
 	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<endl;
 	#endif 
@@ -372,10 +386,8 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[7].key: "<<edges[offset_kvs + i].data[7].key<<", edges["<<offset_kvs + i<<"].data[7].value: "<<edges[offset_kvs + i].data[7].value<<endl; }
 		#endif 
 	}
-	}	
 	
 	// read edge block stats 
-	if(_readedgeblockstats == true){
 	PROCESSBUFFERPARTITIONS_LOOP2: for(unsigned int p=0; p<NUM_PARTITIONS; p++){ localcapsule[p].key = 0; localcapsule[p].value = tempbuffer[p][0]; }
 	if(true || localcapsule[NUM_PARTITIONS-1].value != 8888888){ // FIXME. // localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value >= SOURCEBLOCKRAM_SIZE * VECTOR2_SIZE
 		#ifdef _XXX_
@@ -394,10 +406,8 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS); 
 	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", edgessize_kvs * VECTOR2_SIZE: "<<edgessize_kvs * VECTOR2_SIZE<<", WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
 	#endif
-	}
 	
 	// process edge block stats 
-	if(_processedgeblockstats == true){
 	maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
 	unsigned int _poff = 0;
 	PROCESSBUFFERPARTITIONS_LOOP3: for(unsigned int cid=0; cid<2; cid++){
@@ -414,10 +424,8 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
 		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
 	}
-	}
 	
 	// process edge block
-	if(_processedgeblock == true){
 	buffer_type psetoffset=0;
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
@@ -482,38 +490,35 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
  	
 					
 					// re-arrange 
-					// PROCESSP0_RearrangeLayoutV(r, E, E2);
+					PROCESSP0_RearrangeLayoutV(r, E, E2);
 					
 					// parse
-					// 					// parsededge_t parsed_edge0 = PROCESSP0_PARSEEDGE(E2[0]); // FIXME.
-					// edata[0].value = parsed_edge0.incr; // source info
-					// edata[0].key = parsed_edge0.dstvid;	
-					// 					// parsededge_t parsed_edge1 = PROCESSP0_PARSEEDGE(E2[1]); // FIXME.
-					// edata[1].value = parsed_edge1.incr; // source info
-					// edata[1].key = parsed_edge1.dstvid;	
-					// 					// parsededge_t parsed_edge2 = PROCESSP0_PARSEEDGE(E2[2]); // FIXME.
-					// edata[2].value = parsed_edge2.incr; // source info
-					// edata[2].key = parsed_edge2.dstvid;	
-					// 					// parsededge_t parsed_edge3 = PROCESSP0_PARSEEDGE(E2[3]); // FIXME.
-					// edata[3].value = parsed_edge3.incr; // source info
-					// edata[3].key = parsed_edge3.dstvid;	
-					// 					// parsededge_t parsed_edge4 = PROCESSP0_PARSEEDGE(E2[4]); // FIXME.
-					// edata[4].value = parsed_edge4.incr; // source info
-					// edata[4].key = parsed_edge4.dstvid;	
-					// 					// parsededge_t parsed_edge5 = PROCESSP0_PARSEEDGE(E2[5]); // FIXME.
-					// edata[5].value = parsed_edge5.incr; // source info
-					// edata[5].key = parsed_edge5.dstvid;	
-					// 					// parsededge_t parsed_edge6 = PROCESSP0_PARSEEDGE(E2[6]); // FIXME.
-					// edata[6].value = parsed_edge6.incr; // source info
-					// edata[6].key = parsed_edge6.dstvid;	
-					// 					// parsededge_t parsed_edge7 = PROCESSP0_PARSEEDGE(E2[7]); // FIXME.
-					// edata[7].value = parsed_edge7.incr; // source info
-					// edata[7].key = parsed_edge7.dstvid;	
-					// 					
-					/////
-					// re-arrange 
-					// PROCESSP0_RearrangeLayoutV(r, E, E2);
+					parsededge_t parsed_edge0 = PROCESSP0_PARSEEDGE(E2[0]); // FIXME.
+					edata[0].value = parsed_edge0.incr; // source info
+					edata[0].key = parsed_edge0.dstvid;	
+					parsededge_t parsed_edge1 = PROCESSP0_PARSEEDGE(E2[1]); // FIXME.
+					edata[1].value = parsed_edge1.incr; // source info
+					edata[1].key = parsed_edge1.dstvid;	
+					parsededge_t parsed_edge2 = PROCESSP0_PARSEEDGE(E2[2]); // FIXME.
+					edata[2].value = parsed_edge2.incr; // source info
+					edata[2].key = parsed_edge2.dstvid;	
+					parsededge_t parsed_edge3 = PROCESSP0_PARSEEDGE(E2[3]); // FIXME.
+					edata[3].value = parsed_edge3.incr; // source info
+					edata[3].key = parsed_edge3.dstvid;	
+					parsededge_t parsed_edge4 = PROCESSP0_PARSEEDGE(E2[4]); // FIXME.
+					edata[4].value = parsed_edge4.incr; // source info
+					edata[4].key = parsed_edge4.dstvid;	
+					parsededge_t parsed_edge5 = PROCESSP0_PARSEEDGE(E2[5]); // FIXME.
+					edata[5].value = parsed_edge5.incr; // source info
+					edata[5].key = parsed_edge5.dstvid;	
+					parsededge_t parsed_edge6 = PROCESSP0_PARSEEDGE(E2[6]); // FIXME.
+					edata[6].value = parsed_edge6.incr; // source info
+					edata[6].key = parsed_edge6.dstvid;	
+					parsededge_t parsed_edge7 = PROCESSP0_PARSEEDGE(E2[7]); // FIXME.
+					edata[7].value = parsed_edge7.incr; // source info
+					edata[7].key = parsed_edge7.dstvid;	
 					
+					/* /////
 					// parse
 					parsededge_t parsed_edge0 = PROCESSP0_PARSEEDGE(E[0]); // FIXME.
 					edata[0].value = parsed_edge0.incr; // source info
@@ -539,25 +544,25 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 					parsededge_t parsed_edge7 = PROCESSP0_PARSEEDGE(E[7]); // FIXME.
 					edata[7].value = parsed_edge7.incr; // source info
 					edata[7].key = parsed_edge7.dstvid;	
-					/////
+					///// */
 					
 					// process
 					if(E[0] == INVALIDDATA){ enx[0] = false; }
-					PROCESSP0_processvector(enx[0], edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], &loadcount[0], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], &loadcount[0], GraphAlgoClass, globalparams);
 					if(E[1] == INVALIDDATA){ enx[1] = false; }
-					PROCESSP0_processvector(enx[1], edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], &loadcount[1], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], &loadcount[1], GraphAlgoClass, globalparams);
 					if(E[2] == INVALIDDATA){ enx[2] = false; }
-					PROCESSP0_processvector(enx[2], edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], &loadcount[2], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], &loadcount[2], GraphAlgoClass, globalparams);
 					if(E[3] == INVALIDDATA){ enx[3] = false; }
-					PROCESSP0_processvector(enx[3], edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], &loadcount[3], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], &loadcount[3], GraphAlgoClass, globalparams);
 					if(E[4] == INVALIDDATA){ enx[4] = false; }
-					PROCESSP0_processvector(enx[4], edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], &loadcount[4], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], &loadcount[4], GraphAlgoClass, globalparams);
 					if(E[5] == INVALIDDATA){ enx[5] = false; }
-					PROCESSP0_processvector(enx[5], edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], &loadcount[5], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], &loadcount[5], GraphAlgoClass, globalparams);
 					if(E[6] == INVALIDDATA){ enx[6] = false; }
-					PROCESSP0_processvector(enx[6], edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], &loadcount[6], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], &loadcount[6], GraphAlgoClass, globalparams);
 					if(E[7] == INVALIDDATA){ enx[7] = false; }
-					PROCESSP0_processvector(enx[7], edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], &loadcount[7], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], &loadcount[7], GraphAlgoClass, globalparams);
 					#ifdef _DEBUGMODE_CHECKS2
 					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[0], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
 					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[1], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
@@ -573,85 +578,6 @@ fetchmessage_t acts_all::PROCESSP0_SPL_readandprocess(bool_type enable, uint512_
 			}
 		}
 	}
-	}
-	/* // CRITICAL REMOVEME. //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	if(_processedgeblock == true){
-		for(buffer_type i=0; i<chunk_size; i++){ // processing next block set 
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-			#pragma HLS PIPELINE II=1
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-			#endif
-			
-			buffer[0][2*i].key = tempbuffer[0][i];
-			buffer[0][2*i].value = 7;
-			buffer[1][2*i].key = tempbuffer[1][i];
-			buffer[1][2*i].value = 7;
-			buffer[2][2*i].key = tempbuffer[2][i];
-			buffer[2][2*i].value = 7;
-			buffer[3][2*i].key = tempbuffer[3][i];
-			buffer[3][2*i].value = 7;
-			buffer[4][2*i].key = tempbuffer[4][i];
-			buffer[4][2*i].value = 7;
-			buffer[5][2*i].key = tempbuffer[5][i];
-			buffer[5][2*i].value = 7;
-			buffer[6][2*i].key = tempbuffer[6][i];
-			buffer[6][2*i].value = 7;
-			buffer[7][2*i].key = tempbuffer[7][i];
-			buffer[7][2*i].value = 7;
-			buffer[0][2*i+1].key = tempbuffer[8][i];
-			buffer[0][2*i+1].value = 7;
-			buffer[1][2*i+1].key = tempbuffer[9][i];
-			buffer[1][2*i+1].value = 7;
-			buffer[2][2*i+1].key = tempbuffer[10][i];
-			buffer[2][2*i+1].value = 7;
-			buffer[3][2*i+1].key = tempbuffer[11][i];
-			buffer[3][2*i+1].value = 7;
-			buffer[4][2*i+1].key = tempbuffer[12][i];
-			buffer[4][2*i+1].value = 7;
-			buffer[5][2*i+1].key = tempbuffer[13][i];
-			buffer[5][2*i+1].value = 7;
-			buffer[6][2*i+1].key = tempbuffer[14][i];
-			buffer[6][2*i+1].value = 7;
-			buffer[7][2*i+1].key = tempbuffer[15][i];
-			buffer[7][2*i+1].value = 7;
-	}
-	} // CRITICAL REMOVEME.
-	// CRITICAL REMOVEME. ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
-	
-	// process edge block (primitive)
-	#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-	if(_process_and_reduce_edgeblock == true){
-	unsigned int C = 0; // FIXM.
-	unsigned int loadcount2 = 0;
-	for(buffer_type i=0; i<chunk_size; i++){
-		for(vector_type v=0; v<VECTOR2_SIZE; v++){
-			uint32_type edge = tempubuffer[i][v];
-			
-			parsededge_t parsed_edge = PROCESSP0_PARSEEDGE(edge); 
-			unsigned int srcvid = parsed_edge.incr; // source info FIXME.
-			unsigned int dstvid = parsed_edge.dstvid;	
-			
-			bool en = true; if(edge != INVALIDDATA && edge != INVALIDDATA){ en = true; } else { en = false; }
-			
-			vmdata_t src_vmdata;
-			if(en == true){
-				src_vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); 
-				if(src_vmdata.vmask == 1){
-					value_t res = PROCESSP0_processfunc(src_vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-					keyvalue_t mykeyvalue; mykeyvalue.key = dstvid; mykeyvalue.value = res;
-					
-					uint32_type dst_vmdata = MEMCAP0_READDATAFROMDRAM(dstvid, kvdram, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, 0); 
-					uint32_type new_vprop = REDUCEP0_reducefunc(GETVDATA(dst_vmdata), res, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-					if(en == true && new_vprop != GETVDATA(dst_vmdata)){ APPENDMDATA(new_vprop, 1); }
-					
-					MEMCAP0_WRITEDATATODRAM(dstvid, kvdram, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, new_vprop); 
-				}
-			}
-		}
-	}
-	}
-	#endif 
 	
 	// for(unsigned int t=0; t<VECTOR_SIZE; t++){ cout<<"--- loadcount["<<t<<"]: "<<loadcount[t]<<endl; }
 	// actsutilityobj->printglobalvars();

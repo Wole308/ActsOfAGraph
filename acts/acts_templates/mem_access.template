@@ -227,9 +227,10 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_GetXYLayoutV
 	return;
 }
 
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_RearrangeLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE]){
-	unsigned int s_ = s % VECTOR2_SIZE;
-	{%for v in context['VECTOR2_SIZE_seq']%}
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]){
+	unsigned int s_ = s % VECTOR2_SIZE;	
+	
+	/* {%for v in context['VECTOR2_SIZE_seq']%}
 	{%if(v>0)%}else{%endif%} {%if(v<16-1)%}if(s_=={{v}}){%endif%}{ 
 		{%for v2 in context['VECTOR2_SIZE_seq']%}{%if(v2<v)%}
 		vdata2[{{16-v+v2}}] = vdata[{{v2}}]; 
@@ -237,6 +238,14 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_RearrangeLay
 		{%for v2 in context['VECTOR2_SIZE_seq']%}{%if(v2>=v)%}
 		vdata2[{{v2-v}}] = vdata[{{v2}}]; 
 		{%endif%}{%endfor%}
+	}
+	{%endfor%} */
+	
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<16-1)%}if(s_=={{v}}){%endif%}{ 
+		{%for v2 in context['VECTOR2_SIZE_seq']%}
+		vdata2[{{((v2+1)%16)}}] = vdata[{{v2}}]; 
+		{%endfor%}
 	}
 	{%endfor%}
 	return;
@@ -365,9 +374,17 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readANDRVchu
 			{%endfor%}
 			#endif
 			
+			MEMACCESS{{context['id']}}_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			{%for v in context['VECTOR2_SIZE_seq']%}
+			if(MEMCA{{context['id']}}_READVMASK(vdata2[{{v}}]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: {{v}}"<<endl; }
+			{%endfor%}
+			#endif
+			
 			{%for i in context['T_seq']%}{%if(i<n)%}
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			buffer{{i}}[{{v}}][bdepth_i + i] = vdata[{{v}}];
+			buffer{{i}}[{{v}}][bdepth_i + i] = vdata2[{{v}}];
 			{%endfor%}	
 			{%endif%}{%endfor%}
 
@@ -378,6 +395,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readANDRVchu
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
 {%endif%}{%endfor%}

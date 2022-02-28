@@ -253,7 +253,20 @@ void creategraphs::writeedgestofile(std::vector<edge2_type> (&edgesbuffer)[MAXNU
 		}
 	}
 	#endif 
-
+	
+	////////////
+	unsigned int zerocount = 0;
+	unsigned int maxsz = edgesbuffer[0].size();
+	for(unsigned int i=0; i<maxsz; i++){
+		edge2_type edge = edgesbuffer[0][i];
+		if(edge.srcvid==0 && edge.dstvid==0){
+			if(zerocount>100000){ cout<<"creategraphs::writeedgestofile:: ERROR: too many zeros ("<<zerocount<<"). check... EXITING... "<<endl; exit(EXIT_FAILURE); }
+			else { zerocount += 1; } 
+		}
+		if(i > maxsz-1){ cout<<"### creategraphs::writeedgestofile:: maxsz: "<<maxsz<<", edge.dstvid: "<<edge.dstvid<<", edge.srcvid: "<<edge.srcvid<<endl; }
+	}
+	////////////
+	
 	edge_t totalnumedges = 0;
 	for(unsigned int j=0; j<graphobj->getnumedgebanks(); j++){
 		totalnumedgeswritten[j] += edgesbuffer[j].size();

@@ -13,44 +13,44 @@ acts_all::~acts_all(){}
 
 #ifdef CONFIG_ENABLECLASS_ACTS_UTIL
 // basic
-unsigned int acts_all::UTILP2_amin(unsigned int val1, unsigned int val2){
+unsigned int UTILP2_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
-unsigned int acts_all::UTILP2_aplus(unsigned int val1, unsigned int val2){
+unsigned int UTILP2_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
 
 // allignment
-batch_type acts_all::UTILP2_allignlower_KV(batch_type val){
+batch_type UTILP2_allignlower_KV(batch_type val){
 	batch_type fac = val / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-batch_type acts_all::UTILP2_allignhigher_KV(batch_type val){
+batch_type UTILP2_allignhigher_KV(batch_type val){
 	batch_type fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-batch_type acts_all::UTILP2_allignlower_KV2(batch_type val){
+batch_type UTILP2_allignlower_KV2(batch_type val){
 	batch_type fac = val / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
-batch_type acts_all::UTILP2_allignhigher_KV2(batch_type val){
+batch_type UTILP2_allignhigher_KV2(batch_type val){
 	batch_type fac = (val + (VECTOR2_SIZE - 1)) / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
 
 // bit manipulation
-unsigned int acts_all::UTILP2_GETMASK_UINT(unsigned int index, unsigned int size){
+unsigned int UTILP2_GETMASK_UINT(unsigned int index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
 }
-unsigned int acts_all::UTILP2_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
+unsigned int UTILP2_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
 	unsigned int res = 0;
 	res = (((data) & UTILP2_GETMASK_UINT((index), (size))) >> (index)); 
 	return res;
 }
-void acts_all::UTILP2_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
+void UTILP2_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
 	unsigned int A = ((value) << (index));
 	unsigned int B = (~UTILP2_GETMASK_UINT((index), (size)));
@@ -68,7 +68,7 @@ void acts_all::UTILP2_WRITETO_UINT(unsigned int * data, unsigned int index, unsi
 	#endif
 	return; 
 }
-unsigned int acts_all::UTILP2_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+unsigned int UTILP2_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
 	#pragma HLS INLINE
 	unsigned int res = 0;
 	#ifdef _WIDEWORD
@@ -78,7 +78,7 @@ unsigned int acts_all::UTILP2_READBITSFROM_UINTV(uint32_type data, unsigned int 
 	#endif
 	return res;
 }
-void acts_all::UTILP2_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+void UTILP2_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	data->range(index + size - 1, index) = value;
@@ -89,7 +89,7 @@ void acts_all::UTILP2_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, 
 }
 
 // converters
-keyvalue_t acts_all::UTILP2_GETKV(keyvalue_buffer_t data){
+keyvalue_t UTILP2_GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
@@ -101,7 +101,7 @@ keyvalue_t acts_all::UTILP2_GETKV(keyvalue_buffer_t data){
 	#endif 
 	return res;
 }
-keyvalue_buffer_t acts_all::UTILP2_GETKV(keyvalue_t data){
+keyvalue_buffer_t UTILP2_GETKV(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_buffer_t res;
 	#ifdef _WIDEWORD
@@ -113,7 +113,7 @@ keyvalue_buffer_t acts_all::UTILP2_GETKV(keyvalue_t data){
 	#endif 
 	return res;
 }
-keyy_t acts_all::UTILP2_GETK(uint32_type data){
+keyy_t UTILP2_GETK(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_KEY - 1, 0);
@@ -121,7 +121,7 @@ keyy_t acts_all::UTILP2_GETK(uint32_type data){
 	return data;
 	#endif
 }
-value_t acts_all::UTILP2_GETV(uint32_type data){
+value_t UTILP2_GETV(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_VALUE - 1, 0);
@@ -129,7 +129,7 @@ value_t acts_all::UTILP2_GETV(uint32_type data){
 	return data;
 	#endif
 }
-keyy_t acts_all::UTILP2_GETKEYENTRY(uint512_dt data, unsigned int v){
+keyy_t UTILP2_GETKEYENTRY(uint512_dt data, unsigned int v){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
@@ -137,17 +137,17 @@ keyy_t acts_all::UTILP2_GETKEYENTRY(uint512_dt data, unsigned int v){
 	return data.data[v].key;	
 	#endif
 }		
-unsigned int acts_all::UTILP2_GETLOCALVID(unsigned int vid, unsigned int instid){ 
+unsigned int UTILP2_GETLOCALVID(unsigned int vid, unsigned int instid){ 
 	#pragma HLS INLINE
 	return (vid - instid) / NUM_PEs;
 }
-unsigned int acts_all::UTILP2_GETREALVID(unsigned int lvid, unsigned int instid){ 
+unsigned int UTILP2_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
 	return (lvid * NUM_PEs) + instid;
 }
 
 // utilities
-batch_type acts_all::UTILP2_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
+batch_type UTILP2_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	batch_type result;
 	
@@ -161,7 +161,7 @@ batch_type acts_all::UTILP2_getskipsize(step_type currentLOP, bool_type sourceOR
 	}
 	return result;
 }
-batch_type acts_all::UTILP2_getrangeforeachllop(globalparams_t globalparams){
+batch_type UTILP2_getrangeforeachllop(globalparams_t globalparams){
 	analysis_type analysis_loop1 = TREE_DEPTH;
 	unsigned int range = globalparams.SIZE_BATCHRANGE;
 	for(unsigned int i=0; i<globalparams.ACTSPARAMS_TREEDEPTH; i++){
@@ -170,7 +170,7 @@ batch_type acts_all::UTILP2_getrangeforeachllop(globalparams_t globalparams){
 	}
 	return range;
 }
-buffer_type acts_all::UTILP2_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
+buffer_type UTILP2_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
 	buffer_type chunk_size = buffer_size;
 	batch_type i = travstate.i_kvs + localoffset;
 	if (i > travstate.end_kvs){ chunk_size = 0; }
@@ -178,12 +178,12 @@ buffer_type acts_all::UTILP2_getchunksize_kvs(buffer_type buffer_size, travstate
 	else {}
 	return chunk_size;
 }
-buffer_type acts_all::UTILP2_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+buffer_type UTILP2_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	buffer_type size_kvs = 0;
 	size_kvs = realsize_kvs;
 	return size_kvs;
 }
-void acts_all::UTILP2_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size){
+void UTILP2_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size){
 	unsigned int analysis_size = NUM_PARTITIONS;
 	for(buffer_type i=1; i<size; i++){ 
 	#pragma HLS PIPELINE II=2
@@ -192,7 +192,7 @@ void acts_all::UTILP2_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type 
 	}
 	return;
 }
-void acts_all::UTILP2_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+void UTILP2_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = buffer[0][i-1].key + buffer[0][i-1].value + skipspacing; 
 		buffer[1][i].key = buffer[1][i-1].key + buffer[1][i-1].value + skipspacing; 
@@ -205,7 +205,7 @@ void acts_all::UTILP2_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[V
 	}
 	return;
 }
-batch_type acts_all::UTILP2_get_num_source_partitions(step_type currentLOP){
+batch_type UTILP2_get_num_source_partitions(step_type currentLOP){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
 	if(currentLOP == 0){ currentLOP = 1; }
@@ -217,7 +217,7 @@ batch_type acts_all::UTILP2_get_num_source_partitions(step_type currentLOP){
 	return pow;
 }
 
-globalparams_t acts_all::UTILP2_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
+globalparams_t UTILP2_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
 	globalparams_t globalparams;
 	
 	if(banksection==0){ globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS; }
@@ -336,7 +336,7 @@ globalparams_t acts_all::UTILP2_getglobalparams(uint512_dt * kvdram, unsigned in
 	return globalparams;
 }
 
-sweepparams_t acts_all::UTILP2_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition){
+sweepparams_t UTILP2_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition){
 	sweepparams_t sweepparams;
 	batch_type sourceskipsize = UTILP2_getskipsize(currentLOP, SOURCE, globalparams);
 	
@@ -358,7 +358,7 @@ sweepparams_t acts_all::UTILP2_getsweepparams(globalparams_t globalparams, step_
 	sweepparams.source_partition = source_partition;
 	return sweepparams;
 }
-travstate_t acts_all::UTILP2_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
+travstate_t UTILP2_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
 	travstate_t travstate;
 	if(enable == OFF){ return travstate; }
 	keyvalue_t keyvalue;
@@ -423,7 +423,7 @@ else if(globalparams.VARS_WORKBATCH == 3){
 	travstate.i_kvs = travstate.begin_kvs; 
 	return travstate;	
 }
-void acts_all::UTILP2_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value){			
+void UTILP2_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value){			
 	if(enable == OFF){ return; }
 	#ifdef _WIDEWORD
 	kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset].range(31, 0) = value; // 64; 
@@ -434,7 +434,7 @@ void acts_all::UTILP2_settravstate(bool_type enable, uint512_dt * kvdram, global
 	#endif
 	return;	
 }
-partition_type acts_all::UTILP2_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
+partition_type UTILP2_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTILP2_GETKV(keyvalue);
 	
@@ -466,32 +466,32 @@ partition_type acts_all::UTILP2_getpartition(bool_type enable, unsigned int mode
 }
 
 // resets 
-void acts_all::UTILP2_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP2_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i].value = resetval; 
 	}
 }
-void acts_all::UTILP2_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP2_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i].value = resetval; 
 	}
 }
-void acts_all::UTILP2_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP2_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i] = resetval; 
 	}
 }
-void acts_all::UTILP2_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP2_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){
 		buffer[i].key = resetval; 
 		buffer[i].value = resetval; 
 	}
 	return;
 }
-void acts_all::UTILP2_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
+void UTILP2_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -518,7 +518,7 @@ void acts_all::UTILP2_resetkvstatvalues(uint512_dt * kvdram, globalparams_t glob
 	}
 	return;
 }
-void acts_all::UTILP2_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
+void UTILP2_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
 	for(unsigned int k=0; k<size_kvs; k++){
 	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
 		#ifdef _WIDEWORD
@@ -543,7 +543,7 @@ void acts_all::UTILP2_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_k
 	}
 	return;
 }
-void acts_all::UTILP2_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void UTILP2_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -584,7 +584,7 @@ else if(globalparams.VARS_WORKBATCH == 3){
 	}
 	return;
 }
-void acts_all::UTILP2_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
+void UTILP2_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
 	#ifdef _WIDEWORD
 	kvdram[globalparams.DRAM_BASE_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
 	#else
@@ -592,7 +592,7 @@ void acts_all::UTILP2_increment_graphiteration(uint512_dt * kvdram, globalparams
 	#endif 
 	return;
 }
-void acts_all::UTILP2_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
+void UTILP2_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so1[0][p].key = 0;
@@ -616,7 +616,7 @@ void acts_all::UTILP2_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE
 	}
 	return;
 }
-void acts_all::UTILP2_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
+void UTILP2_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so8[p].key = 0;
@@ -627,7 +627,7 @@ void acts_all::UTILP2_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PART
 	
 #endif 
 #ifdef CONFIG_ENABLECLASS_ALGO_FUNCS
-value_t acts_all::PROCESSP2_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t PROCESSP2_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -685,7 +685,7 @@ value_t acts_all::PROCESSP2_processfunc(value_t udata, value_t edgew, unsigned i
 	return res;
 }
 
-value_t acts_all::REDUCEP2_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+value_t REDUCEP2_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -734,33 +734,34 @@ value_t acts_all::REDUCEP2_reducefunc(value_t vtemp, value_t res, unsigned int G
 #endif 
 #ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 // primitives
-unsigned int acts_all::MEMCAP2_READVDATA(keyvalue_vbuffer_t wideword){
+unsigned int MEMCAP2_READVDATA(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	return UTILP2_READBITSFROM_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA);
 }
-unsigned int acts_all::MEMCAP2_READVMASK(keyvalue_vbuffer_t wideword){
+unsigned int MEMCAP2_READVMASK(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	return UTILP2_READBITSFROM_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK);
 }
-vmdata_t acts_all::MEMCAP2_READVDATAANDVMASK(keyvalue_vbuffer_t wideword){
+vmdata_t MEMCAP2_READVDATAANDVMASK(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	vmdata_t vmdata;
 	vmdata.vdata = UTILP2_READBITSFROM_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA);
 	vmdata.vmask = UTILP2_READBITSFROM_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK);
 	return vmdata;
 }
-void acts_all::MEMCAP2_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
+
+void MEMCAP2_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
 	#pragma HLS INLINE
 	UTILP2_WRITEBITSTO_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA, vdata);
 	return;
 }
-void acts_all::MEMCAP2_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
+void MEMCAP2_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
 	#pragma HLS INLINE
 	UTILP2_WRITEBITSTO_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VMASK, vmask);
 	return;
 }
 
-tuple_t acts_all::MEMCAP2_READVDATAWITHVMASK(keyvalue_vbuffer_t wideword){
+tuple_t MEMCAP2_READVDATAWITHVMASK(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	tuple_t res;
 	#ifdef _WIDEWORD
@@ -772,7 +773,7 @@ tuple_t acts_all::MEMCAP2_READVDATAWITHVMASK(keyvalue_vbuffer_t wideword){
 	#endif 
 	return res;
 }
-void acts_all::MEMCAP2_WRITEVDATAWITHVMASK(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
+void MEMCAP2_WRITEVDATAWITHVMASK(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	wideword->range(OFFSETOF_VDATA + SIZEOF_VDATA - 1, OFFSETOF_VDATA) = vdata; 
@@ -786,7 +787,7 @@ void acts_all::MEMCAP2_WRITEVDATAWITHVMASK(keyvalue_vbuffer_t * wideword, value_
 
 // non-primitives
 // any data 
-uint32_type acts_all::MEMCAP2_READDATAFROMBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
+uint32_type MEMCAP2_READDATAFROMBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_READDATAFROMBUFFER:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
@@ -795,7 +796,7 @@ uint32_type acts_all::MEMCAP2_READDATAFROMBUFFER(unsigned int index, keyvalue_vb
 	return buffer[index % VECTOR2_SIZE][bufferoffset_kvs + (index / VECTOR2_SIZE)];
 }
 
-void acts_all::MEMCAP2_WRITEDATATOBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type data, batch_type bufferoffset_kvs){
+void MEMCAP2_WRITEDATATOBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type data, batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITEDATATOBUFFER:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
@@ -805,10 +806,10 @@ void acts_all::MEMCAP2_WRITEDATATOBUFFER(unsigned int index, keyvalue_vbuffer_t 
 	return;
 }
 
-keyvalue_vbuffer_t acts_all::MEMCAP2_READDATAFROMDRAM(unsigned int index, uint512_dt * kvdram, batch_type baseoffset_kvs, batch_type offset_kvs){
+keyvalue_vbuffer_t MEMCAP2_READDATAFROMDRAM(unsigned int index, uint512_dt * kvdram, batch_type baseoffset_kvs, batch_type offset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_READDATAFROMDRAM:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_READDATAFROMDRAM:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	keyvalue_vbuffer_t data[VECTOR2_SIZE];
@@ -853,10 +854,10 @@ keyvalue_vbuffer_t acts_all::MEMCAP2_READDATAFROMDRAM(unsigned int index, uint51
 	return data[index % VECTOR2_SIZE];
 }
 
-void acts_all::MEMCAP2_WRITEDATATODRAM(unsigned int index, uint512_dt * kvdram, uint32_type data, batch_type baseoffset_kvs, batch_type offset_kvs){
+void MEMCAP2_WRITEDATATODRAM(unsigned int index, uint512_dt * kvdram, uint32_type data, batch_type baseoffset_kvs, batch_type offset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITEDATATODRAM:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITEDATATODRAM:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 
  if((index % VECTOR2_SIZE) == 0){
@@ -998,7 +999,7 @@ else if((index % VECTOR2_SIZE) == 15){
 
 // vdata 
 // vdata:: used in {reduceupdates.cpp} 
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], value_t vdata, batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], value_t vdata, batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
@@ -1009,11 +1010,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_
 }
 
 // vdata:: used in {dispatch_reduce -> mem_access_splitdstvxs.cpp -> MEMACCESSP2_readV} 
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	MEMCAP2_WRITEVDATAWITHVMASK(&buffer[0][bufferoffset_kvs + index], vdatas[0], 0);
@@ -1036,10 +1037,10 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer
 }
 
 // vdata:: used in {reduceupdates.cpp, processedges_splitdstvxs.cpp} 
-value_t acts_all::MEMCAP2_READFROMBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
+value_t MEMCAP2_READFROMBUFFER_VDATA(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_READFROMBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_READFROMBUFFER_VDATA:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	value_t vdata = MEMCAP2_READVDATA(buffer[bufferoffset_kvs + index]);
@@ -1047,10 +1048,10 @@ value_t acts_all::MEMCAP2_READFROMBUFFER_VDATA(unsigned int index, keyvalue_vbuf
 }
 
 // vdata:: used in {processedges_splitdstvxs.cpp} // soon obsolete 
-void acts_all::MEMCAP2_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_READFROMBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_READFROMBUFFER_VDATAS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	vdatas[0] = MEMCAP2_READVDATA(buffer[0][bufferoffset_kvs + index]);
@@ -1074,10 +1075,10 @@ void acts_all::MEMCAP2_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_vbuffe
 
 // vdata & vmasks 
 // used in {classname__processedges_splitdstvxs.cpp} 
-vmdata_t acts_all::MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
+vmdata_t MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_READFROMBUFFER_VDATASWITHVMASKS:", bufferoffset_kvs + index/2, BLOCKRAM_VDATA_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_READFROMBUFFER_VDATASWITHVMASKS:", bufferoffset_kvs + index/2, BLOCKRAM_VDATA_SIZE, index, NAp, NAp);
 	#endif
 	
 	vmdata_t vmdata;
@@ -1088,11 +1089,11 @@ vmdata_t acts_all::MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(unsigned int index, key
 	return vmdata;
 }
 
-void acts_all::MEMCAP2_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], unit1_type vmdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], unit1_type vmdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_READFROMBUFFER_VDATASWITHVMASKS:", bufferoffset_kvs + index/2, BLOCKRAM_VDATA_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_READFROMBUFFER_VDATASWITHVMASKS:", bufferoffset_kvs + index/2, BLOCKRAM_VDATA_SIZE, index, NAp, NAp);
 	#endif
 	
 	tuple_t tup0 = MEMCAP2_READVDATAWITHVMASK(buffer[0][bufferoffset_kvs + index]);
@@ -1147,10 +1148,10 @@ void acts_all::MEMCAP2_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyva
 }
 
 // used in {classname__top_nusrcv_nudstv.cpp->processit_splitdstvxs->MEMACCESSP2_readVchunks} 
-void acts_all::MEMCAP2_READFROMBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], vmdata_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_READFROMBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], vmdata_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_READFROMBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_READFROMBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	
@@ -1188,7 +1189,7 @@ void acts_all::MEMCAP2_READFROMBUFFER_VDATASANDVMASKS(unsigned int index, keyval
 	return;
 }
  
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], value_t vdata, unit1_type vmdata, batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], value_t vdata, unit1_type vmdata, batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFER_VDATAWITHVMASK:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
@@ -1198,10 +1199,10 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue
 	return;
 }
 
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer[0][bufferoffset_kvs + index] = datas[0];
@@ -1223,7 +1224,7 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalu
 	return;
 }
 
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -1264,11 +1265,11 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS(unsigned int inde
 	return;
 }
 
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -1289,11 +1290,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS1_ANDREPLICATE(unsigned int 
 	buffer0[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -1330,11 +1331,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS2_ANDREPLICATE(unsigned int 
 	buffer1[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -1387,11 +1388,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS3_ANDREPLICATE(unsigned int 
 	buffer2[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -1460,11 +1461,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS4_ANDREPLICATE(unsigned int 
 	buffer3[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -1549,11 +1550,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS5_ANDREPLICATE(unsigned int 
 	buffer4[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -1654,11 +1655,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS6_ANDREPLICATE(unsigned int 
 	buffer5[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -1775,11 +1776,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS7_ANDREPLICATE(unsigned int 
 	buffer6[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -1912,11 +1913,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS8_ANDREPLICATE(unsigned int 
 	buffer7[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -2065,11 +2066,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS9_ANDREPLICATE(unsigned int 
 	buffer8[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -2234,11 +2235,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS10_ANDREPLICATE(unsigned int
 	buffer9[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -2419,11 +2420,11 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS11_ANDREPLICATE(unsigned int
 	buffer10[15][bufferoffset_kvs + index] = vdatas[15];
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
+void MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(unsigned int index, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	buffer0[0][bufferoffset_kvs + index] = vdatas[0];
@@ -2621,7 +2622,7 @@ void acts_all::MEMCAP2_WRITETOBUFFER_VDATASANDVMASKS12_ANDREPLICATE(unsigned int
 	return;
 }
 
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS1_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS1_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -2661,7 +2662,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS1_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS2_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS2_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -2718,7 +2719,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS2_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS3_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS3_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -2792,7 +2793,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS3_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS4_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS4_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -2883,7 +2884,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS4_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS5_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS5_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -2991,7 +2992,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS5_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS6_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS6_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -3116,7 +3117,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS6_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS7_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS7_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -3258,7 +3259,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS7_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS8_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS8_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -3417,7 +3418,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS8_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS9_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS9_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -3593,7 +3594,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS9_ANDREPLICATE(uns
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS10_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS10_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -3786,7 +3787,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS10_ANDREPLICATE(un
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS11_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS11_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -3996,7 +3997,7 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS11_ANDREPLICATE(un
 	
 	return;
 }
-void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS12_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
+void MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS12_ANDREPLICATE(unsigned int indexes[VDATA_PACKINGSIZE], keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATAS:", bufferoffset_kvs + indexes[0]/2, BLOCKRAM_VDATA_SIZE, indexes[0], NAp, NAp);
@@ -4225,10 +4226,10 @@ void acts_all::MEMCAP2_WRITETOBUFFERWITHDEPTHS_VDATASANDVMASKS12_ANDREPLICATE(un
 }
 
 // kvdram 
-void acts_all::MEMCAP2_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){
+void MEMCAP2_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_READFROMKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_READFROMKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 	
 	#ifdef _WIDEWORD // CRITICAL FIXME.
@@ -4269,10 +4270,10 @@ void acts_all::MEMCAP2_READFROMKVDRAM_VDATASANDVMASKS(unsigned int index, uint51
 	return;
 }
 
-void acts_all::MEMCAP2_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){			
+void MEMCAP2_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512_dt * kvdram, keyvalue_vbuffer_t vdatas[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs){			
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP2_WRITETOKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP2_WRITETOKVDRAM_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
 	#endif
 
 	#ifdef _WIDEWORD // CRITICAL FIXME.
@@ -4315,7 +4316,7 @@ void acts_all::MEMCAP2_WRITETOKVDRAM_VDATASANDVMASKS(unsigned int index, uint512
 #endif 
 #ifdef CONFIG_ENABLECLASS_MEM_ACCESS
 // -------------------- key values -------------------- //
-fetchmessage_t acts_all::MEMACCESSP2_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
+fetchmessage_t MEMACCESSP2_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -4395,7 +4396,7 @@ fetchmessage_t acts_all::MEMACCESSP2_readkeyvalues(bool_type enable, uint512_dt 
 	return fetchmessage;
 }
 
-void acts_all::MEMACCESSP2_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+void MEMACCESSP2_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_destpartitionsz = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 	
@@ -4499,7 +4500,7 @@ void acts_all::MEMACCESSP2_savekeyvalues(bool_type enable, uint512_dt * kvdram, 
 	return;
 }
 
-void acts_all::MEMACCESSP2_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
 		
@@ -4574,7 +4575,7 @@ void acts_all::MEMACCESSP2_readkeyvalues(bool_type enable, uint512_dt * kvdram, 
 	return;
 }
 
-void acts_all::MEMACCESSP2_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESSP2_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  BLOCKRAM_SIZE;
 	
@@ -4641,7 +4642,7 @@ void acts_all::MEMACCESSP2_savekeyvalues(bool_type enable, uint512_dt * kvdram, 
 }
 
 // -------------------- vdata -------------------- //
-void acts_all::MEMACCESSP2_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+void MEMACCESSP2_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -5225,9 +5226,10 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESSP2_RearrangeLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE]){
-	unsigned int s_ = s % VECTOR2_SIZE;
- if(s_==0){ 
+void MEMACCESSP2_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]){
+	unsigned int s_ = s % VECTOR2_SIZE;	
+	
+	/*  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
 		vdata2[1] = vdata[1]; 
 		vdata2[2] = vdata[2]; 
@@ -5515,10 +5517,300 @@ else {
 		vdata2[15] = vdata[14]; 
 		vdata2[0] = vdata[15]; 
 	}
+ */
+	
+ if(s_==0){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==1){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==2){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==3){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==4){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==5){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==6){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==7){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==8){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==9){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==10){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==11){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==12){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==13){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else if(s_==14){ 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
+else { 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
+	}
 	return;
 }
 
-void acts_all::MEMACCESSP2_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -5596,7 +5888,7 @@ void acts_all::MEMACCESSP2_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void acts_all::MEMACCESSP2_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESSP2_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -5687,7 +5979,7 @@ void acts_all::MEMACCESSP2_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void acts_all::MEMACCESSP2_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -5752,22 +6044,43 @@ void acts_all::MEMACCESSP2_readANDRVchunks1(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -5777,9 +6090,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks1(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -5845,39 +6159,60 @@ void acts_all::MEMACCESSP2_readANDRVchunks2(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -5887,9 +6222,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks2(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -5956,56 +6292,77 @@ void acts_all::MEMACCESSP2_readANDRVchunks3(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -6015,9 +6372,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks3(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -6085,73 +6443,94 @@ void acts_all::MEMACCESSP2_readANDRVchunks4(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -6161,9 +6540,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks4(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -6232,90 +6612,111 @@ void acts_all::MEMACCESSP2_readANDRVchunks5(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
-			buffer4[0][bdepth_i + i] = vdata[0];
-			buffer4[1][bdepth_i + i] = vdata[1];
-			buffer4[2][bdepth_i + i] = vdata[2];
-			buffer4[3][bdepth_i + i] = vdata[3];
-			buffer4[4][bdepth_i + i] = vdata[4];
-			buffer4[5][bdepth_i + i] = vdata[5];
-			buffer4[6][bdepth_i + i] = vdata[6];
-			buffer4[7][bdepth_i + i] = vdata[7];
-			buffer4[8][bdepth_i + i] = vdata[8];
-			buffer4[9][bdepth_i + i] = vdata[9];
-			buffer4[10][bdepth_i + i] = vdata[10];
-			buffer4[11][bdepth_i + i] = vdata[11];
-			buffer4[12][bdepth_i + i] = vdata[12];
-			buffer4[13][bdepth_i + i] = vdata[13];
-			buffer4[14][bdepth_i + i] = vdata[14];
-			buffer4[15][bdepth_i + i] = vdata[15];
+			buffer4[0][bdepth_i + i] = vdata2[0];
+			buffer4[1][bdepth_i + i] = vdata2[1];
+			buffer4[2][bdepth_i + i] = vdata2[2];
+			buffer4[3][bdepth_i + i] = vdata2[3];
+			buffer4[4][bdepth_i + i] = vdata2[4];
+			buffer4[5][bdepth_i + i] = vdata2[5];
+			buffer4[6][bdepth_i + i] = vdata2[6];
+			buffer4[7][bdepth_i + i] = vdata2[7];
+			buffer4[8][bdepth_i + i] = vdata2[8];
+			buffer4[9][bdepth_i + i] = vdata2[9];
+			buffer4[10][bdepth_i + i] = vdata2[10];
+			buffer4[11][bdepth_i + i] = vdata2[11];
+			buffer4[12][bdepth_i + i] = vdata2[12];
+			buffer4[13][bdepth_i + i] = vdata2[13];
+			buffer4[14][bdepth_i + i] = vdata2[14];
+			buffer4[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -6325,9 +6726,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks5(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -6397,107 +6799,128 @@ void acts_all::MEMACCESSP2_readANDRVchunks6(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
-			buffer4[0][bdepth_i + i] = vdata[0];
-			buffer4[1][bdepth_i + i] = vdata[1];
-			buffer4[2][bdepth_i + i] = vdata[2];
-			buffer4[3][bdepth_i + i] = vdata[3];
-			buffer4[4][bdepth_i + i] = vdata[4];
-			buffer4[5][bdepth_i + i] = vdata[5];
-			buffer4[6][bdepth_i + i] = vdata[6];
-			buffer4[7][bdepth_i + i] = vdata[7];
-			buffer4[8][bdepth_i + i] = vdata[8];
-			buffer4[9][bdepth_i + i] = vdata[9];
-			buffer4[10][bdepth_i + i] = vdata[10];
-			buffer4[11][bdepth_i + i] = vdata[11];
-			buffer4[12][bdepth_i + i] = vdata[12];
-			buffer4[13][bdepth_i + i] = vdata[13];
-			buffer4[14][bdepth_i + i] = vdata[14];
-			buffer4[15][bdepth_i + i] = vdata[15];
+			buffer4[0][bdepth_i + i] = vdata2[0];
+			buffer4[1][bdepth_i + i] = vdata2[1];
+			buffer4[2][bdepth_i + i] = vdata2[2];
+			buffer4[3][bdepth_i + i] = vdata2[3];
+			buffer4[4][bdepth_i + i] = vdata2[4];
+			buffer4[5][bdepth_i + i] = vdata2[5];
+			buffer4[6][bdepth_i + i] = vdata2[6];
+			buffer4[7][bdepth_i + i] = vdata2[7];
+			buffer4[8][bdepth_i + i] = vdata2[8];
+			buffer4[9][bdepth_i + i] = vdata2[9];
+			buffer4[10][bdepth_i + i] = vdata2[10];
+			buffer4[11][bdepth_i + i] = vdata2[11];
+			buffer4[12][bdepth_i + i] = vdata2[12];
+			buffer4[13][bdepth_i + i] = vdata2[13];
+			buffer4[14][bdepth_i + i] = vdata2[14];
+			buffer4[15][bdepth_i + i] = vdata2[15];
 	
-			buffer5[0][bdepth_i + i] = vdata[0];
-			buffer5[1][bdepth_i + i] = vdata[1];
-			buffer5[2][bdepth_i + i] = vdata[2];
-			buffer5[3][bdepth_i + i] = vdata[3];
-			buffer5[4][bdepth_i + i] = vdata[4];
-			buffer5[5][bdepth_i + i] = vdata[5];
-			buffer5[6][bdepth_i + i] = vdata[6];
-			buffer5[7][bdepth_i + i] = vdata[7];
-			buffer5[8][bdepth_i + i] = vdata[8];
-			buffer5[9][bdepth_i + i] = vdata[9];
-			buffer5[10][bdepth_i + i] = vdata[10];
-			buffer5[11][bdepth_i + i] = vdata[11];
-			buffer5[12][bdepth_i + i] = vdata[12];
-			buffer5[13][bdepth_i + i] = vdata[13];
-			buffer5[14][bdepth_i + i] = vdata[14];
-			buffer5[15][bdepth_i + i] = vdata[15];
+			buffer5[0][bdepth_i + i] = vdata2[0];
+			buffer5[1][bdepth_i + i] = vdata2[1];
+			buffer5[2][bdepth_i + i] = vdata2[2];
+			buffer5[3][bdepth_i + i] = vdata2[3];
+			buffer5[4][bdepth_i + i] = vdata2[4];
+			buffer5[5][bdepth_i + i] = vdata2[5];
+			buffer5[6][bdepth_i + i] = vdata2[6];
+			buffer5[7][bdepth_i + i] = vdata2[7];
+			buffer5[8][bdepth_i + i] = vdata2[8];
+			buffer5[9][bdepth_i + i] = vdata2[9];
+			buffer5[10][bdepth_i + i] = vdata2[10];
+			buffer5[11][bdepth_i + i] = vdata2[11];
+			buffer5[12][bdepth_i + i] = vdata2[12];
+			buffer5[13][bdepth_i + i] = vdata2[13];
+			buffer5[14][bdepth_i + i] = vdata2[14];
+			buffer5[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -6507,9 +6930,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks6(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -6580,124 +7004,145 @@ void acts_all::MEMACCESSP2_readANDRVchunks7(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
-			buffer4[0][bdepth_i + i] = vdata[0];
-			buffer4[1][bdepth_i + i] = vdata[1];
-			buffer4[2][bdepth_i + i] = vdata[2];
-			buffer4[3][bdepth_i + i] = vdata[3];
-			buffer4[4][bdepth_i + i] = vdata[4];
-			buffer4[5][bdepth_i + i] = vdata[5];
-			buffer4[6][bdepth_i + i] = vdata[6];
-			buffer4[7][bdepth_i + i] = vdata[7];
-			buffer4[8][bdepth_i + i] = vdata[8];
-			buffer4[9][bdepth_i + i] = vdata[9];
-			buffer4[10][bdepth_i + i] = vdata[10];
-			buffer4[11][bdepth_i + i] = vdata[11];
-			buffer4[12][bdepth_i + i] = vdata[12];
-			buffer4[13][bdepth_i + i] = vdata[13];
-			buffer4[14][bdepth_i + i] = vdata[14];
-			buffer4[15][bdepth_i + i] = vdata[15];
+			buffer4[0][bdepth_i + i] = vdata2[0];
+			buffer4[1][bdepth_i + i] = vdata2[1];
+			buffer4[2][bdepth_i + i] = vdata2[2];
+			buffer4[3][bdepth_i + i] = vdata2[3];
+			buffer4[4][bdepth_i + i] = vdata2[4];
+			buffer4[5][bdepth_i + i] = vdata2[5];
+			buffer4[6][bdepth_i + i] = vdata2[6];
+			buffer4[7][bdepth_i + i] = vdata2[7];
+			buffer4[8][bdepth_i + i] = vdata2[8];
+			buffer4[9][bdepth_i + i] = vdata2[9];
+			buffer4[10][bdepth_i + i] = vdata2[10];
+			buffer4[11][bdepth_i + i] = vdata2[11];
+			buffer4[12][bdepth_i + i] = vdata2[12];
+			buffer4[13][bdepth_i + i] = vdata2[13];
+			buffer4[14][bdepth_i + i] = vdata2[14];
+			buffer4[15][bdepth_i + i] = vdata2[15];
 	
-			buffer5[0][bdepth_i + i] = vdata[0];
-			buffer5[1][bdepth_i + i] = vdata[1];
-			buffer5[2][bdepth_i + i] = vdata[2];
-			buffer5[3][bdepth_i + i] = vdata[3];
-			buffer5[4][bdepth_i + i] = vdata[4];
-			buffer5[5][bdepth_i + i] = vdata[5];
-			buffer5[6][bdepth_i + i] = vdata[6];
-			buffer5[7][bdepth_i + i] = vdata[7];
-			buffer5[8][bdepth_i + i] = vdata[8];
-			buffer5[9][bdepth_i + i] = vdata[9];
-			buffer5[10][bdepth_i + i] = vdata[10];
-			buffer5[11][bdepth_i + i] = vdata[11];
-			buffer5[12][bdepth_i + i] = vdata[12];
-			buffer5[13][bdepth_i + i] = vdata[13];
-			buffer5[14][bdepth_i + i] = vdata[14];
-			buffer5[15][bdepth_i + i] = vdata[15];
+			buffer5[0][bdepth_i + i] = vdata2[0];
+			buffer5[1][bdepth_i + i] = vdata2[1];
+			buffer5[2][bdepth_i + i] = vdata2[2];
+			buffer5[3][bdepth_i + i] = vdata2[3];
+			buffer5[4][bdepth_i + i] = vdata2[4];
+			buffer5[5][bdepth_i + i] = vdata2[5];
+			buffer5[6][bdepth_i + i] = vdata2[6];
+			buffer5[7][bdepth_i + i] = vdata2[7];
+			buffer5[8][bdepth_i + i] = vdata2[8];
+			buffer5[9][bdepth_i + i] = vdata2[9];
+			buffer5[10][bdepth_i + i] = vdata2[10];
+			buffer5[11][bdepth_i + i] = vdata2[11];
+			buffer5[12][bdepth_i + i] = vdata2[12];
+			buffer5[13][bdepth_i + i] = vdata2[13];
+			buffer5[14][bdepth_i + i] = vdata2[14];
+			buffer5[15][bdepth_i + i] = vdata2[15];
 	
-			buffer6[0][bdepth_i + i] = vdata[0];
-			buffer6[1][bdepth_i + i] = vdata[1];
-			buffer6[2][bdepth_i + i] = vdata[2];
-			buffer6[3][bdepth_i + i] = vdata[3];
-			buffer6[4][bdepth_i + i] = vdata[4];
-			buffer6[5][bdepth_i + i] = vdata[5];
-			buffer6[6][bdepth_i + i] = vdata[6];
-			buffer6[7][bdepth_i + i] = vdata[7];
-			buffer6[8][bdepth_i + i] = vdata[8];
-			buffer6[9][bdepth_i + i] = vdata[9];
-			buffer6[10][bdepth_i + i] = vdata[10];
-			buffer6[11][bdepth_i + i] = vdata[11];
-			buffer6[12][bdepth_i + i] = vdata[12];
-			buffer6[13][bdepth_i + i] = vdata[13];
-			buffer6[14][bdepth_i + i] = vdata[14];
-			buffer6[15][bdepth_i + i] = vdata[15];
+			buffer6[0][bdepth_i + i] = vdata2[0];
+			buffer6[1][bdepth_i + i] = vdata2[1];
+			buffer6[2][bdepth_i + i] = vdata2[2];
+			buffer6[3][bdepth_i + i] = vdata2[3];
+			buffer6[4][bdepth_i + i] = vdata2[4];
+			buffer6[5][bdepth_i + i] = vdata2[5];
+			buffer6[6][bdepth_i + i] = vdata2[6];
+			buffer6[7][bdepth_i + i] = vdata2[7];
+			buffer6[8][bdepth_i + i] = vdata2[8];
+			buffer6[9][bdepth_i + i] = vdata2[9];
+			buffer6[10][bdepth_i + i] = vdata2[10];
+			buffer6[11][bdepth_i + i] = vdata2[11];
+			buffer6[12][bdepth_i + i] = vdata2[12];
+			buffer6[13][bdepth_i + i] = vdata2[13];
+			buffer6[14][bdepth_i + i] = vdata2[14];
+			buffer6[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -6707,9 +7152,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks7(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -6781,141 +7227,162 @@ void acts_all::MEMACCESSP2_readANDRVchunks8(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
-			buffer4[0][bdepth_i + i] = vdata[0];
-			buffer4[1][bdepth_i + i] = vdata[1];
-			buffer4[2][bdepth_i + i] = vdata[2];
-			buffer4[3][bdepth_i + i] = vdata[3];
-			buffer4[4][bdepth_i + i] = vdata[4];
-			buffer4[5][bdepth_i + i] = vdata[5];
-			buffer4[6][bdepth_i + i] = vdata[6];
-			buffer4[7][bdepth_i + i] = vdata[7];
-			buffer4[8][bdepth_i + i] = vdata[8];
-			buffer4[9][bdepth_i + i] = vdata[9];
-			buffer4[10][bdepth_i + i] = vdata[10];
-			buffer4[11][bdepth_i + i] = vdata[11];
-			buffer4[12][bdepth_i + i] = vdata[12];
-			buffer4[13][bdepth_i + i] = vdata[13];
-			buffer4[14][bdepth_i + i] = vdata[14];
-			buffer4[15][bdepth_i + i] = vdata[15];
+			buffer4[0][bdepth_i + i] = vdata2[0];
+			buffer4[1][bdepth_i + i] = vdata2[1];
+			buffer4[2][bdepth_i + i] = vdata2[2];
+			buffer4[3][bdepth_i + i] = vdata2[3];
+			buffer4[4][bdepth_i + i] = vdata2[4];
+			buffer4[5][bdepth_i + i] = vdata2[5];
+			buffer4[6][bdepth_i + i] = vdata2[6];
+			buffer4[7][bdepth_i + i] = vdata2[7];
+			buffer4[8][bdepth_i + i] = vdata2[8];
+			buffer4[9][bdepth_i + i] = vdata2[9];
+			buffer4[10][bdepth_i + i] = vdata2[10];
+			buffer4[11][bdepth_i + i] = vdata2[11];
+			buffer4[12][bdepth_i + i] = vdata2[12];
+			buffer4[13][bdepth_i + i] = vdata2[13];
+			buffer4[14][bdepth_i + i] = vdata2[14];
+			buffer4[15][bdepth_i + i] = vdata2[15];
 	
-			buffer5[0][bdepth_i + i] = vdata[0];
-			buffer5[1][bdepth_i + i] = vdata[1];
-			buffer5[2][bdepth_i + i] = vdata[2];
-			buffer5[3][bdepth_i + i] = vdata[3];
-			buffer5[4][bdepth_i + i] = vdata[4];
-			buffer5[5][bdepth_i + i] = vdata[5];
-			buffer5[6][bdepth_i + i] = vdata[6];
-			buffer5[7][bdepth_i + i] = vdata[7];
-			buffer5[8][bdepth_i + i] = vdata[8];
-			buffer5[9][bdepth_i + i] = vdata[9];
-			buffer5[10][bdepth_i + i] = vdata[10];
-			buffer5[11][bdepth_i + i] = vdata[11];
-			buffer5[12][bdepth_i + i] = vdata[12];
-			buffer5[13][bdepth_i + i] = vdata[13];
-			buffer5[14][bdepth_i + i] = vdata[14];
-			buffer5[15][bdepth_i + i] = vdata[15];
+			buffer5[0][bdepth_i + i] = vdata2[0];
+			buffer5[1][bdepth_i + i] = vdata2[1];
+			buffer5[2][bdepth_i + i] = vdata2[2];
+			buffer5[3][bdepth_i + i] = vdata2[3];
+			buffer5[4][bdepth_i + i] = vdata2[4];
+			buffer5[5][bdepth_i + i] = vdata2[5];
+			buffer5[6][bdepth_i + i] = vdata2[6];
+			buffer5[7][bdepth_i + i] = vdata2[7];
+			buffer5[8][bdepth_i + i] = vdata2[8];
+			buffer5[9][bdepth_i + i] = vdata2[9];
+			buffer5[10][bdepth_i + i] = vdata2[10];
+			buffer5[11][bdepth_i + i] = vdata2[11];
+			buffer5[12][bdepth_i + i] = vdata2[12];
+			buffer5[13][bdepth_i + i] = vdata2[13];
+			buffer5[14][bdepth_i + i] = vdata2[14];
+			buffer5[15][bdepth_i + i] = vdata2[15];
 	
-			buffer6[0][bdepth_i + i] = vdata[0];
-			buffer6[1][bdepth_i + i] = vdata[1];
-			buffer6[2][bdepth_i + i] = vdata[2];
-			buffer6[3][bdepth_i + i] = vdata[3];
-			buffer6[4][bdepth_i + i] = vdata[4];
-			buffer6[5][bdepth_i + i] = vdata[5];
-			buffer6[6][bdepth_i + i] = vdata[6];
-			buffer6[7][bdepth_i + i] = vdata[7];
-			buffer6[8][bdepth_i + i] = vdata[8];
-			buffer6[9][bdepth_i + i] = vdata[9];
-			buffer6[10][bdepth_i + i] = vdata[10];
-			buffer6[11][bdepth_i + i] = vdata[11];
-			buffer6[12][bdepth_i + i] = vdata[12];
-			buffer6[13][bdepth_i + i] = vdata[13];
-			buffer6[14][bdepth_i + i] = vdata[14];
-			buffer6[15][bdepth_i + i] = vdata[15];
+			buffer6[0][bdepth_i + i] = vdata2[0];
+			buffer6[1][bdepth_i + i] = vdata2[1];
+			buffer6[2][bdepth_i + i] = vdata2[2];
+			buffer6[3][bdepth_i + i] = vdata2[3];
+			buffer6[4][bdepth_i + i] = vdata2[4];
+			buffer6[5][bdepth_i + i] = vdata2[5];
+			buffer6[6][bdepth_i + i] = vdata2[6];
+			buffer6[7][bdepth_i + i] = vdata2[7];
+			buffer6[8][bdepth_i + i] = vdata2[8];
+			buffer6[9][bdepth_i + i] = vdata2[9];
+			buffer6[10][bdepth_i + i] = vdata2[10];
+			buffer6[11][bdepth_i + i] = vdata2[11];
+			buffer6[12][bdepth_i + i] = vdata2[12];
+			buffer6[13][bdepth_i + i] = vdata2[13];
+			buffer6[14][bdepth_i + i] = vdata2[14];
+			buffer6[15][bdepth_i + i] = vdata2[15];
 	
-			buffer7[0][bdepth_i + i] = vdata[0];
-			buffer7[1][bdepth_i + i] = vdata[1];
-			buffer7[2][bdepth_i + i] = vdata[2];
-			buffer7[3][bdepth_i + i] = vdata[3];
-			buffer7[4][bdepth_i + i] = vdata[4];
-			buffer7[5][bdepth_i + i] = vdata[5];
-			buffer7[6][bdepth_i + i] = vdata[6];
-			buffer7[7][bdepth_i + i] = vdata[7];
-			buffer7[8][bdepth_i + i] = vdata[8];
-			buffer7[9][bdepth_i + i] = vdata[9];
-			buffer7[10][bdepth_i + i] = vdata[10];
-			buffer7[11][bdepth_i + i] = vdata[11];
-			buffer7[12][bdepth_i + i] = vdata[12];
-			buffer7[13][bdepth_i + i] = vdata[13];
-			buffer7[14][bdepth_i + i] = vdata[14];
-			buffer7[15][bdepth_i + i] = vdata[15];
+			buffer7[0][bdepth_i + i] = vdata2[0];
+			buffer7[1][bdepth_i + i] = vdata2[1];
+			buffer7[2][bdepth_i + i] = vdata2[2];
+			buffer7[3][bdepth_i + i] = vdata2[3];
+			buffer7[4][bdepth_i + i] = vdata2[4];
+			buffer7[5][bdepth_i + i] = vdata2[5];
+			buffer7[6][bdepth_i + i] = vdata2[6];
+			buffer7[7][bdepth_i + i] = vdata2[7];
+			buffer7[8][bdepth_i + i] = vdata2[8];
+			buffer7[9][bdepth_i + i] = vdata2[9];
+			buffer7[10][bdepth_i + i] = vdata2[10];
+			buffer7[11][bdepth_i + i] = vdata2[11];
+			buffer7[12][bdepth_i + i] = vdata2[12];
+			buffer7[13][bdepth_i + i] = vdata2[13];
+			buffer7[14][bdepth_i + i] = vdata2[14];
+			buffer7[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -6925,9 +7392,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks8(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -7000,158 +7468,179 @@ void acts_all::MEMACCESSP2_readANDRVchunks9(bool_type enable, uint512_dt * vdram
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
-			buffer4[0][bdepth_i + i] = vdata[0];
-			buffer4[1][bdepth_i + i] = vdata[1];
-			buffer4[2][bdepth_i + i] = vdata[2];
-			buffer4[3][bdepth_i + i] = vdata[3];
-			buffer4[4][bdepth_i + i] = vdata[4];
-			buffer4[5][bdepth_i + i] = vdata[5];
-			buffer4[6][bdepth_i + i] = vdata[6];
-			buffer4[7][bdepth_i + i] = vdata[7];
-			buffer4[8][bdepth_i + i] = vdata[8];
-			buffer4[9][bdepth_i + i] = vdata[9];
-			buffer4[10][bdepth_i + i] = vdata[10];
-			buffer4[11][bdepth_i + i] = vdata[11];
-			buffer4[12][bdepth_i + i] = vdata[12];
-			buffer4[13][bdepth_i + i] = vdata[13];
-			buffer4[14][bdepth_i + i] = vdata[14];
-			buffer4[15][bdepth_i + i] = vdata[15];
+			buffer4[0][bdepth_i + i] = vdata2[0];
+			buffer4[1][bdepth_i + i] = vdata2[1];
+			buffer4[2][bdepth_i + i] = vdata2[2];
+			buffer4[3][bdepth_i + i] = vdata2[3];
+			buffer4[4][bdepth_i + i] = vdata2[4];
+			buffer4[5][bdepth_i + i] = vdata2[5];
+			buffer4[6][bdepth_i + i] = vdata2[6];
+			buffer4[7][bdepth_i + i] = vdata2[7];
+			buffer4[8][bdepth_i + i] = vdata2[8];
+			buffer4[9][bdepth_i + i] = vdata2[9];
+			buffer4[10][bdepth_i + i] = vdata2[10];
+			buffer4[11][bdepth_i + i] = vdata2[11];
+			buffer4[12][bdepth_i + i] = vdata2[12];
+			buffer4[13][bdepth_i + i] = vdata2[13];
+			buffer4[14][bdepth_i + i] = vdata2[14];
+			buffer4[15][bdepth_i + i] = vdata2[15];
 	
-			buffer5[0][bdepth_i + i] = vdata[0];
-			buffer5[1][bdepth_i + i] = vdata[1];
-			buffer5[2][bdepth_i + i] = vdata[2];
-			buffer5[3][bdepth_i + i] = vdata[3];
-			buffer5[4][bdepth_i + i] = vdata[4];
-			buffer5[5][bdepth_i + i] = vdata[5];
-			buffer5[6][bdepth_i + i] = vdata[6];
-			buffer5[7][bdepth_i + i] = vdata[7];
-			buffer5[8][bdepth_i + i] = vdata[8];
-			buffer5[9][bdepth_i + i] = vdata[9];
-			buffer5[10][bdepth_i + i] = vdata[10];
-			buffer5[11][bdepth_i + i] = vdata[11];
-			buffer5[12][bdepth_i + i] = vdata[12];
-			buffer5[13][bdepth_i + i] = vdata[13];
-			buffer5[14][bdepth_i + i] = vdata[14];
-			buffer5[15][bdepth_i + i] = vdata[15];
+			buffer5[0][bdepth_i + i] = vdata2[0];
+			buffer5[1][bdepth_i + i] = vdata2[1];
+			buffer5[2][bdepth_i + i] = vdata2[2];
+			buffer5[3][bdepth_i + i] = vdata2[3];
+			buffer5[4][bdepth_i + i] = vdata2[4];
+			buffer5[5][bdepth_i + i] = vdata2[5];
+			buffer5[6][bdepth_i + i] = vdata2[6];
+			buffer5[7][bdepth_i + i] = vdata2[7];
+			buffer5[8][bdepth_i + i] = vdata2[8];
+			buffer5[9][bdepth_i + i] = vdata2[9];
+			buffer5[10][bdepth_i + i] = vdata2[10];
+			buffer5[11][bdepth_i + i] = vdata2[11];
+			buffer5[12][bdepth_i + i] = vdata2[12];
+			buffer5[13][bdepth_i + i] = vdata2[13];
+			buffer5[14][bdepth_i + i] = vdata2[14];
+			buffer5[15][bdepth_i + i] = vdata2[15];
 	
-			buffer6[0][bdepth_i + i] = vdata[0];
-			buffer6[1][bdepth_i + i] = vdata[1];
-			buffer6[2][bdepth_i + i] = vdata[2];
-			buffer6[3][bdepth_i + i] = vdata[3];
-			buffer6[4][bdepth_i + i] = vdata[4];
-			buffer6[5][bdepth_i + i] = vdata[5];
-			buffer6[6][bdepth_i + i] = vdata[6];
-			buffer6[7][bdepth_i + i] = vdata[7];
-			buffer6[8][bdepth_i + i] = vdata[8];
-			buffer6[9][bdepth_i + i] = vdata[9];
-			buffer6[10][bdepth_i + i] = vdata[10];
-			buffer6[11][bdepth_i + i] = vdata[11];
-			buffer6[12][bdepth_i + i] = vdata[12];
-			buffer6[13][bdepth_i + i] = vdata[13];
-			buffer6[14][bdepth_i + i] = vdata[14];
-			buffer6[15][bdepth_i + i] = vdata[15];
+			buffer6[0][bdepth_i + i] = vdata2[0];
+			buffer6[1][bdepth_i + i] = vdata2[1];
+			buffer6[2][bdepth_i + i] = vdata2[2];
+			buffer6[3][bdepth_i + i] = vdata2[3];
+			buffer6[4][bdepth_i + i] = vdata2[4];
+			buffer6[5][bdepth_i + i] = vdata2[5];
+			buffer6[6][bdepth_i + i] = vdata2[6];
+			buffer6[7][bdepth_i + i] = vdata2[7];
+			buffer6[8][bdepth_i + i] = vdata2[8];
+			buffer6[9][bdepth_i + i] = vdata2[9];
+			buffer6[10][bdepth_i + i] = vdata2[10];
+			buffer6[11][bdepth_i + i] = vdata2[11];
+			buffer6[12][bdepth_i + i] = vdata2[12];
+			buffer6[13][bdepth_i + i] = vdata2[13];
+			buffer6[14][bdepth_i + i] = vdata2[14];
+			buffer6[15][bdepth_i + i] = vdata2[15];
 	
-			buffer7[0][bdepth_i + i] = vdata[0];
-			buffer7[1][bdepth_i + i] = vdata[1];
-			buffer7[2][bdepth_i + i] = vdata[2];
-			buffer7[3][bdepth_i + i] = vdata[3];
-			buffer7[4][bdepth_i + i] = vdata[4];
-			buffer7[5][bdepth_i + i] = vdata[5];
-			buffer7[6][bdepth_i + i] = vdata[6];
-			buffer7[7][bdepth_i + i] = vdata[7];
-			buffer7[8][bdepth_i + i] = vdata[8];
-			buffer7[9][bdepth_i + i] = vdata[9];
-			buffer7[10][bdepth_i + i] = vdata[10];
-			buffer7[11][bdepth_i + i] = vdata[11];
-			buffer7[12][bdepth_i + i] = vdata[12];
-			buffer7[13][bdepth_i + i] = vdata[13];
-			buffer7[14][bdepth_i + i] = vdata[14];
-			buffer7[15][bdepth_i + i] = vdata[15];
+			buffer7[0][bdepth_i + i] = vdata2[0];
+			buffer7[1][bdepth_i + i] = vdata2[1];
+			buffer7[2][bdepth_i + i] = vdata2[2];
+			buffer7[3][bdepth_i + i] = vdata2[3];
+			buffer7[4][bdepth_i + i] = vdata2[4];
+			buffer7[5][bdepth_i + i] = vdata2[5];
+			buffer7[6][bdepth_i + i] = vdata2[6];
+			buffer7[7][bdepth_i + i] = vdata2[7];
+			buffer7[8][bdepth_i + i] = vdata2[8];
+			buffer7[9][bdepth_i + i] = vdata2[9];
+			buffer7[10][bdepth_i + i] = vdata2[10];
+			buffer7[11][bdepth_i + i] = vdata2[11];
+			buffer7[12][bdepth_i + i] = vdata2[12];
+			buffer7[13][bdepth_i + i] = vdata2[13];
+			buffer7[14][bdepth_i + i] = vdata2[14];
+			buffer7[15][bdepth_i + i] = vdata2[15];
 	
-			buffer8[0][bdepth_i + i] = vdata[0];
-			buffer8[1][bdepth_i + i] = vdata[1];
-			buffer8[2][bdepth_i + i] = vdata[2];
-			buffer8[3][bdepth_i + i] = vdata[3];
-			buffer8[4][bdepth_i + i] = vdata[4];
-			buffer8[5][bdepth_i + i] = vdata[5];
-			buffer8[6][bdepth_i + i] = vdata[6];
-			buffer8[7][bdepth_i + i] = vdata[7];
-			buffer8[8][bdepth_i + i] = vdata[8];
-			buffer8[9][bdepth_i + i] = vdata[9];
-			buffer8[10][bdepth_i + i] = vdata[10];
-			buffer8[11][bdepth_i + i] = vdata[11];
-			buffer8[12][bdepth_i + i] = vdata[12];
-			buffer8[13][bdepth_i + i] = vdata[13];
-			buffer8[14][bdepth_i + i] = vdata[14];
-			buffer8[15][bdepth_i + i] = vdata[15];
+			buffer8[0][bdepth_i + i] = vdata2[0];
+			buffer8[1][bdepth_i + i] = vdata2[1];
+			buffer8[2][bdepth_i + i] = vdata2[2];
+			buffer8[3][bdepth_i + i] = vdata2[3];
+			buffer8[4][bdepth_i + i] = vdata2[4];
+			buffer8[5][bdepth_i + i] = vdata2[5];
+			buffer8[6][bdepth_i + i] = vdata2[6];
+			buffer8[7][bdepth_i + i] = vdata2[7];
+			buffer8[8][bdepth_i + i] = vdata2[8];
+			buffer8[9][bdepth_i + i] = vdata2[9];
+			buffer8[10][bdepth_i + i] = vdata2[10];
+			buffer8[11][bdepth_i + i] = vdata2[11];
+			buffer8[12][bdepth_i + i] = vdata2[12];
+			buffer8[13][bdepth_i + i] = vdata2[13];
+			buffer8[14][bdepth_i + i] = vdata2[14];
+			buffer8[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -7161,9 +7650,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks9(bool_type enable, uint512_dt * vdram
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -7237,175 +7727,196 @@ void acts_all::MEMACCESSP2_readANDRVchunks10(bool_type enable, uint512_dt * vdra
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
-			buffer4[0][bdepth_i + i] = vdata[0];
-			buffer4[1][bdepth_i + i] = vdata[1];
-			buffer4[2][bdepth_i + i] = vdata[2];
-			buffer4[3][bdepth_i + i] = vdata[3];
-			buffer4[4][bdepth_i + i] = vdata[4];
-			buffer4[5][bdepth_i + i] = vdata[5];
-			buffer4[6][bdepth_i + i] = vdata[6];
-			buffer4[7][bdepth_i + i] = vdata[7];
-			buffer4[8][bdepth_i + i] = vdata[8];
-			buffer4[9][bdepth_i + i] = vdata[9];
-			buffer4[10][bdepth_i + i] = vdata[10];
-			buffer4[11][bdepth_i + i] = vdata[11];
-			buffer4[12][bdepth_i + i] = vdata[12];
-			buffer4[13][bdepth_i + i] = vdata[13];
-			buffer4[14][bdepth_i + i] = vdata[14];
-			buffer4[15][bdepth_i + i] = vdata[15];
+			buffer4[0][bdepth_i + i] = vdata2[0];
+			buffer4[1][bdepth_i + i] = vdata2[1];
+			buffer4[2][bdepth_i + i] = vdata2[2];
+			buffer4[3][bdepth_i + i] = vdata2[3];
+			buffer4[4][bdepth_i + i] = vdata2[4];
+			buffer4[5][bdepth_i + i] = vdata2[5];
+			buffer4[6][bdepth_i + i] = vdata2[6];
+			buffer4[7][bdepth_i + i] = vdata2[7];
+			buffer4[8][bdepth_i + i] = vdata2[8];
+			buffer4[9][bdepth_i + i] = vdata2[9];
+			buffer4[10][bdepth_i + i] = vdata2[10];
+			buffer4[11][bdepth_i + i] = vdata2[11];
+			buffer4[12][bdepth_i + i] = vdata2[12];
+			buffer4[13][bdepth_i + i] = vdata2[13];
+			buffer4[14][bdepth_i + i] = vdata2[14];
+			buffer4[15][bdepth_i + i] = vdata2[15];
 	
-			buffer5[0][bdepth_i + i] = vdata[0];
-			buffer5[1][bdepth_i + i] = vdata[1];
-			buffer5[2][bdepth_i + i] = vdata[2];
-			buffer5[3][bdepth_i + i] = vdata[3];
-			buffer5[4][bdepth_i + i] = vdata[4];
-			buffer5[5][bdepth_i + i] = vdata[5];
-			buffer5[6][bdepth_i + i] = vdata[6];
-			buffer5[7][bdepth_i + i] = vdata[7];
-			buffer5[8][bdepth_i + i] = vdata[8];
-			buffer5[9][bdepth_i + i] = vdata[9];
-			buffer5[10][bdepth_i + i] = vdata[10];
-			buffer5[11][bdepth_i + i] = vdata[11];
-			buffer5[12][bdepth_i + i] = vdata[12];
-			buffer5[13][bdepth_i + i] = vdata[13];
-			buffer5[14][bdepth_i + i] = vdata[14];
-			buffer5[15][bdepth_i + i] = vdata[15];
+			buffer5[0][bdepth_i + i] = vdata2[0];
+			buffer5[1][bdepth_i + i] = vdata2[1];
+			buffer5[2][bdepth_i + i] = vdata2[2];
+			buffer5[3][bdepth_i + i] = vdata2[3];
+			buffer5[4][bdepth_i + i] = vdata2[4];
+			buffer5[5][bdepth_i + i] = vdata2[5];
+			buffer5[6][bdepth_i + i] = vdata2[6];
+			buffer5[7][bdepth_i + i] = vdata2[7];
+			buffer5[8][bdepth_i + i] = vdata2[8];
+			buffer5[9][bdepth_i + i] = vdata2[9];
+			buffer5[10][bdepth_i + i] = vdata2[10];
+			buffer5[11][bdepth_i + i] = vdata2[11];
+			buffer5[12][bdepth_i + i] = vdata2[12];
+			buffer5[13][bdepth_i + i] = vdata2[13];
+			buffer5[14][bdepth_i + i] = vdata2[14];
+			buffer5[15][bdepth_i + i] = vdata2[15];
 	
-			buffer6[0][bdepth_i + i] = vdata[0];
-			buffer6[1][bdepth_i + i] = vdata[1];
-			buffer6[2][bdepth_i + i] = vdata[2];
-			buffer6[3][bdepth_i + i] = vdata[3];
-			buffer6[4][bdepth_i + i] = vdata[4];
-			buffer6[5][bdepth_i + i] = vdata[5];
-			buffer6[6][bdepth_i + i] = vdata[6];
-			buffer6[7][bdepth_i + i] = vdata[7];
-			buffer6[8][bdepth_i + i] = vdata[8];
-			buffer6[9][bdepth_i + i] = vdata[9];
-			buffer6[10][bdepth_i + i] = vdata[10];
-			buffer6[11][bdepth_i + i] = vdata[11];
-			buffer6[12][bdepth_i + i] = vdata[12];
-			buffer6[13][bdepth_i + i] = vdata[13];
-			buffer6[14][bdepth_i + i] = vdata[14];
-			buffer6[15][bdepth_i + i] = vdata[15];
+			buffer6[0][bdepth_i + i] = vdata2[0];
+			buffer6[1][bdepth_i + i] = vdata2[1];
+			buffer6[2][bdepth_i + i] = vdata2[2];
+			buffer6[3][bdepth_i + i] = vdata2[3];
+			buffer6[4][bdepth_i + i] = vdata2[4];
+			buffer6[5][bdepth_i + i] = vdata2[5];
+			buffer6[6][bdepth_i + i] = vdata2[6];
+			buffer6[7][bdepth_i + i] = vdata2[7];
+			buffer6[8][bdepth_i + i] = vdata2[8];
+			buffer6[9][bdepth_i + i] = vdata2[9];
+			buffer6[10][bdepth_i + i] = vdata2[10];
+			buffer6[11][bdepth_i + i] = vdata2[11];
+			buffer6[12][bdepth_i + i] = vdata2[12];
+			buffer6[13][bdepth_i + i] = vdata2[13];
+			buffer6[14][bdepth_i + i] = vdata2[14];
+			buffer6[15][bdepth_i + i] = vdata2[15];
 	
-			buffer7[0][bdepth_i + i] = vdata[0];
-			buffer7[1][bdepth_i + i] = vdata[1];
-			buffer7[2][bdepth_i + i] = vdata[2];
-			buffer7[3][bdepth_i + i] = vdata[3];
-			buffer7[4][bdepth_i + i] = vdata[4];
-			buffer7[5][bdepth_i + i] = vdata[5];
-			buffer7[6][bdepth_i + i] = vdata[6];
-			buffer7[7][bdepth_i + i] = vdata[7];
-			buffer7[8][bdepth_i + i] = vdata[8];
-			buffer7[9][bdepth_i + i] = vdata[9];
-			buffer7[10][bdepth_i + i] = vdata[10];
-			buffer7[11][bdepth_i + i] = vdata[11];
-			buffer7[12][bdepth_i + i] = vdata[12];
-			buffer7[13][bdepth_i + i] = vdata[13];
-			buffer7[14][bdepth_i + i] = vdata[14];
-			buffer7[15][bdepth_i + i] = vdata[15];
+			buffer7[0][bdepth_i + i] = vdata2[0];
+			buffer7[1][bdepth_i + i] = vdata2[1];
+			buffer7[2][bdepth_i + i] = vdata2[2];
+			buffer7[3][bdepth_i + i] = vdata2[3];
+			buffer7[4][bdepth_i + i] = vdata2[4];
+			buffer7[5][bdepth_i + i] = vdata2[5];
+			buffer7[6][bdepth_i + i] = vdata2[6];
+			buffer7[7][bdepth_i + i] = vdata2[7];
+			buffer7[8][bdepth_i + i] = vdata2[8];
+			buffer7[9][bdepth_i + i] = vdata2[9];
+			buffer7[10][bdepth_i + i] = vdata2[10];
+			buffer7[11][bdepth_i + i] = vdata2[11];
+			buffer7[12][bdepth_i + i] = vdata2[12];
+			buffer7[13][bdepth_i + i] = vdata2[13];
+			buffer7[14][bdepth_i + i] = vdata2[14];
+			buffer7[15][bdepth_i + i] = vdata2[15];
 	
-			buffer8[0][bdepth_i + i] = vdata[0];
-			buffer8[1][bdepth_i + i] = vdata[1];
-			buffer8[2][bdepth_i + i] = vdata[2];
-			buffer8[3][bdepth_i + i] = vdata[3];
-			buffer8[4][bdepth_i + i] = vdata[4];
-			buffer8[5][bdepth_i + i] = vdata[5];
-			buffer8[6][bdepth_i + i] = vdata[6];
-			buffer8[7][bdepth_i + i] = vdata[7];
-			buffer8[8][bdepth_i + i] = vdata[8];
-			buffer8[9][bdepth_i + i] = vdata[9];
-			buffer8[10][bdepth_i + i] = vdata[10];
-			buffer8[11][bdepth_i + i] = vdata[11];
-			buffer8[12][bdepth_i + i] = vdata[12];
-			buffer8[13][bdepth_i + i] = vdata[13];
-			buffer8[14][bdepth_i + i] = vdata[14];
-			buffer8[15][bdepth_i + i] = vdata[15];
+			buffer8[0][bdepth_i + i] = vdata2[0];
+			buffer8[1][bdepth_i + i] = vdata2[1];
+			buffer8[2][bdepth_i + i] = vdata2[2];
+			buffer8[3][bdepth_i + i] = vdata2[3];
+			buffer8[4][bdepth_i + i] = vdata2[4];
+			buffer8[5][bdepth_i + i] = vdata2[5];
+			buffer8[6][bdepth_i + i] = vdata2[6];
+			buffer8[7][bdepth_i + i] = vdata2[7];
+			buffer8[8][bdepth_i + i] = vdata2[8];
+			buffer8[9][bdepth_i + i] = vdata2[9];
+			buffer8[10][bdepth_i + i] = vdata2[10];
+			buffer8[11][bdepth_i + i] = vdata2[11];
+			buffer8[12][bdepth_i + i] = vdata2[12];
+			buffer8[13][bdepth_i + i] = vdata2[13];
+			buffer8[14][bdepth_i + i] = vdata2[14];
+			buffer8[15][bdepth_i + i] = vdata2[15];
 	
-			buffer9[0][bdepth_i + i] = vdata[0];
-			buffer9[1][bdepth_i + i] = vdata[1];
-			buffer9[2][bdepth_i + i] = vdata[2];
-			buffer9[3][bdepth_i + i] = vdata[3];
-			buffer9[4][bdepth_i + i] = vdata[4];
-			buffer9[5][bdepth_i + i] = vdata[5];
-			buffer9[6][bdepth_i + i] = vdata[6];
-			buffer9[7][bdepth_i + i] = vdata[7];
-			buffer9[8][bdepth_i + i] = vdata[8];
-			buffer9[9][bdepth_i + i] = vdata[9];
-			buffer9[10][bdepth_i + i] = vdata[10];
-			buffer9[11][bdepth_i + i] = vdata[11];
-			buffer9[12][bdepth_i + i] = vdata[12];
-			buffer9[13][bdepth_i + i] = vdata[13];
-			buffer9[14][bdepth_i + i] = vdata[14];
-			buffer9[15][bdepth_i + i] = vdata[15];
+			buffer9[0][bdepth_i + i] = vdata2[0];
+			buffer9[1][bdepth_i + i] = vdata2[1];
+			buffer9[2][bdepth_i + i] = vdata2[2];
+			buffer9[3][bdepth_i + i] = vdata2[3];
+			buffer9[4][bdepth_i + i] = vdata2[4];
+			buffer9[5][bdepth_i + i] = vdata2[5];
+			buffer9[6][bdepth_i + i] = vdata2[6];
+			buffer9[7][bdepth_i + i] = vdata2[7];
+			buffer9[8][bdepth_i + i] = vdata2[8];
+			buffer9[9][bdepth_i + i] = vdata2[9];
+			buffer9[10][bdepth_i + i] = vdata2[10];
+			buffer9[11][bdepth_i + i] = vdata2[11];
+			buffer9[12][bdepth_i + i] = vdata2[12];
+			buffer9[13][bdepth_i + i] = vdata2[13];
+			buffer9[14][bdepth_i + i] = vdata2[14];
+			buffer9[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -7415,9 +7926,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks10(bool_type enable, uint512_dt * vdra
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -7492,192 +8004,213 @@ void acts_all::MEMACCESSP2_readANDRVchunks11(bool_type enable, uint512_dt * vdra
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
-			buffer4[0][bdepth_i + i] = vdata[0];
-			buffer4[1][bdepth_i + i] = vdata[1];
-			buffer4[2][bdepth_i + i] = vdata[2];
-			buffer4[3][bdepth_i + i] = vdata[3];
-			buffer4[4][bdepth_i + i] = vdata[4];
-			buffer4[5][bdepth_i + i] = vdata[5];
-			buffer4[6][bdepth_i + i] = vdata[6];
-			buffer4[7][bdepth_i + i] = vdata[7];
-			buffer4[8][bdepth_i + i] = vdata[8];
-			buffer4[9][bdepth_i + i] = vdata[9];
-			buffer4[10][bdepth_i + i] = vdata[10];
-			buffer4[11][bdepth_i + i] = vdata[11];
-			buffer4[12][bdepth_i + i] = vdata[12];
-			buffer4[13][bdepth_i + i] = vdata[13];
-			buffer4[14][bdepth_i + i] = vdata[14];
-			buffer4[15][bdepth_i + i] = vdata[15];
+			buffer4[0][bdepth_i + i] = vdata2[0];
+			buffer4[1][bdepth_i + i] = vdata2[1];
+			buffer4[2][bdepth_i + i] = vdata2[2];
+			buffer4[3][bdepth_i + i] = vdata2[3];
+			buffer4[4][bdepth_i + i] = vdata2[4];
+			buffer4[5][bdepth_i + i] = vdata2[5];
+			buffer4[6][bdepth_i + i] = vdata2[6];
+			buffer4[7][bdepth_i + i] = vdata2[7];
+			buffer4[8][bdepth_i + i] = vdata2[8];
+			buffer4[9][bdepth_i + i] = vdata2[9];
+			buffer4[10][bdepth_i + i] = vdata2[10];
+			buffer4[11][bdepth_i + i] = vdata2[11];
+			buffer4[12][bdepth_i + i] = vdata2[12];
+			buffer4[13][bdepth_i + i] = vdata2[13];
+			buffer4[14][bdepth_i + i] = vdata2[14];
+			buffer4[15][bdepth_i + i] = vdata2[15];
 	
-			buffer5[0][bdepth_i + i] = vdata[0];
-			buffer5[1][bdepth_i + i] = vdata[1];
-			buffer5[2][bdepth_i + i] = vdata[2];
-			buffer5[3][bdepth_i + i] = vdata[3];
-			buffer5[4][bdepth_i + i] = vdata[4];
-			buffer5[5][bdepth_i + i] = vdata[5];
-			buffer5[6][bdepth_i + i] = vdata[6];
-			buffer5[7][bdepth_i + i] = vdata[7];
-			buffer5[8][bdepth_i + i] = vdata[8];
-			buffer5[9][bdepth_i + i] = vdata[9];
-			buffer5[10][bdepth_i + i] = vdata[10];
-			buffer5[11][bdepth_i + i] = vdata[11];
-			buffer5[12][bdepth_i + i] = vdata[12];
-			buffer5[13][bdepth_i + i] = vdata[13];
-			buffer5[14][bdepth_i + i] = vdata[14];
-			buffer5[15][bdepth_i + i] = vdata[15];
+			buffer5[0][bdepth_i + i] = vdata2[0];
+			buffer5[1][bdepth_i + i] = vdata2[1];
+			buffer5[2][bdepth_i + i] = vdata2[2];
+			buffer5[3][bdepth_i + i] = vdata2[3];
+			buffer5[4][bdepth_i + i] = vdata2[4];
+			buffer5[5][bdepth_i + i] = vdata2[5];
+			buffer5[6][bdepth_i + i] = vdata2[6];
+			buffer5[7][bdepth_i + i] = vdata2[7];
+			buffer5[8][bdepth_i + i] = vdata2[8];
+			buffer5[9][bdepth_i + i] = vdata2[9];
+			buffer5[10][bdepth_i + i] = vdata2[10];
+			buffer5[11][bdepth_i + i] = vdata2[11];
+			buffer5[12][bdepth_i + i] = vdata2[12];
+			buffer5[13][bdepth_i + i] = vdata2[13];
+			buffer5[14][bdepth_i + i] = vdata2[14];
+			buffer5[15][bdepth_i + i] = vdata2[15];
 	
-			buffer6[0][bdepth_i + i] = vdata[0];
-			buffer6[1][bdepth_i + i] = vdata[1];
-			buffer6[2][bdepth_i + i] = vdata[2];
-			buffer6[3][bdepth_i + i] = vdata[3];
-			buffer6[4][bdepth_i + i] = vdata[4];
-			buffer6[5][bdepth_i + i] = vdata[5];
-			buffer6[6][bdepth_i + i] = vdata[6];
-			buffer6[7][bdepth_i + i] = vdata[7];
-			buffer6[8][bdepth_i + i] = vdata[8];
-			buffer6[9][bdepth_i + i] = vdata[9];
-			buffer6[10][bdepth_i + i] = vdata[10];
-			buffer6[11][bdepth_i + i] = vdata[11];
-			buffer6[12][bdepth_i + i] = vdata[12];
-			buffer6[13][bdepth_i + i] = vdata[13];
-			buffer6[14][bdepth_i + i] = vdata[14];
-			buffer6[15][bdepth_i + i] = vdata[15];
+			buffer6[0][bdepth_i + i] = vdata2[0];
+			buffer6[1][bdepth_i + i] = vdata2[1];
+			buffer6[2][bdepth_i + i] = vdata2[2];
+			buffer6[3][bdepth_i + i] = vdata2[3];
+			buffer6[4][bdepth_i + i] = vdata2[4];
+			buffer6[5][bdepth_i + i] = vdata2[5];
+			buffer6[6][bdepth_i + i] = vdata2[6];
+			buffer6[7][bdepth_i + i] = vdata2[7];
+			buffer6[8][bdepth_i + i] = vdata2[8];
+			buffer6[9][bdepth_i + i] = vdata2[9];
+			buffer6[10][bdepth_i + i] = vdata2[10];
+			buffer6[11][bdepth_i + i] = vdata2[11];
+			buffer6[12][bdepth_i + i] = vdata2[12];
+			buffer6[13][bdepth_i + i] = vdata2[13];
+			buffer6[14][bdepth_i + i] = vdata2[14];
+			buffer6[15][bdepth_i + i] = vdata2[15];
 	
-			buffer7[0][bdepth_i + i] = vdata[0];
-			buffer7[1][bdepth_i + i] = vdata[1];
-			buffer7[2][bdepth_i + i] = vdata[2];
-			buffer7[3][bdepth_i + i] = vdata[3];
-			buffer7[4][bdepth_i + i] = vdata[4];
-			buffer7[5][bdepth_i + i] = vdata[5];
-			buffer7[6][bdepth_i + i] = vdata[6];
-			buffer7[7][bdepth_i + i] = vdata[7];
-			buffer7[8][bdepth_i + i] = vdata[8];
-			buffer7[9][bdepth_i + i] = vdata[9];
-			buffer7[10][bdepth_i + i] = vdata[10];
-			buffer7[11][bdepth_i + i] = vdata[11];
-			buffer7[12][bdepth_i + i] = vdata[12];
-			buffer7[13][bdepth_i + i] = vdata[13];
-			buffer7[14][bdepth_i + i] = vdata[14];
-			buffer7[15][bdepth_i + i] = vdata[15];
+			buffer7[0][bdepth_i + i] = vdata2[0];
+			buffer7[1][bdepth_i + i] = vdata2[1];
+			buffer7[2][bdepth_i + i] = vdata2[2];
+			buffer7[3][bdepth_i + i] = vdata2[3];
+			buffer7[4][bdepth_i + i] = vdata2[4];
+			buffer7[5][bdepth_i + i] = vdata2[5];
+			buffer7[6][bdepth_i + i] = vdata2[6];
+			buffer7[7][bdepth_i + i] = vdata2[7];
+			buffer7[8][bdepth_i + i] = vdata2[8];
+			buffer7[9][bdepth_i + i] = vdata2[9];
+			buffer7[10][bdepth_i + i] = vdata2[10];
+			buffer7[11][bdepth_i + i] = vdata2[11];
+			buffer7[12][bdepth_i + i] = vdata2[12];
+			buffer7[13][bdepth_i + i] = vdata2[13];
+			buffer7[14][bdepth_i + i] = vdata2[14];
+			buffer7[15][bdepth_i + i] = vdata2[15];
 	
-			buffer8[0][bdepth_i + i] = vdata[0];
-			buffer8[1][bdepth_i + i] = vdata[1];
-			buffer8[2][bdepth_i + i] = vdata[2];
-			buffer8[3][bdepth_i + i] = vdata[3];
-			buffer8[4][bdepth_i + i] = vdata[4];
-			buffer8[5][bdepth_i + i] = vdata[5];
-			buffer8[6][bdepth_i + i] = vdata[6];
-			buffer8[7][bdepth_i + i] = vdata[7];
-			buffer8[8][bdepth_i + i] = vdata[8];
-			buffer8[9][bdepth_i + i] = vdata[9];
-			buffer8[10][bdepth_i + i] = vdata[10];
-			buffer8[11][bdepth_i + i] = vdata[11];
-			buffer8[12][bdepth_i + i] = vdata[12];
-			buffer8[13][bdepth_i + i] = vdata[13];
-			buffer8[14][bdepth_i + i] = vdata[14];
-			buffer8[15][bdepth_i + i] = vdata[15];
+			buffer8[0][bdepth_i + i] = vdata2[0];
+			buffer8[1][bdepth_i + i] = vdata2[1];
+			buffer8[2][bdepth_i + i] = vdata2[2];
+			buffer8[3][bdepth_i + i] = vdata2[3];
+			buffer8[4][bdepth_i + i] = vdata2[4];
+			buffer8[5][bdepth_i + i] = vdata2[5];
+			buffer8[6][bdepth_i + i] = vdata2[6];
+			buffer8[7][bdepth_i + i] = vdata2[7];
+			buffer8[8][bdepth_i + i] = vdata2[8];
+			buffer8[9][bdepth_i + i] = vdata2[9];
+			buffer8[10][bdepth_i + i] = vdata2[10];
+			buffer8[11][bdepth_i + i] = vdata2[11];
+			buffer8[12][bdepth_i + i] = vdata2[12];
+			buffer8[13][bdepth_i + i] = vdata2[13];
+			buffer8[14][bdepth_i + i] = vdata2[14];
+			buffer8[15][bdepth_i + i] = vdata2[15];
 	
-			buffer9[0][bdepth_i + i] = vdata[0];
-			buffer9[1][bdepth_i + i] = vdata[1];
-			buffer9[2][bdepth_i + i] = vdata[2];
-			buffer9[3][bdepth_i + i] = vdata[3];
-			buffer9[4][bdepth_i + i] = vdata[4];
-			buffer9[5][bdepth_i + i] = vdata[5];
-			buffer9[6][bdepth_i + i] = vdata[6];
-			buffer9[7][bdepth_i + i] = vdata[7];
-			buffer9[8][bdepth_i + i] = vdata[8];
-			buffer9[9][bdepth_i + i] = vdata[9];
-			buffer9[10][bdepth_i + i] = vdata[10];
-			buffer9[11][bdepth_i + i] = vdata[11];
-			buffer9[12][bdepth_i + i] = vdata[12];
-			buffer9[13][bdepth_i + i] = vdata[13];
-			buffer9[14][bdepth_i + i] = vdata[14];
-			buffer9[15][bdepth_i + i] = vdata[15];
+			buffer9[0][bdepth_i + i] = vdata2[0];
+			buffer9[1][bdepth_i + i] = vdata2[1];
+			buffer9[2][bdepth_i + i] = vdata2[2];
+			buffer9[3][bdepth_i + i] = vdata2[3];
+			buffer9[4][bdepth_i + i] = vdata2[4];
+			buffer9[5][bdepth_i + i] = vdata2[5];
+			buffer9[6][bdepth_i + i] = vdata2[6];
+			buffer9[7][bdepth_i + i] = vdata2[7];
+			buffer9[8][bdepth_i + i] = vdata2[8];
+			buffer9[9][bdepth_i + i] = vdata2[9];
+			buffer9[10][bdepth_i + i] = vdata2[10];
+			buffer9[11][bdepth_i + i] = vdata2[11];
+			buffer9[12][bdepth_i + i] = vdata2[12];
+			buffer9[13][bdepth_i + i] = vdata2[13];
+			buffer9[14][bdepth_i + i] = vdata2[14];
+			buffer9[15][bdepth_i + i] = vdata2[15];
 	
-			buffer10[0][bdepth_i + i] = vdata[0];
-			buffer10[1][bdepth_i + i] = vdata[1];
-			buffer10[2][bdepth_i + i] = vdata[2];
-			buffer10[3][bdepth_i + i] = vdata[3];
-			buffer10[4][bdepth_i + i] = vdata[4];
-			buffer10[5][bdepth_i + i] = vdata[5];
-			buffer10[6][bdepth_i + i] = vdata[6];
-			buffer10[7][bdepth_i + i] = vdata[7];
-			buffer10[8][bdepth_i + i] = vdata[8];
-			buffer10[9][bdepth_i + i] = vdata[9];
-			buffer10[10][bdepth_i + i] = vdata[10];
-			buffer10[11][bdepth_i + i] = vdata[11];
-			buffer10[12][bdepth_i + i] = vdata[12];
-			buffer10[13][bdepth_i + i] = vdata[13];
-			buffer10[14][bdepth_i + i] = vdata[14];
-			buffer10[15][bdepth_i + i] = vdata[15];
+			buffer10[0][bdepth_i + i] = vdata2[0];
+			buffer10[1][bdepth_i + i] = vdata2[1];
+			buffer10[2][bdepth_i + i] = vdata2[2];
+			buffer10[3][bdepth_i + i] = vdata2[3];
+			buffer10[4][bdepth_i + i] = vdata2[4];
+			buffer10[5][bdepth_i + i] = vdata2[5];
+			buffer10[6][bdepth_i + i] = vdata2[6];
+			buffer10[7][bdepth_i + i] = vdata2[7];
+			buffer10[8][bdepth_i + i] = vdata2[8];
+			buffer10[9][bdepth_i + i] = vdata2[9];
+			buffer10[10][bdepth_i + i] = vdata2[10];
+			buffer10[11][bdepth_i + i] = vdata2[11];
+			buffer10[12][bdepth_i + i] = vdata2[12];
+			buffer10[13][bdepth_i + i] = vdata2[13];
+			buffer10[14][bdepth_i + i] = vdata2[14];
+			buffer10[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -7687,9 +8220,10 @@ void acts_all::MEMACCESSP2_readANDRVchunks11(bool_type enable, uint512_dt * vdra
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP2_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP2_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -7765,209 +8299,230 @@ void acts_all::MEMACCESSP2_readANDRVchunks12(bool_type enable, uint512_dt * vdra
 			vdata[15] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].data[7].value; 
 			#endif
 			
-			buffer0[0][bdepth_i + i] = vdata[0];
-			buffer0[1][bdepth_i + i] = vdata[1];
-			buffer0[2][bdepth_i + i] = vdata[2];
-			buffer0[3][bdepth_i + i] = vdata[3];
-			buffer0[4][bdepth_i + i] = vdata[4];
-			buffer0[5][bdepth_i + i] = vdata[5];
-			buffer0[6][bdepth_i + i] = vdata[6];
-			buffer0[7][bdepth_i + i] = vdata[7];
-			buffer0[8][bdepth_i + i] = vdata[8];
-			buffer0[9][bdepth_i + i] = vdata[9];
-			buffer0[10][bdepth_i + i] = vdata[10];
-			buffer0[11][bdepth_i + i] = vdata[11];
-			buffer0[12][bdepth_i + i] = vdata[12];
-			buffer0[13][bdepth_i + i] = vdata[13];
-			buffer0[14][bdepth_i + i] = vdata[14];
-			buffer0[15][bdepth_i + i] = vdata[15];
+			MEMACCESSP2_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP2_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP2_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#endif
+			
+			buffer0[0][bdepth_i + i] = vdata2[0];
+			buffer0[1][bdepth_i + i] = vdata2[1];
+			buffer0[2][bdepth_i + i] = vdata2[2];
+			buffer0[3][bdepth_i + i] = vdata2[3];
+			buffer0[4][bdepth_i + i] = vdata2[4];
+			buffer0[5][bdepth_i + i] = vdata2[5];
+			buffer0[6][bdepth_i + i] = vdata2[6];
+			buffer0[7][bdepth_i + i] = vdata2[7];
+			buffer0[8][bdepth_i + i] = vdata2[8];
+			buffer0[9][bdepth_i + i] = vdata2[9];
+			buffer0[10][bdepth_i + i] = vdata2[10];
+			buffer0[11][bdepth_i + i] = vdata2[11];
+			buffer0[12][bdepth_i + i] = vdata2[12];
+			buffer0[13][bdepth_i + i] = vdata2[13];
+			buffer0[14][bdepth_i + i] = vdata2[14];
+			buffer0[15][bdepth_i + i] = vdata2[15];
 	
-			buffer1[0][bdepth_i + i] = vdata[0];
-			buffer1[1][bdepth_i + i] = vdata[1];
-			buffer1[2][bdepth_i + i] = vdata[2];
-			buffer1[3][bdepth_i + i] = vdata[3];
-			buffer1[4][bdepth_i + i] = vdata[4];
-			buffer1[5][bdepth_i + i] = vdata[5];
-			buffer1[6][bdepth_i + i] = vdata[6];
-			buffer1[7][bdepth_i + i] = vdata[7];
-			buffer1[8][bdepth_i + i] = vdata[8];
-			buffer1[9][bdepth_i + i] = vdata[9];
-			buffer1[10][bdepth_i + i] = vdata[10];
-			buffer1[11][bdepth_i + i] = vdata[11];
-			buffer1[12][bdepth_i + i] = vdata[12];
-			buffer1[13][bdepth_i + i] = vdata[13];
-			buffer1[14][bdepth_i + i] = vdata[14];
-			buffer1[15][bdepth_i + i] = vdata[15];
+			buffer1[0][bdepth_i + i] = vdata2[0];
+			buffer1[1][bdepth_i + i] = vdata2[1];
+			buffer1[2][bdepth_i + i] = vdata2[2];
+			buffer1[3][bdepth_i + i] = vdata2[3];
+			buffer1[4][bdepth_i + i] = vdata2[4];
+			buffer1[5][bdepth_i + i] = vdata2[5];
+			buffer1[6][bdepth_i + i] = vdata2[6];
+			buffer1[7][bdepth_i + i] = vdata2[7];
+			buffer1[8][bdepth_i + i] = vdata2[8];
+			buffer1[9][bdepth_i + i] = vdata2[9];
+			buffer1[10][bdepth_i + i] = vdata2[10];
+			buffer1[11][bdepth_i + i] = vdata2[11];
+			buffer1[12][bdepth_i + i] = vdata2[12];
+			buffer1[13][bdepth_i + i] = vdata2[13];
+			buffer1[14][bdepth_i + i] = vdata2[14];
+			buffer1[15][bdepth_i + i] = vdata2[15];
 	
-			buffer2[0][bdepth_i + i] = vdata[0];
-			buffer2[1][bdepth_i + i] = vdata[1];
-			buffer2[2][bdepth_i + i] = vdata[2];
-			buffer2[3][bdepth_i + i] = vdata[3];
-			buffer2[4][bdepth_i + i] = vdata[4];
-			buffer2[5][bdepth_i + i] = vdata[5];
-			buffer2[6][bdepth_i + i] = vdata[6];
-			buffer2[7][bdepth_i + i] = vdata[7];
-			buffer2[8][bdepth_i + i] = vdata[8];
-			buffer2[9][bdepth_i + i] = vdata[9];
-			buffer2[10][bdepth_i + i] = vdata[10];
-			buffer2[11][bdepth_i + i] = vdata[11];
-			buffer2[12][bdepth_i + i] = vdata[12];
-			buffer2[13][bdepth_i + i] = vdata[13];
-			buffer2[14][bdepth_i + i] = vdata[14];
-			buffer2[15][bdepth_i + i] = vdata[15];
+			buffer2[0][bdepth_i + i] = vdata2[0];
+			buffer2[1][bdepth_i + i] = vdata2[1];
+			buffer2[2][bdepth_i + i] = vdata2[2];
+			buffer2[3][bdepth_i + i] = vdata2[3];
+			buffer2[4][bdepth_i + i] = vdata2[4];
+			buffer2[5][bdepth_i + i] = vdata2[5];
+			buffer2[6][bdepth_i + i] = vdata2[6];
+			buffer2[7][bdepth_i + i] = vdata2[7];
+			buffer2[8][bdepth_i + i] = vdata2[8];
+			buffer2[9][bdepth_i + i] = vdata2[9];
+			buffer2[10][bdepth_i + i] = vdata2[10];
+			buffer2[11][bdepth_i + i] = vdata2[11];
+			buffer2[12][bdepth_i + i] = vdata2[12];
+			buffer2[13][bdepth_i + i] = vdata2[13];
+			buffer2[14][bdepth_i + i] = vdata2[14];
+			buffer2[15][bdepth_i + i] = vdata2[15];
 	
-			buffer3[0][bdepth_i + i] = vdata[0];
-			buffer3[1][bdepth_i + i] = vdata[1];
-			buffer3[2][bdepth_i + i] = vdata[2];
-			buffer3[3][bdepth_i + i] = vdata[3];
-			buffer3[4][bdepth_i + i] = vdata[4];
-			buffer3[5][bdepth_i + i] = vdata[5];
-			buffer3[6][bdepth_i + i] = vdata[6];
-			buffer3[7][bdepth_i + i] = vdata[7];
-			buffer3[8][bdepth_i + i] = vdata[8];
-			buffer3[9][bdepth_i + i] = vdata[9];
-			buffer3[10][bdepth_i + i] = vdata[10];
-			buffer3[11][bdepth_i + i] = vdata[11];
-			buffer3[12][bdepth_i + i] = vdata[12];
-			buffer3[13][bdepth_i + i] = vdata[13];
-			buffer3[14][bdepth_i + i] = vdata[14];
-			buffer3[15][bdepth_i + i] = vdata[15];
+			buffer3[0][bdepth_i + i] = vdata2[0];
+			buffer3[1][bdepth_i + i] = vdata2[1];
+			buffer3[2][bdepth_i + i] = vdata2[2];
+			buffer3[3][bdepth_i + i] = vdata2[3];
+			buffer3[4][bdepth_i + i] = vdata2[4];
+			buffer3[5][bdepth_i + i] = vdata2[5];
+			buffer3[6][bdepth_i + i] = vdata2[6];
+			buffer3[7][bdepth_i + i] = vdata2[7];
+			buffer3[8][bdepth_i + i] = vdata2[8];
+			buffer3[9][bdepth_i + i] = vdata2[9];
+			buffer3[10][bdepth_i + i] = vdata2[10];
+			buffer3[11][bdepth_i + i] = vdata2[11];
+			buffer3[12][bdepth_i + i] = vdata2[12];
+			buffer3[13][bdepth_i + i] = vdata2[13];
+			buffer3[14][bdepth_i + i] = vdata2[14];
+			buffer3[15][bdepth_i + i] = vdata2[15];
 	
-			buffer4[0][bdepth_i + i] = vdata[0];
-			buffer4[1][bdepth_i + i] = vdata[1];
-			buffer4[2][bdepth_i + i] = vdata[2];
-			buffer4[3][bdepth_i + i] = vdata[3];
-			buffer4[4][bdepth_i + i] = vdata[4];
-			buffer4[5][bdepth_i + i] = vdata[5];
-			buffer4[6][bdepth_i + i] = vdata[6];
-			buffer4[7][bdepth_i + i] = vdata[7];
-			buffer4[8][bdepth_i + i] = vdata[8];
-			buffer4[9][bdepth_i + i] = vdata[9];
-			buffer4[10][bdepth_i + i] = vdata[10];
-			buffer4[11][bdepth_i + i] = vdata[11];
-			buffer4[12][bdepth_i + i] = vdata[12];
-			buffer4[13][bdepth_i + i] = vdata[13];
-			buffer4[14][bdepth_i + i] = vdata[14];
-			buffer4[15][bdepth_i + i] = vdata[15];
+			buffer4[0][bdepth_i + i] = vdata2[0];
+			buffer4[1][bdepth_i + i] = vdata2[1];
+			buffer4[2][bdepth_i + i] = vdata2[2];
+			buffer4[3][bdepth_i + i] = vdata2[3];
+			buffer4[4][bdepth_i + i] = vdata2[4];
+			buffer4[5][bdepth_i + i] = vdata2[5];
+			buffer4[6][bdepth_i + i] = vdata2[6];
+			buffer4[7][bdepth_i + i] = vdata2[7];
+			buffer4[8][bdepth_i + i] = vdata2[8];
+			buffer4[9][bdepth_i + i] = vdata2[9];
+			buffer4[10][bdepth_i + i] = vdata2[10];
+			buffer4[11][bdepth_i + i] = vdata2[11];
+			buffer4[12][bdepth_i + i] = vdata2[12];
+			buffer4[13][bdepth_i + i] = vdata2[13];
+			buffer4[14][bdepth_i + i] = vdata2[14];
+			buffer4[15][bdepth_i + i] = vdata2[15];
 	
-			buffer5[0][bdepth_i + i] = vdata[0];
-			buffer5[1][bdepth_i + i] = vdata[1];
-			buffer5[2][bdepth_i + i] = vdata[2];
-			buffer5[3][bdepth_i + i] = vdata[3];
-			buffer5[4][bdepth_i + i] = vdata[4];
-			buffer5[5][bdepth_i + i] = vdata[5];
-			buffer5[6][bdepth_i + i] = vdata[6];
-			buffer5[7][bdepth_i + i] = vdata[7];
-			buffer5[8][bdepth_i + i] = vdata[8];
-			buffer5[9][bdepth_i + i] = vdata[9];
-			buffer5[10][bdepth_i + i] = vdata[10];
-			buffer5[11][bdepth_i + i] = vdata[11];
-			buffer5[12][bdepth_i + i] = vdata[12];
-			buffer5[13][bdepth_i + i] = vdata[13];
-			buffer5[14][bdepth_i + i] = vdata[14];
-			buffer5[15][bdepth_i + i] = vdata[15];
+			buffer5[0][bdepth_i + i] = vdata2[0];
+			buffer5[1][bdepth_i + i] = vdata2[1];
+			buffer5[2][bdepth_i + i] = vdata2[2];
+			buffer5[3][bdepth_i + i] = vdata2[3];
+			buffer5[4][bdepth_i + i] = vdata2[4];
+			buffer5[5][bdepth_i + i] = vdata2[5];
+			buffer5[6][bdepth_i + i] = vdata2[6];
+			buffer5[7][bdepth_i + i] = vdata2[7];
+			buffer5[8][bdepth_i + i] = vdata2[8];
+			buffer5[9][bdepth_i + i] = vdata2[9];
+			buffer5[10][bdepth_i + i] = vdata2[10];
+			buffer5[11][bdepth_i + i] = vdata2[11];
+			buffer5[12][bdepth_i + i] = vdata2[12];
+			buffer5[13][bdepth_i + i] = vdata2[13];
+			buffer5[14][bdepth_i + i] = vdata2[14];
+			buffer5[15][bdepth_i + i] = vdata2[15];
 	
-			buffer6[0][bdepth_i + i] = vdata[0];
-			buffer6[1][bdepth_i + i] = vdata[1];
-			buffer6[2][bdepth_i + i] = vdata[2];
-			buffer6[3][bdepth_i + i] = vdata[3];
-			buffer6[4][bdepth_i + i] = vdata[4];
-			buffer6[5][bdepth_i + i] = vdata[5];
-			buffer6[6][bdepth_i + i] = vdata[6];
-			buffer6[7][bdepth_i + i] = vdata[7];
-			buffer6[8][bdepth_i + i] = vdata[8];
-			buffer6[9][bdepth_i + i] = vdata[9];
-			buffer6[10][bdepth_i + i] = vdata[10];
-			buffer6[11][bdepth_i + i] = vdata[11];
-			buffer6[12][bdepth_i + i] = vdata[12];
-			buffer6[13][bdepth_i + i] = vdata[13];
-			buffer6[14][bdepth_i + i] = vdata[14];
-			buffer6[15][bdepth_i + i] = vdata[15];
+			buffer6[0][bdepth_i + i] = vdata2[0];
+			buffer6[1][bdepth_i + i] = vdata2[1];
+			buffer6[2][bdepth_i + i] = vdata2[2];
+			buffer6[3][bdepth_i + i] = vdata2[3];
+			buffer6[4][bdepth_i + i] = vdata2[4];
+			buffer6[5][bdepth_i + i] = vdata2[5];
+			buffer6[6][bdepth_i + i] = vdata2[6];
+			buffer6[7][bdepth_i + i] = vdata2[7];
+			buffer6[8][bdepth_i + i] = vdata2[8];
+			buffer6[9][bdepth_i + i] = vdata2[9];
+			buffer6[10][bdepth_i + i] = vdata2[10];
+			buffer6[11][bdepth_i + i] = vdata2[11];
+			buffer6[12][bdepth_i + i] = vdata2[12];
+			buffer6[13][bdepth_i + i] = vdata2[13];
+			buffer6[14][bdepth_i + i] = vdata2[14];
+			buffer6[15][bdepth_i + i] = vdata2[15];
 	
-			buffer7[0][bdepth_i + i] = vdata[0];
-			buffer7[1][bdepth_i + i] = vdata[1];
-			buffer7[2][bdepth_i + i] = vdata[2];
-			buffer7[3][bdepth_i + i] = vdata[3];
-			buffer7[4][bdepth_i + i] = vdata[4];
-			buffer7[5][bdepth_i + i] = vdata[5];
-			buffer7[6][bdepth_i + i] = vdata[6];
-			buffer7[7][bdepth_i + i] = vdata[7];
-			buffer7[8][bdepth_i + i] = vdata[8];
-			buffer7[9][bdepth_i + i] = vdata[9];
-			buffer7[10][bdepth_i + i] = vdata[10];
-			buffer7[11][bdepth_i + i] = vdata[11];
-			buffer7[12][bdepth_i + i] = vdata[12];
-			buffer7[13][bdepth_i + i] = vdata[13];
-			buffer7[14][bdepth_i + i] = vdata[14];
-			buffer7[15][bdepth_i + i] = vdata[15];
+			buffer7[0][bdepth_i + i] = vdata2[0];
+			buffer7[1][bdepth_i + i] = vdata2[1];
+			buffer7[2][bdepth_i + i] = vdata2[2];
+			buffer7[3][bdepth_i + i] = vdata2[3];
+			buffer7[4][bdepth_i + i] = vdata2[4];
+			buffer7[5][bdepth_i + i] = vdata2[5];
+			buffer7[6][bdepth_i + i] = vdata2[6];
+			buffer7[7][bdepth_i + i] = vdata2[7];
+			buffer7[8][bdepth_i + i] = vdata2[8];
+			buffer7[9][bdepth_i + i] = vdata2[9];
+			buffer7[10][bdepth_i + i] = vdata2[10];
+			buffer7[11][bdepth_i + i] = vdata2[11];
+			buffer7[12][bdepth_i + i] = vdata2[12];
+			buffer7[13][bdepth_i + i] = vdata2[13];
+			buffer7[14][bdepth_i + i] = vdata2[14];
+			buffer7[15][bdepth_i + i] = vdata2[15];
 	
-			buffer8[0][bdepth_i + i] = vdata[0];
-			buffer8[1][bdepth_i + i] = vdata[1];
-			buffer8[2][bdepth_i + i] = vdata[2];
-			buffer8[3][bdepth_i + i] = vdata[3];
-			buffer8[4][bdepth_i + i] = vdata[4];
-			buffer8[5][bdepth_i + i] = vdata[5];
-			buffer8[6][bdepth_i + i] = vdata[6];
-			buffer8[7][bdepth_i + i] = vdata[7];
-			buffer8[8][bdepth_i + i] = vdata[8];
-			buffer8[9][bdepth_i + i] = vdata[9];
-			buffer8[10][bdepth_i + i] = vdata[10];
-			buffer8[11][bdepth_i + i] = vdata[11];
-			buffer8[12][bdepth_i + i] = vdata[12];
-			buffer8[13][bdepth_i + i] = vdata[13];
-			buffer8[14][bdepth_i + i] = vdata[14];
-			buffer8[15][bdepth_i + i] = vdata[15];
+			buffer8[0][bdepth_i + i] = vdata2[0];
+			buffer8[1][bdepth_i + i] = vdata2[1];
+			buffer8[2][bdepth_i + i] = vdata2[2];
+			buffer8[3][bdepth_i + i] = vdata2[3];
+			buffer8[4][bdepth_i + i] = vdata2[4];
+			buffer8[5][bdepth_i + i] = vdata2[5];
+			buffer8[6][bdepth_i + i] = vdata2[6];
+			buffer8[7][bdepth_i + i] = vdata2[7];
+			buffer8[8][bdepth_i + i] = vdata2[8];
+			buffer8[9][bdepth_i + i] = vdata2[9];
+			buffer8[10][bdepth_i + i] = vdata2[10];
+			buffer8[11][bdepth_i + i] = vdata2[11];
+			buffer8[12][bdepth_i + i] = vdata2[12];
+			buffer8[13][bdepth_i + i] = vdata2[13];
+			buffer8[14][bdepth_i + i] = vdata2[14];
+			buffer8[15][bdepth_i + i] = vdata2[15];
 	
-			buffer9[0][bdepth_i + i] = vdata[0];
-			buffer9[1][bdepth_i + i] = vdata[1];
-			buffer9[2][bdepth_i + i] = vdata[2];
-			buffer9[3][bdepth_i + i] = vdata[3];
-			buffer9[4][bdepth_i + i] = vdata[4];
-			buffer9[5][bdepth_i + i] = vdata[5];
-			buffer9[6][bdepth_i + i] = vdata[6];
-			buffer9[7][bdepth_i + i] = vdata[7];
-			buffer9[8][bdepth_i + i] = vdata[8];
-			buffer9[9][bdepth_i + i] = vdata[9];
-			buffer9[10][bdepth_i + i] = vdata[10];
-			buffer9[11][bdepth_i + i] = vdata[11];
-			buffer9[12][bdepth_i + i] = vdata[12];
-			buffer9[13][bdepth_i + i] = vdata[13];
-			buffer9[14][bdepth_i + i] = vdata[14];
-			buffer9[15][bdepth_i + i] = vdata[15];
+			buffer9[0][bdepth_i + i] = vdata2[0];
+			buffer9[1][bdepth_i + i] = vdata2[1];
+			buffer9[2][bdepth_i + i] = vdata2[2];
+			buffer9[3][bdepth_i + i] = vdata2[3];
+			buffer9[4][bdepth_i + i] = vdata2[4];
+			buffer9[5][bdepth_i + i] = vdata2[5];
+			buffer9[6][bdepth_i + i] = vdata2[6];
+			buffer9[7][bdepth_i + i] = vdata2[7];
+			buffer9[8][bdepth_i + i] = vdata2[8];
+			buffer9[9][bdepth_i + i] = vdata2[9];
+			buffer9[10][bdepth_i + i] = vdata2[10];
+			buffer9[11][bdepth_i + i] = vdata2[11];
+			buffer9[12][bdepth_i + i] = vdata2[12];
+			buffer9[13][bdepth_i + i] = vdata2[13];
+			buffer9[14][bdepth_i + i] = vdata2[14];
+			buffer9[15][bdepth_i + i] = vdata2[15];
 	
-			buffer10[0][bdepth_i + i] = vdata[0];
-			buffer10[1][bdepth_i + i] = vdata[1];
-			buffer10[2][bdepth_i + i] = vdata[2];
-			buffer10[3][bdepth_i + i] = vdata[3];
-			buffer10[4][bdepth_i + i] = vdata[4];
-			buffer10[5][bdepth_i + i] = vdata[5];
-			buffer10[6][bdepth_i + i] = vdata[6];
-			buffer10[7][bdepth_i + i] = vdata[7];
-			buffer10[8][bdepth_i + i] = vdata[8];
-			buffer10[9][bdepth_i + i] = vdata[9];
-			buffer10[10][bdepth_i + i] = vdata[10];
-			buffer10[11][bdepth_i + i] = vdata[11];
-			buffer10[12][bdepth_i + i] = vdata[12];
-			buffer10[13][bdepth_i + i] = vdata[13];
-			buffer10[14][bdepth_i + i] = vdata[14];
-			buffer10[15][bdepth_i + i] = vdata[15];
+			buffer10[0][bdepth_i + i] = vdata2[0];
+			buffer10[1][bdepth_i + i] = vdata2[1];
+			buffer10[2][bdepth_i + i] = vdata2[2];
+			buffer10[3][bdepth_i + i] = vdata2[3];
+			buffer10[4][bdepth_i + i] = vdata2[4];
+			buffer10[5][bdepth_i + i] = vdata2[5];
+			buffer10[6][bdepth_i + i] = vdata2[6];
+			buffer10[7][bdepth_i + i] = vdata2[7];
+			buffer10[8][bdepth_i + i] = vdata2[8];
+			buffer10[9][bdepth_i + i] = vdata2[9];
+			buffer10[10][bdepth_i + i] = vdata2[10];
+			buffer10[11][bdepth_i + i] = vdata2[11];
+			buffer10[12][bdepth_i + i] = vdata2[12];
+			buffer10[13][bdepth_i + i] = vdata2[13];
+			buffer10[14][bdepth_i + i] = vdata2[14];
+			buffer10[15][bdepth_i + i] = vdata2[15];
 	
-			buffer11[0][bdepth_i + i] = vdata[0];
-			buffer11[1][bdepth_i + i] = vdata[1];
-			buffer11[2][bdepth_i + i] = vdata[2];
-			buffer11[3][bdepth_i + i] = vdata[3];
-			buffer11[4][bdepth_i + i] = vdata[4];
-			buffer11[5][bdepth_i + i] = vdata[5];
-			buffer11[6][bdepth_i + i] = vdata[6];
-			buffer11[7][bdepth_i + i] = vdata[7];
-			buffer11[8][bdepth_i + i] = vdata[8];
-			buffer11[9][bdepth_i + i] = vdata[9];
-			buffer11[10][bdepth_i + i] = vdata[10];
-			buffer11[11][bdepth_i + i] = vdata[11];
-			buffer11[12][bdepth_i + i] = vdata[12];
-			buffer11[13][bdepth_i + i] = vdata[13];
-			buffer11[14][bdepth_i + i] = vdata[14];
-			buffer11[15][bdepth_i + i] = vdata[15];
+			buffer11[0][bdepth_i + i] = vdata2[0];
+			buffer11[1][bdepth_i + i] = vdata2[1];
+			buffer11[2][bdepth_i + i] = vdata2[2];
+			buffer11[3][bdepth_i + i] = vdata2[3];
+			buffer11[4][bdepth_i + i] = vdata2[4];
+			buffer11[5][bdepth_i + i] = vdata2[5];
+			buffer11[6][bdepth_i + i] = vdata2[6];
+			buffer11[7][bdepth_i + i] = vdata2[7];
+			buffer11[8][bdepth_i + i] = vdata2[8];
+			buffer11[9][bdepth_i + i] = vdata2[9];
+			buffer11[10][bdepth_i + i] = vdata2[10];
+			buffer11[11][bdepth_i + i] = vdata2[11];
+			buffer11[12][bdepth_i + i] = vdata2[12];
+			buffer11[13][bdepth_i + i] = vdata2[13];
+			buffer11[14][bdepth_i + i] = vdata2[14];
+			buffer11[15][bdepth_i + i] = vdata2[15];
 	
 
 			#ifdef _DEBUGMODE_STATS
@@ -7977,11 +8532,12 @@ void acts_all::MEMACCESSP2_readANDRVchunks12(bool_type enable, uint512_dt * vdra
 		depth_i += depth;
 		bdepth_i += bdepth;
 	}
+	// exit(EXIT_SUCCESS);
 	return;
 }
 
 #ifdef RANDOMVERTEXISACTIVE_ALGORITHM_XXXXXXXXXXXXXXXXXXXXXXXXXXx
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8002,7 +8558,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks1(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8024,7 +8580,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks2(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8047,7 +8603,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks3(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8071,7 +8627,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks4(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8096,7 +8652,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks5(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8122,7 +8678,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks6(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8149,7 +8705,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks7(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8177,7 +8733,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks8(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8206,7 +8762,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks9(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8236,7 +8792,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks10(bool_type enable, uint512_dt * 
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8267,7 +8823,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks11(bool_type enable, uint512_dt * 
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_RANDreadANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP2_RANDreadANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -8302,7 +8858,7 @@ void acts_all::MEMACCESSP2_RANDreadANDRVchunks12(bool_type enable, uint512_dt * 
 #endif 
 
 // -------------------- pmasks -------------------- //
-void acts_all::MEMACCESSP2_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8314,7 +8870,7 @@ void acts_all::MEMACCESSP2_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BL
 }
 
 // -------------------- stats -------------------- //
-void acts_all::MEMACCESSP2_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void MEMACCESSP2_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
@@ -8351,7 +8907,7 @@ void acts_all::MEMACCESSP2_readglobalstats(bool_type enable, uint512_dt * kvdram
 	return;
 }
 
-void acts_all::MEMACCESSP2_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void MEMACCESSP2_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -8412,7 +8968,7 @@ else if(globalparams.VARS_WORKBATCH == 3){
 	return;
 }
 
-tuple_t acts_all::MEMACCESSP2_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t MEMACCESSP2_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -8430,7 +8986,7 @@ tuple_t acts_all::MEMACCESSP2_getvptrs(uint512_dt * kvdram, unsigned int beginof
 	return t;
 }
 
-unsigned int acts_all::MEMACCESSP2_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
+unsigned int MEMACCESSP2_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (offset / VECTOR2_SIZE)];
@@ -8509,7 +9065,7 @@ else {
 	else { return vptr_kv.value; }
 }
 
-tuple_t acts_all::MEMACCESSP2_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t MEMACCESSP2_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -8525,7 +9081,7 @@ tuple_t acts_all::MEMACCESSP2_getvptrs_opt( uint512_dt * kvdram, unsigned int ba
 	return t;
 }
 
-void acts_all::MEMACCESSP2_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
+void MEMACCESSP2_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -8544,7 +9100,7 @@ void acts_all::MEMACCESSP2_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 	return;
 }
 
-void acts_all::MEMACCESSP2_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP2_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k]; 
@@ -8555,7 +9111,7 @@ void acts_all::MEMACCESSP2_commitkvstats2(uint512_dt * kvdram, value_t * buffer,
 	return;
 }
 
-void acts_all::MEMACCESSP2_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP2_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k].key; 
@@ -8566,7 +9122,7 @@ void acts_all::MEMACCESSP2_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buff
 	return;
 }
 
-void acts_all::MEMACCESSP2_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP2_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -8577,7 +9133,7 @@ void acts_all::MEMACCESSP2_retreievekvstats(uint512_dt * kvdram, value_t * buffe
 	}
 }
 
-void acts_all::MEMACCESSP2_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP2_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -8588,7 +9144,7 @@ void acts_all::MEMACCESSP2_retreievekvstats(uint512_dt * kvdram, keyvalue_t * bu
 	}
 }
 
-void acts_all::MEMACCESSP2_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void MEMACCESSP2_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -8630,7 +9186,7 @@ else if(globalparams.VARS_WORKBATCH == 3){
 	return;
 }
 
-void acts_all::MEMACCESSP2_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void MEMACCESSP2_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -8650,7 +9206,7 @@ void acts_all::MEMACCESSP2_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 }
 
 // -------------------- multiple accesses -------------------- //
-void acts_all::MEMACCESSP2_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8660,7 +9216,7 @@ void acts_all::MEMACCESSP2_readmanypmask1(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8672,7 +9228,7 @@ void acts_all::MEMACCESSP2_readmanypmask2(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8686,7 +9242,7 @@ void acts_all::MEMACCESSP2_readmanypmask3(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8702,7 +9258,7 @@ void acts_all::MEMACCESSP2_readmanypmask4(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8720,7 +9276,7 @@ void acts_all::MEMACCESSP2_readmanypmask5(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8740,7 +9296,7 @@ void acts_all::MEMACCESSP2_readmanypmask6(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8762,7 +9318,7 @@ void acts_all::MEMACCESSP2_readmanypmask7(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8786,7 +9342,7 @@ void acts_all::MEMACCESSP2_readmanypmask8(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8812,7 +9368,7 @@ void acts_all::MEMACCESSP2_readmanypmask9(uint512_dt * kvdram, uint32_type vmask
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8840,7 +9396,7 @@ void acts_all::MEMACCESSP2_readmanypmask10(uint512_dt * kvdram, uint32_type vmas
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8870,7 +9426,7 @@ void acts_all::MEMACCESSP2_readmanypmask11(uint512_dt * kvdram, uint32_type vmas
 	}
 	return;
 }
-void acts_all::MEMACCESSP2_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP2_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
@@ -8904,7 +9460,7 @@ void acts_all::MEMACCESSP2_readmanypmask12(uint512_dt * kvdram, uint32_type vmas
 }
 
 // -------------------- others -------------------- //
-void acts_all::MEMACCESSP2_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
+void MEMACCESSP2_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
 	// NOT IMPLEMENTED.
 	/* analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
@@ -8957,7 +9513,7 @@ void acts_all::MEMACCESSP2_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffe
 	
 #endif
 #ifdef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES //////////
-value_t acts_all::PANDRP2_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t PANDRP2_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -9006,7 +9562,7 @@ value_t acts_all::PANDRP2_processfunc(value_t udata, value_t edgew, unsigned int
 	return res;
 }
 
-value_t acts_all::PANDRP2_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+value_t PANDRP2_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -9042,7 +9598,7 @@ value_t acts_all::PANDRP2_reducefunc(value_t vtemp, value_t res, unsigned int Gr
 	return temp;
 }
 
-void acts_all::PANDRP2_GetXYLayoutV(unsigned int s, unsigned int depths[PE_SETSZ], unsigned int basedepth){
+void PANDRP2_GetXYLayoutV(unsigned int s, unsigned int depths[PE_SETSZ], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	
  if(s_==0){ 
@@ -9336,7 +9892,7 @@ else {
 	return;
 }
 
-parsededge_t acts_all::PANDRP2_PARSEEDGE(uint32_type data){ 
+parsededge_t PANDRP2_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
 	#ifdef _WIDEWORD
 	parsededge.incr = data.range(31, 28);
@@ -9348,7 +9904,7 @@ parsededge_t acts_all::PANDRP2_PARSEEDGE(uint32_type data){
 	return parsededge; 
 }
 
-void acts_all::PANDRP2_processorreducevector(bool enx, unsigned int mode, unsigned int col, unsigned int _loc, keyvalue_t kvdata,
+void PANDRP2_processorreducevector(bool enx, unsigned int mode, unsigned int col, unsigned int _loc, keyvalue_t kvdata,
 		keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, 
 			unsigned int GraphAlgoClass, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS INLINE
@@ -9413,7 +9969,7 @@ void acts_all::PANDRP2_processorreducevector(bool enx, unsigned int mode, unsign
 	return;
 }
 
-fetchmessage_t acts_all::PANDRP2_processandreduce(bool_type enable, unsigned int mode, 
+fetchmessage_t PANDRP2_processandreduce(bool_type enable, unsigned int mode, 
 		uint512_dt * edges, uint512_dt * kvdram, 
 			keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE],
 				keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS],
@@ -9691,7 +10247,7 @@ fetchmessage_t acts_all::PANDRP2_processandreduce(bool_type enable, unsigned int
 }
 
 #ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"reduceupdates2: REDUCEP2_tradreduceandbuffer NOT DEFINED HERE."<<endl;
 	exit(EXIT_FAILURE);
@@ -9701,7 +10257,7 @@ void acts_all::REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t
 #endif 
 
 #ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"reduceupdates2: REDUCEP2_tradreduceandbuffer NOT DEFINED HERE."<<endl;
 	exit(EXIT_FAILURE);
@@ -9720,7 +10276,7 @@ void acts_all::REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdra
 #define VSETSZ 32
 #define VMSETSZ 32
 #define PE_SETSZ 16
-parsededge_t acts_all::PROCESSP2_PARSEEDGE(uint32_type data){ 
+parsededge_t PROCESSP2_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
 	#ifdef _WIDEWORD
 	parsededge.incr = data.range(31, OFFSETOF_SRCV_IN_EDGEDSTVDATA);
@@ -9732,7 +10288,7 @@ parsededge_t acts_all::PROCESSP2_PARSEEDGE(uint32_type data){
 	return parsededge; 
 }
 
-void acts_all::PROCESSP2_SPL_debug(unsigned int debugid,
+void PROCESSP2_SPL_debug(unsigned int debugid,
 	unsigned int i, value_t E[VECTOR2_SIZE], bool_type ens[VECTOR2_SIZE], unsigned int mask[VECTOR2_SIZE],
 		value_t udataset[MAX_NUM_UNIQ_EDGES_PER_VEC], value_t maskset[VECTOR2_SIZE], value_t Vset[MAX_NUM_UNIQ_EDGES_PER_VEC], unit1_type VMset[MAX_NUM_UNIQ_EDGES_PER_VEC], vertex_t lvids[VECTOR2_SIZE],
 			unsigned int incr[VECTOR2_SIZE], unsigned int lsrcvids[VECTOR2_SIZE], unsigned int ldstvids[VECTOR2_SIZE], value_t res[VECTOR2_SIZE], keyvalue_t mykeyvalue[VECTOR2_SIZE], sweepparams_t sweepparams, globalparams_t globalparams,
@@ -10270,7 +10826,7 @@ void acts_all::PROCESSP2_SPL_debug(unsigned int debugid,
 	return;
 }
 
-unsigned int acts_all::PROCESSP2_SPL3_GETROW(unsigned int loc){					
+unsigned int PROCESSP2_SPL3_GETROW(unsigned int loc){					
 	unsigned int col_dim32 = loc % 32; // NUM_PEs;
 	unsigned int row_dim32 = loc / 32; // NUM_PEs; // OPTIMIZE: follow with processedges
 	unsigned int basecol_dim16 = 0;
@@ -10286,7 +10842,7 @@ unsigned int acts_all::PROCESSP2_SPL3_GETROW(unsigned int loc){
 	return truerow_dim16;
 }
 
-unsigned int acts_all::PROCESSP2_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t Vdatas[VSETSZ], unit1_type VMdatas[VMSETSZ], globalparams_t globalparams){					
+unsigned int PROCESSP2_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t Vdatas[VSETSZ], unit1_type VMdatas[VMSETSZ], globalparams_t globalparams){					
 	unit1_type VMdatas_tmp[32];
 	unit1_type VMdatas_tmpA[VECTOR2_SIZE];
 	unit1_type VMdatas_tmpB[VECTOR2_SIZE];
@@ -10408,7 +10964,7 @@ unsigned int acts_all::PROCESSP2_SPL3_GETVTXDATASET(unsigned int loc, keyvalue_v
 	return fcol_dim16;
 }
 
-fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t PROCESSP2_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
@@ -10882,23 +11438,24 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
 #define PE_SETSZ 16
 // #define DEBUGME_PROCESSEDGES2
 
-void acts_all::PROCESSP2_processvector(bool enx, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
+void PROCESSP2_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
 	#pragma HLS INLINE
 	bool en = true; if(edata.key != INVALIDDATA && edata.value != INVALIDDATA && enx == true){ en = true; } else { en = false; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true){ cout<<"PROCESSP2_processvector:: PROCESS SEEN @ vid: "<<UTILP2_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<", loc: "<<loc<<", edata.key(dstvid): "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", process size: "<<globalparams.SIZE_REDUCE<<endl; }
-	#endif 
-	
+
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){
-		#ifdef _DEBUGMODE_CHECKS2X
-		if(true){ cout<<"PROCESSP2_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+		#ifdef _DEBUGMODE_CHECKS3
+		if(true){ cout<<"PROCESSP2_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		#endif 
 		loc = 0; }
 	
 	// read 
 	vmdata_t vmdata;
 	if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); }
-	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; } 
+	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
+	// cout<<"PROCESSP2_processvector: SEEN @ v: "<<v<<", loc: "<<loc<<, edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vmdata.vmask: "<<vmdata.vmask<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<"PROCESS VECTOR:: ACTIVE MASK SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<endl; }
+	#endif
 			
 	// process
 	value_t res = PROCESSP2_processfunc(vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -10918,7 +11475,7 @@ void acts_all::PROCESSP2_processvector(bool enx, unsigned int loc, keyvalue_t ed
 	return;
 }
 
-void acts_all::PROCESSP2_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+void PROCESSP2_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR_SIZE;
 	
  if(s_==0){ 
@@ -11004,7 +11561,7 @@ else {
 	return;
 }
 
-void acts_all::PROCESSP2_RearrangeLayoutV(unsigned int s, uint32_type vdata[VECTOR_SIZE], uint32_type vdata2[VECTOR_SIZE]){
+void PROCESSP2_RearrangeLayoutV(unsigned int s, uint32_type vdata[VECTOR_SIZE], uint32_type vdata2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -11118,7 +11675,7 @@ else {
 	// 	return;
 }
 
-parsededge_t acts_all::PROCESSP2_PARSEEDGE(uint32_type data){ 
+parsededge_t PROCESSP2_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
 	#ifdef _WIDEWORD
 	parsededge.incr = data.range(31, OFFSETOF_SRCV_IN_EDGEDSTVDATA);
@@ -11130,7 +11687,7 @@ parsededge_t acts_all::PROCESSP2_PARSEEDGE(uint32_type data){
 	return parsededge; 
 }
 
-void acts_all::PROCESSP2_calculateoffsets(keyvalue_capsule_t * buffer){
+void PROCESSP2_calculateoffsets(keyvalue_capsule_t * buffer){
 	for(buffer_type i=1; i<NUM_PARTITIONS; i++){ 
 	#pragma HLS PIPELINE II=2	
 		buffer[i].key = UTILP2_allignlower_KV2(buffer[i-1].key + buffer[i-1].value); 
@@ -11138,9 +11695,8 @@ void acts_all::PROCESSP2_calculateoffsets(keyvalue_capsule_t * buffer){
 	return;
 }
 
-fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t PROCESSP2_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	// NB: localcapsule[x].key & localcapsule[x].key are all in _kvs formats
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -11193,14 +11749,28 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
 	buffer_type maxsize_kvs[2]; 
 	buffer_type height_kvs = 0;
 	
-	bool _readedgeblock = true;
-	bool _readedgeblockstats = true;
-	bool _processedgeblockstats = true;
-	bool _processedgeblock = true;
-	bool _process_and_reduce_edgeblock = false; // true;
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
+		if(MEMCAP2_READVMASK(vbuffer[0][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 0"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[1][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 1"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[2][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 2"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[3][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 3"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[4][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 4"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[5][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 5"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[6][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 6"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[7][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 7"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[8][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 8"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[9][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 9"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[10][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 10"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[11][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 11"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[12][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 12"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[13][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 13"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[14][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 14"<<endl; }
+		if(MEMCAP2_READVMASK(vbuffer[15][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 15"<<endl; }
+	}
+	#endif 
 	
 	// read edge block
-	if(_readedgeblock == true){
 	#ifdef DEBUGME_PROCESSEDGES2
 	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<endl;
 	#endif 
@@ -11253,10 +11823,8 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
 		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[7].key: "<<edges[offset_kvs + i].data[7].key<<", edges["<<offset_kvs + i<<"].data[7].value: "<<edges[offset_kvs + i].data[7].value<<endl; }
 		#endif 
 	}
-	}	
 	
 	// read edge block stats 
-	if(_readedgeblockstats == true){
 	PROCESSBUFFERPARTITIONS_LOOP2: for(unsigned int p=0; p<NUM_PARTITIONS; p++){ localcapsule[p].key = 0; localcapsule[p].value = tempbuffer[p][0]; }
 	if(true || localcapsule[NUM_PARTITIONS-1].value != 8888888){ // FIXME. // localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value >= SOURCEBLOCKRAM_SIZE * VECTOR2_SIZE
 		#ifdef _XXX_
@@ -11275,10 +11843,8 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
 	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS); 
 	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", edgessize_kvs * VECTOR2_SIZE: "<<edgessize_kvs * VECTOR2_SIZE<<", WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
 	#endif
-	}
 	
 	// process edge block stats 
-	if(_processedgeblockstats == true){
 	maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
 	unsigned int _poff = 0;
 	PROCESSBUFFERPARTITIONS_LOOP3: for(unsigned int cid=0; cid<2; cid++){
@@ -11295,10 +11861,8 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
 		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
 		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
 	}
-	}
 	
 	// process edge block
-	if(_processedgeblock == true){
 	buffer_type psetoffset=0;
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
@@ -11363,38 +11927,35 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
  	
 					
 					// re-arrange 
-					// PROCESSP2_RearrangeLayoutV(r, E, E2);
+					PROCESSP2_RearrangeLayoutV(r, E, E2);
 					
 					// parse
-					// 					// parsededge_t parsed_edge0 = PROCESSP2_PARSEEDGE(E2[0]); // FIXME.
-					// edata[0].value = parsed_edge0.incr; // source info
-					// edata[0].key = parsed_edge0.dstvid;	
-					// 					// parsededge_t parsed_edge1 = PROCESSP2_PARSEEDGE(E2[1]); // FIXME.
-					// edata[1].value = parsed_edge1.incr; // source info
-					// edata[1].key = parsed_edge1.dstvid;	
-					// 					// parsededge_t parsed_edge2 = PROCESSP2_PARSEEDGE(E2[2]); // FIXME.
-					// edata[2].value = parsed_edge2.incr; // source info
-					// edata[2].key = parsed_edge2.dstvid;	
-					// 					// parsededge_t parsed_edge3 = PROCESSP2_PARSEEDGE(E2[3]); // FIXME.
-					// edata[3].value = parsed_edge3.incr; // source info
-					// edata[3].key = parsed_edge3.dstvid;	
-					// 					// parsededge_t parsed_edge4 = PROCESSP2_PARSEEDGE(E2[4]); // FIXME.
-					// edata[4].value = parsed_edge4.incr; // source info
-					// edata[4].key = parsed_edge4.dstvid;	
-					// 					// parsededge_t parsed_edge5 = PROCESSP2_PARSEEDGE(E2[5]); // FIXME.
-					// edata[5].value = parsed_edge5.incr; // source info
-					// edata[5].key = parsed_edge5.dstvid;	
-					// 					// parsededge_t parsed_edge6 = PROCESSP2_PARSEEDGE(E2[6]); // FIXME.
-					// edata[6].value = parsed_edge6.incr; // source info
-					// edata[6].key = parsed_edge6.dstvid;	
-					// 					// parsededge_t parsed_edge7 = PROCESSP2_PARSEEDGE(E2[7]); // FIXME.
-					// edata[7].value = parsed_edge7.incr; // source info
-					// edata[7].key = parsed_edge7.dstvid;	
-					// 					
-					/////
-					// re-arrange 
-					// PROCESSP2_RearrangeLayoutV(r, E, E2);
+					parsededge_t parsed_edge0 = PROCESSP2_PARSEEDGE(E2[0]); // FIXME.
+					edata[0].value = parsed_edge0.incr; // source info
+					edata[0].key = parsed_edge0.dstvid;	
+					parsededge_t parsed_edge1 = PROCESSP2_PARSEEDGE(E2[1]); // FIXME.
+					edata[1].value = parsed_edge1.incr; // source info
+					edata[1].key = parsed_edge1.dstvid;	
+					parsededge_t parsed_edge2 = PROCESSP2_PARSEEDGE(E2[2]); // FIXME.
+					edata[2].value = parsed_edge2.incr; // source info
+					edata[2].key = parsed_edge2.dstvid;	
+					parsededge_t parsed_edge3 = PROCESSP2_PARSEEDGE(E2[3]); // FIXME.
+					edata[3].value = parsed_edge3.incr; // source info
+					edata[3].key = parsed_edge3.dstvid;	
+					parsededge_t parsed_edge4 = PROCESSP2_PARSEEDGE(E2[4]); // FIXME.
+					edata[4].value = parsed_edge4.incr; // source info
+					edata[4].key = parsed_edge4.dstvid;	
+					parsededge_t parsed_edge5 = PROCESSP2_PARSEEDGE(E2[5]); // FIXME.
+					edata[5].value = parsed_edge5.incr; // source info
+					edata[5].key = parsed_edge5.dstvid;	
+					parsededge_t parsed_edge6 = PROCESSP2_PARSEEDGE(E2[6]); // FIXME.
+					edata[6].value = parsed_edge6.incr; // source info
+					edata[6].key = parsed_edge6.dstvid;	
+					parsededge_t parsed_edge7 = PROCESSP2_PARSEEDGE(E2[7]); // FIXME.
+					edata[7].value = parsed_edge7.incr; // source info
+					edata[7].key = parsed_edge7.dstvid;	
 					
+					/* /////
 					// parse
 					parsededge_t parsed_edge0 = PROCESSP2_PARSEEDGE(E[0]); // FIXME.
 					edata[0].value = parsed_edge0.incr; // source info
@@ -11420,25 +11981,25 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
 					parsededge_t parsed_edge7 = PROCESSP2_PARSEEDGE(E[7]); // FIXME.
 					edata[7].value = parsed_edge7.incr; // source info
 					edata[7].key = parsed_edge7.dstvid;	
-					/////
+					///// */
 					
 					// process
 					if(E[0] == INVALIDDATA){ enx[0] = false; }
-					PROCESSP2_processvector(enx[0], edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], &loadcount[0], GraphAlgoClass, globalparams);
+					PROCESSP2_processvector(enx[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], &loadcount[0], GraphAlgoClass, globalparams);
 					if(E[1] == INVALIDDATA){ enx[1] = false; }
-					PROCESSP2_processvector(enx[1], edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], &loadcount[1], GraphAlgoClass, globalparams);
+					PROCESSP2_processvector(enx[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], &loadcount[1], GraphAlgoClass, globalparams);
 					if(E[2] == INVALIDDATA){ enx[2] = false; }
-					PROCESSP2_processvector(enx[2], edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], &loadcount[2], GraphAlgoClass, globalparams);
+					PROCESSP2_processvector(enx[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], &loadcount[2], GraphAlgoClass, globalparams);
 					if(E[3] == INVALIDDATA){ enx[3] = false; }
-					PROCESSP2_processvector(enx[3], edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], &loadcount[3], GraphAlgoClass, globalparams);
+					PROCESSP2_processvector(enx[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], &loadcount[3], GraphAlgoClass, globalparams);
 					if(E[4] == INVALIDDATA){ enx[4] = false; }
-					PROCESSP2_processvector(enx[4], edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], &loadcount[4], GraphAlgoClass, globalparams);
+					PROCESSP2_processvector(enx[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], &loadcount[4], GraphAlgoClass, globalparams);
 					if(E[5] == INVALIDDATA){ enx[5] = false; }
-					PROCESSP2_processvector(enx[5], edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], &loadcount[5], GraphAlgoClass, globalparams);
+					PROCESSP2_processvector(enx[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], &loadcount[5], GraphAlgoClass, globalparams);
 					if(E[6] == INVALIDDATA){ enx[6] = false; }
-					PROCESSP2_processvector(enx[6], edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], &loadcount[6], GraphAlgoClass, globalparams);
+					PROCESSP2_processvector(enx[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], &loadcount[6], GraphAlgoClass, globalparams);
 					if(E[7] == INVALIDDATA){ enx[7] = false; }
-					PROCESSP2_processvector(enx[7], edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], &loadcount[7], GraphAlgoClass, globalparams);
+					PROCESSP2_processvector(enx[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], &loadcount[7], GraphAlgoClass, globalparams);
 					#ifdef _DEBUGMODE_CHECKS2
 					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[0], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
 					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[1], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
@@ -11454,85 +12015,6 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
 			}
 		}
 	}
-	}
-	/* // CRITICAL REMOVEME. //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	if(_processedgeblock == true){
-		for(buffer_type i=0; i<chunk_size; i++){ // processing next block set 
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-			#pragma HLS PIPELINE II=1
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-			#endif
-			
-			buffer[0][2*i].key = tempbuffer[0][i];
-			buffer[0][2*i].value = 7;
-			buffer[1][2*i].key = tempbuffer[1][i];
-			buffer[1][2*i].value = 7;
-			buffer[2][2*i].key = tempbuffer[2][i];
-			buffer[2][2*i].value = 7;
-			buffer[3][2*i].key = tempbuffer[3][i];
-			buffer[3][2*i].value = 7;
-			buffer[4][2*i].key = tempbuffer[4][i];
-			buffer[4][2*i].value = 7;
-			buffer[5][2*i].key = tempbuffer[5][i];
-			buffer[5][2*i].value = 7;
-			buffer[6][2*i].key = tempbuffer[6][i];
-			buffer[6][2*i].value = 7;
-			buffer[7][2*i].key = tempbuffer[7][i];
-			buffer[7][2*i].value = 7;
-			buffer[0][2*i+1].key = tempbuffer[8][i];
-			buffer[0][2*i+1].value = 7;
-			buffer[1][2*i+1].key = tempbuffer[9][i];
-			buffer[1][2*i+1].value = 7;
-			buffer[2][2*i+1].key = tempbuffer[10][i];
-			buffer[2][2*i+1].value = 7;
-			buffer[3][2*i+1].key = tempbuffer[11][i];
-			buffer[3][2*i+1].value = 7;
-			buffer[4][2*i+1].key = tempbuffer[12][i];
-			buffer[4][2*i+1].value = 7;
-			buffer[5][2*i+1].key = tempbuffer[13][i];
-			buffer[5][2*i+1].value = 7;
-			buffer[6][2*i+1].key = tempbuffer[14][i];
-			buffer[6][2*i+1].value = 7;
-			buffer[7][2*i+1].key = tempbuffer[15][i];
-			buffer[7][2*i+1].value = 7;
-	}
-	} // CRITICAL REMOVEME.
-	// CRITICAL REMOVEME. ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
-	
-	// process edge block (primitive)
-	#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-	if(_process_and_reduce_edgeblock == true){
-	unsigned int C = 0; // FIXM.
-	unsigned int loadcount2 = 0;
-	for(buffer_type i=0; i<chunk_size; i++){
-		for(vector_type v=0; v<VECTOR2_SIZE; v++){
-			uint32_type edge = tempubuffer[i][v];
-			
-			parsededge_t parsed_edge = PROCESSP2_PARSEEDGE(edge); 
-			unsigned int srcvid = parsed_edge.incr; // source info FIXME.
-			unsigned int dstvid = parsed_edge.dstvid;	
-			
-			bool en = true; if(edge != INVALIDDATA && edge != INVALIDDATA){ en = true; } else { en = false; }
-			
-			vmdata_t src_vmdata;
-			if(en == true){
-				src_vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); 
-				if(src_vmdata.vmask == 1){
-					value_t res = PROCESSP2_processfunc(src_vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-					keyvalue_t mykeyvalue; mykeyvalue.key = dstvid; mykeyvalue.value = res;
-					
-					uint32_type dst_vmdata = MEMCAP2_READDATAFROMDRAM(dstvid, kvdram, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, 0); 
-					uint32_type new_vprop = REDUCEP2_reducefunc(GETVDATA(dst_vmdata), res, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-					if(en == true && new_vprop != GETVDATA(dst_vmdata)){ APPENDMDATA(new_vprop, 1); }
-					
-					MEMCAP2_WRITEDATATODRAM(dstvid, kvdram, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, new_vprop); 
-				}
-			}
-		}
-	}
-	}
-	#endif 
 	
 	// for(unsigned int t=0; t<VECTOR_SIZE; t++){ cout<<"--- loadcount["<<t<<"]: "<<loadcount[t]<<endl; }
 	// actsutilityobj->printglobalvars();
@@ -11556,7 +12038,7 @@ fetchmessage_t acts_all::PROCESSP2_SPL_readandprocess(bool_type enable, uint512_
 	
 #endif 
 #ifdef CONFIG_ENABLECLASS_PARTITIONUPDATES
-void acts_all::PARTITIONP2_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
+void PARTITIONP2_preparekeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_loop1 = WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = SRCBUFFER_SIZE - WORKBUFFER_SIZE;
@@ -11861,7 +12343,7 @@ actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[0]", emptysl
 	return;
 }
 
-void acts_all::PARTITIONP2_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams){				
+void PARTITIONP2_priorpartitionkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams){				
 	#ifdef ENABLERECURSIVEPARTITIONING
 	if(currentLOP == globalparams.ACTSPARAMS_TREEDEPTH){ return; } /// NEWCHANGE.
 	#else 
@@ -11951,7 +12433,7 @@ void acts_all::PARTITIONP2_priorpartitionkeyvalues(bool_type enable1, bool_type 
 	
 #endif 
 #ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
-void acts_all::REDUCEP2_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+void REDUCEP2_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS PIPELINE II=3
 	analysis_type analysis_loop1 = VECTOR_SIZE;
 	
@@ -12016,7 +12498,7 @@ void acts_all::REDUCEP2_reducevector(unsigned int col, keyvalue_buffer_t kvdata,
 	return;
 }
 
-void acts_all::REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	#if REDUCEBUFFERFACTOR==8
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
@@ -12188,7 +12670,7 @@ void acts_all::REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	return;
 }
 
-void acts_all::REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
 	
@@ -12218,7 +12700,7 @@ void acts_all::REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t
 	return;
 }
 
-void acts_all::REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
 	
@@ -12348,7 +12830,7 @@ void acts_all::REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdra
 #endif 
 #ifdef CONFIG_ENABLECLASS_REDUCEUPDATES2
 #define RU_SETSZ 8
-void acts_all::REDUCEP2_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+void REDUCEP2_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS INLINE
 	keyvalue_t mykeyvalue = UTILP2_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
@@ -12384,7 +12866,7 @@ void acts_all::REDUCEP2_reducevector(bool enx, unsigned int col, keyvalue_buffer
 	return;
 }
 
-void acts_all::REDUCEP2_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+void REDUCEP2_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR_SIZE;
 	
  if(s_==0){ 
@@ -12470,7 +12952,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP2_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
+void REDUCEP2_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -12555,7 +13037,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
 	
@@ -12690,7 +13172,7 @@ void acts_all::REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 }
 
 #ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"reduceupdates2: REDUCEP2_tradreduceandbuffer NOT DEFINED HERE."<<endl;
 	exit(EXIT_FAILURE);
@@ -12700,7 +13182,7 @@ void acts_all::REDUCEP2_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t
 #endif 
 
 #ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"reduceupdates2: REDUCEP2_tradreduceandbuffer NOT DEFINED HERE."<<endl;
 	exit(EXIT_FAILURE);
@@ -12716,7 +13198,7 @@ void acts_all::REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdra
 #define CONFIG_MERGE_VPARTITIONS
 #endif 
 
-unsigned int acts_all::MERGEP2_SPLIT_actvpstatsoffset(globalparams_t globalparams){
+unsigned int MERGEP2_SPLIT_actvpstatsoffset(globalparams_t globalparams){
 	unsigned int _offset = 0;
 	#ifdef ENABLERECURSIVEPARTITIONING
 	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ _offset += (1 << (NUM_PARTITIONS_POW * k)); }
@@ -12726,7 +13208,7 @@ unsigned int acts_all::MERGEP2_SPLIT_actvpstatsoffset(globalparams_t globalparam
 	return _offset;
 }
 
-void acts_all::MERGEP2_SPLIT_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -12795,7 +13277,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs1(uint512_dt * kvdram0, uint512_dt * vdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -12866,7 +13348,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -12939,7 +13421,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13014,7 +13496,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13091,7 +13573,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13170,7 +13652,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13251,7 +13733,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13334,7 +13816,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13419,7 +13901,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdr
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13506,7 +13988,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs10(uint512_dt * kvdram0,uint512_dt * kvd
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13595,7 +14077,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs11(uint512_dt * kvdram0,uint512_dt * kvd
 	#endif 
 	return;
 }
-void acts_all::MERGEP2_SPLIT_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram){
+void MERGEP2_SPLIT_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13687,7 +14169,7 @@ void acts_all::MERGEP2_SPLIT_broadcastVs12(uint512_dt * kvdram0,uint512_dt * kvd
 	return;
 }
 
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs1(uint512_dt * kvdram0, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13715,7 +14197,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs1(uint512_dt * kvdram0, uint512_dt 
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13745,7 +14227,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs2(uint512_dt * kvdram0,uint512_dt *
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13777,7 +14259,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs3(uint512_dt * kvdram0,uint512_dt *
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13811,7 +14293,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs4(uint512_dt * kvdram0,uint512_dt *
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13847,7 +14329,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs5(uint512_dt * kvdram0,uint512_dt *
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13885,7 +14367,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs6(uint512_dt * kvdram0,uint512_dt *
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13925,7 +14407,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs7(uint512_dt * kvdram0,uint512_dt *
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -13967,7 +14449,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs8(uint512_dt * kvdram0,uint512_dt *
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -14011,7 +14493,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs9(uint512_dt * kvdram0,uint512_dt *
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -14057,7 +14539,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs10(uint512_dt * kvdram0,uint512_dt 
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -14105,7 +14587,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs11(uint512_dt * kvdram0,uint512_dt 
 	#endif
 	return;
 }
-void acts_all::MERGEP2_SPLIT_BASICbroadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram){
+void MERGEP2_SPLIT_BASICbroadcastVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -14156,7 +14638,7 @@ void acts_all::MERGEP2_SPLIT_BASICbroadcastVs12(uint512_dt * kvdram0,uint512_dt 
 	return;
 }
 
-void acts_all::MERGEP2_SPLIT_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -14256,7 +14738,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram, 
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -14385,7 +14867,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1,
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -14543,7 +15025,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -14730,7 +15212,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -14946,7 +15428,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -15191,7 +15673,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -15465,7 +15947,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -15768,7 +16250,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -16100,7 +16582,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -16461,7 +16943,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -16851,7 +17333,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1
 	// exit(EXIT_SUCCESS); //
 	return;
 }
-void acts_all::MERGEP2_SPLIT_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer11[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
+void MERGEP2_SPLIT_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram, keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer11[BLOCKRAM_SIZE], globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
@@ -17272,7 +17754,7 @@ void acts_all::MERGEP2_SPLIT_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1
 }
 
 extern "C" {
-void acts_all::TOPP2_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram){
+void TOPP2_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram){
 #pragma HLS INTERFACE m_axi port = vdramA offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = vdramB offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = vdramC offset = slave bundle = gmem2
@@ -17458,7 +17940,7 @@ void acts_all::TOPP2_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	
 #endif 
 #ifdef CONFIG_ENABLECLASS_ACTS
-void acts_all::ACTSP2_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void ACTSP2_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	analysis_type analysis_loop1 = SRCBUFFER_SIZE / 4;
@@ -17504,7 +17986,7 @@ void acts_all::ACTSP2_actspipeline(bool_type enable1, bool_type enable2, unsigne
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	if(maxcutoff % 4 != 0){ maxcutoff = 0; } // 4, CRITICAL FIXME.
 	#endif 
-	// cout<<"------------------- acts_all::ACTSP2_actspipeline: maxcutoff: "<<maxcutoff<<endl;
+	// cout<<"------------------- ACTSP2_actspipeline: maxcutoff: "<<maxcutoff<<endl;
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
@@ -17656,7 +18138,7 @@ void acts_all::ACTSP2_actspipeline(bool_type enable1, bool_type enable2, unsigne
 	return;
 }
 
-fetchmessage_t acts_all::ACTSP2_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t ACTSP2_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams,
 		unsigned int edgebankID){
 	fetchmessage_t fetchmessage;
@@ -17668,7 +18150,7 @@ fetchmessage_t acts_all::ACTSP2_fetchkeyvalues(bool_type enable, unsigned int mo
 	return fetchmessage; 
 }
 
-void acts_all::ACTSP2_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],
+void ACTSP2_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],
 		keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 			batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(mode == ACTSREDUCEMODE){
@@ -17679,7 +18161,7 @@ void acts_all::ACTSP2_commitkeyvalues(bool_type enable, bool_type enable2, unsig
 	return;
 }
 
-void acts_all::ACTSP2_actit(bool_type enable, unsigned int mode,
+void ACTSP2_actit(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 					
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
@@ -17768,7 +18250,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 }
 
 #ifdef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES
-fetchmessage_t acts_all::ACTSP2_magic(bool_type enable, unsigned int mode, unsigned int mode2,
+fetchmessage_t ACTSP2_magic(bool_type enable, unsigned int mode, unsigned int mode2,
 		 uint512_dt * kvdram, 
 			keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 				keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS],
@@ -17805,7 +18287,7 @@ fetchmessage_t acts_all::ACTSP2_magic(bool_type enable, unsigned int mode, unsig
 	return fetchmessage; 
 }
 
-void acts_all::ACTSP2_actit(bool_type enable, unsigned int mode,
+void ACTSP2_actit(bool_type enable, unsigned int mode,
 		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 					
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
@@ -17918,7 +18400,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 #endif 
 
 #ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::ACTSP2_PRIOR_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], 
+void ACTSP2_PRIOR_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], 
 		keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 				batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(mode == ACTSREDUCEMODE){
@@ -17929,7 +18411,7 @@ void acts_all::ACTSP2_PRIOR_commitkeyvalues(bool_type enable1, bool_type enable2
 	return;
 }
 
-void acts_all::ACTSP2_priorit(bool_type enable, unsigned int mode,
+void ACTSP2_priorit(bool_type enable, unsigned int mode,
 		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
@@ -18000,7 +18482,7 @@ keyvalue_capsule_t capsulepp1_so8[MAX_NUM_PARTITIONS];
 #endif 
 
 #ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::ACTSP2_tradit(bool_type enable, unsigned int mode,
+void ACTSP2_tradit(bool_type enable, unsigned int mode,
 		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
@@ -18035,7 +18517,7 @@ void acts_all::ACTSP2_tradit(bool_type enable, unsigned int mode,
 #endif 
 	
 #endif 			
-void acts_all::TOPP2_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+void TOPP2_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -18182,7 +18664,7 @@ ACTSP2_actit
 	return;
 }
 
-void acts_all::TOPP2_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID){
+void TOPP2_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -18284,7 +18766,7 @@ void acts_all::TOPP2_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sour
 	return;
 }
 
-void acts_all::TOPP2_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
+void TOPP2_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -18328,7 +18810,7 @@ void acts_all::TOPP2_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourceb
 	return;
 }
 
-void acts_all::TOPP2_NU_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
+void TOPP2_NU_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	if(en_process == ON){ TOPP2_NU_processit_splitdstvxs( kvdram, sourcebuffer, vbuffer, vmask_p, globalparamsE, globalparamsK, v_chunkids, v_chunkid, edgebankID); } 
@@ -18337,7 +18819,7 @@ void acts_all::TOPP2_NU_dispatch(bool_type en_process, bool_type en_partition, b
 	return;
 }
 
-void acts_all::TOPP2_NU_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+void TOPP2_NU_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -18411,7 +18893,7 @@ void acts_all::TOPP2_NU_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t 
 
 
 	
-void acts_all::TOPP2_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+void TOPP2_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -18538,7 +19020,7 @@ ACTSP2_tradit
 	return;
 }
 
-void acts_all::TOPP2_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],
+void TOPP2_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	if(en_process == ON){ TOPP2_U_processit( kvdram, sourcebuffer, vbuffer, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID); } 
@@ -18547,7 +19029,7 @@ void acts_all::TOPP2_U_dispatch(bool_type en_process, bool_type en_partition, bo
 	return;
 }
 
-void acts_all::TOPP2_U_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+void TOPP2_U_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -18615,7 +19097,7 @@ void acts_all::TOPP2_U_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t s
 
 // top
 #ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
-void acts_all::TOPP2_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalposition_t globalposition){
+void TOPP2_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalposition_t globalposition){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -18700,7 +19182,7 @@ void acts_all::TOPP2_U_topkernelproc_embedded(unsigned int globalid, unsigned in
 }
 
 extern "C" {
-void acts_all::TOPP2_U_topkernelP1(
+void TOPP2_U_topkernelP1(
 	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
@@ -18889,7 +19371,7 @@ void acts_all::TOPP2_U_topkernelP1(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks1(ON, vdram, vbuffer0, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks1(ON, vdram, vbuffer0, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks1(ON, vdram, vbuffer0, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -18935,7 +19417,7 @@ void acts_all::TOPP2_U_topkernelP1(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP2(
+void TOPP2_U_topkernelP2(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * vdram
@@ -19133,7 +19615,7 @@ void acts_all::TOPP2_U_topkernelP2(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks2(ON, vdram, vbuffer0,vbuffer1, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks2(ON, vdram, vbuffer0,vbuffer1, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks2(ON, vdram, vbuffer0,vbuffer1, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -19180,7 +19662,7 @@ void acts_all::TOPP2_U_topkernelP2(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP3(
+void TOPP2_U_topkernelP3(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -19387,7 +19869,7 @@ void acts_all::TOPP2_U_topkernelP3(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks3(ON, vdram, vbuffer0,vbuffer1,vbuffer2, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks3(ON, vdram, vbuffer0,vbuffer1,vbuffer2, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks3(ON, vdram, vbuffer0,vbuffer1,vbuffer2, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -19435,7 +19917,7 @@ void acts_all::TOPP2_U_topkernelP3(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP4(
+void TOPP2_U_topkernelP4(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -19651,7 +20133,7 @@ void acts_all::TOPP2_U_topkernelP4(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks4(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks4(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks4(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -19700,7 +20182,7 @@ void acts_all::TOPP2_U_topkernelP4(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP5(
+void TOPP2_U_topkernelP5(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -19925,7 +20407,7 @@ void acts_all::TOPP2_U_topkernelP5(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks5(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks5(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks5(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -19975,7 +20457,7 @@ void acts_all::TOPP2_U_topkernelP5(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP6(
+void TOPP2_U_topkernelP6(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -20209,7 +20691,7 @@ void acts_all::TOPP2_U_topkernelP6(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks6(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks6(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks6(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -20260,7 +20742,7 @@ void acts_all::TOPP2_U_topkernelP6(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP7(
+void TOPP2_U_topkernelP7(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -20503,7 +20985,7 @@ void acts_all::TOPP2_U_topkernelP7(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks7(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks7(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks7(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -20555,7 +21037,7 @@ void acts_all::TOPP2_U_topkernelP7(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP8(
+void TOPP2_U_topkernelP8(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -20807,7 +21289,7 @@ void acts_all::TOPP2_U_topkernelP8(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks8(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks8(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks8(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -20860,7 +21342,7 @@ void acts_all::TOPP2_U_topkernelP8(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP9(
+void TOPP2_U_topkernelP9(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -21121,7 +21603,7 @@ void acts_all::TOPP2_U_topkernelP9(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks9(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks9(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks9(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -21175,7 +21657,7 @@ void acts_all::TOPP2_U_topkernelP9(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP10(
+void TOPP2_U_topkernelP10(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -21445,7 +21927,7 @@ void acts_all::TOPP2_U_topkernelP10(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks10(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks10(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks10(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -21500,7 +21982,7 @@ void acts_all::TOPP2_U_topkernelP10(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP11(
+void TOPP2_U_topkernelP11(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -21779,7 +22261,7 @@ void acts_all::TOPP2_U_topkernelP11(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks11(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks11(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks11(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -21835,7 +22317,7 @@ void acts_all::TOPP2_U_topkernelP11(
 }
 }
 extern "C" {
-void acts_all::TOPP2_U_topkernelP12(
+void TOPP2_U_topkernelP12(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -22123,7 +22605,7 @@ void acts_all::TOPP2_U_topkernelP12(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP2_readANDRVchunks12(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks12(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP2_RANDreadANDRVchunks12(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						

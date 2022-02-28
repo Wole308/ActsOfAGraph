@@ -9,6 +9,15 @@
 # https://sparse.tamu.edu/DIMACS10/hugebubbles-00020 (21,198,119 vertices, 63,580,358 edges, undirected)
 # https://sparse.tamu.edu/GenBank/kmer_U1a (67,716,231 vertices, 138,778,562 edges, undirected)
 
+# $ xbutil reset --device 0000:65:00.1
+# Performing 'HOT Reset' on 
+  # -[0000:65:00.1]
+# Are you sure you wish to proceed? [Y/n]: Y
+# Successfully reset Device[0000:65:00.1]
+# To figure out which xbutil I was using, I used 'which':
+# $ which xbutil
+# /opt/xilinx/xrt/bin/xbutil
+
 ############################## Help Section ##############################
 .PHONY: help
 

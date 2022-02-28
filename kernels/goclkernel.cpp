@@ -28,7 +28,7 @@ using namespace std;
 
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
-// #define TESTHWKERNEL
+#define TESTHWKERNEL
 
 goclkernel::goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	utilityobj = new utility();
@@ -135,27 +135,24 @@ void set_callback2(cl::Event event, const char *queue_name){
 long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
+	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ for(unsigned int t=0; t<(TOTALDRAMCAPACITY_KVS/2); t++){ kvsourcedram[i][(TOTALDRAMCAPACITY_KVS/2) + t] = edges[i][t]; }}
+	#endif 
+	
 	#ifdef TESTHWKERNEL
-	unsigned int _NUMCOMPUTEUNITS_SLR1AND2 = 1;
 	unsigned int _NUMCOMPUTEUNITS_SLR0 = 1; 
 	unsigned int _NUMCOMPUTEUNITS_SLR1 = 1; 
 	unsigned int _NUMCOMPUTEUNITS_SLR2 = 1; 
 	#else 
-	unsigned int _NUMCOMPUTEUNITS_SLR1AND2 = NUMCOMPUTEUNITS_SLR1AND2;
 	unsigned int _NUMCOMPUTEUNITS_SLR0 = NUMCOMPUTEUNITS_SLR0; 
 	unsigned int _NUMCOMPUTEUNITS_SLR1 = NUMCOMPUTEUNITS_SLR1; 
 	unsigned int _NUMCOMPUTEUNITS_SLR2 = NUMCOMPUTEUNITS_SLR2; 	
 	#endif 
-	cout<<"--------------------------- goclkernel::runapp:: _NUMCOMPUTEUNITS_SLR0: "<<_NUMCOMPUTEUNITS_SLR0<<", _NUMCOMPUTEUNITS_SLR1: "<<_NUMCOMPUTEUNITS_SLR1<<", _NUMCOMPUTEUNITS_SLR2: "<<_NUMCOMPUTEUNITS_SLR2<<", _NUMCOMPUTEUNITS_SLR1AND2: "<<_NUMCOMPUTEUNITS_SLR1AND2<<endl;
+	cout<<"--------------------------- goclkernel::runapp:: _NUMCOMPUTEUNITS_SLR0: "<<_NUMCOMPUTEUNITS_SLR0<<", _NUMCOMPUTEUNITS_SLR1: "<<_NUMCOMPUTEUNITS_SLR1<<", _NUMCOMPUTEUNITS_SLR2: "<<_NUMCOMPUTEUNITS_SLR2<<endl;
 	
 	unsigned int index_count = 0;
 	unsigned int edgessz_kvs = 0;
 	unsigned int kvdramsz_kvs = 0;
-	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	unsigned int A = edges[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
-	unsigned int B = edges[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
-	edgessz_kvs = A + B;
-	#endif 
 	unsigned int C = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	unsigned int D = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
@@ -168,25 +165,23 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 
 	unsigned int baseoffsetkvs_verticesdata = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
 	kvdramsz_kvs = C + D;
-	edgessz_kvs = PADDEDKVSOURCEDRAMSZ_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
-	kvdramsz_kvs = PADDEDKVSOURCEDRAMSZ_KVS; // KVSOURCEDRAMSZ_KVS;
-	// edgessz_kvs = 10000; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
-	// kvdramsz_kvs = 10000; // KVSOURCEDRAMSZ_KVS;
+	edgessz_kvs = TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
+	kvdramsz_kvs = TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;
 	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<endl;
 	
 	uint512_vec_dt * vdramtemp[3];
 	#ifndef SW_IMPL 
 	#ifdef FPGA_IMPL			
-	vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
-	vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
-	vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
+	vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
 	#else
-	vdramtemp[0] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
-	vdramtemp[1] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
-	vdramtemp[2] = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+	vdramtemp[0] = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	vdramtemp[1] = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	vdramtemp[2] = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
 	#endif
 	#endif 
-	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdramtemp[0][i] = vdram[i]; vdramtemp[1][i] = vdram[i]; vdramtemp[2][i] = vdram[i]; }
+	for(unsigned int i=0; i<TOTALDRAMCAPACITY_KVS; i++){ vdramtemp[0][i] = vdram[i]; vdramtemp[1][i] = vdram[i]; vdramtemp[2][i] = vdram[i]; }
 
 	cl_int err;
     auto devices = xcl::get_xil_devices();
@@ -218,7 +213,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	// cl_int err;
 	std::vector<cl_mem_ext_ptr_t> inoutBufExt_edges[3]; for(unsigned int i=0; i<3; i++){ inoutBufExt_edges[i] = std::vector<cl_mem_ext_ptr_t>(32); }
 	std::vector<cl_mem_ext_ptr_t> inoutBufExt_kvdram[3]; for(unsigned int i=0; i<3; i++){ inoutBufExt_kvdram[i] = std::vector<cl_mem_ext_ptr_t>(32); }
-	std::vector<cl_mem_ext_ptr_t> inoutBufExt_kvdramTTT(32);
 	cl_mem_ext_ptr_t inoutBufExt_vdram[4];
 	std::vector<cl::Buffer> buffer_kvdram[3]; for(unsigned int i=0; i<3; i++){ buffer_kvdram[i] = std::vector<cl::Buffer>(32); }
 	std::vector<cl::Buffer> buffer_edgesdram[3]; for(unsigned int i=0; i<3; i++){ buffer_edgesdram[i] = std::vector<cl::Buffer>(32); }
@@ -236,38 +230,14 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	unsigned int hbmindex = 0;
 	unsigned int numI = 0;
 	for(unsigned int s=0; s<3; s+=1){
-		if(s==0){ numI = _NUMCOMPUTEUNITS_SLR1AND2; } // SLR 2
-		if(s==1){ numI = _NUMCOMPUTEUNITS_SLR1AND2; } // SLR 1
+		if(s==0){ numI = _NUMCOMPUTEUNITS_SLR2; } // SLR 2
+		if(s==1){ numI = _NUMCOMPUTEUNITS_SLR1; } // SLR 1
 		if(s==2){ numI = _NUMCOMPUTEUNITS_SLR0; } // SLR 0
-		/* for(unsigned int i=0; i<numI; i+=1){ 
-			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
-			for(unsigned int j=0; j<NUM_EDGE_BANKS; j++){ 
-				inoutBufExt_edges[s][edgesindex].obj = edges[edgesindex];
-				inoutBufExt_edges[s][edgesindex].param = 0;
-				inoutBufExt_edges[s][edgesindex].flags = bank[hbmindex];
-				cout<<"attaching inoutBufExt_edges["<<s<<"]["<<edgesindex<<"] to Edges["<<edgesindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
-				edgesindex += 1;
-				// hbmindex += 1;
-			}
-			#endif 
-			inoutBufExt_kvdram[s][i].obj = kvsourcedram[kvindex];
-			inoutBufExt_kvdram[s][i].param = 0;
-			inoutBufExt_kvdram[s][i].flags = bank[hbmindex];
-			cout<<"attaching inoutBufExt_kvdram["<<s<<"]["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
-			kvindex += 1;
-			hbmindex += 1;
-		} */
 		for(unsigned int i=0; i<numI; i+=1){ 
 			inoutBufExt_kvdram[s][i].obj = kvsourcedram[kvindex];
 			inoutBufExt_kvdram[s][i].param = 0;
 			inoutBufExt_kvdram[s][i].flags = bank[hbmindex];
 			cout<<"attaching inoutBufExt_kvdram["<<s<<"]["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
-			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
-			inoutBufExt_edges[s][i].obj = edges[kvindex];
-			inoutBufExt_edges[s][i].param = 0;
-			inoutBufExt_edges[s][i].flags = bank[hbmindex];
-			cout<<"attaching inoutBufExt_edges["<<s<<"]["<<kvindex<<"] to Edges["<<kvindex<<"] to HBM["<<hbmindex<<"]: "<<endl;
-			#endif 
 			kvindex += 1;
 			hbmindex += 1;
 		}
@@ -282,39 +252,47 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	inoutBufExt_vdram[3].flags = bank[hbmindex];
 	cout<<"attaching inoutBufExt_vdram[3] to vdram to HBM["<<hbmindex<<"]: "<<endl;
 	
-	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-	cout<<"goclkernel:: creating OCL buffers..."<<endl;
-	#endif
-	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
-	for(unsigned int s=0; s<3; s+=1){ 
-		cout<<"+++ goclkernel: creating......  buffer_edgesdram["<<s<<"] "<<endl;
-		for(unsigned int i=0; i<1; i++){ // NUMSUBCPUTHREADS // FIXME ////////////////////////////////////////////////////////////////////////////////////////////
-			OCL_CHECK(err,
-				  buffer_edgesdram[s][i] =
-					  cl::Buffer(context,
-								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-										 CL_MEM_USE_HOST_PTR,
-								 sizeof(uint512_vec_dt) * edgessz_kvs,
-								 &inoutBufExt_edges[s][i], 
-								 &err));
-			cout<<"+++ goclkernel: created buffer_edgesdram["<<s<<"]["<<i<<"] "<<endl;
-		}
+	cout<<"goclkernel:: creating OCL buffers (P2)..."<<endl;
+	for(unsigned int i=0; i<_NUMCOMPUTEUNITS_SLR2; i++){ 
+		OCL_CHECK(err,
+			  buffer_kvdram[0][i] =
+				  cl::Buffer(context,
+							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+									 CL_MEM_USE_HOST_PTR,
+							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
+							 &inoutBufExt_kvdram[0][i], 
+							 &err));
+		cout<<"+++ goclkernel: created buffer_kvdram[0]["<<i<<"] "<<endl;
 	}
-	#endif 
-	unsigned int NUM = 0;
-	for(unsigned int s=0; s<3; s+=1){
-		if(s==0 || s==1){ NUM=_NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=_NUMCOMPUTEUNITS_SLR0; }
-		for(unsigned int i=0; i<NUM; i++){ 
-			OCL_CHECK(err,
-				  buffer_kvdram[s][i] =
-					  cl::Buffer(context,
-								 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-										 CL_MEM_USE_HOST_PTR,
-								 sizeof(uint512_vec_dt) * kvdramsz_kvs,
-								 &inoutBufExt_kvdram[s][i], 
-								 &err));
-			cout<<"+++ goclkernel: created buffer_kvdram["<<s<<"]["<<i<<"] "<<endl;
-		}
+	
+	cout<<"goclkernel:: creating OCL buffers (P1)..."<<endl;
+	for(unsigned int i=0; i<_NUMCOMPUTEUNITS_SLR1; i++){ 
+		OCL_CHECK(err,
+			  buffer_kvdram[1][i] =
+				  cl::Buffer(context,
+							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+									 CL_MEM_USE_HOST_PTR,
+							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
+							 &inoutBufExt_kvdram[1][i], 
+							 &err));
+		cout<<"+++ goclkernel: created buffer_kvdram[1]["<<i<<"] "<<endl;
+	}
+	
+	cout<<"goclkernel:: creating OCL buffers (P0)..."<<endl;
+	for(unsigned int i=0; i<_NUMCOMPUTEUNITS_SLR0; i++){ 
+		OCL_CHECK(err,
+			  buffer_kvdram[2][i] =
+				  cl::Buffer(context,
+							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+									 CL_MEM_USE_HOST_PTR,
+							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
+							 &inoutBufExt_kvdram[2][i], 
+							 &err));
+		cout<<"+++ goclkernel: created buffer_kvdram[2]["<<i<<"] "<<endl;
+	}
+	
+	cout<<"goclkernel:: creating OCL buffers (S)..."<<endl;
+	for(unsigned int s=0; s<4; s++){
 		OCL_CHECK(err,
 			  buffer_vdram[s] =
 				  cl::Buffer(context,
@@ -325,14 +303,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 							 &err));
 		cout<<"+++ goclkernel: created buffer_vdram["<<s<<"] "<<endl;
 	}
-	OCL_CHECK(err,
-		  buffer_vdram[3] =
-			  cl::Buffer(context,
-						 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-								 CL_MEM_USE_HOST_PTR,
-						 sizeof(uint512_vec_dt) * kvdramsz_kvs,
-						 &inoutBufExt_vdram[3], 
-						 &err));
 	cout<<"+++ goclkernel: created buffer_vdram[3] "<<endl;
 	
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
@@ -347,79 +317,84 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	cout<<"goclkernel:: creating kernel object..."<<endl;
 	#endif
-	std::string krnl1and2_name = "TOPP0_U_topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR1AND2);
-	std::string krnl3_name = "TOPP1_U_topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR0);	
-	// std::string krnl1and2_name = "topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR1AND2);
-	// std::string krnl3_name = "topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR0);	
-	unsigned int _C = 0;
-	for (int i = 0; i < 2; i++) {
-		std::string krnl_name = krnl1and2_name; 
-		std::string krnl_name_ = krnl_name + "_";
-		std::string cu_id = std::to_string((i+1));
-		std::string krnl_name_full = krnl_name + ":{" + krnl_name_ + cu_id + "}"; 
-		#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-		printf("Creating a kernel [%s] for CU(%d)\n", krnl_name_full.c_str(), (i+1));
-		#endif
-		OCL_CHECK(err, krnls_proc[i] = cl::Kernel(program, krnl_name_full.c_str(), &err));
-	}
-	std::string krnl_name = krnl3_name;
-	std::string krnl_name_ = krnl_name + "_"; 
-	std::string cu_id = std::to_string((_C+1));
-	std::string krnl_name_full = krnl_name + ":{" + krnl_name_ + cu_id + "}"; 
+	std::string krnl_name = "TOPP0_U_topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR2); 
+	std::string krnl_name_ = krnl_name + "_";
+	std::string cu_id = std::to_string((1));
+	std::string krnl2_name_full = krnl_name + ":{" + krnl_name_ + cu_id + "}"; 
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
-	printf("Creating a kernel [%s] for CU(%d)\n", krnl_name_full.c_str(), (_C+1));
+	printf("Creating a kernel [%s] for CU(%d)\n", krnl2_name_full.c_str(), (1));
 	#endif
-	OCL_CHECK(err, krnls_proc[2] = cl::Kernel(program, krnl_name_full.c_str(), &err));
+	OCL_CHECK(err, krnls_proc[0] = cl::Kernel(program, krnl2_name_full.c_str(), &err));
 	
-	krnl_name = "TOPP2_topkernelS";
+	krnl_name = "TOPP1_U_topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR1); 
+	krnl_name_ = krnl_name + "_";
 	cu_id = std::to_string((1));
-	std::string krnl2_name_full = krnl_name + ":{" + "TOPP2_topkernelS_" + cu_id + "}"; 
-	OCL_CHECK(err, krnls_sync = cl::Kernel(program, krnl2_name_full.c_str(), &err));
-
-	// Setting kernel arguments...
-	cout<<"goclkernel:: Setting kernel (proc) arguments..."<<endl;
-	for(unsigned int s=0; s<3; s+=1){
-		if(s==0 || s==1){ NUM=_NUMCOMPUTEUNITS_SLR1AND2; } else { NUM=_NUMCOMPUTEUNITS_SLR0; }
-		unsigned int argindex = 0;
-		for(unsigned int i=0; i<NUM; i+=1){
-			#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // CRITICAL FIXME.
-			OCL_CHECK(err, err = krnls_proc[s].setArg(argindex, buffer_edgesdram[s][i]));
-			argindex += 1;
-			cout<<"setting argument krnls_proc["<<s<<"].setArg("<<i<<", buffer_edgesdram["<<s<<"]["<<i<<"])"<<endl;
-			#endif 
-			OCL_CHECK(err, err = krnls_proc[s].setArg(argindex, buffer_kvdram[s][i]));
-			argindex += 1;
-			cout<<"setting argument krnls_proc["<<s<<"].setArg("<<i<<", buffer_kvdram["<<s<<"]["<<i<<"])"<<endl;
-		}
-		OCL_CHECK(err, err = krnls_proc[s].setArg(argindex, buffer_vdram[s]));
-		cout<<"setting argument krnls_proc["<<s<<"].setArg("<<NUM<<", buffer_vdram["<<s<<"])"<<endl;
-	}
-	OCL_CHECK(err, err = q.finish());
+	std::string krnl1_name_full = krnl_name + ":{" + krnl_name_ + cu_id + "}"; 
+	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
+	printf("Creating a kernel [%s] for CU(%d)\n", krnl1_name_full.c_str(), (1));
+	#endif
+	OCL_CHECK(err, krnls_proc[1] = cl::Kernel(program, krnl1_name_full.c_str(), &err));
 	
-	// Setting kernel arguments...
+	krnl_name = "TOPP2_U_topkernelP"+std::to_string(_NUMCOMPUTEUNITS_SLR0);
+	krnl_name_ = krnl_name + "_"; 
+	cu_id = std::to_string((1));
+	std::string krnl0_name_full = krnl_name + ":{" + krnl_name_ + cu_id + "}"; 
+	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
+	printf("Creating a kernel [%s] for CU(%d)\n", krnl0_name_full.c_str(), (1));
+	#endif
+	OCL_CHECK(err, krnls_proc[2] = cl::Kernel(program, krnl0_name_full.c_str(), &err));
+	
+	krnl_name = "TOPS_topkernelS";
+	cu_id = std::to_string((1));
+	std::string krnlS_name_full = krnl_name + ":{" + "TOPS_topkernelS_" + cu_id + "}"; 
+	OCL_CHECK(err, krnls_sync = cl::Kernel(program, krnlS_name_full.c_str(), &err));
+
+	// Setting kernel arguments (P2)...
+	unsigned int argindex = 0;
+	for(unsigned int i=0; i<_NUMCOMPUTEUNITS_SLR2; i+=1){
+		OCL_CHECK(err, err = krnls_proc[0].setArg(argindex, buffer_kvdram[0][i]));
+		cout<<"setting argument krnls_proc[0].setArg("<<argindex<<", buffer_kvdram[0]["<<i<<"])"<<endl;
+		argindex += 1;
+	}
+	OCL_CHECK(err, err = krnls_proc[0].setArg(argindex, buffer_vdram[0]));
+	cout<<"setting argument krnls_proc[0].setArg("<<argindex<<", buffer_vdram[0])"<<endl;
+	
+	// Setting kernel arguments (P1)...
+	argindex = 0;
+	for(unsigned int i=0; i<_NUMCOMPUTEUNITS_SLR1; i+=1){
+		OCL_CHECK(err, err = krnls_proc[1].setArg(argindex, buffer_kvdram[1][i]));
+		cout<<"setting argument krnls_proc[1].setArg("<<argindex<<", buffer_kvdram[1]["<<i<<"])"<<endl;
+		argindex += 1;
+	}
+	OCL_CHECK(err, err = krnls_proc[1].setArg(argindex, buffer_vdram[1]));
+	cout<<"setting argument krnls_proc[1].setArg("<<argindex<<", buffer_vdram[1])"<<endl;
+	
+	// Setting kernel arguments (P0)...
+	argindex = 0;
+	for(unsigned int i=0; i<_NUMCOMPUTEUNITS_SLR0; i+=1){
+		OCL_CHECK(err, err = krnls_proc[2].setArg(argindex, buffer_kvdram[2][i]));
+		cout<<"setting argument krnls_proc[2].setArg("<<argindex<<", buffer_kvdram[2]["<<i<<"])"<<endl;
+		argindex += 1;
+	}
+	OCL_CHECK(err, err = krnls_proc[2].setArg(argindex, buffer_vdram[2]));
+	cout<<"setting argument krnls_proc[2].setArg("<<argindex<<", buffer_vdram[2])"<<endl;
+	
+	// Setting kernel arguments (S)...
 	cout<<"goclkernel:: Setting kernel (sync) arguments..."<<endl;
-	for(unsigned int s=0; s<4; s++){ 
-		OCL_CHECK(err, err = krnls_sync.setArg(s, buffer_vdram[s]));
-		cout<<"setting argument krnls_sync.setArg("<<s<<", buffer_vdram["<<s<<"])"<<endl;
+	for(unsigned int i=0; i<4; i++){ 
+		OCL_CHECK(err, err = krnls_sync.setArg(i, buffer_vdram[i]));
+		cout<<"setting argument krnls_sync.setArg("<<i<<", buffer_vdram["<<i<<"])"<<endl;
 	}
 	OCL_CHECK(err, err = q.finish());
 	
 	// Migrating input data to device global memory...
 	cout<<"goclkernel:: Migrating input data to device global memory..."<<endl;
 	#ifdef TESTHWKERNEL
-		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[0][0], buffer_kvdram[0][0], buffer_vdram[0],
-														buffer_edgesdram[1][0], buffer_kvdram[1][0], buffer_vdram[1],
-														buffer_edgesdram[2][0], buffer_kvdram[2][0], buffer_vdram[2],
-														buffer_vdram[3]}, 
-														0, NULL, &write_events[0]));
-		#else
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
 													buffer_kvdram[1][0], buffer_vdram[1],
 													buffer_kvdram[2][0], buffer_vdram[2],
 													buffer_vdram[3]}, 
 													0, NULL, &write_events[0]));
-		#endif 
 	#else 
 		#if NUM_PEs==12
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
@@ -459,10 +434,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	OCL_CHECK(err, err = q.finish());
 	
 	std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
-	#ifdef TESTHWKERNEL // CRITICAL REMOVEME
-	OCL_CHECK(err, err = q.enqueueTask(krnls_proc[0], NULL, &kernel_events[0])); // CRITICAL REMOVEME.
-	OCL_CHECK(err, err = kernel_events[0].wait());
-	#else 
 	for(unsigned int GraphIter=0; GraphIter<numValidIters; GraphIter++){ //
 		for (unsigned int s = 0; s < 3; s++){ 
 			std::cout <<">>> goclkernel: processing krnls_proc["<<s<<"] in iteration "<<GraphIter<<"..."<<endl;
@@ -470,29 +441,20 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		}
 		for (unsigned int s = 0; s < 3; s++){ OCL_CHECK(err, err = kernel_events[s].wait()); }
 		std::cout <<">>> goclkernel: processing krnls_sync in iteration "<<GraphIter<<"..."<<endl;
-		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
-		OCL_CHECK(err, err = kernel_events[3].wait());
+		// OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
+		// OCL_CHECK(err, err = kernel_events[3].wait());
 	}
-	#endif 
 	WALLprocandsynkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime1).count()) / 1000;			
 	std::cout <<">>> kernel time elapsed for all iterations : "<<WALLprocandsynkerneltimelapse_ms<<" ms, "<<(WALLprocandsynkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;
 	OCL_CHECK(err, err = q.finish());
 	
 	cout<<"goclkernel:: migrating workload back to HOST..."<<endl;
 	#ifdef TESTHWKERNEL
-		#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_edgesdram[0][0], buffer_kvdram[0][0], buffer_vdram[0],
-														buffer_edgesdram[1][0], buffer_kvdram[1][0], buffer_vdram[1],
-														buffer_edgesdram[2][0], buffer_kvdram[2][0], buffer_vdram[2],
-														buffer_vdram[3]}, 
-														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
-		#else 
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
 														buffer_kvdram[1][0], buffer_vdram[1],
 														buffer_kvdram[2][0], buffer_vdram[2],
 														buffer_vdram[3]}, 
 														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
-		#endif
 	#else 
 		#if NUM_PEs==12
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],

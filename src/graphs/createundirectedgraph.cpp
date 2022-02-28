@@ -257,11 +257,26 @@ void createundirectedgraph::start(){
 	cout<<"Finished checking edge data for errors: numerrors: "<<numerrors<<endl;
 	// exit(EXIT_SUCCESS);
 	
+	////////////
+	unsigned int zerocount = 0;
+	unsigned int maxsz = edgedatabuffer_dup_size;
+	for(unsigned int i=0; i<maxsz; i++){
+		edge2_type edge = edgedatabuffer_dup[i];
+		if(edge.srcvid==0 && edge.dstvid==0){
+			if(zerocount>100000){ cout<<"createundirectedgraph::writeedgestofile:: ERROR: too many zeros ("<<zerocount<<"). check... EXITING... "<<endl; exit(EXIT_FAILURE); }
+			else { zerocount += 1; } 
+		}
+		if(i > maxsz-1){ cout<<"### createundirectedgraph::writeedgestofile:: maxsz: "<<maxsz<<", edge.dstvid: "<<edge.dstvid<<", edge.srcvid: "<<edge.srcvid<<endl; }
+	}
+	////////////
+	
 	cout<<"createundirectedgraph:: saving edge data... "<<endl;
 	string edgespath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".edges";
 	std::ofstream ofs1; ofs1.open(edgespath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs1.close();	
 	nvmeFd_edges_w = fopen(edgespath.c_str(), "w"); 
 	if(fwrite(edgedatabuffer_dup, (edgedatabuffer_dup_size * sizeof(edge2_type)), 1, nvmeFd_edges_w) == 0){ cout<<"ERROR:createundirectedgraph: fwrite error 34"<<endl; exit(EXIT_FAILURE); }	
+
+	// pwrite(int fd, const void *buf, size_t count, off_t offset);
 
 	cout<<"createundirectedgraph:: saving vertex ptrs... "<<endl;
 	string vptrspath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".vertexptrs";

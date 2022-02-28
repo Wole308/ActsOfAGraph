@@ -105,7 +105,7 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 8;//8; // 32; // 3,12,32
+	unsigned int NumGraphIters = 1;//8; // 32; // 3,12,32
 	#endif 
 	// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	// if(NumGraphIters > 2){ cout<<"app: WARNING. NumGraphIters("<<NumGraphIters<<") > 2 TOO MUCH LOG DATA MAY BE GENERATED. EXITING..."<<endl; exit(EXIT_FAILURE); }

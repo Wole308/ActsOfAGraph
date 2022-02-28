@@ -1,4 +1,4 @@
-void acts_all::TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+void TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -125,7 +125,7 @@ ACTSP0_tradit
 	return;
 }
 
-void acts_all::TOPP0_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],
+void TOPP0_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	if(en_process == ON){ TOPP0_U_processit( kvdram, sourcebuffer, vbuffer, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID); } 
@@ -134,7 +134,7 @@ void acts_all::TOPP0_U_dispatch(bool_type en_process, bool_type en_partition, bo
 	return;
 }
 
-void acts_all::TOPP0_U_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+void TOPP0_U_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -202,7 +202,7 @@ void acts_all::TOPP0_U_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t s
 
 // top
 #ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
-void acts_all::TOPP0_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalposition_t globalposition){
+void TOPP0_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalposition_t globalposition){
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -287,7 +287,7 @@ void acts_all::TOPP0_U_topkernelproc_embedded(unsigned int globalid, unsigned in
 }
 
 extern "C" {
-void acts_all::TOPP0_U_topkernelP1(
+void TOPP0_U_topkernelP1(
 	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
@@ -476,7 +476,7 @@ void acts_all::TOPP0_U_topkernelP1(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks1(ON, vdram, vbuffer0, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks1(ON, vdram, vbuffer0, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks1(ON, vdram, vbuffer0, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -522,7 +522,7 @@ void acts_all::TOPP0_U_topkernelP1(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP2(
+void TOPP0_U_topkernelP2(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * vdram
@@ -720,7 +720,7 @@ void acts_all::TOPP0_U_topkernelP2(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks2(ON, vdram, vbuffer0,vbuffer1, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks2(ON, vdram, vbuffer0,vbuffer1, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks2(ON, vdram, vbuffer0,vbuffer1, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -767,7 +767,7 @@ void acts_all::TOPP0_U_topkernelP2(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP3(
+void TOPP0_U_topkernelP3(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -974,7 +974,7 @@ void acts_all::TOPP0_U_topkernelP3(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks3(ON, vdram, vbuffer0,vbuffer1,vbuffer2, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks3(ON, vdram, vbuffer0,vbuffer1,vbuffer2, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks3(ON, vdram, vbuffer0,vbuffer1,vbuffer2, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -1022,7 +1022,7 @@ void acts_all::TOPP0_U_topkernelP3(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP4(
+void TOPP0_U_topkernelP4(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1238,7 +1238,7 @@ void acts_all::TOPP0_U_topkernelP4(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks4(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks4(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks4(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -1287,7 +1287,7 @@ void acts_all::TOPP0_U_topkernelP4(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP5(
+void TOPP0_U_topkernelP5(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1512,7 +1512,7 @@ void acts_all::TOPP0_U_topkernelP5(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks5(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks5(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks5(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -1562,7 +1562,7 @@ void acts_all::TOPP0_U_topkernelP5(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP6(
+void TOPP0_U_topkernelP6(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1796,7 +1796,7 @@ void acts_all::TOPP0_U_topkernelP6(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks6(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks6(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks6(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -1847,7 +1847,7 @@ void acts_all::TOPP0_U_topkernelP6(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP7(
+void TOPP0_U_topkernelP7(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2090,7 +2090,7 @@ void acts_all::TOPP0_U_topkernelP7(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks7(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks7(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks7(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -2142,7 +2142,7 @@ void acts_all::TOPP0_U_topkernelP7(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP8(
+void TOPP0_U_topkernelP8(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2394,7 +2394,7 @@ void acts_all::TOPP0_U_topkernelP8(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks8(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks8(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks8(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -2447,7 +2447,7 @@ void acts_all::TOPP0_U_topkernelP8(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP9(
+void TOPP0_U_topkernelP9(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2708,7 +2708,7 @@ void acts_all::TOPP0_U_topkernelP9(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks9(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks9(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks9(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -2762,7 +2762,7 @@ void acts_all::TOPP0_U_topkernelP9(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP10(
+void TOPP0_U_topkernelP10(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -3032,7 +3032,7 @@ void acts_all::TOPP0_U_topkernelP10(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks10(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks10(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks10(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -3087,7 +3087,7 @@ void acts_all::TOPP0_U_topkernelP10(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP11(
+void TOPP0_U_topkernelP11(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -3366,7 +3366,7 @@ void acts_all::TOPP0_U_topkernelP11(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks11(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks11(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks11(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						
@@ -3422,7 +3422,7 @@ void acts_all::TOPP0_U_topkernelP11(
 }
 }
 extern "C" {
-void acts_all::TOPP0_U_topkernelP12(
+void TOPP0_U_topkernelP12(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -3710,7 +3710,7 @@ void acts_all::TOPP0_U_topkernelP12(
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESSP0_readANDRVchunks12(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks12(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESSP0_RANDreadANDRVchunks12(ON, vdram, vbuffer0,vbuffer1,vbuffer2,vbuffer3,vbuffer4,vbuffer5,vbuffer6,vbuffer7,vbuffer8,vbuffer9,vbuffer10,vbuffer11, vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						

@@ -1,23 +1,24 @@
 #define PE_SETSZ {{context['PE_SETSZ']}}
 // #define DEBUGME_PROCESSEDGES2
 
-void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
+void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
 	#pragma HLS INLINE
 	bool en = true; if(edata.key != INVALIDDATA && edata.value != INVALIDDATA && enx == true){ en = true; } else { en = false; }
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true){ cout<<"PROCESS{{context['id']}}_processvector:: PROCESS SEEN @ vid: "<<UTIL{{context['id']}}_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<", loc: "<<loc<<", edata.key(dstvid): "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", process size: "<<globalparams.SIZE_REDUCE<<endl; }
-	#endif 
-	
+
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){
-		#ifdef _DEBUGMODE_CHECKS2X
-		if(true){ cout<<"PROCESS{{context['id']}}_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+		#ifdef _DEBUGMODE_CHECKS3
+		if(true){ cout<<"PROCESS{{context['id']}}_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		#endif 
 		loc = 0; }
 	
 	// read 
 	vmdata_t vmdata;
 	if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); }
-	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; } 
+	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
+	// cout<<"PROCESS{{context['id']}}_processvector: SEEN @ v: "<<v<<", loc: "<<loc<<, edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vmdata.vmask: "<<vmdata.vmask<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<"PROCESS VECTOR:: ACTIVE MASK SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<endl; }
+	#endif
 			
 	// process
 	value_t res = PROCESS{{context['id']}}_processfunc(vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -104,7 +105,6 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_calculateoff
 
 fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	// NB: localcapsule[x].key & localcapsule[x].key are all in _kvs formats
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -157,14 +157,15 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 	buffer_type maxsize_kvs[2]; 
 	buffer_type height_kvs = 0;
 	
-	bool _readedgeblock = true;
-	bool _readedgeblockstats = true;
-	bool _processedgeblockstats = true;
-	bool _processedgeblock = true;
-	bool _process_and_reduce_edgeblock = false; // true;
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		if(MEMCA{{context['id']}}_READVMASK(vbuffer[{{v}}][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: {{v}}"<<endl; }
+		{%endfor%}
+	}
+	#endif 
 	
 	// read edge block
-	if(_readedgeblock == true){
 	#ifdef DEBUGME_PROCESSEDGES2
 	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<endl;
 	#endif 
@@ -187,10 +188,8 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 		{%endfor%}
 		#endif 
 	}
-	}	
 	
 	// read edge block stats 
-	if(_readedgeblockstats == true){
 	PROCESSBUFFERPARTITIONS_LOOP2: for(unsigned int p=0; p<NUM_PARTITIONS; p++){ localcapsule[p].key = 0; localcapsule[p].value = tempbuffer[p][0]; }
 	if(true || localcapsule[NUM_PARTITIONS-1].value != 8888888){ // FIXME. // localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value >= SOURCEBLOCKRAM_SIZE * VECTOR2_SIZE
 		#ifdef _XXX_
@@ -209,10 +208,8 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS); 
 	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", edgessize_kvs * VECTOR2_SIZE: "<<edgessize_kvs * VECTOR2_SIZE<<", WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
 	#endif
-	}
 	
 	// process edge block stats 
-	if(_processedgeblockstats == true){
 	maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
 	unsigned int _poff = 0;
 	PROCESSBUFFERPARTITIONS_LOOP3: for(unsigned int cid=0; cid<2; cid++){
@@ -229,10 +226,8 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
 		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
 	}
-	}
 	
 	// process edge block
-	if(_processedgeblock == true){
 	buffer_type psetoffset=0;
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
@@ -267,31 +262,28 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 					{%endfor%} 	
 					
 					// re-arrange 
-					// PROCESS{{context['id']}}_RearrangeLayoutV(r, E, E2);
+					PROCESS{{context['id']}}_RearrangeLayoutV(r, E, E2);
 					
 					// parse
-					// {%for v in context['VECTOR_SIZE_seq']%}
-					// parsededge_t parsed_edge{{v}} = PROCESS{{context['id']}}_PARSEEDGE(E2[{{v}}]); // FIXME.
-					// edata[{{v}}].value = parsed_edge{{v}}.incr; // source info
-					// edata[{{v}}].key = parsed_edge{{v}}.dstvid;	
-					// {%endfor%}
+					{%for v in context['VECTOR_SIZE_seq']%}
+					parsededge_t parsed_edge{{v}} = PROCESS{{context['id']}}_PARSEEDGE(E2[{{v}}]); // FIXME.
+					edata[{{v}}].value = parsed_edge{{v}}.incr; // source info
+					edata[{{v}}].key = parsed_edge{{v}}.dstvid;	
+					{%endfor%}
 					
-					/////
-					// re-arrange 
-					// PROCESS{{context['id']}}_RearrangeLayoutV(r, E, E2);
-					
+					/* /////
 					// parse
 					{%for v in context['VECTOR_SIZE_seq']%}
 					parsededge_t parsed_edge{{v}} = PROCESS{{context['id']}}_PARSEEDGE(E[{{v}}]); // FIXME.
 					edata[{{v}}].value = parsed_edge{{v}}.incr; // source info
 					edata[{{v}}].key = parsed_edge{{v}}.dstvid;	
 					{%endfor%}
-					/////
+					///// */
 					
 					// process
 					{%for v in context['VECTOR_SIZE_seq']%}
 					if(E[{{v}}] == INVALIDDATA){ enx[{{v}}] = false; }
-					PROCESS{{context['id']}}_processvector(enx[{{v}}], edata[{{v}}].value, edata[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], &loadcount[{{v}}], GraphAlgoClass, globalparams);
+					PROCESS{{context['id']}}_processvector(enx[{{v}}], {{v}}, edata[{{v}}].value, edata[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], &loadcount[{{v}}], GraphAlgoClass, globalparams);
 					{%endfor%}
 					#ifdef _DEBUGMODE_CHECKS2
 					{%for v in context['VECTOR_SIZE_seq']%}
@@ -302,61 +294,6 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 			}
 		}
 	}
-	}
-	/* // CRITICAL REMOVEME. //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	if(_processedgeblock == true){
-		for(buffer_type i=0; i<chunk_size; i++){ // processing next block set 
-			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-			#pragma HLS PIPELINE II=1
-			#ifdef _DEBUGMODE_CHECKS2
-			actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-			#endif
-			
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i].key = tempbuffer[{{v}}][i];
-			buffer[{{v}}][2*i].value = 7;
-			{%endfor%}
-			{%for v in context['VECTOR_SIZE_seq']%}
-			buffer[{{v}}][2*i+1].key = tempbuffer[{{8+v}}][i];
-			buffer[{{v}}][2*i+1].value = 7;
-			{%endfor%}
-	}
-	} // CRITICAL REMOVEME.
-	// CRITICAL REMOVEME. ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
-	
-	// process edge block (primitive)
-	#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-	if(_process_and_reduce_edgeblock == true){
-	unsigned int C = 0; // FIXM.
-	unsigned int loadcount2 = 0;
-	for(buffer_type i=0; i<chunk_size; i++){
-		for(vector_type v=0; v<VECTOR2_SIZE; v++){
-			uint32_type edge = tempubuffer[i][v];
-			
-			parsededge_t parsed_edge = PROCESS{{context['id']}}_PARSEEDGE(edge); 
-			unsigned int srcvid = parsed_edge.incr; // source info FIXME.
-			unsigned int dstvid = parsed_edge.dstvid;	
-			
-			bool en = true; if(edge != INVALIDDATA && edge != INVALIDDATA){ en = true; } else { en = false; }
-			
-			vmdata_t src_vmdata;
-			if(en == true){
-				src_vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); 
-				if(src_vmdata.vmask == 1){
-					value_t res = PROCESS{{context['id']}}_processfunc(src_vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-					keyvalue_t mykeyvalue; mykeyvalue.key = dstvid; mykeyvalue.value = res;
-					
-					uint32_type dst_vmdata = MEMCA{{context['id']}}_READDATAFROMDRAM(dstvid, kvdram, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, 0); 
-					uint32_type new_vprop = REDUCE{{context['id']}}_reducefunc(GETVDATA(dst_vmdata), res, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID); 
-					if(en == true && new_vprop != GETVDATA(dst_vmdata)){ APPENDMDATA(new_vprop, 1); }
-					
-					MEMCA{{context['id']}}_WRITEDATATODRAM(dstvid, kvdram, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, new_vprop); 
-				}
-			}
-		}
-	}
-	}
-	#endif 
 	
 	// for(unsigned int t=0; t<VECTOR_SIZE; t++){ cout<<"--- loadcount["<<t<<"]: "<<loadcount[t]<<endl; }
 	// actsutilityobj->printglobalvars();

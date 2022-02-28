@@ -42,7 +42,8 @@ else
 fi
 
 OUTPUTDIRNAME="outputs"
-RESULTSPATHNAME="results_acts"
+HWRESULTSPATHNAME="hwresults"
+SWRESULTSPATHNAME="swresults"
 
 TESTKERNEL="RK"
 # TESTKERNEL="TESTKERNEL"
@@ -233,12 +234,12 @@ LABEL_PROPAGATION="LP"
 CONNECTEDCOMPONENTS="CC"
 BREADTHFIRSTSEARCH="BFS"
 
-# for ALGORITHMABBRV in $PAGERANK
+for ALGORITHMABBRV in $PAGERANK
 # for ALGORITHMABBRV in $COLLABORATIVEFILTERING
 # for ALGORITHMABBRV in $LABEL_PROPAGATION
 # for ALGORITHMABBRV in $CONNECTEDCOMPONENTS
 # for ALGORITHMABBRV in $BREADTHFIRSTSEARCH
-for ALGORITHMABBRV in $PAGERANK $COLLABORATIVEFILTERING $LABEL_PROPAGATION $CONNECTEDCOMPONENTS
+# for ALGORITHMABBRV in $PAGERANK $COLLABORATIVEFILTERING $LABEL_PROPAGATION $CONNECTEDCOMPONENTS
 # for ALGORITHMABBRV in $PAGERANK $COLLABORATIVEFILTERING $LABEL_PROPAGATION $CONNECTEDCOMPONENTS $BREADTHFIRSTSEARCH
 do
 ### >>> LOOP0: evaluation types
@@ -355,7 +356,7 @@ do
 			for locke in $_LOCKE
 			do
 				# for dataset in $NODATASET
-				# for dataset in $ORKUT_3M_212M
+				for dataset in $ORKUT_3M_212M
 				# for dataset in $HOLLYWOOD_1M_114M
 				# for dataset in $KRON20_1M_45M
 				# for dataset in $KRON21_2M_91M
@@ -376,7 +377,7 @@ do
 				
 				# for dataset in $RMAT24_268M
 				# for dataset in $RMAT25_268M
-				# for dataset in $RMAT26_268M
+				# for dataset in $RMAT26_2s68M
 				# for dataset in $RMAT24_380M
 				# for dataset in $RMAT25_380M
 				# for dataset in $RMAT26_380M
@@ -396,7 +397,8 @@ do
 				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4	
 				# for dataset in $RMAT24_268M $RMAT25_268M $RMAT26_268M
 				# for dataset in $RMAT24_380M $RMAT25_380M $RMAT26_380M
-				for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M $RMAT24_268M $RMAT25_268M $RMAT26_268M $RMAT24_380M $RMAT25_380M $RMAT26_380M	
+				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M $RMAT24_268M $RMAT25_268M $RMAT26_268M
+				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M $RMAT24_268M $RMAT25_268M $RMAT26_268M $RMAT24_380M $RMAT25_380M $RMAT26_380M	
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
@@ -410,21 +412,25 @@ do
 							for synfreq in $SYNFREQUENCY_EQ300
 							# for synfreq in $SYNFREQUENCY_EQ60 $SYNFREQUENCY_EQ120 $SYNFREQUENCY_EQ180 $SYNFREQUENCY_EQ240 $SYNFREQUENCY_EQ300
 							do
-								BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.xclbin"
+								BACKUPDIR_KERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.xclbin"
 							
-								BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.awsxclbin"
+								BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.awsxclbin"
 								
-								BACKUPDIR_NOHUPOUT="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.out"
+								HWRESULTSBACKUP_DIR="${ROOTDIR}/${OUTPUTDIRNAME}/${HWRESULTSPATHNAME}"
+								SWRESULTSBACKUP_DIR="${ROOTDIR}/${OUTPUTDIRNAME}/${SWRESULTSPATHNAME}"
+								HWRESULTDIR_RESULT="${HWRESULTSBACKUP_DIR}/${dataset}${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.out"
+								SWRESULTDIR_RESULT="${SWRESULTSBACKUP_DIR}/${dataset}${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.out"
 								
-								RESULTSBACKUP_DIR="${ROOTDIR}/${OUTPUTDIRNAME}/${RESULTSPATHNAME}"
-								RESULT_NAME="${ALGORITHMABBRV}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz"
+								BACKUPDIR_NOHUPOUT="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.out"
+								
+								RESULT_NAME="${ALGORITHMABBRV}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz"
 								PROFILESUMMARY_NAME="profile_summary_${ALGORITHMABBRV}_${num_pes}PEs${numsubcputhreads}Ws_${evaluation_type}_evp${evaluation_param0}"
 								
-								SYNLOGDIR_KERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${XWARE}${synfreq}MHz.log"
+								SYNLOGDIR_KERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.log"
 								
 								DATASET="DATASET_${dataset}"
 								datasetpath="/net/bigtemp/oj2zf/gunrock_wole/dataset/large/${dataset}/${dataset}.mtx"
-								RESULTDIR_RESULT="${RESULTSBACKUP_DIR}/${dataset}_${RESULT_NAME}.out"
+								
 								RESULTDIR_PROFILESUMMARY="${RESULTSBACKUP_DIR}/${PROFILESUMMARY_NAME}_${dataset}.csv"
 								
 								make generatesrcs XWARE=$XWARE SETUP=$SETUP ALGORITHM=$ALGORITHM DATASET=$DATASET NUMSUPERCPUTHREADS=$numsupercputhreads NUMCPUTHREADS=$numcputhreads NUMSUBCPUTHREADS=$numsubcputhreads NUMPARTITIONS=$numpartitions_pow LOCKE=$locke EVALUATION_TYPE=$evaluation_type EVALUATION_PARAM0=$evaluation_param0 NUM_PEs=$num_pes TESTKERNEL=$TESTKERNEL TESTKERNELARG=$TESTKERNELARG 												
@@ -434,19 +440,19 @@ do
 								then
 									make cleanall
 									# make build_acts_nthreads
-									make demo_acts_nthreads > $RESULTDIR_RESULT
-									# make demo_acts_nthreads_debug #> $RESULTDIR_RESULT
+									make demo_acts_nthreads #> $SWRESULTDIR_RESULT
+									# make demo_acts_nthreads_debug #> $SWRESULTDIR_RESULT
 								elif [ $setup == $SW__GRAFBOOST_SETUP ]
 								then
 									make cleanall
 									# make build_grafboost_nthreads
-									make demo_grafboost_nthreads > $RESULTDIR_RESULT
+									make demo_grafboost_nthreads > $SWRESULTDIR_RESULT
 								elif [ $setup == $SW__GUNROCK_SETUP ]
 								then
 									echo 'SW__GUNROCK_SETUP called.'
 									if [ $setup == $SW__GUNROCK_SETUP ]
 									then 
-										/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected #> $RESULTDIR_RESULT
+										/net/bigtemp/oj2zf/gunrock_wole/build/bin/pr market $datasetpath --normalized --compensate --undirected #> $SWRESULTDIR_RESULT
 									fi
 								
 								# ================================================ HW (FPGA) RUNS ================================================
@@ -457,7 +463,7 @@ do
 									then
 										echo "crabtree.ACTS_1BY2BY1 setup specified.---"
 										make host
-										./host $BACKUPDIR_KERNELXCLBIN #> $RESULTDIR_RESULT
+										./host $BACKUPDIR_KERNELXCLBIN > $HWRESULTDIR_RESULT
 									elif [ $AWS == $ON ]
 									then
 										echo "aws setup specified."
@@ -787,7 +793,8 @@ do
 								echo 'ALGORITHM:' $ALGORITHM
 								echo 'DATASET:' $DATASET
 								echo 'NUMCPUTHREADS:' $NUMCPUTHREADS
-								echo 'RESULTDIR_RESULT:' $RESULTDIR_RESULT
+								echo 'HWRESULTDIR_RESULT:' $HWRESULTDIR_RESULT
+								echo 'SWRESULTDIR_RESULT:' $SWRESULTDIR_RESULT
 								echo 'BACKUPDIR_KERNELXCLBIN:' $BACKUPDIR_KERNELXCLBIN
 							done
 						done 

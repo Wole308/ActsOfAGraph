@@ -489,7 +489,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer{{i}},{%endif%}{%endfor%} vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalparamsV);		
 							#ifdef RANDOMVERTEXISACTIVE_ALGORITHM
-							if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESS{{context['id']}}_RANDreadANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer{{i}},{%endif%}{%endfor%} vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
+							// if(ACTSRUNNINGMODE == BASICMODE){ MEMACCESS{{context['id']}}_RANDreadANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer{{i}},{%endif%}{%endfor%} vdatabaseoffset_kvs, randvids[BLOCKRAM_SIZE], randvids_size, globalparamsV); }
 							#endif 
 						}
 						

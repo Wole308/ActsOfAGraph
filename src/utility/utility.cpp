@@ -215,7 +215,7 @@ void utility::printkeyvalues(string message, keyvalue_vec_bittype keyvalues[NUM_
 	}
 }
 void utility::printtriples(string message, triple_t * triples, unsigned int size){
-	cout<<endl<<"utility::printtriples:"<<message<<endl;
+	cout<<"utility::printtriples:"<<message<<endl;
 	unsigned int totalAs = 0;
 	unsigned int totalBs = 0;
 	unsigned int totalCs = 0;

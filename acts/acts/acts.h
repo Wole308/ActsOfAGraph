@@ -1,4 +1,4 @@
-void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	analysis_type analysis_loop1 = SRCBUFFER_SIZE / 4;
@@ -44,7 +44,7 @@ void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigne
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	if(maxcutoff % 4 != 0){ maxcutoff = 0; } // 4, CRITICAL FIXME.
 	#endif 
-	// cout<<"------------------- acts_all::ACTSP0_actspipeline: maxcutoff: "<<maxcutoff<<endl;
+	// cout<<"------------------- ACTSP0_actspipeline: maxcutoff: "<<maxcutoff<<endl;
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
@@ -196,7 +196,7 @@ void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigne
 	return;
 }
 
-fetchmessage_t acts_all::ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams,
 		unsigned int edgebankID){
 	fetchmessage_t fetchmessage;
@@ -208,7 +208,7 @@ fetchmessage_t acts_all::ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mo
 	return fetchmessage; 
 }
 
-void acts_all::ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],
+void ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],
 		keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 			batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(mode == ACTSREDUCEMODE){
@@ -219,7 +219,7 @@ void acts_all::ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsig
 	return;
 }
 
-void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
+void ACTSP0_actit(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 					
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
@@ -308,7 +308,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 }
 
 #ifdef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES
-fetchmessage_t acts_all::ACTSP0_magic(bool_type enable, unsigned int mode, unsigned int mode2,
+fetchmessage_t ACTSP0_magic(bool_type enable, unsigned int mode, unsigned int mode2,
 		 uint512_dt * kvdram, 
 			keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 				keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS],
@@ -345,7 +345,7 @@ fetchmessage_t acts_all::ACTSP0_magic(bool_type enable, unsigned int mode, unsig
 	return fetchmessage; 
 }
 
-void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
+void ACTSP0_actit(bool_type enable, unsigned int mode,
 		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 					
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
@@ -458,7 +458,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 #endif 
 
 #ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::ACTSP0_PRIOR_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], 
+void ACTSP0_PRIOR_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], 
 		keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 				batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){
 	if(mode == ACTSREDUCEMODE){
@@ -469,7 +469,7 @@ void acts_all::ACTSP0_PRIOR_commitkeyvalues(bool_type enable1, bool_type enable2
 	return;
 }
 
-void acts_all::ACTSP0_priorit(bool_type enable, unsigned int mode,
+void ACTSP0_priorit(bool_type enable, unsigned int mode,
 		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
@@ -540,7 +540,7 @@ keyvalue_capsule_t capsulepp1_so8[MAX_NUM_PARTITIONS];
 #endif 
 
 #ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::ACTSP0_tradit(bool_type enable, unsigned int mode,
+void ACTSP0_tradit(bool_type enable, unsigned int mode,
 		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 
 		globalparams_t globalparams, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){

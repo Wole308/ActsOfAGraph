@@ -198,7 +198,7 @@ void MEMACCESSP1_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type
 // -------------------- vdata -------------------- //
 void MEMACCESSP1_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth);
 
-void MEMACCESSP1_RearrangeLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE]);
+void MEMACCESSP1_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]);
 
 void MEMACCESSP1_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 
@@ -344,7 +344,7 @@ fetchmessage_t PROCESSP1_SPL_readandprocess(bool_type enable, uint512_dt * edges
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES2
 #define PE_SETSZ 16
-void PROCESSP1_processvector(bool enx, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams);
+void PROCESSP1_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams);
 
 void PROCESSP1_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth);
 
@@ -530,117 +530,117 @@ void TOPP1_NU_topkernelproc_embedded(
 	uint512_dt * kvdram);
 	
 void TOPP1_NU_topkernelP1(
-uint512_dt * edges00,	uint512_dt * kvdram0,
+	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP2(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP3(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP4(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP5(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP6(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP7(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP8(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP9(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP10(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP11(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
-uint512_dt * edges100,	uint512_dt * kvdram10,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
 	uint512_dt * vdram
 	);
 void TOPP1_NU_topkernelP12(
-uint512_dt * edges00,	uint512_dt * kvdram0,
-uint512_dt * edges10,	uint512_dt * kvdram1,
-uint512_dt * edges20,	uint512_dt * kvdram2,
-uint512_dt * edges30,	uint512_dt * kvdram3,
-uint512_dt * edges40,	uint512_dt * kvdram4,
-uint512_dt * edges50,	uint512_dt * kvdram5,
-uint512_dt * edges60,	uint512_dt * kvdram6,
-uint512_dt * edges70,	uint512_dt * kvdram7,
-uint512_dt * edges80,	uint512_dt * kvdram8,
-uint512_dt * edges90,	uint512_dt * kvdram9,
-uint512_dt * edges100,	uint512_dt * kvdram10,
-uint512_dt * edges110,	uint512_dt * kvdram11,
+	uint512_dt * kvdram0,
+	uint512_dt * kvdram1,
+	uint512_dt * kvdram2,
+	uint512_dt * kvdram3,
+	uint512_dt * kvdram4,
+	uint512_dt * kvdram5,
+	uint512_dt * kvdram6,
+	uint512_dt * kvdram7,
+	uint512_dt * kvdram8,
+	uint512_dt * kvdram9,
+	uint512_dt * kvdram10,
+	uint512_dt * kvdram11,
 	uint512_dt * vdram
 	);
 #endif 

@@ -38,12 +38,20 @@ public:
 	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
 	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
 	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
-
-	unsigned int gethash(unsigned int vid);
+	
 	unsigned int allignlower(unsigned int val, unsigned int V_SIZE);
 	unsigned int allignhigher(unsigned int val, unsigned int V_SIZE);
 	
+	unsigned int gethash(unsigned int vid);
+	unsigned int getlocalvid(unsigned int vid);
+
+	unsigned int twist_getpartition(unsigned int partition, unsigned int s);
+	
 	unsigned int getpartition(unsigned int data, vertex_t upperlimit);
+	unsigned int getpartition2(unsigned int data, vertex_t upperlimit);
+	tuple_t get_partition_and_incr(unsigned int vid, vertex_t upperlimit);
+	
+	void calculateoffsets(keyvalue_t * buffer, unsigned int size);
 	
 	globalparams_TWOt loadedges(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[NUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);					
 
