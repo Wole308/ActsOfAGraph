@@ -47,7 +47,7 @@ createundirectedgraph::createundirectedgraph(unsigned int datasetid){
 	utilityobj = new utility();
 	graphobj = new graph(algorithmobj, datasetid, 1, true, true, true);
 	
-	unsigned int num_edges = graphobj->getedgessize(0);
+	unsigned int num_edges = graphobj->getdataset().num_edges; // graphobj->getedgessize(0);
 	edgedatabuffer_dup = new edge2_type[2 * num_edges];
 	edgedatabuffer = new edge2_type[num_edges];
 	
@@ -62,6 +62,7 @@ createundirectedgraph::createundirectedgraph(unsigned int datasetid){
 	cout<<"createundirectedgraph:: dataset.edges_path: "<<graphobj->getdataset().edges_path<<endl;
 	cout<<"createundirectedgraph:: dataset.edges_path_bin: "<<graphobj->getdataset().edges_path_bin<<endl;
 	cout<<"createundirectedgraph:: dataset.graphorder: "<<graphobj->getdataset().graphorder<<endl;
+	cout<<"createundirectedgraph:: num_edges: "<<num_edges<<endl;
 	cout<<"createundirectedgraph::createundirectedgraph: constructor finished"<<endl;
 }
 createundirectedgraph::~createundirectedgraph() {
@@ -89,27 +90,20 @@ void createundirectedgraph::start(){
 	vertex_t local_dstv = 0;
 	unsigned int edgedatabuffer_dup_size = 0;
 	
-	unsigned int num_edges = graphobj->getedgessize(0);
-	
-	// cout<<"createundirectedgraph::start: SEEN 1... num_edges: "<<num_edges<<endl;
-	// exit(EXIT_SUCCESS);/////////////;///////////////// REMOVEME.
+	unsigned int num_edges = graphobj->getdataset().num_edges; // graphobj->getedgessize(0);
 	
 	// populate edges 
+	unsigned int num_zeros = 0;
 	// std::ifstream file1_graph(graphobj->getdataset().graph_path);
 	std::ifstream file1_graph(graphobj->getdataset().rawgraph_path); // NEWCHANGE
 	
-	// cout<<"createundirectedgraph::start: SEEN 2..."<<endl;
-	
 	if (file1_graph.is_open()) {
-	// cout<<"createundirectedgraph::start: SEEN 3..."<<endl;
 		std::string line;
 		unsigned int linecount = 0;
 		unsigned int alllinecount = 0;
 		while (getline(file1_graph, line)) {
 			if (line.find("%") == 0){ continue; }
 			if(graphobj->getdataset().graphgroup == SNAP){ if (alllinecount == 0){ alllinecount++; continue; }} // first entry for flickr is stats
-			
-			// cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl;///////////////// REMOVEME.
 			
 			if (linecount < 128){ cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
 			if ((alllinecount % 1000000) == 0){ cout<<"createundirectedgraph::~start edge (A): ["<<srcv<<","<<dstv<<","<<ew<<"]. alllinecount: "<<alllinecount<<endl; }
@@ -122,8 +116,12 @@ void createundirectedgraph::start(){
 				sscanf(line.c_str(), "%i %i %i", &dstv, &srcv, &ew);
 			} else {}
 			
-			if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
-			if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
+			if(srcv == 0 && dstv == 0 && num_zeros++ > 1000){ continue; } // FIXME.
+			
+			// if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
+			// if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
+			if(srcv >= KVDATA_RANGE){ srcv = KVDATA_RANGE-1; } // FIXME.
+			if(dstv >= KVDATA_RANGE){ dstv = KVDATA_RANGE-1; }
 			
 			edgedatabuffer[linecount].srcvid = srcv;
 			edgedatabuffer[linecount].dstvid = dstv;
@@ -131,14 +129,13 @@ void createundirectedgraph::start(){
 			linecount += 1;
 			alllinecount += 1;
 			
-			// if(linecount > 1024){ break; } ///////////////// REMOVEME.
-			
 			if(linecount > num_edges){ cout<<"createundirectedgraph: ERROR: linecount("<<linecount<<") > num_edges("<<num_edges<<"). srcv: "<<srcv<<", dstv: "<<dstv<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
 		}
 		
 		cout<<"SUMMARY: alllinecount: "<<alllinecount<<endl;
 		cout<<"SUMMARY: linecount: "<<linecount<<endl;
 		cout<<"SUMMARY: num_edges: "<<num_edges<<endl;
+		cout<<"SUMMARY(1): num_zeros: "<<num_zeros<<endl;
 	}
 	file1_graph.close();
 	// exit(EXIT_SUCCESS);/////////////
@@ -183,8 +180,10 @@ void createundirectedgraph::start(){
 	for(unsigned int i=0; i<KVDATA_RANGE; i++){ inoutdegree_dup[i] = 0; }
 	
 	// re-writing graph with: 1) new vertex pointers
+	num_zeros = 0;
 	// std::ifstream file2_graph(graphobj->getdataset().graph_path);
 	std::ifstream file2_graph(graphobj->getdataset().rawgraph_path); // NEWCHANGE.
+	
 	if (file2_graph.is_open()) {
 		std::string line;
 		unsigned int linecount = 0;
@@ -203,12 +202,16 @@ void createundirectedgraph::start(){
 				sscanf(line.c_str(), "%i %i %i", &dstv, &srcv, &ew);
 			} else {}
 			
+			if(srcv == 0 && dstv == 0 && num_zeros++ > 1000){ continue; } // FIXME.
+			
 			#ifdef _DEBUGMODE_CHECKS
 			cout<<"createundirectedgraph: srcv: "<<srcv<<", dstv: "<<dstv<<endl; if(alllinecount >= 100){ break; }
 			#endif 
 			
-			if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
-			if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
+			// if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
+			// if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
+			if(srcv >= KVDATA_RANGE){ srcv = KVDATA_RANGE-1; }
+			if(dstv >= KVDATA_RANGE){ dstv = KVDATA_RANGE-1; }
 			
 			local_srcv = srcv;
 			local_dstv = dstv;
@@ -239,6 +242,7 @@ void createundirectedgraph::start(){
 		}
 		cout<<"createundirectedgraph:: finished processing edges: [valid edges processed: "<<linecount<<"][invalid edges processed: "<<(alllinecount - linecount)<<"][total edges processed: "<<alllinecount<<"]"<<endl;
 	}
+	cout<<"SUMMARY(2): num_zeros: "<<num_zeros<<endl;
 	file2_graph.close(); 
 	
 	cout<<"createundirectedgraph:: checking edge data for errors... "<<endl;
@@ -263,21 +267,73 @@ void createundirectedgraph::start(){
 	for(unsigned int i=0; i<maxsz; i++){
 		edge2_type edge = edgedatabuffer_dup[i];
 		if(edge.srcvid==0 && edge.dstvid==0){
-			if(zerocount>100000){ cout<<"createundirectedgraph::writeedgestofile:: ERROR: too many zeros ("<<zerocount<<"). check... EXITING... "<<endl; exit(EXIT_FAILURE); }
+			if(zerocount>10000){ cout<<"createundirectedgraph::writeedgestofile:: ERROR: too many zeros ("<<zerocount<<"). check... EXITING... "<<endl; exit(EXIT_FAILURE); }
 			else { zerocount += 1; } 
 		}
 		if(i > maxsz-1){ cout<<"### createundirectedgraph::writeedgestofile:: maxsz: "<<maxsz<<", edge.dstvid: "<<edge.dstvid<<", edge.srcvid: "<<edge.srcvid<<endl; }
 	}
 	////////////
 	
+	// cout<<"createundirectedgraph:: saving edge data... "<<endl;
+	// string edgespath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".edges";
+	// std::ofstream ofs1; ofs1.open(edgespath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs1.close();	
+	// nvmeFd_edges_w = fopen(edgespath.c_str(), "w"); 
+	// if(fwrite(edgedatabuffer_dup, (edgedatabuffer_dup_size * sizeof(edge2_type)), 1, nvmeFd_edges_w) == 0){ cout<<"ERROR:createundirectedgraph: fwrite error 34"<<endl; exit(EXIT_FAILURE); }	
+	
 	cout<<"createundirectedgraph:: saving edge data... "<<endl;
 	string edgespath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".edges";
 	std::ofstream ofs1; ofs1.open(edgespath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs1.close();	
-	nvmeFd_edges_w = fopen(edgespath.c_str(), "w"); 
-	if(fwrite(edgedatabuffer_dup, (edgedatabuffer_dup_size * sizeof(edge2_type)), 1, nvmeFd_edges_w) == 0){ cout<<"ERROR:createundirectedgraph: fwrite error 34"<<endl; exit(EXIT_FAILURE); }	
-
-	// pwrite(int fd, const void *buf, size_t count, off_t offset);
-
+	int nvmeFd_edges_w = open(edgespath.c_str(), O_RDWR|O_CREAT, 0777);
+	int nw0 = pwrite(nvmeFd_edges_w, &edgedatabuffer_dup[((edgedatabuffer_dup_size / 4) * 0)], (edgedatabuffer_dup_size/4) * sizeof(edge2_type), (edgedatabuffer_dup_size / 4) * 0 * sizeof(edge2_type));
+	int nw1 = pwrite(nvmeFd_edges_w, &edgedatabuffer_dup[((edgedatabuffer_dup_size / 4) * 1)], (edgedatabuffer_dup_size/4) * sizeof(edge2_type), (edgedatabuffer_dup_size / 4) * 1 * sizeof(edge2_type));
+	int nw2 = pwrite(nvmeFd_edges_w, &edgedatabuffer_dup[((edgedatabuffer_dup_size / 4) * 2)], (edgedatabuffer_dup_size/4) * sizeof(edge2_type), (edgedatabuffer_dup_size / 4) * 2 * sizeof(edge2_type));
+	int nw3 = pwrite(nvmeFd_edges_w, &edgedatabuffer_dup[((edgedatabuffer_dup_size / 4) * 3)], (edgedatabuffer_dup_size/4) * sizeof(edge2_type), (edgedatabuffer_dup_size / 4) * 3 * sizeof(edge2_type));
+	if(close(nvmeFd_edges_w) == -1){ cout<<"createundirectedgraph:: ERROR CLOSING nvmeFd_edges_w FILE... EXITING... "<<endl; exit(EXIT_FAILURE); }
+	
+	
+	cout<<"--------------++++++++++++++++++++++------ createundirectedgraph: edgedatabuffer_dup_size: "<<edgedatabuffer_dup_size<<endl;
+	int nvmeFd_edges_r = open(edgespath.c_str(), O_RDONLY); 
+	size_t szA = edgedatabuffer_dup_size/4;
+	size_t szB = edgedatabuffer_dup_size/4;
+	size_t szC = edgedatabuffer_dup_size/4;
+	size_t szD = edgedatabuffer_dup_size - (szA + szB + szC);
+	edge2_type * buffer = new edge2_type[2 * num_edges];
+	
+	if(pread(nvmeFd_edges_r, &buffer[0], (size_t)(szA * sizeof(edge2_type)), (size_t)(0 * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges  EXITING..."<<endl; exit(EXIT_FAILURE); }
+	if(pread(nvmeFd_edges_r, &buffer[0 + szA], (size_t)(szB * sizeof(edge2_type)), (size_t)((0 + szA) * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at EXITING..."<<endl; exit(EXIT_FAILURE); }
+	if(pread(nvmeFd_edges_r, &buffer[0 + szA + szB], (size_t)(szB * sizeof(edge2_type)), (size_t)((0 + szA + szB) * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at  EXITING..."<<endl; exit(EXIT_FAILURE); }
+	if(pread(nvmeFd_edges_r, &buffer[0 + szA + szB + szC], (size_t)(szC * sizeof(edge2_type)), (size_t)((0 + szA + szB + szC) * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at EXITING..."<<endl; exit(EXIT_FAILURE); }
+	
+	////////////
+	zerocount = 0;
+	cout<<"--------------++++++++++++++++++++++------ createundirectedgraph: edgedatabuffer_dup_size: "<<edgedatabuffer_dup_size<<endl;
+	for(unsigned int i=0; i<edgedatabuffer_dup_size; i++){
+		edge2_type edge = buffer[i];
+		if(edge.srcvid==0 && edge.dstvid==0){
+			if(zerocount++>10000){ cout<<"createundirectedgraph::writeedgestofile(21):: ERROR: too many zeros ("<<zerocount<<"). check... EXITING... "<<endl; exit(EXIT_FAILURE); }
+		}
+	}
+	if(close(nvmeFd_edges_r) == -1){ cout<<"createundirectedgraph:: ERROR CLOSING nvmeFd_edges_r FILE... EXITING... "<<endl; exit(EXIT_FAILURE); }
+	////////////
+	
+	
+	/* edge2_type * chk = new edge2_type[2 * num_edges];
+	int nvmeFd_edges_r = open(edgespath.c_str(), O_RDWR, 0777);
+	pread(nvmeFd_edges_r, chk, edgedatabuffer_dup_size * sizeof(edge2_type), edgedatabuffer_dup_size * sizeof(edge2_type));
+	////////////
+	zerocount = 0;
+	for(unsigned int i=0; i<edgedatabuffer_dup_size; i++){
+		edge2_type edge = chk[i];
+		if(edge.srcvid==0 && edge.dstvid==0){
+			if(zerocount++>10000){ cout<<"createundirectedgraph::writeedgestofile(21):: ERROR: too many zeros ("<<zerocount<<"). check... EXITING... "<<endl; exit(EXIT_FAILURE); }
+		}
+	}
+	if(close(nvmeFd_edges_r) == -1){ cout<<"createundirectedgraph:: ERROR CLOSING nvmeFd_edges_r FILE... EXITING... "<<endl; exit(EXIT_FAILURE); }
+	//////////// */
+	
+	
+	
+	
 	cout<<"createundirectedgraph:: saving vertex ptrs... "<<endl;
 	string vptrspath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".vertexptrs";
 	std::ofstream ofs2; ofs2.open(vptrspath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs2.close();	

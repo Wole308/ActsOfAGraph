@@ -133,6 +133,10 @@
 
 - CRITICAL DEBUGME: loadedges_random.cpp: // WRITETO_UINT((unsigned int *)&edges2_temp[i][j+v].dstvid, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA, incr); // NEWCHANGE.
 - CRITICAL DEBUGME: processedges2.cpp: if(_processedgeblock == true){
+- FIXME: creategraphs.cpp: if(srcv >= KVDATA_RANGE){ srcv = KVDATA_RANGE-1; } // CRITICAL FIXME.
+- FIXME: if(srcv >= KVDATA_RANGE){ srcv = KVDATA_RANGE-1; } // FIXME.
+- FIXME: createundirectedgraph.cpp: if(srcv == 0 && dstv == 0 && num_zeros++ > 1000){ continue; } // FIXME.
+- FIXME?: graph.cpp: void graph::loadedgesfromfile(int col, 
 */
 
 

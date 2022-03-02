@@ -118,6 +118,18 @@ elif context['DATASET'] == "DATASET_HUGEBUBBLES_00020_21M_63M":
 elif context['DATASET'] == "DATASET_KMER_U1A_67M_138M":
     context['KVDATA_RANGE_POW'] = 26
     context['NUM_EDGE_BANKS'] = 0 
+elif context['DATASET'] == "DATASET_INDOCHINA_2004_7M_194M":
+    context['KVDATA_RANGE_POW'] = 23
+    context['NUM_EDGE_BANKS'] = 1
+elif context['DATASET'] == "DATASET_UK_2002_18M_298M":
+    context['KVDATA_RANGE_POW'] = 25
+    context['NUM_EDGE_BANKS'] = 1
+elif context['DATASET'] == "DATASET_IJOURNAL_2008_5M_79M":
+    context['KVDATA_RANGE_POW'] = 23
+    context['NUM_EDGE_BANKS'] = 0
+elif context['DATASET'] == "DATASET_MAWI_201512020030_68M_71M":
+    context['KVDATA_RANGE_POW'] = 26
+    context['NUM_EDGE_BANKS'] = 0
 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE0":
     context['KVDATA_RANGE_POW'] = 22

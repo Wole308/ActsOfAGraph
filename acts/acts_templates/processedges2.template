@@ -6,7 +6,7 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvecto
 	bool en = true; if(edata.key != INVALIDDATA && edata.value != INVALIDDATA && enx == true){ en = true; } else { en = false; }
 
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){
-		#ifdef _DEBUGMODE_CHECKS3
+		#ifdef _DEBUGMODE_CHECKS
 		if(true){ cout<<"PROCESS{{context['id']}}_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		#endif 
 		loc = 0; }

@@ -28,7 +28,9 @@ using namespace std;
 
 #define LENGTH PADDEDKVSOURCEDRAMSZ // 1024
 
+#ifdef TESTKERNEL
 #define TESTHWKERNEL
+#endif 
 
 goclkernel::goclkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statsobj){
 	utilityobj = new utility();

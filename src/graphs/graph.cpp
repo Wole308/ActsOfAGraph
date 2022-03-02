@@ -26,11 +26,7 @@
 #include <bits/stdc++.h> 
 #include <iostream> 
 #include <sys/stat.h> 
-#include <sys/types.h> 
-// #include "EdgeProcess.h" 
-// #include "VertexValues.h" 
-// #include "sortreduce.h" 
-// #include "filekvreader.h"
+#include <sys/types.h>
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/utility/utility.h"
 #include "../../include/host_common.h"
@@ -486,16 +482,21 @@ value_t * graph::generatetempverticesdata(unsigned int Algo){
 void graph::loadedgesfromfile(int col, size_t fdoffset, edge2_type * buffer, vertex_t bufferoffset, vertex_t size){
 	// if(size > 0){ if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"]. EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }}					
 	
-	unsigned int szA = size/2;
-	unsigned int szB = size - szA;
+	// unsigned int szA = size/2;
+	// unsigned int szB = size - szA;
 	
-	if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (szA * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](A). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
-	if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset + szA], (szB * sizeof(edge2_type)), (fdoffset + szA) * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](B). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	// if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (szA * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](A). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	// if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset + szA], (szB * sizeof(edge2_type)), (fdoffset + szA) * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](B). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
 	
+	size_t szA = size/4;
+	size_t szB = size/4;
+	size_t szC = size/4;
+	size_t szD = size - (szA + szB + szC);
 	
-	// if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], ((size/2) * sizeof(edge2_type)), fdoffset * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](A). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
-	// if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset + (size/2)], ((size/2) * sizeof(edge2_type)), (fdoffset + (size/2)) * sizeof(edge2_type)) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](B). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
-	
+	if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset], (size_t)(szA * sizeof(edge2_type)), (size_t)(fdoffset * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](A). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset + szA], (size_t)(szB * sizeof(edge2_type)), (size_t)((fdoffset + szA) * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](B). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset + szA + szB], (size_t)(szB * sizeof(edge2_type)), (size_t)((fdoffset + szA + szB) * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](A). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
+	if(pread(nvmeFd_edges_r2[col], &buffer[bufferoffset + szA + szB + szC], (size_t)(szC * sizeof(edge2_type)), (size_t)((fdoffset + szA + szB + szC) * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at col["<<col<<"](B). EXITING..."<<endl; utilityobj->print4("fdoffset", "bufferoffset", "size", "NAp", fdoffset, bufferoffset, size, NAp); exit(EXIT_FAILURE); }
 	return;
 }
 edge_t graph::getedgessize(int col){ 
@@ -646,7 +647,7 @@ void graph::load_realworld_datasets(){
 	_datasets[6].min_vertex = 0;
 	_datasets[6].max_vertex = 16777216; 
 	_datasets[6].num_vertices = 16777216;
-	_datasets[6].num_edges = 265114400 / 2;
+	_datasets[6].num_edges = 132557200;
 	_datasets[6].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[6].graphorder = DST_SRC;
 	_datasets[6].graphgroup = SNAP;
@@ -661,7 +662,7 @@ void graph::load_realworld_datasets(){
 	_datasets[7].min_vertex = 0;
 	_datasets[7].max_vertex = 50912018; 
 	_datasets[7].num_vertices = 50912018;
-	_datasets[7].num_edges = 108109320 / 2;
+	_datasets[7].num_edges = 54054660;
 	_datasets[7].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[7].graphorder = DST_SRC;
 	_datasets[7].graphgroup = SNAP;
@@ -676,7 +677,7 @@ void graph::load_realworld_datasets(){
 	_datasets[8].min_vertex = 0;
 	_datasets[8].max_vertex = 55042369; 
 	_datasets[8].num_vertices = 55042369;
-	_datasets[8].num_edges = 117217600 / 2;
+	_datasets[8].num_edges = 58608800;
 	_datasets[8].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[8].graphorder = DST_SRC;
 	_datasets[8].graphgroup = SNAP;
@@ -691,7 +692,7 @@ void graph::load_realworld_datasets(){
 	_datasets[9].min_vertex = 0;
 	_datasets[9].max_vertex = 21198119; 
 	_datasets[9].num_vertices = 21198119;
-	_datasets[9].num_edges = 63580358 / 2;
+	_datasets[9].num_edges = 31790179;
 	_datasets[9].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[9].graphorder = DST_SRC;
 	_datasets[9].graphgroup = SNAP;
@@ -706,10 +707,70 @@ void graph::load_realworld_datasets(){
 	_datasets[10].min_vertex = 0;
 	_datasets[10].max_vertex = 67716231; 
 	_datasets[10].num_vertices = 67716231;
-	_datasets[10].num_edges = 138778562 / 2;
+	_datasets[10].num_edges = 69389281;
 	_datasets[10].graphdirectiontype = UNDIRECTEDGRAPH;
 	_datasets[10].graphorder = DST_SRC;
 	_datasets[10].graphgroup = SNAP;
+	
+	_datasets[11].graphtopname = "indochina-2004";
+	_datasets[11].graphname = "indochina-2004";
+	_datasets[11].graph_path = rootDir + "dataset/indochina-2004/indochina-2004.mtx";
+	_datasets[11].vertices_path = rootDir + "dataset/indochina-2004/indochina-2004.vertices";
+	_datasets[11].edges_path = rootDir + "dataset/indochina-2004/indochina-2004.edges";	
+	_datasets[11].vertices_path_bin = rootDir + "dataset/indochina-2004/indochina-2004_bin.vertices";
+	_datasets[11].edges_path_bin = rootDir + "dataset/indochina-2004/indochina-2004_bin.edges";
+	_datasets[11].min_vertex = 0;
+	_datasets[11].max_vertex = 7414866; 
+	_datasets[11].num_vertices = 7414866;
+	_datasets[11].num_edges = 194109311;
+	_datasets[11].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[11].graphorder = DST_SRC;
+	_datasets[11].graphgroup = SNAP;
+	
+	_datasets[12].graphtopname = "uk-2002";
+	_datasets[12].graphname = "uk-2002";
+	_datasets[12].graph_path = rootDir + "dataset/uk-2002/uk-2002.mtx";
+	_datasets[12].vertices_path = rootDir + "dataset/uk-2002/uk-2002.vertices";
+	_datasets[12].edges_path = rootDir + "dataset/uk-2002/uk-2002.edges";	
+	_datasets[12].vertices_path_bin = rootDir + "dataset/uk-2002/uk-2002_bin.vertices";
+	_datasets[12].edges_path_bin = rootDir + "dataset/uk-2002/uk-2002_bin.edges";
+	_datasets[12].min_vertex = 0;
+	_datasets[12].max_vertex = 18520486; 
+	_datasets[12].num_vertices = 18520486;
+	_datasets[12].num_edges = 298113762;
+	_datasets[12].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[12].graphorder = DST_SRC;
+	_datasets[12].graphgroup = SNAP;
+	
+	_datasets[13].graphtopname = "ljournal-2008";
+	_datasets[13].graphname = "ljournal-2008";
+	_datasets[13].graph_path = rootDir + "dataset/ljournal-2008/ljournal-2008.mtx";
+	_datasets[13].vertices_path = rootDir + "dataset/ljournal-2008/ljournal-2008.vertices";
+	_datasets[13].edges_path = rootDir + "dataset/ljournal-2008/ljournal-2008.edges";	
+	_datasets[13].vertices_path_bin = rootDir + "dataset/ljournal-2008/ljournal-2008_bin.vertices";
+	_datasets[13].edges_path_bin = rootDir + "dataset/ljournal-2008/ljournal-2008_bin.edges";
+	_datasets[13].min_vertex = 0;
+	_datasets[13].max_vertex = 5363260; 
+	_datasets[13].num_vertices = 5363260;
+	_datasets[13].num_edges = 79023142;
+	_datasets[13].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[13].graphorder = DST_SRC;
+	_datasets[13].graphgroup = SNAP;
+	
+	_datasets[14].graphtopname = "mawi_201512020030";
+	_datasets[14].graphname = "mawi_201512020030";
+	_datasets[14].graph_path = rootDir + "dataset/mawi_201512020030/mawi_201512020030.mtx";
+	_datasets[14].vertices_path = rootDir + "dataset/mawi_201512020030/mawi_201512020030.vertices";
+	_datasets[14].edges_path = rootDir + "dataset/mawi_201512020030/mawi_201512020030.edges";	
+	_datasets[14].vertices_path_bin = rootDir + "dataset/mawi_201512020030/mawi_201512020030_bin.vertices";
+	_datasets[14].edges_path_bin = rootDir + "dataset/mawi_201512020030/mawi_201512020030_bin.edges";
+	_datasets[14].min_vertex = 0;
+	_datasets[14].max_vertex = 68863315; 
+	_datasets[14].num_vertices = 68863315;
+	_datasets[14].num_edges = 71707480;
+	_datasets[14].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[14].graphorder = DST_SRC;
+	_datasets[14].graphgroup = SNAP;
 	
 	// _datasets[].graphtopname = "?";
 	// _datasets[].graphname = "?";

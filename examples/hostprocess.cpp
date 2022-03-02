@@ -54,7 +54,19 @@ int main(int argc, char** argv){
 	#ifdef DATASET_KMER_U1A_67M_138M // kmer_U1a
 	datasetid = 10;
 	#endif
-	
+	#ifdef DATASET_INDOCHINA_2004_7M_194M
+	datasetid = 11;
+	#endif
+	#ifdef DATASET_UK_2002_18M_298M
+	datasetid = 12;
+	#endif
+	#ifdef DATASET_IJOURNAL_2008_5M_79M
+	datasetid = 13;
+	#endif
+	#ifdef DATASET_MAWI_201512020030_68M_71M
+	datasetid = 14;
+	#endif
+
 	#ifdef DATASET_RMAT22_SPARSE0
 	datasetid = 100;
 	#endif
@@ -136,20 +148,20 @@ int main(int argc, char** argv){
     binaryFile1 = argv[1];
 	binaryFile2 = binaryFile1;	
 	#ifdef TESTKERNEL
-	binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsPRHW300MHz.xclbin";
-	// #ifdef PR_ALGORITHM
-	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsPRHW300MHz.xclbin";
-	// #elif defined(CF_ALGORITHM)
-	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsCFHW300MHz.xclbin";
-	// #elif defined(LP_ALGORITHM)
-	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsLPHW300MHz.xclbin";
-	// #elif defined(CC_ALGORITHM)
-	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsCCHW300MHz.xclbin";
-	// #elif defined(BFS_ALGORITHM)
-	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins_allgraphs/goldenkernelTESTKERNEL3PEs3WsBFSHW300MHz.xclbin";
-	// #else 
-	// NOT DEFINED.
-	// #endif 
+	// binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins/goldenkernelTESTKERNEL3PEs3WsPRHW300MHz.xclbin";
+	#ifdef PR_ALGORITHM
+	binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins/goldenkernelTESTKERNEL3PEs3WsPRHW300MHz.xclbin";
+	#elif defined(CF_ALGORITHM)
+	binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins/goldenkernelTESTKERNEL3PEs3WsCFHW300MHz.xclbin";
+	#elif defined(LP_ALGORITHM)
+	binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins/goldenkernelTESTKERNEL3PEs3WsLPHW300MHz.xclbin";
+	#elif defined(CC_ALGORITHM)
+	binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins/goldenkernelTESTKERNEL3PEs3WsCCHW300MHz.xclbin";
+	#elif defined(BFS_ALGORITHM)
+	binaryFile1 = "/home/oj2zf/Documents/ActsOfAGraph/outputs/xclbins/goldenkernelTESTKERNEL3PEs3WsBFSHW300MHz.xclbin";
+	#else 
+	NOT DEFINED.
+	#endif 
 	binaryFile2 = binaryFile1;	
 	#endif 
 	#endif

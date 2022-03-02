@@ -140,8 +140,10 @@ void creategraphs::start(){
 			cout<<"creategraphs: srcv: "<<srcv<<", dstv: "<<dstv<<endl; if(alllinecount >= 100){ break; }
 			#endif 
 			
-			if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
-			if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
+			// if(srcv >= KVDATA_RANGE){ srcv = graphobj->getdataset().max_vertex; }
+			// if(dstv >= KVDATA_RANGE){ dstv = graphobj->getdataset().max_vertex; }
+			if(srcv >= KVDATA_RANGE){ srcv = KVDATA_RANGE-1; } // CRITICAL FIXME.
+			if(dstv >= KVDATA_RANGE){ dstv = KVDATA_RANGE-1; }
 		
 			local_srcv = srcv;
 			local_dstv = dstv;
