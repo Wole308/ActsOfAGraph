@@ -9,8 +9,8 @@ using namespace std;
 // stats area {stats, edge stats}
 // workspace area {kvdram, kvdram workspace}
 
-// #define LOADSLICEDEDGES
-#define LOADSLICEDEDGES_INCORRECT
+#define LOADSLICEDEDGES_CORRECT
+// #define LOADSLICEDEDGES_INCORRECT
 // #define CHECK4_VERIFYOFFSETS
 #define CALCULATELOCALDSTVIDS
 #define INSERTBITMAP
@@ -99,22 +99,21 @@ unsigned int loadedges_random::getpartition(unsigned int data, vertex_t upperlim
 	return partition;
 }
 tuple_t loadedges_random::get_partition_and_incr(unsigned int vid, vertex_t upperlimit){
-	unsigned int diff = vid - upperlimit;
-	unsigned int s = gethash(vid);
-	unsigned int lvid = getlocalvid(vid);
-	unsigned int upperlimit_lvid = getlocalvid(upperlimit);
-	unsigned int lcol = lvid % VECTOR2_SIZE;
-	unsigned int lrow = (lvid / VECTOR2_SIZE) - (upperlimit_lvid / VECTOR2_SIZE);
+	
+	unsigned int lvid = vid % PROCESSPARTITIONSZ; // FIXME.
+
+	unsigned int s = gethash(lvid);
+	unsigned int bank_lvid = getlocalvid(lvid);
+	unsigned int lcol = bank_lvid % VECTOR2_SIZE;
+	unsigned int lrow = (bank_lvid / VECTOR2_SIZE);
 	unsigned int incr = (s * (PROCESSPARTITIONSZ_KVS2 / NUM_PEs)) + lrow;
 	
-	if(vid < upperlimit){ cout<<"loadedges_random::getpartition(111)::. out of bounds (vid < upperlimit), vid: "<<vid<<", upperlimit: "<<upperlimit<<", (vid - upperlimit): "<<(vid - upperlimit)<<", lvid: "<<lvid<<", lcol: "<<lcol<<", lrow: "<<lrow<<", incr: "<<incr<<", s: "<<s<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
-	if(incr >= 1024){ cout<<"loadedges_random::getpartition(112)::. out of bounds incr: "<<incr<<", vid: "<<vid<<", upperlimit: "<<upperlimit<<", (vid - upperlimit): "<<(vid - upperlimit)<<", lvid: "<<lvid<<", lcol: "<<lcol<<", lrow: "<<lrow<<", incr: "<<incr<<", s: "<<s<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+	if(incr >= 1024){ cout<<"loadedges_random::getpartition(112)::. out of bounds incr: "<<incr<<", vid: "<<vid<<", lvid: "<<lvid<<", bank_lvid: "<<bank_lvid<<", lcol: "<<lcol<<", lrow: "<<lrow<<", incr: "<<incr<<", s: "<<s<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<"get_partition_and_incr:: vid: "<<vid
-	<<", upperlimit: "<<upperlimit
-	<<", (vid - upperlimit): "<<(vid - upperlimit)
+	cout<<"get_partition_and_incr:: ";
+	<<", vid: "<<vid
 	<<", lvid: "<<lvid
-	<<", upperlimit_lvid: "<<upperlimit_lvid
+	<<", bank_lvid: "<<bank_lvid
 	<<", lcol: "<<lcol
 	<<", lrow: "<<lrow
 	<<", incr: "<<incr
@@ -129,11 +128,10 @@ tuple_t loadedges_random::get_partition_and_incr(unsigned int vid, vertex_t uppe
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	if((res.B==42 && res.A == 1 && vid < 64)){ 
-	cout<<"get_partition_and_incr:: res.B==42: vid: "<<vid
-	<<", upperlimit: "<<upperlimit
-	<<", (vid - upperlimit): "<<(vid - upperlimit)
+	cout<<"get_partition_and_incr:: res.B==42:";
+	<<", vid: "<<vid
 	<<", lvid: "<<lvid
-	<<", upperlimit_lvid: "<<upperlimit_lvid
+	<<", bank_lvid: "<<bank_lvid
 	<<", lcol: "<<lcol
 	<<", lrow: "<<lrow
 	<<", incr: "<<incr
@@ -196,7 +194,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	unsigned int errcount = 0;
 	unsigned int num_zeros = 0;
 	unsigned int total_num_zeros = 0;
-	for(unsigned int vid=0; vid<graphobj->get_num_vertices(); vid++){
+	for(unsigned int vid=0; vid<utilityobj->hmin(graphobj->get_num_vertices(), KVDATA_RANGE); vid++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		if(vid % 1000000 == 0){ cout<<"### loadedges_random::loadedges:: vid: "<<vid<<" (of "<<graphobj->get_num_vertices()<<" vertices), vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
 		#endif 
@@ -204,14 +202,12 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 		edge_t vptr_begin = vertexptrbuffer[vid];
 		edge_t vptr_end = vertexptrbuffer[vid+1];
 		edge_t edges_size = vptr_end - vptr_begin;
-		if(vptr_end < vptr_begin){ cout<<">>> loadedges_random:: vptr_end("<<vptr_end<<") < vptr_begin("<<vptr_begin<<"). EXITING... (vid: "<<vid<<", edges_size: "<<edges_size<<")"<<endl; exit(EXIT_FAILURE); }
-		if(edges_size > 100000){ cout<<">>> loadedges_random:: edges_size("<<edges_size<<") > 10000. EXITING... (vid: "<<vid<<", edges_size: "<<edges_size<<")"<<endl; exit(EXIT_FAILURE); }
+		if(vptr_end < vptr_begin){ continue; cout<<">>> loadedges_random:: vptr_end("<<vptr_end<<") < vptr_begin("<<vptr_begin<<"). EXITING... (vid: "<<vid<<", edges_size: "<<edges_size<<")"<<endl; exit(EXIT_FAILURE); }
+		// if(edges_size > 100000){ cout<<">>> loadedges_random:: edges_size("<<edges_size<<") > 10000. EXITING... (vid: "<<vid<<", edges_size: "<<edges_size<<")"<<endl; exit(EXIT_FAILURE); }
 		
 		for(unsigned int i=0; i<edges_size; i++){
 			edge2_type edge = edgedatabuffer[vptr_begin + i];
-			// if(edge.dstvid == 0){ total_num_zeros += 1; }
 			if(edge.dstvid == 0 && edge.srcvid == 0){ total_num_zeros += 1; }
-			// if(edge.dstvid == 0 && edge.srcvid == 0 && num_zeros++ > 1000){ continue; }
 			
 			unsigned int H = gethash(edge.dstvid);
 			edgedatabuffers_temp[H].push_back(edge);
@@ -222,15 +218,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	}
 	cout<<"loadedges_random:: total_num_zeros: "<<total_num_zeros<<", graphobj->getedgessize(0): "<<graphobj->getedgessize(0)<<endl;
 	if(total_num_zeros > 1000000){ cout<<">>> loadedges_random:: TOO MANY ZEROS. EXITING... (total_num_zeros: "<<total_num_zeros<<", num_vertices: "<<graphobj->get_num_vertices()<<")"<<endl; exit(EXIT_FAILURE); }
-			
-	// unsigned int maxsz = edgedatabuffers_temp[0].size();
-	// for(unsigned int k=0; k<16; k++){
-		// cout<<">>> loadedges_random::--- edgedatabuffers_temp[0]["<<maxsz - k<<"].dstvid: "<<edgedatabuffers_temp[0][maxsz - k].dstvid<<endl;
-	// }
-	// exit(EXIT_SUCCESS);////////////////////
+	// exit(EXIT_SUCCESS);
 	
 	// load edges into memory channels according to edge representation format
-	#ifdef LOADSLICEDEDGES
+	#ifdef LOADSLICEDEDGES_CORRECT
 	cout<<"### loadedges_random::loadedges:: loading edges into memory channels according to edge representation format..."<<endl;
 	unsigned int tempe_index = 0; 
 	unsigned int index = 0;
@@ -259,10 +250,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 			unsigned int srcvtxoffsetofblock;
 			if(tempe_index % _TOTWORKBUFFER_SIZE == 0){
 				
-				unsigned int _TOTWORKBUFFER_SIZE_EC_ = utilityobj->hmin(_TOTWORKBUFFER_SIZE, edgedatabuffers_temp[i].size() - tempe_index);
-				if(_TOTWORKBUFFER_SIZE_EC_ != _TOTWORKBUFFER_SIZE){ cout<<"loadedges_random::edge condition:: i: "<<i<<", tempe_index: "<<tempe_index<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<", _TOTWORKBUFFER_SIZE_EC_: "<<_TOTWORKBUFFER_SIZE_EC_<<endl; }
+				unsigned int _TOTWORKBUFFER_SIZE_EDGECONDITIONS_ = utilityobj->hmin(_TOTWORKBUFFER_SIZE, edgedatabuffers_temp[i].size() - tempe_index);
+				if(_TOTWORKBUFFER_SIZE_EDGECONDITIONS_ != _TOTWORKBUFFER_SIZE){ cout<<"loadedges_random::edge condition:: i: "<<i<<", tempe_index: "<<tempe_index<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<", _TOTWORKBUFFER_SIZE_EDGECONDITIONS_: "<<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_<<endl; }
 				
-				if(debug2b==true){ for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EC_; t++){ edgeblock[t] = edgedatabuffers_temp[i][tempe_index + t]; }}
+				if(debug2b==true){ for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_; t++){ edgeblock[t] = edgedatabuffers_temp[i][tempe_index + t]; }}
 				if(debug2b==true){ for(unsigned int t=0; t<4; t++){ cout<<"loadedges_random[BEFORE]:: edgeblock["<<t<<"].srcvid: "<<edgeblock[t].srcvid<<", edgeblock["<<t<<"].dstvid: "<<edgeblock[t].dstvid<<endl; }}
 				
 				if(numcheckpoints < 8){ cout<<"loadedges_random:: CHECKPOINT SEEN: tempe_index: "<<tempe_index<<", edgedatabuffers_temp[i].size(): "<<edgedatabuffers_temp[i].size()<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<endl; }
@@ -271,7 +262,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 				if(debug2b==true){ cout<<"loadedges_random:: srcvtxoffsetofblock: "<<srcvtxoffsetofblock<<", firstedgeinblock.srcvid: "<<firstedgeinblock.srcvid<<endl; }
 				
 				for(unsigned int p=0; p<NUM_PARTITIONS; p++){ block_partitions[p].key = 0; block_partitions[p].value = 0; }
-				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EC_; t++){
+				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_; t++){
 					edge2_type thisedge = edgedatabuffers_temp[i][tempe_index + t];
 					tuple_t _p = get_partition_and_incr(thisedge.srcvid, srcvtxoffsetofblock);
 					block_partitions[_p.A].value += 1;
@@ -291,7 +282,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 				
 				// load edge block 
 				for(unsigned int p=0; p<NUM_PARTITIONS; p++){ block_partitions[p].value = 0; }
-				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EC_; t++){
+				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_; t++){
 					edge2_type thisedge = edgedatabuffers_temp[i][tempe_index + t];
 					utilityobj->checkoutofbounds("loadedges_random(21)::", thisedge.dstvid, graphobj->get_num_vertices()+10, thisedge.dstvid, tempe_index, t);
 					tuple_t _p = get_partition_and_incr(thisedge.srcvid, srcvtxoffsetofblock);
@@ -303,7 +294,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 				// exit(EXIT_SUCCESS); ////////////////
 				
 				// insert edges into buffer...
-				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EC_; t++){
+				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_; t++){
 					edge2_type edge2 = edgeblock[t];
 					edge2_type edge = edgeblock[t]; 
 					utilityobj->checkoutofbounds("loadedges_random(22)::", edge.dstvid, graphobj->get_num_vertices()+10, edge.srcvid, edge.dstvid, graphobj->get_num_vertices());
@@ -314,11 +305,11 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 					// NB: source here is tailored to suite FPGA impl.
 					unsigned int partition = get_partition_and_incr(edge2.srcvid, srcvtxoffsetofblock).A;
 					unsigned int incr = get_partition_and_incr(edge2.srcvid, srcvtxoffsetofblock).B;
-					#ifdef _DEBUGMODE_HOSTPRINTS3
+					#ifdef _DEBUGMODE_HOSTPRINTS
 					if(incr==42 && partition == 1 && edge2.srcvid < 64){ cout<< TIMINGRESULTSCOLOR << "loadedges:: incr==42: incr: "<<incr<<", partition: "<<partition<<" [edge2.srcvid: "<<edge2.srcvid<<", edge2.dstvid: "<<edge2.dstvid<<"]"<< RESET << endl; }
 					#endif 	
 					edge2.srcvid = incr;
-					utilityobj->checkoutofbounds("loadedges_random(24)::", edge2.srcvid, 1024, srcvtxoffsetofblock, _TOTWORKBUFFER_SIZE_EC_, firstedgeinblock.srcvid);
+					utilityobj->checkoutofbounds("loadedges_random(24)::", edge2.srcvid, 1024, srcvtxoffsetofblock, _TOTWORKBUFFER_SIZE_EDGECONDITIONS_, firstedgeinblock.srcvid);
 					//////////////////////////
 					
 					// insert edge

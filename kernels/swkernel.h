@@ -28,7 +28,7 @@ public:
 	~swkernel();
 	
 	#ifndef FPGA_IMPL
-	void verifyresults(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int id);
+	void verifyresults(uint512_vec_dt * vdram, unsigned int id);
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters);						
 	
 	void run3(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_vec_dt * vdramC, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);

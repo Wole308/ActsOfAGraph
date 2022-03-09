@@ -307,6 +307,8 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 		#endif 
 	}
 	
+	// cout<<"acts_util:: globalparams.NUM_REDUCEPARTITIONS: "<<globalparams.NUM_REDUCEPARTITIONS<<endl;
+	
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	if(GraphAlgo == BFS || GraphAlgo == SSSP){ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_NOTALLVERTEXISACTIVE; }
 	else{ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_ALLVERTEXISACTIVE; }
@@ -348,7 +350,7 @@ travstate_t {{context['classname__acts_util']}}UTIL{{context['id']}}_gettravstat
 	if(currentLOP == 0){ keyvalue.key = 0; }
 	else if(currentLOP == 1){ keyvalue.key = 0; }
 	else {
-		{%for v in context['4_seq']%}
+		{%for v in context['5_seq']%}
 		{%if(v>0)%}else{%endif%} if(globalparams.VARS_WORKBATCH == {{v}}){
 			#ifdef _WIDEWORD
 			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
@@ -397,7 +399,8 @@ partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getparti
 	// if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
 	// else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	
-	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	// if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = 0; } 
 	else {
 		keyy_t lkey = thiskeyvalue.key - upperlimit;
 		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
@@ -451,7 +454,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetkvstatvalues(
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
-	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
+	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
 		{%for v in context['8_seq']%}
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = 0; 
@@ -483,7 +486,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_accumkvstats(uint5
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
-		{%for v in context['4_seq']%}
+		{%for v in context['5_seq']%}
 		{%if(v>0)%}else{%endif%} if(globalparams.VARS_WORKBATCH == {{v}}){
 			#ifdef _WIDEWORD
 			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 

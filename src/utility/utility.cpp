@@ -560,11 +560,15 @@ void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
 		unsigned int C = ((4 * 4 * 2) * NUM_PARTITIONS) + VECTOR_SIZE; 
 		skipspacing[p] = (B * C) + 128; 
 		
-		#ifdef CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS
-		skipspacing[p] = skipspacing[p] * 2;
-		#else 
+		// #ifdef CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS
+		// skipspacing[p] = skipspacing[p] * 2;
+		// #else 
+		// skipspacing[p] = 0;	
+		// #endif 
+		
+		// skipspacing[p] = skipspacing[p] * 2;
 		skipspacing[p] = 0;	
-		#endif 
+			
 			
 		/* #ifdef TESTKERNEL
 			skipspacing[p] = skipspacing[p] * 2;

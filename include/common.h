@@ -1,12 +1,15 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
+#include <string.h>
+#include <cmath>
+#include <ap_int.h>
 
 #define COMPLETEKERNEL
-#define SW_ALLINONE // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define ACTGRAPH_SETUP // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define PR_ALGORITHM // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, CC_ALGORITHM, CF_ALGORITHM, LP_ALGORITHM
-#define DATASET_UK_2002_18M_298M 
+#define PR_ALGORITHM // PR_ALGORITHM, CF_ALGORITHM, HITS_ALGORITHM, CC_ALGORITHM, SSSP_ALGORITHM, BFS_ALGORITHM
+#define DATASET_ORKUT_3M_212M 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
@@ -27,7 +30,6 @@
 #define ALLVERTEXISACTIVE_ALGORITHM
 #endif
 
-#define EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // {actscommon.h, common.h}
 #ifdef ACTS_1by1by1byN
 #define ALL_VERTEXPROPERTIES_IN_SINGLE_DRAM // NEWCHANGE.
 #endif 
@@ -81,6 +83,7 @@
 
 ////////////////
 
+#define MAX_NUM_PEs 32
 #define NUM_PEs 24
 #define NUMSUBCPUTHREADS 24
 #define NUMSYNCTHREADS 3
@@ -170,7 +173,7 @@
 #define MAXNUMVERTICESPERBANK (KVDATA_RANGE / MAXNUMEDGEBANKS)
 #define MAXNUMVERTICESPERBANK_KVS (MAXNUMVERTICESPERBANK / VECTOR_SIZE)
 
-#define KVDATA_RANGE_POW 25
+#define KVDATA_RANGE_POW 22
 #define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
 
 #define NUMWORKERS 1
@@ -217,7 +220,7 @@
 
 #define NUMLASTLEVELPARTITIONS (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))
 
-#define NUM_EDGE_BANKS 1
+#define NUM_EDGE_BANKS 0
 #define MAX_NUM_EDGE_BANKS 16
 #define NUMSYNCTHREADS 3
 
@@ -453,6 +456,22 @@ typedef struct {
 typedef struct {
 	keyvalue1_type data[16];
 } unitBRAMwidth_type; 
+
+typedef struct {
+	#ifdef _WIDEWORD
+	ap_uint<1> data[32];
+	#else 
+	unsigned int data[32];
+	#endif 
+} uint32_vec_dt;
+
+typedef struct {
+	// #ifdef _WIDEWORD
+	// ap_uint<1> data[1]; // 32
+	// #else 
+	unsigned int data[1]; // 32
+	// #endif 
+} pmask_dt;
 
 /* typedef struct {
 	#ifdef _WIDEWORD

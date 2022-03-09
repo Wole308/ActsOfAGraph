@@ -21,20 +21,27 @@ swkernel::swkernel(graph * _graphobj, algorithm * _algorithmobj, stats * _statso
 swkernel::~swkernel(){}
 
 #ifndef FPGA_IMPL
-void swkernel::verifyresults(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int id){
+void swkernel::verifyresults(uint512_vec_dt * vdram, unsigned int id){
 	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
-	for(unsigned int i=0; i<NUM_PEs; i++){
-		unsigned int _BASEOFFSETKVS_DESTVERTICESDATA = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
-		for(unsigned int k=0; k<NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2; k++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				unsigned int vdata1 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
-				unsigned int vdata2 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
-				if(vdata1 < 64){
-					vdatas[vdata1] += 1; 
-				}
-				if(vdata2 < 64){
-					vdatas[vdata2] += 1; 
-				}
+	unsigned int _BASEOFFSETKVS_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA].data[0].key;
+	unsigned int _SIZE_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_SRCVERTICESDATA].data[0].key;
+	
+	// cout<<"verifyresults:: start: _BASEOFFSETKVS_SRCVERTICESDATA: "<<_BASEOFFSETKVS_SRCVERTICESDATA<<endl;
+	// cout<<"verifyresults:: end: _BASEOFFSETKVS_SRCVERTICESDATA + (_SIZE_SRCVERTICESDATA / VECTOR2_SIZE): "<<_BASEOFFSETKVS_SRCVERTICESDATA + (_SIZE_SRCVERTICESDATA / VECTOR2_SIZE)<<endl;
+	
+	for(unsigned int k=0; k<_SIZE_SRCVERTICESDATA / VECTOR2_SIZE; k++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			unsigned int vdata1 = utilityobj->READFROM_UINT(vdram[_BASEOFFSETKVS_SRCVERTICESDATA + k].data[v].key, OFFSETOF_VDATA, SIZEOF_VDATA);
+			unsigned int vdata2 = utilityobj->READFROM_UINT(vdram[_BASEOFFSETKVS_SRCVERTICESDATA + k].data[v].value, OFFSETOF_VDATA, SIZEOF_VDATA);
+			
+			// if(vdata1==0){ cout<<"ZERRRRRRRRRRRRRRRRRRRRROOOOOOOOOOO1:verifyresults: SEEN. index: "<<_BASEOFFSETKVS_SRCVERTICESDATA + k<<endl; }
+			// if(vdata2==0){ cout<<"ZERRRRRRRRRRRRRRRRRRRRROOOOOOOOOOO2:verifyresults: SEEN. index: "<<_BASEOFFSETKVS_SRCVERTICESDATA + k<<endl; }	
+			
+			if(vdata1 < 64){
+				vdatas[vdata1] += 1; 
+			}
+			if(vdata2 < 64){
+				vdatas[vdata2] += 1; 
 			}
 		}
 	}
@@ -70,46 +77,30 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 	uint512_vec_dt * vdramD; 
 	#ifndef SW_IMPL 
 	#ifdef FPGA_IMPL			
-	vdramA = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
-	vdramB = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
-	vdramC = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
-	vdramD = (uint512_vec_dt *) aligned_alloc(4096, (PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt)));
+	vdramA = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	vdramB = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	vdramC = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	vdramD = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
 	#else
-	vdramA = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
-	vdramB = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
-	vdramC = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
-	vdramD = new uint512_vec_dt[PADDEDKVSOURCEDRAMSZ_KVS];
+	vdramA = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	vdramB = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	vdramC = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	vdramD = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
 	#endif
 	#endif
 	
-	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; vdramD[i] = vdram[i]; }
+	for(unsigned int i=0; i<TOTALDRAMCAPACITY_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; vdramD[i] = vdram[i]; }
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ for(unsigned int t=0; t<(TOTALDRAMCAPACITY_KVS/2); t++){ kvsourcedram[i][(TOTALDRAMCAPACITY_KVS/2) + t] = edges[i][t]; }}
 	#endif 
-	
-	// unsigned int vptrbaseoffset_kvs = (TOTALDRAMCAPACITY_KVS/2) + kvsourcedram[0][(TOTALDRAMCAPACITY_KVS/2) + BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
-	// cout<<"-----------+++++++++++++++++++--------------------------- TOP{{context['id']}}_U_processit:  vptrbaseoffset_kvs: "<<vptrbaseoffset_kvs<<", TOTALDRAMCAPACITY_KVS: "<<TOTALDRAMCAPACITY_KVS<<", (TOTALDRAMCAPACITY_KVS/2): "<<(TOTALDRAMCAPACITY_KVS/2)<<endl;
-	// for(unsigned int i=0; i<4; i++){
-		// for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			// cout<<"kvsourcedram[0]["<<vptrbaseoffset_kvs + i<<"].data["<<v<<"].key: "<<kvsourcedram[0][vptrbaseoffset_kvs + i].data[v].key<<endl;
-		// }
-	// }
-	
-	// unsigned int edgestatsbaseoffset_kvs = (TOTALDRAMCAPACITY_KVS/2) + kvsourcedram[0][(TOTALDRAMCAPACITY_KVS/2) + BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM].data[0].key;
-	// cout<<"-----------+++++++++++++++++++--------------------------- TOP{{context['id']}}_U_processit:  edgestatsbaseoffset_kvs: "<<edgestatsbaseoffset_kvs<<", TOTALDRAMCAPACITY_KVS: "<<TOTALDRAMCAPACITY_KVS<<", (TOTALDRAMCAPACITY_KVS/2): "<<(TOTALDRAMCAPACITY_KVS/2)<<endl;
-	// for(unsigned int i=0; i<4; i++){
-		// cout<<"swkernel:: kvsourcedram[0]["<<edgestatsbaseoffset_kvs + i<<"].data[0].key: "<<kvsourcedram[0][edgestatsbaseoffset_kvs + i].data[0].key<<endl;
-	// }
-	
-	// unsigned int edgestatsbaseoffset_kvs = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM].data[0].key;
-	// cout<<"-----------+++++++++++++++++++--------------------------- TOP{{context['id']}}_U_processit:  edgestatsbaseoffset_kvs: "<<edgestatsbaseoffset_kvs<<", TOTALDRAMCAPACITY_KVS: "<<TOTALDRAMCAPACITY_KVS<<", (TOTALDRAMCAPACITY_KVS/2): "<<(TOTALDRAMCAPACITY_KVS/2)<<endl;
-	// for(unsigned int i=0; i<4; i++){
-		// cout<<"swkernel:: kvsourcedram[0]["<<edgestatsbaseoffset_kvs + i<<"].data[0].key: "<<kvsourcedram[0][edgestatsbaseoffset_kvs + i].data[0].key<<endl;
-	// }
-	
+
 	for(unsigned int GraphIter=0; GraphIter<numIters; GraphIter++){
 		cout<< TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<numIters<<" iterations"<< RESET <<endl;
 		std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
+		
+		// verifyresults(vdramA, 0);
+		// cout<<"--------------------)))))))))))))))))))))))))))))))))))))))"<<endl;
+		// exit(EXIT_SUCCESS); /////////////////
 		
 		#if NUM_PEs==3
 		run3(vdramA, vdramB, vdramC, vdram, edges, kvsourcedram);
@@ -127,16 +118,14 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		NOT DEFINED.
 		#endif
 		
+		// exit(EXIT_SUCCESS); //
+		
 		// kernelobjs_process[0]->TOPP0_topkernelS((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);	
 		
 		long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 		cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 		
-		#ifdef CONFIG_SPLIT_DESTVTXS
 		uint512_vec_dt * ref = (uint512_vec_dt *)vdramA;
-		#else 
-		uint512_vec_dt * ref = (uint512_vec_dt *)vdram;	
-		#endif 
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = ref[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 		unsigned int totalactvvp = 0;
 		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
@@ -147,13 +136,20 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		}
 		cout<<""<<endl;
 		
-		verifyresults(kvsourcedram, 0);
+		cout<<"swkernel: verifying vdramA..."<<endl;
+		verifyresults(vdramA, 0);
+		cout<<"swkernel: verifying vdramB..."<<endl;
+		verifyresults(vdramB, 0);
+		cout<<"swkernel: verifying vdramC..."<<endl;
+		verifyresults(vdramC, 0);
+		cout<<"swkernel: verifying vdram..."<<endl;
+		verifyresults(vdram, 0);
 		
 		// if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 		// exit(EXIT_SUCCESS); //
 	}
 	
-	verifyresults(kvsourcedram, 1);
+	// verifyresults(vdramA, 1);
 
 	#ifdef CONFIG_SPLIT_DESTVTXS
 	for(unsigned int i=0; i<PADDEDKVSOURCEDRAMSZ_KVS; i++){ vdram[i] = vdramA[i]; }
@@ -288,6 +284,7 @@ void swkernel::run24(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 		(uint512_dt *)kvsourcedram[B_OFFSET + 8],
 		(uint512_dt *)vdramB
 	);
+	// exit(EXIT_SUCCESS); //
 	
 	cout<<"------------------------------------ topkernelP1: processing P6 instances ------------------------------------"<<endl;
 	kernelobjs_process[0]->TOPP0_U_topkernelP6(

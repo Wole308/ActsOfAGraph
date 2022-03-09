@@ -3,10 +3,6 @@ fetchmessage_t MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt * kvdram, 
 	
 void MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams);
 
-void MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
-
-void MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
-	
 // -------------------- vdata -------------------- //
 void MEMACCESSP0_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth);
 
@@ -14,7 +10,7 @@ void MEMACCESSP0_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTO
 
 void MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 
-void MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
+void MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV);				
 
 void MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams);
 void MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams);
@@ -45,7 +41,7 @@ void MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * kvdram, ke
 #endif 
 
 // -------------------- pmasks -------------------- //
-void MEMACCESSP0_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readpmask(uint512_dt * kvdram, pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
 
 // -------------------- stats -------------------- //
 void MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams);
@@ -71,18 +67,18 @@ void MEMACCESSP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparam
 void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 
 // -------------------- multiple accesses -------------------- //
-void MEMACCESSP0_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
-void MEMACCESSP0_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask1(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask2(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask3(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask4(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask5(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask6(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask7(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask8(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask9(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask10(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask11(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESSP0_readmanypmask12(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE],pmask_dt pmask11[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
 
 // -------------------- others -------------------- //
 void MEMACCESSP0_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK);

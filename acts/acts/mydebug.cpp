@@ -101,8 +101,8 @@ void mydebug::printvdatas(keyvalue_vbuffer_t vdatas[VDATA_PACKINGSIZE][BLOCKRAM_
 void mydebug::printvdatawithvmask(unsigned int vdata[VECTOR2_SIZE], unsigned int data1, unsigned int data2){
 	cout<<"printvdatawithvmask:["<<data1<<"]["<<data2<<"]:"; 
 	for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
-		cout<<DEBUG_READBITSFROM_UINTV(vdata[v], 0, SIZEOF_VDATA0)<<""; 
-		cout<<"("<<DEBUG_READBITSFROM_UINTV(vdata[v], SIZEOF_VDATA0, SIZEOF_VMASK0)<<"), "; 
+		cout<<DEBUG_READBITSFROM_UINTV(vdata[v], OFFSETOF_VDATA, SIZEOF_VDATA)<<""; 
+		cout<<"("<<DEBUG_READBITSFROM_UINTV(vdata[v], OFFSETOF_VMASK, SIZEOF_VMASK)<<"), "; 
 	}
 	cout<<endl;
 }

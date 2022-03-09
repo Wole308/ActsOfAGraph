@@ -210,17 +210,17 @@ fetchmessage_t {{context['classname__acts']}}ACTS{{context['id']}}_fetchkeyvalue
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],
 		keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
-			batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){
+			batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	if(mode == ACTSREDUCEMODE){
-		REDUCE{{context['id']}}_reduceandbuffer(enable, destbuffer, localcapsule, vbuffer, sweepparams, globalparams);
+		REDUCE{{context['id']}}_reduceandbuffer(enable, destbuffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams);
 	} else {
 		MEMACCESS{{context['id']}}_savekeyvalues(enable, kvdram, destbuffer, globalcapsule, localcapsule, destbaseaddr_kvs, globalparams); 
 	}
 	return;
-}
+} 
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable, unsigned int mode,
-		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 					
+		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],				
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID){
 	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
@@ -287,7 +287,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 		
 		PARTITION{{context['id']}}_preparekeyvalues(ON, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
 		#ifdef PUP1
-		ACTS{{context['id']}}_commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp1.chunksize_kvs, sweepparams, globalparams); 
+		ACTS{{context['id']}}_commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp1.chunksize_kvs, sweepparams, globalposition, globalparams); 
 		#endif 
 		
 		ACTS{{context['id']}}_actspipeline(ON, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
@@ -296,7 +296,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 		fetchmessagepp1 = ACTS{{context['id']}}_fetchkeyvalues(ON, mode,  kvdram, vbuffer, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalparams, edgebankID);
 		#endif
 		
-		ACTS{{context['id']}}_commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalparams); 
+		ACTS{{context['id']}}_commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, sweepparams, globalposition, globalparams); 
 		#ifdef PUP1
 		PARTITION{{context['id']}}_preparekeyvalues(pp1partitionen, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
 		#endif
@@ -306,156 +306,6 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 	}
 	return;
 }
-
-#ifdef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES
-fetchmessage_t {{context['classname__acts']}}ACTS{{context['id']}}_magic(bool_type enable, unsigned int mode, unsigned int mode2,
-		 uint512_dt * kvdram, 
-			keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-				keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS],
-					batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, 
-						travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams, unsigned int edgebankID){
-	// value_t tempbuffer[VECTOR2_SIZE][SOURCEBLOCKRAM_SIZE];
-	// #pragma HLS array_partition variable = tempbuffer
-	
-	fetchmessage_t fetchmessage;
-	if(mode == ACTSPROCESSMODE && mode2 == ACTSFETCHMODE){ // fetch edges and process 
-		fetchmessage = PANDR{{context['id']}}_processandreduce(enable, ACTSPROCESSMODE, 
-			kvdram, kvdram, 
-				vbuffer, buffer,
-					globalcapsule, localcapsule, 
-						goffset_kvs, loffset_kvs, size_kvs, 
-							travstate, sweepparams, globalparams);
-	} else if(mode == ACTSREDUCEMODE && mode2 == ACTSCOMMITMODE){ // reduce vertex updates
-		PANDR{{context['id']}}_processandreduce(enable, ACTSREDUCEMODE, 
-			kvdram, kvdram, 
-				vbuffer, buffer,
-					globalcapsule, localcapsule, 
-						goffset_kvs, loffset_kvs, size_kvs, 
-							travstate, sweepparams, globalparams);
-	} else if(mode != ACTSPROCESSMODE && mode2 == ACTSFETCHMODE){ // read key-values
-		fetchmessage = MEMACCESS{{context['id']}}_readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
-	} else if(mode != ACTSREDUCEMODE && mode2 == ACTSCOMMITMODE){ // write keyvalues
-		MEMACCESS{{context['id']}}_savekeyvalues(enable, kvdram, buffer, globalcapsule, localcapsule, goffset_kvs, globalparams); 
-	} else {
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"ACTS{{context['id']}}_magic: NOT DEFINED. mode: "<<mode<<", mode2: "<<mode2<<". EXITING..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	return fetchmessage; 
-}
-
-void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable, unsigned int mode,
-		 uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], 					
-		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
-		bool_type resetenv, bool_type flush, unsigned int edgebankID){
-	analysis_type analysis_partitionloop = MODEL_BATCHSIZE_KVS / (NUMPIPELINES_PARTITIONUPDATES * WORKBUFFER_SIZE);
-	if(enable == OFF){ return; }
-	
-	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE]; // REMOVEME.-SWX
-	#pragma HLS array_partition variable = buffer_setof1
-	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE];
-	#pragma HLS array_partition variable = buffer_setof8
-	
-	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS];
-	#pragma HLS array_partition variable = capsule_so1
-
-	{%if(context['XWARE'] == "SW")%}static {%endif%}keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS];
-	
-	keyvalue_t globalstatsbuffer_dummy[MAX_NUM_PARTITIONS];
-	keyvalue_capsule_t localcapsule_dummy[MAX_NUM_PARTITIONS];
-	travstate_t travstate_dummy;
-	
-	travstate_t ptravstatepp0 = ptravstate;
-	travstate_t ptravstatepp1 = ptravstate;
-	
-	bool_type pp0readen = ON;
-	bool_type pp1readen = ON;
-	bool_type pp0runpipelineen = ON;
-	bool_type pp1runpipelineen = ON;
-	bool_type pp0partitionen = ON;
-	bool_type pp1partitionen = ON;
-	bool_type pp0writeen = ON;
-	bool_type pp1writeen = ON;
-	{%if(context['XWARE'] == "SW")%}static {%endif%}buffer_type pp0cutoffs[VECTOR_SIZE];
-	{%if(context['XWARE'] == "SW")%}static {%endif%}buffer_type pp1cutoffs[VECTOR_SIZE];
-	batch_type itercount = 0;
-	batch_type flushsz = 0;
-	
-	fetchmessage_t fetchmessagepp0;
-	fetchmessage_t fetchmessagepp1;
-	fetchmessagepp0.chunksize_kvs = -1; fetchmessagepp0.nextoffset_kvs = -1;
-	fetchmessagepp1.chunksize_kvs = -1; fetchmessagepp1.nextoffset_kvs = -1;
-	
-	if(resetenv == ON){ UTIL{{context['id']}}_resetenvbuffers(capsule_so1, capsule_so8); } else { itercount = 64; } // FIXME. '64' is just some number greater than 2
-	if(flush == ON){ flushsz = 1*SRCBUFFER_SIZE; } else { flushsz = 0; }
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	if(resetenv == ON){ cout<<"actit: reset is ON"<<endl; } else { cout<<"actit: reset is OFF"<<endl;  }
-	if(flush == ON){ cout<<"actit: flush is ON"<<endl; } else { cout<<"actit: flush is OFF"<<endl;  }
-	#endif 
-	
-	batch_type offset_kvs = ptravstate.begin_kvs;
-	
-	ACTIT_MAINLOOP: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + flushsz; offset_kvs+=WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"acts::ACTS{{context['id']}}_actit: processing chunk [offset_kvs: "<<offset_kvs<<"]: [ptravstate.begin_kvs: "<<ptravstate.begin_kvs<<"]: [ptravstate.end_kvs + flushsz: "<<ptravstate.end_kvs + flushsz<<"] ... "<<endl;
-		#endif
-		#ifdef PUP1
-		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
-		if(itercount >= 1){ pp1writeen = ON; } else { pp1writeen = OFF; }
-		if(itercount >= 1){ pp1runpipelineen = ON; } else { pp1runpipelineen = OFF; }
-		#else 
-		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
-		#endif
-		
-		ptravstatepp0.i_kvs = offset_kvs;
-		fetchmessagepp0 = ACTS{{context['id']}}_magic(ON, mode, ACTSFETCHMODE, // fetch
-			 kvdram, 
-				vbuffer, sourcebuffer, 
-					globalstatsbuffer_dummy, localcapsule_dummy,
-						sourcebaseaddr_kvs, ptravstatepp0.i_kvs, WORKBUFFER_SIZE, 
-							ptravstatepp0, sweepparams, globalparams, edgebankID);
-		#ifdef PUP1
-		ACTS{{context['id']}}_actspipeline(pp1runpipelineen, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
-		#endif 
-		
-		PARTITION{{context['id']}}_preparekeyvalues(ON, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
-		#ifdef PUP1
-		ACTS{{context['id']}}_magic(pp1writeen, mode, ACTSCOMMITMODE, // commit
-			kvdram, 
-				vbuffer, buffer_setof8, 
-					globalstatsbuffer, capsule_so8, 
-						destbaseaddr_kvs, fetchmessagepp1.chunksize_kvs, NAp,
-							travstate_dummy, sweepparams, globalparams, NAp); 
-		#endif 
-		
-		ACTS{{context['id']}}_actspipeline(ON, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
-		#ifdef PUP1
-		ptravstatepp1.i_kvs = offset_kvs + WORKBUFFER_SIZE;
-		fetchmessagepp1 = ACTS{{context['id']}}_magic(ON, mode, ACTSFETCHMODE, // fetch
-			 kvdram, 
-				vbuffer, sourcebuffer, 
-					globalstatsbuffer_dummy, localcapsule_dummy,
-						sourcebaseaddr_kvs, ptravstatepp1.i_kvs, WORKBUFFER_SIZE, 
-							ptravstatepp1, sweepparams, globalparams, edgebankID);
-		#endif
-		
-		ACTS{{context['id']}}_magic(pp0writeen, mode, ACTSCOMMITMODE, // commit
-			kvdram, 
-				vbuffer, buffer_setof8, 
-					globalstatsbuffer, capsule_so8, 
-						destbaseaddr_kvs, fetchmessagepp0.chunksize_kvs, NAp,
-							travstate_dummy, sweepparams, globalparams, NAp); 
-		#ifdef PUP1
-		PARTITION{{context['id']}}_preparekeyvalues(pp1partitionen, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
-		#endif
-		
-		itercount += NUMPIPELINES_PARTITIONUPDATES;
-	}
-	return;
-}
-#endif 
 
 #ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
 void {{context['classname__acts']}}ACTS{{context['id']}}_PRIOR_commitkeyvalues(bool_type enable1, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], 

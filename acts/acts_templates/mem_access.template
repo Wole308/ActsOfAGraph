@@ -120,84 +120,6 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_savekeyvalue
 	return;
 }
 
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
-		
-	READKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{v}};
-		{%endfor%}
-		
-		#ifdef _WIDEWORD
-		{%for v in context['VECTOR_SIZE_seq']%}
-		mykeyvalue{{v}}.key = kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-		mykeyvalue{{v}}.value = kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
-		{%endfor%}
-		#else 
-		{%for v in context['VECTOR_SIZE_seq']%}
-		mykeyvalue{{v}}.key = kvdram[dramoffset_kvs + i].data[{{v}}].key;
-		mykeyvalue{{v}}.value = kvdram[dramoffset_kvs + i].data[{{v}}].value; 
-		{%endfor%}
-		
-		{%for v in context['VECTOR_SIZE_seq']%}
-		buffer[{{v}}][bufferoffset_kvs + i] = UTIL{{context['id']}}_GETKV(mykeyvalue{{v}});
-		{%endfor%}
-		
-		#endif 
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
-		#endif
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	#endif
-	return;
-}
-
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  BLOCKRAM_SIZE;
-	
-	SAVEKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		{%for v in context['VECTOR_SIZE_seq']%}
-		keyvalue_t mykeyvalue{{v}} = UTIL{{context['id']}}_GETKV(buffer[{{v}}][bufferoffset_kvs + i]);
-		{%endfor%}
-	
-		#ifdef _WIDEWORD
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram[dramoffset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = mykeyvalue{{v}}.key; 
-		kvdram[dramoffset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = mykeyvalue{{v}}.value; 
-		{%endfor%}
-		#else 
-		{%for v in context['VECTOR_SIZE_seq']%}
-		kvdram[dramoffset_kvs + i].data[{{v}}].key = mykeyvalue{{v}}.key;
-		kvdram[dramoffset_kvs + i].data[{{v}}].value = mykeyvalue{{v}}.value;
-		{%endfor%}
-		#endif 
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
-		#endif
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"savekeyvalues:: vertices saved: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<dramoffset_kvs-globalparams.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE<<"-"<<((dramoffset_kvs + size_kvs)-globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_DESTVERTICESDATA && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<(dramoffset_kvs-globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<((dramoffset_kvs-globalparams.BASEOFFSETKVS_DESTVERTICESDATA) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }					
-	#endif
-	return;
-}
-
 // -------------------- vdata -------------------- //
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
@@ -292,7 +214,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readV(bool_t
 	return;
 }
 
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -304,12 +226,39 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 	#pragma HLS ARRAY_PARTITION variable=vdata complete
 	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
 	
+	uint32_type pmaski = 0;
+
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR2_SIZE_seq']%}	
-		vdata[{{v}}] = buffer[{{v}}][bufferoffset_kvs + i];	
+		vdata[{{v}}] = vbuffer[{{v}}][bufferoffset_kvs + i];
 		{%endfor%}
+		
+		// collect active partitions for next iterations
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+			#ifdef _WIDEWORD
+			{%for v in context['VECTOR2_SIZE_seq']%}
+			pmaski.range({{v}}, {{v}}) = MEMCA{{context['id']}}_READVMASK(vdata[{{v}}]); 
+			{%endfor%}
+			#else
+			{%for v in context['VECTOR2_SIZE_seq']%}
+			UTIL{{context['id']}}_WRITEBITSTO_UINTV(&pmaski, {{v}}, 1, MEMCA{{context['id']}}_READVMASK(vdata[{{v}}]));
+			{%endfor%}	
+			#endif
+			
+			unsigned int v_local = (offset_kvs + i) * VECTOR2_SIZE;
+			unsigned int v_real = UTIL{{context['id']}}_GETREALVID(v_local, globalparams.ACTSPARAMS_INSTID); // (v_local * NUM_PEs) + s;
+			unsigned int p_ = v_real / (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE);
+			#ifdef _DEBUGMODE_CHECKS3
+			if(p_ >= globalparamsV.NUM_PROCESSEDGESPARTITIONS){ cout<<"MEMACCESS{{context['id']}}_saveV:: ERROR SOMEWHERE: p_("<<p_<<") >= NUM_PROCESSEDGESPARTITIONS("<<globalparamsV.NUM_PROCESSEDGESPARTITIONS<<") [offset_kvs("<<offset_kvs<<"), i("<<i<<"), v_local("<<v_local<<"), v_real("<<v_real<<"), (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE)("<<(globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE)<<")]"<<endl; exit(EXIT_FAILURE); }				
+			#endif
+			if(pmaski > 0){ pmask[p_].data[0] = 1; }
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			if(pmaski > 0){ cout<<"--- MEMACCESS{{context['id']}}_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", p_: "<<p_<<", pmaski: "<<pmaski<<", pmask["<<p_<<"].data[0]: "<<pmask[p_].data[0]<<". [offset_kvs("<<offset_kvs<<"), v_local("<<v_local<<"), v_real("<<v_real<<")]"<<endl; }
+			#endif
+		#endif
 		
 		#ifdef _WIDEWORD // CRITICAL FIXME.
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -327,6 +276,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 		actsutilityobj->globalstats_countvswritten(VECTOR2_SIZE);
 		#endif
 	}
+	// exit(EXIT_SUCCESS); //
 	return;
 }
 
@@ -355,6 +305,15 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readANDRVchu
 	#pragma HLS array_partition variable = buffer{{i}}
 	{%endif%}{%endfor%}
 	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// {%for i in context['T_seq']%}{%if(i<n)%}
+		// {%for v in context['VECTOR2_SIZE_seq']%}
+		// buffer{{i}}[{{v}}][i] = 0;
+		// {%endfor%}	
+		// {%endif%}{%endfor%}
+	// }
+	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -376,7 +335,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readANDRVchu
 			
 			MEMACCESS{{context['id']}}_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			{%for v in context['VECTOR2_SIZE_seq']%}
 			if(MEMCA{{context['id']}}_READVMASK(vdata2[{{v}}]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: {{v}}"<<endl; }
 			{%endfor%}
@@ -429,12 +388,12 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_RANDreadANDR
 #endif 
 
 // -------------------- pmasks -------------------- //
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readpmask(uint512_dt * kvdram, pmask_dt pmask[BLOCKRAM_PMASK1_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
-		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
@@ -451,12 +410,12 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readglobalst
 	#pragma HLS PIPELINE II=1
 		uint512_vec_dt vec;
 		#ifdef _WIDEWORD
-		{%for v in context['4_seq']%}
+		{%for v in context['5_seq']%}
 		vec.data[{{v}}].key = kvdram[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
 		vec.data[{{v}}].value = kvdram[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
 		{%endfor%}
 		#else 
-		{%for v in context['4_seq']%}
+		{%for v in context['5_seq']%}
 		vec.data[{{v}}].key = kvdram[offset_kvs + i].data[{{v}}].key; 
 		vec.data[{{v}}].value = kvdram[offset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
@@ -477,7 +436,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveglobalst
 	#endif
 	
 	SAVEGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
-		{%for v in context['4_seq']%}
+		{%for v in context['5_seq']%}
 		{%if(v>0)%}else{%endif%} if(globalparams.VARS_WORKBATCH == {{v}}){
 			#ifdef _WIDEWORD
 			kvdram[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = globalstatsbuffer[i].key; 
@@ -623,9 +582,9 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_retreievekvs
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		buffer[k].key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32); 
+		buffer[k].value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32); 
 		#else
-		buffer[k].key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].data[0].value; 
+		buffer[k].value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].data[0].value; 
 		#endif
 	}
 }
@@ -634,7 +593,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_accumkvstats
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
-		{%for v in context['4_seq']%}
+		{%for v in context['5_seq']%}
 		{%if(v>0)%}else{%endif%} if(globalparams.VARS_WORKBATCH == {{v}}){
 			#ifdef _WIDEWORD
 			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
@@ -673,28 +632,22 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstat
 }
 
 // -------------------- multiple accesses -------------------- //
-{%for n in context['T_seq']%}
-{%if(n>=1)%}
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}uint32_type vmask{{i}}_p[BLOCKRAM_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+{%for n in context['T_seq']%}{%if(n>=1)%}
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}pmask_dt pmask{{i}}[BLOCKRAM_PMASK_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		{%for i in context['T_seq']%}
-		{%if(i<n)%}
-		vmask{{i}}_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		{%endif%}
-		{%endfor%}
+		{%for i in context['T_seq']%}{%if(i<n)%}
+		pmask{{i}}[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		{%endif%}{%endfor%}
 		#else
-		{%for i in context['T_seq']%}
-		{%if(i<n)%}
-		vmask{{i}}_p[i] = kvdram[offset_kvs + i].data[0].key;
-		{%endif%}
-		{%endfor%}
+		{%for i in context['T_seq']%}{%if(i<n)%}
+		pmask{{i}}[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		{%endif%}{%endfor%}
 		#endif 
 	}
 	return;
 }
-{%endif%}
-{%endfor%}
+{%endif%}{%endfor%}
 
 // -------------------- others -------------------- //
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){

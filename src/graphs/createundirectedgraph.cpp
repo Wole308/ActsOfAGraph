@@ -290,7 +290,7 @@ void createundirectedgraph::start(){
 	int nw3 = pwrite(nvmeFd_edges_w, &edgedatabuffer_dup[((edgedatabuffer_dup_size / 4) * 3)], (edgedatabuffer_dup_size/4) * sizeof(edge2_type), (edgedatabuffer_dup_size / 4) * 3 * sizeof(edge2_type));
 	if(close(nvmeFd_edges_w) == -1){ cout<<"createundirectedgraph:: ERROR CLOSING nvmeFd_edges_w FILE... EXITING... "<<endl; exit(EXIT_FAILURE); }
 	
-	
+	#ifdef _DEBUGMODE_CHECKS3
 	cout<<"--------------++++++++++++++++++++++------ createundirectedgraph: edgedatabuffer_dup_size: "<<edgedatabuffer_dup_size<<endl;
 	int nvmeFd_edges_r = open(edgespath.c_str(), O_RDONLY); 
 	size_t szA = edgedatabuffer_dup_size/4;
@@ -304,7 +304,6 @@ void createundirectedgraph::start(){
 	if(pread(nvmeFd_edges_r, &buffer[0 + szA + szB], (size_t)(szB * sizeof(edge2_type)), (size_t)((0 + szA + szB) * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at  EXITING..."<<endl; exit(EXIT_FAILURE); }
 	if(pread(nvmeFd_edges_r, &buffer[0 + szA + szB + szC], (size_t)(szC * sizeof(edge2_type)), (size_t)((0 + szA + szB + szC) * sizeof(edge2_type))) <= 0){ cout<<"graph::loadedgesfromfile:: ERROR. insufficient edges at EXITING..."<<endl; exit(EXIT_FAILURE); }
 	
-	////////////
 	zerocount = 0;
 	cout<<"--------------++++++++++++++++++++++------ createundirectedgraph: edgedatabuffer_dup_size: "<<edgedatabuffer_dup_size<<endl;
 	for(unsigned int i=0; i<edgedatabuffer_dup_size; i++){
@@ -314,26 +313,8 @@ void createundirectedgraph::start(){
 		}
 	}
 	if(close(nvmeFd_edges_r) == -1){ cout<<"createundirectedgraph:: ERROR CLOSING nvmeFd_edges_r FILE... EXITING... "<<endl; exit(EXIT_FAILURE); }
-	////////////
-	
-	
-	/* edge2_type * chk = new edge2_type[2 * num_edges];
-	int nvmeFd_edges_r = open(edgespath.c_str(), O_RDWR, 0777);
-	pread(nvmeFd_edges_r, chk, edgedatabuffer_dup_size * sizeof(edge2_type), edgedatabuffer_dup_size * sizeof(edge2_type));
-	////////////
-	zerocount = 0;
-	for(unsigned int i=0; i<edgedatabuffer_dup_size; i++){
-		edge2_type edge = chk[i];
-		if(edge.srcvid==0 && edge.dstvid==0){
-			if(zerocount++>10000){ cout<<"createundirectedgraph::writeedgestofile(21):: ERROR: too many zeros ("<<zerocount<<"). check... EXITING... "<<endl; exit(EXIT_FAILURE); }
-		}
-	}
-	if(close(nvmeFd_edges_r) == -1){ cout<<"createundirectedgraph:: ERROR CLOSING nvmeFd_edges_r FILE... EXITING... "<<endl; exit(EXIT_FAILURE); }
-	//////////// */
-	
-	
-	
-	
+	#endif 
+
 	cout<<"createundirectedgraph:: saving vertex ptrs... "<<endl;
 	string vptrspath = datasetRootDir_createundirgraph + "dataset" + "/" + graphobj->getdataset().graphtopname + "/" + graphobj->getdataset().graphtopname + "_" + std::to_string(1) + "by" +  std::to_string(1) + "/" + graphobj->getdataset().graphname + "_dup" + "_" + std::to_string(0) + "_" + std::to_string(0) + ".vertexptrs";
 	std::ofstream ofs2; ofs2.open(vptrspath.c_str(), std::ofstream::out | std::ofstream::trunc); ofs2.close();	

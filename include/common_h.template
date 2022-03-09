@@ -14,7 +14,7 @@
 {%endif%}
 #define {{context['XWARE']}} // SWEMU, HW, SW
 #define {{context['SETUP']}} // ACTGRAPH_SETUP, GRAFBOOST_SETUP
-#define {{context['ALGORITHM']}} // PR_ALGORITHM, BFS_ALGORITHM, SSSP_ALGORITHM, CC_ALGORITHM, CF_ALGORITHM, LP_ALGORITHM
+#define {{context['ALGORITHM']}} // PR_ALGORITHM, CF_ALGORITHM, HITS_ALGORITHM, CC_ALGORITHM, SSSP_ALGORITHM, BFS_ALGORITHM
 #define {{context['DATASET']}} 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -121,6 +121,7 @@
 
 ////////////////
 
+#define MAX_NUM_PEs 32
 #define NUM_PEs {{context['NUM_PEs']}}
 #define NUMSUBCPUTHREADS {{context['NUMSUBCPUTHREADS']}}
 #define NUMSYNCTHREADS {{context['NUMSYNCTHREADS']}}
@@ -494,13 +495,21 @@ typedef struct {
 	keyvalue1_type data[16];
 } unitBRAMwidth_type; 
 
-/* typedef struct {
+typedef struct {
 	#ifdef _WIDEWORD
-	ap_uint<1> data;
+	ap_uint<1> data[32];
 	#else 
-	unsigned int data;
+	unsigned int data[32];
 	#endif 
-} unit1_type; */
+} uint32_vec_dt;
+
+typedef struct {
+	// #ifdef _WIDEWORD
+	// ap_uint<1> data[1]; // 32
+	// #else 
+	unsigned int data[1]; // 32
+	// #endif 
+} pmask_dt;
 
 #ifdef _WIDEWORD
 typedef ap_uint<1> unit1_type;

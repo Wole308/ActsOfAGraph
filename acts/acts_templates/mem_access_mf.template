@@ -3,10 +3,6 @@ fetchmessage_t MEMACCESS{{context['id']}}_readkeyvalues(bool_type enable, uint51
 	
 void MEMACCESS{{context['id']}}_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams);
 
-void MEMACCESS{{context['id']}}_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
-
-void MEMACCESS{{context['id']}}_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
-	
 // -------------------- vdata -------------------- //
 void MEMACCESS{{context['id']}}_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth);
 
@@ -14,7 +10,7 @@ void MEMACCESS{{context['id']}}_RearrangeLayoutV(unsigned int s, keyvalue_vbuffe
 
 void MEMACCESS{{context['id']}}_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
 
-void MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams);
+void MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV);				
 
 {%for n in context['T_seq']%}{%if(n>=1)%}
 void MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(bool_type enable, uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],{%endif%}{%endfor%} batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams);
@@ -27,7 +23,7 @@ void MEMACCESS{{context['id']}}_RANDreadANDRVchunks{{n}}(bool_type enable, uint5
 #endif 
 
 // -------------------- pmasks -------------------- //
-void MEMACCESS{{context['id']}}_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESS{{context['id']}}_readpmask(uint512_dt * kvdram, pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs);
 
 // -------------------- stats -------------------- //
 void MEMACCESS{{context['id']}}_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], batch_type offset_kvs, globalparams_t globalparams);
@@ -55,7 +51,7 @@ void MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buf
 // -------------------- multiple accesses -------------------- //
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
-void MEMACCESS{{context['id']}}_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}uint32_type vmask{{i}}_p[BLOCKRAM_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs);
+void MEMACCESS{{context['id']}}_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}pmask_dt pmask{{i}}[BLOCKRAM_PMASK_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs);
 {%endif%}
 {%endfor%}
 

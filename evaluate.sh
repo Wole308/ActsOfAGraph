@@ -50,12 +50,6 @@ TESTKERNEL="RK"
 TESTKERNELARG=1
 
 SYNKERNELSPATHNAME="xclbins"
-# SYNKERNELSPATHNAME="xclbins_largegraphs"
-# SYNKERNELSPATHNAME="xclbins_smallgraphs"
-# SYNKERNELSPATHNAME="xclbins_test1"
-# SYNKERNELSPATHNAME="xclbins_test2"
-# SYNKERNELSPATHNAME="xclbins_test3"
-# SYNKERNELSPATHNAME="xclbins_test4"
 
 # ACTS_1BY2BY1=$OFF
 # ACTS_2BY1BY1=$ON
@@ -235,17 +229,18 @@ _NOLOCKE="NOLOCKE"
 
 PAGERANK="PR"
 COLLABORATIVEFILTERING="CF"
-LABEL_PROPAGATION="LP"
+HITS_PROPAGATION="HITS"
 CONNECTEDCOMPONENTS="CC"
 BREADTHFIRSTSEARCH="BFS"
 
 for ALGORITHMABBRV in $PAGERANK
 # for ALGORITHMABBRV in $COLLABORATIVEFILTERING
-# for ALGORITHMABBRV in $LABEL_PROPAGATION
+# for ALGORITHMABBRV in $HITS_PROPAGATION
 # for ALGORITHMABBRV in $CONNECTEDCOMPONENTS
 # for ALGORITHMABBRV in $BREADTHFIRSTSEARCH
-# for ALGORITHMABBRV in $PAGERANK $COLLABORATIVEFILTERING $LABEL_PROPAGATION $CONNECTEDCOMPONENTS
-# for ALGORITHMABBRV in $PAGERANK $COLLABORATIVEFILTERING $LABEL_PROPAGATION $CONNECTEDCOMPONENTS $BREADTHFIRSTSEARCH
+# for ALGORITHMABBRV in $HITS_PROPAGATION $CONNECTEDCOMPONENTS
+# for ALGORITHMABBRV in $PAGERANK $COLLABORATIVEFILTERING $HITS_PROPAGATION $CONNECTEDCOMPONENTS
+# for ALGORITHMABBRV in $PAGERANK $COLLABORATIVEFILTERING $HITS_PROPAGATION $CONNECTEDCOMPONENTS $BREADTHFIRSTSEARCH
 do
 ### >>> LOOP0: evaluation types
 # for evaluation_type in EV_CREATENDGRAPH #
@@ -330,30 +325,7 @@ do
 		do
 		for numcputhreads in $THREADCOUNT_EQ1
 		do
-		# for numsubcputhreads in $NUMTHREADS_EQ0
-		for numsubcputhreads in $NUMTHREADS_EQ1
-		# for numsubcputhreads in $NUMTHREADS_EQ2
-		# for numsubcputhreads in $NUMTHREADS_EQ3
-		# for numsubcputhreads in $NUMTHREADS_EQ4 #
-		# for numsubcputhreads in $NUMTHREADS_EQ5 #
-		# for numsubcputhreads in $NUMTHREADS_EQ6 
-		# for numsubcputhreads in $NUMTHREADS_EQ7
-		# for numsubcputhreads in $NUMTHREADS_EQ8 #
-		# for numsubcputhreads in $NUMTHREADS_EQ9
-		# for numsubcputhreads in $NUMTHREADS_EQ10 
-		# for numsubcputhreads in $NUMTHREADS_EQ11
-		# for numsubcputhreads in $NUMTHREADS_EQ12 #
-		# for numsubcputhreads in $NUMTHREADS_EQ13
-		# for numsubcputhreads in $NUMTHREADS_EQ14
-		# for numsubcputhreads in $NUMTHREADS_EQ15
-		# for numsubcputhreads in $NUMTHREADS_EQ16 #
-		# for numsubcputhreads in $NUMTHREADS_EQ18
-		# for numsubcputhreads in $NUMTHREADS_EQ20
-		# for numsubcputhreads in $NUMTHREADS_EQ24 #
-		# for numsubcputhreads in $NUMTHREADS_EQ28
-		# for numsubcputhreads in $NUMTHREADS_EQ32 #
-		# for numsubcputhreads in $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16 $NUMTHREADS_EQ24
-		# for numsubcputhreads in $NUMTHREADS_EQ0 $NUMTHREADS_EQ1 $NUMTHREADS_EQ2 $NUMTHREADS_EQ4 $NUMTHREADS_EQ8 $NUMTHREADS_EQ12 $NUMTHREADS_EQ16
+		for numsubcpuacthreads in $NUMTHREADS_EQ1
 		do
 		
 		for numpartitions_pow in $NUMPARTITIONSPOW_EQ4
@@ -361,7 +333,7 @@ do
 			for locke in $_LOCKE
 			do
 				# for dataset in $NODATASET
-				# for dataset in $ORKUT_3M_212M
+				for dataset in $ORKUT_3M_212M
 				# for dataset in $HOLLYWOOD_1M_114M
 				# for dataset in $KRON20_1M_45M
 				# for dataset in $KRON21_2M_91M
@@ -371,37 +343,18 @@ do
 				# for dataset in $KMER_V2A_55M_117M
 				# for dataset in $HUGEBUBBLES_00020_21M_63M
 				# for dataset in $INDOCHINA_2004_7M_194M
-				for dataset in $UK_2002_18M_298M
+				# for dataset in $UK_2002_18M_298M
 				# for dataset in $IJOURNAL_2008_5M_79M
 				# for dataset in $MAWI_201512020030_68M_71M
-	
+				# for dataset in $RMAT24_268M
+				# for dataset in $RMAT25_268M
+				# for dataset in $RMAT26_268M
 				# for dataset in $RMAT22_SPARSE0
 				# for dataset in $RMAT22_SPARSE2
 				# for dataset in $RMAT22_SPARSE4
 				
-				# for dataset in $RMAT24_268M
-				# for dataset in $RMAT25_268M
-				# for dataset in $RMAT26_268M
+				# for dataset in $ORKUT_3M_212M $INDOCHINA_2004_7M_194M $UK_2002_18M_298M $IJOURNAL_2008_5M_79M $HOLLYWOOD_1M_114M $HUGEBUBBLES_00020_21M_63M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $RMAT24_268M $RMAT25_268M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4
 				
-				# for dataset in $RMAT24_380M
-				# for dataset in $RMAT25_380M
-				# for dataset in $RMAT26_380M
-				
-				# for dataset in $RMAT_RANGE0
-				# for dataset in $RMAT_RANGE2
-				# for dataset in $RMAT_RANGE4
-				
-				# for dataset in $KMER_U1A_67M_138M
-				
-				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M	
-				# for dataset in $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4	
-				# for dataset in $RMAT24_268M $RMAT25_268M $RMAT26_268M
-				# for dataset in $RMAT24_380M $RMAT25_380M $RMAT26_380M
-				
-				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M $INDOCHINA_2004_7M_194M $UK_2002_18M_298M $IJOURNAL_2008_5M_79M $MAWI_201512020030_68M_71M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4 $RMAT24_268M $RMAT25_268M $RMAT26_268M
-				# for dataset in $ORKUT_3M_212M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $EUROPE_OSM_50M_108M $KMER_V2A_55M_117M $HUGEBUBBLES_00020_21M_63M $INDOCHINA_2004_7M_194M $UK_2002_18M_298M $IJOURNAL_2008_5M_79M $MAWI_201512020030_68M_71M $RMAT22_SPARSE0 $RMAT22_SPARSE2 $RMAT22_SPARSE4 $RMAT24_268M $RMAT25_268M $RMAT26_268M $RMAT24_380M $RMAT25_380M $RMAT26_380M	
-				
-				# for dataset in $INDOCHINA_2004_7M_194M $UK_2002_18M_298M $IJOURNAL_2008_5M_79M $MAWI_201512020030_68M_71M
 				do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
@@ -419,8 +372,8 @@ do
 								BACKUPDIR_AWSKERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.awsxclbin"
 								SYNLOGDIR_KERNELXCLBIN="${ROOTDIR}/${OUTPUTDIRNAME}/${SYNKERNELSPATHNAME}/goldenkernel${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.log"
 								
-								HWRESULTSBACKUP_DIR="${ROOTDIR}/${OUTPUTDIRNAME}/${HWRESULTSPATHNAME}"
-								SWRESULTSBACKUP_DIR="${ROOTDIR}/${OUTPUTDIRNAME}/${SWRESULTSPATHNAME}"
+								HWRESULTSBACKUP_DIR="${ROOTDIR}/${OUTPUTDIRNAME}/${HWRESULTSPATHNAME}/${ALGORITHMABBRV,,}"
+								SWRESULTSBACKUP_DIR="${ROOTDIR}/${OUTPUTDIRNAME}/${SWRESULTSPATHNAME}/${ALGORITHMABBRV,,}"
 								HWRESULTDIR_RESULT="${HWRESULTSBACKUP_DIR}/${dataset}${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.out"
 								SWRESULTDIR_RESULT="${SWRESULTSBACKUP_DIR}/${dataset}${TESTKERNEL}${TESTKERNELRG}${num_pes}PEs${numsubcputhreads}Ws${ALGORITHMABBRV}${XWARE}${synfreq}MHz.out"
 								
@@ -441,7 +394,7 @@ do
 								then
 									make cleanall
 									# make build_acts_nthreads
-									make demo_acts_nthreads #> $SWRESULTDIR_RESULT
+									make demo_acts_nthreads > $SWRESULTDIR_RESULT
 									# make demo_acts_nthreads_debug #> $SWRESULTDIR_RESULT
 								elif [ $setup == $SW__GRAFBOOST_SETUP ]
 								then

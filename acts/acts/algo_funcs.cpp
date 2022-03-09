@@ -1,4 +1,11 @@
-value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+/* 
+All algorithms: 
+https://neo4j.com/docs/graph-data-science/current/algorithms/
+https://iss.oden.utexas.edu/?p=projects/galois/analytics/betweenness_centrality
+
+*/
+
+value_t PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -12,12 +19,8 @@ value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned i
 			Apply: Function of (Vprop, Vtemp) is executed 
 			Finish: */
 			res = udata;
-		#elif defined(LP_ALGORITHM)
-			// source: 
-			
-			
-			
-			
+		#elif defined(HITS_ALGORITHM)	
+			// https://www.geeksforgeeks.org/hyperlink-induced-topic-search-hits-algorithm-using-networxx-module-python/
 			res = udata;
 		#elif defined(CC_ALGORITHM)
 			// source: https://www.baeldung.com/cs/graph-connected-components
@@ -41,7 +44,7 @@ value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned i
 		res = udata + edgew;
 	} else if(GraphAlgo == CF){
 		res = udata;
-	} else if(GraphAlgo == LP){
+	} else if(GraphAlgo == HITS){
 		res = udata;
 	} else if(GraphAlgo == CC){
 		res = udata;
@@ -56,26 +59,34 @@ value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned i
 	return res;
 }
 
-value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+value_t REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
+			// Atomic Compute
 			unsigned int alpha = 0.5;
 			unsigned int vdeg = 1;
 			temp = ((alpha + (1-alpha)*vtemp) / vdeg) + res;
 			// temp = vtemp + res;
 		#elif defined(CF_ALGORITHM)
+			// Atomic Compute
 			unsigned int ew = 1;
 			unsigned int lamda = 0.5;
 			unsigned int gamma = 0.5;
 			temp = vtemp + gamma*(vtemp + ((ew - vtemp*res)*res - lamda*vtemp));
-		#elif defined(LP_ALGORITHM)
+		#elif defined(HITS_ALGORITHM)
+			// Atomic Add
 			temp = vtemp + res;
+			// atomicAdd(&hrank_next[src], arank_curr[dest]);
+			// atomicAdd(&arank_next[dest], hrank_curr[src]);
 		#elif defined(CC_ALGORITHM)
+			// Atomic Min
 			temp = UTILP0_amin(vtemp, res);
 		#elif defined(BFS_ALGORITHM)
+			// Atomic Min
 			temp = UTILP0_amin(vtemp, GraphIter);
 		#elif defined(SSSP_ALGORITHM)
+			// Atomic Min
 			temp = UTILP0_amin(vtemp, res);
 		#else 
 			NOT DEFINED.
@@ -85,7 +96,7 @@ value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int G
 		temp = vtemp + res;
 	} else if(GraphAlgo == CF){
 		temp = vtemp + ((ew - vtemp*res)*res - lamda*vtemp);
-	} else if(GraphAlgo == LP){
+	} else if(GraphAlgo == HITS){
 		temp = vtemp + res;
 	} else if(GraphAlgo == CC){
 		temp = UTILP0_amin(vtemp, res);

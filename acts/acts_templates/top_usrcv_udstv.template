@@ -1,4 +1,4 @@
-void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -6,6 +6,14 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(u
 	actsutilityobj->clearglobalvars();
 	#endif
 
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	for (buffer_type t=0; t<globalparamsK.SIZEKVS2_REDUCEPARTITION; t++){
+		for (buffer_type v=0; v<VDATA_PACKINGSIZE; v++){
+			if(MEMCA{{context['id']}}_READVMASK(vbuffer[v][t]) == 1){ cout<<"TOP{{context['id']}}_U_processit: ACTIVE MASK SEEN: @ t: "<<t<<", v: "<<v<<", vbuffer["<<v<<"]["<<t<<"]: "<<vbuffer[v][t]<<endl; }
+		}
+	}
+	#endif
+	
 	sweepparams_t sweepparams;
 	
 	if(globalposition.source_partition == globalposition.first_source_partition){ UTIL{{context['id']}}_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0); } 
@@ -33,7 +41,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(u
 	batch_type voffset_kvs = globalposition.source_partition * globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION;
 	
 	if(voffset_kvs >= avtravstate.end_kvs){ return; } // continue; }
-	if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE) { if(vmask_p[globalposition.source_partition] == 0){ return; }}
+	if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE) { if(pmask_curr[globalposition.source_partition].data[0] == 0){ return; }} // FIXME.
 	
 	sweepparams.source_partition = globalposition.source_partition;
 	avtravstate.i_kvs = voffset_kvs;
@@ -53,14 +61,6 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(u
 	tuple_t tup = MEMACCESS{{context['id']}}_getvptrs_opt(kvdram, vptrbaseoffset_kvs, voffset_kvs * VECTOR2_SIZE, (voffset_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID);
 	keyy_t beginvptr = tup.A;
 	keyy_t endvptr = tup.B; 
-	
-	// cout<<"-----------+++++++++++++++++++--------------------------- TOP{{context['id']}}_U_processit: beginvptr: "<<beginvptr<<", endvptr: "<<endvptr<<", vptrbaseoffset_kvs: "<<vptrbaseoffset_kvs<<", globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR: "<<globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR<<", globalparamsVPTRS.ACTSPARAMS_SRCVOFFSET: "<<globalparamsVPTRS.ACTSPARAMS_SRCVOFFSET<<endl;
-	// for(unsigned int i=0; i<4; i++){
-		// for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			// cout<<"kvdram["<<vptrbaseoffset_kvs + i<<"].data["<<v<<"].key: "<<kvdram[vptrbaseoffset_kvs + i].data[v].key<<", kvdram["<<vptrbaseoffset_kvs + i<<"].data["<<v<<"].value: "<<kvdram[vptrbaseoffset_kvs + i].data[v].value<<endl;
-		// }
-	// }
-	// exit(EXIT_SUCCESS);
 	
 	if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endvptr = beginvptr; }
 	
@@ -100,17 +100,17 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(u
 	if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){ resetenv = ON; flush = ON; } // CRITICAL NEWCHANGE.
 	
 	#if defined(ACTS_PARTITION_AND_REDUCE_STRETEGY)
-	{%if(context['XWARE']=="SW")%}actsobj->{%endif%}ACTS{{context['id']}}_actit
+	ACTS{{context['id']}}_actit
 	#elif defined(BASIC_PARTITION_AND_REDUCE_STRETEGY)
-	{%if(context['XWARE']=="SW")%}actsobj->{%endif%}ACTS{{context['id']}}_priorit	
+	ACTS{{context['id']}}_priorit	
 	#elif defined(TRAD_PARTITION_AND_REDUCE_STRETEGY)
-	{%if(context['XWARE']=="SW")%}actsobj->{%endif%}ACTS{{context['id']}}_tradit
+	ACTS{{context['id']}}_tradit
 	#else 
-	{%if(context['XWARE']=="SW")%}actsobj->{%endif%}ACTS{{context['id']}}_tradit
+	ACTS{{context['id']}}_tradit
 	#endif 
 	(
 		ON, ACTSPROCESSMODE,
-		 kvdram, sourcebuffer, vbuffer, globalstatsbuffer, 
+		kvdram, sourcebuffer, vbuffer, globalstatsbuffer,
 		globalparamsK, globalposition, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE,
 		resetenv, flush, edgebankID);
 	
@@ -125,22 +125,22 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(u
 	return;
 }
 
-void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],
+void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
-	if(en_process == ON){ TOP{{context['id']}}_U_processit( kvdram, sourcebuffer, vbuffer, vmask_p, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID); } 
+	if(en_process == ON){ TOP{{context['id']}}_U_processit( kvdram, sourcebuffer, vbuffer, pmask_curr, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID); } 
 	if(en_partition == ON){ TOP{{context['id']}}_NU_partitionit( kvdram, sourcebuffer, vbuffer, globalparamsK, NAp); } 
 	if(en_reduce == ON){ TOP{{context['id']}}_NU_reduceit( kvdram, sourcebuffer, vbuffer, sourcestatsmarker, source_partition, globalparamsK, NAp); } 
 	return;
 }
 
-void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_dispatch_reduce( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,	
+void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK_SIZE], pmask_dt pmask_next[BLOCKRAM_PMASK1_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalparams_t globalparamsV, globalposition_t globalposition,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
-	#ifdef TRAD_PARTITION{{context['id']}}_AND_REDUCE{{context['id']}}_STRETEGY
-	return; // no TOP{{context['id']}}_U_dispatch_reduce for TRAD_PARTITION{{context['id']}}_AND_REDUCE{{context['id']}}_STRETEGY
+	#ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
+	return; // no TOP{{context['id']}}_U_dispatch_reduce for TRAD_PARTITION_AND_REDUCE_STRETEGY
 	#endif 
 	#ifdef _DEBUGMODE_STATS_XXX
 	actsutilityobj->clearglobalvars();
@@ -170,7 +170,6 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_dispatch_re
 	#endif
 
 	bool_type enablereduce = ON;
-	globalposition_t globalposition; // NOT USED.
 	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; // NOT USED.
 	
 	DISPATCHREDUCE{{context['id']}}_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
@@ -182,27 +181,31 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_dispatch_re
 		enablereduce = ON;
 		travstate_t rtravstate = UTIL{{context['id']}}_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
 		if(rtravstate.size_kvs > 0){ enablereduce = ON; } else { enablereduce = OFF; }
+		globalstatsbuffer[source_partition].key = NAp; globalstatsbuffer[source_partition].value = rtravstate.size_kvs;
 		
 		// read vertices
 		MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
 		
 		// reduce
-		TOP{{context['id']}}_U_dispatch(OFF, OFF, enablereduce,  kvdram, sourcebuffer, vbuffer, vmask_p, globalstatsbuffer, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp);
+		TOP{{context['id']}}_U_dispatch(OFF, OFF, enablereduce,  kvdram, sourcebuffer, vbuffer, pmask_curr, globalstatsbuffer, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp);
 
 		// writeback vertices
-		MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK);
+		MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer, pmask_next, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK, globalparamsV);
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
 		vmask_offset_kvs += globalparamsK.SIZEKVS_VMASKBUFFER;
 		vmaskp_offset_kvs += NUM_PEs;
 	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"TOP{{context['id']}}_U_dispatch_reduce:: globalparamsK.NUM_REDUCEPARTITIONS: "<<globalparamsK.NUM_REDUCEPARTITIONS<<endl;
+	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ if(pmask_next[i].data[0] > 0){ cout<<""<<pmask_next[i].data[0]<<"("<<i<<"),"<<endl; }} // FIXME.
+	#endif
 	return;
 } 
 
-// top
-#ifdef CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
-void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], uint32_type vmask_p[BLOCKRAM_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalposition_t globalposition){
+void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK_SIZE], pmask_dt pmask_next[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalposition_t globalposition, globalparams_t globalparamsV){				
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -211,7 +214,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelpr
 	unsigned int printheader2=OFF; 
 	if(true && globalposition.source_partition==globalposition.first_source_partition){ printheader1 = ON; } else { printheader1 = OFF; }
 	if(false && globalposition.source_partition==globalposition.last_source_partition){ printheader2 = ON; } else { printheader2 = OFF; }
-	// printheader1=ON;
+	printheader1=OFF;
 	#if defined(_DEBUGMODE_KERNELPRINTS) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== ACTS Launched... size: "<<UTIL{{context['id']}}_GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl;
 	#endif
@@ -224,13 +227,9 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelpr
 	globalparams_t _globalparamsE;
 	
 	globalparamsK = UTIL{{context['id']}}_getglobalparams(kvdram, 0); // CRITICAL OPTIMIZEME. MOVETOBASE?
-	if(globalparamsK.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){
-			globalparamsEs[e] = UTIL{{context['id']}}_getglobalparams(kvdram, e+1);
-		}
-	} else {
-		globalparamsEs[0] = globalparamsK;
-	}
+	if(globalparamsK.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ 
+		for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTIL{{context['id']}}_getglobalparams(kvdram, e+1); }} 
+	else { globalparamsEs[0] = globalparamsK; }
 	_globalparamsE = globalparamsEs[globalposition.edgebankID];
 	if(globalparamsK.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
 		globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid;
@@ -247,7 +246,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelpr
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		if(printheader1 == ON){ cout<<"TOP{{context['id']}}_U_topkernelproc_embedded: processing instance "<<globalid<<" ... "<<endl; }
 		#endif
-		TOP{{context['id']}}_U_dispatch(globalposition.EN_PROCESS, OFF, OFF, kvdram, sourcebuffer, vbuffer, vmask_p, globalstatsbuffer, NAp, NAp, _globalparamsE, globalparamsK, globalposition, PARTITION{{context['id']}}_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, globalposition.edgebankID); 
+		TOP{{context['id']}}_U_dispatch(globalposition.EN_PROCESS, OFF, OFF, kvdram, sourcebuffer, vbuffer, pmask_curr, globalstatsbuffer, NAp, NAp, _globalparamsE, globalparamsK, globalposition, PARTITION{{context['id']}}_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, globalposition.edgebankID); 
 	}
 	#endif
 	
@@ -257,7 +256,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelpr
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		if(printheader1 == ON){ cout<<"TOP{{context['id']}}_U_topkernelproc_embedded: partitioning instance "<<globalid<<" ... "<<endl; }
 		#endif
-		TOP{{context['id']}}_U_dispatch(OFF, globalposition.EN_PARTITION, OFF, kvdram, sourcebuffer, vbuffer, vmask_p, globalstatsbuffer, NAp, NAp, _globalparamsE, globalparamsK, globalposition, PARTITION{{context['id']}}_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp);
+		TOP{{context['id']}}_U_dispatch(OFF, globalposition.EN_PARTITION, OFF, kvdram, sourcebuffer, vbuffer, pmask_curr, globalstatsbuffer, NAp, NAp, _globalparamsE, globalparamsK, globalposition, PARTITION{{context['id']}}_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp);
 	}
 	#endif
 	
@@ -267,7 +266,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelpr
 		#ifdef _DEBUGMODE_KERNELPRINTS3
 		if(printheader1 == ON){ cout<<"TOP{{context['id']}}_U_topkernelproc_embedded: reducing instance "<<globalid<<" ... "<<endl; }
 		#endif
-		TOP{{context['id']}}_U_dispatch_reduce(kvdram, sourcebuffer, vbuffer, vmask_p, _globalparamsE, globalparamsK, PARTITION{{context['id']}}_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp);
+		TOP{{context['id']}}_U_dispatch_reduce(kvdram, sourcebuffer, vbuffer, pmask_curr, pmask_next, _globalparamsE, globalparamsK, globalparamsV, globalposition, PARTITION{{context['id']}}_CHKPT[globalposition.edgebankID], globalposition.v_chunkid, NAp);
 	}
 	#endif
 	
@@ -286,8 +285,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelpr
 	return;
 }
 
-{%for n in context['T_seq']%}
-{%if(n>=1)%}
+{%for n in context['T_seq']%}{%if(n>=1)%}
 extern "C" {
 void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{{n}}(
 	{%for i in context['T_seq']%}{%if(i<n)%}
@@ -317,14 +315,14 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
-	{%for i in context['T_seq']%}
-	{%if(i<n)%}
+	{%for i in context['T_seq']%}{%if(i<n)%}
 	keyvalue_vbuffer_t vbuffer{{i}}[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer{{i}}
-	uint32_type vmask{{i}}_p[BLOCKRAM_SIZE];
+	pmask_dt pmask{{i}}_curr[BLOCKRAM_PMASK_SIZE];
+	pmask_dt pmask{{i}}_next[BLOCKRAM_PMASK1_SIZE];
+	#pragma HLS DATA_PACK variable = vdram
 	keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_SIZE];
-	{%endif%}
-	{%endfor%}
+	{%endif%}{%endfor%}
 	travstate_t rtravstates[{{n}}];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
@@ -335,18 +333,21 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 	unsigned int EN_PROCESS = OFF; unsigned int EN_PARTITION = OFF; unsigned int EN_REDUCE = OFF; unsigned int EN_PROCESSANDREDUCE = OFF; unsigned int EN_PROCESSANDPARTITION = OFF;
 	globalposition_t globalposition;
 	
-	// cout<<"----------------------------------------------------- globalparams_t globalparamsK = UTIL{{context['id']}}_getglobalparams(kvdram0, 0): "<<endl;
 	globalparams_t globalparamsK = UTIL{{context['id']}}_getglobalparams(kvdram0, 0); 
 	if(globalparamsK.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){
-			globalparamsEs[e] = UTIL{{context['id']}}_getglobalparams(kvdram0, e+1);
-		}
-		// cout<<"------------ topkernelP: SEEN A, globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS: "<<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS<<endl;
+		for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTIL{{context['id']}}_getglobalparams(kvdram0, e+1); }
 	} else {
-		// cout<<"------------ topkernelP: SEEN B, globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS: "<<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS<<endl;
 		for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = globalparamsK; }
 	} 
 	globalparams_t globalparamsV = UTIL{{context['id']}}_getglobalparams(vdram, 0);
+	
+	for (buffer_type i=0; i<BLOCKRAM_VDATA_SIZE; i++){ // REMOVEME LATER (NOT NECESSARY).
+		{%for i in context['T_seq']%}{%if(i<n)%}
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		vbuffer{{i}}[{{v}}][i] = 0;
+		{%endfor%}	
+		{%endif%}{%endfor%}
+	}
 	
 	unsigned int PARTITION{{context['id']}}_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ];
 	LOADPARTITIONCHKPTS_LOOP1: for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ // CRITICAL NEWCHANGE.
@@ -384,7 +385,29 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 	unsigned int LASTSOURCEPARTITIONS = 0;
 	batch_type num_source_partitions = 0; 
 
-	if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){ MEMACCESS{{context['id']}}_readmanypmask{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}vmask{{i}}_p,{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	#ifndef ALLVERTEXISACTIVE_ALGORITHM
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"topkernelP: printing pmask current [BEFORE]..."<<endl;
+	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_curr[i].data[v]<<","; } cout<<endl; } 
+	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
+	#endif 
+	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
+		for(unsigned int v=0; v<1; v++){ 
+			{%for i in context['T_seq']%}{%if(i<n)%}
+			pmask{{i}}_curr[i].data[v] = 0; 
+			pmask{{i}}_next[i].data[v] = 0; 
+			{%endif%}{%endfor%}
+		}
+	} 
+	if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){ MEMACCESS{{context['id']}}_readmanypmask{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}pmask{{i}}_curr,{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_SIZE); }
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"topkernelP: printing pmask current [AFTER]..."<<endl;
+	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_curr[i].data[v]<<","; } cout<<endl; } 
+	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
+	#endif 
+	#endif 
+	// exit(EXIT_SUCCESS);
+	
 	if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){ UTIL{{context['id']}}_resetkvstatvalues(vdram, globalparamsV); }
 	unsigned int num_edge_banks = globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS;
 	unsigned int it_size; if(num_edge_banks==0){ it_size = 1; } else { it_size = globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; }
@@ -430,8 +453,6 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 				
 				unsigned int vreadskipsz_kvs2 = globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs; // TOO EXPENSIVE.
 				
-				// cout<<"---------------- TOPKERNEL:: FIRSTLOP: "<<FIRSTLOP<<", FIRSTLOP + NUMLOPs: "<<FIRSTLOP + NUMLOPs<<endl;
-				
 				TOPKERNEL{{n}}_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef _DEBUGMODE_KERNELPRINTS
 					actsutilityobj->print3("### TOPKERNEL{{n}}_BASELOOP1D:: stage", "currentLOP", "(FIRSTLOP + NUMLOPs)", stage, currentLOP, (FIRSTLOP + NUMLOPs)); 							
@@ -450,12 +471,9 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 					
 					batch_type vdatabaseoffset_kvs = globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + (globalparamsV.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE.
 					
-					// cout<<"---------------- TOPKERNEL:: FIRSTSOURCEPARTITION: "<<FIRSTSOURCEPARTITION<<", LASTSOURCEPARTITIONS: "<<LASTSOURCEPARTITIONS<<endl;
-					
 					TOPKERNEL{{n}}_BASELOOP1E: for(batch_type source_partition=FIRSTSOURCEPARTITION; source_partition<LASTSOURCEPARTITIONS; source_partition+=1){
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print4("### TOPKERNEL{{n}}_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", stage, source_partition, currentLOP, vreadoffset_kvs2); 
-						// cout<<"---------------------------- vreadoffset_kvs2: "<<vreadoffset_kvs2<<endl;
 						#endif
 						
 						globalposition.stage = stage; 
@@ -473,7 +491,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 						
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){
-							if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){ if(vmask0_p[source_partition] > 0){ enableprocess = ON; } else { enableprocess = OFF; }} else{ enableprocess = ON; }
+							if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){ if(pmask0_curr[source_partition].data[0] > 0){ enableprocess = ON; } else { enableprocess = OFF; }} else{ enableprocess = ON; }
 						} else { enableprocess = OFF; }
 						
 						bool_type enablepartition = OFF;
@@ -496,11 +514,11 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 						// acts 
 						#ifdef TESTKERNEL
 						{%for i in context['T_seq']%}{%if(i<n and i<context['TESTKERNELARG'])%}
-						TOP{{context['id']}}_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + {{i}}, {{i}}, enableprocess, enablepartition, enablereduce, kvdram{{i}}, vbuffer{{i}}, vmask{{i}}_p, globalstatsbuffer{{i}}, globalposition);		
+						TOP{{context['id']}}_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + {{i}}, {{i}}, enableprocess, enablepartition, enablereduce, kvdram{{i}}, vbuffer{{i}}, pmask{{i}}_curr, pmask{{i}}_next, globalstatsbuffer{{i}}, globalposition, globalparamsV);		
 						{%endif%}{%endfor%}	
 						#else 
 						{%for i in context['T_seq']%}{%if(i<n)%}
-						TOP{{context['id']}}_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + {{i}}, {{i}}, enableprocess, enablepartition, enablereduce, kvdram{{i}}, vbuffer{{i}}, vmask{{i}}_p, globalstatsbuffer{{i}}, globalposition);		
+						TOP{{context['id']}}_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + {{i}}, {{i}}, enableprocess, enablepartition, enablereduce, kvdram{{i}}, vbuffer{{i}}, pmask{{i}}_curr, pmask{{i}}_next, globalstatsbuffer{{i}}, globalposition, globalparamsV);		
 						{%endif%}{%endfor%}	
 						#endif 
 						
@@ -523,8 +541,10 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 		// cout<<"----- exit(EXIT_SUCCESS 26); -----"<<endl;
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
-	
-	MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, {%for i in context['T_seq']%}{%if(i<n)%}globalstatsbuffer{{i}},{%endif%}{%endfor%} globalparamsK, globalparamsV);
+
+	MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, 
+		{%for i in context['T_seq']%}{%if(i<n)%}globalstatsbuffer{{i}},{%endif%}{%endfor%} {%for i in context['T_seq']%}{%if(i<n)%}pmask{{i}}_next,{%endif%}{%endfor%} 
+			globalparamsK, globalparamsV);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -536,7 +556,5 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 	return;
 }
 }
-{%endif%}
-{%endfor%}
-#endif 
+{%endif%}{%endfor%}
 

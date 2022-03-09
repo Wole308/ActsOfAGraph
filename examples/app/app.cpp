@@ -233,16 +233,18 @@ runsummary_t app::run_hw(){
 	// setting root vid
 	cout<<"app::setrootvid:: setting root vid(s)... "<<endl;
 	loadgraphobj->setrootvid(Algo, (uint512_vec_dt *)vdram, actvvs, globalparams.globalparamsV);
+	#ifndef CONFIG_UNIFYSRCV
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->setrootvid(Algo, (uint512_vec_dt *)kvbuffer[i], actvvs, globalparams.globalparamsK); }
+	#endif 
 	// exit(EXIT_SUCCESS); //
 	
 	// stats info 
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	globalparams = loadgraphobj->loadoffsetmarkers((vptr_type **)edges, (edge_type **)edges, (keyvalue_t **)edges, edges_temp, &container, globalparams); 
+	globalparams = loadgraphobj->loadoffsetmarkers((edge_type **)edges, (keyvalue_t **)edges, edges_temp, &container, globalparams); 
 	loadgraphobj->accumstats(kvbuffer, edges, globalparams); // NEWCHANGE.
 	#else
-	globalparams = loadgraphobj->loadoffsetmarkers((vptr_type **)kvbuffer, (edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, edges_temp, &container, globalparams); 
+	globalparams = loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, edges_temp, &container, globalparams); 
 	#endif
 	// exit(EXIT_SUCCESS); //
 	
@@ -390,8 +392,8 @@ void app::verifyresults_splitdstvtxs(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]
 				unsigned int vdata1 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
 				unsigned int vdata2 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
 				
-				unsigned int vdata1_tmp = utilityobj->READFROM_UINT(vdata1, 0, SIZEOF_VDATA0);
-				unsigned int vdata2_tmp = utilityobj->READFROM_UINT(vdata2, 0, SIZEOF_VDATA1);
+				unsigned int vdata1_tmp = utilityobj->READFROM_UINT(vdata1, OFFSETOF_VDATA, SIZEOF_VDATA);
+				unsigned int vdata2_tmp = utilityobj->READFROM_UINT(vdata2, OFFSETOF_VDATA, SIZEOF_VDATA);
 				
 				if(vdata1_tmp < 64){
 					vdatas[vdata1_tmp] += 1; 
@@ -418,8 +420,8 @@ void app::verifyresults_splitdstvtxs(uint512_vec_dt * vbuffer, globalparams_t gl
 			unsigned int vdata1 = vbuffer[_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
 			unsigned int vdata2 = vbuffer[_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
 			
-			unsigned int vdata1_tmp = utilityobj->READFROM_UINT(vdata1, 0, SIZEOF_VDATA0);
-			unsigned int vdata2_tmp = utilityobj->READFROM_UINT(vdata2, 0, SIZEOF_VDATA1);
+			unsigned int vdata1_tmp = utilityobj->READFROM_UINT(vdata1, OFFSETOF_VDATA, SIZEOF_VDATA);
+			unsigned int vdata2_tmp = utilityobj->READFROM_UINT(vdata2, OFFSETOF_VDATA, SIZEOF_VDATA);
 			
 			if(vdata1_tmp < 64){
 				vdatas[vdata1_tmp] += 1; 

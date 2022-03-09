@@ -139,13 +139,13 @@ elif context['DATASET'] == "DATASET_RMAT22_SPARSE1":
     context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE2":
     context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
+    context['NUM_EDGE_BANKS'] = 1 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE3":
     context['KVDATA_RANGE_POW'] = 22
     context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE4":
     context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
+    context['NUM_EDGE_BANKS'] = 1
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE5":
     context['KVDATA_RANGE_POW'] = 22
     context['NUM_EDGE_BANKS'] = 0 

@@ -4,6 +4,7 @@
 #endif 
 
 unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_SPLIT_actvpstatsoffset(globalparams_t globalparams){
+	// this returns the stats of the last level of partitioning
 	unsigned int _offset = 0;
 	#ifdef ENABLERECURSIVEPARTITIONING
 	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ _offset += (1 << (NUM_PARTITIONS_POW * k)); }
@@ -13,146 +14,35 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_SPLIT_ac
 	return _offset;
 }
 
-{%for n in context['T_seq']%}
-{%if(n>=1)%}
-void {{context['classname__acts_merge']}}MERGE{{context['id']}}_SPLIT_broadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	unsigned int psizes_kvs[BLOCKRAM_SIZE]; // AUTOMATEME FOR LARGER SIZES.
-	
-	globalparams_t globalparams = UTIL{{context['id']}}_getglobalparams(kvdram0, 0);
-	globalparams_t globalparamsv = UTIL{{context['id']}}_getglobalparams(vdram, 0);
-	unsigned int actvpstats_beginoffset = MERGE{{context['id']}}_SPLIT_actvpstatsoffset(globalparamsv);
-	unsigned int lbasevoffset_kvs2 = 0;
-	unsigned int offseti_kvs = 0;
-	
-	//>> expensive variables 
-	unsigned int _VDATACHUNKSZ_KVS2 = globalparams.SIZEKVS2_REDUCEPARTITION / NUM_PEs;
-	unsigned int _VMASKCHUNKSZ_KVS2 = globalparams.SIZEKVS_VMASKBUFFER / NUM_PEs;
-	unsigned int _TOTALSIZEKVS_VMASKBUFFER = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS_VMASKBUFFER;
-	//>>
-	
-	for(unsigned int partition=0; partition<globalparamsv.NUM_PROCESSEDGESPARTITIONS; partition++){
-	#pragma HLS PIPELINE II=1
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_SPLIT_broadcastVs{{n}}: ERROR 23", partition, BLOCKRAM_SIZE, NAp, NAp, NAp);
-		#endif
-		#ifdef _WIDEWORD
-		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0);
-		#else 
-		psizes_kvs[partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key;
-		#endif 
-	}
-	
-	#ifdef CONFIG_MERGE_VDATAS
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data from vdram to [kvdram0:kvdram{{n}}]."<<endl; 	
-	#endif
-	offseti_kvs = 0;
-	for(unsigned int i=0; i<NUM_PEs; i++){
-		unsigned int p_index = 0;
-		for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
-			for(unsigned int s=0; s<NUM_PEs; s++){
-				#ifdef _DEBUGMODE_CHECKS2
-				actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_SPLIT_broadcastVs{{n}}: ERROR 24", p_index, BLOCKRAM_SIZE, NAp, NAp, NAp);
-				#endif
-				if(psizes_kvs[p_index++] == 0){ offseti_kvs += _VDATACHUNKSZ_KVS2; continue; } 
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				cout<<"MERGE::BROADCAST VDATAS:: partition "<<(partition * NUM_PEs) + s<<" is active. [partition: "<<partition<<", s: "<<s<<", offseti_kvs: "<<offseti_kvs<<"]"<<endl; 
-				#endif 
-				
-				MERGE{{context['id']}}_SPLIT_BROADCASTVTXS_LOOP: for(unsigned int k=0; k<_VDATACHUNKSZ_KVS2; k++){
-				#pragma HLS PIPELINE II=1
-					{%for i in context['T_seq']%}
-					{%if(i<n)%}
-					kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k] = vdram[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + offseti_kvs + k];
-					{%endif%}
-					{%endfor%}
-				}
-				offseti_kvs += _VDATACHUNKSZ_KVS2;
-			}
-		}
-	}
-	#endif 
-	
-	#ifdef CONFIG_MERGE_VPARTITIONS
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		{%for i in context['T_seq']%}
-		{%if(i<n)%}
-		kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		{%endif%}
-		{%endfor%}
-	}
-	#endif 
-	return;
-}
-{%endif%}
-{%endfor%}
-
-{%for n in context['T_seq']%}
-{%if(n>=1)%}
-void {{context['classname__acts_merge']}}MERGE{{context['id']}}_SPLIT_BASICbroadcastVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
-	#endif
-	
-	globalparams_t globalparams = UTIL{{context['id']}}_getglobalparams(kvdram0, 0);
-	globalparams_t globalparamsv = UTIL{{context['id']}}_getglobalparams(vdram, 0);
-	
-	#ifdef CONFIG_MERGE_VDATAS
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices data masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 	
-	#endif
-	for(unsigned int t=0; t<NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2 * NUM_PEs; t++){
-		{%for i in context['T_seq']%}
-		{%if(i<n)%}
-		kvdram{{i}}[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + t] = vdram[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + t];
-		{%endif%}
-		{%endfor%}
-	}
-	#endif
-	
-	#ifdef CONFIG_MERGE_VPARTITIONS
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::BROADCAST:: broadcasting vertices partition masks from vdram to [kvdram0:kvdram{{n}}]."<<endl; 			 
-	#endif
-	for(unsigned int partition=0; partition<globalparams.NUM_PROCESSEDGESPARTITIONS; partition++){
-		#pragma HLS PIPELINE II=1
-		{%for i in context['T_seq']%}
-		{%if(i<n)%}
-		kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition] = vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition];
-		{%endif%}
-		{%endfor%}
-	}
-	#endif
-	return;
-}
-{%endif%}
-{%endfor%}
-
-{%for n in context['T_seq']%}
-{%if(n>=1)%}
-void {{context['classname__acts_merge']}}MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_SIZE],{%endif%}{%endfor%} globalparams_t globalparams, globalparams_t globalparamsv){
+{%for n in context['T_seq']%}{%if(n>=1)%}
+void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, 
+		{%for i in context['T_seq']%}{%if(i<n)%}keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_SIZE],{%endif%}{%endfor%} {%for i in context['T_seq']%}{%if(i<n)%}pmask_dt pmask{{i}}_next[BLOCKRAM_PMASK1_SIZE],{%endif%}{%endfor%}
+			globalparams_t globalparams, globalparams_t globalparamsv){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
-	unsigned int partitionmasks[NUM_PEs];
-	#pragma HLS ARRAY_PARTITION variable=partitionmasks complete
-	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE];
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"Printing active global stats..."<<endl;
+	{%for i in context['T_seq']%}{%if(i<n)%} // i<n
+	for(unsigned int i=0; i<globalparams.NUM_REDUCEPARTITIONS; i++){ if(globalstatsbuffer{{i}}[i].value > 0){ cout<<"MERGE: globalstatsbuffer{{i}}["<<i<<"].key : "<<globalstatsbuffer{{i}}[i].key<<", globalstatsbuffer{{i}}["<<i<<"].value : "<<globalstatsbuffer{{i}}[i].value<<endl; }}
+	{%endif%}{%endfor%}
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"Printing active partitions..."<<endl;
+	{%for i in context['T_seq']%}{%if(i<n)%} // i<n
+	for(unsigned int i=0; i<globalparamsv.NUM_PROCESSEDGESPARTITIONS; i++){ if(pmask{{i}}_next[i].data[0] > 0){ cout<<i<<"(b{{i}}), "; }}
+	{%endif%}{%endfor%}
+	cout<<endl;
+	#endif 
+	// exit(EXIT_SUCCESS);
 	
-	unsigned int actvpstats_beginoffset = MERGE{{context['id']}}_SPLIT_actvpstatsoffset(globalparamsv);
-	unsigned int vpmoffset_kvs = 0;
-	for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
+	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE];
+	pmask_dt pmask_next[BLOCKRAM_PMASK1_SIZE]; 
 	
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	unsigned int GraphAlgoClass = globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS;
+	unsigned int actvpstats_beginoffset = MERGE{{context['id']}}_SPLIT_actvpstatsoffset(globalparamsv);
 	
 	//>> expensive variables 
 	unsigned int lbasevoffset_kvs2;
@@ -161,95 +51,77 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_SPLIT_mergeVs{{n
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	//>>
 	
+	// vertices partition masks
+	#ifdef CONFIG_MERGE_VPARTITIONS
+	for(unsigned int i=0; i<globalparamsv.NUM_PROCESSEDGESPARTITIONS; i++){ pmask_next[i].data[0] = 0; }
+	for(unsigned int i=0; i<globalparamsv.NUM_PROCESSEDGESPARTITIONS; i++){
+		pmask_next[i].data[0] = 0 {%for i in context['T_seq']%}{%if(i<n)%} | pmask{{i}}_next[i].data[0]{%endif%}{%endfor%} ;
+	}
+	for(unsigned int i=0; i<globalparamsv.NUM_PROCESSEDGESPARTITIONS; i++){
+		vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + i]
+				#ifdef _WIDEWORD
+				.range(31, 0)
+				#else 
+				.data[0].key
+				#endif 
+				= pmask_next[i].data[0];
+	}
+	// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for(unsigned int i=0; i<globalparamsv.NUM_PROCESSEDGESPARTITIONS; i++){ if(pmask_next[i].data[0] > 0){ cout<<"MERGE{{context['id']}}_mergeVs{{n}} (2): PARTITION "<<i<<" IS ACTIVE IN NEXT ITERATION. "<<endl; }}
+	// #endif 
+	#endif
+	
 	// vertices data
 	#ifdef CONFIG_MERGE_VDATAS
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::MERGE:: merging vertices. [begin offset: "<<lbasevoffset_kvs2<<"]"<<endl; 
 	#endif
 	unsigned int voffset_kvs2 = 0;
 	unsigned int voffseti_kvs2 = 0;
 	{%for i in context['T_seq']%}{%if(i<n)%}
 	voffseti_kvs2 = 0;
-	MERGE{{context['id']}}_SPLIT_MERGEVSLOOP{{i}}: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+	MERGE{{context['id']}}_MERGEVSLOOP{{i}}: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"acts_merge::MERGE{{context['id']}}_SPLIT_merge Vertices {{n}}:: [instance {{i}}, partition "<<partition<<"]: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[{{i}}]["<<partition<<"]: "<<psizes_kvs[{{i}}][partition]<<"] "<<endl;
 		#endif 
 		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_SPLIT_mergeVs{{n}}: ERROR 20", partition, BLOCKRAM_SIZE, NAp, NAp, NAp);
+		actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_mergeVs{{n}}: ERROR 20", partition, BLOCKRAM_SIZE, NAp, NAp, NAp);
 		#endif
-		if(globalstatsbuffer{{i}}[partition].key > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){
+		if(globalstatsbuffer{{i}}[partition].value > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){
 			#ifdef _DEBUGMODE_KERNELPRINTS
-			cout<<"acts_merge::MERGE{{context['id']}}_SPLIT_merge Vertices {{n}}:: [instance {{i}}, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", psizes_kvs[{{i}}]["<<partition<<"]: "<<psizes_kvs[{{i}}][partition]<<"] "<<endl;
+			cout<<"acts_merge::MERGE Vertices {{n}}:: [instance {{i}}, partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<"] "<<endl;
 			#endif
-			MERGE{{context['id']}}_SPLIT_MERGEVSLOOP{{i}}B: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
+			MERGE{{context['id']}}_MERGEVSLOOP{{i}}B: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
 				vdram[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k] = kvdram{{i}}[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
+			
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){
+					unsigned int K = vdram[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k].data[v].key;
+					unsigned int V = vdram[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k].data[v].value;
+					if(MEMCA{{context['id']}}_READVDATA(K)==0){ cout<<"MERGE:: ZERO SEEN. index: "<<globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k<<endl; }
+					if(MEMCA{{context['id']}}_READVDATA(V)==0){ cout<<"MERGE:: ZERO SEEN. index: "<<globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + lbasevoffset_kvs2 + voffset_kvs2 + k<<endl; }	
+				}
+				#endif 
+				
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_mergeVs{{n}}: ERROR 21", lbasevoffset_kvs2 + voffset_kvs2 + k, globalparamsv.SIZE_SRCVERTICESDATA / VECTOR2_SIZE, NAp, NAp, NAp);
+				actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_mergeVs{{n}}: ERROR 22", voffseti_kvs2 + k, globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE, NAp, NAp, NAp);
+				#endif
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
 	{%endif%}{%endfor%}
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MERGE::MERGE:: FINISHED merging vertices. [end offset: "<<lbasevoffset_kvs2 + voffset_kvs2<<"]"<<endl; 
 	#endif
-	#endif 
-	
-	// vertices partition masks
-	#ifdef CONFIG_MERGE_VPARTITIONS
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"MERGE::MERGE:: merging partition masks. [begin offset: 0]"<<endl; 
 	#endif
-	unsigned int runningpartition_i = 0;
-	unsigned int vpmoffseti_kvs = 0;
-	MERGE{{context['id']}}_SPLIT_MERGEVPMSLOOP{{i}}: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
-		{%for i in context['T_seq']%}
-		{%if(i<n)%}
-		for(unsigned int n=0; n<NUM_PEs; n++){
-			partitionmasks[n] = partitionmasks[n] | kvdram{{i}}[globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK + vpmoffseti_kvs + n]
-				#ifdef _WIDEWORD
-				.range(31, 0);
-				#else 
-				.data[0].key;
-				#endif 
-		}
-		{%endif%}
-		{%endfor%}
-		
-		for(unsigned int n=0; n<NUM_PEs; n++){
-			#ifdef _DEBUGMODE_KERNELPRINTS
-			if(partitionmasks[n] > 0){ cout<<"acts_merge::MERGE{{context['id']}}_SPLIT_merge Partition Masks {{n}}:: [process partition "<<runningpartition_i + n<<"] is active: [partitionmasks["<<runningpartition_i + n<<"]: "<<partitionmasks[n]<<""<<endl; }				
-			#endif
-			vdram[globalparamsv.BASEOFFSETKVS_VERTICESPARTITIONMASK + vpmoffset_kvs + runningpartition_i + n]
-				#ifdef _WIDEWORD
-				.range(31, 0)
-				#else 
-				.data[0].key
-				#endif 
-				= partitionmasks[n];
-		}
-		
-		for(unsigned int k=0; k<NUM_PEs; k++){ partitionmasks[k] = 0; }
-		runningpartition_i += NUM_PEs;
-		vpmoffseti_kvs += NUM_PEs;
-	}
-	#endif 
-	
-	// save stats 
-	{%for i in context['T_seq']%}
-	{%if(i<n)%}
-	for(unsigned int k=0; k<BLOCKRAM_SIZE; k++){ globalstatsbuffer[k] = globalstatsbuffer{{i}}[k]; }
-	{%endif%}
-	{%endfor%}
-	MEMACCESS{{context['id']}}_commitkvstats2(vdram, globalstatsbuffer, globalparamsv, actvpstats_beginoffset, globalparamsv.NUM_REDUCEPARTITIONS); // FIXME.
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"MERGE{{context['id']}}_SPLIT_mergeVs{{n}}: Finished. voffset: "<<voffset_kvs2 * VECTOR2_SIZE<<", runningpartition_i: "<<runningpartition_i<<endl;
-	#endif
-	// exit(EXIT_SUCCESS); //
+	// exit(EXIT_SUCCESS); // 
 	return;
 }
-{%endif%}
-{%endfor%}
+{%endif%}{%endfor%}
 
 extern "C" {
 void {{context['classname__acts_merge']}}TOP{{context['id']}}_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * vdram){

@@ -3,7 +3,11 @@
 
 void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
 	#pragma HLS INLINE
-	bool en = true; if(edata.key != INVALIDDATA && edata.value != INVALIDDATA && enx == true){ en = true; } else { en = false; }
+	// bool en = true; if(edata.key != INVALIDDATA && edata.value != INVALIDDATA && enx == true){ en = true; } else { en = false; }
+	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
+	// bool en = true; 
+	// if(enx == true){ en = false; }
+	// if(edata.key != INVALIDDATA && edata.value != INVALIDDATA){ en = true; }
 
 	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){
 		#ifdef _DEBUGMODE_CHECKS
@@ -17,7 +21,7 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvecto
 	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
 	// cout<<"PROCESS{{context['id']}}_processvector: SEEN @ v: "<<v<<", loc: "<<loc<<, edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vmdata.vmask: "<<vmdata.vmask<<endl;
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(vmdata.vmask == 1){ cout<<"PROCESS VECTOR:: ACTIVE MASK SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<endl; }
+	if(vmdata.vmask == 1){ cout<<"PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<endl; }
 	#endif
 			
 	// process
@@ -157,13 +161,16 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 	buffer_type maxsize_kvs[2]; 
 	buffer_type height_kvs = 0;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	unsigned int MYINVALIDDATA = UTIL{{context['id']}}_GETV(INVALIDDATA);
+	
+	/* #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	for (buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
 		{%for v in context['VECTOR2_SIZE_seq']%}
-		if(MEMCA{{context['id']}}_READVMASK(vbuffer[{{v}}][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: {{v}}"<<endl; }
+		if(MEMCA{{context['id']}}_READVMASK(vbuffer[{{v}}][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: {{v}}"<<", vbuffer[{{v}}]["<<i<<"]: "<<vbuffer[{{v}}][i]<<endl; }
 		{%endfor%}
 	}
 	#endif 
+	// exit(EXIT_SUCCESS); //// */
 	
 	// read edge block
 	#ifdef DEBUGME_PROCESSEDGES2
@@ -255,10 +262,10 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 					{%endfor%} 
 					
 					{%for v in context['VECTOR_SIZE_seq']%}
-					d_kvs[{{v}}] = localcapsule[tdepth{{v}}].key + i; 	
+					d_kvs[{{v}}] = localcapsule[tdepth{{v}}].key + i; 
 					{%endfor%} 	
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(d_kvs[{{v}}] < height_kvs){ E[{{v}}] = tempbuffer[block_offset + {{v}}][d_kvs[{{v}}]]; } else { E[{{v}}] = 555; }	
+					if(d_kvs[{{v}}] < height_kvs){ E[{{v}}] = tempbuffer[block_offset + {{v}}][d_kvs[{{v}}]]; } else { E[{{v}}] = INVALIDDATA; }	
 					{%endfor%} 	
 					
 					// re-arrange 
@@ -282,7 +289,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 					
 					// process
 					{%for v in context['VECTOR_SIZE_seq']%}
-					if(E[{{v}}] == INVALIDDATA){ enx[{{v}}] = false; }
+					if(E[{{v}}] == INVALIDDATA){ enx[{{v}}] = false; } // edata[{{v}}].key = 0; edata[{{v}}].value  = INVALIDDATA; }
 					PROCESS{{context['id']}}_processvector(enx[{{v}}], {{v}}, edata[{{v}}].value, edata[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], &loadcount[{{v}}], GraphAlgoClass, globalparams);
 					{%endfor%}
 					#ifdef _DEBUGMODE_CHECKS2
@@ -299,9 +306,9 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SP
 	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); ////
 	
-	fetchmessage.chunksize_kvs = chunk_size * 2; // loadcount; // CRITICAL FIXME
-	// cout<<"classname__processedges2 SUCCESSFULL HERE...."<<endl;
-	// exit(EXIT_SUCCESS); ////
+	unsigned int maxsz_kvs = 0;
+	for(unsigned int t=0; t<VECTOR_SIZE; t++){ if(loadcount[t] > maxsz_kvs){ maxsz_kvs = loadcount[t]; }}
+	fetchmessage.chunksize_kvs = maxsz_kvs;//chunk_size * 2; // loadcount; // CRITICAL FIXME
 	return fetchmessage;
 }
 

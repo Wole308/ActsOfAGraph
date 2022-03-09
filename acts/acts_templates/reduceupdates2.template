@@ -4,10 +4,12 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	keyvalue_t mykeyvalue = UTIL{{context['id']}}_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
 	
-	bool en = true; if(mykeyvalue.key != UTIL{{context['id']}}_GETK(INVALIDDATA) && mykeyvalue.value != UTIL{{context['id']}}_GETV(INVALIDDATA) && enx == true){ en = true; } else { en = false; }
+	bool en = true;
+	if(mykeyvalue.key == UTIL{{context['id']}}_GETK(INVALIDDATA) || mykeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA) || mykeyvalue.key == MAXVDATA || mykeyvalue.value == MAXVDATA){ en = false; } // REMOVEME?????????????????????????????
+	if(mykeyvalue.key == 0 && mykeyvalue.value == 0){ en = false; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true){ cout<<"REDUCE{{context['id']}}_reducevector:: REDUCE SEEN @ vid: "<<UTIL{{context['id']}}_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZE_REDUCE<<endl; }
-	#endif 
+	if(en == true){ cout<<"reducevector:: REDUCE SEEN @ Instance "<<globalparams.ACTSPARAMS_INSTID<<", vid: "<<UTIL{{context['id']}}_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", Partition: "<<UTIL{{context['id']}}_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID) / PROCESSPARTITIONSZ<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<endl; }
+	#endif 	
 	
 	if(loc >= globalparams.SIZE_REDUCE && en == true){ 
 		#ifdef _DEBUGMODE_CHECKS2X
@@ -23,6 +25,9 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	// reduce 
 	value_t new_vprop = REDUCE{{context['id']}}_reducefunc(vmdata.vdata, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	if(en == true && new_vprop != vmdata.vdata){ vmdata.vmask = 1; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(en == true && new_vprop != vmdata.vdata){ cout<<"REDUCE{{context['id']}}_reducevector:: ACTIVE MASK SEEN AT: "<<loc<<""<<endl; }
+	#endif
 	
 	// write 
 	if(en == true){ MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, vmdata.vdata, vmdata.vmask, 0); }

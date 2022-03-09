@@ -1,5 +1,5 @@
 // -------------------- key values -------------------- //
-fetchmessage_t acts_all::MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
+fetchmessage_t MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -79,7 +79,7 @@ fetchmessage_t acts_all::MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt 
 	return fetchmessage;
 }
 
-void acts_all::MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+void MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_destpartitionsz = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 	
@@ -183,149 +183,8 @@ void acts_all::MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, 
 	return;
 }
 
-void acts_all::MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount = BLOCKRAM_SIZE;
-		
-	READKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue0;
-		keyvalue_t mykeyvalue1;
-		keyvalue_t mykeyvalue2;
-		keyvalue_t mykeyvalue3;
-		keyvalue_t mykeyvalue4;
-		keyvalue_t mykeyvalue5;
-		keyvalue_t mykeyvalue6;
-		keyvalue_t mykeyvalue7;
-		
-		#ifdef _WIDEWORD
-		mykeyvalue0.key = kvdram[dramoffset_kvs + i].range(31, 0); 
-		mykeyvalue0.value = kvdram[dramoffset_kvs + i].range(63, 32); 
-		mykeyvalue1.key = kvdram[dramoffset_kvs + i].range(95, 64); 
-		mykeyvalue1.value = kvdram[dramoffset_kvs + i].range(127, 96); 
-		mykeyvalue2.key = kvdram[dramoffset_kvs + i].range(159, 128); 
-		mykeyvalue2.value = kvdram[dramoffset_kvs + i].range(191, 160); 
-		mykeyvalue3.key = kvdram[dramoffset_kvs + i].range(223, 192); 
-		mykeyvalue3.value = kvdram[dramoffset_kvs + i].range(255, 224); 
-		mykeyvalue4.key = kvdram[dramoffset_kvs + i].range(287, 256); 
-		mykeyvalue4.value = kvdram[dramoffset_kvs + i].range(319, 288); 
-		mykeyvalue5.key = kvdram[dramoffset_kvs + i].range(351, 320); 
-		mykeyvalue5.value = kvdram[dramoffset_kvs + i].range(383, 352); 
-		mykeyvalue6.key = kvdram[dramoffset_kvs + i].range(415, 384); 
-		mykeyvalue6.value = kvdram[dramoffset_kvs + i].range(447, 416); 
-		mykeyvalue7.key = kvdram[dramoffset_kvs + i].range(479, 448); 
-		mykeyvalue7.value = kvdram[dramoffset_kvs + i].range(511, 480); 
-		#else 
-		mykeyvalue0.key = kvdram[dramoffset_kvs + i].data[0].key;
-		mykeyvalue0.value = kvdram[dramoffset_kvs + i].data[0].value; 
-		mykeyvalue1.key = kvdram[dramoffset_kvs + i].data[1].key;
-		mykeyvalue1.value = kvdram[dramoffset_kvs + i].data[1].value; 
-		mykeyvalue2.key = kvdram[dramoffset_kvs + i].data[2].key;
-		mykeyvalue2.value = kvdram[dramoffset_kvs + i].data[2].value; 
-		mykeyvalue3.key = kvdram[dramoffset_kvs + i].data[3].key;
-		mykeyvalue3.value = kvdram[dramoffset_kvs + i].data[3].value; 
-		mykeyvalue4.key = kvdram[dramoffset_kvs + i].data[4].key;
-		mykeyvalue4.value = kvdram[dramoffset_kvs + i].data[4].value; 
-		mykeyvalue5.key = kvdram[dramoffset_kvs + i].data[5].key;
-		mykeyvalue5.value = kvdram[dramoffset_kvs + i].data[5].value; 
-		mykeyvalue6.key = kvdram[dramoffset_kvs + i].data[6].key;
-		mykeyvalue6.value = kvdram[dramoffset_kvs + i].data[6].value; 
-		mykeyvalue7.key = kvdram[dramoffset_kvs + i].data[7].key;
-		mykeyvalue7.value = kvdram[dramoffset_kvs + i].data[7].value; 
-		
-		buffer[0][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue0);
-		buffer[1][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue1);
-		buffer[2][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue2);
-		buffer[3][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue3);
-		buffer[4][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue4);
-		buffer[5][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue5);
-		buffer[6][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue6);
-		buffer[7][bufferoffset_kvs + i] = UTILP0_GETKV(mykeyvalue7);
-		
-		#endif 
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
-		#endif
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTICESDATA_ && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"readkeyvalues:: vertices read: offset: "<<(dramoffset_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs - globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<", number of vertex datas read: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	#endif
-	return;
-}
-
-void acts_all::MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_buffer_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
-	if(enable == OFF){ return; }
-	analysis_type analysis_loopcount =  BLOCKRAM_SIZE;
-	
-	SAVEKEYVALUES2_LOOP: for (buffer_type i=0; i<size_kvs; i++){
-	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-	#pragma HLS PIPELINE II=1
-		keyvalue_t mykeyvalue0 = UTILP0_GETKV(buffer[0][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue1 = UTILP0_GETKV(buffer[1][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue2 = UTILP0_GETKV(buffer[2][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue3 = UTILP0_GETKV(buffer[3][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue4 = UTILP0_GETKV(buffer[4][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue5 = UTILP0_GETKV(buffer[5][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue6 = UTILP0_GETKV(buffer[6][bufferoffset_kvs + i]);
-		keyvalue_t mykeyvalue7 = UTILP0_GETKV(buffer[7][bufferoffset_kvs + i]);
-	
-		#ifdef _WIDEWORD
-		kvdram[dramoffset_kvs + i].range(31, 0) = mykeyvalue0.key; 
-		kvdram[dramoffset_kvs + i].range(63, 32) = mykeyvalue0.value; 
-		kvdram[dramoffset_kvs + i].range(95, 64) = mykeyvalue1.key; 
-		kvdram[dramoffset_kvs + i].range(127, 96) = mykeyvalue1.value; 
-		kvdram[dramoffset_kvs + i].range(159, 128) = mykeyvalue2.key; 
-		kvdram[dramoffset_kvs + i].range(191, 160) = mykeyvalue2.value; 
-		kvdram[dramoffset_kvs + i].range(223, 192) = mykeyvalue3.key; 
-		kvdram[dramoffset_kvs + i].range(255, 224) = mykeyvalue3.value; 
-		kvdram[dramoffset_kvs + i].range(287, 256) = mykeyvalue4.key; 
-		kvdram[dramoffset_kvs + i].range(319, 288) = mykeyvalue4.value; 
-		kvdram[dramoffset_kvs + i].range(351, 320) = mykeyvalue5.key; 
-		kvdram[dramoffset_kvs + i].range(383, 352) = mykeyvalue5.value; 
-		kvdram[dramoffset_kvs + i].range(415, 384) = mykeyvalue6.key; 
-		kvdram[dramoffset_kvs + i].range(447, 416) = mykeyvalue6.value; 
-		kvdram[dramoffset_kvs + i].range(479, 448) = mykeyvalue7.key; 
-		kvdram[dramoffset_kvs + i].range(511, 480) = mykeyvalue7.value; 
-		#else 
-		kvdram[dramoffset_kvs + i].data[0].key = mykeyvalue0.key;
-		kvdram[dramoffset_kvs + i].data[0].value = mykeyvalue0.value;
-		kvdram[dramoffset_kvs + i].data[1].key = mykeyvalue1.key;
-		kvdram[dramoffset_kvs + i].data[1].value = mykeyvalue1.value;
-		kvdram[dramoffset_kvs + i].data[2].key = mykeyvalue2.key;
-		kvdram[dramoffset_kvs + i].data[2].value = mykeyvalue2.value;
-		kvdram[dramoffset_kvs + i].data[3].key = mykeyvalue3.key;
-		kvdram[dramoffset_kvs + i].data[3].value = mykeyvalue3.value;
-		kvdram[dramoffset_kvs + i].data[4].key = mykeyvalue4.key;
-		kvdram[dramoffset_kvs + i].data[4].value = mykeyvalue4.value;
-		kvdram[dramoffset_kvs + i].data[5].key = mykeyvalue5.key;
-		kvdram[dramoffset_kvs + i].data[5].value = mykeyvalue5.value;
-		kvdram[dramoffset_kvs + i].data[6].key = mykeyvalue6.key;
-		kvdram[dramoffset_kvs + i].data[6].value = mykeyvalue6.value;
-		kvdram[dramoffset_kvs + i].data[7].key = mykeyvalue7.key;
-		kvdram[dramoffset_kvs + i].data[7].value = mykeyvalue7.value;
-		#endif 
-		
-		#ifdef _DEBUGMODE_STATS
-		actsutilityobj->globalstats_countkvswritten(VECTOR_SIZE);
-		#endif
-	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"savekeyvalues:: vertices saved: offset: "<<dramoffset_kvs * VECTOR_SIZE<<"-"<<(dramoffset_kvs + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<<endl;
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS2
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_VERTEXPTR && dramoffset_kvs < globalparams.BASEOFFSETKVS_VERTEXPTR + VERTEXPTRSSZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<dramoffset_kvs-globalparams.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE<<"-"<<((dramoffset_kvs + size_kvs)-globalparams.BASEOFFSETKVS_VERTEXPTR) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }
-	if(dramoffset_kvs >= globalparams.BASEOFFSETKVS_DESTVERTICESDATA && dramoffset_kvs < globalparams.BASEOFFSETKVS_DESTVERTICESDATA + VERTICESDATASZ_KVS){ cout<< TIMINGRESULTSCOLOR<<"savekeyvalues:: vertices saved: offset: "<<(dramoffset_kvs-globalparams.BASEOFFSETKVS_DESTVERTICESDATA) * VECTOR_SIZE<<"-"<<((dramoffset_kvs-globalparams.BASEOFFSETKVS_DESTVERTICESDATA) + size_kvs) * VECTOR_SIZE<<", number of vertex datas written: "<<(size_kvs * VECTOR_SIZE * 2)<<" ("<<size_kvs * VECTOR_SIZE<<" keyvalues written)"<< RESET<<endl; }					
-	#endif
-	return;
-}
-
 // -------------------- vdata -------------------- //
-void acts_all::MEMACCESSP0_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+void MEMACCESSP0_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -909,7 +768,7 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESSP0_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]){
+void MEMACCESSP0_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;	
 	
 	/*  if(s_==0){ 
@@ -1493,7 +1352,7 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -1571,7 +1430,7 @@ void acts_all::MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -1583,41 +1442,95 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	#pragma HLS ARRAY_PARTITION variable=vdata complete
 	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
 	
+	uint32_type pmaski = 0;
+
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 	
-		vdata[0] = buffer[0][bufferoffset_kvs + i];	
+		vdata[0] = vbuffer[0][bufferoffset_kvs + i];
 	
-		vdata[1] = buffer[1][bufferoffset_kvs + i];	
+		vdata[1] = vbuffer[1][bufferoffset_kvs + i];
 	
-		vdata[2] = buffer[2][bufferoffset_kvs + i];	
+		vdata[2] = vbuffer[2][bufferoffset_kvs + i];
 	
-		vdata[3] = buffer[3][bufferoffset_kvs + i];	
+		vdata[3] = vbuffer[3][bufferoffset_kvs + i];
 	
-		vdata[4] = buffer[4][bufferoffset_kvs + i];	
+		vdata[4] = vbuffer[4][bufferoffset_kvs + i];
 	
-		vdata[5] = buffer[5][bufferoffset_kvs + i];	
+		vdata[5] = vbuffer[5][bufferoffset_kvs + i];
 	
-		vdata[6] = buffer[6][bufferoffset_kvs + i];	
+		vdata[6] = vbuffer[6][bufferoffset_kvs + i];
 	
-		vdata[7] = buffer[7][bufferoffset_kvs + i];	
+		vdata[7] = vbuffer[7][bufferoffset_kvs + i];
 	
-		vdata[8] = buffer[8][bufferoffset_kvs + i];	
+		vdata[8] = vbuffer[8][bufferoffset_kvs + i];
 	
-		vdata[9] = buffer[9][bufferoffset_kvs + i];	
+		vdata[9] = vbuffer[9][bufferoffset_kvs + i];
 	
-		vdata[10] = buffer[10][bufferoffset_kvs + i];	
+		vdata[10] = vbuffer[10][bufferoffset_kvs + i];
 	
-		vdata[11] = buffer[11][bufferoffset_kvs + i];	
+		vdata[11] = vbuffer[11][bufferoffset_kvs + i];
 	
-		vdata[12] = buffer[12][bufferoffset_kvs + i];	
+		vdata[12] = vbuffer[12][bufferoffset_kvs + i];
 	
-		vdata[13] = buffer[13][bufferoffset_kvs + i];	
+		vdata[13] = vbuffer[13][bufferoffset_kvs + i];
 	
-		vdata[14] = buffer[14][bufferoffset_kvs + i];	
+		vdata[14] = vbuffer[14][bufferoffset_kvs + i];
 	
-		vdata[15] = buffer[15][bufferoffset_kvs + i];	
+		vdata[15] = vbuffer[15][bufferoffset_kvs + i];
+		
+		// collect active partitions for next iterations
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+			#ifdef _WIDEWORD
+			pmaski.range(0, 0) = MEMCAP0_READVMASK(vdata[0]); 
+			pmaski.range(1, 1) = MEMCAP0_READVMASK(vdata[1]); 
+			pmaski.range(2, 2) = MEMCAP0_READVMASK(vdata[2]); 
+			pmaski.range(3, 3) = MEMCAP0_READVMASK(vdata[3]); 
+			pmaski.range(4, 4) = MEMCAP0_READVMASK(vdata[4]); 
+			pmaski.range(5, 5) = MEMCAP0_READVMASK(vdata[5]); 
+			pmaski.range(6, 6) = MEMCAP0_READVMASK(vdata[6]); 
+			pmaski.range(7, 7) = MEMCAP0_READVMASK(vdata[7]); 
+			pmaski.range(8, 8) = MEMCAP0_READVMASK(vdata[8]); 
+			pmaski.range(9, 9) = MEMCAP0_READVMASK(vdata[9]); 
+			pmaski.range(10, 10) = MEMCAP0_READVMASK(vdata[10]); 
+			pmaski.range(11, 11) = MEMCAP0_READVMASK(vdata[11]); 
+			pmaski.range(12, 12) = MEMCAP0_READVMASK(vdata[12]); 
+			pmaski.range(13, 13) = MEMCAP0_READVMASK(vdata[13]); 
+			pmaski.range(14, 14) = MEMCAP0_READVMASK(vdata[14]); 
+			pmaski.range(15, 15) = MEMCAP0_READVMASK(vdata[15]); 
+			#else
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 0, 1, MEMCAP0_READVMASK(vdata[0]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 1, 1, MEMCAP0_READVMASK(vdata[1]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 2, 1, MEMCAP0_READVMASK(vdata[2]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 3, 1, MEMCAP0_READVMASK(vdata[3]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 4, 1, MEMCAP0_READVMASK(vdata[4]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 5, 1, MEMCAP0_READVMASK(vdata[5]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 6, 1, MEMCAP0_READVMASK(vdata[6]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 7, 1, MEMCAP0_READVMASK(vdata[7]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 8, 1, MEMCAP0_READVMASK(vdata[8]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 9, 1, MEMCAP0_READVMASK(vdata[9]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 10, 1, MEMCAP0_READVMASK(vdata[10]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 11, 1, MEMCAP0_READVMASK(vdata[11]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 12, 1, MEMCAP0_READVMASK(vdata[12]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 13, 1, MEMCAP0_READVMASK(vdata[13]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 14, 1, MEMCAP0_READVMASK(vdata[14]));
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 15, 1, MEMCAP0_READVMASK(vdata[15]));
+	
+			#endif
+			
+			unsigned int v_local = (offset_kvs + i) * VECTOR2_SIZE;
+			unsigned int v_real = UTILP0_GETREALVID(v_local, globalparams.ACTSPARAMS_INSTID); // (v_local * NUM_PEs) + s;
+			unsigned int p_ = v_real / (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE);
+			#ifdef _DEBUGMODE_CHECKS3
+			if(p_ >= globalparamsV.NUM_PROCESSEDGESPARTITIONS){ cout<<"MEMACCESSP0_saveV:: ERROR SOMEWHERE: p_("<<p_<<") >= NUM_PROCESSEDGESPARTITIONS("<<globalparamsV.NUM_PROCESSEDGESPARTITIONS<<") [offset_kvs("<<offset_kvs<<"), i("<<i<<"), v_local("<<v_local<<"), v_real("<<v_real<<"), (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE)("<<(globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE)<<")]"<<endl; exit(EXIT_FAILURE); }				
+			#endif
+			if(pmaski > 0){ pmask[p_].data[0] = 1; }
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+			if(pmaski > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", p_: "<<p_<<", pmaski: "<<pmaski<<", pmask["<<p_<<"].data[0]: "<<pmask[p_].data[0]<<". [offset_kvs("<<offset_kvs<<"), v_local("<<v_local<<"), v_real("<<v_real<<")]"<<endl; }
+			#endif
+		#endif
 		
 		#ifdef _WIDEWORD // CRITICAL FIXME.
 		kvdram[baseoffset_kvs + offset_kvs + i].range(31, 0) = vdata[0]; 
@@ -1659,10 +1572,11 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 		actsutilityobj->globalstats_countvswritten(VECTOR2_SIZE);
 		#endif
 	}
+	// exit(EXIT_SUCCESS); //
 	return;
 }
 
-void acts_all::MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -1683,6 +1597,27 @@ void acts_all::MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram
 	#pragma HLS ARRAY_PARTITION variable=vandmdataN complete
 	unsigned int index2 = 0;
 	#pragma HLS array_partition variable = buffer0
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -1729,7 +1664,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -1776,7 +1711,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -1798,6 +1733,44 @@ void acts_all::MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram
 	unsigned int index2 = 0;
 	#pragma HLS array_partition variable = buffer0
 	#pragma HLS array_partition variable = buffer1
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -1844,7 +1817,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -1908,7 +1881,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -1931,6 +1904,61 @@ void acts_all::MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram
 	#pragma HLS array_partition variable = buffer0
 	#pragma HLS array_partition variable = buffer1
 	#pragma HLS array_partition variable = buffer2
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -1977,7 +2005,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -2058,7 +2086,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2082,6 +2110,78 @@ void acts_all::MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram
 	#pragma HLS array_partition variable = buffer1
 	#pragma HLS array_partition variable = buffer2
 	#pragma HLS array_partition variable = buffer3
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -2128,7 +2228,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -2226,7 +2326,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2251,6 +2351,95 @@ void acts_all::MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram
 	#pragma HLS array_partition variable = buffer2
 	#pragma HLS array_partition variable = buffer3
 	#pragma HLS array_partition variable = buffer4
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 		// 		// buffer4[0][i] = 0;
+		// 		// buffer4[1][i] = 0;
+		// 		// buffer4[2][i] = 0;
+		// 		// buffer4[3][i] = 0;
+		// 		// buffer4[4][i] = 0;
+		// 		// buffer4[5][i] = 0;
+		// 		// buffer4[6][i] = 0;
+		// 		// buffer4[7][i] = 0;
+		// 		// buffer4[8][i] = 0;
+		// 		// buffer4[9][i] = 0;
+		// 		// buffer4[10][i] = 0;
+		// 		// buffer4[11][i] = 0;
+		// 		// buffer4[12][i] = 0;
+		// 		// buffer4[13][i] = 0;
+		// 		// buffer4[14][i] = 0;
+		// 		// buffer4[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -2297,7 +2486,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -2412,7 +2601,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2438,6 +2627,112 @@ void acts_all::MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram
 	#pragma HLS array_partition variable = buffer3
 	#pragma HLS array_partition variable = buffer4
 	#pragma HLS array_partition variable = buffer5
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 		// 		// buffer4[0][i] = 0;
+		// 		// buffer4[1][i] = 0;
+		// 		// buffer4[2][i] = 0;
+		// 		// buffer4[3][i] = 0;
+		// 		// buffer4[4][i] = 0;
+		// 		// buffer4[5][i] = 0;
+		// 		// buffer4[6][i] = 0;
+		// 		// buffer4[7][i] = 0;
+		// 		// buffer4[8][i] = 0;
+		// 		// buffer4[9][i] = 0;
+		// 		// buffer4[10][i] = 0;
+		// 		// buffer4[11][i] = 0;
+		// 		// buffer4[12][i] = 0;
+		// 		// buffer4[13][i] = 0;
+		// 		// buffer4[14][i] = 0;
+		// 		// buffer4[15][i] = 0;
+		// 	
+		// 		// 		// buffer5[0][i] = 0;
+		// 		// buffer5[1][i] = 0;
+		// 		// buffer5[2][i] = 0;
+		// 		// buffer5[3][i] = 0;
+		// 		// buffer5[4][i] = 0;
+		// 		// buffer5[5][i] = 0;
+		// 		// buffer5[6][i] = 0;
+		// 		// buffer5[7][i] = 0;
+		// 		// buffer5[8][i] = 0;
+		// 		// buffer5[9][i] = 0;
+		// 		// buffer5[10][i] = 0;
+		// 		// buffer5[11][i] = 0;
+		// 		// buffer5[12][i] = 0;
+		// 		// buffer5[13][i] = 0;
+		// 		// buffer5[14][i] = 0;
+		// 		// buffer5[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -2484,7 +2779,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -2616,7 +2911,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2643,6 +2938,129 @@ void acts_all::MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram
 	#pragma HLS array_partition variable = buffer4
 	#pragma HLS array_partition variable = buffer5
 	#pragma HLS array_partition variable = buffer6
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 		// 		// buffer4[0][i] = 0;
+		// 		// buffer4[1][i] = 0;
+		// 		// buffer4[2][i] = 0;
+		// 		// buffer4[3][i] = 0;
+		// 		// buffer4[4][i] = 0;
+		// 		// buffer4[5][i] = 0;
+		// 		// buffer4[6][i] = 0;
+		// 		// buffer4[7][i] = 0;
+		// 		// buffer4[8][i] = 0;
+		// 		// buffer4[9][i] = 0;
+		// 		// buffer4[10][i] = 0;
+		// 		// buffer4[11][i] = 0;
+		// 		// buffer4[12][i] = 0;
+		// 		// buffer4[13][i] = 0;
+		// 		// buffer4[14][i] = 0;
+		// 		// buffer4[15][i] = 0;
+		// 	
+		// 		// 		// buffer5[0][i] = 0;
+		// 		// buffer5[1][i] = 0;
+		// 		// buffer5[2][i] = 0;
+		// 		// buffer5[3][i] = 0;
+		// 		// buffer5[4][i] = 0;
+		// 		// buffer5[5][i] = 0;
+		// 		// buffer5[6][i] = 0;
+		// 		// buffer5[7][i] = 0;
+		// 		// buffer5[8][i] = 0;
+		// 		// buffer5[9][i] = 0;
+		// 		// buffer5[10][i] = 0;
+		// 		// buffer5[11][i] = 0;
+		// 		// buffer5[12][i] = 0;
+		// 		// buffer5[13][i] = 0;
+		// 		// buffer5[14][i] = 0;
+		// 		// buffer5[15][i] = 0;
+		// 	
+		// 		// 		// buffer6[0][i] = 0;
+		// 		// buffer6[1][i] = 0;
+		// 		// buffer6[2][i] = 0;
+		// 		// buffer6[3][i] = 0;
+		// 		// buffer6[4][i] = 0;
+		// 		// buffer6[5][i] = 0;
+		// 		// buffer6[6][i] = 0;
+		// 		// buffer6[7][i] = 0;
+		// 		// buffer6[8][i] = 0;
+		// 		// buffer6[9][i] = 0;
+		// 		// buffer6[10][i] = 0;
+		// 		// buffer6[11][i] = 0;
+		// 		// buffer6[12][i] = 0;
+		// 		// buffer6[13][i] = 0;
+		// 		// buffer6[14][i] = 0;
+		// 		// buffer6[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -2689,7 +3107,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -2838,7 +3256,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2866,6 +3284,146 @@ void acts_all::MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram
 	#pragma HLS array_partition variable = buffer5
 	#pragma HLS array_partition variable = buffer6
 	#pragma HLS array_partition variable = buffer7
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 		// 		// buffer4[0][i] = 0;
+		// 		// buffer4[1][i] = 0;
+		// 		// buffer4[2][i] = 0;
+		// 		// buffer4[3][i] = 0;
+		// 		// buffer4[4][i] = 0;
+		// 		// buffer4[5][i] = 0;
+		// 		// buffer4[6][i] = 0;
+		// 		// buffer4[7][i] = 0;
+		// 		// buffer4[8][i] = 0;
+		// 		// buffer4[9][i] = 0;
+		// 		// buffer4[10][i] = 0;
+		// 		// buffer4[11][i] = 0;
+		// 		// buffer4[12][i] = 0;
+		// 		// buffer4[13][i] = 0;
+		// 		// buffer4[14][i] = 0;
+		// 		// buffer4[15][i] = 0;
+		// 	
+		// 		// 		// buffer5[0][i] = 0;
+		// 		// buffer5[1][i] = 0;
+		// 		// buffer5[2][i] = 0;
+		// 		// buffer5[3][i] = 0;
+		// 		// buffer5[4][i] = 0;
+		// 		// buffer5[5][i] = 0;
+		// 		// buffer5[6][i] = 0;
+		// 		// buffer5[7][i] = 0;
+		// 		// buffer5[8][i] = 0;
+		// 		// buffer5[9][i] = 0;
+		// 		// buffer5[10][i] = 0;
+		// 		// buffer5[11][i] = 0;
+		// 		// buffer5[12][i] = 0;
+		// 		// buffer5[13][i] = 0;
+		// 		// buffer5[14][i] = 0;
+		// 		// buffer5[15][i] = 0;
+		// 	
+		// 		// 		// buffer6[0][i] = 0;
+		// 		// buffer6[1][i] = 0;
+		// 		// buffer6[2][i] = 0;
+		// 		// buffer6[3][i] = 0;
+		// 		// buffer6[4][i] = 0;
+		// 		// buffer6[5][i] = 0;
+		// 		// buffer6[6][i] = 0;
+		// 		// buffer6[7][i] = 0;
+		// 		// buffer6[8][i] = 0;
+		// 		// buffer6[9][i] = 0;
+		// 		// buffer6[10][i] = 0;
+		// 		// buffer6[11][i] = 0;
+		// 		// buffer6[12][i] = 0;
+		// 		// buffer6[13][i] = 0;
+		// 		// buffer6[14][i] = 0;
+		// 		// buffer6[15][i] = 0;
+		// 	
+		// 		// 		// buffer7[0][i] = 0;
+		// 		// buffer7[1][i] = 0;
+		// 		// buffer7[2][i] = 0;
+		// 		// buffer7[3][i] = 0;
+		// 		// buffer7[4][i] = 0;
+		// 		// buffer7[5][i] = 0;
+		// 		// buffer7[6][i] = 0;
+		// 		// buffer7[7][i] = 0;
+		// 		// buffer7[8][i] = 0;
+		// 		// buffer7[9][i] = 0;
+		// 		// buffer7[10][i] = 0;
+		// 		// buffer7[11][i] = 0;
+		// 		// buffer7[12][i] = 0;
+		// 		// buffer7[13][i] = 0;
+		// 		// buffer7[14][i] = 0;
+		// 		// buffer7[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -2912,7 +3470,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -3078,7 +3636,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -3107,6 +3665,163 @@ void acts_all::MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram
 	#pragma HLS array_partition variable = buffer6
 	#pragma HLS array_partition variable = buffer7
 	#pragma HLS array_partition variable = buffer8
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 		// 		// buffer4[0][i] = 0;
+		// 		// buffer4[1][i] = 0;
+		// 		// buffer4[2][i] = 0;
+		// 		// buffer4[3][i] = 0;
+		// 		// buffer4[4][i] = 0;
+		// 		// buffer4[5][i] = 0;
+		// 		// buffer4[6][i] = 0;
+		// 		// buffer4[7][i] = 0;
+		// 		// buffer4[8][i] = 0;
+		// 		// buffer4[9][i] = 0;
+		// 		// buffer4[10][i] = 0;
+		// 		// buffer4[11][i] = 0;
+		// 		// buffer4[12][i] = 0;
+		// 		// buffer4[13][i] = 0;
+		// 		// buffer4[14][i] = 0;
+		// 		// buffer4[15][i] = 0;
+		// 	
+		// 		// 		// buffer5[0][i] = 0;
+		// 		// buffer5[1][i] = 0;
+		// 		// buffer5[2][i] = 0;
+		// 		// buffer5[3][i] = 0;
+		// 		// buffer5[4][i] = 0;
+		// 		// buffer5[5][i] = 0;
+		// 		// buffer5[6][i] = 0;
+		// 		// buffer5[7][i] = 0;
+		// 		// buffer5[8][i] = 0;
+		// 		// buffer5[9][i] = 0;
+		// 		// buffer5[10][i] = 0;
+		// 		// buffer5[11][i] = 0;
+		// 		// buffer5[12][i] = 0;
+		// 		// buffer5[13][i] = 0;
+		// 		// buffer5[14][i] = 0;
+		// 		// buffer5[15][i] = 0;
+		// 	
+		// 		// 		// buffer6[0][i] = 0;
+		// 		// buffer6[1][i] = 0;
+		// 		// buffer6[2][i] = 0;
+		// 		// buffer6[3][i] = 0;
+		// 		// buffer6[4][i] = 0;
+		// 		// buffer6[5][i] = 0;
+		// 		// buffer6[6][i] = 0;
+		// 		// buffer6[7][i] = 0;
+		// 		// buffer6[8][i] = 0;
+		// 		// buffer6[9][i] = 0;
+		// 		// buffer6[10][i] = 0;
+		// 		// buffer6[11][i] = 0;
+		// 		// buffer6[12][i] = 0;
+		// 		// buffer6[13][i] = 0;
+		// 		// buffer6[14][i] = 0;
+		// 		// buffer6[15][i] = 0;
+		// 	
+		// 		// 		// buffer7[0][i] = 0;
+		// 		// buffer7[1][i] = 0;
+		// 		// buffer7[2][i] = 0;
+		// 		// buffer7[3][i] = 0;
+		// 		// buffer7[4][i] = 0;
+		// 		// buffer7[5][i] = 0;
+		// 		// buffer7[6][i] = 0;
+		// 		// buffer7[7][i] = 0;
+		// 		// buffer7[8][i] = 0;
+		// 		// buffer7[9][i] = 0;
+		// 		// buffer7[10][i] = 0;
+		// 		// buffer7[11][i] = 0;
+		// 		// buffer7[12][i] = 0;
+		// 		// buffer7[13][i] = 0;
+		// 		// buffer7[14][i] = 0;
+		// 		// buffer7[15][i] = 0;
+		// 	
+		// 		// 		// buffer8[0][i] = 0;
+		// 		// buffer8[1][i] = 0;
+		// 		// buffer8[2][i] = 0;
+		// 		// buffer8[3][i] = 0;
+		// 		// buffer8[4][i] = 0;
+		// 		// buffer8[5][i] = 0;
+		// 		// buffer8[6][i] = 0;
+		// 		// buffer8[7][i] = 0;
+		// 		// buffer8[8][i] = 0;
+		// 		// buffer8[9][i] = 0;
+		// 		// buffer8[10][i] = 0;
+		// 		// buffer8[11][i] = 0;
+		// 		// buffer8[12][i] = 0;
+		// 		// buffer8[13][i] = 0;
+		// 		// buffer8[14][i] = 0;
+		// 		// buffer8[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -3153,7 +3868,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -3336,7 +4051,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -3366,6 +4081,180 @@ void acts_all::MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdra
 	#pragma HLS array_partition variable = buffer7
 	#pragma HLS array_partition variable = buffer8
 	#pragma HLS array_partition variable = buffer9
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 		// 		// buffer4[0][i] = 0;
+		// 		// buffer4[1][i] = 0;
+		// 		// buffer4[2][i] = 0;
+		// 		// buffer4[3][i] = 0;
+		// 		// buffer4[4][i] = 0;
+		// 		// buffer4[5][i] = 0;
+		// 		// buffer4[6][i] = 0;
+		// 		// buffer4[7][i] = 0;
+		// 		// buffer4[8][i] = 0;
+		// 		// buffer4[9][i] = 0;
+		// 		// buffer4[10][i] = 0;
+		// 		// buffer4[11][i] = 0;
+		// 		// buffer4[12][i] = 0;
+		// 		// buffer4[13][i] = 0;
+		// 		// buffer4[14][i] = 0;
+		// 		// buffer4[15][i] = 0;
+		// 	
+		// 		// 		// buffer5[0][i] = 0;
+		// 		// buffer5[1][i] = 0;
+		// 		// buffer5[2][i] = 0;
+		// 		// buffer5[3][i] = 0;
+		// 		// buffer5[4][i] = 0;
+		// 		// buffer5[5][i] = 0;
+		// 		// buffer5[6][i] = 0;
+		// 		// buffer5[7][i] = 0;
+		// 		// buffer5[8][i] = 0;
+		// 		// buffer5[9][i] = 0;
+		// 		// buffer5[10][i] = 0;
+		// 		// buffer5[11][i] = 0;
+		// 		// buffer5[12][i] = 0;
+		// 		// buffer5[13][i] = 0;
+		// 		// buffer5[14][i] = 0;
+		// 		// buffer5[15][i] = 0;
+		// 	
+		// 		// 		// buffer6[0][i] = 0;
+		// 		// buffer6[1][i] = 0;
+		// 		// buffer6[2][i] = 0;
+		// 		// buffer6[3][i] = 0;
+		// 		// buffer6[4][i] = 0;
+		// 		// buffer6[5][i] = 0;
+		// 		// buffer6[6][i] = 0;
+		// 		// buffer6[7][i] = 0;
+		// 		// buffer6[8][i] = 0;
+		// 		// buffer6[9][i] = 0;
+		// 		// buffer6[10][i] = 0;
+		// 		// buffer6[11][i] = 0;
+		// 		// buffer6[12][i] = 0;
+		// 		// buffer6[13][i] = 0;
+		// 		// buffer6[14][i] = 0;
+		// 		// buffer6[15][i] = 0;
+		// 	
+		// 		// 		// buffer7[0][i] = 0;
+		// 		// buffer7[1][i] = 0;
+		// 		// buffer7[2][i] = 0;
+		// 		// buffer7[3][i] = 0;
+		// 		// buffer7[4][i] = 0;
+		// 		// buffer7[5][i] = 0;
+		// 		// buffer7[6][i] = 0;
+		// 		// buffer7[7][i] = 0;
+		// 		// buffer7[8][i] = 0;
+		// 		// buffer7[9][i] = 0;
+		// 		// buffer7[10][i] = 0;
+		// 		// buffer7[11][i] = 0;
+		// 		// buffer7[12][i] = 0;
+		// 		// buffer7[13][i] = 0;
+		// 		// buffer7[14][i] = 0;
+		// 		// buffer7[15][i] = 0;
+		// 	
+		// 		// 		// buffer8[0][i] = 0;
+		// 		// buffer8[1][i] = 0;
+		// 		// buffer8[2][i] = 0;
+		// 		// buffer8[3][i] = 0;
+		// 		// buffer8[4][i] = 0;
+		// 		// buffer8[5][i] = 0;
+		// 		// buffer8[6][i] = 0;
+		// 		// buffer8[7][i] = 0;
+		// 		// buffer8[8][i] = 0;
+		// 		// buffer8[9][i] = 0;
+		// 		// buffer8[10][i] = 0;
+		// 		// buffer8[11][i] = 0;
+		// 		// buffer8[12][i] = 0;
+		// 		// buffer8[13][i] = 0;
+		// 		// buffer8[14][i] = 0;
+		// 		// buffer8[15][i] = 0;
+		// 	
+		// 		// 		// buffer9[0][i] = 0;
+		// 		// buffer9[1][i] = 0;
+		// 		// buffer9[2][i] = 0;
+		// 		// buffer9[3][i] = 0;
+		// 		// buffer9[4][i] = 0;
+		// 		// buffer9[5][i] = 0;
+		// 		// buffer9[6][i] = 0;
+		// 		// buffer9[7][i] = 0;
+		// 		// buffer9[8][i] = 0;
+		// 		// buffer9[9][i] = 0;
+		// 		// buffer9[10][i] = 0;
+		// 		// buffer9[11][i] = 0;
+		// 		// buffer9[12][i] = 0;
+		// 		// buffer9[13][i] = 0;
+		// 		// buffer9[14][i] = 0;
+		// 		// buffer9[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -3412,7 +4301,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdra
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -3612,7 +4501,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdra
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -3643,6 +4532,197 @@ void acts_all::MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdra
 	#pragma HLS array_partition variable = buffer8
 	#pragma HLS array_partition variable = buffer9
 	#pragma HLS array_partition variable = buffer10
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 		// 		// buffer4[0][i] = 0;
+		// 		// buffer4[1][i] = 0;
+		// 		// buffer4[2][i] = 0;
+		// 		// buffer4[3][i] = 0;
+		// 		// buffer4[4][i] = 0;
+		// 		// buffer4[5][i] = 0;
+		// 		// buffer4[6][i] = 0;
+		// 		// buffer4[7][i] = 0;
+		// 		// buffer4[8][i] = 0;
+		// 		// buffer4[9][i] = 0;
+		// 		// buffer4[10][i] = 0;
+		// 		// buffer4[11][i] = 0;
+		// 		// buffer4[12][i] = 0;
+		// 		// buffer4[13][i] = 0;
+		// 		// buffer4[14][i] = 0;
+		// 		// buffer4[15][i] = 0;
+		// 	
+		// 		// 		// buffer5[0][i] = 0;
+		// 		// buffer5[1][i] = 0;
+		// 		// buffer5[2][i] = 0;
+		// 		// buffer5[3][i] = 0;
+		// 		// buffer5[4][i] = 0;
+		// 		// buffer5[5][i] = 0;
+		// 		// buffer5[6][i] = 0;
+		// 		// buffer5[7][i] = 0;
+		// 		// buffer5[8][i] = 0;
+		// 		// buffer5[9][i] = 0;
+		// 		// buffer5[10][i] = 0;
+		// 		// buffer5[11][i] = 0;
+		// 		// buffer5[12][i] = 0;
+		// 		// buffer5[13][i] = 0;
+		// 		// buffer5[14][i] = 0;
+		// 		// buffer5[15][i] = 0;
+		// 	
+		// 		// 		// buffer6[0][i] = 0;
+		// 		// buffer6[1][i] = 0;
+		// 		// buffer6[2][i] = 0;
+		// 		// buffer6[3][i] = 0;
+		// 		// buffer6[4][i] = 0;
+		// 		// buffer6[5][i] = 0;
+		// 		// buffer6[6][i] = 0;
+		// 		// buffer6[7][i] = 0;
+		// 		// buffer6[8][i] = 0;
+		// 		// buffer6[9][i] = 0;
+		// 		// buffer6[10][i] = 0;
+		// 		// buffer6[11][i] = 0;
+		// 		// buffer6[12][i] = 0;
+		// 		// buffer6[13][i] = 0;
+		// 		// buffer6[14][i] = 0;
+		// 		// buffer6[15][i] = 0;
+		// 	
+		// 		// 		// buffer7[0][i] = 0;
+		// 		// buffer7[1][i] = 0;
+		// 		// buffer7[2][i] = 0;
+		// 		// buffer7[3][i] = 0;
+		// 		// buffer7[4][i] = 0;
+		// 		// buffer7[5][i] = 0;
+		// 		// buffer7[6][i] = 0;
+		// 		// buffer7[7][i] = 0;
+		// 		// buffer7[8][i] = 0;
+		// 		// buffer7[9][i] = 0;
+		// 		// buffer7[10][i] = 0;
+		// 		// buffer7[11][i] = 0;
+		// 		// buffer7[12][i] = 0;
+		// 		// buffer7[13][i] = 0;
+		// 		// buffer7[14][i] = 0;
+		// 		// buffer7[15][i] = 0;
+		// 	
+		// 		// 		// buffer8[0][i] = 0;
+		// 		// buffer8[1][i] = 0;
+		// 		// buffer8[2][i] = 0;
+		// 		// buffer8[3][i] = 0;
+		// 		// buffer8[4][i] = 0;
+		// 		// buffer8[5][i] = 0;
+		// 		// buffer8[6][i] = 0;
+		// 		// buffer8[7][i] = 0;
+		// 		// buffer8[8][i] = 0;
+		// 		// buffer8[9][i] = 0;
+		// 		// buffer8[10][i] = 0;
+		// 		// buffer8[11][i] = 0;
+		// 		// buffer8[12][i] = 0;
+		// 		// buffer8[13][i] = 0;
+		// 		// buffer8[14][i] = 0;
+		// 		// buffer8[15][i] = 0;
+		// 	
+		// 		// 		// buffer9[0][i] = 0;
+		// 		// buffer9[1][i] = 0;
+		// 		// buffer9[2][i] = 0;
+		// 		// buffer9[3][i] = 0;
+		// 		// buffer9[4][i] = 0;
+		// 		// buffer9[5][i] = 0;
+		// 		// buffer9[6][i] = 0;
+		// 		// buffer9[7][i] = 0;
+		// 		// buffer9[8][i] = 0;
+		// 		// buffer9[9][i] = 0;
+		// 		// buffer9[10][i] = 0;
+		// 		// buffer9[11][i] = 0;
+		// 		// buffer9[12][i] = 0;
+		// 		// buffer9[13][i] = 0;
+		// 		// buffer9[14][i] = 0;
+		// 		// buffer9[15][i] = 0;
+		// 	
+		// 		// 		// buffer10[0][i] = 0;
+		// 		// buffer10[1][i] = 0;
+		// 		// buffer10[2][i] = 0;
+		// 		// buffer10[3][i] = 0;
+		// 		// buffer10[4][i] = 0;
+		// 		// buffer10[5][i] = 0;
+		// 		// buffer10[6][i] = 0;
+		// 		// buffer10[7][i] = 0;
+		// 		// buffer10[8][i] = 0;
+		// 		// buffer10[9][i] = 0;
+		// 		// buffer10[10][i] = 0;
+		// 		// buffer10[11][i] = 0;
+		// 		// buffer10[12][i] = 0;
+		// 		// buffer10[13][i] = 0;
+		// 		// buffer10[14][i] = 0;
+		// 		// buffer10[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -3689,7 +4769,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdra
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -3906,7 +4986,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdra
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void acts_all::MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -3938,6 +5018,214 @@ void acts_all::MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdra
 	#pragma HLS array_partition variable = buffer9
 	#pragma HLS array_partition variable = buffer10
 	#pragma HLS array_partition variable = buffer11
+	
+	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	// #pragma HLS PIPELINE II=1
+		// 		// 		// buffer0[0][i] = 0;
+		// 		// buffer0[1][i] = 0;
+		// 		// buffer0[2][i] = 0;
+		// 		// buffer0[3][i] = 0;
+		// 		// buffer0[4][i] = 0;
+		// 		// buffer0[5][i] = 0;
+		// 		// buffer0[6][i] = 0;
+		// 		// buffer0[7][i] = 0;
+		// 		// buffer0[8][i] = 0;
+		// 		// buffer0[9][i] = 0;
+		// 		// buffer0[10][i] = 0;
+		// 		// buffer0[11][i] = 0;
+		// 		// buffer0[12][i] = 0;
+		// 		// buffer0[13][i] = 0;
+		// 		// buffer0[14][i] = 0;
+		// 		// buffer0[15][i] = 0;
+		// 	
+		// 		// 		// buffer1[0][i] = 0;
+		// 		// buffer1[1][i] = 0;
+		// 		// buffer1[2][i] = 0;
+		// 		// buffer1[3][i] = 0;
+		// 		// buffer1[4][i] = 0;
+		// 		// buffer1[5][i] = 0;
+		// 		// buffer1[6][i] = 0;
+		// 		// buffer1[7][i] = 0;
+		// 		// buffer1[8][i] = 0;
+		// 		// buffer1[9][i] = 0;
+		// 		// buffer1[10][i] = 0;
+		// 		// buffer1[11][i] = 0;
+		// 		// buffer1[12][i] = 0;
+		// 		// buffer1[13][i] = 0;
+		// 		// buffer1[14][i] = 0;
+		// 		// buffer1[15][i] = 0;
+		// 	
+		// 		// 		// buffer2[0][i] = 0;
+		// 		// buffer2[1][i] = 0;
+		// 		// buffer2[2][i] = 0;
+		// 		// buffer2[3][i] = 0;
+		// 		// buffer2[4][i] = 0;
+		// 		// buffer2[5][i] = 0;
+		// 		// buffer2[6][i] = 0;
+		// 		// buffer2[7][i] = 0;
+		// 		// buffer2[8][i] = 0;
+		// 		// buffer2[9][i] = 0;
+		// 		// buffer2[10][i] = 0;
+		// 		// buffer2[11][i] = 0;
+		// 		// buffer2[12][i] = 0;
+		// 		// buffer2[13][i] = 0;
+		// 		// buffer2[14][i] = 0;
+		// 		// buffer2[15][i] = 0;
+		// 	
+		// 		// 		// buffer3[0][i] = 0;
+		// 		// buffer3[1][i] = 0;
+		// 		// buffer3[2][i] = 0;
+		// 		// buffer3[3][i] = 0;
+		// 		// buffer3[4][i] = 0;
+		// 		// buffer3[5][i] = 0;
+		// 		// buffer3[6][i] = 0;
+		// 		// buffer3[7][i] = 0;
+		// 		// buffer3[8][i] = 0;
+		// 		// buffer3[9][i] = 0;
+		// 		// buffer3[10][i] = 0;
+		// 		// buffer3[11][i] = 0;
+		// 		// buffer3[12][i] = 0;
+		// 		// buffer3[13][i] = 0;
+		// 		// buffer3[14][i] = 0;
+		// 		// buffer3[15][i] = 0;
+		// 	
+		// 		// 		// buffer4[0][i] = 0;
+		// 		// buffer4[1][i] = 0;
+		// 		// buffer4[2][i] = 0;
+		// 		// buffer4[3][i] = 0;
+		// 		// buffer4[4][i] = 0;
+		// 		// buffer4[5][i] = 0;
+		// 		// buffer4[6][i] = 0;
+		// 		// buffer4[7][i] = 0;
+		// 		// buffer4[8][i] = 0;
+		// 		// buffer4[9][i] = 0;
+		// 		// buffer4[10][i] = 0;
+		// 		// buffer4[11][i] = 0;
+		// 		// buffer4[12][i] = 0;
+		// 		// buffer4[13][i] = 0;
+		// 		// buffer4[14][i] = 0;
+		// 		// buffer4[15][i] = 0;
+		// 	
+		// 		// 		// buffer5[0][i] = 0;
+		// 		// buffer5[1][i] = 0;
+		// 		// buffer5[2][i] = 0;
+		// 		// buffer5[3][i] = 0;
+		// 		// buffer5[4][i] = 0;
+		// 		// buffer5[5][i] = 0;
+		// 		// buffer5[6][i] = 0;
+		// 		// buffer5[7][i] = 0;
+		// 		// buffer5[8][i] = 0;
+		// 		// buffer5[9][i] = 0;
+		// 		// buffer5[10][i] = 0;
+		// 		// buffer5[11][i] = 0;
+		// 		// buffer5[12][i] = 0;
+		// 		// buffer5[13][i] = 0;
+		// 		// buffer5[14][i] = 0;
+		// 		// buffer5[15][i] = 0;
+		// 	
+		// 		// 		// buffer6[0][i] = 0;
+		// 		// buffer6[1][i] = 0;
+		// 		// buffer6[2][i] = 0;
+		// 		// buffer6[3][i] = 0;
+		// 		// buffer6[4][i] = 0;
+		// 		// buffer6[5][i] = 0;
+		// 		// buffer6[6][i] = 0;
+		// 		// buffer6[7][i] = 0;
+		// 		// buffer6[8][i] = 0;
+		// 		// buffer6[9][i] = 0;
+		// 		// buffer6[10][i] = 0;
+		// 		// buffer6[11][i] = 0;
+		// 		// buffer6[12][i] = 0;
+		// 		// buffer6[13][i] = 0;
+		// 		// buffer6[14][i] = 0;
+		// 		// buffer6[15][i] = 0;
+		// 	
+		// 		// 		// buffer7[0][i] = 0;
+		// 		// buffer7[1][i] = 0;
+		// 		// buffer7[2][i] = 0;
+		// 		// buffer7[3][i] = 0;
+		// 		// buffer7[4][i] = 0;
+		// 		// buffer7[5][i] = 0;
+		// 		// buffer7[6][i] = 0;
+		// 		// buffer7[7][i] = 0;
+		// 		// buffer7[8][i] = 0;
+		// 		// buffer7[9][i] = 0;
+		// 		// buffer7[10][i] = 0;
+		// 		// buffer7[11][i] = 0;
+		// 		// buffer7[12][i] = 0;
+		// 		// buffer7[13][i] = 0;
+		// 		// buffer7[14][i] = 0;
+		// 		// buffer7[15][i] = 0;
+		// 	
+		// 		// 		// buffer8[0][i] = 0;
+		// 		// buffer8[1][i] = 0;
+		// 		// buffer8[2][i] = 0;
+		// 		// buffer8[3][i] = 0;
+		// 		// buffer8[4][i] = 0;
+		// 		// buffer8[5][i] = 0;
+		// 		// buffer8[6][i] = 0;
+		// 		// buffer8[7][i] = 0;
+		// 		// buffer8[8][i] = 0;
+		// 		// buffer8[9][i] = 0;
+		// 		// buffer8[10][i] = 0;
+		// 		// buffer8[11][i] = 0;
+		// 		// buffer8[12][i] = 0;
+		// 		// buffer8[13][i] = 0;
+		// 		// buffer8[14][i] = 0;
+		// 		// buffer8[15][i] = 0;
+		// 	
+		// 		// 		// buffer9[0][i] = 0;
+		// 		// buffer9[1][i] = 0;
+		// 		// buffer9[2][i] = 0;
+		// 		// buffer9[3][i] = 0;
+		// 		// buffer9[4][i] = 0;
+		// 		// buffer9[5][i] = 0;
+		// 		// buffer9[6][i] = 0;
+		// 		// buffer9[7][i] = 0;
+		// 		// buffer9[8][i] = 0;
+		// 		// buffer9[9][i] = 0;
+		// 		// buffer9[10][i] = 0;
+		// 		// buffer9[11][i] = 0;
+		// 		// buffer9[12][i] = 0;
+		// 		// buffer9[13][i] = 0;
+		// 		// buffer9[14][i] = 0;
+		// 		// buffer9[15][i] = 0;
+		// 	
+		// 		// 		// buffer10[0][i] = 0;
+		// 		// buffer10[1][i] = 0;
+		// 		// buffer10[2][i] = 0;
+		// 		// buffer10[3][i] = 0;
+		// 		// buffer10[4][i] = 0;
+		// 		// buffer10[5][i] = 0;
+		// 		// buffer10[6][i] = 0;
+		// 		// buffer10[7][i] = 0;
+		// 		// buffer10[8][i] = 0;
+		// 		// buffer10[9][i] = 0;
+		// 		// buffer10[10][i] = 0;
+		// 		// buffer10[11][i] = 0;
+		// 		// buffer10[12][i] = 0;
+		// 		// buffer10[13][i] = 0;
+		// 		// buffer10[14][i] = 0;
+		// 		// buffer10[15][i] = 0;
+		// 	
+		// 		// 		// buffer11[0][i] = 0;
+		// 		// buffer11[1][i] = 0;
+		// 		// buffer11[2][i] = 0;
+		// 		// buffer11[3][i] = 0;
+		// 		// buffer11[4][i] = 0;
+		// 		// buffer11[5][i] = 0;
+		// 		// buffer11[6][i] = 0;
+		// 		// buffer11[7][i] = 0;
+		// 		// buffer11[8][i] = 0;
+		// 		// buffer11[9][i] = 0;
+		// 		// buffer11[10][i] = 0;
+		// 		// buffer11[11][i] = 0;
+		// 		// buffer11[12][i] = 0;
+		// 		// buffer11[13][i] = 0;
+		// 		// buffer11[14][i] = 0;
+		// 		// buffer11[15][i] = 0;
+		// 	
+		// 	// }
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -3984,7 +5272,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdra
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
 			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
@@ -4220,7 +5508,7 @@ void acts_all::MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdra
 }
 
 #ifdef RANDOMVERTEXISACTIVE_ALGORITHM_XXXXXXXXXXXXXXXXXXXXXXXXXXx
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4241,7 +5529,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks1(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4263,7 +5551,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks2(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4286,7 +5574,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks3(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4310,7 +5598,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks4(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4335,7 +5623,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks5(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4361,7 +5649,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks6(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4388,7 +5676,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks7(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4416,7 +5704,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks8(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4445,7 +5733,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks9(bool_type enable, uint512_dt * v
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4475,7 +5763,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks10(bool_type enable, uint512_dt * 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4506,7 +5794,7 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks11(bool_type enable, uint512_dt * 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -4541,19 +5829,19 @@ void acts_all::MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * 
 #endif 
 
 // -------------------- pmasks -------------------- //
-void acts_all::MEMACCESSP0_readpmask(uint512_dt * kvdram, uint32_type vmask_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void MEMACCESSP0_readpmask(uint512_dt * kvdram, pmask_dt pmask[BLOCKRAM_PMASK1_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
-		vmask_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
 
 // -------------------- stats -------------------- //
-void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
@@ -4571,6 +5859,8 @@ void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram
 		vec.data[2].value = kvdram[offset_kvs + i].range(191, 160); 
 		vec.data[3].key = kvdram[offset_kvs + i].range(223, 192); 
 		vec.data[3].value = kvdram[offset_kvs + i].range(255, 224); 
+		vec.data[4].key = kvdram[offset_kvs + i].range(287, 256); 
+		vec.data[4].value = kvdram[offset_kvs + i].range(319, 288); 
 		#else 
 		vec.data[0].key = kvdram[offset_kvs + i].data[0].key; 
 		vec.data[0].value = kvdram[offset_kvs + i].data[0].value; 
@@ -4580,6 +5870,8 @@ void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram
 		vec.data[2].value = kvdram[offset_kvs + i].data[2].value; 
 		vec.data[3].key = kvdram[offset_kvs + i].data[3].key; 
 		vec.data[3].value = kvdram[offset_kvs + i].data[3].value; 
+		vec.data[4].key = kvdram[offset_kvs + i].data[4].key; 
+		vec.data[4].value = kvdram[offset_kvs + i].data[4].value; 
 		#endif 
 		globalstatsbuffer[i] = vec.data[globalparams.VARS_WORKBATCH];
 	}
@@ -4590,7 +5882,7 @@ void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram
 	return;
 }
 
-void acts_all::MEMACCESSP0_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void MEMACCESSP0_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -4633,6 +5925,15 @@ else if(globalparams.VARS_WORKBATCH == 3){
 			kvdram[offset_kvs + i].data[3].value = globalstatsbuffer[i].value; 
 			#endif 
 		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			#ifdef _WIDEWORD
+			kvdram[offset_kvs + i].range(287, 256) = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].range(319, 288) = globalstatsbuffer[i].value; 
+			#else 
+			kvdram[offset_kvs + i].data[4].key = globalstatsbuffer[i].key; 
+			kvdram[offset_kvs + i].data[4].value = globalstatsbuffer[i].value; 
+			#endif 
+		}
 		else {
 			#ifdef _DEBUGMODE_CHECKS3
 			cout<<"MEMACCESSP0_saveglobalstats: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
@@ -4651,7 +5952,7 @@ else if(globalparams.VARS_WORKBATCH == 3){
 	return;
 }
 
-tuple_t acts_all::MEMACCESSP0_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t MEMACCESSP0_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -4669,7 +5970,7 @@ tuple_t acts_all::MEMACCESSP0_getvptrs(uint512_dt * kvdram, unsigned int beginof
 	return t;
 }
 
-unsigned int acts_all::MEMACCESSP0_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
+unsigned int MEMACCESSP0_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (offset / VECTOR2_SIZE)];
@@ -4748,7 +6049,7 @@ else {
 	else { return vptr_kv.value; }
 }
 
-tuple_t acts_all::MEMACCESSP0_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t MEMACCESSP0_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -4764,7 +6065,7 @@ tuple_t acts_all::MEMACCESSP0_getvptrs_opt( uint512_dt * kvdram, unsigned int ba
 	return t;
 }
 
-void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
+void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -4783,7 +6084,7 @@ void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 	return;
 }
 
-void acts_all::MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k]; 
@@ -4794,7 +6095,7 @@ void acts_all::MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, value_t * buffer,
 	return;
 }
 
-void acts_all::MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k].key; 
@@ -4805,7 +6106,7 @@ void acts_all::MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buff
 	return;
 }
 
-void acts_all::MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -4816,18 +6117,18 @@ void acts_all::MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, value_t * buffe
 	}
 }
 
-void acts_all::MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
-		buffer[k].key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32); 
+		buffer[k].value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32); 
 		#else
-		buffer[k].key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].data[0].value; 
+		buffer[k].value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].data[0].value; 
 		#endif
 	}
 }
 
-void acts_all::MEMACCESSP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void MEMACCESSP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -4859,6 +6160,13 @@ else if(globalparams.VARS_WORKBATCH == 3){
 			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[3].value; 	
 			#endif 
 		}
+else if(globalparams.VARS_WORKBATCH == 4){
+			#ifdef _WIDEWORD
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range(319, 288); 
+			#else 
+			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].data[4].value; 	
+			#endif 
+		}
 		else {
 			#ifdef _DEBUGMODE_CHECKS3
 			cout<<"MEMACCESSP0_accumkvstats: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
@@ -4869,7 +6177,7 @@ else if(globalparams.VARS_WORKBATCH == 3){
 	return;
 }
 
-void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -4889,261 +6197,261 @@ void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 }
 
 // -------------------- multiple accesses -------------------- //
-void acts_all::MEMACCESSP0_readmanypmask1(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask1(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask2(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask2(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask3(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask3(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask4(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask4(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask5(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask5(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask4_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask4_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask6(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask6(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask4_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask5_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask4_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask5_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask7(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask7(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask4_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask5_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask6_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask4_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask5_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask6_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask8(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask8(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask4_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask5_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask6_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask7_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask4_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask5_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask6_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask7_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask9(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask9(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask4_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask5_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask6_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask7_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask8_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask8[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask4_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask5_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask6_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask7_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask8_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask8[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask10(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask10(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask4_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask5_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask6_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask7_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask8_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask9_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask8[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask9[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask4_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask5_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask6_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask7_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask8_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask9_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask8[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask9[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask11(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask11(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask4_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask5_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask6_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask7_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask8_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask9_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask10_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask8[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask9[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask10[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask4_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask5_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask6_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask7_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask8_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask9_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask10_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask8[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask9[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask10[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
-void acts_all::MEMACCESSP0_readmanypmask12(uint512_dt * kvdram, uint32_type vmask0_p[BLOCKRAM_SIZE],uint32_type vmask1_p[BLOCKRAM_SIZE],uint32_type vmask2_p[BLOCKRAM_SIZE],uint32_type vmask3_p[BLOCKRAM_SIZE],uint32_type vmask4_p[BLOCKRAM_SIZE],uint32_type vmask5_p[BLOCKRAM_SIZE],uint32_type vmask6_p[BLOCKRAM_SIZE],uint32_type vmask7_p[BLOCKRAM_SIZE],uint32_type vmask8_p[BLOCKRAM_SIZE],uint32_type vmask9_p[BLOCKRAM_SIZE],uint32_type vmask10_p[BLOCKRAM_SIZE],uint32_type vmask11_p[BLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
+void MEMACCESSP0_readmanypmask12(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE],pmask_dt pmask11[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
 		#ifdef _WIDEWORD
-		vmask0_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask1_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask2_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask3_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask4_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask5_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask6_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask7_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask8_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask9_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask10_p[i] = kvdram[offset_kvs + i].range(31, 0);
-		vmask11_p[i] = kvdram[offset_kvs + i].range(31, 0);
+		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask8[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask9[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask10[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask11[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		vmask0_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask1_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask2_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask3_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask4_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask5_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask6_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask7_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask8_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask9_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask10_p[i] = kvdram[offset_kvs + i].data[0].key;
-		vmask11_p[i] = kvdram[offset_kvs + i].data[0].key;
+		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask8[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask9[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask10[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask11[i].data[0] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
 
 // -------------------- others -------------------- //
-void acts_all::MEMACCESSP0_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
+void MEMACCESSP0_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
 	// NOT IMPLEMENTED.
 	/* analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;

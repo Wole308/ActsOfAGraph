@@ -74,8 +74,8 @@
 				#else
 				NOT DEFINED.	
 					#endif	
-// #define CONFIG_ENABLECLASS_REDUCEUPDATES
-#define CONFIG_ENABLECLASS_REDUCEUPDATES2
+#define CONFIG_ENABLECLASS_REDUCEUPDATES
+// #define CONFIG_ENABLECLASS_REDUCEUPDATES2
 #define CONFIG_ENABLECLASS_PARTITIONUPDATES
 #define CONFIG_ENABLECLASS_MEM_ACCESS
 #define CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
@@ -124,7 +124,7 @@
 - CRITICAL REMOVEME: keyvalue_t mykeyvalue; 0 = edata.key; mykeyvalue.value = 0; // CRITICAL REMOVEME.
 - CRITICAL REMOVEME: #define KVSOURCEDRAMSZ (1 << 26) // max HBM capacity (512MB) // CRITICAL REMOVEME. actscommon.h
 - CRITICAL FIXME: top_nusrcv_nudstv.cpp: #ifndef ALLVERTEXISACTIVE_ALGORITHM // CRITICAL FIXME.
-	MERGE{{context['id']}}_SPLIT_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, globalparamsK, globalparamsV);
+	MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, globalparamsK, globalparamsV);
 	#endif 
 - FIXME: config_params.h // #define CUSTOMLOGICFOREACHALGORITHM // {processedges.cpp, reduceupdates.cpp}
 - FIXME: acts_util.cpp: // partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getpartition(
@@ -137,6 +137,8 @@
 - FIXME: if(srcv >= KVDATA_RANGE){ srcv = KVDATA_RANGE-1; } // FIXME.
 - FIXME: createundirectedgraph.cpp: if(srcv == 0 && dstv == 0 && num_zeros++ > 1000){ continue; } // FIXME.
 - FIXME?: graph.cpp: void graph::loadedgesfromfile(int col, 
+- CRITICAL NEWCHANGE: loadgraph.cpp: // CRITICAL NEWCHANGE. since kvdram and edges dram are now merged into one
+fetchmessage.chunksize_kvs = 0;//chunk_size * 2; // loadcount; // CRITICAL FIXME
 */
 
 
