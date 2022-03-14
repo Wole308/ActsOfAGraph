@@ -71,9 +71,10 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_RearrangeLay
 	return;
 }
 
-void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams){				
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
+	// exit(EXIT_SUCCESS);
 	
 	keyvalue_buffer_t kvdata[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=kvdata complete
@@ -112,16 +113,6 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
 		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
 	}
-	
-	//////////////////////////
-	// #ifdef XXXX
-	// for(unsigned int i=0; i<16; i++){
-		// {%for v in context['VECTOR_SIZE_seq']%}	
-		// cout<<"reduceupdates2: buffer[{{v}}]["<<i<<"].key: "<<buffer[{{v}}][i].key<<", buffer[{{v}}]["<<i<<"].value: "<<buffer[{{v}}][i].value<<endl;
-		// {%endfor%}
-	// }
-	// #endif 
-	//////////////////////////
 	
 	unsigned int tot = 0;
 	REDUCEBUFFERPARTITIONS_LOOP2: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){

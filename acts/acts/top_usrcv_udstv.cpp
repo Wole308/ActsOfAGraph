@@ -1,4 +1,4 @@
-void TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+void acts_all::TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -7,8 +7,8 @@ void TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTO
 	#endif
 
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	for (buffer_type t=0; t<globalparamsK.SIZEKVS2_REDUCEPARTITION; t++){
-		for (buffer_type v=0; v<VDATA_PACKINGSIZE; v++){
+	for(buffer_type t=0; t<globalparamsK.SIZEKVS2_REDUCEPARTITION; t++){
+		for(buffer_type v=0; v<VDATA_PACKINGSIZE; v++){
 			if(MEMCAP0_READVMASK(vbuffer[v][t]) == 1){ cout<<"TOPP0_U_processit: ACTIVE MASK SEEN: @ t: "<<t<<", v: "<<v<<", vbuffer["<<v<<"]["<<t<<"]: "<<vbuffer[v][t]<<endl; }
 		}
 	}
@@ -41,7 +41,18 @@ void TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTO
 	batch_type voffset_kvs = globalposition.source_partition * globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION;
 	
 	if(voffset_kvs >= avtravstate.end_kvs){ return; } // continue; }
-	if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE) { if(pmask_curr[globalposition.source_partition].data[0] == 0){ return; }} // FIXME.
+
+	#ifndef ALLVERTEXISACTIVE_ALGORITHM
+	unsigned int span = (globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE) / (NUM_PEs * VECTOR2_SIZE * VPARTITION_SHRINK_RATIO);
+	unsigned int vtxp_start = (globalposition.source_partition * globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE) / (NUM_PEs * VECTOR2_SIZE * VPARTITION_SHRINK_RATIO);
+	// cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TOPP0_U_processit:: span: "<<span<<", vtxp_start: "<<vtxp_start<<endl;
+	unsigned int partition_is_active = 0;
+	for(unsigned int t=0; t<span; t++){ 
+		unsigned int X = vtxp_start % 32; unsigned int Y = vtxp_start / 32; vtxp_start += 1;
+		if(pmask_curr[Y].data[X] > 0){ partition_is_active = 1; break; }
+	}
+	if(partition_is_active == 0){ return; }
+	#endif 
 	
 	sweepparams.source_partition = globalposition.source_partition;
 	avtravstate.i_kvs = voffset_kvs;
@@ -61,6 +72,9 @@ void TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTO
 	tuple_t tup = MEMACCESSP0_getvptrs_opt(kvdram, vptrbaseoffset_kvs, voffset_kvs * VECTOR2_SIZE, (voffset_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID);
 	keyy_t beginvptr = tup.A;
 	keyy_t endvptr = tup.B; 
+	#ifdef _DEBUGMODE_CHECKS3
+	if(globalparamsK.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ if(beginvptr % VECTOR2_SIZE != 0 || endvptr % VECTOR2_SIZE != 0){ cout<<"TOPP0_U_processit::ERROR: beginvptr("<<beginvptr<<") % VECTOR2_SIZE("<<VECTOR2_SIZE<<") != 0 || endvptr("<<endvptr<<") % VECTOR2_SIZE("<<VECTOR2_SIZE<<") != 0. EXITING..."<<endl; exit(EXIT_FAILURE); }}
+	#endif 
 	
 	if(srcvlocaloffset >= globalparamsK.ACTSPARAMS_SRCVSIZE){ endvptr = beginvptr; }
 	
@@ -71,17 +85,18 @@ void TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTO
 	keyy_t localbeginvptr_kvs = localbeginvptr / VECTOR_SIZE; // NOTE: this should be in KVS(8) terms
 	keyy_t numedges_kvs = numedges / VECTOR_SIZE; // NB: this is correct.
 	
-	#ifdef _DEBUGMODE_CHECKS2
+	#ifdef _DEBUGMODE_CHECKS3
 	if(localendvptr < localbeginvptr){ cout<<"TOPP0_U_processit::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<", voffset_kvs: "<<voffset_kvs<<endl; exit(EXIT_FAILURE); }
 	if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("TOPP0_U_processit", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"[index: "<<globalposition.source_partition<<"][beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<"][beginvptr: "<<localbeginvptr<<", endvptr: "<<localendvptr<<", edges size: "<<numedges<<"][voffset: "<<voffset_kvs * VECTOR_SIZE<<"]"<<endl;
 	#endif
-	#ifdef _DEBUGMODE_CHECKS2
+	#ifdef _DEBUGMODE_CHECKS3
 	if(localendvptr < localbeginvptr){ cout<<"ERROR: localendvptr < localbeginvptr. EXITING..."<<endl; exit(EXIT_FAILURE); }
 	actsutilityobj->clearallstats();
 	#endif
+	// return; // REMOVEME.
 	
 	travstate_t etravstate;
 	etravstate.begin_kvs = localbeginvptr_kvs;
@@ -125,7 +140,7 @@ void TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTO
 	return;
 }
 
-void TOPP0_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],
+void acts_all::TOPP0_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	if(en_process == ON){ TOPP0_U_processit( kvdram, sourcebuffer, vbuffer, pmask_curr, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID); } 
@@ -134,7 +149,7 @@ void TOPP0_U_dispatch(bool_type en_process, bool_type en_partition, bool_type en
 	return;
 }
 
-void TOPP0_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK_SIZE], pmask_dt pmask_next[BLOCKRAM_PMASK1_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalparams_t globalparamsV, globalposition_t globalposition,	
+void acts_all::TOPP0_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK_SIZE], pmask_dt pmask_next[BLOCKRAM_PMASK1_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalparams_t globalparamsV, globalposition_t globalposition,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE
 	analysis_type analysis_loop1 = 1;
@@ -205,7 +220,7 @@ void TOPP0_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer
 	return;
 } 
 
-void TOPP0_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK_SIZE], pmask_dt pmask_next[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalposition_t globalposition, globalparams_t globalparamsV){				
+void acts_all::TOPP0_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK_SIZE], pmask_dt pmask_next[BLOCKRAM_PMASK1_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], globalposition_t globalposition, globalparams_t globalparamsV){				
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -214,7 +229,7 @@ void TOPP0_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid,
 	unsigned int printheader2=OFF; 
 	if(true && globalposition.source_partition==globalposition.first_source_partition){ printheader1 = ON; } else { printheader1 = OFF; }
 	if(false && globalposition.source_partition==globalposition.last_source_partition){ printheader2 = ON; } else { printheader2 = OFF; }
-	printheader1=OFF;
+	// printheader1=ON;
 	#if defined(_DEBUGMODE_KERNELPRINTS) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== ACTS Launched... size: "<<UTILP0_GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<endl;
 	#endif
@@ -271,7 +286,7 @@ void TOPP0_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid,
 	#endif
 	
 	if(globalposition.v_chunkid==globalparamsK.ACTSPARAMS_NUMEDGECHUNKSINABUFFER-1 && globalposition.stage==globalposition.laststage && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition==globalposition.last_source_partition){
-		unsigned int _offset = MERGEP0_SPLIT_actvpstatsoffset(globalparamsK);
+		unsigned int _offset = MERGEP0_actvpstatsoffset(globalparamsK);
 		MEMACCESSP0_retreievekvstats(kvdram, globalstatsbuffer, globalparamsK, _offset, globalparamsK.NUM_REDUCEPARTITIONS);
 		UTILP0_increment_graphiteration(kvdram, globalparamsK); // NB: this should come last.
 	}
@@ -286,7 +301,7 @@ void TOPP0_U_topkernelproc_embedded(unsigned int globalid, unsigned int localid,
 }
 
 extern "C" {
-void TOPP0_U_topkernelP1(
+void acts_all::TOPP0_U_topkernelP1(
 	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
@@ -311,7 +326,8 @@ void TOPP0_U_topkernelP1(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	travstate_t rtravstates[1];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -394,7 +410,7 @@ void TOPP0_U_topkernelP1(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 		}
@@ -512,7 +528,7 @@ void TOPP0_U_topkernelP1(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -540,9 +556,11 @@ void TOPP0_U_topkernelP1(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs1(kvdram0, vdram, 
 globalstatsbuffer0, pmask0_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -555,7 +573,7 @@ globalstatsbuffer0, pmask0_next,
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP2(
+void acts_all::TOPP0_U_topkernelP2(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * vdram
@@ -585,13 +603,15 @@ void TOPP0_U_topkernelP2(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	travstate_t rtravstates[2];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -691,7 +711,7 @@ void TOPP0_U_topkernelP2(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -811,7 +831,7 @@ void TOPP0_U_topkernelP2(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -840,9 +860,11 @@ void TOPP0_U_topkernelP2(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs2(kvdram0,kvdram1, vdram, 
 globalstatsbuffer0,globalstatsbuffer1, pmask0_next,pmask1_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -855,7 +877,7 @@ globalstatsbuffer0,globalstatsbuffer1, pmask0_next,pmask1_next,
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP3(
+void acts_all::TOPP0_U_topkernelP3(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -890,19 +912,22 @@ void TOPP0_U_topkernelP3(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	travstate_t rtravstates[3];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -1019,7 +1044,7 @@ void TOPP0_U_topkernelP3(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -1141,7 +1166,7 @@ void TOPP0_U_topkernelP3(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -1171,9 +1196,11 @@ void TOPP0_U_topkernelP3(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs3(kvdram0,kvdram1,kvdram2, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2, pmask0_next,pmask1_next,pmask2_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -1186,7 +1213,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2, pmask0_next,pmask1_nex
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP4(
+void acts_all::TOPP0_U_topkernelP4(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1226,25 +1253,29 @@ void TOPP0_U_topkernelP4(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	travstate_t rtravstates[4];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -1378,7 +1409,7 @@ void TOPP0_U_topkernelP4(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -1502,7 +1533,7 @@ void TOPP0_U_topkernelP4(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -1533,9 +1564,11 @@ void TOPP0_U_topkernelP4(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3, pmask0_next,pmask1_next,pmask2_next,pmask3_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -1548,7 +1581,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3, pma
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP5(
+void acts_all::TOPP0_U_topkernelP5(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1593,31 +1626,36 @@ void TOPP0_U_topkernelP5(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	pmask_dt pmask4_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask4_curr
+	#pragma HLS DATA_PACK variable = pmask4_next
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
 	travstate_t rtravstates[5];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -1768,7 +1806,7 @@ void TOPP0_U_topkernelP5(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -1894,7 +1932,7 @@ void TOPP0_U_topkernelP5(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -1926,9 +1964,11 @@ void TOPP0_U_topkernelP5(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4, pmask0_next,pmask1_next,pmask2_next,pmask3_next,pmask4_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -1941,7 +1981,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,glob
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP6(
+void acts_all::TOPP0_U_topkernelP6(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -1991,37 +2031,43 @@ void TOPP0_U_topkernelP6(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	pmask_dt pmask4_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask4_curr
+	#pragma HLS DATA_PACK variable = pmask4_next
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	pmask_dt pmask5_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask5_curr
+	#pragma HLS DATA_PACK variable = pmask5_next
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
 	travstate_t rtravstates[6];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -2189,7 +2235,7 @@ void TOPP0_U_topkernelP6(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -2317,7 +2363,7 @@ void TOPP0_U_topkernelP6(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -2350,9 +2396,11 @@ void TOPP0_U_topkernelP6(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5, pmask0_next,pmask1_next,pmask2_next,pmask3_next,pmask4_next,pmask5_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -2365,7 +2413,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,glob
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP7(
+void acts_all::TOPP0_U_topkernelP7(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2420,43 +2468,50 @@ void TOPP0_U_topkernelP7(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	pmask_dt pmask4_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask4_curr
+	#pragma HLS DATA_PACK variable = pmask4_next
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	pmask_dt pmask5_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask5_curr
+	#pragma HLS DATA_PACK variable = pmask5_next
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	pmask_dt pmask6_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask6_curr
+	#pragma HLS DATA_PACK variable = pmask6_next
 	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
 	travstate_t rtravstates[7];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -2641,7 +2696,7 @@ void TOPP0_U_topkernelP7(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -2771,7 +2826,7 @@ void TOPP0_U_topkernelP7(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -2805,9 +2860,11 @@ void TOPP0_U_topkernelP7(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6, pmask0_next,pmask1_next,pmask2_next,pmask3_next,pmask4_next,pmask5_next,pmask6_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -2820,7 +2877,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,glob
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP8(
+void acts_all::TOPP0_U_topkernelP8(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -2880,49 +2937,57 @@ void TOPP0_U_topkernelP8(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	pmask_dt pmask4_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask4_curr
+	#pragma HLS DATA_PACK variable = pmask4_next
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	pmask_dt pmask5_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask5_curr
+	#pragma HLS DATA_PACK variable = pmask5_next
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	pmask_dt pmask6_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask6_curr
+	#pragma HLS DATA_PACK variable = pmask6_next
 	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
 	pmask_dt pmask7_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask7_curr
+	#pragma HLS DATA_PACK variable = pmask7_next
 	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
 	travstate_t rtravstates[8];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -3124,7 +3189,7 @@ void TOPP0_U_topkernelP8(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -3256,7 +3321,7 @@ void TOPP0_U_topkernelP8(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -3291,9 +3356,11 @@ void TOPP0_U_topkernelP8(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7, pmask0_next,pmask1_next,pmask2_next,pmask3_next,pmask4_next,pmask5_next,pmask6_next,pmask7_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -3306,7 +3373,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,glob
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP9(
+void acts_all::TOPP0_U_topkernelP9(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -3371,55 +3438,64 @@ void TOPP0_U_topkernelP9(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	pmask_dt pmask4_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask4_curr
+	#pragma HLS DATA_PACK variable = pmask4_next
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	pmask_dt pmask5_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask5_curr
+	#pragma HLS DATA_PACK variable = pmask5_next
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	pmask_dt pmask6_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask6_curr
+	#pragma HLS DATA_PACK variable = pmask6_next
 	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
 	pmask_dt pmask7_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask7_curr
+	#pragma HLS DATA_PACK variable = pmask7_next
 	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
 	pmask_dt pmask8_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask8_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask8_curr
+	#pragma HLS DATA_PACK variable = pmask8_next
 	keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE];
 	travstate_t rtravstates[9];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -3638,7 +3714,7 @@ void TOPP0_U_topkernelP9(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -3772,7 +3848,7 @@ void TOPP0_U_topkernelP9(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -3808,9 +3884,11 @@ void TOPP0_U_topkernelP9(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8, pmask0_next,pmask1_next,pmask2_next,pmask3_next,pmask4_next,pmask5_next,pmask6_next,pmask7_next,pmask8_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -3823,7 +3901,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,glob
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP10(
+void acts_all::TOPP0_U_topkernelP10(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -3893,61 +3971,71 @@ void TOPP0_U_topkernelP10(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	pmask_dt pmask4_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask4_curr
+	#pragma HLS DATA_PACK variable = pmask4_next
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	pmask_dt pmask5_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask5_curr
+	#pragma HLS DATA_PACK variable = pmask5_next
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	pmask_dt pmask6_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask6_curr
+	#pragma HLS DATA_PACK variable = pmask6_next
 	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
 	pmask_dt pmask7_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask7_curr
+	#pragma HLS DATA_PACK variable = pmask7_next
 	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
 	pmask_dt pmask8_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask8_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask8_curr
+	#pragma HLS DATA_PACK variable = pmask8_next
 	keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
 	pmask_dt pmask9_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask9_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask9_curr
+	#pragma HLS DATA_PACK variable = pmask9_next
 	keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE];
 	travstate_t rtravstates[10];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -4183,7 +4271,7 @@ void TOPP0_U_topkernelP10(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -4319,7 +4407,7 @@ void TOPP0_U_topkernelP10(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -4356,9 +4444,11 @@ void TOPP0_U_topkernelP10(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9, pmask0_next,pmask1_next,pmask2_next,pmask3_next,pmask4_next,pmask5_next,pmask6_next,pmask7_next,pmask8_next,pmask9_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -4371,7 +4461,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,glob
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP11(
+void acts_all::TOPP0_U_topkernelP11(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -4446,67 +4536,78 @@ void TOPP0_U_topkernelP11(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	pmask_dt pmask4_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask4_curr
+	#pragma HLS DATA_PACK variable = pmask4_next
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	pmask_dt pmask5_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask5_curr
+	#pragma HLS DATA_PACK variable = pmask5_next
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	pmask_dt pmask6_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask6_curr
+	#pragma HLS DATA_PACK variable = pmask6_next
 	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
 	pmask_dt pmask7_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask7_curr
+	#pragma HLS DATA_PACK variable = pmask7_next
 	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
 	pmask_dt pmask8_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask8_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask8_curr
+	#pragma HLS DATA_PACK variable = pmask8_next
 	keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
 	pmask_dt pmask9_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask9_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask9_curr
+	#pragma HLS DATA_PACK variable = pmask9_next
 	keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
 	pmask_dt pmask10_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask10_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask10_curr
+	#pragma HLS DATA_PACK variable = pmask10_next
 	keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE];
 	travstate_t rtravstates[11];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -4759,7 +4860,7 @@ void TOPP0_U_topkernelP11(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -4897,7 +4998,7 @@ void TOPP0_U_topkernelP11(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -4935,9 +5036,11 @@ void TOPP0_U_topkernelP11(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9,globalstatsbuffer10, pmask0_next,pmask1_next,pmask2_next,pmask3_next,pmask4_next,pmask5_next,pmask6_next,pmask7_next,pmask8_next,pmask9_next,pmask10_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -4950,7 +5053,7 @@ globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,glob
 }
 }
 extern "C" {
-void TOPP0_U_topkernelP12(
+void acts_all::TOPP0_U_topkernelP12(
 	uint512_dt * kvdram0,
 	uint512_dt * kvdram1,
 	uint512_dt * kvdram2,
@@ -5030,73 +5133,85 @@ void TOPP0_U_topkernelP12(
 	#pragma HLS array_partition variable = vbuffer0
 	pmask_dt pmask0_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask0_curr
+	#pragma HLS DATA_PACK variable = pmask0_next
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer1
 	pmask_dt pmask1_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask1_curr
+	#pragma HLS DATA_PACK variable = pmask1_next
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer2
 	pmask_dt pmask2_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask2_curr
+	#pragma HLS DATA_PACK variable = pmask2_next
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer3
 	pmask_dt pmask3_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask3_curr
+	#pragma HLS DATA_PACK variable = pmask3_next
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer4
 	pmask_dt pmask4_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask4_curr
+	#pragma HLS DATA_PACK variable = pmask4_next
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer5
 	pmask_dt pmask5_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask5_curr
+	#pragma HLS DATA_PACK variable = pmask5_next
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer6
 	pmask_dt pmask6_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask6_curr
+	#pragma HLS DATA_PACK variable = pmask6_next
 	keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer7
 	pmask_dt pmask7_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask7_curr
+	#pragma HLS DATA_PACK variable = pmask7_next
 	keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer8
 	pmask_dt pmask8_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask8_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask8_curr
+	#pragma HLS DATA_PACK variable = pmask8_next
 	keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer9
 	pmask_dt pmask9_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask9_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask9_curr
+	#pragma HLS DATA_PACK variable = pmask9_next
 	keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer10
 	pmask_dt pmask10_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask10_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask10_curr
+	#pragma HLS DATA_PACK variable = pmask10_next
 	keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE];
 	#pragma HLS array_partition variable = vbuffer11
 	pmask_dt pmask11_curr[BLOCKRAM_PMASK_SIZE];
 	pmask_dt pmask11_next[BLOCKRAM_PMASK1_SIZE];
-	#pragma HLS DATA_PACK variable = vdram
+	#pragma HLS DATA_PACK variable = pmask11_curr
+	#pragma HLS DATA_PACK variable = pmask11_next
 	keyvalue_t globalstatsbuffer11[BLOCKRAM_SIZE];
 	travstate_t rtravstates[12];
 	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
@@ -5366,7 +5481,7 @@ void TOPP0_U_topkernelP12(
 	for(unsigned int i=0; i<8; i++){ for(unsigned int v=0; v<1; v++){ cout<<""<<pmask0_next[i].data[v]<<","; } cout<<endl; } 
 	#endif 
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ 
-		for(unsigned int v=0; v<1; v++){ 
+		for(unsigned int v=0; v<32; v++){ // NEWCHANGE.
 			pmask0_curr[i].data[v] = 0; 
 			pmask0_next[i].data[v] = 0; 
 			pmask1_curr[i].data[v] = 0; 
@@ -5506,7 +5621,7 @@ void TOPP0_U_topkernelP12(
 						}
 						
 						// acts 
-						#ifdef TESTKERNEL
+						#ifdef TESTKERNEL	
 						TOPP0_U_topkernelproc_embedded(globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer0, pmask0_curr, pmask0_next, globalstatsbuffer0, globalposition, globalparamsV);		
 	
 						#else 
@@ -5545,9 +5660,11 @@ void TOPP0_U_topkernelP12(
 		// exit(EXIT_SUCCESS); //
 	} // edgebankID
 
+	#ifndef FPGA_IMPL
 	MERGEP0_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram, 
 globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9,globalstatsbuffer10,globalstatsbuffer11, pmask0_next,pmask1_next,pmask2_next,pmask3_next,pmask4_next,pmask5_next,pmask6_next,pmask7_next,pmask8_next,pmask9_next,pmask10_next,pmask11_next, 
 			globalparamsK, globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM

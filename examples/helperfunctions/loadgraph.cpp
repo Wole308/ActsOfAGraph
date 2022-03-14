@@ -246,7 +246,9 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREAD
 		unsigned int num_edges_in_a_chunk = container->edgessize[i] / _NUM_EDGECHUNKS_IN_A_BUFFER;
 		for(unsigned int k=0; k<_NUM_EDGECHUNKS_IN_A_BUFFER; k++){
 			unsigned int index = k * (container->edgessize[i] / _NUM_EDGECHUNKS_IN_A_BUFFER);
-			for(unsigned int t=0; t<16; t++){ if(edges_temp[i][index+t].status != EDGESTATUS_BITMAP){ srC = edges_temp[i][index+t].srcvid; break; }}
+			// for(unsigned int t=0; t<16; t++){ if(edges_temp[i][index+t].status != EDGESTATUS_BITMAP){ srC = edges_temp[i][index+t].srcvid; break; }}
+			bool isfound=false; for(unsigned int t=0; t<64; t++){ if(edges_temp[i][index+t].status == EDGESTATUS_VALIDEDGE){ srC = edges_temp[i][index+t].srcvid; isfound=true; break; }}
+			if(isfound==false){ cout<<"loadoffsetmarkers: ERROR 65. isfound==false. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			srC = (srC / PROCESSPARTITIONSZ) * PROCESSPARTITIONSZ; // round down
 			SRC_CHKPT[k] = srC;
 			PARTITION_CHKPT[k] = srC / PROCESSPARTITIONSZ;
@@ -255,7 +257,6 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREAD
 			#endif
 		}
 		SRC_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = KVDATA_RANGE-1;
-		// PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = KVDATA_RANGE / REDUCEPARTITIONSZ;
 		PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER] = KVDATA_RANGE / PROCESSPARTITIONSZ;
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"loadoffsetmarkers: index: LAST. srC: "<<srC<<", SRC_CHKPT["<<_NUM_EDGECHUNKS_IN_A_BUFFER<<"]: "<<SRC_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER]<<", PARTITION_CHKPT["<<_NUM_EDGECHUNKS_IN_A_BUFFER<<"]: "<<PARTITION_CHKPT[_NUM_EDGECHUNKS_IN_A_BUFFER]<<", num_edges_in_a_chunk: "<<num_edges_in_a_chunk<<", _NUM_EDGECHUNKS_IN_A_BUFFER: "<<_NUM_EDGECHUNKS_IN_A_BUFFER<<endl; 					
@@ -335,7 +336,7 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREAD
 		cout<<"loadoffsetmarkers:: maxdramsz: "<<maxdramsz<<", totalnumpb4llop: "<<totalnumpb4llop<<", TREE_DEPTH: "<<TREE_DEPTH<<endl;
 		#endif 
 		
-		#ifdef _DEBUGMODE_HOSTPRINTS
+		#ifdef _DEBUGMODE_HOSTPRINTS3
 		if(i==0){
 			for(unsigned int u=0; u<_NUM_EDGECHUNKS_IN_A_BUFFER; u++){
 				utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats[u], totalnumpb4llop);
@@ -472,53 +473,10 @@ void loadgraph::setrootvid(unsigned int Algo, uint512_vec_dt * kvbuffer, vector<
 	cout<<"loadgraph::setrootvid:: setting root vid(s)... "<<endl;
 	#endif 
 	
-	// kvbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + (PROCESSPARTITIONSZ_KVS2/NUM_PEs)].data[0].key = 1;
-	// kvbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA].data[0].key = 1;
-	
 	unsigned int data = 0;
 	utilityobj->WRITETO_UINT((unsigned int *)&data, OFFSETOF_VDATA, SIZEOF_VDATA, algorithmobj->vertex_initdata(Algo, 0));
 	utilityobj->WRITETO_UINT((unsigned int *)&data, OFFSETOF_VMASK, SIZEOF_VMASK, 1);
 	kvbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + (1 * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2)].data[0].key = data;
-	
-	// for(unsigned int i=0; i<10240; i++){
-		// for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			// unsigned int data = 0;
-			// utilityobj->WRITETO_UINT(&data, OFFSETOF_VDATA, SIZEOF_VDATA, algorithmobj->vertex_initdata(Algo, 0));
-			// utilityobj->WRITETO_UINT(&data, OFFSETOF_VMASK, SIZEOF_VMASK, 1);
-			// kvbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + i].data[v].key = data;
-			// kvbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + i].data[v].value = data;
-		// }
-	// }
-	
-	/* unsigned int _NUM_REDUCEPARTITIONS = (((globalparams.SIZE_SRCVERTICESDATA / NUM_PEs) + (REDUCEPARTITIONSZ-1)) / REDUCEPARTITIONSZ);
-	unsigned int _NUM_PROCESSEDGESPARTITIONS = _NUM_REDUCEPARTITIONS * NUM_PEs;
-	
-	unsigned int vbuffer[VDATA_PACKINGSIZE][REDUCEPARTITIONSZ_KVS2];
-	for(unsigned int i=0; i<NUM_PEs; i++){
-		// for(unsigned int partition=0; partition<((globalparams.SIZE_SRCVERTICESDATA / VECTOR2_SIZE) + (REDUCEPARTITIONSZ_KVS2-1)) / REDUCEPARTITIONSZ_KVS2; partition++){
-		for(unsigned int partition=0; partition<_NUM_PROCESSEDGESPARTITIONS; partition++){
-			for(unsigned int k=0; k<REDUCEPARTITIONSZ_KVS2; k++){
-				for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
-					unsigned int lvid = (partition * REDUCEPARTITIONSZ_KVS2 * VDATA_PACKINGSIZE) + (k * VDATA_PACKINGSIZE) + v;
-					unsigned int vid = utilityobj->UTIL_GETREALVID(lvid, i);
-					
-					vbuffer[v][k] = 0;
-					if(vid == 1){
-						#ifdef _DEBUGMODE_HOSTPRINTS
-						cout<<"loadgraph::setrootvid::(1) vid == 1 seen. i: "<<i<<", partition: "<<partition<<", k: "<<k<<", v: "<<v<<", lvid: "<<lvid<<", vid: "<<vid<<endl;
-						#endif 
-						
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], OFFSETOF_VMASK, SIZEOF_VMASK, 1);
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], OFFSETOF_VDATA, SIZEOF_VDATA, 0);
-					} else {
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], OFFSETOF_VMASK, SIZEOF_VMASK, 0);
-						utilityobj->WRITETO_UINT((unsigned int *)&vbuffer[v][k], OFFSETOF_VDATA, SIZEOF_VDATA, algorithmobj->vertex_initdata(Algo, vid)); // MAXVDATA, algorithmobj->vertex_initdata()), 32767
-					}
-				}
-			}
-			savevdata(kvbuffer, vbuffer, globalparams.BASEOFFSETKVS_SRCVERTICESDATA, (i * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2) + (partition * REDUCEPARTITIONSZ_KVS2));
-		}
-	} */
 	return;
 }
 
@@ -835,7 +793,13 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = ON;//ON,OFF  // CRITICAL REMOVEME. 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = ON;//ON,OFF // CRITICAL REMOVEME.  
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASK].data[0].key = ON;
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_SAVEVMASKP].data[0].key = ON;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSCONFIG_INSERTSTATSMETADATAINEDGES].data[0].key = 
+		#ifdef CONFIG_INSERTSTATSMETADATAINEDGES
+		1;
+		#else 
+		0;
+		#endif 
+		;
 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_MESSAGESDATA].data[0].key  = globalparams.BASEOFFSETKVS_MESSAGESDATA;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key = globalparams.BASEOFFSETKVS_EDGESDATA;

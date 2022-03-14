@@ -51,6 +51,8 @@
 // #define CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS // {classname__mem_access.template, utility.cpp}
 #define CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS // NEW {classname__top_usrcv_udstv.cpp}
 
+#define CONFIG_INSERTSTATSMETADATAINEDGES // {acts.cpp, loadedges_random.cpp, classname__top_usrcv_udstv.cpp, processedges2.cpp}
+
 #ifdef CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS
 #define CONFIG_VDATAIS32BITSWIDE // NEW, FIXME. IMPLEMENT FOR ALL CASES.
 #endif 
@@ -88,6 +90,59 @@
 // #define CONFIG_CREATEGRAPHS_CHECK_FOR_NONINCREASINGEDGES
 
 #endif
+
+/**
+CHANGES:
+{config_params.h}
+#define CONFIG_INSERTSTATSMETADATAINEDGES // {congig_params.h}
+// #define CONFIG_ENABLECLASS_REDUCEUPDATES2 // {congig_params.h}
+
+{evaluate.sh}
+TESTKERNEL="RK"
+# TESTKERNEL="TESTKERNEL"
+TESTKERNELARG=1
+
+{acts_merge.cpp}
+if(globalstatsbuffer{{i}}[partition].value > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || true){ // {acts_merge.cpp} REMOVEME 'true'
+#ifdef ENABLERECURSIVEPARTITIONING // {common.h}
+	#ifdef FPGA_IMPL
+	#define SRAMSZ_POW 9//10 // 1024
+	#else 
+	#define SRAMSZ_POW 10
+	#endif 
+#else
+	#define SRAMSZ_POW 14 // 16384
+#endif
+
+{acts_merge.cpp}
+#ifndef FPGA_IMPL
+	MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, 
+		{%for i in context['T_seq']%}{%if(i<n)%}globalstatsbuffer{{i}},{%endif%}{%endfor%} {%for i in context['T_seq']%}{%if(i<n)%}pmask{{i}}_next,{%endif%}{%endfor%} 
+			globalparamsK, globalparamsV);
+	#endif 
+	
+{common.h}	
+#define PROCESSPARTITIONSZ (((SRAMSZ * VDATA_PACKINGSIZE) / NUM_PEs) * NUM_PEs) // 16128
+
+// #define PROCESSEDGES_TYPEA
+#define PROCESSEDGES_TYPEB
+
+{acts_merge.cpp}
+if(statssizes_kvs[0][partitionoffseti] > 0 || true){ // CRITICAL REMOVEME. true. 
+
+{processedges2.cpp}
+#ifdef FPGA_IMPL
+#define PROCESSEDGES_TYPE2
+#else 
+#define PROCESSEDGES_TYPE1
+#endif 
+#ifdef PROCESSEDGES_TYPE1
+	#pragma HLS PIPELINE II=2
+	#endif 
+	#ifdef PROCESSEDGES_TYPE2
+	#pragma HLS INLINE
+	#endif 
+*/
 
 /**
 - AUTOMATE FOR LARGER GRAPHS: mem_access.cpp, acts_merge.cpp, mem_access.cpp->MEMACCESS_readvmasks
@@ -141,8 +196,7 @@
 fetchmessage.chunksize_kvs = 0;//chunk_size * 2; // loadcount; // CRITICAL FIXME
 */
 
-
-/* *** IMPORTANT CHANGES ***
+/** *** IMPORTANT CHANGES ***
 #define CONFIG_SEPERATEVMASKFROMVDATA 
 evaluate.sh: for num_pes in $NUM_PEs_EQ24
 context['PE_SETSZ'] = 8 #8, 16 # for classname__processedges.cpp

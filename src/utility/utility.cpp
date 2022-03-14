@@ -139,6 +139,7 @@ void utility::printallparameters(){
 	std::cout<<"utility:: PROCESSPARTITIONSZ_KVS2: "<<PROCESSPARTITIONSZ_KVS2<<std::endl;
 	std::cout<<"utility:: NUMREDUCEPARTITIONS: "<<NUMREDUCEPARTITIONS<<std::endl;
 	std::cout<<"utility:: NUMPROCESSEDGESPARTITIONS: "<<NUMPROCESSEDGESPARTITIONS<<std::endl;
+	std::cout<<"utility:: VPTR_SHRINK_RATIO: "<<VPTR_SHRINK_RATIO<<std::endl;
 	
 	// std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	std::cout<<"utility:: FETFACTOR: "<<FETFACTOR<<std::endl;
@@ -147,6 +148,8 @@ void utility::printallparameters(){
 	std::cout<<"utility:: WORKBUFFER_SIZE: "<<WORKBUFFER_SIZE<<std::endl;
 	std::cout<<"utility:: SOURCEBLOCKRAM_SIZE: "<<SOURCEBLOCKRAM_SIZE<<std::endl;
 	std::cout<<"utility:: DESTBLOCKRAM_SIZE: "<<DESTBLOCKRAM_SIZE<<std::endl;
+	std::cout<<"utility:: BLOCKRAM_VDATA_SIZE: "<<BLOCKRAM_VDATA_SIZE<<std::endl;
+	std::cout<<"utility:: BLOCKRAM_PMASK_SIZE: "<<BLOCKRAM_PMASK_SIZE<<std::endl;
 	
 	// std::cout<<"utility:: NUM_EDGECHUNKS_IN_A_BUFFER: "<<NUM_EDGECHUNKS_IN_A_BUFFER<<std::endl;
 	

@@ -1,4 +1,4 @@
-unsigned int MERGE{{context['id']}}_SPLIT_actvpstatsoffset(globalparams_t globalparams);
+unsigned int MERGE{{context['id']}}_actvpstatsoffset(globalparams_t globalparams);
 
 {%for n in context['T_seq']%}{%if(n>=1)%}
 void MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, 

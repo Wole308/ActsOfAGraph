@@ -1,4 +1,4 @@
-unsigned int MERGEP0_SPLIT_actvpstatsoffset(globalparams_t globalparams);
+unsigned int MERGEP0_actvpstatsoffset(globalparams_t globalparams);
 
 void MERGEP0_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv);				

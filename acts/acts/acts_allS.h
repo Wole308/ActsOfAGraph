@@ -348,7 +348,9 @@ void PROCESSS_RearrangeLayoutV(unsigned int s, uint32_type vdata[VECTOR_SIZE], u
 
 parsededge_t PROCESSS_PARSEEDGE(uint32_type data);
 
-void PROCESSS_calculateoffsets(keyvalue_capsule_t * buffer);
+void PROCESSS_calculateoffsets1(keyvalue_capsule_t * buffer);
+
+void PROCESSS_calculateoffsets2(keyvalue_capsule_t * buffer);
 
 fetchmessage_t PROCESSS_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams);
@@ -399,7 +401,7 @@ void REDUCES_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsi
 
 void REDUCES_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]);
 
-void REDUCES_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalparams_t globalparams);					
+void REDUCES_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams);					
 
 void REDUCES_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams);
 
@@ -409,7 +411,7 @@ void REDUCES_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue
 	
 	#endif
 	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
-unsigned int MERGES_SPLIT_actvpstatsoffset(globalparams_t globalparams);
+unsigned int MERGES_actvpstatsoffset(globalparams_t globalparams);
 
 void MERGES_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv);				

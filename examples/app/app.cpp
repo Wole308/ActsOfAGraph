@@ -77,8 +77,8 @@ runsummary_t app::run_hw(){
 	Algo = PAGERANK;
 	#elif defined(CF_ALGORITHM)
 	Algo = CF;
-	#elif defined(LP_ALGORITHM)
-	Algo = LP;
+	#elif defined(HITS_ALGORITHM)
+	Algo = HITS;
 	#elif defined(CC_ALGORITHM)
 	Algo = CC;
 	#elif defined(BFS_ALGORITHM)
@@ -105,11 +105,8 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 1;//8; // 32; // 3,12,32
-	#endif 
-	// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	// if(NumGraphIters > 2){ cout<<"app: WARNING. NumGraphIters("<<NumGraphIters<<") > 2 TOO MUCH LOG DATA MAY BE GENERATED. EXITING..."<<endl; exit(EXIT_FAILURE); }
-	// #endif 
+	unsigned int NumGraphIters = 6;//8; // 32; // 3,12,32
+	#endif
 	
 	container_t container;
 	vector<value_t> actvvs;
@@ -204,8 +201,8 @@ runsummary_t app::run_hw(){
 	globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR + ((globalparams.globalparamsE.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
 	globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_VERTEXPTR + ((globalparams.globalparamsV.SIZE_VERTEXPTRS/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
-	// globalparams.globalparamsV.SIZE_SRCVERTICESDATA = NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2 * NUM_PEs * VECTOR2_SIZE;
-	globalparams.globalparamsV.SIZE_SRCVERTICESDATA = utilityobj->allignhigherto16_KV(graphobj->get_num_vertices() + 1000000); // NB: '1000000' is padding
+	globalparams.globalparamsV.SIZE_SRCVERTICESDATA = NUM_PEs * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2 * VECTOR2_SIZE; 
+	// globalparams.globalparamsV.SIZE_SRCVERTICESDATA = utilityobj->allignhigherto16_KV(graphobj->get_num_vertices() + 1000000); // NB: '1000000' is padding
 	
 	loadgraphobj->loadvertexdata(Algo, vertexdatabuffer, (keyvalue_t *)vdram, globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsV.SIZE_SRCVERTICESDATA, globalparams.globalparamsV, 0, SOURCE);
 	for(unsigned int i = 0; i < NUMSUBCPUTHREADS; i++){ loadgraphobj->loadvertexdata(Algo, vertexdatabuffer, (keyvalue_t *)kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsK.SIZE_SRCVERTICESDATA, globalparams.globalparamsK, 0, SOURCE); }					
@@ -320,13 +317,7 @@ runsummary_t app::run_hw(){
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUM_PEs)<<" million edges/sec)"<< RESET <<endl;
 
 	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters);
-		#if defined(CONFIG_ENABLECLASS_TOPNUSRCV_NUDSTV)
-			verifyresults_splitdstvtxs(kvbuffer, globalparams.globalparamsV);
-		#elif defined(CONFIG_ENABLECLASS_TOP_USRCV_UDSTV)
-			verifyresults_splitdstvtxs(vdram, globalparams.globalparamsV);
-		#else
-			NOT DEFINED.
-		#endif
+	verifyresults_splitdstvtxs(vdram, globalparams.globalparamsV);
 	
 	finish();
 	graphobj->closetemporaryfilesforwriting();
@@ -339,100 +330,31 @@ runsummary_t app::run_hw(){
 	return statsobj->timingandsummary(NAp, totaltime_ms);
 }
 
-void app::verifyresults(uint512_vec_dt * kvbuffer, globalparams_t globalparams){
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<endl<<"app::verifyresults: verifying vertex data... "<<endl;
-	#endif
-	
-	unsigned int vdatas[64];
-	for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
-	
-	uint512_vec_dt buff[REDUCEBUFFERSZ];
-	for(unsigned int offset_kvs=0; offset_kvs<SRCVERTICESDATASZ_KVS; offset_kvs+=REDUCEBUFFERSZ){
-		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
-			buff[i] = kvbuffer[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + offset_kvs + i];
-		}
-		
-		for(unsigned int i=0; i<REDUCEBUFFERSZ; i++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				unsigned int pos = i*VECTOR_SIZE + v;
-				unsigned int vid1 = offset_kvs*REDUCESZ*VECTOR_SIZE + v*REDUCESZ + i*2;
-				unsigned int vid2 = vid1 + 1;
-				unsigned int vdata1 = buff[i].data[v].key;
-				unsigned int vdata2 = buff[i].data[v].value;
-				
-				if(vdata1 < 64){
-					#ifdef _DEBUGMODE_HOSTPRINTS3
-					cout<<"app:verifyresults: vid1: "<<vid1<<",vdata1: "<<vdata1<<endl;
-					#endif 
-					vdatas[vdata1] += 1; 
-				}
-				if(vdata2 < 64){
-					#ifdef _DEBUGMODE_HOSTPRINTS3
-					cout<<"app:verifyresults: vid2: "<<vid2<<",vdata2: "<<vdata2<<endl;
-					#endif
-					vdatas[vdata2] += 1; 
-				}
-			}
-		}
-	}
-	utilityobj->printvalues("app::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
-	return;
-}
-void app::verifyresults_splitdstvtxs(uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], globalparams_t globalparams){
+void app::verifyresults_splitdstvtxs(uint512_vec_dt * vdram, globalparams_t globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<endl<<"app::verifyresults_splitdstvtxs: verifying vertex data... "<<endl;
 	#endif
 	
 	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
-	for(unsigned int i=0; i<NUM_PEs; i++){
-		unsigned int _BASEOFFSETKVS_DESTVERTICESDATA = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
-		for(unsigned int k=0; k<NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2; k++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				unsigned int vdata1 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
-				unsigned int vdata2 = kvbuffer[i][_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
-				
-				unsigned int vdata1_tmp = utilityobj->READFROM_UINT(vdata1, OFFSETOF_VDATA, SIZEOF_VDATA);
-				unsigned int vdata2_tmp = utilityobj->READFROM_UINT(vdata2, OFFSETOF_VDATA, SIZEOF_VDATA);
-				
-				if(vdata1_tmp < 64){
-					vdatas[vdata1_tmp] += 1; 
-				}
-				if(vdata2_tmp < 64){
-					vdatas[vdata2_tmp] += 1; 
-				}
-			}
-		}
-	}
-	utilityobj->printvalues("app::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
-	return;
-}
-void app::verifyresults_splitdstvtxs(uint512_vec_dt * vbuffer, globalparams_t globalparams){
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<endl<<"app::verifyresults_splitdstvtxs: verifying vertex data... "<<endl;
-	#endif
+	unsigned int _BASEOFFSETKVS_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA].data[0].key;
+	unsigned int _SIZE_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_SRCVERTICESDATA].data[0].key;
 	
-	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
-	// for(unsigned int i=0; i<NUM_PEs; i++){
-	unsigned int _BASEOFFSETKVS_DESTVERTICESDATA = vbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
-	for(unsigned int k=0; k<NUM_PEs * NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2; k++){
+	for(unsigned int k=0; k<_SIZE_SRCVERTICESDATA / VECTOR2_SIZE; k++){
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			unsigned int vdata1 = vbuffer[_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].key;
-			unsigned int vdata2 = vbuffer[_BASEOFFSETKVS_DESTVERTICESDATA + k].data[v].value;
+			unsigned int vdata1 = utilityobj->READFROM_UINT(vdram[_BASEOFFSETKVS_SRCVERTICESDATA + k].data[v].key, OFFSETOF_VDATA, SIZEOF_VDATA);
+			unsigned int vdata2 = utilityobj->READFROM_UINT(vdram[_BASEOFFSETKVS_SRCVERTICESDATA + k].data[v].value, OFFSETOF_VDATA, SIZEOF_VDATA);
 			
-			unsigned int vdata1_tmp = utilityobj->READFROM_UINT(vdata1, OFFSETOF_VDATA, SIZEOF_VDATA);
-			unsigned int vdata2_tmp = utilityobj->READFROM_UINT(vdata2, OFFSETOF_VDATA, SIZEOF_VDATA);
-			
-			if(vdata1_tmp < 64){
-				vdatas[vdata1_tmp] += 1; 
+			if(vdata1 < 64){
+				vdatas[vdata1] += 1; 
 			}
-			if(vdata2_tmp < 64){
-				vdatas[vdata2_tmp] += 1; 
+			if(vdata2 < 64){
+				vdatas[vdata2] += 1; 
 			}
 		}
 	}
-	// }
-	utilityobj->printvalues("app::verifyresults.vdatas: verifying results after kernel run", vdatas, 16);
+	
+	cout<<">>> swkernel::verifyresults:: Printing results from app.cpp."<<endl;
+	utilityobj->printvalues("swkernel::verifyresults:: verifying results after kernel run (app.cpp)", vdatas, 16);
 	return;
 }
 

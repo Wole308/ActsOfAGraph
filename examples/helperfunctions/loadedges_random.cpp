@@ -15,6 +15,7 @@ using namespace std;
 #define CALCULATELOCALDSTVIDS
 #define INSERTBITMAP
 #define LOADEDGES
+#define CALCULATEOFFSETS
 
 #define TWOO 2
 
@@ -85,35 +86,41 @@ unsigned int loadedges_random::getlocalvid(unsigned int vid){
 }
 
 unsigned int loadedges_random::twist_getpartition(unsigned int partition, unsigned int s){
+	/// NB: This function must be consistent with mem_access::MEMACCESS{{context['id']}}_RearrangeLayoutV
 	return (partition + s) % NUM_PARTITIONS;
 }
 
 unsigned int loadedges_random::getpartition(unsigned int data, vertex_t upperlimit){
 	// unsigned int partition = (data - upperlimit) / ((WORKBUFFER_SIZE*VECTOR2_SIZE) / NUM_PARTITIONS);
 	unsigned int partition = (data - upperlimit) % VECTOR2_SIZE;
-	// cout<<"loadedges_random::getpartition::. partition out of bounds partition: "<<partition<<", data: "<<data<<", upperlimit: "<<upperlimit<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<". "<<endl; 
+	// cout<<"loadedges_random::getpartition::. partition out of bounds partition: "<<partition<<", data: "<<data<<", upperlimit: "<<upperlimit<<", _ACTS_READEDGEGRANULARITY: "<<_ACTS_READEDGEGRANULARITY<<". "<<endl; 
 	if(partition >= NUM_PARTITIONS){ 
-		cout<<"loadedges_random::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", data: "<<data<<", upperlimit: "<<upperlimit<<", _TOTWORKBUFFER_SIZE: "<<WORKBUFFER_SIZE * VECTOR2_SIZE<<". EXITING... "<<endl; 
+		cout<<"loadedges_random::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", data: "<<data<<", upperlimit: "<<upperlimit<<", _ACTS_READEDGEGRANULARITY: "<<WORKBUFFER_SIZE * VECTOR2_SIZE<<". EXITING... "<<endl; 
 		exit(EXIT_FAILURE); 
 	}
 	return partition;
 }
-tuple_t loadedges_random::get_partition_and_incr(unsigned int vid, vertex_t upperlimit){
+tuple_t loadedges_random::get_partition_and_incr(unsigned int vid, unsigned int dstvid){
+	
+	//////////////////////////////////
+	// vid=1;
+	// dstvid=333; // CRIICAL REMOVEME.
+	////////////////////////////////////
 	
 	unsigned int lvid = vid % PROCESSPARTITIONSZ; // FIXME.
 
 	unsigned int s = gethash(lvid);
-	unsigned int bank_lvid = getlocalvid(lvid);
-	unsigned int lcol = bank_lvid % VECTOR2_SIZE;
-	unsigned int lrow = (bank_lvid / VECTOR2_SIZE);
+	unsigned int lvid_inbank = getlocalvid(lvid);
+	unsigned int lcol = lvid_inbank % VECTOR2_SIZE;
+	unsigned int lrow = (lvid_inbank / VECTOR2_SIZE);
 	unsigned int incr = (s * (PROCESSPARTITIONSZ_KVS2 / NUM_PEs)) + lrow;
 	
-	if(incr >= 1024){ cout<<"loadedges_random::getpartition(112)::. out of bounds incr: "<<incr<<", vid: "<<vid<<", lvid: "<<lvid<<", bank_lvid: "<<bank_lvid<<", lcol: "<<lcol<<", lrow: "<<lrow<<", incr: "<<incr<<", s: "<<s<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+	if(incr >= 1024){ cout<<"loadedges_random::getpartition(112)::. out of bounds incr: "<<incr<<", vid: "<<vid<<", lvid: "<<lvid<<", lvid_inbank: "<<lvid_inbank<<", lcol: "<<lcol<<", lrow: "<<lrow<<", incr: "<<incr<<", s: "<<s<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"get_partition_and_incr:: ";
 	<<", vid: "<<vid
 	<<", lvid: "<<lvid
-	<<", bank_lvid: "<<bank_lvid
+	<<", lvid_inbank: "<<lvid_inbank
 	<<", lcol: "<<lcol
 	<<", lrow: "<<lrow
 	<<", incr: "<<incr
@@ -122,28 +129,49 @@ tuple_t loadedges_random::get_partition_and_incr(unsigned int vid, vertex_t uppe
 	#endif 
 	
 	tuple_t res;
-	// res.A = lcol; // twist_getpartition(lcol, s); // partition 
-	res.A = twist_getpartition(lcol, s); // partition 
+	res.A = twist_getpartition(lcol, s);
+	// res.A = lcol; // twist_getpartition(lcol, s); // partition // FIXME............
 	res.B = incr; // incr 
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	if(res.A == 1 && res.B == 42 && vid < PROCESSPARTITIONSZ && dstvid != NAp){ 
+		cout<<"****************************** loadedges_random::getpartition(112):: "<<endl;
+		cout<<"*** res.A (partition): "<<res.A<<endl;
+		cout<<", res.B (incr): "<<res.B<<endl;
+		cout<<", srcvid: "<<vid<<endl;
+		cout<<", dstvid: "<<dstvid<<endl;
+		cout<<", lvid: "<<lvid<<endl;
+		cout<<", lvid_inbank: "<<lvid_inbank<<endl;
+		cout<<", lcol (partition before twist): "<<lcol<<endl;
+		cout<<", lrow: "<<lrow<<endl;
+		cout<<", incr: "<<incr<<endl;
+		cout<<", s: "<<s<<endl;
+		cout<<", PROCESSPARTITIONSZ: "<<PROCESSPARTITIONSZ<<endl;
+		cout<<". "<<endl; 
+		// exit(EXIT_SUCCESS);
+		
+		// cout<<"--- get_partition_and_incr: res.A (partition): "<<res.A<<", res.B (incr): "<<res.B<<", srcvid: "<<vid<<", dstvid: "<<dstvid<<", lcol (partition before twist): "<<lcol<<", PROCESSPARTITIONSZ: "<<PROCESSPARTITIONSZ<<endl;
+	}
+	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	if((res.B==42 && res.A == 1 && vid < 64)){ 
 	cout<<"get_partition_and_incr:: res.B==42:";
 	<<", vid: "<<vid
 	<<", lvid: "<<lvid
-	<<", bank_lvid: "<<bank_lvid
+	<<", lvid_inbank: "<<lvid_inbank
 	<<", lcol: "<<lcol
 	<<", lrow: "<<lrow
 	<<", incr: "<<incr
 	<<", s: "<<s
 	<<endl; }
 	#endif 		
-	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"get_partition_and_incr(113):: partition: "<<res.A
 	<<", incr: "<<res.B
 	<<endl;
 	#endif 
+	
+	// exit(EXIT_SUCCESS);
 	return res;
 }
 
@@ -155,7 +183,7 @@ void loadedges_random::calculateoffsets(keyvalue_t * buffer, unsigned int size){
 	return;
 }
 
-globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUMSUBCPUTHREADS], edge_type * edges[NUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[NUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams){			
+globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, vptr_type * vptrs[NUM_PEs], edge_type * edges[NUM_PEs], vector<edge3_type> (&edges_temp)[NUM_PEs], container_t * container, globalparams_TWOt globalparams){			
 	cout<<"loadedges_random::loadedges:: loading edges (rowwise)... "<<endl;
 
 	globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA = globalparams.globalparamsK.BASEOFFSETKVS_MESSAGESDATA + globalparams.globalparamsK.SIZE_MESSAGESDRAM;
@@ -169,31 +197,38 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	unsigned int _BASEOFFSET_EDGESDATA = globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA * VECTOR_SIZE;
 	#endif 
 	
-	vector<edge2_type> edgedatabuffers_temp[NUMSUBCPUTHREADS];
-	vptr_type * tempvptrs[NUMSUBCPUTHREADS]; for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ tempvptrs[i] = new vptr_type[KVDATA_RANGE]; }
-	vector<edge3_type> edges2_temp[NUMSUBCPUTHREADS];
-	for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ edges_temp[j].clear(); }
-	for(unsigned int j=0; j<NUMSUBCPUTHREADS; j++){ edges2_temp[j].clear(); }
+	vector<edge2_type> edgedatabuffers_temp[NUM_PEs];
+	vptr_type * tempvptrs[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ tempvptrs[i] = new vptr_type[KVDATA_RANGE]; }
+	vector<edge3_type> edges2_temp[NUM_PEs];
+	for(unsigned int j=0; j<NUM_PEs; j++){ edges_temp[j].clear(); }
+	for(unsigned int j=0; j<NUM_PEs; j++){ edges2_temp[j].clear(); }
 	
-	unsigned int * counts_validedges_for_channel[NUMSUBCPUTHREADS];
-	unsigned int * counts_alledges_for_channel[NUMSUBCPUTHREADS];
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+	unsigned int * counts_validedges_for_channel[NUM_PEs];
+	unsigned int * counts_alledges_for_channel[NUM_PEs];
+	unsigned int * counts_alledges_for_vpartition[NUM_PEs];
+	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		counts_validedges_for_channel[i] = new unsigned int[KVDATA_RANGE];
 		counts_alledges_for_channel[i] = new unsigned int[KVDATA_RANGE];
+		counts_alledges_for_vpartition[i] = new unsigned int[KVDATA_RANGE/VPTR_SHRINK_RATIO];
 		for(unsigned int vid=0; vid<KVDATA_RANGE; vid++){ counts_validedges_for_channel[i][vid] = 0; counts_alledges_for_channel[i][vid] = 0; }
+		for(unsigned int v_partition=0; v_partition<KVDATA_RANGE/VPTR_SHRINK_RATIO; v_partition++){ counts_alledges_for_vpartition[i][v_partition] = 0; }
 	}
-	unsigned int counts_totalvalidedges_for_channel[NUMSUBCPUTHREADS]; for(unsigned int i=0; i<NUM_PEs; i++){ counts_totalvalidedges_for_channel[i] = 0; }
-	unsigned int counts_totalalledges_for_channel[NUMSUBCPUTHREADS]; for(unsigned int i=0; i<NUM_PEs; i++){ counts_totalalledges_for_channel[i] = 0; }
+	unsigned int counts_totalvalidedges_for_channel[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ counts_totalvalidedges_for_channel[i] = 0; }
+	unsigned int counts_totalalledges_for_channel[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ counts_totalalledges_for_channel[i] = 0; }
 	unsigned int totalcount_validedges_for_all_channels = 0;
 	unsigned int totalcount_alledges_for_all_channels = 0;
 	unsigned int isFirst = 0;
 	unsigned int isLast = 0;
-	unsigned int _TOTWORKBUFFER_SIZE = (WORKBUFFER_SIZE * VECTOR2_SIZE) / 2;
+	unsigned int _ACTS_READEDGEGRANULARITY = (WORKBUFFER_SIZE * VECTOR2_SIZE) / 2; // this is the granularity with which edges are retrieved from memory 
 	
 	// calculate counts_validedges_for_channel
+	unsigned int KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO = (KVDATA_RANGE + (VPTR_SHRINK_RATIO-1)) / VPTR_SHRINK_RATIO;
 	unsigned int errcount = 0;
 	unsigned int num_zeros = 0;
 	unsigned int total_num_zeros = 0;
+	unsigned int * edgecount[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ edgecount[i] = new unsigned int[KVDATA_RANGE]; }
+	vptr_type * tempvptrs_vpartition[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ tempvptrs_vpartition[i] = new vptr_type[KVDATA_RANGE]; }
+	unsigned int * edgecount_vpartition[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ edgecount_vpartition[i] = new unsigned int[KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO]; }
 	for(unsigned int vid=0; vid<utilityobj->hmin(graphobj->get_num_vertices(), KVDATA_RANGE); vid++){
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		if(vid % 1000000 == 0){ cout<<"### loadedges_random::loadedges:: vid: "<<vid<<" (of "<<graphobj->get_num_vertices()<<" vertices), vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
@@ -211,11 +246,26 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 			
 			unsigned int H = gethash(edge.dstvid);
 			edgedatabuffers_temp[H].push_back(edge);
+			edgecount[H][edge.srcvid] += 1;
 		}
 	}
+	unsigned int v_partition = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){
-		cout<<">>> loadedges_random:: edgedatabuffers_temp["<<i<<"].size(): "<<edgedatabuffers_temp[i].size()<<endl;
+		v_partition = 0;
+		tempvptrs_vpartition[i][0].key = 0;
+		for(unsigned int vid=1; vid<KVDATA_RANGE; vid++){
+			tempvptrs_vpartition[i][vid].key = tempvptrs_vpartition[i][vid-1].key + edgecount[i][vid-1]; 
+			#ifdef _DEBUGMODE_HOSTPRINTS3
+			if(v_partition >= KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO){ cout<<"v_partition("<<v_partition<<") > KVDATA_RANGE("<<KVDATA_RANGE<<") / VPTR_SHRINK_RATIO("<<VPTR_SHRINK_RATIO<<") := ["<<KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO<<"]. VPTR_SHRINK_RATIO: "<<VPTR_SHRINK_RATIO<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+			if(i==0 && vid%1000000==0){ cout<<"loadedges_random:: tempvptrs_vpartition["<<i<<"]["<<vid<<"].key: "<<tempvptrs_vpartition[i][vid].key<<endl; }
+			#endif
+			edgecount_vpartition[i][v_partition] += edgecount[i][vid-1]; // track number of edges in each source partition
+			if(vid % VPTR_SHRINK_RATIO == 0){ v_partition += 1; } // cout<<"---+++- v_partition: "<<v_partition<<", vid: "<<vid<<endl; 
+		}
 	}
+	for(unsigned int i=0; i<NUM_PEs; i++){ delete edgecount[i]; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ cout<<">>> loadedges_random:: edgedatabuffers_temp["<<i<<"].size(): "<<edgedatabuffers_temp[i].size()<<endl; }
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int k=0; k<0; k++){ cout<<">>> loadedges_random:: edgecount_vpartition["<<i<<"]["<<k<<"]: "<<edgecount_vpartition[i][k]<<", v_partition: "<<v_partition<<endl; }}
 	cout<<"loadedges_random:: total_num_zeros: "<<total_num_zeros<<", graphobj->getedgessize(0): "<<graphobj->getedgessize(0)<<endl;
 	if(total_num_zeros > 1000000){ cout<<">>> loadedges_random:: TOO MANY ZEROS. EXITING... (total_num_zeros: "<<total_num_zeros<<", num_vertices: "<<graphobj->get_num_vertices()<<")"<<endl; exit(EXIT_FAILURE); }
 	// exit(EXIT_SUCCESS);
@@ -224,6 +274,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	#ifdef LOADSLICEDEDGES_CORRECT
 	cout<<"### loadedges_random::loadedges:: loading edges into memory channels according to edge representation format..."<<endl;
 	unsigned int tempe_index = 0; 
+	unsigned int tempe_vpartition_index = 0;
 	unsigned int index = 0;
 	unsigned int counts_alldatas[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ counts_alldatas[i] = 0; }
 	unsigned int counts_alldata = 0;
@@ -232,118 +283,162 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	unsigned int numskippededges = 0;
 	keyvalue_t block_partitions[NUM_PARTITIONS];
 	unsigned int numcheckpoints = 0;
-	bool loadcapsulestats = false;
+	bool loadcapsulestats = true;//false;
 	
-	edge2_type edgeblock[_TOTWORKBUFFER_SIZE];
+	edge2_type edgeblock[_ACTS_READEDGEGRANULARITY];
+	cout<<endl<<">>> loadedges_random::loadedges:: loading edges into PE: _ACTS_READEDGEGRANULARITY: "<<_ACTS_READEDGEGRANULARITY<<endl;
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<0; t++){ cout<<"sample edges:: edgedatabuffers_temp["<<i<<"]["<<t<<"].srcvid: "<<edgedatabuffers_temp[i][t].srcvid<<", edgedatabuffers_temp["<<i<<"]["<<t<<"].dstvid: "<<edgedatabuffers_temp[i][t].dstvid<<endl; }}
-	for(unsigned int i=0; i<NUM_PEs; i++){ // CRITICAL REMOVEME.
+	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs // CRIICAL FIXME.
 		cout<<endl<<">>>  loadedges_random::loadedges:: loading edges into PE: "<<i<<", edgedatabuffers_temp["<<i<<"].size(): "<<edgedatabuffers_temp[i].size()<<"..."<<endl;
 		tempe_index = 0;
 		index = 0;
 		srcvid_lastvechead = 0xFFFFFFFF; 
 		unsigned int edgeblockid = 0;
-		while(tempe_index < edgedatabuffers_temp[i].size()){
-			// collect stats of next '512*VECTOR2_SIZE' edges (i.e. an edge block)
-			// NB: *** source here is tailored to suite FPGA impl. ***
-			edge2_type firstedgeinblock;
-			unsigned int srcvtxoffsetofblock;
-			if(tempe_index % _TOTWORKBUFFER_SIZE == 0){
+		edge2_type edge;
+		edge2_type edge2;
+		
+		for(unsigned int v_partition=0; v_partition<KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO; v_partition++){ // KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO // CRIICAL FIXME.
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"$$$ VERTEX PARTITION LOOP: loadedges_random:: i: "<<i<<", v_partition: "<<v_partition<<" (of "<<KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO<<"), num edges in v_partition: "<<edgecount_vpartition[i][v_partition]<<", num edge blocks: "<<(edgecount_vpartition[i][v_partition] + (_ACTS_READEDGEGRANULARITY-1)) / _ACTS_READEDGEGRANULARITY<<", vid: "<<v_partition*(KVDATA_RANGE/VPTR_SHRINK_RATIO)<<", edges_temp["<<i<<"].size(): "<<edges_temp[i].size()<<" (%16="<<edges_temp[i].size() % 16<<")"<<endl;						
+			#endif 
+			tempe_vpartition_index = 0;
+			
+			for(unsigned int eid_offset=0; eid_offset<(edgecount_vpartition[i][v_partition] + (_ACTS_READEDGEGRANULARITY-1)) / _ACTS_READEDGEGRANULARITY; eid_offset++){
+				unsigned int chunk_size = utilityobj->hmin(_ACTS_READEDGEGRANULARITY, edgecount_vpartition[i][v_partition] - tempe_vpartition_index);
+				#ifdef _DEBUGMODE_HOSTPRINTS
+				cout<<"=== EDGE BLOCK LOOP: loadedges_random:: i: "<<i<<", v_partition: "<<v_partition<<" (of "<<KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO<<")"<<", eid_offset: "<<eid_offset<<" (of "<<(edgecount_vpartition[i][v_partition] + (_ACTS_READEDGEGRANULARITY-1)) / _ACTS_READEDGEGRANULARITY<<"), tempe_index: "<<tempe_index<<", chunk_size: "<<chunk_size<<endl;
+				// cout<<"=== loadedges_random:: i: "<<i<<", counts_alledges_for_vpartition["<<i<<"]["<<v_partition<<"]: "<<counts_alledges_for_vpartition[i][v_partition]<<endl;
+				#endif 
 				
-				unsigned int _TOTWORKBUFFER_SIZE_EDGECONDITIONS_ = utilityobj->hmin(_TOTWORKBUFFER_SIZE, edgedatabuffers_temp[i].size() - tempe_index);
-				if(_TOTWORKBUFFER_SIZE_EDGECONDITIONS_ != _TOTWORKBUFFER_SIZE){ cout<<"loadedges_random::edge condition:: i: "<<i<<", tempe_index: "<<tempe_index<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<", _TOTWORKBUFFER_SIZE_EDGECONDITIONS_: "<<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_<<endl; }
+				edge2_type firstedgeinblock;
+				unsigned int srcvtxoffsetofblock;
 				
-				if(debug2b==true){ for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_; t++){ edgeblock[t] = edgedatabuffers_temp[i][tempe_index + t]; }}
+				if(debug2b==true){ for(unsigned int t=0; t<chunk_size; t++){ edgeblock[t] = edgedatabuffers_temp[i][tempe_index + t]; }}
 				if(debug2b==true){ for(unsigned int t=0; t<4; t++){ cout<<"loadedges_random[BEFORE]:: edgeblock["<<t<<"].srcvid: "<<edgeblock[t].srcvid<<", edgeblock["<<t<<"].dstvid: "<<edgeblock[t].dstvid<<endl; }}
 				
-				if(numcheckpoints < 8){ cout<<"loadedges_random:: CHECKPOINT SEEN: tempe_index: "<<tempe_index<<", edgedatabuffers_temp[i].size(): "<<edgedatabuffers_temp[i].size()<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<endl; }
+				#ifdef _DEBUGMODE_HOSTPRINTS
+				cout<<"loadedges_random:: CHECKPOINT SEEN: tempe_index: "<<tempe_index<<", edgedatabuffers_temp["<<i<<"].size(): "<<edgedatabuffers_temp[i].size()<<", srcvid: "<<edgedatabuffers_temp[i][tempe_index].srcvid<<", _ACTS_READEDGEGRANULARITY: "<<_ACTS_READEDGEGRANULARITY<<endl;
+				#endif 
 				firstedgeinblock = edgedatabuffers_temp[i][tempe_index];
 				srcvtxoffsetofblock = allignlower(firstedgeinblock.srcvid, PROCESSPARTITIONSZ);
 				if(debug2b==true){ cout<<"loadedges_random:: srcvtxoffsetofblock: "<<srcvtxoffsetofblock<<", firstedgeinblock.srcvid: "<<firstedgeinblock.srcvid<<endl; }
 				
+				// calculate edge-block's capsule stats
 				for(unsigned int p=0; p<NUM_PARTITIONS; p++){ block_partitions[p].key = 0; block_partitions[p].value = 0; }
-				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_; t++){
+				for(unsigned int t=0; t<chunk_size; t++){
 					edge2_type thisedge = edgedatabuffers_temp[i][tempe_index + t];
-					tuple_t _p = get_partition_and_incr(thisedge.srcvid, srcvtxoffsetofblock);
+					tuple_t _p = get_partition_and_incr(thisedge.srcvid, NAp);
 					block_partitions[_p.A].value += 1;
 				}
 				calculateoffsets(block_partitions, NUM_PARTITIONS);
 				if(debug2b==true){ for(unsigned int _p=0; _p<NUM_PARTITIONS; _p++){ cout<<"loadedges_random:: block_partitions["<<_p<<"].key: "<<block_partitions[_p].key<<", block_partitions["<<_p<<"].value: "<<block_partitions[_p].value<<endl; }}
 				
 				// load capsule stats 
-				if(loadcapsulestats == true){
-					for(unsigned int p=0; p<NUM_PARTITIONS; p++){ 
-						edge3_type edge_temp; edge_temp.srcvid = 0; edge_temp.dstvid = block_partitions[p].value; edge_temp.status = EDGESTATUS_INVALIDEDGE; edge_temp.metadata = 0;
-						if(p==NUM_PARTITIONS-1){ edge_temp.dstvid = 8888888; } // JUST FOR DEBUGGING. REMOVEME.
-						edges_temp[i].push_back(edge_temp);
-						counts_alledges_for_channel[i][firstedgeinblock.srcvid] += 1;
-					}
+				#ifdef CONFIG_INSERTSTATSMETADATAINEDGES
+				for(unsigned int p=0; p<NUM_PARTITIONS; p++){
+					edge3_type edge_temp; edge_temp.srcvid = 0; edge_temp.dstvid = block_partitions[p].value; edge_temp.status = EDGESTATUS_INVALIDEDGE; edge_temp.metadata = 0;
+					if(p==NUM_PARTITIONS-1){ edge_temp.dstvid = 8888888; } // JUST FOR DEBUGGING. REMOVEME.
+					edges_temp[i].push_back(edge_temp); // CAUSE OF ERROR.
+					edges2_temp[i].push_back(edge_temp);
+					#ifdef _DEBUGMODE_HOSTPRINTS
+					if(eid_offset==0 && p==NUM_PARTITIONS-1){ cout<<"loadedges_random: 16th INVALID edge in v_partition and edgeblock: srcvid: "<<edge_temp.srcvid<<", dstvid: "<<edge_temp.dstvid<<", edges_temp["<<i<<"].size(): "<<edges_temp[i].size()<<endl; }
+					#endif 
+					counts_alledges_for_channel[i][firstedgeinblock.srcvid] += 1;
+					counts_alledges_for_vpartition[i][v_partition] += 1;
 				}
+				#endif 
 				
 				// load edge block 
 				for(unsigned int p=0; p<NUM_PARTITIONS; p++){ block_partitions[p].value = 0; }
-				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_; t++){
+				for(unsigned int t=0; t<chunk_size; t++){
 					edge2_type thisedge = edgedatabuffers_temp[i][tempe_index + t];
+					#ifdef _DEBUGMODE_HOSTPRINTS
+					if(eid_offset==0 && t==0){ cout<<"loadedges_random: first edge in v_partition and edgeblock: srcvid: "<<thisedge.srcvid<<", dstvid: "<<thisedge.dstvid<<endl; }
+					#endif 
 					utilityobj->checkoutofbounds("loadedges_random(21)::", thisedge.dstvid, graphobj->get_num_vertices()+10, thisedge.dstvid, tempe_index, t);
-					tuple_t _p = get_partition_and_incr(thisedge.srcvid, srcvtxoffsetofblock);
+					tuple_t _p = get_partition_and_incr(thisedge.srcvid, NAp);
 					edgeblock[block_partitions[_p.A].key + block_partitions[_p.A].value] = thisedge;
 					if(debug2b==true){ if(block_partitions[_p.A].value < 8){ cout<<"loadedges_random::contents:: _p: "<<_p.A<<", thisedge.srcvid: "<<thisedge.srcvid<<", thisedge.dstvid: "<<thisedge.dstvid<<endl; }}
 					block_partitions[_p.A].value += 1;
 				}
+				#ifdef _DEBUGMODE_HOSTPRINTS
 				if(debug2b==true){ for(unsigned int t=0; t<4; t++){ cout<<"loadedges_random[AFTER]:: edgeblock["<<t<<"].srcvid: "<<edgeblock[t].srcvid<<", edgeblock["<<t<<"].dstvid: "<<edgeblock[t].dstvid<<endl; }}
-				// exit(EXIT_SUCCESS); ////////////////
+				unsigned int sm=0; if(i==0 && v_partition==0 && eid_offset==0){ for(unsigned int _p=0; _p<NUM_PARTITIONS; _p++){ cout<<"loadedges_random:: block_partitions["<<_p<<"].key: "<<block_partitions[_p].key<<", block_partitions["<<_p<<"].value: "<<block_partitions[_p].value<<endl; sm+=block_partitions[_p].value; } cout<<"loadedges_random:: sum(values): "<<sm<<endl; }
+				#endif 
+				// exit(EXIT_SUCCESS);
 				
 				// insert edges into buffer...
-				for(unsigned int t=0; t<_TOTWORKBUFFER_SIZE_EDGECONDITIONS_; t++){
-					edge2_type edge2 = edgeblock[t];
-					edge2_type edge = edgeblock[t]; 
+				for(unsigned int t=0; t<chunk_size; t++){
+					edge = edgeblock[t]; 
+					edge2 = edgeblock[t];
 					utilityobj->checkoutofbounds("loadedges_random(22)::", edge.dstvid, graphobj->get_num_vertices()+10, edge.srcvid, edge.dstvid, graphobj->get_num_vertices());
 					if(debug2b==true){ cout<<">>> edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<", edge2.srcvid: "<<edge2.srcvid<<", edge2.dstvid: "<<edge2.dstvid<<" [-]"<<endl; }
 					if(debug2b==true){ cout<<">>> edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<" [-]"<<endl; }
 					
-					//////////////////////////
-					// NB: source here is tailored to suite FPGA impl.
-					unsigned int partition = get_partition_and_incr(edge2.srcvid, srcvtxoffsetofblock).A;
-					unsigned int incr = get_partition_and_incr(edge2.srcvid, srcvtxoffsetofblock).B;
+					// transform srcvid to pick its data in acts.vbuffer accurately
+					tuple_t _p = get_partition_and_incr(edge2.srcvid, edge2.dstvid);
+					unsigned int partition = _p.A; // get_partition_and_incr(edge2.srcvid, edge2.dstvid).A;
+					unsigned int incr = _p.B; // get_partition_and_incr(edge2.srcvid, edge2.dstvid).B;
 					#ifdef _DEBUGMODE_HOSTPRINTS
 					if(incr==42 && partition == 1 && edge2.srcvid < 64){ cout<< TIMINGRESULTSCOLOR << "loadedges:: incr==42: incr: "<<incr<<", partition: "<<partition<<" [edge2.srcvid: "<<edge2.srcvid<<", edge2.dstvid: "<<edge2.dstvid<<"]"<< RESET << endl; }
 					#endif 	
 					edge2.srcvid = incr;
-					utilityobj->checkoutofbounds("loadedges_random(24)::", edge2.srcvid, 1024, srcvtxoffsetofblock, _TOTWORKBUFFER_SIZE_EDGECONDITIONS_, firstedgeinblock.srcvid);
-					//////////////////////////
+					utilityobj->checkoutofbounds("loadedges_random(24)::", edge2.srcvid, 1024, srcvtxoffsetofblock, chunk_size, firstedgeinblock.srcvid);
 					
 					// insert edge
 					edge3_type edge_temp; edge_temp.srcvid = edge.srcvid; edge_temp.dstvid = edge.dstvid; edge_temp.status = EDGESTATUS_VALIDEDGE; edge_temp.metadata = 0; edges_temp[i].push_back(edge_temp);
 					edge3_type edge2_temp; edge2_temp.srcvid = edge2.srcvid; edge2_temp.dstvid = edge2.dstvid; edge2_temp.status = EDGESTATUS_VALIDEDGE; edge2_temp.metadata = 0, edges2_temp[i].push_back(edge2_temp);
+					
+					#ifdef _DEBUGMODE_CHECKS
+					if(i==2 && partition==1 && edge2.srcvid==42 && edge2.dstvid<1000){ cout<<"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ loadedges_random: i: "<<i<<", edge2.srcvid: "<<edge2.srcvid<<", edge2.dstvid: "<<edge2.dstvid<<", ldstvid: "<<(edge2.dstvid - i) / NUM_PEs<<", partition: "<<partition<<", edges2_temp["<<i<<"].size(): "<<edges2_temp[i].size()<<endl; }
+					#endif 
+					
 					utilityobj->checkoutofbounds("loadedges_random(25)::", edge_temp.dstvid, graphobj->get_num_vertices()+10, edge.srcvid, edge.dstvid, graphobj->get_num_vertices());
 					utilityobj->checkoutofbounds("loadedges_random(26)::", edge2_temp.dstvid, graphobj->get_num_vertices()+10, edge2.srcvid, edge2.dstvid, graphobj->get_num_vertices());
 					if(debugb==true){ cout<<">>> edge_temp.srcvid: "<<edge_temp.srcvid<<", edge_temp.dstvid: "<<edge_temp.dstvid<<" [3]"<<endl; }
 					tempe_index += 1;
+					tempe_vpartition_index += 1;
 					index += 1;
 					counts_validedges_for_channel[i][edge_temp.srcvid] += 1;
 					counts_alledges_for_channel[i][edge_temp.srcvid] += 1;
+					counts_alledges_for_vpartition[i][v_partition] += 1;
 				}
 				
 				if(tempe_index % 1000000 == 0 && false){ cout<<"loadedges_random::loadedges:: filling edges... index: "<<index<<", tempe_index: "<<tempe_index<<endl; }
 				numcheckpoints += 1;
 				edgeblockid += 1;
-				// exit(EXIT_SUCCESS); ////////////////
-			} else {
-				cout<<"loadedges_random: ERROR SOMEWHERE. (tempe_index("<<tempe_index<<") % _TOTWORKBUFFER_SIZE("<<_TOTWORKBUFFER_SIZE<<") != 0). EXITING...."<<endl;
-				exit(EXIT_FAILURE);
+				// exit(EXIT_SUCCESS);
+			} // end of edge block loop
+			
+			// padding 
+			unsigned int sz = edges_temp[i].size();
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"--- loadedges_random: [BEFORE PADDING]: edge.srcvid: "<<edge.srcvid<<", counts_alledges_for_vpartition["<<i<<"]["<<v_partition<<"]: "<<counts_alledges_for_vpartition[i][v_partition]<<" (%16="<<counts_alledges_for_vpartition[i][v_partition] % 16<<")"<<endl;	
+			#endif 
+			for(unsigned int t=0; t<utilityobj->allignhigherto16_KV(sz) - sz; t++){
+				edge3_type edge_temp; edge_temp.srcvid = 0; edge_temp.dstvid = INVALIDDATA; edge_temp.status = EDGESTATUS_INVALIDEDGE; edge_temp.metadata = 0; // edge.srcvid
+				edges_temp[i].push_back(edge_temp);
+				edges2_temp[i].push_back(edge_temp);
+				counts_alledges_for_channel[i][edge.srcvid] += 1;
+				counts_alledges_for_vpartition[i][v_partition] += 1;
 			}
-		}
+			#ifdef _DEBUGMODE_HOSTPRINTS
+			cout<<"--- loadedges_random: [AFTER PADDING]: edge.srcvid: "<<edge.srcvid<<", counts_alledges_for_vpartition["<<i<<"]["<<v_partition<<"]: "<<counts_alledges_for_vpartition[i][v_partition]<<" (%16="<<counts_alledges_for_vpartition[i][v_partition] % 16<<")"<<endl;	
+			#endif
+			// exit(EXIT_SUCCESS);
+		} // end of vertex partition loop
 		
 		counts_alldatas[i] += index;
 		counts_alldata += index;
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS3
-		utilityobj->printtriples("loadedges_random::[insert.edges] printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 8);
+		utilityobj->printtriples("loadedges_random::[insert.edges] printing edges_temp["+std::to_string(i)+"][~]", (triple_t *)&edges_temp[i][0], 4);
 		cout<<"### edges_temp["<<i<<"].size(): "<<edges_temp[i].size()<<", edges2_temp["<<i<<"].size(): "<<edges2_temp[i].size()<<endl;
 		cout<<"### loadedges_random::[insert.edges] memory channel "<<i<<": tempe_index: "<<tempe_index<<", index: "<<index<<endl;
 		#endif
-		// exit(EXIT_SUCCESS);////////////////////
-	}
+		// exit(EXIT_SUCCESS);
+	} // end of PEs loop
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	utilityobj->printvalues(">>> loadedges_random:[insert.edges] total number of edges in channels[0-N]", (value_t *)&counts_alldatas[0], NUM_PEs);
 	cout<<">>> loadedges_random::[insert.edges] total number of edges in all memory channels: counts_alldata: "<<counts_alldata<<", NAp: "<<NAp<<endl;
@@ -379,11 +474,11 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 			// NB: *** source here is tailored to suite FPGA impl. ***
 			edge2_type firstedgeinblock;
 			if(enablestats){
-				if(tempe_index % _TOTWORKBUFFER_SIZE == 0){
-					if(numcheckpoints < 8){ cout<<"loadedges_random:: CHECKPOINT SEEN: tempe_index: "<<tempe_index<<", tempg_index: "<<tempg_index<<", offset_kvs: "<<tempg_index/VECTOR2_SIZE<<", edgedatabuffers_temp[i].size(): "<<edgedatabuffers_temp[i].size()<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<endl; }
+				if(tempe_index % _ACTS_READEDGEGRANULARITY == 0){
+					if(numcheckpoints < 8){ cout<<"loadedges_random:: CHECKPOINT SEEN: tempe_index: "<<tempe_index<<", tempg_index: "<<tempg_index<<", offset_kvs: "<<tempg_index/VECTOR2_SIZE<<", edgedatabuffers_temp[i].size(): "<<edgedatabuffers_temp[i].size()<<", _ACTS_READEDGEGRANULARITY: "<<_ACTS_READEDGEGRANULARITY<<endl; }
 					firstedgeinblock = edgedatabuffers_temp[i][tempe_index];
 					for(unsigned int p=0; p<NUM_PARTITIONS; p++){ block_partitions[p] = 0; }
-					for(unsigned int k=0; k<_TOTWORKBUFFER_SIZE; k++){
+					for(unsigned int k=0; k<_ACTS_READEDGEGRANULARITY; k++){
 						edge2_type thisedge = edgedatabuffers_temp[i][tempe_index + k];
 						unsigned int _p = getpartition(thisedge.srcvid, firstedgeinblock.srcvid);
 						block_partitions[_p] += 1;
@@ -398,7 +493,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 					#ifdef _DEBUGMODE_HOSTPRINTS
 					unsigned int totalps = 0;
 					for(unsigned int _p=0; _p<NUM_PARTITIONS; _p++){ cout<<"loadedges_random:: block_partitions["<<_p<<"]: "<<block_partitions[_p]<<endl; totalps += block_partitions[_p]; }
-					cout<<"loadedges_random:: totalps: "<<totalps<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<endl;
+					cout<<"loadedges_random:: totalps: "<<totalps<<", _ACTS_READEDGEGRANULARITY: "<<_ACTS_READEDGEGRANULARITY<<endl;
 					#endif
 					numcheckpoints += 1;
 				}
@@ -406,7 +501,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 			edge2_type edge2 = edgedatabuffers_temp[i][tempe_index];
 			if(enablestats){
 				edge2.srcvid = (edge2.srcvid - firstedgeinblock.srcvid) % VECTOR2_SIZE; // NB: source here is tailored to suite FPGA impl.
-				if(edge2.srcvid >= 1024){ cout<<"loadedges_random::getpartition::ERROR 1. out of bounds edge2.srcvid: "<<edge2.srcvid<<", firstedgeinblock.srcvid: "<<firstedgeinblock.srcvid<<", _TOTWORKBUFFER_SIZE: "<<_TOTWORKBUFFER_SIZE<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+				if(edge2.srcvid >= 1024){ cout<<"loadedges_random::getpartition::ERROR 1. out of bounds edge2.srcvid: "<<edge2.srcvid<<", firstedgeinblock.srcvid: "<<firstedgeinblock.srcvid<<", _ACTS_READEDGEGRANULARITY: "<<_ACTS_READEDGEGRANULARITY<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 			}
 			// exit(EXIT_SUCCESS);
 			
@@ -465,13 +560,27 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	for(unsigned int i=0; i<NUM_PEs; i++){
 		if(debug2b==true){ utilityobj->printtriples("loadedges_random::insert.bitmap::[before.insert.bitmap]: printing edges2_temp["+std::to_string(i)+"][~]", (triple_t *)&edges2_temp[i][0], 8); }
 		for(unsigned int j=0; j<edges2_temp[i].size(); j+=VECTOR2_SIZE){
-			for(unsigned int v=1; v<VECTOR2_SIZE; v++){
+			for(unsigned int v=0; v<VECTOR2_SIZE; v++){
 				if(j+v >= edges2_temp[i].size()){ continue; }
-				if(edges2_temp[i][j+v].status == EDGESTATUS_DUMMYEDGE || edges2_temp[i][j+v].status == EDGESTATUS_INVALIDEDGE){ continue; }
+				if(edges2_temp[i][j+v].status != EDGESTATUS_VALIDEDGE){ continue; }
+				
+				#ifdef _DEBUGMODE_HOSTPRINTS3
+				if(edges2_temp[i][j+v].srcvid >= (1 << SIZEOF_SRCV_IN_EDGEDSTVDATA)){ cout<<"loadedges_random.insertbitmap: ERROR 65. i:"<<i<<", j:"<<j<<", v:"<<v<<", edges2_temp["<<i<<"]["<<j+v<<"].srcvid >= (1 << SIZEOF_SRCV_IN_EDGEDSTVDATA). EXITING..."<<endl; exit(EXIT_FAILURE); }
+				if(edges2_temp[i][j+v].dstvid >= (1 << SIZEOF_DSTV_IN_EDGEDSTVDATA)){ cout<<"loadedges_random.insertbitmap: ERROR 65. i:"<<i<<", j:"<<j<<", v:"<<v<<", edges2_temp["<<i<<"]["<<j+v<<"].dstvid >= (1 << SIZEOF_DSTV_IN_EDGEDSTVDATA). EXITING..."<<endl; exit(EXIT_FAILURE); }
+				#endif 
 				
 				unsigned int codededge = 0;
 				WRITETO_UINT(&codededge, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA, edges2_temp[i][j+v].srcvid);
 				WRITETO_UINT(&codededge, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA, edges2_temp[i][j+v].dstvid);
+				
+				// debug
+				#ifdef _DEBUGMODE_CHECKS
+				parsededge_t parsededge;
+				parsededge.incr = READFROM_UINT(codededge, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
+				parsededge.dstvid = READFROM_UINT(codededge, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
+				if(i==2 && parsededge.incr==42 && parsededge.dstvid<50 && j+v <= 3456){ cout<<"################### loadedges_random.insertbitmap: i:"<<i<<", j:"<<j<<", v:"<<v<<", parsededge.incr("<<parsededge.incr<<")==42. parsededge.dstvid: "<<parsededge.dstvid<<", edges2_temp["<<i<<"]["<<j+v<<"].srcvid: "<<edges2_temp[i][j+v].srcvid<<", edges2_temp["<<i<<"]["<<j+v<<"].dstvid: "<<edges2_temp[i][j+v].dstvid<<", codededge: "<<codededge<<endl; }
+				#endif 
+				
 				edges2_temp[i][j+v].dstvid = codededge;
 				
 				edges2_temp[i][j+v].metadata = edges2_temp[i][j+v].srcvid; 
@@ -480,9 +589,11 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		utilityobj->printtriples("loadedges_random::insert.bitmap::[after.insert.bitmap]: printing edges2_temp["+std::to_string(i)+"][~]", (triple_t *)&edges2_temp[i][0], 8);
 		#endif 
+		// exit(EXIT_SUCCESS);
 	}
 	cout<<"### loadedges_random::insert.bitmap::[insert.bitmap] bitmap inserted successfully"<<endl;
 	#endif
+	// exit(EXIT_SUCCESS);
 	
 	// load edges
 	#ifdef LOADEDGES
@@ -506,14 +617,13 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	globalparams.globalparamsK.SIZE_EDGES = 0; 
 	
 	globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + ((max_totalalledges_for_channel/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
-	globalparams.globalparamsE.SIZE_VERTEXPTRS = KVDATA_RANGE / VPTR_SHRINK_RATIO; 
+	globalparams.globalparamsE.SIZE_VERTEXPTRS = (KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO) + DRAMPADD_VPTRS; 
 	globalparams.globalparamsE.SIZE_EDGES = max_totalalledges_for_channel + 1000; // '1000' is padding 
 	#else 
 	globalparams.globalparamsK.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA + ((max_totalalledges_for_channel/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + DRAMPADD_KVS;
-	globalparams.globalparamsK.SIZE_VERTEXPTRS = KVDATA_RANGE / VPTR_SHRINK_RATIO;
+	globalparams.globalparamsK.SIZE_VERTEXPTRS = (KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO) + DRAMPADD_VPTRS;
 	globalparams.globalparamsK.SIZE_EDGES = max_totalalledges_for_channel + 1000;
 	#endif
-	
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
 	globalparams_t globalparamsVPTRS = globalparams.globalparamsE;
 	#else
@@ -521,32 +631,28 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	#endif 
 	
 	// calculate offsets
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		tempvptrs[i][0].key = 0;
-		for(unsigned int vid=1; vid<KVDATA_RANGE; vid++){
-			tempvptrs[i][vid].key = tempvptrs[i][vid-1].key + counts_alledges_for_channel[i][vid-1]; 
+	#ifdef CALCULATEOFFSETS
+	unsigned int _baseoffset = TWOO * (globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE);
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		vptrs[i][_baseoffset + 0].key = 0;
+		for(unsigned int vid=1; vid<KVDATA_RANGE/VPTR_SHRINK_RATIO; vid++){
+			vptrs[i][_baseoffset + vid].key = vptrs[i][_baseoffset + vid - 1].key + counts_alledges_for_vpartition[i][vid-1]; 
+			if(i==0 && vid<0){ cout<<"loadedges_random:: vptrs[i]["<<_baseoffset + vid<<"].key: "<<vptrs[i][_baseoffset + vid].key<<" (%16="<<vptrs[i][_baseoffset + vid].key % 16<<")"<<endl; }
+		}
+		for(unsigned int vid=KVDATA_RANGE/VPTR_SHRINK_RATIO; vid<(KVDATA_RANGE/VPTR_SHRINK_RATIO) + DRAMPADD_VPTRS; vid++){ // dummy filling...
+			vptrs[i][_baseoffset + vid].key = counts_totalalledges_for_channel[i];
 		}
 	}
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-		unsigned int _index = 0;
-		for(unsigned int vid=0; vid<KVDATA_RANGE; vid+=VPTR_SHRINK_RATIO){	
-			vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE) + _index].key = utilityobj->allignlowerto16_KV(tempvptrs[i][vid].key); // tempvptrs[i][vid].key; // NEWCHANGE.
-			#ifdef _DEBUGMODE_HOSTPRINTS
-			if(i==0){ cout<<"vptrs[i]["<<_index<<"].key: "<<vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE) + _index].key<<endl; }
-			#endif 
-			_index += 1;
-		}
-		for(unsigned int vid=0; vid<(DRAMPADD/2); vid++){
-			vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE) + _index].key = counts_totalalledges_for_channel[i];
-			_index += 1;
-		}
-	}
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	for(unsigned int i=0; i<1; i++){ utilityobj->printvalues("loadedges_random::loadedges: printing vptrs["+std::to_string(i)+"][~]", (value_t *)&vptrs[i][TWOO*(globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE)], 8); } 
+	#endif
+	#endif 
 	
 	// CHECK 4: check vptrs against edges
 	#ifdef CHECK4_VERIFYOFFSETS
 	cout<<"### loadedges_random::insert.bitmap:: checking vptrs against edges (CHECK 4(a&b))..."<<endl;
 	unsigned int vptr_offset = 0;
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ 
+	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		for(unsigned int vid=0; vid<KVDATA_RANGE-1; vid+=VPTR_SHRINK_RATIO){	
 			if(false){ if(tempvptrs[i][vptr_offset+vid].key % VECTOR2_SIZE != 0){ cout<<"CHECK 4(a): ERROR CHECKING FAILED. tempvptrs["<<i<<"]["<<vptr_offset+vid<<"].key("<<tempvptrs[i][vptr_offset+vid].key<<") % VECTOR2_SIZE != 0. EXITING... "<<endl; exit(EXIT_FAILURE); }} // too expensive
 			for(unsigned int k=tempvptrs[i][vptr_offset+vid].key; k<tempvptrs[i][vptr_offset+vid+1].key; k++){
@@ -563,7 +669,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	cout<<"### loadedges_random::loadedges:: CHECK 4(a&b): ERROR CHECKING SUCCESSFUL."<<endl;
 	#endif
 	
-	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+	for(unsigned int i=0; i<NUM_PEs; i++){
 		container->srcvoffset[i] = 0;
 		container->srcvsize[i] = utilityobj->allignhigherto16_KV(graphobj->get_num_vertices());
 		container->edgessize[i] = counts_totalalledges_for_channel[i]; 

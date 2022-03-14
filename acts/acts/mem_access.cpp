@@ -1,5 +1,5 @@
 // -------------------- key values -------------------- //
-fetchmessage_t MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
+fetchmessage_t acts_all::MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -79,7 +79,7 @@ fetchmessage_t MEMACCESSP0_readkeyvalues(bool_type enable, uint512_dt * kvdram, 
 	return fetchmessage;
 }
 
-void MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
+void acts_all::MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], batch_type globalbaseaddress_kvs, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_destpartitionsz = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 	
@@ -184,7 +184,7 @@ void MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_b
 }
 
 // -------------------- vdata -------------------- //
-void MEMACCESSP0_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+void acts_all::MEMACCESSP0_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -768,10 +768,11 @@ else {
 	return;
 }
 
-void MEMACCESSP0_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]){
+void acts_all::MEMACCESSP0_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]){
+	/// NB: This function must be consistent with loadedges_random.cpp->loadedges_random::twist_getpartition
 	unsigned int s_ = s % VECTOR2_SIZE;	
 	
-	/*  if(s_==0){ 
+ if(s_==0){ 
 		vdata2[0] = vdata[0]; 
 		vdata2[1] = vdata[1]; 
 		vdata2[2] = vdata[2]; 
@@ -790,130 +791,130 @@ void MEMACCESSP0_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTO
 		vdata2[15] = vdata[15]; 
 	}
 else if(s_==1){ 
-		vdata2[15] = vdata[0]; 
-		vdata2[0] = vdata[1]; 
-		vdata2[1] = vdata[2]; 
-		vdata2[2] = vdata[3]; 
-		vdata2[3] = vdata[4]; 
-		vdata2[4] = vdata[5]; 
-		vdata2[5] = vdata[6]; 
-		vdata2[6] = vdata[7]; 
-		vdata2[7] = vdata[8]; 
-		vdata2[8] = vdata[9]; 
-		vdata2[9] = vdata[10]; 
-		vdata2[10] = vdata[11]; 
-		vdata2[11] = vdata[12]; 
-		vdata2[12] = vdata[13]; 
-		vdata2[13] = vdata[14]; 
-		vdata2[14] = vdata[15]; 
+		vdata2[1] = vdata[0]; 
+		vdata2[2] = vdata[1]; 
+		vdata2[3] = vdata[2]; 
+		vdata2[4] = vdata[3]; 
+		vdata2[5] = vdata[4]; 
+		vdata2[6] = vdata[5]; 
+		vdata2[7] = vdata[6]; 
+		vdata2[8] = vdata[7]; 
+		vdata2[9] = vdata[8]; 
+		vdata2[10] = vdata[9]; 
+		vdata2[11] = vdata[10]; 
+		vdata2[12] = vdata[11]; 
+		vdata2[13] = vdata[12]; 
+		vdata2[14] = vdata[13]; 
+		vdata2[15] = vdata[14]; 
+		vdata2[0] = vdata[15]; 
 	}
 else if(s_==2){ 
-		vdata2[14] = vdata[0]; 
-		vdata2[15] = vdata[1]; 
-		vdata2[0] = vdata[2]; 
-		vdata2[1] = vdata[3]; 
-		vdata2[2] = vdata[4]; 
-		vdata2[3] = vdata[5]; 
-		vdata2[4] = vdata[6]; 
-		vdata2[5] = vdata[7]; 
-		vdata2[6] = vdata[8]; 
-		vdata2[7] = vdata[9]; 
-		vdata2[8] = vdata[10]; 
-		vdata2[9] = vdata[11]; 
-		vdata2[10] = vdata[12]; 
-		vdata2[11] = vdata[13]; 
-		vdata2[12] = vdata[14]; 
-		vdata2[13] = vdata[15]; 
+		vdata2[2] = vdata[0]; 
+		vdata2[3] = vdata[1]; 
+		vdata2[4] = vdata[2]; 
+		vdata2[5] = vdata[3]; 
+		vdata2[6] = vdata[4]; 
+		vdata2[7] = vdata[5]; 
+		vdata2[8] = vdata[6]; 
+		vdata2[9] = vdata[7]; 
+		vdata2[10] = vdata[8]; 
+		vdata2[11] = vdata[9]; 
+		vdata2[12] = vdata[10]; 
+		vdata2[13] = vdata[11]; 
+		vdata2[14] = vdata[12]; 
+		vdata2[15] = vdata[13]; 
+		vdata2[0] = vdata[14]; 
+		vdata2[1] = vdata[15]; 
 	}
 else if(s_==3){ 
-		vdata2[13] = vdata[0]; 
-		vdata2[14] = vdata[1]; 
-		vdata2[15] = vdata[2]; 
-		vdata2[0] = vdata[3]; 
-		vdata2[1] = vdata[4]; 
-		vdata2[2] = vdata[5]; 
-		vdata2[3] = vdata[6]; 
-		vdata2[4] = vdata[7]; 
-		vdata2[5] = vdata[8]; 
-		vdata2[6] = vdata[9]; 
-		vdata2[7] = vdata[10]; 
-		vdata2[8] = vdata[11]; 
-		vdata2[9] = vdata[12]; 
-		vdata2[10] = vdata[13]; 
-		vdata2[11] = vdata[14]; 
-		vdata2[12] = vdata[15]; 
+		vdata2[3] = vdata[0]; 
+		vdata2[4] = vdata[1]; 
+		vdata2[5] = vdata[2]; 
+		vdata2[6] = vdata[3]; 
+		vdata2[7] = vdata[4]; 
+		vdata2[8] = vdata[5]; 
+		vdata2[9] = vdata[6]; 
+		vdata2[10] = vdata[7]; 
+		vdata2[11] = vdata[8]; 
+		vdata2[12] = vdata[9]; 
+		vdata2[13] = vdata[10]; 
+		vdata2[14] = vdata[11]; 
+		vdata2[15] = vdata[12]; 
+		vdata2[0] = vdata[13]; 
+		vdata2[1] = vdata[14]; 
+		vdata2[2] = vdata[15]; 
 	}
 else if(s_==4){ 
-		vdata2[12] = vdata[0]; 
-		vdata2[13] = vdata[1]; 
-		vdata2[14] = vdata[2]; 
-		vdata2[15] = vdata[3]; 
-		vdata2[0] = vdata[4]; 
-		vdata2[1] = vdata[5]; 
-		vdata2[2] = vdata[6]; 
-		vdata2[3] = vdata[7]; 
-		vdata2[4] = vdata[8]; 
-		vdata2[5] = vdata[9]; 
-		vdata2[6] = vdata[10]; 
-		vdata2[7] = vdata[11]; 
-		vdata2[8] = vdata[12]; 
-		vdata2[9] = vdata[13]; 
-		vdata2[10] = vdata[14]; 
-		vdata2[11] = vdata[15]; 
+		vdata2[4] = vdata[0]; 
+		vdata2[5] = vdata[1]; 
+		vdata2[6] = vdata[2]; 
+		vdata2[7] = vdata[3]; 
+		vdata2[8] = vdata[4]; 
+		vdata2[9] = vdata[5]; 
+		vdata2[10] = vdata[6]; 
+		vdata2[11] = vdata[7]; 
+		vdata2[12] = vdata[8]; 
+		vdata2[13] = vdata[9]; 
+		vdata2[14] = vdata[10]; 
+		vdata2[15] = vdata[11]; 
+		vdata2[0] = vdata[12]; 
+		vdata2[1] = vdata[13]; 
+		vdata2[2] = vdata[14]; 
+		vdata2[3] = vdata[15]; 
 	}
 else if(s_==5){ 
-		vdata2[11] = vdata[0]; 
-		vdata2[12] = vdata[1]; 
-		vdata2[13] = vdata[2]; 
-		vdata2[14] = vdata[3]; 
-		vdata2[15] = vdata[4]; 
-		vdata2[0] = vdata[5]; 
-		vdata2[1] = vdata[6]; 
-		vdata2[2] = vdata[7]; 
-		vdata2[3] = vdata[8]; 
-		vdata2[4] = vdata[9]; 
-		vdata2[5] = vdata[10]; 
-		vdata2[6] = vdata[11]; 
-		vdata2[7] = vdata[12]; 
-		vdata2[8] = vdata[13]; 
-		vdata2[9] = vdata[14]; 
-		vdata2[10] = vdata[15]; 
+		vdata2[5] = vdata[0]; 
+		vdata2[6] = vdata[1]; 
+		vdata2[7] = vdata[2]; 
+		vdata2[8] = vdata[3]; 
+		vdata2[9] = vdata[4]; 
+		vdata2[10] = vdata[5]; 
+		vdata2[11] = vdata[6]; 
+		vdata2[12] = vdata[7]; 
+		vdata2[13] = vdata[8]; 
+		vdata2[14] = vdata[9]; 
+		vdata2[15] = vdata[10]; 
+		vdata2[0] = vdata[11]; 
+		vdata2[1] = vdata[12]; 
+		vdata2[2] = vdata[13]; 
+		vdata2[3] = vdata[14]; 
+		vdata2[4] = vdata[15]; 
 	}
 else if(s_==6){ 
-		vdata2[10] = vdata[0]; 
-		vdata2[11] = vdata[1]; 
-		vdata2[12] = vdata[2]; 
-		vdata2[13] = vdata[3]; 
-		vdata2[14] = vdata[4]; 
-		vdata2[15] = vdata[5]; 
-		vdata2[0] = vdata[6]; 
-		vdata2[1] = vdata[7]; 
-		vdata2[2] = vdata[8]; 
-		vdata2[3] = vdata[9]; 
-		vdata2[4] = vdata[10]; 
-		vdata2[5] = vdata[11]; 
-		vdata2[6] = vdata[12]; 
-		vdata2[7] = vdata[13]; 
-		vdata2[8] = vdata[14]; 
-		vdata2[9] = vdata[15]; 
+		vdata2[6] = vdata[0]; 
+		vdata2[7] = vdata[1]; 
+		vdata2[8] = vdata[2]; 
+		vdata2[9] = vdata[3]; 
+		vdata2[10] = vdata[4]; 
+		vdata2[11] = vdata[5]; 
+		vdata2[12] = vdata[6]; 
+		vdata2[13] = vdata[7]; 
+		vdata2[14] = vdata[8]; 
+		vdata2[15] = vdata[9]; 
+		vdata2[0] = vdata[10]; 
+		vdata2[1] = vdata[11]; 
+		vdata2[2] = vdata[12]; 
+		vdata2[3] = vdata[13]; 
+		vdata2[4] = vdata[14]; 
+		vdata2[5] = vdata[15]; 
 	}
 else if(s_==7){ 
-		vdata2[9] = vdata[0]; 
-		vdata2[10] = vdata[1]; 
-		vdata2[11] = vdata[2]; 
-		vdata2[12] = vdata[3]; 
-		vdata2[13] = vdata[4]; 
-		vdata2[14] = vdata[5]; 
-		vdata2[15] = vdata[6]; 
-		vdata2[0] = vdata[7]; 
-		vdata2[1] = vdata[8]; 
-		vdata2[2] = vdata[9]; 
-		vdata2[3] = vdata[10]; 
-		vdata2[4] = vdata[11]; 
-		vdata2[5] = vdata[12]; 
-		vdata2[6] = vdata[13]; 
-		vdata2[7] = vdata[14]; 
-		vdata2[8] = vdata[15]; 
+		vdata2[7] = vdata[0]; 
+		vdata2[8] = vdata[1]; 
+		vdata2[9] = vdata[2]; 
+		vdata2[10] = vdata[3]; 
+		vdata2[11] = vdata[4]; 
+		vdata2[12] = vdata[5]; 
+		vdata2[13] = vdata[6]; 
+		vdata2[14] = vdata[7]; 
+		vdata2[15] = vdata[8]; 
+		vdata2[0] = vdata[9]; 
+		vdata2[1] = vdata[10]; 
+		vdata2[2] = vdata[11]; 
+		vdata2[3] = vdata[12]; 
+		vdata2[4] = vdata[13]; 
+		vdata2[5] = vdata[14]; 
+		vdata2[6] = vdata[15]; 
 	}
 else if(s_==8){ 
 		vdata2[8] = vdata[0]; 
@@ -934,425 +935,135 @@ else if(s_==8){
 		vdata2[7] = vdata[15]; 
 	}
 else if(s_==9){ 
-		vdata2[7] = vdata[0]; 
-		vdata2[8] = vdata[1]; 
-		vdata2[9] = vdata[2]; 
-		vdata2[10] = vdata[3]; 
-		vdata2[11] = vdata[4]; 
-		vdata2[12] = vdata[5]; 
-		vdata2[13] = vdata[6]; 
-		vdata2[14] = vdata[7]; 
-		vdata2[15] = vdata[8]; 
-		vdata2[0] = vdata[9]; 
-		vdata2[1] = vdata[10]; 
-		vdata2[2] = vdata[11]; 
-		vdata2[3] = vdata[12]; 
-		vdata2[4] = vdata[13]; 
-		vdata2[5] = vdata[14]; 
-		vdata2[6] = vdata[15]; 
+		vdata2[9] = vdata[0]; 
+		vdata2[10] = vdata[1]; 
+		vdata2[11] = vdata[2]; 
+		vdata2[12] = vdata[3]; 
+		vdata2[13] = vdata[4]; 
+		vdata2[14] = vdata[5]; 
+		vdata2[15] = vdata[6]; 
+		vdata2[0] = vdata[7]; 
+		vdata2[1] = vdata[8]; 
+		vdata2[2] = vdata[9]; 
+		vdata2[3] = vdata[10]; 
+		vdata2[4] = vdata[11]; 
+		vdata2[5] = vdata[12]; 
+		vdata2[6] = vdata[13]; 
+		vdata2[7] = vdata[14]; 
+		vdata2[8] = vdata[15]; 
 	}
 else if(s_==10){ 
-		vdata2[6] = vdata[0]; 
-		vdata2[7] = vdata[1]; 
-		vdata2[8] = vdata[2]; 
-		vdata2[9] = vdata[3]; 
-		vdata2[10] = vdata[4]; 
-		vdata2[11] = vdata[5]; 
-		vdata2[12] = vdata[6]; 
-		vdata2[13] = vdata[7]; 
-		vdata2[14] = vdata[8]; 
-		vdata2[15] = vdata[9]; 
-		vdata2[0] = vdata[10]; 
-		vdata2[1] = vdata[11]; 
-		vdata2[2] = vdata[12]; 
-		vdata2[3] = vdata[13]; 
-		vdata2[4] = vdata[14]; 
-		vdata2[5] = vdata[15]; 
+		vdata2[10] = vdata[0]; 
+		vdata2[11] = vdata[1]; 
+		vdata2[12] = vdata[2]; 
+		vdata2[13] = vdata[3]; 
+		vdata2[14] = vdata[4]; 
+		vdata2[15] = vdata[5]; 
+		vdata2[0] = vdata[6]; 
+		vdata2[1] = vdata[7]; 
+		vdata2[2] = vdata[8]; 
+		vdata2[3] = vdata[9]; 
+		vdata2[4] = vdata[10]; 
+		vdata2[5] = vdata[11]; 
+		vdata2[6] = vdata[12]; 
+		vdata2[7] = vdata[13]; 
+		vdata2[8] = vdata[14]; 
+		vdata2[9] = vdata[15]; 
 	}
 else if(s_==11){ 
-		vdata2[5] = vdata[0]; 
-		vdata2[6] = vdata[1]; 
-		vdata2[7] = vdata[2]; 
-		vdata2[8] = vdata[3]; 
-		vdata2[9] = vdata[4]; 
-		vdata2[10] = vdata[5]; 
-		vdata2[11] = vdata[6]; 
-		vdata2[12] = vdata[7]; 
-		vdata2[13] = vdata[8]; 
-		vdata2[14] = vdata[9]; 
-		vdata2[15] = vdata[10]; 
-		vdata2[0] = vdata[11]; 
-		vdata2[1] = vdata[12]; 
-		vdata2[2] = vdata[13]; 
-		vdata2[3] = vdata[14]; 
-		vdata2[4] = vdata[15]; 
+		vdata2[11] = vdata[0]; 
+		vdata2[12] = vdata[1]; 
+		vdata2[13] = vdata[2]; 
+		vdata2[14] = vdata[3]; 
+		vdata2[15] = vdata[4]; 
+		vdata2[0] = vdata[5]; 
+		vdata2[1] = vdata[6]; 
+		vdata2[2] = vdata[7]; 
+		vdata2[3] = vdata[8]; 
+		vdata2[4] = vdata[9]; 
+		vdata2[5] = vdata[10]; 
+		vdata2[6] = vdata[11]; 
+		vdata2[7] = vdata[12]; 
+		vdata2[8] = vdata[13]; 
+		vdata2[9] = vdata[14]; 
+		vdata2[10] = vdata[15]; 
 	}
 else if(s_==12){ 
-		vdata2[4] = vdata[0]; 
-		vdata2[5] = vdata[1]; 
-		vdata2[6] = vdata[2]; 
-		vdata2[7] = vdata[3]; 
-		vdata2[8] = vdata[4]; 
-		vdata2[9] = vdata[5]; 
-		vdata2[10] = vdata[6]; 
-		vdata2[11] = vdata[7]; 
-		vdata2[12] = vdata[8]; 
-		vdata2[13] = vdata[9]; 
-		vdata2[14] = vdata[10]; 
-		vdata2[15] = vdata[11]; 
-		vdata2[0] = vdata[12]; 
-		vdata2[1] = vdata[13]; 
-		vdata2[2] = vdata[14]; 
-		vdata2[3] = vdata[15]; 
+		vdata2[12] = vdata[0]; 
+		vdata2[13] = vdata[1]; 
+		vdata2[14] = vdata[2]; 
+		vdata2[15] = vdata[3]; 
+		vdata2[0] = vdata[4]; 
+		vdata2[1] = vdata[5]; 
+		vdata2[2] = vdata[6]; 
+		vdata2[3] = vdata[7]; 
+		vdata2[4] = vdata[8]; 
+		vdata2[5] = vdata[9]; 
+		vdata2[6] = vdata[10]; 
+		vdata2[7] = vdata[11]; 
+		vdata2[8] = vdata[12]; 
+		vdata2[9] = vdata[13]; 
+		vdata2[10] = vdata[14]; 
+		vdata2[11] = vdata[15]; 
 	}
 else if(s_==13){ 
-		vdata2[3] = vdata[0]; 
-		vdata2[4] = vdata[1]; 
-		vdata2[5] = vdata[2]; 
-		vdata2[6] = vdata[3]; 
-		vdata2[7] = vdata[4]; 
-		vdata2[8] = vdata[5]; 
-		vdata2[9] = vdata[6]; 
-		vdata2[10] = vdata[7]; 
-		vdata2[11] = vdata[8]; 
-		vdata2[12] = vdata[9]; 
-		vdata2[13] = vdata[10]; 
-		vdata2[14] = vdata[11]; 
-		vdata2[15] = vdata[12]; 
-		vdata2[0] = vdata[13]; 
-		vdata2[1] = vdata[14]; 
-		vdata2[2] = vdata[15]; 
+		vdata2[13] = vdata[0]; 
+		vdata2[14] = vdata[1]; 
+		vdata2[15] = vdata[2]; 
+		vdata2[0] = vdata[3]; 
+		vdata2[1] = vdata[4]; 
+		vdata2[2] = vdata[5]; 
+		vdata2[3] = vdata[6]; 
+		vdata2[4] = vdata[7]; 
+		vdata2[5] = vdata[8]; 
+		vdata2[6] = vdata[9]; 
+		vdata2[7] = vdata[10]; 
+		vdata2[8] = vdata[11]; 
+		vdata2[9] = vdata[12]; 
+		vdata2[10] = vdata[13]; 
+		vdata2[11] = vdata[14]; 
+		vdata2[12] = vdata[15]; 
 	}
 else if(s_==14){ 
-		vdata2[2] = vdata[0]; 
-		vdata2[3] = vdata[1]; 
-		vdata2[4] = vdata[2]; 
-		vdata2[5] = vdata[3]; 
-		vdata2[6] = vdata[4]; 
-		vdata2[7] = vdata[5]; 
-		vdata2[8] = vdata[6]; 
-		vdata2[9] = vdata[7]; 
-		vdata2[10] = vdata[8]; 
-		vdata2[11] = vdata[9]; 
-		vdata2[12] = vdata[10]; 
-		vdata2[13] = vdata[11]; 
-		vdata2[14] = vdata[12]; 
-		vdata2[15] = vdata[13]; 
-		vdata2[0] = vdata[14]; 
-		vdata2[1] = vdata[15]; 
+		vdata2[14] = vdata[0]; 
+		vdata2[15] = vdata[1]; 
+		vdata2[0] = vdata[2]; 
+		vdata2[1] = vdata[3]; 
+		vdata2[2] = vdata[4]; 
+		vdata2[3] = vdata[5]; 
+		vdata2[4] = vdata[6]; 
+		vdata2[5] = vdata[7]; 
+		vdata2[6] = vdata[8]; 
+		vdata2[7] = vdata[9]; 
+		vdata2[8] = vdata[10]; 
+		vdata2[9] = vdata[11]; 
+		vdata2[10] = vdata[12]; 
+		vdata2[11] = vdata[13]; 
+		vdata2[12] = vdata[14]; 
+		vdata2[13] = vdata[15]; 
 	}
 else { 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
- */
-	
- if(s_==0){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==1){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==2){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==3){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==4){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==5){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==6){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==7){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==8){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==9){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==10){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==11){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==12){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==13){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else if(s_==14){ 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
-	}
-else { 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[8] = vdata[7]; 
-		vdata2[9] = vdata[8]; 
-		vdata2[10] = vdata[9]; 
-		vdata2[11] = vdata[10]; 
-		vdata2[12] = vdata[11]; 
-		vdata2[13] = vdata[12]; 
-		vdata2[14] = vdata[13]; 
-		vdata2[15] = vdata[14]; 
-		vdata2[0] = vdata[15]; 
+		vdata2[15] = vdata[0]; 
+		vdata2[0] = vdata[1]; 
+		vdata2[1] = vdata[2]; 
+		vdata2[2] = vdata[3]; 
+		vdata2[3] = vdata[4]; 
+		vdata2[4] = vdata[5]; 
+		vdata2[5] = vdata[6]; 
+		vdata2[6] = vdata[7]; 
+		vdata2[7] = vdata[8]; 
+		vdata2[8] = vdata[9]; 
+		vdata2[9] = vdata[10]; 
+		vdata2[10] = vdata[11]; 
+		vdata2[11] = vdata[12]; 
+		vdata2[12] = vdata[13]; 
+		vdata2[13] = vdata[14]; 
+		vdata2[14] = vdata[15]; 
 	}
 	return;
 }
 
-void MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -1430,20 +1141,53 @@ void MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t
 	return;
 }
 
-void MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
+void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
 	keyvalue_vbuffer_t vdatas[VECTOR2_SIZE];
-	vmdata_t vandmdata[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=vandmdata complete
 	keyvalue_vbuffer_t vdata[VECTOR2_SIZE];
-	keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=vdata complete
-	#pragma HLS ARRAY_PARTITION variable=vdata2 complete
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
 	
 	uint32_type pmaski = 0;
-
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	unsigned int pmask_index = 0;
+	unsigned int i_x4 = 0;
+	
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
@@ -1519,19 +1263,105 @@ void MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t
 	
 			#endif
 			
-			unsigned int v_local = (offset_kvs + i) * VECTOR2_SIZE;
-			unsigned int v_real = UTILP0_GETREALVID(v_local, globalparams.ACTSPARAMS_INSTID); // (v_local * NUM_PEs) + s;
-			unsigned int p_ = v_real / (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE);
-			#ifdef _DEBUGMODE_CHECKS3
-			if(p_ >= globalparamsV.NUM_PROCESSEDGESPARTITIONS){ cout<<"MEMACCESSP0_saveV:: ERROR SOMEWHERE: p_("<<p_<<") >= NUM_PROCESSEDGESPARTITIONS("<<globalparamsV.NUM_PROCESSEDGESPARTITIONS<<") [offset_kvs("<<offset_kvs<<"), i("<<i<<"), v_local("<<v_local<<"), v_real("<<v_real<<"), (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE)("<<(globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE)<<")]"<<endl; exit(EXIT_FAILURE); }				
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata[0]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 0, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[1]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 1, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[2]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 2, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[3]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 3, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[4]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 4, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[5]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 5, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[6]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 6, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[7]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 7, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[8]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 8, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[9]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 9, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[10]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 10, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[11]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 11, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[12]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 12, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[13]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 13, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[14]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 14, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[15]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 15, pmask_index: "<<pmask_index<<endl; }
 			#endif
-			if(pmaski > 0){ pmask[p_].data[0] = 1; }
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(pmaski > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", p_: "<<p_<<", pmaski: "<<pmaski<<", pmask["<<p_<<"].data[0]: "<<pmask[p_].data[0]<<". [offset_kvs("<<offset_kvs<<"), v_local("<<v_local<<"), v_real("<<v_real<<")]"<<endl; }
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", i_x4, 32, NAp, NAp, NAp);
 			#endif
+			if(pmaski>0){ temppmask[i_x4] = 1; } if(i%VPARTITION_SHRINK_RATIO==0){ i_x4 += 1; }	
+			if(i_x4 % 32 == 31){
+				#ifdef _DEBUGMODE_CHECKS3
+				actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", pmask_index, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
+				#endif
+				pmask[pmask_index].data[0] = temppmask[0];
+				pmask[pmask_index].data[1] = temppmask[1];
+				pmask[pmask_index].data[2] = temppmask[2];
+				pmask[pmask_index].data[3] = temppmask[3];
+				pmask[pmask_index].data[4] = temppmask[4];
+				pmask[pmask_index].data[5] = temppmask[5];
+				pmask[pmask_index].data[6] = temppmask[6];
+				pmask[pmask_index].data[7] = temppmask[7];
+				pmask[pmask_index].data[8] = temppmask[8];
+				pmask[pmask_index].data[9] = temppmask[9];
+				pmask[pmask_index].data[10] = temppmask[10];
+				pmask[pmask_index].data[11] = temppmask[11];
+				pmask[pmask_index].data[12] = temppmask[12];
+				pmask[pmask_index].data[13] = temppmask[13];
+				pmask[pmask_index].data[14] = temppmask[14];
+				pmask[pmask_index].data[15] = temppmask[15];
+				pmask[pmask_index].data[16] = temppmask[16];
+				pmask[pmask_index].data[17] = temppmask[17];
+				pmask[pmask_index].data[18] = temppmask[18];
+				pmask[pmask_index].data[19] = temppmask[19];
+				pmask[pmask_index].data[20] = temppmask[20];
+				pmask[pmask_index].data[21] = temppmask[21];
+				pmask[pmask_index].data[22] = temppmask[22];
+				pmask[pmask_index].data[23] = temppmask[23];
+				pmask[pmask_index].data[24] = temppmask[24];
+				pmask[pmask_index].data[25] = temppmask[25];
+				pmask[pmask_index].data[26] = temppmask[26];
+				pmask[pmask_index].data[27] = temppmask[27];
+				pmask[pmask_index].data[28] = temppmask[28];
+				pmask[pmask_index].data[29] = temppmask[29];
+				pmask[pmask_index].data[30] = temppmask[30];
+				pmask[pmask_index].data[31] = temppmask[31];
+				temppmask[0] = 0;
+				temppmask[1] = 0;
+				temppmask[2] = 0;
+				temppmask[3] = 0;
+				temppmask[4] = 0;
+				temppmask[5] = 0;
+				temppmask[6] = 0;
+				temppmask[7] = 0;
+				temppmask[8] = 0;
+				temppmask[9] = 0;
+				temppmask[10] = 0;
+				temppmask[11] = 0;
+				temppmask[12] = 0;
+				temppmask[13] = 0;
+				temppmask[14] = 0;
+				temppmask[15] = 0;
+				temppmask[16] = 0;
+				temppmask[17] = 0;
+				temppmask[18] = 0;
+				temppmask[19] = 0;
+				temppmask[20] = 0;
+				temppmask[21] = 0;
+				temppmask[22] = 0;
+				temppmask[23] = 0;
+				temppmask[24] = 0;
+				temppmask[25] = 0;
+				temppmask[26] = 0;
+				temppmask[27] = 0;
+				temppmask[28] = 0;
+				temppmask[29] = 0;
+				temppmask[30] = 0;
+				temppmask[31] = 0;
+				i_x4 = 0;
+				pmask_index += 1; 
+			}
 		#endif
 		
+		#ifdef _DEBUGMODE_CHECKS3
+		actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", baseoffset_kvs + offset_kvs + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+		#endif
 		#ifdef _WIDEWORD // CRITICAL FIXME.
 		kvdram[baseoffset_kvs + offset_kvs + i].range(31, 0) = vdata[0]; 
 		kvdram[baseoffset_kvs + offset_kvs + i].range(63, 32) = vdata[1]; 
@@ -1572,11 +1402,19 @@ void MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t
 		actsutilityobj->globalstats_countvswritten(VECTOR2_SIZE);
 		#endif
 	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	cout<<"saveV:: printing pmask... pmask_index: "<<pmask_index<<", i_x4: "<<i_x4<<endl;
+	for(unsigned int i=0; i<BLOCKRAM_PMASK_SIZE; i++){
+		for(unsigned int v=0; v<32; v++){ if(pmask[i].data[v] > 0){ cout<<"$$$ MEMACCESSP0_saveV:: MASK POS [i:"<<i<<", v:"<<v<<"] is ACTIVE ("<<pmask[i].data[v]<<") "<<endl; }}
+		// for(unsigned int v=0; v<32; v++){ cout<<pmask[i].data[v]<<", "; } cout<<endl;
+	}
+	#endif 
 	// exit(EXIT_SUCCESS); //
 	return;
 }
 
-void MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -1598,26 +1436,28 @@ void MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue
 	unsigned int index2 = 0;
 	#pragma HLS array_partition variable = buffer0
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -1626,6 +1466,9 @@ void MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks1 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -1664,25 +1507,28 @@ void MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks1 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -1711,7 +1557,7 @@ void MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -1734,43 +1580,45 @@ void MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue
 	#pragma HLS array_partition variable = buffer0
 	#pragma HLS array_partition variable = buffer1
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -1779,6 +1627,9 @@ void MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks2 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -1817,25 +1668,28 @@ void MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks2 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -1881,7 +1735,7 @@ void MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -1905,60 +1759,62 @@ void MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue
 	#pragma HLS array_partition variable = buffer1
 	#pragma HLS array_partition variable = buffer2
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -1967,6 +1823,9 @@ void MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks3 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -2005,25 +1864,28 @@ void MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks3 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -2086,7 +1948,7 @@ void MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2111,77 +1973,79 @@ void MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue
 	#pragma HLS array_partition variable = buffer2
 	#pragma HLS array_partition variable = buffer3
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -2190,6 +2054,9 @@ void MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks4 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -2228,25 +2095,28 @@ void MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks4 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -2326,7 +2196,7 @@ void MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2352,94 +2222,96 @@ void MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue
 	#pragma HLS array_partition variable = buffer3
 	#pragma HLS array_partition variable = buffer4
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 		// 		// buffer4[0][i] = 0;
-		// 		// buffer4[1][i] = 0;
-		// 		// buffer4[2][i] = 0;
-		// 		// buffer4[3][i] = 0;
-		// 		// buffer4[4][i] = 0;
-		// 		// buffer4[5][i] = 0;
-		// 		// buffer4[6][i] = 0;
-		// 		// buffer4[7][i] = 0;
-		// 		// buffer4[8][i] = 0;
-		// 		// buffer4[9][i] = 0;
-		// 		// buffer4[10][i] = 0;
-		// 		// buffer4[11][i] = 0;
-		// 		// buffer4[12][i] = 0;
-		// 		// buffer4[13][i] = 0;
-		// 		// buffer4[14][i] = 0;
-		// 		// buffer4[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+		buffer4[0][i] = 0;
+		buffer4[1][i] = 0;
+		buffer4[2][i] = 0;
+		buffer4[3][i] = 0;
+		buffer4[4][i] = 0;
+		buffer4[5][i] = 0;
+		buffer4[6][i] = 0;
+		buffer4[7][i] = 0;
+		buffer4[8][i] = 0;
+		buffer4[9][i] = 0;
+		buffer4[10][i] = 0;
+		buffer4[11][i] = 0;
+		buffer4[12][i] = 0;
+		buffer4[13][i] = 0;
+		buffer4[14][i] = 0;
+		buffer4[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -2448,6 +2320,9 @@ void MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks5 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -2486,25 +2361,28 @@ void MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks5 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -2601,7 +2479,7 @@ void MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2628,111 +2506,113 @@ void MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue
 	#pragma HLS array_partition variable = buffer4
 	#pragma HLS array_partition variable = buffer5
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 		// 		// buffer4[0][i] = 0;
-		// 		// buffer4[1][i] = 0;
-		// 		// buffer4[2][i] = 0;
-		// 		// buffer4[3][i] = 0;
-		// 		// buffer4[4][i] = 0;
-		// 		// buffer4[5][i] = 0;
-		// 		// buffer4[6][i] = 0;
-		// 		// buffer4[7][i] = 0;
-		// 		// buffer4[8][i] = 0;
-		// 		// buffer4[9][i] = 0;
-		// 		// buffer4[10][i] = 0;
-		// 		// buffer4[11][i] = 0;
-		// 		// buffer4[12][i] = 0;
-		// 		// buffer4[13][i] = 0;
-		// 		// buffer4[14][i] = 0;
-		// 		// buffer4[15][i] = 0;
-		// 	
-		// 		// 		// buffer5[0][i] = 0;
-		// 		// buffer5[1][i] = 0;
-		// 		// buffer5[2][i] = 0;
-		// 		// buffer5[3][i] = 0;
-		// 		// buffer5[4][i] = 0;
-		// 		// buffer5[5][i] = 0;
-		// 		// buffer5[6][i] = 0;
-		// 		// buffer5[7][i] = 0;
-		// 		// buffer5[8][i] = 0;
-		// 		// buffer5[9][i] = 0;
-		// 		// buffer5[10][i] = 0;
-		// 		// buffer5[11][i] = 0;
-		// 		// buffer5[12][i] = 0;
-		// 		// buffer5[13][i] = 0;
-		// 		// buffer5[14][i] = 0;
-		// 		// buffer5[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+		buffer4[0][i] = 0;
+		buffer4[1][i] = 0;
+		buffer4[2][i] = 0;
+		buffer4[3][i] = 0;
+		buffer4[4][i] = 0;
+		buffer4[5][i] = 0;
+		buffer4[6][i] = 0;
+		buffer4[7][i] = 0;
+		buffer4[8][i] = 0;
+		buffer4[9][i] = 0;
+		buffer4[10][i] = 0;
+		buffer4[11][i] = 0;
+		buffer4[12][i] = 0;
+		buffer4[13][i] = 0;
+		buffer4[14][i] = 0;
+		buffer4[15][i] = 0;
+	
+		buffer5[0][i] = 0;
+		buffer5[1][i] = 0;
+		buffer5[2][i] = 0;
+		buffer5[3][i] = 0;
+		buffer5[4][i] = 0;
+		buffer5[5][i] = 0;
+		buffer5[6][i] = 0;
+		buffer5[7][i] = 0;
+		buffer5[8][i] = 0;
+		buffer5[9][i] = 0;
+		buffer5[10][i] = 0;
+		buffer5[11][i] = 0;
+		buffer5[12][i] = 0;
+		buffer5[13][i] = 0;
+		buffer5[14][i] = 0;
+		buffer5[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -2741,6 +2621,9 @@ void MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks6 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -2779,25 +2662,28 @@ void MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks6 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -2911,7 +2797,7 @@ void MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -2939,128 +2825,130 @@ void MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue
 	#pragma HLS array_partition variable = buffer5
 	#pragma HLS array_partition variable = buffer6
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 		// 		// buffer4[0][i] = 0;
-		// 		// buffer4[1][i] = 0;
-		// 		// buffer4[2][i] = 0;
-		// 		// buffer4[3][i] = 0;
-		// 		// buffer4[4][i] = 0;
-		// 		// buffer4[5][i] = 0;
-		// 		// buffer4[6][i] = 0;
-		// 		// buffer4[7][i] = 0;
-		// 		// buffer4[8][i] = 0;
-		// 		// buffer4[9][i] = 0;
-		// 		// buffer4[10][i] = 0;
-		// 		// buffer4[11][i] = 0;
-		// 		// buffer4[12][i] = 0;
-		// 		// buffer4[13][i] = 0;
-		// 		// buffer4[14][i] = 0;
-		// 		// buffer4[15][i] = 0;
-		// 	
-		// 		// 		// buffer5[0][i] = 0;
-		// 		// buffer5[1][i] = 0;
-		// 		// buffer5[2][i] = 0;
-		// 		// buffer5[3][i] = 0;
-		// 		// buffer5[4][i] = 0;
-		// 		// buffer5[5][i] = 0;
-		// 		// buffer5[6][i] = 0;
-		// 		// buffer5[7][i] = 0;
-		// 		// buffer5[8][i] = 0;
-		// 		// buffer5[9][i] = 0;
-		// 		// buffer5[10][i] = 0;
-		// 		// buffer5[11][i] = 0;
-		// 		// buffer5[12][i] = 0;
-		// 		// buffer5[13][i] = 0;
-		// 		// buffer5[14][i] = 0;
-		// 		// buffer5[15][i] = 0;
-		// 	
-		// 		// 		// buffer6[0][i] = 0;
-		// 		// buffer6[1][i] = 0;
-		// 		// buffer6[2][i] = 0;
-		// 		// buffer6[3][i] = 0;
-		// 		// buffer6[4][i] = 0;
-		// 		// buffer6[5][i] = 0;
-		// 		// buffer6[6][i] = 0;
-		// 		// buffer6[7][i] = 0;
-		// 		// buffer6[8][i] = 0;
-		// 		// buffer6[9][i] = 0;
-		// 		// buffer6[10][i] = 0;
-		// 		// buffer6[11][i] = 0;
-		// 		// buffer6[12][i] = 0;
-		// 		// buffer6[13][i] = 0;
-		// 		// buffer6[14][i] = 0;
-		// 		// buffer6[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+		buffer4[0][i] = 0;
+		buffer4[1][i] = 0;
+		buffer4[2][i] = 0;
+		buffer4[3][i] = 0;
+		buffer4[4][i] = 0;
+		buffer4[5][i] = 0;
+		buffer4[6][i] = 0;
+		buffer4[7][i] = 0;
+		buffer4[8][i] = 0;
+		buffer4[9][i] = 0;
+		buffer4[10][i] = 0;
+		buffer4[11][i] = 0;
+		buffer4[12][i] = 0;
+		buffer4[13][i] = 0;
+		buffer4[14][i] = 0;
+		buffer4[15][i] = 0;
+	
+		buffer5[0][i] = 0;
+		buffer5[1][i] = 0;
+		buffer5[2][i] = 0;
+		buffer5[3][i] = 0;
+		buffer5[4][i] = 0;
+		buffer5[5][i] = 0;
+		buffer5[6][i] = 0;
+		buffer5[7][i] = 0;
+		buffer5[8][i] = 0;
+		buffer5[9][i] = 0;
+		buffer5[10][i] = 0;
+		buffer5[11][i] = 0;
+		buffer5[12][i] = 0;
+		buffer5[13][i] = 0;
+		buffer5[14][i] = 0;
+		buffer5[15][i] = 0;
+	
+		buffer6[0][i] = 0;
+		buffer6[1][i] = 0;
+		buffer6[2][i] = 0;
+		buffer6[3][i] = 0;
+		buffer6[4][i] = 0;
+		buffer6[5][i] = 0;
+		buffer6[6][i] = 0;
+		buffer6[7][i] = 0;
+		buffer6[8][i] = 0;
+		buffer6[9][i] = 0;
+		buffer6[10][i] = 0;
+		buffer6[11][i] = 0;
+		buffer6[12][i] = 0;
+		buffer6[13][i] = 0;
+		buffer6[14][i] = 0;
+		buffer6[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -3069,6 +2957,9 @@ void MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks7 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -3107,25 +2998,28 @@ void MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks7 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -3256,7 +3150,7 @@ void MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -3285,145 +3179,147 @@ void MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue
 	#pragma HLS array_partition variable = buffer6
 	#pragma HLS array_partition variable = buffer7
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 		// 		// buffer4[0][i] = 0;
-		// 		// buffer4[1][i] = 0;
-		// 		// buffer4[2][i] = 0;
-		// 		// buffer4[3][i] = 0;
-		// 		// buffer4[4][i] = 0;
-		// 		// buffer4[5][i] = 0;
-		// 		// buffer4[6][i] = 0;
-		// 		// buffer4[7][i] = 0;
-		// 		// buffer4[8][i] = 0;
-		// 		// buffer4[9][i] = 0;
-		// 		// buffer4[10][i] = 0;
-		// 		// buffer4[11][i] = 0;
-		// 		// buffer4[12][i] = 0;
-		// 		// buffer4[13][i] = 0;
-		// 		// buffer4[14][i] = 0;
-		// 		// buffer4[15][i] = 0;
-		// 	
-		// 		// 		// buffer5[0][i] = 0;
-		// 		// buffer5[1][i] = 0;
-		// 		// buffer5[2][i] = 0;
-		// 		// buffer5[3][i] = 0;
-		// 		// buffer5[4][i] = 0;
-		// 		// buffer5[5][i] = 0;
-		// 		// buffer5[6][i] = 0;
-		// 		// buffer5[7][i] = 0;
-		// 		// buffer5[8][i] = 0;
-		// 		// buffer5[9][i] = 0;
-		// 		// buffer5[10][i] = 0;
-		// 		// buffer5[11][i] = 0;
-		// 		// buffer5[12][i] = 0;
-		// 		// buffer5[13][i] = 0;
-		// 		// buffer5[14][i] = 0;
-		// 		// buffer5[15][i] = 0;
-		// 	
-		// 		// 		// buffer6[0][i] = 0;
-		// 		// buffer6[1][i] = 0;
-		// 		// buffer6[2][i] = 0;
-		// 		// buffer6[3][i] = 0;
-		// 		// buffer6[4][i] = 0;
-		// 		// buffer6[5][i] = 0;
-		// 		// buffer6[6][i] = 0;
-		// 		// buffer6[7][i] = 0;
-		// 		// buffer6[8][i] = 0;
-		// 		// buffer6[9][i] = 0;
-		// 		// buffer6[10][i] = 0;
-		// 		// buffer6[11][i] = 0;
-		// 		// buffer6[12][i] = 0;
-		// 		// buffer6[13][i] = 0;
-		// 		// buffer6[14][i] = 0;
-		// 		// buffer6[15][i] = 0;
-		// 	
-		// 		// 		// buffer7[0][i] = 0;
-		// 		// buffer7[1][i] = 0;
-		// 		// buffer7[2][i] = 0;
-		// 		// buffer7[3][i] = 0;
-		// 		// buffer7[4][i] = 0;
-		// 		// buffer7[5][i] = 0;
-		// 		// buffer7[6][i] = 0;
-		// 		// buffer7[7][i] = 0;
-		// 		// buffer7[8][i] = 0;
-		// 		// buffer7[9][i] = 0;
-		// 		// buffer7[10][i] = 0;
-		// 		// buffer7[11][i] = 0;
-		// 		// buffer7[12][i] = 0;
-		// 		// buffer7[13][i] = 0;
-		// 		// buffer7[14][i] = 0;
-		// 		// buffer7[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+		buffer4[0][i] = 0;
+		buffer4[1][i] = 0;
+		buffer4[2][i] = 0;
+		buffer4[3][i] = 0;
+		buffer4[4][i] = 0;
+		buffer4[5][i] = 0;
+		buffer4[6][i] = 0;
+		buffer4[7][i] = 0;
+		buffer4[8][i] = 0;
+		buffer4[9][i] = 0;
+		buffer4[10][i] = 0;
+		buffer4[11][i] = 0;
+		buffer4[12][i] = 0;
+		buffer4[13][i] = 0;
+		buffer4[14][i] = 0;
+		buffer4[15][i] = 0;
+	
+		buffer5[0][i] = 0;
+		buffer5[1][i] = 0;
+		buffer5[2][i] = 0;
+		buffer5[3][i] = 0;
+		buffer5[4][i] = 0;
+		buffer5[5][i] = 0;
+		buffer5[6][i] = 0;
+		buffer5[7][i] = 0;
+		buffer5[8][i] = 0;
+		buffer5[9][i] = 0;
+		buffer5[10][i] = 0;
+		buffer5[11][i] = 0;
+		buffer5[12][i] = 0;
+		buffer5[13][i] = 0;
+		buffer5[14][i] = 0;
+		buffer5[15][i] = 0;
+	
+		buffer6[0][i] = 0;
+		buffer6[1][i] = 0;
+		buffer6[2][i] = 0;
+		buffer6[3][i] = 0;
+		buffer6[4][i] = 0;
+		buffer6[5][i] = 0;
+		buffer6[6][i] = 0;
+		buffer6[7][i] = 0;
+		buffer6[8][i] = 0;
+		buffer6[9][i] = 0;
+		buffer6[10][i] = 0;
+		buffer6[11][i] = 0;
+		buffer6[12][i] = 0;
+		buffer6[13][i] = 0;
+		buffer6[14][i] = 0;
+		buffer6[15][i] = 0;
+	
+		buffer7[0][i] = 0;
+		buffer7[1][i] = 0;
+		buffer7[2][i] = 0;
+		buffer7[3][i] = 0;
+		buffer7[4][i] = 0;
+		buffer7[5][i] = 0;
+		buffer7[6][i] = 0;
+		buffer7[7][i] = 0;
+		buffer7[8][i] = 0;
+		buffer7[9][i] = 0;
+		buffer7[10][i] = 0;
+		buffer7[11][i] = 0;
+		buffer7[12][i] = 0;
+		buffer7[13][i] = 0;
+		buffer7[14][i] = 0;
+		buffer7[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -3432,6 +3328,9 @@ void MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks8 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -3470,25 +3369,28 @@ void MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks8 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -3636,7 +3538,7 @@ void MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -3666,162 +3568,164 @@ void MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue
 	#pragma HLS array_partition variable = buffer7
 	#pragma HLS array_partition variable = buffer8
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 		// 		// buffer4[0][i] = 0;
-		// 		// buffer4[1][i] = 0;
-		// 		// buffer4[2][i] = 0;
-		// 		// buffer4[3][i] = 0;
-		// 		// buffer4[4][i] = 0;
-		// 		// buffer4[5][i] = 0;
-		// 		// buffer4[6][i] = 0;
-		// 		// buffer4[7][i] = 0;
-		// 		// buffer4[8][i] = 0;
-		// 		// buffer4[9][i] = 0;
-		// 		// buffer4[10][i] = 0;
-		// 		// buffer4[11][i] = 0;
-		// 		// buffer4[12][i] = 0;
-		// 		// buffer4[13][i] = 0;
-		// 		// buffer4[14][i] = 0;
-		// 		// buffer4[15][i] = 0;
-		// 	
-		// 		// 		// buffer5[0][i] = 0;
-		// 		// buffer5[1][i] = 0;
-		// 		// buffer5[2][i] = 0;
-		// 		// buffer5[3][i] = 0;
-		// 		// buffer5[4][i] = 0;
-		// 		// buffer5[5][i] = 0;
-		// 		// buffer5[6][i] = 0;
-		// 		// buffer5[7][i] = 0;
-		// 		// buffer5[8][i] = 0;
-		// 		// buffer5[9][i] = 0;
-		// 		// buffer5[10][i] = 0;
-		// 		// buffer5[11][i] = 0;
-		// 		// buffer5[12][i] = 0;
-		// 		// buffer5[13][i] = 0;
-		// 		// buffer5[14][i] = 0;
-		// 		// buffer5[15][i] = 0;
-		// 	
-		// 		// 		// buffer6[0][i] = 0;
-		// 		// buffer6[1][i] = 0;
-		// 		// buffer6[2][i] = 0;
-		// 		// buffer6[3][i] = 0;
-		// 		// buffer6[4][i] = 0;
-		// 		// buffer6[5][i] = 0;
-		// 		// buffer6[6][i] = 0;
-		// 		// buffer6[7][i] = 0;
-		// 		// buffer6[8][i] = 0;
-		// 		// buffer6[9][i] = 0;
-		// 		// buffer6[10][i] = 0;
-		// 		// buffer6[11][i] = 0;
-		// 		// buffer6[12][i] = 0;
-		// 		// buffer6[13][i] = 0;
-		// 		// buffer6[14][i] = 0;
-		// 		// buffer6[15][i] = 0;
-		// 	
-		// 		// 		// buffer7[0][i] = 0;
-		// 		// buffer7[1][i] = 0;
-		// 		// buffer7[2][i] = 0;
-		// 		// buffer7[3][i] = 0;
-		// 		// buffer7[4][i] = 0;
-		// 		// buffer7[5][i] = 0;
-		// 		// buffer7[6][i] = 0;
-		// 		// buffer7[7][i] = 0;
-		// 		// buffer7[8][i] = 0;
-		// 		// buffer7[9][i] = 0;
-		// 		// buffer7[10][i] = 0;
-		// 		// buffer7[11][i] = 0;
-		// 		// buffer7[12][i] = 0;
-		// 		// buffer7[13][i] = 0;
-		// 		// buffer7[14][i] = 0;
-		// 		// buffer7[15][i] = 0;
-		// 	
-		// 		// 		// buffer8[0][i] = 0;
-		// 		// buffer8[1][i] = 0;
-		// 		// buffer8[2][i] = 0;
-		// 		// buffer8[3][i] = 0;
-		// 		// buffer8[4][i] = 0;
-		// 		// buffer8[5][i] = 0;
-		// 		// buffer8[6][i] = 0;
-		// 		// buffer8[7][i] = 0;
-		// 		// buffer8[8][i] = 0;
-		// 		// buffer8[9][i] = 0;
-		// 		// buffer8[10][i] = 0;
-		// 		// buffer8[11][i] = 0;
-		// 		// buffer8[12][i] = 0;
-		// 		// buffer8[13][i] = 0;
-		// 		// buffer8[14][i] = 0;
-		// 		// buffer8[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+		buffer4[0][i] = 0;
+		buffer4[1][i] = 0;
+		buffer4[2][i] = 0;
+		buffer4[3][i] = 0;
+		buffer4[4][i] = 0;
+		buffer4[5][i] = 0;
+		buffer4[6][i] = 0;
+		buffer4[7][i] = 0;
+		buffer4[8][i] = 0;
+		buffer4[9][i] = 0;
+		buffer4[10][i] = 0;
+		buffer4[11][i] = 0;
+		buffer4[12][i] = 0;
+		buffer4[13][i] = 0;
+		buffer4[14][i] = 0;
+		buffer4[15][i] = 0;
+	
+		buffer5[0][i] = 0;
+		buffer5[1][i] = 0;
+		buffer5[2][i] = 0;
+		buffer5[3][i] = 0;
+		buffer5[4][i] = 0;
+		buffer5[5][i] = 0;
+		buffer5[6][i] = 0;
+		buffer5[7][i] = 0;
+		buffer5[8][i] = 0;
+		buffer5[9][i] = 0;
+		buffer5[10][i] = 0;
+		buffer5[11][i] = 0;
+		buffer5[12][i] = 0;
+		buffer5[13][i] = 0;
+		buffer5[14][i] = 0;
+		buffer5[15][i] = 0;
+	
+		buffer6[0][i] = 0;
+		buffer6[1][i] = 0;
+		buffer6[2][i] = 0;
+		buffer6[3][i] = 0;
+		buffer6[4][i] = 0;
+		buffer6[5][i] = 0;
+		buffer6[6][i] = 0;
+		buffer6[7][i] = 0;
+		buffer6[8][i] = 0;
+		buffer6[9][i] = 0;
+		buffer6[10][i] = 0;
+		buffer6[11][i] = 0;
+		buffer6[12][i] = 0;
+		buffer6[13][i] = 0;
+		buffer6[14][i] = 0;
+		buffer6[15][i] = 0;
+	
+		buffer7[0][i] = 0;
+		buffer7[1][i] = 0;
+		buffer7[2][i] = 0;
+		buffer7[3][i] = 0;
+		buffer7[4][i] = 0;
+		buffer7[5][i] = 0;
+		buffer7[6][i] = 0;
+		buffer7[7][i] = 0;
+		buffer7[8][i] = 0;
+		buffer7[9][i] = 0;
+		buffer7[10][i] = 0;
+		buffer7[11][i] = 0;
+		buffer7[12][i] = 0;
+		buffer7[13][i] = 0;
+		buffer7[14][i] = 0;
+		buffer7[15][i] = 0;
+	
+		buffer8[0][i] = 0;
+		buffer8[1][i] = 0;
+		buffer8[2][i] = 0;
+		buffer8[3][i] = 0;
+		buffer8[4][i] = 0;
+		buffer8[5][i] = 0;
+		buffer8[6][i] = 0;
+		buffer8[7][i] = 0;
+		buffer8[8][i] = 0;
+		buffer8[9][i] = 0;
+		buffer8[10][i] = 0;
+		buffer8[11][i] = 0;
+		buffer8[12][i] = 0;
+		buffer8[13][i] = 0;
+		buffer8[14][i] = 0;
+		buffer8[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -3830,6 +3734,9 @@ void MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks9 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -3868,25 +3775,28 @@ void MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks9 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -4051,7 +3961,7 @@ void MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -4082,179 +3992,181 @@ void MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalu
 	#pragma HLS array_partition variable = buffer8
 	#pragma HLS array_partition variable = buffer9
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 		// 		// buffer4[0][i] = 0;
-		// 		// buffer4[1][i] = 0;
-		// 		// buffer4[2][i] = 0;
-		// 		// buffer4[3][i] = 0;
-		// 		// buffer4[4][i] = 0;
-		// 		// buffer4[5][i] = 0;
-		// 		// buffer4[6][i] = 0;
-		// 		// buffer4[7][i] = 0;
-		// 		// buffer4[8][i] = 0;
-		// 		// buffer4[9][i] = 0;
-		// 		// buffer4[10][i] = 0;
-		// 		// buffer4[11][i] = 0;
-		// 		// buffer4[12][i] = 0;
-		// 		// buffer4[13][i] = 0;
-		// 		// buffer4[14][i] = 0;
-		// 		// buffer4[15][i] = 0;
-		// 	
-		// 		// 		// buffer5[0][i] = 0;
-		// 		// buffer5[1][i] = 0;
-		// 		// buffer5[2][i] = 0;
-		// 		// buffer5[3][i] = 0;
-		// 		// buffer5[4][i] = 0;
-		// 		// buffer5[5][i] = 0;
-		// 		// buffer5[6][i] = 0;
-		// 		// buffer5[7][i] = 0;
-		// 		// buffer5[8][i] = 0;
-		// 		// buffer5[9][i] = 0;
-		// 		// buffer5[10][i] = 0;
-		// 		// buffer5[11][i] = 0;
-		// 		// buffer5[12][i] = 0;
-		// 		// buffer5[13][i] = 0;
-		// 		// buffer5[14][i] = 0;
-		// 		// buffer5[15][i] = 0;
-		// 	
-		// 		// 		// buffer6[0][i] = 0;
-		// 		// buffer6[1][i] = 0;
-		// 		// buffer6[2][i] = 0;
-		// 		// buffer6[3][i] = 0;
-		// 		// buffer6[4][i] = 0;
-		// 		// buffer6[5][i] = 0;
-		// 		// buffer6[6][i] = 0;
-		// 		// buffer6[7][i] = 0;
-		// 		// buffer6[8][i] = 0;
-		// 		// buffer6[9][i] = 0;
-		// 		// buffer6[10][i] = 0;
-		// 		// buffer6[11][i] = 0;
-		// 		// buffer6[12][i] = 0;
-		// 		// buffer6[13][i] = 0;
-		// 		// buffer6[14][i] = 0;
-		// 		// buffer6[15][i] = 0;
-		// 	
-		// 		// 		// buffer7[0][i] = 0;
-		// 		// buffer7[1][i] = 0;
-		// 		// buffer7[2][i] = 0;
-		// 		// buffer7[3][i] = 0;
-		// 		// buffer7[4][i] = 0;
-		// 		// buffer7[5][i] = 0;
-		// 		// buffer7[6][i] = 0;
-		// 		// buffer7[7][i] = 0;
-		// 		// buffer7[8][i] = 0;
-		// 		// buffer7[9][i] = 0;
-		// 		// buffer7[10][i] = 0;
-		// 		// buffer7[11][i] = 0;
-		// 		// buffer7[12][i] = 0;
-		// 		// buffer7[13][i] = 0;
-		// 		// buffer7[14][i] = 0;
-		// 		// buffer7[15][i] = 0;
-		// 	
-		// 		// 		// buffer8[0][i] = 0;
-		// 		// buffer8[1][i] = 0;
-		// 		// buffer8[2][i] = 0;
-		// 		// buffer8[3][i] = 0;
-		// 		// buffer8[4][i] = 0;
-		// 		// buffer8[5][i] = 0;
-		// 		// buffer8[6][i] = 0;
-		// 		// buffer8[7][i] = 0;
-		// 		// buffer8[8][i] = 0;
-		// 		// buffer8[9][i] = 0;
-		// 		// buffer8[10][i] = 0;
-		// 		// buffer8[11][i] = 0;
-		// 		// buffer8[12][i] = 0;
-		// 		// buffer8[13][i] = 0;
-		// 		// buffer8[14][i] = 0;
-		// 		// buffer8[15][i] = 0;
-		// 	
-		// 		// 		// buffer9[0][i] = 0;
-		// 		// buffer9[1][i] = 0;
-		// 		// buffer9[2][i] = 0;
-		// 		// buffer9[3][i] = 0;
-		// 		// buffer9[4][i] = 0;
-		// 		// buffer9[5][i] = 0;
-		// 		// buffer9[6][i] = 0;
-		// 		// buffer9[7][i] = 0;
-		// 		// buffer9[8][i] = 0;
-		// 		// buffer9[9][i] = 0;
-		// 		// buffer9[10][i] = 0;
-		// 		// buffer9[11][i] = 0;
-		// 		// buffer9[12][i] = 0;
-		// 		// buffer9[13][i] = 0;
-		// 		// buffer9[14][i] = 0;
-		// 		// buffer9[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+		buffer4[0][i] = 0;
+		buffer4[1][i] = 0;
+		buffer4[2][i] = 0;
+		buffer4[3][i] = 0;
+		buffer4[4][i] = 0;
+		buffer4[5][i] = 0;
+		buffer4[6][i] = 0;
+		buffer4[7][i] = 0;
+		buffer4[8][i] = 0;
+		buffer4[9][i] = 0;
+		buffer4[10][i] = 0;
+		buffer4[11][i] = 0;
+		buffer4[12][i] = 0;
+		buffer4[13][i] = 0;
+		buffer4[14][i] = 0;
+		buffer4[15][i] = 0;
+	
+		buffer5[0][i] = 0;
+		buffer5[1][i] = 0;
+		buffer5[2][i] = 0;
+		buffer5[3][i] = 0;
+		buffer5[4][i] = 0;
+		buffer5[5][i] = 0;
+		buffer5[6][i] = 0;
+		buffer5[7][i] = 0;
+		buffer5[8][i] = 0;
+		buffer5[9][i] = 0;
+		buffer5[10][i] = 0;
+		buffer5[11][i] = 0;
+		buffer5[12][i] = 0;
+		buffer5[13][i] = 0;
+		buffer5[14][i] = 0;
+		buffer5[15][i] = 0;
+	
+		buffer6[0][i] = 0;
+		buffer6[1][i] = 0;
+		buffer6[2][i] = 0;
+		buffer6[3][i] = 0;
+		buffer6[4][i] = 0;
+		buffer6[5][i] = 0;
+		buffer6[6][i] = 0;
+		buffer6[7][i] = 0;
+		buffer6[8][i] = 0;
+		buffer6[9][i] = 0;
+		buffer6[10][i] = 0;
+		buffer6[11][i] = 0;
+		buffer6[12][i] = 0;
+		buffer6[13][i] = 0;
+		buffer6[14][i] = 0;
+		buffer6[15][i] = 0;
+	
+		buffer7[0][i] = 0;
+		buffer7[1][i] = 0;
+		buffer7[2][i] = 0;
+		buffer7[3][i] = 0;
+		buffer7[4][i] = 0;
+		buffer7[5][i] = 0;
+		buffer7[6][i] = 0;
+		buffer7[7][i] = 0;
+		buffer7[8][i] = 0;
+		buffer7[9][i] = 0;
+		buffer7[10][i] = 0;
+		buffer7[11][i] = 0;
+		buffer7[12][i] = 0;
+		buffer7[13][i] = 0;
+		buffer7[14][i] = 0;
+		buffer7[15][i] = 0;
+	
+		buffer8[0][i] = 0;
+		buffer8[1][i] = 0;
+		buffer8[2][i] = 0;
+		buffer8[3][i] = 0;
+		buffer8[4][i] = 0;
+		buffer8[5][i] = 0;
+		buffer8[6][i] = 0;
+		buffer8[7][i] = 0;
+		buffer8[8][i] = 0;
+		buffer8[9][i] = 0;
+		buffer8[10][i] = 0;
+		buffer8[11][i] = 0;
+		buffer8[12][i] = 0;
+		buffer8[13][i] = 0;
+		buffer8[14][i] = 0;
+		buffer8[15][i] = 0;
+	
+		buffer9[0][i] = 0;
+		buffer9[1][i] = 0;
+		buffer9[2][i] = 0;
+		buffer9[3][i] = 0;
+		buffer9[4][i] = 0;
+		buffer9[5][i] = 0;
+		buffer9[6][i] = 0;
+		buffer9[7][i] = 0;
+		buffer9[8][i] = 0;
+		buffer9[9][i] = 0;
+		buffer9[10][i] = 0;
+		buffer9[11][i] = 0;
+		buffer9[12][i] = 0;
+		buffer9[13][i] = 0;
+		buffer9[14][i] = 0;
+		buffer9[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -4263,6 +4175,9 @@ void MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalu
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks10 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -4301,25 +4216,28 @@ void MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalu
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks10 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -4501,7 +4419,7 @@ void MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalu
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -4533,196 +4451,198 @@ void MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalu
 	#pragma HLS array_partition variable = buffer9
 	#pragma HLS array_partition variable = buffer10
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 		// 		// buffer4[0][i] = 0;
-		// 		// buffer4[1][i] = 0;
-		// 		// buffer4[2][i] = 0;
-		// 		// buffer4[3][i] = 0;
-		// 		// buffer4[4][i] = 0;
-		// 		// buffer4[5][i] = 0;
-		// 		// buffer4[6][i] = 0;
-		// 		// buffer4[7][i] = 0;
-		// 		// buffer4[8][i] = 0;
-		// 		// buffer4[9][i] = 0;
-		// 		// buffer4[10][i] = 0;
-		// 		// buffer4[11][i] = 0;
-		// 		// buffer4[12][i] = 0;
-		// 		// buffer4[13][i] = 0;
-		// 		// buffer4[14][i] = 0;
-		// 		// buffer4[15][i] = 0;
-		// 	
-		// 		// 		// buffer5[0][i] = 0;
-		// 		// buffer5[1][i] = 0;
-		// 		// buffer5[2][i] = 0;
-		// 		// buffer5[3][i] = 0;
-		// 		// buffer5[4][i] = 0;
-		// 		// buffer5[5][i] = 0;
-		// 		// buffer5[6][i] = 0;
-		// 		// buffer5[7][i] = 0;
-		// 		// buffer5[8][i] = 0;
-		// 		// buffer5[9][i] = 0;
-		// 		// buffer5[10][i] = 0;
-		// 		// buffer5[11][i] = 0;
-		// 		// buffer5[12][i] = 0;
-		// 		// buffer5[13][i] = 0;
-		// 		// buffer5[14][i] = 0;
-		// 		// buffer5[15][i] = 0;
-		// 	
-		// 		// 		// buffer6[0][i] = 0;
-		// 		// buffer6[1][i] = 0;
-		// 		// buffer6[2][i] = 0;
-		// 		// buffer6[3][i] = 0;
-		// 		// buffer6[4][i] = 0;
-		// 		// buffer6[5][i] = 0;
-		// 		// buffer6[6][i] = 0;
-		// 		// buffer6[7][i] = 0;
-		// 		// buffer6[8][i] = 0;
-		// 		// buffer6[9][i] = 0;
-		// 		// buffer6[10][i] = 0;
-		// 		// buffer6[11][i] = 0;
-		// 		// buffer6[12][i] = 0;
-		// 		// buffer6[13][i] = 0;
-		// 		// buffer6[14][i] = 0;
-		// 		// buffer6[15][i] = 0;
-		// 	
-		// 		// 		// buffer7[0][i] = 0;
-		// 		// buffer7[1][i] = 0;
-		// 		// buffer7[2][i] = 0;
-		// 		// buffer7[3][i] = 0;
-		// 		// buffer7[4][i] = 0;
-		// 		// buffer7[5][i] = 0;
-		// 		// buffer7[6][i] = 0;
-		// 		// buffer7[7][i] = 0;
-		// 		// buffer7[8][i] = 0;
-		// 		// buffer7[9][i] = 0;
-		// 		// buffer7[10][i] = 0;
-		// 		// buffer7[11][i] = 0;
-		// 		// buffer7[12][i] = 0;
-		// 		// buffer7[13][i] = 0;
-		// 		// buffer7[14][i] = 0;
-		// 		// buffer7[15][i] = 0;
-		// 	
-		// 		// 		// buffer8[0][i] = 0;
-		// 		// buffer8[1][i] = 0;
-		// 		// buffer8[2][i] = 0;
-		// 		// buffer8[3][i] = 0;
-		// 		// buffer8[4][i] = 0;
-		// 		// buffer8[5][i] = 0;
-		// 		// buffer8[6][i] = 0;
-		// 		// buffer8[7][i] = 0;
-		// 		// buffer8[8][i] = 0;
-		// 		// buffer8[9][i] = 0;
-		// 		// buffer8[10][i] = 0;
-		// 		// buffer8[11][i] = 0;
-		// 		// buffer8[12][i] = 0;
-		// 		// buffer8[13][i] = 0;
-		// 		// buffer8[14][i] = 0;
-		// 		// buffer8[15][i] = 0;
-		// 	
-		// 		// 		// buffer9[0][i] = 0;
-		// 		// buffer9[1][i] = 0;
-		// 		// buffer9[2][i] = 0;
-		// 		// buffer9[3][i] = 0;
-		// 		// buffer9[4][i] = 0;
-		// 		// buffer9[5][i] = 0;
-		// 		// buffer9[6][i] = 0;
-		// 		// buffer9[7][i] = 0;
-		// 		// buffer9[8][i] = 0;
-		// 		// buffer9[9][i] = 0;
-		// 		// buffer9[10][i] = 0;
-		// 		// buffer9[11][i] = 0;
-		// 		// buffer9[12][i] = 0;
-		// 		// buffer9[13][i] = 0;
-		// 		// buffer9[14][i] = 0;
-		// 		// buffer9[15][i] = 0;
-		// 	
-		// 		// 		// buffer10[0][i] = 0;
-		// 		// buffer10[1][i] = 0;
-		// 		// buffer10[2][i] = 0;
-		// 		// buffer10[3][i] = 0;
-		// 		// buffer10[4][i] = 0;
-		// 		// buffer10[5][i] = 0;
-		// 		// buffer10[6][i] = 0;
-		// 		// buffer10[7][i] = 0;
-		// 		// buffer10[8][i] = 0;
-		// 		// buffer10[9][i] = 0;
-		// 		// buffer10[10][i] = 0;
-		// 		// buffer10[11][i] = 0;
-		// 		// buffer10[12][i] = 0;
-		// 		// buffer10[13][i] = 0;
-		// 		// buffer10[14][i] = 0;
-		// 		// buffer10[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+		buffer4[0][i] = 0;
+		buffer4[1][i] = 0;
+		buffer4[2][i] = 0;
+		buffer4[3][i] = 0;
+		buffer4[4][i] = 0;
+		buffer4[5][i] = 0;
+		buffer4[6][i] = 0;
+		buffer4[7][i] = 0;
+		buffer4[8][i] = 0;
+		buffer4[9][i] = 0;
+		buffer4[10][i] = 0;
+		buffer4[11][i] = 0;
+		buffer4[12][i] = 0;
+		buffer4[13][i] = 0;
+		buffer4[14][i] = 0;
+		buffer4[15][i] = 0;
+	
+		buffer5[0][i] = 0;
+		buffer5[1][i] = 0;
+		buffer5[2][i] = 0;
+		buffer5[3][i] = 0;
+		buffer5[4][i] = 0;
+		buffer5[5][i] = 0;
+		buffer5[6][i] = 0;
+		buffer5[7][i] = 0;
+		buffer5[8][i] = 0;
+		buffer5[9][i] = 0;
+		buffer5[10][i] = 0;
+		buffer5[11][i] = 0;
+		buffer5[12][i] = 0;
+		buffer5[13][i] = 0;
+		buffer5[14][i] = 0;
+		buffer5[15][i] = 0;
+	
+		buffer6[0][i] = 0;
+		buffer6[1][i] = 0;
+		buffer6[2][i] = 0;
+		buffer6[3][i] = 0;
+		buffer6[4][i] = 0;
+		buffer6[5][i] = 0;
+		buffer6[6][i] = 0;
+		buffer6[7][i] = 0;
+		buffer6[8][i] = 0;
+		buffer6[9][i] = 0;
+		buffer6[10][i] = 0;
+		buffer6[11][i] = 0;
+		buffer6[12][i] = 0;
+		buffer6[13][i] = 0;
+		buffer6[14][i] = 0;
+		buffer6[15][i] = 0;
+	
+		buffer7[0][i] = 0;
+		buffer7[1][i] = 0;
+		buffer7[2][i] = 0;
+		buffer7[3][i] = 0;
+		buffer7[4][i] = 0;
+		buffer7[5][i] = 0;
+		buffer7[6][i] = 0;
+		buffer7[7][i] = 0;
+		buffer7[8][i] = 0;
+		buffer7[9][i] = 0;
+		buffer7[10][i] = 0;
+		buffer7[11][i] = 0;
+		buffer7[12][i] = 0;
+		buffer7[13][i] = 0;
+		buffer7[14][i] = 0;
+		buffer7[15][i] = 0;
+	
+		buffer8[0][i] = 0;
+		buffer8[1][i] = 0;
+		buffer8[2][i] = 0;
+		buffer8[3][i] = 0;
+		buffer8[4][i] = 0;
+		buffer8[5][i] = 0;
+		buffer8[6][i] = 0;
+		buffer8[7][i] = 0;
+		buffer8[8][i] = 0;
+		buffer8[9][i] = 0;
+		buffer8[10][i] = 0;
+		buffer8[11][i] = 0;
+		buffer8[12][i] = 0;
+		buffer8[13][i] = 0;
+		buffer8[14][i] = 0;
+		buffer8[15][i] = 0;
+	
+		buffer9[0][i] = 0;
+		buffer9[1][i] = 0;
+		buffer9[2][i] = 0;
+		buffer9[3][i] = 0;
+		buffer9[4][i] = 0;
+		buffer9[5][i] = 0;
+		buffer9[6][i] = 0;
+		buffer9[7][i] = 0;
+		buffer9[8][i] = 0;
+		buffer9[9][i] = 0;
+		buffer9[10][i] = 0;
+		buffer9[11][i] = 0;
+		buffer9[12][i] = 0;
+		buffer9[13][i] = 0;
+		buffer9[14][i] = 0;
+		buffer9[15][i] = 0;
+	
+		buffer10[0][i] = 0;
+		buffer10[1][i] = 0;
+		buffer10[2][i] = 0;
+		buffer10[3][i] = 0;
+		buffer10[4][i] = 0;
+		buffer10[5][i] = 0;
+		buffer10[6][i] = 0;
+		buffer10[7][i] = 0;
+		buffer10[8][i] = 0;
+		buffer10[9][i] = 0;
+		buffer10[10][i] = 0;
+		buffer10[11][i] = 0;
+		buffer10[12][i] = 0;
+		buffer10[13][i] = 0;
+		buffer10[14][i] = 0;
+		buffer10[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -4731,6 +4651,9 @@ void MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalu
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks11 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -4769,25 +4692,28 @@ void MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalu
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks11 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -4986,7 +4912,7 @@ void MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalu
 	// exit(EXIT_SUCCESS);
 	return;
 }
-void MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalparams_t globalparams){
 	unsigned int depth = globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int depth_i = 0;
 	unsigned int bdepth_i = 0;
@@ -5019,213 +4945,215 @@ void MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalu
 	#pragma HLS array_partition variable = buffer10
 	#pragma HLS array_partition variable = buffer11
 	
-	// for (buffer_type i=0; i<1024; i++){ // REMOVEME.
-	// #pragma HLS PIPELINE II=1
-		// 		// 		// buffer0[0][i] = 0;
-		// 		// buffer0[1][i] = 0;
-		// 		// buffer0[2][i] = 0;
-		// 		// buffer0[3][i] = 0;
-		// 		// buffer0[4][i] = 0;
-		// 		// buffer0[5][i] = 0;
-		// 		// buffer0[6][i] = 0;
-		// 		// buffer0[7][i] = 0;
-		// 		// buffer0[8][i] = 0;
-		// 		// buffer0[9][i] = 0;
-		// 		// buffer0[10][i] = 0;
-		// 		// buffer0[11][i] = 0;
-		// 		// buffer0[12][i] = 0;
-		// 		// buffer0[13][i] = 0;
-		// 		// buffer0[14][i] = 0;
-		// 		// buffer0[15][i] = 0;
-		// 	
-		// 		// 		// buffer1[0][i] = 0;
-		// 		// buffer1[1][i] = 0;
-		// 		// buffer1[2][i] = 0;
-		// 		// buffer1[3][i] = 0;
-		// 		// buffer1[4][i] = 0;
-		// 		// buffer1[5][i] = 0;
-		// 		// buffer1[6][i] = 0;
-		// 		// buffer1[7][i] = 0;
-		// 		// buffer1[8][i] = 0;
-		// 		// buffer1[9][i] = 0;
-		// 		// buffer1[10][i] = 0;
-		// 		// buffer1[11][i] = 0;
-		// 		// buffer1[12][i] = 0;
-		// 		// buffer1[13][i] = 0;
-		// 		// buffer1[14][i] = 0;
-		// 		// buffer1[15][i] = 0;
-		// 	
-		// 		// 		// buffer2[0][i] = 0;
-		// 		// buffer2[1][i] = 0;
-		// 		// buffer2[2][i] = 0;
-		// 		// buffer2[3][i] = 0;
-		// 		// buffer2[4][i] = 0;
-		// 		// buffer2[5][i] = 0;
-		// 		// buffer2[6][i] = 0;
-		// 		// buffer2[7][i] = 0;
-		// 		// buffer2[8][i] = 0;
-		// 		// buffer2[9][i] = 0;
-		// 		// buffer2[10][i] = 0;
-		// 		// buffer2[11][i] = 0;
-		// 		// buffer2[12][i] = 0;
-		// 		// buffer2[13][i] = 0;
-		// 		// buffer2[14][i] = 0;
-		// 		// buffer2[15][i] = 0;
-		// 	
-		// 		// 		// buffer3[0][i] = 0;
-		// 		// buffer3[1][i] = 0;
-		// 		// buffer3[2][i] = 0;
-		// 		// buffer3[3][i] = 0;
-		// 		// buffer3[4][i] = 0;
-		// 		// buffer3[5][i] = 0;
-		// 		// buffer3[6][i] = 0;
-		// 		// buffer3[7][i] = 0;
-		// 		// buffer3[8][i] = 0;
-		// 		// buffer3[9][i] = 0;
-		// 		// buffer3[10][i] = 0;
-		// 		// buffer3[11][i] = 0;
-		// 		// buffer3[12][i] = 0;
-		// 		// buffer3[13][i] = 0;
-		// 		// buffer3[14][i] = 0;
-		// 		// buffer3[15][i] = 0;
-		// 	
-		// 		// 		// buffer4[0][i] = 0;
-		// 		// buffer4[1][i] = 0;
-		// 		// buffer4[2][i] = 0;
-		// 		// buffer4[3][i] = 0;
-		// 		// buffer4[4][i] = 0;
-		// 		// buffer4[5][i] = 0;
-		// 		// buffer4[6][i] = 0;
-		// 		// buffer4[7][i] = 0;
-		// 		// buffer4[8][i] = 0;
-		// 		// buffer4[9][i] = 0;
-		// 		// buffer4[10][i] = 0;
-		// 		// buffer4[11][i] = 0;
-		// 		// buffer4[12][i] = 0;
-		// 		// buffer4[13][i] = 0;
-		// 		// buffer4[14][i] = 0;
-		// 		// buffer4[15][i] = 0;
-		// 	
-		// 		// 		// buffer5[0][i] = 0;
-		// 		// buffer5[1][i] = 0;
-		// 		// buffer5[2][i] = 0;
-		// 		// buffer5[3][i] = 0;
-		// 		// buffer5[4][i] = 0;
-		// 		// buffer5[5][i] = 0;
-		// 		// buffer5[6][i] = 0;
-		// 		// buffer5[7][i] = 0;
-		// 		// buffer5[8][i] = 0;
-		// 		// buffer5[9][i] = 0;
-		// 		// buffer5[10][i] = 0;
-		// 		// buffer5[11][i] = 0;
-		// 		// buffer5[12][i] = 0;
-		// 		// buffer5[13][i] = 0;
-		// 		// buffer5[14][i] = 0;
-		// 		// buffer5[15][i] = 0;
-		// 	
-		// 		// 		// buffer6[0][i] = 0;
-		// 		// buffer6[1][i] = 0;
-		// 		// buffer6[2][i] = 0;
-		// 		// buffer6[3][i] = 0;
-		// 		// buffer6[4][i] = 0;
-		// 		// buffer6[5][i] = 0;
-		// 		// buffer6[6][i] = 0;
-		// 		// buffer6[7][i] = 0;
-		// 		// buffer6[8][i] = 0;
-		// 		// buffer6[9][i] = 0;
-		// 		// buffer6[10][i] = 0;
-		// 		// buffer6[11][i] = 0;
-		// 		// buffer6[12][i] = 0;
-		// 		// buffer6[13][i] = 0;
-		// 		// buffer6[14][i] = 0;
-		// 		// buffer6[15][i] = 0;
-		// 	
-		// 		// 		// buffer7[0][i] = 0;
-		// 		// buffer7[1][i] = 0;
-		// 		// buffer7[2][i] = 0;
-		// 		// buffer7[3][i] = 0;
-		// 		// buffer7[4][i] = 0;
-		// 		// buffer7[5][i] = 0;
-		// 		// buffer7[6][i] = 0;
-		// 		// buffer7[7][i] = 0;
-		// 		// buffer7[8][i] = 0;
-		// 		// buffer7[9][i] = 0;
-		// 		// buffer7[10][i] = 0;
-		// 		// buffer7[11][i] = 0;
-		// 		// buffer7[12][i] = 0;
-		// 		// buffer7[13][i] = 0;
-		// 		// buffer7[14][i] = 0;
-		// 		// buffer7[15][i] = 0;
-		// 	
-		// 		// 		// buffer8[0][i] = 0;
-		// 		// buffer8[1][i] = 0;
-		// 		// buffer8[2][i] = 0;
-		// 		// buffer8[3][i] = 0;
-		// 		// buffer8[4][i] = 0;
-		// 		// buffer8[5][i] = 0;
-		// 		// buffer8[6][i] = 0;
-		// 		// buffer8[7][i] = 0;
-		// 		// buffer8[8][i] = 0;
-		// 		// buffer8[9][i] = 0;
-		// 		// buffer8[10][i] = 0;
-		// 		// buffer8[11][i] = 0;
-		// 		// buffer8[12][i] = 0;
-		// 		// buffer8[13][i] = 0;
-		// 		// buffer8[14][i] = 0;
-		// 		// buffer8[15][i] = 0;
-		// 	
-		// 		// 		// buffer9[0][i] = 0;
-		// 		// buffer9[1][i] = 0;
-		// 		// buffer9[2][i] = 0;
-		// 		// buffer9[3][i] = 0;
-		// 		// buffer9[4][i] = 0;
-		// 		// buffer9[5][i] = 0;
-		// 		// buffer9[6][i] = 0;
-		// 		// buffer9[7][i] = 0;
-		// 		// buffer9[8][i] = 0;
-		// 		// buffer9[9][i] = 0;
-		// 		// buffer9[10][i] = 0;
-		// 		// buffer9[11][i] = 0;
-		// 		// buffer9[12][i] = 0;
-		// 		// buffer9[13][i] = 0;
-		// 		// buffer9[14][i] = 0;
-		// 		// buffer9[15][i] = 0;
-		// 	
-		// 		// 		// buffer10[0][i] = 0;
-		// 		// buffer10[1][i] = 0;
-		// 		// buffer10[2][i] = 0;
-		// 		// buffer10[3][i] = 0;
-		// 		// buffer10[4][i] = 0;
-		// 		// buffer10[5][i] = 0;
-		// 		// buffer10[6][i] = 0;
-		// 		// buffer10[7][i] = 0;
-		// 		// buffer10[8][i] = 0;
-		// 		// buffer10[9][i] = 0;
-		// 		// buffer10[10][i] = 0;
-		// 		// buffer10[11][i] = 0;
-		// 		// buffer10[12][i] = 0;
-		// 		// buffer10[13][i] = 0;
-		// 		// buffer10[14][i] = 0;
-		// 		// buffer10[15][i] = 0;
-		// 	
-		// 		// 		// buffer11[0][i] = 0;
-		// 		// buffer11[1][i] = 0;
-		// 		// buffer11[2][i] = 0;
-		// 		// buffer11[3][i] = 0;
-		// 		// buffer11[4][i] = 0;
-		// 		// buffer11[5][i] = 0;
-		// 		// buffer11[6][i] = 0;
-		// 		// buffer11[7][i] = 0;
-		// 		// buffer11[8][i] = 0;
-		// 		// buffer11[9][i] = 0;
-		// 		// buffer11[10][i] = 0;
-		// 		// buffer11[11][i] = 0;
-		// 		// buffer11[12][i] = 0;
-		// 		// buffer11[13][i] = 0;
-		// 		// buffer11[14][i] = 0;
-		// 		// buffer11[15][i] = 0;
-		// 	
-		// 	// }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	for (buffer_type i=0; i<1024; i++){ // REMOVEME.
+	#pragma HLS PIPELINE II=1
+		buffer0[0][i] = 0;
+		buffer0[1][i] = 0;
+		buffer0[2][i] = 0;
+		buffer0[3][i] = 0;
+		buffer0[4][i] = 0;
+		buffer0[5][i] = 0;
+		buffer0[6][i] = 0;
+		buffer0[7][i] = 0;
+		buffer0[8][i] = 0;
+		buffer0[9][i] = 0;
+		buffer0[10][i] = 0;
+		buffer0[11][i] = 0;
+		buffer0[12][i] = 0;
+		buffer0[13][i] = 0;
+		buffer0[14][i] = 0;
+		buffer0[15][i] = 0;
+	
+		buffer1[0][i] = 0;
+		buffer1[1][i] = 0;
+		buffer1[2][i] = 0;
+		buffer1[3][i] = 0;
+		buffer1[4][i] = 0;
+		buffer1[5][i] = 0;
+		buffer1[6][i] = 0;
+		buffer1[7][i] = 0;
+		buffer1[8][i] = 0;
+		buffer1[9][i] = 0;
+		buffer1[10][i] = 0;
+		buffer1[11][i] = 0;
+		buffer1[12][i] = 0;
+		buffer1[13][i] = 0;
+		buffer1[14][i] = 0;
+		buffer1[15][i] = 0;
+	
+		buffer2[0][i] = 0;
+		buffer2[1][i] = 0;
+		buffer2[2][i] = 0;
+		buffer2[3][i] = 0;
+		buffer2[4][i] = 0;
+		buffer2[5][i] = 0;
+		buffer2[6][i] = 0;
+		buffer2[7][i] = 0;
+		buffer2[8][i] = 0;
+		buffer2[9][i] = 0;
+		buffer2[10][i] = 0;
+		buffer2[11][i] = 0;
+		buffer2[12][i] = 0;
+		buffer2[13][i] = 0;
+		buffer2[14][i] = 0;
+		buffer2[15][i] = 0;
+	
+		buffer3[0][i] = 0;
+		buffer3[1][i] = 0;
+		buffer3[2][i] = 0;
+		buffer3[3][i] = 0;
+		buffer3[4][i] = 0;
+		buffer3[5][i] = 0;
+		buffer3[6][i] = 0;
+		buffer3[7][i] = 0;
+		buffer3[8][i] = 0;
+		buffer3[9][i] = 0;
+		buffer3[10][i] = 0;
+		buffer3[11][i] = 0;
+		buffer3[12][i] = 0;
+		buffer3[13][i] = 0;
+		buffer3[14][i] = 0;
+		buffer3[15][i] = 0;
+	
+		buffer4[0][i] = 0;
+		buffer4[1][i] = 0;
+		buffer4[2][i] = 0;
+		buffer4[3][i] = 0;
+		buffer4[4][i] = 0;
+		buffer4[5][i] = 0;
+		buffer4[6][i] = 0;
+		buffer4[7][i] = 0;
+		buffer4[8][i] = 0;
+		buffer4[9][i] = 0;
+		buffer4[10][i] = 0;
+		buffer4[11][i] = 0;
+		buffer4[12][i] = 0;
+		buffer4[13][i] = 0;
+		buffer4[14][i] = 0;
+		buffer4[15][i] = 0;
+	
+		buffer5[0][i] = 0;
+		buffer5[1][i] = 0;
+		buffer5[2][i] = 0;
+		buffer5[3][i] = 0;
+		buffer5[4][i] = 0;
+		buffer5[5][i] = 0;
+		buffer5[6][i] = 0;
+		buffer5[7][i] = 0;
+		buffer5[8][i] = 0;
+		buffer5[9][i] = 0;
+		buffer5[10][i] = 0;
+		buffer5[11][i] = 0;
+		buffer5[12][i] = 0;
+		buffer5[13][i] = 0;
+		buffer5[14][i] = 0;
+		buffer5[15][i] = 0;
+	
+		buffer6[0][i] = 0;
+		buffer6[1][i] = 0;
+		buffer6[2][i] = 0;
+		buffer6[3][i] = 0;
+		buffer6[4][i] = 0;
+		buffer6[5][i] = 0;
+		buffer6[6][i] = 0;
+		buffer6[7][i] = 0;
+		buffer6[8][i] = 0;
+		buffer6[9][i] = 0;
+		buffer6[10][i] = 0;
+		buffer6[11][i] = 0;
+		buffer6[12][i] = 0;
+		buffer6[13][i] = 0;
+		buffer6[14][i] = 0;
+		buffer6[15][i] = 0;
+	
+		buffer7[0][i] = 0;
+		buffer7[1][i] = 0;
+		buffer7[2][i] = 0;
+		buffer7[3][i] = 0;
+		buffer7[4][i] = 0;
+		buffer7[5][i] = 0;
+		buffer7[6][i] = 0;
+		buffer7[7][i] = 0;
+		buffer7[8][i] = 0;
+		buffer7[9][i] = 0;
+		buffer7[10][i] = 0;
+		buffer7[11][i] = 0;
+		buffer7[12][i] = 0;
+		buffer7[13][i] = 0;
+		buffer7[14][i] = 0;
+		buffer7[15][i] = 0;
+	
+		buffer8[0][i] = 0;
+		buffer8[1][i] = 0;
+		buffer8[2][i] = 0;
+		buffer8[3][i] = 0;
+		buffer8[4][i] = 0;
+		buffer8[5][i] = 0;
+		buffer8[6][i] = 0;
+		buffer8[7][i] = 0;
+		buffer8[8][i] = 0;
+		buffer8[9][i] = 0;
+		buffer8[10][i] = 0;
+		buffer8[11][i] = 0;
+		buffer8[12][i] = 0;
+		buffer8[13][i] = 0;
+		buffer8[14][i] = 0;
+		buffer8[15][i] = 0;
+	
+		buffer9[0][i] = 0;
+		buffer9[1][i] = 0;
+		buffer9[2][i] = 0;
+		buffer9[3][i] = 0;
+		buffer9[4][i] = 0;
+		buffer9[5][i] = 0;
+		buffer9[6][i] = 0;
+		buffer9[7][i] = 0;
+		buffer9[8][i] = 0;
+		buffer9[9][i] = 0;
+		buffer9[10][i] = 0;
+		buffer9[11][i] = 0;
+		buffer9[12][i] = 0;
+		buffer9[13][i] = 0;
+		buffer9[14][i] = 0;
+		buffer9[15][i] = 0;
+	
+		buffer10[0][i] = 0;
+		buffer10[1][i] = 0;
+		buffer10[2][i] = 0;
+		buffer10[3][i] = 0;
+		buffer10[4][i] = 0;
+		buffer10[5][i] = 0;
+		buffer10[6][i] = 0;
+		buffer10[7][i] = 0;
+		buffer10[8][i] = 0;
+		buffer10[9][i] = 0;
+		buffer10[10][i] = 0;
+		buffer10[11][i] = 0;
+		buffer10[12][i] = 0;
+		buffer10[13][i] = 0;
+		buffer10[14][i] = 0;
+		buffer10[15][i] = 0;
+	
+		buffer11[0][i] = 0;
+		buffer11[1][i] = 0;
+		buffer11[2][i] = 0;
+		buffer11[3][i] = 0;
+		buffer11[4][i] = 0;
+		buffer11[5][i] = 0;
+		buffer11[6][i] = 0;
+		buffer11[7][i] = 0;
+		buffer11[8][i] = 0;
+		buffer11[9][i] = 0;
+		buffer11[10][i] = 0;
+		buffer11[11][i] = 0;
+		buffer11[12][i] = 0;
+		buffer11[13][i] = 0;
+		buffer11[14][i] = 0;
+		buffer11[15][i] = 0;
+	
+	}
+	#endif
 	
 	unsigned int bdepth = vsz_kvs;
 	READANDRVCHUNKS_LOOP1: for(unsigned int s=0; s<NUM_PEs; s++){
@@ -5234,6 +5162,9 @@ void MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalu
 		#endif
 		READANDRVCHUNKS_LOOP1B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks12 23", vbaseoffset_kvs + voffset_kvs + depth_i + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+			#endif
 			#ifdef _WIDEWORD
 			vdata[0] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(31, 0); 
 			vdata[1] = vdram[vbaseoffset_kvs + voffset_kvs + depth_i + i].range(63, 32); 
@@ -5272,25 +5203,28 @@ void MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalu
 			
 			MEMACCESSP0_RearrangeLayoutV(s, vdata, vdata2); // re-arrange to fit vdata provided in loadedges_random.cpp
 			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
-			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(MEMCAP0_READVMASK(vdata2[0]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 0"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[1]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 1"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[2]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 2"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[3]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 3"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[4]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 4"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[5]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 5"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[6]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 6"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[7]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 7"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[8]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 8"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[9]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 9"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[10]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 10"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[11]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 11"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[12]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 12"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[13]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 13"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[14]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 14"<<endl; }
+			if(MEMCAP0_READVMASK(vdata2[15]) == 1){ cout<<"READANDRVCHUNKS: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<", ind: "<<(s*vsz_kvs)+i<<", v: 15"<<endl; }
 			#endif
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_readANDRVchunks12 25", bdepth_i + i, BLOCKRAM_VDATA_SIZE, NAp, NAp, NAp);
+			#endif
 			buffer0[0][bdepth_i + i] = vdata2[0];
 			buffer0[1][bdepth_i + i] = vdata2[1];
 			buffer0[2][bdepth_i + i] = vdata2[2];
@@ -5508,7 +5442,7 @@ void MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalu
 }
 
 #ifdef RANDOMVERTEXISACTIVE_ALGORITHM_XXXXXXXXXXXXXXXXXXXXXXXXXXx
-void MEMACCESSP0_RANDreadANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5529,7 +5463,7 @@ void MEMACCESSP0_RANDreadANDRVchunks1(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5551,7 +5485,7 @@ void MEMACCESSP0_RANDreadANDRVchunks2(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5574,7 +5508,7 @@ void MEMACCESSP0_RANDreadANDRVchunks3(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5598,7 +5532,7 @@ void MEMACCESSP0_RANDreadANDRVchunks4(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5623,7 +5557,7 @@ void MEMACCESSP0_RANDreadANDRVchunks5(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5649,7 +5583,7 @@ void MEMACCESSP0_RANDreadANDRVchunks6(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5676,7 +5610,7 @@ void MEMACCESSP0_RANDreadANDRVchunks7(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5704,7 +5638,7 @@ void MEMACCESSP0_RANDreadANDRVchunks8(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5733,7 +5667,7 @@ void MEMACCESSP0_RANDreadANDRVchunks9(bool_type enable, uint512_dt * vdram, keyv
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5763,7 +5697,7 @@ void MEMACCESSP0_RANDreadANDRVchunks10(bool_type enable, uint512_dt * vdram, key
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5794,7 +5728,7 @@ void MEMACCESSP0_RANDreadANDRVchunks11(bool_type enable, uint512_dt * vdram, key
 	}
 	return;
 }
-void MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
+void acts_all::MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
 	
 	unsigned int randvids[BLOCKRAM_SIZE];
 	
@@ -5829,7 +5763,7 @@ void MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * vdram, key
 #endif 
 
 // -------------------- pmasks -------------------- //
-void MEMACCESSP0_readpmask(uint512_dt * kvdram, pmask_dt pmask[BLOCKRAM_PMASK1_SIZE], batch_type offset_kvs, batch_type size_kvs){
+void acts_all::MEMACCESSP0_readpmask(uint512_dt * kvdram, pmask_dt pmask[BLOCKRAM_PMASK1_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
 		pmask[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
@@ -5841,7 +5775,7 @@ void MEMACCESSP0_readpmask(uint512_dt * kvdram, pmask_dt pmask[BLOCKRAM_PMASK1_S
 }
 
 // -------------------- stats -------------------- //
-void MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
@@ -5882,7 +5816,7 @@ void MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void MEMACCESSP0_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void acts_all::MEMACCESSP0_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -5952,7 +5886,7 @@ else if(globalparams.VARS_WORKBATCH == 4){
 	return;
 }
 
-tuple_t MEMACCESSP0_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t acts_all::MEMACCESSP0_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -5970,7 +5904,7 @@ tuple_t MEMACCESSP0_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsi
 	return t;
 }
 
-unsigned int MEMACCESSP0_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
+unsigned int acts_all::MEMACCESSP0_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (offset / VECTOR2_SIZE)];
@@ -6049,7 +5983,7 @@ else {
 	else { return vptr_kv.value; }
 }
 
-tuple_t MEMACCESSP0_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t acts_all::MEMACCESSP0_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -6065,7 +5999,7 @@ tuple_t MEMACCESSP0_getvptrs_opt( uint512_dt * kvdram, unsigned int baseoffset_k
 	return t;
 }
 
-void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
+void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -6084,7 +6018,7 @@ void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalpara
 	return;
 }
 
-void MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void acts_all::MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k]; 
@@ -6095,7 +6029,7 @@ void MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalpar
 	return;
 }
 
-void MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void acts_all::MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k].key; 
@@ -6106,7 +6040,7 @@ void MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, global
 	return;
 }
 
-void MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void acts_all::MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -6117,7 +6051,7 @@ void MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalp
 	}
 }
 
-void MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void acts_all::MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -6128,7 +6062,7 @@ void MEMACCESSP0_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, glob
 	}
 }
 
-void MEMACCESSP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -6177,7 +6111,7 @@ else if(globalparams.VARS_WORKBATCH == 4){
 	return;
 }
 
-void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<TREE_DEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -6197,261 +6131,3027 @@ void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalpara
 }
 
 // -------------------- multiple accesses -------------------- //
-void MEMACCESSP0_readmanypmask1(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask1(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask2(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask2(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask3(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask3(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask4(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask4(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask5(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask5(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask6(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask6(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask7(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask7(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask8(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask8(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask9(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask9(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask8[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask8[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask10(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask10(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask8[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask9[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask8[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask9[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask11(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask11(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask8[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask9[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask10[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask8[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask9[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask10[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
+		pmask10[i] = pmask0[i];
 	}
 	return;
 }
-void MEMACCESSP0_readmanypmask12(uint512_dt * kvdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE],pmask_dt pmask11[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	READMANYPMASKS_LOOP: for (buffer_type i=0; i<size_kvs; i++){	
+void acts_all::MEMACCESSP0_readmanypmask12(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE],pmask_dt pmask11[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	unit1_type temppmask[32];
+	#pragma HLS DATA_PACK variable = temppmask
+	temppmask[0] = 0;
+	temppmask[1] = 0;
+	temppmask[2] = 0;
+	temppmask[3] = 0;
+	temppmask[4] = 0;
+	temppmask[5] = 0;
+	temppmask[6] = 0;
+	temppmask[7] = 0;
+	temppmask[8] = 0;
+	temppmask[9] = 0;
+	temppmask[10] = 0;
+	temppmask[11] = 0;
+	temppmask[12] = 0;
+	temppmask[13] = 0;
+	temppmask[14] = 0;
+	temppmask[15] = 0;
+	temppmask[16] = 0;
+	temppmask[17] = 0;
+	temppmask[18] = 0;
+	temppmask[19] = 0;
+	temppmask[20] = 0;
+	temppmask[21] = 0;
+	temppmask[22] = 0;
+	temppmask[23] = 0;
+	temppmask[24] = 0;
+	temppmask[25] = 0;
+	temppmask[26] = 0;
+	temppmask[27] = 0;
+	temppmask[28] = 0;
+	temppmask[29] = 0;
+	temppmask[30] = 0;
+	temppmask[31] = 0;
+	
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		uint32_type temp;
 		#ifdef _WIDEWORD
-		pmask0[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask1[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask2[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask3[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask4[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask5[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask6[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask7[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask8[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask9[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask10[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
-		pmask11[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		temp = vdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask0[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask1[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask2[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask3[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask4[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask5[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask6[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask7[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask8[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask9[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask10[i].data[0] = kvdram[offset_kvs + i].data[0].key;
-		pmask11[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		temp = vdram[offset_kvs + i].data[0].key;
 		#endif 
+		
+		pmask0[i].data[0] = 
+			#ifdef _WIDEWORD
+			temp.range(0, 0);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
+			#endif 
+		pmask0[i].data[1] = 
+			#ifdef _WIDEWORD
+			temp.range(1, 1);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
+			#endif 
+		pmask0[i].data[2] = 
+			#ifdef _WIDEWORD
+			temp.range(2, 2);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
+			#endif 
+		pmask0[i].data[3] = 
+			#ifdef _WIDEWORD
+			temp.range(3, 3);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
+			#endif 
+		pmask0[i].data[4] = 
+			#ifdef _WIDEWORD
+			temp.range(4, 4);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
+			#endif 
+		pmask0[i].data[5] = 
+			#ifdef _WIDEWORD
+			temp.range(5, 5);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
+			#endif 
+		pmask0[i].data[6] = 
+			#ifdef _WIDEWORD
+			temp.range(6, 6);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
+			#endif 
+		pmask0[i].data[7] = 
+			#ifdef _WIDEWORD
+			temp.range(7, 7);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
+			#endif 
+		pmask0[i].data[8] = 
+			#ifdef _WIDEWORD
+			temp.range(8, 8);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
+			#endif 
+		pmask0[i].data[9] = 
+			#ifdef _WIDEWORD
+			temp.range(9, 9);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
+			#endif 
+		pmask0[i].data[10] = 
+			#ifdef _WIDEWORD
+			temp.range(10, 10);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
+			#endif 
+		pmask0[i].data[11] = 
+			#ifdef _WIDEWORD
+			temp.range(11, 11);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
+			#endif 
+		pmask0[i].data[12] = 
+			#ifdef _WIDEWORD
+			temp.range(12, 12);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
+			#endif 
+		pmask0[i].data[13] = 
+			#ifdef _WIDEWORD
+			temp.range(13, 13);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
+			#endif 
+		pmask0[i].data[14] = 
+			#ifdef _WIDEWORD
+			temp.range(14, 14);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
+			#endif 
+		pmask0[i].data[15] = 
+			#ifdef _WIDEWORD
+			temp.range(15, 15);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
+			#endif 
+		pmask0[i].data[16] = 
+			#ifdef _WIDEWORD
+			temp.range(16, 16);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
+			#endif 
+		pmask0[i].data[17] = 
+			#ifdef _WIDEWORD
+			temp.range(17, 17);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
+			#endif 
+		pmask0[i].data[18] = 
+			#ifdef _WIDEWORD
+			temp.range(18, 18);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
+			#endif 
+		pmask0[i].data[19] = 
+			#ifdef _WIDEWORD
+			temp.range(19, 19);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
+			#endif 
+		pmask0[i].data[20] = 
+			#ifdef _WIDEWORD
+			temp.range(20, 20);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
+			#endif 
+		pmask0[i].data[21] = 
+			#ifdef _WIDEWORD
+			temp.range(21, 21);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
+			#endif 
+		pmask0[i].data[22] = 
+			#ifdef _WIDEWORD
+			temp.range(22, 22);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
+			#endif 
+		pmask0[i].data[23] = 
+			#ifdef _WIDEWORD
+			temp.range(23, 23);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
+			#endif 
+		pmask0[i].data[24] = 
+			#ifdef _WIDEWORD
+			temp.range(24, 24);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
+			#endif 
+		pmask0[i].data[25] = 
+			#ifdef _WIDEWORD
+			temp.range(25, 25);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
+			#endif 
+		pmask0[i].data[26] = 
+			#ifdef _WIDEWORD
+			temp.range(26, 26);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
+			#endif 
+		pmask0[i].data[27] = 
+			#ifdef _WIDEWORD
+			temp.range(27, 27);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
+			#endif 
+		pmask0[i].data[28] = 
+			#ifdef _WIDEWORD
+			temp.range(28, 28);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
+			#endif 
+		pmask0[i].data[29] = 
+			#ifdef _WIDEWORD
+			temp.range(29, 29);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
+			#endif 
+		pmask0[i].data[30] = 
+			#ifdef _WIDEWORD
+			temp.range(30, 30);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
+			#endif 
+		pmask0[i].data[31] = 
+			#ifdef _WIDEWORD
+			temp.range(31, 31);
+			#else 
+			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
+			#endif 
+	}
+	
+	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask0[i] = pmask0[i];
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
+		pmask10[i] = pmask0[i];
+		pmask11[i] = pmask0[i];
 	}
 	return;
 }
 
 // -------------------- others -------------------- //
-void MEMACCESSP0_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
+void acts_all::MEMACCESSP0_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
 	// NOT IMPLEMENTED.
 	/* analysis_type analysis_treedepth = TREE_DEPTH;
 	analysis_type analysis_loop1 = 1;
