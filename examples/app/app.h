@@ -23,7 +23,6 @@
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
-#include "../../examples/helperfunctions/loadedges_sequential.h"
 #include "../../examples/helperfunctions/loadedges_random.h"
 #include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
@@ -49,12 +48,7 @@ private:
 	graph * graphobj;
 	utility * utilityobj;
 	loadgraph * loadgraphobj;
-	#ifdef CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS
-	loadedges_sequential * loadedgesobj;
-	#endif 
-	#ifdef CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS
 	loadedges_random * loadedgesobj;
-	#endif 
 	setupkernel * setupkernelobj;
 	swkernel * swkernelobj;
 	stats * statsobj;

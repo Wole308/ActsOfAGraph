@@ -201,7 +201,7 @@ fetchmessage_t acts_all::ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mo
 		unsigned int edgebankID){
 	fetchmessage_t fetchmessage;
 	if(mode == ACTSPROCESSMODE){
-		fetchmessage = PROCESSP0_SPL_readandprocess(enable, kvdram, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+		fetchmessage = PROCESSP0_readandprocess(enable, kvdram, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 	} else {
 		fetchmessage = MEMACCESSP0_readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
 	}

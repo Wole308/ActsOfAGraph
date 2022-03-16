@@ -7,6 +7,7 @@ batch_type UTIL{{context['id']}}_allignlower_KV(batch_type val);
 batch_type UTIL{{context['id']}}_allignhigher_KV(batch_type val);
 batch_type UTIL{{context['id']}}_allignlower_KV2(batch_type val);
 batch_type UTIL{{context['id']}}_allignhigher_KV2(batch_type val);
+batch_type UTIL{{context['id']}}_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR);
 
 // functions (bit manipulation)
 unsigned int UTIL{{context['id']}}_GETMASK_UINT(unsigned int index, unsigned int size);

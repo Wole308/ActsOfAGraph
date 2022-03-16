@@ -134,27 +134,22 @@ elif context['DATASET'] == "DATASET_MAWI_201512020030_68M_71M":
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE0":
     context['KVDATA_RANGE_POW'] = 22
     context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT22_SPARSE1":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE2":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 1 
-elif context['DATASET'] == "DATASET_RMAT22_SPARSE3":
     context['KVDATA_RANGE_POW'] = 22
     context['NUM_EDGE_BANKS'] = 0 
 elif context['DATASET'] == "DATASET_RMAT22_SPARSE4":
     context['KVDATA_RANGE_POW'] = 22
+    context['NUM_EDGE_BANKS'] = 0
+    
+elif context['DATASET'] == "DATASET_RMAT21_SPARSE0":
+    context['KVDATA_RANGE_POW'] = 21 
+    context['NUM_EDGE_BANKS'] = 0 
+elif context['DATASET'] == "DATASET_RMAT21_SPARSE2":
+    context['KVDATA_RANGE_POW'] = 21
     context['NUM_EDGE_BANKS'] = 1
-elif context['DATASET'] == "DATASET_RMAT22_SPARSE5":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT22_SPARSE6":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT22_SPARSE7":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
+elif context['DATASET'] == "DATASET_RMAT21_SPARSE4":
+    context['KVDATA_RANGE_POW'] = 21 
+    context['NUM_EDGE_BANKS'] = 1
     
 elif context['DATASET'] == "DATASET_RMAT24_268M":
     context['KVDATA_RANGE_POW'] = 24
@@ -351,7 +346,7 @@ o_path19=relref+"acts/acts/reduceupdates.cpp"
 o_path20=relref+"acts/acts/acts_util.cpp"
 o_path21=relref+"acts/acts/algo_funcs.cpp"
 o_path22=relref+"acts/acts/reduceupdates2.cpp"
-o_path23=relref+"acts/acts/processedges_and_reduceupdates.cpp"
+o_path23=relref+"acts/acts/reduceupdates2.cpp"
 o_path24=relref+"acts/acts/acts.cpp"
 o_path25=relref+"acts/acts/acts.cpp"
 o_path26=relref+"acts/acts/partitionupdates.cpp"
@@ -378,7 +373,7 @@ o_path108=relref+"acts/acts/processedges2_mf.h"
 o_path109=relref+"acts/acts/mem_access_mf.h"
 o_path110=relref+"acts/acts/acts_merge_mf.h"
 o_path111=relref+"acts/acts/mem_convert_and_access_mf.h"
-o_path112=relref+"acts/acts/processedges_and_reduceupdates_mf.h"
+o_path112=relref+"acts/acts/algo_funcs_mf.h"
 o_path113=relref+"acts/acts/algo_funcs_mf.h"
 o_path200=relref+"acts/acts/acts_allP0.cpp"
 o_path201=relref+"acts/acts/acts_allP0.h"
@@ -876,7 +871,7 @@ template19 = env19.get_template('reduceupdates.template')
 template20 = env20.get_template('acts_util.template')
 template21 = env21.get_template('algo_funcs.template')
 template22 = env22.get_template('reduceupdates2.template')
-template23 = env23.get_template('processedges_and_reduceupdates.template')
+template23 = env23.get_template('reduceupdates2.template')
 template24 = env24.get_template('acts.template')
 template25 = env25.get_template('acts.template')
 template26 = env26.get_template('partitionupdates.template')
@@ -903,7 +898,7 @@ template108 = env108.get_template('processedges2_mf.template')
 template109 = env109.get_template('mem_access_mf.template')
 template110 = env110.get_template('acts_merge_mf.template')
 template111 = env111.get_template('mem_convert_and_access_mf.template')
-template112 = env112.get_template('processedges_and_reduceupdates_mf.template')
+template112 = env112.get_template('algo_funcs_mf.template')
 template113 = env113.get_template('algo_funcs_mf.template')
 template200 = env200.get_template('acts_all.template')
 template201 = env201.get_template('acts_all_h.template')

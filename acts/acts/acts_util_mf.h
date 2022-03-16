@@ -7,6 +7,7 @@ batch_type UTILP0_allignlower_KV(batch_type val);
 batch_type UTILP0_allignhigher_KV(batch_type val);
 batch_type UTILP0_allignlower_KV2(batch_type val);
 batch_type UTILP0_allignhigher_KV2(batch_type val);
+batch_type UTILP0_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR);
 
 // functions (bit manipulation)
 unsigned int UTILP0_GETMASK_UINT(unsigned int index, unsigned int size);

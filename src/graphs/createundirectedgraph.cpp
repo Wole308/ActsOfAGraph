@@ -126,10 +126,12 @@ void createundirectedgraph::start(){
 			edgedatabuffer[linecount].srcvid = srcv;
 			edgedatabuffer[linecount].dstvid = dstv;
 			
+			if(linecount > num_edges){ cout<<"createundirectedgraph: ERROR: linecount("<<linecount<<") > num_edges("<<num_edges<<"). srcv: "<<srcv<<", dstv: "<<dstv<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+			
 			linecount += 1;
 			alllinecount += 1;
 			
-			if(linecount > num_edges){ cout<<"createundirectedgraph: ERROR: linecount("<<linecount<<") > num_edges("<<num_edges<<"). srcv: "<<srcv<<", dstv: "<<dstv<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+			// if(linecount > num_edges){ cout<<"createundirectedgraph: ERROR: linecount("<<linecount<<") > num_edges("<<num_edges<<"). srcv: "<<srcv<<", dstv: "<<dstv<<". EXITING..."<<endl; } // exit(EXIT_FAILURE); }
 		}
 		
 		cout<<"SUMMARY: alllinecount: "<<alllinecount<<endl;

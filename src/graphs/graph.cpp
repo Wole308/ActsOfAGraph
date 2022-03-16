@@ -919,6 +919,53 @@ void graph::load_synthetic_datasets(){
 	_datasets[107].graphorder = DST_SRC; // DST_SRC, SRC_DST;
 	_datasets[107].graphgroup = SYNTHETIC; // SKEWRATIO;
 	
+	/////////////////////////////////////////////////////////////////////
+	
+	_datasets[110].graphtopname = "RMAT21_SPARSE0";
+	_datasets[110].graphname = "RMAT21_SPARSE0";
+	_datasets[110].graph_path = rootDir + "dataset/RMAT21_SPARSE0/RMAT21_SPARSE0.mtx";
+	_datasets[110].vertices_path = rootDir + "dataset/RMAT21_SPARSE0/RMAT21_SPARSE0.vertices";
+	_datasets[110].edges_path = rootDir + "dataset/RMAT21_SPARSE0/RMAT21_SPARSE0.edges";	
+	_datasets[110].vertices_path_bin = rootDir + "dataset/RMAT21_SPARSE0/RMAT21_SPARSE0.vertices";
+	_datasets[110].edges_path_bin = rootDir + "dataset/RMAT21_SPARSE0/RMAT21_SPARSE0.edges";
+	_datasets[110].min_vertex = 0;
+	_datasets[110].max_vertex = (1 << 21);
+	_datasets[110].num_vertices = (1 << 21);
+	_datasets[110].num_edges = ((1 << 22) * 30);
+	_datasets[110].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[110].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[110].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[112].graphtopname = "RMAT21_SPARSE2";
+	_datasets[112].graphname = "RMAT21_SPARSE2";
+	_datasets[112].graph_path = rootDir + "dataset/RMAT21_SPARSE2/RMAT21_SPARSE2.mtx";
+	_datasets[112].vertices_path = rootDir + "dataset/RMAT21_SPARSE2/RMAT21_SPARSE2.vertices";
+	_datasets[112].edges_path = rootDir + "dataset/RMAT21_SPARSE2/RMAT21_SPARSE2.edges";	
+	_datasets[112].vertices_path_bin = rootDir + "dataset/RMAT21_SPARSE2/RMAT21_SPARSE2.vertices";
+	_datasets[112].edges_path_bin = rootDir + "dataset/RMAT21_SPARSE2/RMAT21_SPARSE2.edges";
+	_datasets[112].min_vertex = 0;
+	_datasets[112].max_vertex = (1 << 21);
+	_datasets[112].num_vertices = (1 << 21);
+	_datasets[112].num_edges = ((1 << 22) * 30);
+	_datasets[112].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[112].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[112].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
+	_datasets[114].graphtopname = "RMAT21_SPARSE4";
+	_datasets[114].graphname = "RMAT21_SPARSE4";
+	_datasets[114].graph_path = rootDir + "dataset/RMAT21_SPARSE4/RMAT21_SPARSE4.mtx";
+	_datasets[114].vertices_path = rootDir + "dataset/RMAT21_SPARSE4/RMAT21_SPARSE4.vertices";
+	_datasets[114].edges_path = rootDir + "dataset/RMAT21_SPARSE4/RMAT21_SPARSE4.edges";	
+	_datasets[114].vertices_path_bin = rootDir + "dataset/RMAT21_SPARSE4/RMAT21_SPARSE4.vertices";
+	_datasets[114].edges_path_bin = rootDir + "dataset/RMAT21_SPARSE4/RMAT21_SPARSE4.edges";
+	_datasets[114].min_vertex = 0;
+	_datasets[114].max_vertex = (1 << 21);
+	_datasets[114].num_vertices = (1 << 21);
+	_datasets[114].num_edges = ((1 << 22) * 30);
+	_datasets[114].graphdirectiontype = UNDIRECTEDGRAPH;
+	_datasets[114].graphorder = DST_SRC; // DST_SRC, SRC_DST;
+	_datasets[114].graphgroup = SYNTHETIC; // SKEWRATIO;
+	
 	///////////////////////////////////////////////////////////////////// synthetic datasets (II)
 	
 	_datasets[120].graphtopname = "RMAT_RANGE0";

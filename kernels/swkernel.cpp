@@ -117,7 +117,6 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		#else 
 		NOT DEFINED.
 		#endif
-		
 		// exit(EXIT_SUCCESS); //
 		
 		kernelobjs_process[0]->TOPP0_topkernelS((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);	
@@ -125,7 +124,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 		cout<<"analysis_i: total_time_elapsed_proc: "<<total_time_elapsed_proc<<"ms"<<endl;
 		
-		uint512_vec_dt * ref = (uint512_vec_dt *)vdramA;
+		/* uint512_vec_dt * ref = (uint512_vec_dt *)vdram;
 		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = ref[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 		unsigned int totalactvvp = 0;
 		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
@@ -134,16 +133,54 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 			totalactvvp += gmask;
 			if(gmask > 0){ cout<<i<<", "; }
 		}
+		cout<<""<<endl; */
+		/* ///////////////////////////////////////////////////////////////////////
+		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
+		for(unsigned int source_partition=0; source_partition<NUMPROCESSEDGESPARTITIONS; source_partition+=1){
+			unsigned int IND = utilityobj->allignhigher_FACTOR((source_partition * (PROCESSPARTITIONSZ_KVS2 / NUM_PEs)) / VPARTITION_SHRINK_RATIO, 32);
+			unsigned int span = (PROCESSPARTITIONSZ_KVS2 * VECTOR2_SIZE) / (NUM_PEs * VECTOR2_SIZE * VPARTITION_SHRINK_RATIO);
+			unsigned int partition_is_active = 0;
+			for(unsigned int t=0; t<span; t++){ 
+				unsigned int col = (IND+t) % 32; 
+				unsigned int row = (IND+t) / 32; 
+				unsigned int flag = READFROM_UINT(vdram[_BASEOFFSETKVS_VERTICESPARTITIONMASK + row].data[0].key, col, 1);
+				if(flag > 0){ partition_is_active = 1; break; }
+			}
+			if(partition_is_active > 0){ cout<<source_partition<<", "; }
+		}
 		cout<<""<<endl;
+		//////////////////////////////////////////////////////////////////////////// */
 		
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"swkernel: verifying vdramA..."<<endl;
 		verifyresults(vdramA, 0);
 		cout<<"swkernel: verifying vdramB..."<<endl;
 		verifyresults(vdramB, 0);
 		cout<<"swkernel: verifying vdramC..."<<endl;
 		verifyresults(vdramC, 0);
+		#endif 
 		cout<<"swkernel: verifying vdram..."<<endl;
 		verifyresults(vdram, 0);
+		
+		uint512_vec_dt * ref = (uint512_vec_dt *)vdramA;
+		unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = ref[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		unsigned int span = (PROCESSPARTITIONSZ_KVS2 * VECTOR2_SIZE) / (NUM_PEs * VECTOR2_SIZE * VPARTITION_SHRINK_RATIO);
+		cout<<endl<<"swkernel: active partitions for next iteration: (iteration "<<GraphIter+1<<"): ";
+		for(unsigned int source_partition=0; source_partition<NUMPROCESSEDGESPARTITIONS; source_partition+=1){
+			unsigned int IND = utilityobj->allignhigher_FACTOR((source_partition * (PROCESSPARTITIONSZ_KVS2 / NUM_PEs)) / VPARTITION_SHRINK_RATIO, 32);
+			unsigned int partition_is_active = 0;
+			for(unsigned int t=0; t<span; t++){
+				unsigned int col = (IND+t) % 32; 
+				unsigned int row = (IND+t) / 32; 
+				unsigned int flag = utilityobj->READFROM_UINT(ref[_BASEOFFSETKVS_VERTICESPARTITIONMASK + row].data[0].key, col, 1);
+				if(flag > 0){ partition_is_active = 1; break; }
+			}
+			if(partition_is_active > 0){ cout<<source_partition<<", "; }
+			// if(partition_is_active > 0){ cout<<"source_partition: "<<source_partition<<", IND: "<<IND<<", partition_is_active: "<<partition_is_active<<endl;; }
+		}
+		cout<<""<<endl;
+		cout<<endl<<"swkernel: ~~~~~~~~~~~~~~ : NAp: "<<NAp<<", span: "<<span<<endl;
 		
 		// if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 		// exit(EXIT_SUCCESS); //

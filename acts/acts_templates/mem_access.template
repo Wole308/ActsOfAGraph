@@ -204,7 +204,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readV(bool_t
 	return;
 }
 
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, unsigned int source_partition, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -218,8 +218,19 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 	{%for v in context['32_seq']%}
 	temppmask[{{v}}] = 0;
 	{%endfor%}	
-	unsigned int pmask_index = 0;
-	unsigned int i_x4 = 0;
+	
+	#ifndef ALLVERTEXISACTIVE_ALGORITHM
+	unsigned int IND = UTIL{{context['id']}}_allignhigher_FACTOR((source_partition * globalparams.SIZEKVS2_REDUCEPARTITION) / VPARTITION_SHRINK_RATIO, 32);
+	unsigned int VProw = IND / 32; unsigned int VPcol = IND % 32;
+	#ifdef _DEBUGMODE_CHECKS3
+	actsutilityobj->checkoutofbounds("MEMACCESS{{context['id']}}_saveV 23", VProw, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
+	if(VPcol != 0){ cout<<"MEMACCESS{{context['id']}}_saveV: ERROR SOMEWHERE. VPcol("<<VPcol<<") != 0, source_partition: "<<source_partition<<", globalparams.SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"MEMACCESS{{context['id']}}_saveV: source_partition: "<<source_partition<<", IND: "<<IND<<", VProw: "<<VProw<<", VPcol: "<<VPcol<<", SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<endl;
+	#endif 
+	// unsigned int VPcol = 0;
+	#endif 
 	
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -242,26 +253,26 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			if(MEMCA{{context['id']}}_READVMASK(vdata[{{v}}]) > 0){ cout<<"--- MEMACCESS{{context['id']}}_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: {{v}}, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCA{{context['id']}}_READVMASK(vdata[{{v}}]) > 0){ cout<<"--- MEMACCESS{{context['id']}}_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: {{v}}, VProw: "<<VProw<<endl; }
 			{%endfor%}
 			#endif
 			
 			#ifdef _DEBUGMODE_CHECKS3
-			actsutilityobj->checkoutofbounds("MEMACCESS{{context['id']}}_saveV 23", i_x4, 32, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("MEMACCESS{{context['id']}}_saveV 23", VPcol, 32, NAp, NAp, NAp);
 			#endif
-			if(pmaski>0){ temppmask[i_x4] = 1; } if(i%VPARTITION_SHRINK_RATIO==0){ i_x4 += 1; }	
-			if(i_x4 % 32 == 31){
+			if(pmaski>0){ temppmask[VPcol] = 1; } if(i%VPARTITION_SHRINK_RATIO==0){ VPcol += 1; }	
+			if(VPcol % 32 == 31){
 				#ifdef _DEBUGMODE_CHECKS3
-				actsutilityobj->checkoutofbounds("MEMACCESS{{context['id']}}_saveV 23", pmask_index, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
+				actsutilityobj->checkoutofbounds("MEMACCESS{{context['id']}}_saveV 23", VProw, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
 				#endif
 				{%for v in context['32_seq']%}
-				pmask[pmask_index].data[{{v}}] = temppmask[{{v}}];
+				pmask[VProw].data[{{v}}] = temppmask[{{v}}];
 				{%endfor%}
 				{%for v in context['32_seq']%}
 				temppmask[{{v}}] = 0;
 				{%endfor%}
-				i_x4 = 0;
-				pmask_index += 1; 
+				VPcol = 0;
+				VProw += 1; 
 			}
 		#endif
 		
@@ -286,7 +297,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	cout<<"saveV:: printing pmask... pmask_index: "<<pmask_index<<", i_x4: "<<i_x4<<endl;
+	cout<<"saveV:: printing pmask... VProw: "<<VProw<<", VPcol: "<<VPcol<<endl;
 	for(unsigned int i=0; i<BLOCKRAM_PMASK_SIZE; i++){
 		for(unsigned int v=0; v<32; v++){ if(pmask[i].data[v] > 0){ cout<<"$$$ MEMACCESS{{context['id']}}_saveV:: MASK POS [i:"<<i<<", v:"<<v<<"] is ACTIVE ("<<pmask[i].data[v]<<") "<<endl; }}
 		// for(unsigned int v=0; v<32; v++){ cout<<pmask[i].data[v]<<", "; } cout<<endl;

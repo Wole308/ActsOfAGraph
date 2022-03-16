@@ -16,7 +16,7 @@ unsigned int acts_all::MERGEP0_actvpstatsoffset(globalparams_t globalparams){
 
 void acts_all::MERGEP0_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -220,7 +220,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMAS
 }
 void acts_all::MERGEP0_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -461,7 +461,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -739,7 +739,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -1054,7 +1054,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -1406,7 +1406,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -1795,7 +1795,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -2221,7 +2221,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -2684,7 +2684,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask8_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -3184,7 +3184,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask8_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask9_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -3721,7 +3721,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask8_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask9_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask10_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -4295,7 +4295,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCK
 }
 void acts_all::MERGEP0_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer10[BLOCKRAM_SIZE],keyvalue_t globalstatsbuffer11[BLOCKRAM_SIZE], pmask_dt pmask0_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask1_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask2_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask3_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask4_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask5_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask6_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask7_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask8_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask9_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask10_next[BLOCKRAM_PMASK1_SIZE],pmask_dt pmask11_next[BLOCKRAM_PMASK1_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -4928,6 +4928,12 @@ void acts_all::TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	cout<<"MERGE::EXCHANGE:: ACTS EXCHANGE LAUNCHED. Exchanging vertices across different SLRs..."<<endl; 
 	#endif
 	
+	#ifdef ALLVERTEXISACTIVE_ALGORITHM // CRITICAL FIXME.
+	bool exchangeall = false;
+	#else 
+	bool exchangeall = true;
+	#endif 
+	
 	unsigned int statssizes_kvs[3][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = statssizes_kvs
 	unsigned int partitionoffseti = 0;
@@ -4966,7 +4972,7 @@ void acts_all::TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("TOPP0_topkernelS: ERROR 20", partitionoffseti, BLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			if(statssizes_kvs[0][partitionoffseti] > 0 || true){ // CRITICAL REMOVEME. true.
+			if(statssizes_kvs[0][partitionoffseti] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"acts_merge::exchange vertices ::[A->B,C] [instance "<<i<<", partition "<<partition<<"] is active: [offset: "<<voffsetA_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvA.SIZEKVS2_REDUCEPARTITION<<", statssizes_kvs[0]["<<partitionoffseti<<"]: "<<statssizes_kvs[0][partitionoffseti]<<"] "<<endl;
 				#endif
@@ -4999,7 +5005,7 @@ void acts_all::TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("TOPP0_topkernelS: ERROR 21", partitionoffseti, BLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			if(statssizes_kvs[1][partitionoffseti] > 0 || true){ // CRITICAL REMOVEME. true.
+			if(statssizes_kvs[1][partitionoffseti] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"acts_merge::exchange vertices ::[B->A,C] [instance "<<i<<", partition "<<partition<<"] is active: [offset: "<<voffsetB_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvB.SIZEKVS2_REDUCEPARTITION<<", statssizes_kvs[0]["<<partitionoffseti<<"]: "<<statssizes_kvs[0][partitionoffseti]<<"] "<<endl;
 				#endif
@@ -5032,7 +5038,7 @@ void acts_all::TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("TOPP0_topkernelS: ERROR 22", partitionoffseti, BLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			if(statssizes_kvs[2][partitionoffseti] > 0 || true){ // CRITICAL REMOVEME. true.
+			if(statssizes_kvs[2][partitionoffseti] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"acts_merge::exchange vertices ::[C->A,B] [instance "<<i<<", partition "<<partition<<"] is active: [offset: "<<voffsetC_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvC.SIZEKVS2_REDUCEPARTITION<<", statssizes_kvs[0]["<<partitionoffseti<<"]: "<<statssizes_kvs[0][partitionoffseti]<<"] "<<endl;
 				#endif

@@ -1141,7 +1141,7 @@ void acts_all::MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
+void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, unsigned int source_partition, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -1185,8 +1185,19 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	temppmask[30] = 0;
 	temppmask[31] = 0;
 	
-	unsigned int pmask_index = 0;
-	unsigned int i_x4 = 0;
+	
+	#ifndef ALLVERTEXISACTIVE_ALGORITHM
+	unsigned int IND = UTILP0_allignhigher_FACTOR((source_partition * globalparams.SIZEKVS2_REDUCEPARTITION) / VPARTITION_SHRINK_RATIO, 32);
+	unsigned int VProw = IND / 32; unsigned int VPcol = IND % 32;
+	#ifdef _DEBUGMODE_CHECKS3
+	actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", VProw, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
+	if(VPcol != 0){ cout<<"MEMACCESSP0_saveV: ERROR SOMEWHERE. VPcol("<<VPcol<<") != 0, source_partition: "<<source_partition<<", globalparams.SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+	#endif 
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"MEMACCESSP0_saveV: source_partition: "<<source_partition<<", IND: "<<IND<<", VProw: "<<VProw<<", VPcol: "<<VPcol<<", SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<endl;
+	#endif 
+	// unsigned int VPcol = 0;
+	#endif 
 	
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -1264,64 +1275,64 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 			#endif
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			if(MEMCAP0_READVMASK(vdata[0]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 0, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[1]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 1, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[2]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 2, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[3]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 3, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[4]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 4, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[5]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 5, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[6]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 6, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[7]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 7, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[8]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 8, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[9]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 9, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[10]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 10, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[11]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 11, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[12]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 12, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[13]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 13, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[14]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 14, pmask_index: "<<pmask_index<<endl; }
-			if(MEMCAP0_READVMASK(vdata[15]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 15, pmask_index: "<<pmask_index<<endl; }
+			if(MEMCAP0_READVMASK(vdata[0]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 0, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[1]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 1, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[2]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 2, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[3]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 3, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[4]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 4, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[5]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 5, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[6]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 6, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[7]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 7, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[8]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 8, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[9]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 9, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[10]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 10, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[11]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 11, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[12]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 12, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[13]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 13, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[14]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 14, VProw: "<<VProw<<endl; }
+			if(MEMCAP0_READVMASK(vdata[15]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 15, VProw: "<<VProw<<endl; }
 			#endif
 			
 			#ifdef _DEBUGMODE_CHECKS3
-			actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", i_x4, 32, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", VPcol, 32, NAp, NAp, NAp);
 			#endif
-			if(pmaski>0){ temppmask[i_x4] = 1; } if(i%VPARTITION_SHRINK_RATIO==0){ i_x4 += 1; }	
-			if(i_x4 % 32 == 31){
+			if(pmaski>0){ temppmask[VPcol] = 1; } if(i%VPARTITION_SHRINK_RATIO==0){ VPcol += 1; }	
+			if(VPcol % 32 == 31){
 				#ifdef _DEBUGMODE_CHECKS3
-				actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", pmask_index, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
+				actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", VProw, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
 				#endif
-				pmask[pmask_index].data[0] = temppmask[0];
-				pmask[pmask_index].data[1] = temppmask[1];
-				pmask[pmask_index].data[2] = temppmask[2];
-				pmask[pmask_index].data[3] = temppmask[3];
-				pmask[pmask_index].data[4] = temppmask[4];
-				pmask[pmask_index].data[5] = temppmask[5];
-				pmask[pmask_index].data[6] = temppmask[6];
-				pmask[pmask_index].data[7] = temppmask[7];
-				pmask[pmask_index].data[8] = temppmask[8];
-				pmask[pmask_index].data[9] = temppmask[9];
-				pmask[pmask_index].data[10] = temppmask[10];
-				pmask[pmask_index].data[11] = temppmask[11];
-				pmask[pmask_index].data[12] = temppmask[12];
-				pmask[pmask_index].data[13] = temppmask[13];
-				pmask[pmask_index].data[14] = temppmask[14];
-				pmask[pmask_index].data[15] = temppmask[15];
-				pmask[pmask_index].data[16] = temppmask[16];
-				pmask[pmask_index].data[17] = temppmask[17];
-				pmask[pmask_index].data[18] = temppmask[18];
-				pmask[pmask_index].data[19] = temppmask[19];
-				pmask[pmask_index].data[20] = temppmask[20];
-				pmask[pmask_index].data[21] = temppmask[21];
-				pmask[pmask_index].data[22] = temppmask[22];
-				pmask[pmask_index].data[23] = temppmask[23];
-				pmask[pmask_index].data[24] = temppmask[24];
-				pmask[pmask_index].data[25] = temppmask[25];
-				pmask[pmask_index].data[26] = temppmask[26];
-				pmask[pmask_index].data[27] = temppmask[27];
-				pmask[pmask_index].data[28] = temppmask[28];
-				pmask[pmask_index].data[29] = temppmask[29];
-				pmask[pmask_index].data[30] = temppmask[30];
-				pmask[pmask_index].data[31] = temppmask[31];
+				pmask[VProw].data[0] = temppmask[0];
+				pmask[VProw].data[1] = temppmask[1];
+				pmask[VProw].data[2] = temppmask[2];
+				pmask[VProw].data[3] = temppmask[3];
+				pmask[VProw].data[4] = temppmask[4];
+				pmask[VProw].data[5] = temppmask[5];
+				pmask[VProw].data[6] = temppmask[6];
+				pmask[VProw].data[7] = temppmask[7];
+				pmask[VProw].data[8] = temppmask[8];
+				pmask[VProw].data[9] = temppmask[9];
+				pmask[VProw].data[10] = temppmask[10];
+				pmask[VProw].data[11] = temppmask[11];
+				pmask[VProw].data[12] = temppmask[12];
+				pmask[VProw].data[13] = temppmask[13];
+				pmask[VProw].data[14] = temppmask[14];
+				pmask[VProw].data[15] = temppmask[15];
+				pmask[VProw].data[16] = temppmask[16];
+				pmask[VProw].data[17] = temppmask[17];
+				pmask[VProw].data[18] = temppmask[18];
+				pmask[VProw].data[19] = temppmask[19];
+				pmask[VProw].data[20] = temppmask[20];
+				pmask[VProw].data[21] = temppmask[21];
+				pmask[VProw].data[22] = temppmask[22];
+				pmask[VProw].data[23] = temppmask[23];
+				pmask[VProw].data[24] = temppmask[24];
+				pmask[VProw].data[25] = temppmask[25];
+				pmask[VProw].data[26] = temppmask[26];
+				pmask[VProw].data[27] = temppmask[27];
+				pmask[VProw].data[28] = temppmask[28];
+				pmask[VProw].data[29] = temppmask[29];
+				pmask[VProw].data[30] = temppmask[30];
+				pmask[VProw].data[31] = temppmask[31];
 				temppmask[0] = 0;
 				temppmask[1] = 0;
 				temppmask[2] = 0;
@@ -1354,8 +1365,8 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 				temppmask[29] = 0;
 				temppmask[30] = 0;
 				temppmask[31] = 0;
-				i_x4 = 0;
-				pmask_index += 1; 
+				VPcol = 0;
+				VProw += 1; 
 			}
 		#endif
 		
@@ -1404,7 +1415,7 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	}
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	cout<<"saveV:: printing pmask... pmask_index: "<<pmask_index<<", i_x4: "<<i_x4<<endl;
+	cout<<"saveV:: printing pmask... VProw: "<<VProw<<", VPcol: "<<VPcol<<endl;
 	for(unsigned int i=0; i<BLOCKRAM_PMASK_SIZE; i++){
 		for(unsigned int v=0; v<32; v++){ if(pmask[i].data[v] > 0){ cout<<"$$$ MEMACCESSP0_saveV:: MASK POS [i:"<<i<<", v:"<<v<<"] is ACTIVE ("<<pmask[i].data[v]<<") "<<endl; }}
 		// for(unsigned int v=0; v<32; v++){ cout<<pmask[i].data[v]<<", "; } cout<<endl;

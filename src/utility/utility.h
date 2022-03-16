@@ -77,6 +77,7 @@ public:
 	unsigned int allignlower_KV(unsigned int val);
 	unsigned int allignhigherto16_KV(unsigned int val);
 	unsigned int allignlowerto16_KV(unsigned int val);
+	unsigned int allignhigher_FACTOR(unsigned int val, unsigned int _FACTOR);
 	void setarray(unsigned int array[NUMSUBCPUTHREADS], unsigned int size, unsigned int value);
 	void copy(unsigned int * array1, unsigned int * array2, unsigned int size);
 	void countkeyvalueswithvalueequalto(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int value);

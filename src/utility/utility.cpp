@@ -127,6 +127,9 @@ void utility::printallparameters(){
 	std::cout<<"utility:: NUM_EDGE_BANKS: "<<NUM_EDGE_BANKS<<std::endl;
 	std::cout<<"utility:: NUMSYNCTHREADS: "<<NUMSYNCTHREADS<<std::endl;
 	
+	std::cout<<"utility:: SRAMSZ_POW: "<<SRAMSZ_POW<<std::endl;
+	std::cout<<"utility:: SRAMSZ: "<<SRAMSZ<<std::endl;
+	
 	std::cout<<"utility:: REDUCESZ_POW: "<<REDUCESZ_POW<<std::endl;
 	std::cout<<"utility:: REDUCESZ: "<<REDUCESZ<<std::endl;
 	std::cout<<"utility:: REDUCEBUFFERSZ: "<<REDUCEBUFFERSZ<<std::endl;
@@ -451,6 +454,10 @@ unsigned int utility::allignhigherto16_KV(unsigned int val){
 unsigned int utility::allignlowerto16_KV(unsigned int val){
 	unsigned int fac = val / 16;
 	return (fac * 16);
+}
+unsigned int utility::allignhigher_FACTOR(unsigned int val, unsigned int _FACTOR){
+	unsigned int fac = (val + (_FACTOR - 1)) / _FACTOR;
+	return (fac * _FACTOR);
 }
 void utility::setarray(unsigned int array[NUMSUBCPUTHREADS], unsigned int size, unsigned int value){
 	for(unsigned int i = 0; i < size; i++){ array[i] = value; }

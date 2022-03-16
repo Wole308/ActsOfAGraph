@@ -336,7 +336,7 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[NUMSUBCPUTHREAD
 		cout<<"loadoffsetmarkers:: maxdramsz: "<<maxdramsz<<", totalnumpb4llop: "<<totalnumpb4llop<<", TREE_DEPTH: "<<TREE_DEPTH<<endl;
 		#endif 
 		
-		#ifdef _DEBUGMODE_HOSTPRINTS3
+		#ifdef _DEBUGMODE_HOSTPRINTS
 		if(i==0){
 			for(unsigned int u=0; u<_NUM_EDGECHUNKS_IN_A_BUFFER; u++){
 				utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats[u], totalnumpb4llop);

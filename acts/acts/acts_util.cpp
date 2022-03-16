@@ -24,6 +24,11 @@ batch_type acts_all::UTILP0_allignhigher_KV2(batch_type val){
 	batch_type fac = (val + (VECTOR2_SIZE - 1)) / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
+batch_type acts_all::UTILP0_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR){
+	#pragma HLS INLINE
+	batch_type fac = (val + (_FACTOR - 1)) / _FACTOR;
+	return (fac * _FACTOR);
+}
 
 // bit manipulation
 unsigned int acts_all::UTILP0_GETMASK_UINT(unsigned int index, unsigned int size){

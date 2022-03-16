@@ -22,9 +22,6 @@ acts_all::~acts_all(){}
 #endif 
 #ifdef CONFIG_ENABLECLASS_MEM_ACCESS
 {% include 'mem_access.template' %}	
-#endif
-#ifdef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES //////////
-{% include 'processedges_and_reduceupdates.template' %}	
 #endif 
 #ifdef CONFIG_ENABLECLASS_PROCESSEDGES
 {% include 'processedges.template' %}	

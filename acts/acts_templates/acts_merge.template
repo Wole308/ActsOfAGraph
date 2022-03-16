@@ -18,7 +18,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_actvpsta
 void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, 
 		{%for i in context['T_seq']%}{%if(i<n)%}keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_SIZE],{%endif%}{%endfor%} {%for i in context['T_seq']%}{%if(i<n)%}pmask_dt pmask{{i}}_next[BLOCKRAM_PMASK1_SIZE],{%endif%}{%endfor%}
 			globalparams_t globalparams, globalparams_t globalparamsv){
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
@@ -162,6 +162,12 @@ void {{context['classname__acts_merge']}}TOP{{context['id']}}_topkernelS(uint512
 	cout<<"MERGE::EXCHANGE:: ACTS EXCHANGE LAUNCHED. Exchanging vertices across different SLRs..."<<endl; 
 	#endif
 	
+	#ifdef ALLVERTEXISACTIVE_ALGORITHM // CRITICAL FIXME.
+	bool exchangeall = false;
+	#else 
+	bool exchangeall = true;
+	#endif 
+	
 	unsigned int statssizes_kvs[3][BLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = statssizes_kvs
 	unsigned int partitionoffseti = 0;
@@ -200,7 +206,7 @@ void {{context['classname__acts_merge']}}TOP{{context['id']}}_topkernelS(uint512
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("TOP{{context['id']}}_topkernelS: ERROR 20", partitionoffseti, BLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			if(statssizes_kvs[0][partitionoffseti] > 0 || true){ // CRITICAL REMOVEME. true.
+			if(statssizes_kvs[0][partitionoffseti] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"acts_merge::exchange vertices {{n}}::[A->B,C] [instance "<<i<<", partition "<<partition<<"] is active: [offset: "<<voffsetA_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvA.SIZEKVS2_REDUCEPARTITION<<", statssizes_kvs[0]["<<partitionoffseti<<"]: "<<statssizes_kvs[0][partitionoffseti]<<"] "<<endl;
 				#endif
@@ -233,7 +239,7 @@ void {{context['classname__acts_merge']}}TOP{{context['id']}}_topkernelS(uint512
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("TOP{{context['id']}}_topkernelS: ERROR 21", partitionoffseti, BLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			if(statssizes_kvs[1][partitionoffseti] > 0 || true){ // CRITICAL REMOVEME. true.
+			if(statssizes_kvs[1][partitionoffseti] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"acts_merge::exchange vertices {{n}}::[B->A,C] [instance "<<i<<", partition "<<partition<<"] is active: [offset: "<<voffsetB_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvB.SIZEKVS2_REDUCEPARTITION<<", statssizes_kvs[0]["<<partitionoffseti<<"]: "<<statssizes_kvs[0][partitionoffseti]<<"] "<<endl;
 				#endif
@@ -266,7 +272,7 @@ void {{context['classname__acts_merge']}}TOP{{context['id']}}_topkernelS(uint512
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("TOP{{context['id']}}_topkernelS: ERROR 22", partitionoffseti, BLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			if(statssizes_kvs[2][partitionoffseti] > 0 || true){ // CRITICAL REMOVEME. true.
+			if(statssizes_kvs[2][partitionoffseti] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"acts_merge::exchange vertices {{n}}::[C->A,B] [instance "<<i<<", partition "<<partition<<"] is active: [offset: "<<voffsetC_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvC.SIZEKVS2_REDUCEPARTITION<<", statssizes_kvs[0]["<<partitionoffseti<<"]: "<<statssizes_kvs[0][partitionoffseti]<<"] "<<endl;
 				#endif

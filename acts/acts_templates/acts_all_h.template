@@ -44,9 +44,6 @@ public:
 	#ifdef CONFIG_ENABLECLASS_MEM_ACCESS
 	{% include 'mem_access_mf.template' %}	
 	#endif
-	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES_AND_REDUCEUPDATES //////////
-	{% include 'processedges_and_reduceupdates_mf.template' %}	
-	#endif 
 	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES
 	{% include 'processedges_mf.template' %}	
 	#endif 

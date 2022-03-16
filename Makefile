@@ -58,7 +58,6 @@ KERNEL_TOP_UTILITY += $(RELREF)acts/actsutility/actsutility.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/hostprocess.cpp
 HOST_SRCS_ACTS += $(RELREF)src/algorithm/algorithm.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadgraph.cpp
-HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadedges_sequential.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadedges_random.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/setupkernel.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/evalparams.cpp

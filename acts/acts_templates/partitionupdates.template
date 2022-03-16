@@ -55,8 +55,8 @@ void {{context['classname__partitionupdates']}}PARTITION{{context['id']}}_prepar
 		
 		#ifdef _DEBUGMODE_CHECKS2
 		{%for v in context['VECTOR_SIZE_seq']%}
-		actsutilityobj->checkoutofbounds("preparekeyvalues.localcapsule[{{v}}][p{{v}}].value", localcapsule[{{v}}][p{{v}}].value % 4, 4, localcapsule[{{v}}][p{{v}}].value, localcapsule[{{v}}][p{{v}}].value, NAp);
-		actsutilityobj->checkoutofbounds("preparekeyvalues.loc{{v}}", loc{{v}}, SRCBUFFER_SIZE, localcapsule[{{v}}][p{{v}}].key, localcapsule[{{v}}][p{{v}}].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues 11.localcapsule[{{v}}][p{{v}}].value", localcapsule[{{v}}][p{{v}}].value % 4, 4, localcapsule[{{v}}][p{{v}}].value, localcapsule[{{v}}][p{{v}}].value, NAp);
+		actsutilityobj->checkoutofbounds("preparekeyvalues 12.loc{{v}}", loc{{v}}, SRCBUFFER_SIZE, localcapsule[{{v}}][p{{v}}].key, localcapsule[{{v}}][p{{v}}].value, NAp);
 		{%endfor%}
 		#endif
 		

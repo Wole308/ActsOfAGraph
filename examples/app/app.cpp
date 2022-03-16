@@ -105,7 +105,7 @@ runsummary_t app::run_hw(){
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int NumGraphIters = 1;
 	#else 
-	unsigned int NumGraphIters = 6;//8; // 32; // 3,12,32
+	unsigned int NumGraphIters = 8;//8; // 32; // 3,12,32
 	#endif
 	
 	container_t container;
@@ -270,7 +270,6 @@ runsummary_t app::run_hw(){
 	#else
 	unsigned int total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters);
 	#endif
-	// exit(EXIT_SUCCESS); //
 	
 	// run_hw
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;

@@ -201,7 +201,7 @@ fetchmessage_t {{context['classname__acts']}}ACTS{{context['id']}}_fetchkeyvalue
 		unsigned int edgebankID){
 	fetchmessage_t fetchmessage;
 	if(mode == ACTSPROCESSMODE){
-		fetchmessage = PROCESS{{context['id']}}_SPL_readandprocess(enable, kvdram, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
+		fetchmessage = PROCESS{{context['id']}}_readandprocess(enable, kvdram, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate, sweepparams, globalparams);
 	} else {
 		fetchmessage = MEMACCESS{{context['id']}}_readkeyvalues(enable, kvdram, buffer, goffset_kvs + loffset_kvs, size_kvs, travstate, globalparams); 
 	}
@@ -270,7 +270,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 	
 	ACTIT_MAINLOOP: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + flushsz; offset_kvs+=_WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_partitionloop avg=analysis_partitionloop
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"acts::ACTS{{context['id']}}_actit: processing chunk [offset_kvs: "<<offset_kvs<<"]: [ptravstate.begin_kvs: "<<ptravstate.begin_kvs<<"]: [ptravstate.end_kvs + flushsz: "<<ptravstate.end_kvs + flushsz<<"] ... "<<endl;
 		#endif
 		#ifdef PUP1

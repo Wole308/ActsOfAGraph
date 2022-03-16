@@ -1,4 +1,4 @@
-value_t acts_all::PANDRP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t PANDRP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	value_t res = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -47,7 +47,7 @@ value_t acts_all::PANDRP0_processfunc(value_t udata, value_t edgew, unsigned int
 	return res;
 }
 
-value_t acts_all::PANDRP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+value_t PANDRP0_reducefunc(value_t vtemp, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	value_t temp = 0;
 	#ifdef CUSTOMLOGICFOREACHALGORITHM
 		#if defined(PR_ALGORITHM)
@@ -83,7 +83,7 @@ value_t acts_all::PANDRP0_reducefunc(value_t vtemp, value_t res, unsigned int Gr
 	return temp;
 }
 
-void acts_all::PANDRP0_GetXYLayoutV(unsigned int s, unsigned int depths[PE_SETSZ], unsigned int basedepth){
+void PANDRP0_GetXYLayoutV(unsigned int s, unsigned int depths[PE_SETSZ], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	
  if(s_==0){ 
@@ -377,7 +377,7 @@ else {
 	return;
 }
 
-parsededge_t acts_all::PANDRP0_PARSEEDGE(uint32_type data){ 
+parsededge_t PANDRP0_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
 	#ifdef _WIDEWORD
 	parsededge.incr = data.range(31, 28);
@@ -389,7 +389,7 @@ parsededge_t acts_all::PANDRP0_PARSEEDGE(uint32_type data){
 	return parsededge; 
 }
 
-void acts_all::PANDRP0_processorreducevector(bool enx, unsigned int mode, unsigned int col, unsigned int _loc, keyvalue_t kvdata,
+void PANDRP0_processorreducevector(bool enx, unsigned int mode, unsigned int col, unsigned int _loc, keyvalue_t kvdata,
 		keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, 
 			unsigned int GraphAlgoClass, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS INLINE
@@ -454,7 +454,7 @@ void acts_all::PANDRP0_processorreducevector(bool enx, unsigned int mode, unsign
 	return;
 }
 
-fetchmessage_t acts_all::PANDRP0_processandreduce(bool_type enable, unsigned int mode, 
+fetchmessage_t PANDRP0_processandreduce(bool_type enable, unsigned int mode, 
 		uint512_dt * edges, uint512_dt * kvdram, 
 			keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE],
 				keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS],
@@ -732,7 +732,7 @@ fetchmessage_t acts_all::PANDRP0_processandreduce(bool_type enable, unsigned int
 }
 
 #ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"reduceupdates2: REDUCEP0_tradreduceandbuffer NOT DEFINED HERE."<<endl;
 	exit(EXIT_FAILURE);
@@ -742,7 +742,7 @@ void acts_all::REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t
 #endif 
 
 #ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP0_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
+void REDUCEP0_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"reduceupdates2: REDUCEP0_tradreduceandbuffer NOT DEFINED HERE."<<endl;
 	exit(EXIT_FAILURE);
