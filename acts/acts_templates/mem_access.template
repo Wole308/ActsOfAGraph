@@ -193,6 +193,13 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readV(bool_t
 		{%endfor%}
 		#endif
 		
+		// reset any masks already present
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		MEMCA{{context['id']}}_WRITEVMASK(&vdata[{{v}}], 0);
+		{%endfor%}
+		#endif
+		
 		{%for v in context['VECTOR2_SIZE_seq']%}
 		buffer[{{v}}][bufferoffset_kvs + i] = vdata[{{v}}];
 		{%endfor%}
@@ -204,7 +211,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readV(bool_t
 	return;
 }
 
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, unsigned int source_partition, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], uint32_type vpmaskVecSum[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, unsigned int source_partition, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -218,6 +225,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 	{%for v in context['32_seq']%}
 	temppmask[{{v}}] = 0;
 	{%endfor%}	
+	unit1_type vpmaskVec[VECTOR2_SIZE]; // for(unsigned int i=0; i<VECTOR2_SIZE; i++){ vpmaskVec[i] = 0; }
 	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int IND = UTIL{{context['id']}}_allignhigher_FACTOR((source_partition * globalparams.SIZEKVS2_REDUCEPARTITION) / VPARTITION_SHRINK_RATIO, 32);
@@ -228,8 +236,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MEMACCESS{{context['id']}}_saveV: source_partition: "<<source_partition<<", IND: "<<IND<<", VProw: "<<VProw<<", VPcol: "<<VPcol<<", SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<endl;
-	#endif 
-	// unsigned int VPcol = 0;
+	#endif
 	#endif 
 	
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
@@ -241,15 +248,13 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 		
 		// collect active partitions for next iterations
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-			#ifdef _WIDEWORD
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			pmaski.range({{v}}, {{v}}) = MEMCA{{context['id']}}_READVMASK(vdata[{{v}}]); 
+			vpmaskVec[{{v}}] = MEMCA{{context['id']}}_READVMASK(vdata[{{v}}]); 
 			{%endfor%}
-			#else
+			
 			{%for v in context['VECTOR2_SIZE_seq']%}
-			UTIL{{context['id']}}_WRITEBITSTO_UINTV(&pmaski, {{v}}, 1, MEMCA{{context['id']}}_READVMASK(vdata[{{v}}]));
+			UTIL{{context['id']}}_WRITEBITSTO_UINTV(&pmaski, {{v}}, 1, vpmaskVec[{{v}}]);
 			{%endfor%}	
-			#endif
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			{%for v in context['VECTOR2_SIZE_seq']%}
@@ -274,6 +279,10 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 				VPcol = 0;
 				VProw += 1; 
 			}
+			
+			{%for v in context['VECTOR2_SIZE_seq']%}
+			vpmaskVecSum[{{v}}] += vpmaskVec[{{v}}];
+			{%endfor%}	
 		#endif
 		
 		#ifdef _DEBUGMODE_CHECKS3

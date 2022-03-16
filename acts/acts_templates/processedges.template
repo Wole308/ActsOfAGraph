@@ -269,45 +269,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 				parsededge_t parsed_edge{{p}} = PROCESS{{context['id']}}_PARSEEDGE(E[{{p}}]); // FIXME.
 				edata[{{p}}].value = parsed_edge{{p}}.incr; // source info
 				edata[{{p}}].key = parsed_edge{{p}}.dstvid;	
-				{%endfor%}	
-					#ifdef _DEBUGMODE_CHECKS
-					{%for p in context['8_seq']%}
-					unsigned int partition{{p}} = it+{{p}};
-					if((partition{{p}} == 1) && (i < lsize_kvs[{{p}}]) && (i*VECTOR2_SIZE+v < localcapsule[it+{{p}}].value)){
-						if(edata[{{p}}].value==42 && E[{{p}}] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: {{p}}";
-							cout<<", i: "<<i;
-							cout<<", E[{{p}}]: "<<E[{{p}}];
-							cout<<", bramoffset_kvs[{{p}}]: "<<bramoffset_kvs[{{p}}];
-							cout<<", edata[{{p}}].key: "<<edata[{{p}}].key;
-							cout<<", edata[{{p}}].value: "<<edata[{{p}}].value;
-							cout<<", real dstvid: "<<(edata[{{p}}].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[{{p}}] + i: "<<bramoffset_kvs[{{p}}] + i<<" ["<<(bramoffset_kvs[{{p}}] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					{%endfor%}
-					#endif	
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					{%for p in context['8_seq']%}	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[{{p}}] + i: "<<bramoffset_kvs[{{p}}] + i<<", loadcount[{{p}}]: "<<loadcount[{{p}}]<<endl;	
-					{%endfor%}
-					#endif 
-				
-				/** //////////////////////////////////////////////////////////////////////////////////////////
-				// enable flags
-				{%for p in context['8_seq']%}
-				if((ind{{p}} >= localcapsule[it+{{p}}].key) && (ind{{p}} < localcapsule[it+{{p}}].key + localcapsule[it+{{p}}].value)){ enx[{{p}}] = true; } else { enx[{{p}}] = false; edata[{{p}}].key = INVALIDDATA; }
-				{%endfor%}	
-				
-				// re-arrange 
-				PROCESS{{context['id']}}_RearrangeLayoutV(i, edata, edata2);
-				
-				// process	// enx[{{p}}]
-				{%for p in context['8_seq']%}
-				PROCESS{{context['id']}}_processvectorB(true, it+{{p}}, edata2[{{p}}].value, edata2[{{p}}], vbuffer[it+{{p}}], buffer[{{p}}], &loadcount[{{p}}], GraphAlgoClass, globalparams);
-				{%endfor%}	
-				////////////////////////////////////////////////////////////////////////////////////////// */
+				{%endfor%}
 				
 				// enable flags
 				{%for p in context['8_seq']%}

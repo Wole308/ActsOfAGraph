@@ -1117,6 +1117,26 @@ void acts_all::MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 		vdata[15] = kvdram[baseoffset_kvs + offset_kvs + i].data[7].value; 
 		#endif
 		
+		// reset any masks already present
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+		MEMCAP0_WRITEVMASK(&vdata[0], 0);
+		MEMCAP0_WRITEVMASK(&vdata[1], 0);
+		MEMCAP0_WRITEVMASK(&vdata[2], 0);
+		MEMCAP0_WRITEVMASK(&vdata[3], 0);
+		MEMCAP0_WRITEVMASK(&vdata[4], 0);
+		MEMCAP0_WRITEVMASK(&vdata[5], 0);
+		MEMCAP0_WRITEVMASK(&vdata[6], 0);
+		MEMCAP0_WRITEVMASK(&vdata[7], 0);
+		MEMCAP0_WRITEVMASK(&vdata[8], 0);
+		MEMCAP0_WRITEVMASK(&vdata[9], 0);
+		MEMCAP0_WRITEVMASK(&vdata[10], 0);
+		MEMCAP0_WRITEVMASK(&vdata[11], 0);
+		MEMCAP0_WRITEVMASK(&vdata[12], 0);
+		MEMCAP0_WRITEVMASK(&vdata[13], 0);
+		MEMCAP0_WRITEVMASK(&vdata[14], 0);
+		MEMCAP0_WRITEVMASK(&vdata[15], 0);
+		#endif
+		
 		buffer[0][bufferoffset_kvs + i] = vdata[0];
 		buffer[1][bufferoffset_kvs + i] = vdata[1];
 		buffer[2][bufferoffset_kvs + i] = vdata[2];
@@ -1141,7 +1161,7 @@ void acts_all::MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, unsigned int source_partition, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
+void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], uint32_type vpmaskVecSum[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, unsigned int source_partition, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -1185,6 +1205,7 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	temppmask[30] = 0;
 	temppmask[31] = 0;
 	
+	unit1_type vpmaskVec[VECTOR2_SIZE]; // for(unsigned int i=0; i<VECTOR2_SIZE; i++){ vpmaskVec[i] = 0; }
 	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int IND = UTILP0_allignhigher_FACTOR((source_partition * globalparams.SIZEKVS2_REDUCEPARTITION) / VPARTITION_SHRINK_RATIO, 32);
@@ -1195,8 +1216,7 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MEMACCESSP0_saveV: source_partition: "<<source_partition<<", IND: "<<IND<<", VProw: "<<VProw<<", VPcol: "<<VPcol<<", SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<endl;
-	#endif 
-	// unsigned int VPcol = 0;
+	#endif
 	#endif 
 	
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
@@ -1237,42 +1257,40 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 		
 		// collect active partitions for next iterations
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-			#ifdef _WIDEWORD
-			pmaski.range(0, 0) = MEMCAP0_READVMASK(vdata[0]); 
-			pmaski.range(1, 1) = MEMCAP0_READVMASK(vdata[1]); 
-			pmaski.range(2, 2) = MEMCAP0_READVMASK(vdata[2]); 
-			pmaski.range(3, 3) = MEMCAP0_READVMASK(vdata[3]); 
-			pmaski.range(4, 4) = MEMCAP0_READVMASK(vdata[4]); 
-			pmaski.range(5, 5) = MEMCAP0_READVMASK(vdata[5]); 
-			pmaski.range(6, 6) = MEMCAP0_READVMASK(vdata[6]); 
-			pmaski.range(7, 7) = MEMCAP0_READVMASK(vdata[7]); 
-			pmaski.range(8, 8) = MEMCAP0_READVMASK(vdata[8]); 
-			pmaski.range(9, 9) = MEMCAP0_READVMASK(vdata[9]); 
-			pmaski.range(10, 10) = MEMCAP0_READVMASK(vdata[10]); 
-			pmaski.range(11, 11) = MEMCAP0_READVMASK(vdata[11]); 
-			pmaski.range(12, 12) = MEMCAP0_READVMASK(vdata[12]); 
-			pmaski.range(13, 13) = MEMCAP0_READVMASK(vdata[13]); 
-			pmaski.range(14, 14) = MEMCAP0_READVMASK(vdata[14]); 
-			pmaski.range(15, 15) = MEMCAP0_READVMASK(vdata[15]); 
-			#else
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 0, 1, MEMCAP0_READVMASK(vdata[0]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 1, 1, MEMCAP0_READVMASK(vdata[1]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 2, 1, MEMCAP0_READVMASK(vdata[2]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 3, 1, MEMCAP0_READVMASK(vdata[3]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 4, 1, MEMCAP0_READVMASK(vdata[4]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 5, 1, MEMCAP0_READVMASK(vdata[5]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 6, 1, MEMCAP0_READVMASK(vdata[6]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 7, 1, MEMCAP0_READVMASK(vdata[7]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 8, 1, MEMCAP0_READVMASK(vdata[8]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 9, 1, MEMCAP0_READVMASK(vdata[9]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 10, 1, MEMCAP0_READVMASK(vdata[10]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 11, 1, MEMCAP0_READVMASK(vdata[11]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 12, 1, MEMCAP0_READVMASK(vdata[12]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 13, 1, MEMCAP0_READVMASK(vdata[13]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 14, 1, MEMCAP0_READVMASK(vdata[14]));
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 15, 1, MEMCAP0_READVMASK(vdata[15]));
+			vpmaskVec[0] = MEMCAP0_READVMASK(vdata[0]); 
+			vpmaskVec[1] = MEMCAP0_READVMASK(vdata[1]); 
+			vpmaskVec[2] = MEMCAP0_READVMASK(vdata[2]); 
+			vpmaskVec[3] = MEMCAP0_READVMASK(vdata[3]); 
+			vpmaskVec[4] = MEMCAP0_READVMASK(vdata[4]); 
+			vpmaskVec[5] = MEMCAP0_READVMASK(vdata[5]); 
+			vpmaskVec[6] = MEMCAP0_READVMASK(vdata[6]); 
+			vpmaskVec[7] = MEMCAP0_READVMASK(vdata[7]); 
+			vpmaskVec[8] = MEMCAP0_READVMASK(vdata[8]); 
+			vpmaskVec[9] = MEMCAP0_READVMASK(vdata[9]); 
+			vpmaskVec[10] = MEMCAP0_READVMASK(vdata[10]); 
+			vpmaskVec[11] = MEMCAP0_READVMASK(vdata[11]); 
+			vpmaskVec[12] = MEMCAP0_READVMASK(vdata[12]); 
+			vpmaskVec[13] = MEMCAP0_READVMASK(vdata[13]); 
+			vpmaskVec[14] = MEMCAP0_READVMASK(vdata[14]); 
+			vpmaskVec[15] = MEMCAP0_READVMASK(vdata[15]); 
+			
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 0, 1, vpmaskVec[0]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 1, 1, vpmaskVec[1]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 2, 1, vpmaskVec[2]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 3, 1, vpmaskVec[3]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 4, 1, vpmaskVec[4]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 5, 1, vpmaskVec[5]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 6, 1, vpmaskVec[6]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 7, 1, vpmaskVec[7]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 8, 1, vpmaskVec[8]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 9, 1, vpmaskVec[9]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 10, 1, vpmaskVec[10]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 11, 1, vpmaskVec[11]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 12, 1, vpmaskVec[12]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 13, 1, vpmaskVec[13]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 14, 1, vpmaskVec[14]);
+			UTILP0_WRITEBITSTO_UINTV(&pmaski, 15, 1, vpmaskVec[15]);
 	
-			#endif
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			if(MEMCAP0_READVMASK(vdata[0]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 0, VProw: "<<VProw<<endl; }
@@ -1368,6 +1386,24 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 				VPcol = 0;
 				VProw += 1; 
 			}
+			
+			vpmaskVecSum[0] += vpmaskVec[0];
+			vpmaskVecSum[1] += vpmaskVec[1];
+			vpmaskVecSum[2] += vpmaskVec[2];
+			vpmaskVecSum[3] += vpmaskVec[3];
+			vpmaskVecSum[4] += vpmaskVec[4];
+			vpmaskVecSum[5] += vpmaskVec[5];
+			vpmaskVecSum[6] += vpmaskVec[6];
+			vpmaskVecSum[7] += vpmaskVec[7];
+			vpmaskVecSum[8] += vpmaskVec[8];
+			vpmaskVecSum[9] += vpmaskVec[9];
+			vpmaskVecSum[10] += vpmaskVec[10];
+			vpmaskVecSum[11] += vpmaskVec[11];
+			vpmaskVecSum[12] += vpmaskVec[12];
+			vpmaskVecSum[13] += vpmaskVec[13];
+			vpmaskVecSum[14] += vpmaskVec[14];
+			vpmaskVecSum[15] += vpmaskVec[15];
+	
 		#endif
 		
 		#ifdef _DEBUGMODE_CHECKS3

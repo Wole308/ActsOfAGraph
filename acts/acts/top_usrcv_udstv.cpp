@@ -291,6 +291,8 @@ void acts_all::TOPP0_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t so
 	bool_type enablereduce = ON;
 	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; // NOT USED.
 	
+	uint32_type vpmaskVecSum[VECTOR2_SIZE]; for(unsigned int i=0; i<VECTOR2_SIZE; i++){ vpmaskVecSum[i] = 0; }
+	
 	DISPATCHREDUCEP0_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -309,7 +311,7 @@ void acts_all::TOPP0_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t so
 		TOPP0_U_dispatch(OFF, OFF, enablereduce,  kvdram, sourcebuffer, vbuffer, pmask_curr, globalstatsbuffer, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp);
 
 		// writeback vertices
-		MEMACCESSP0_saveV(enablereduce, kvdram, vbuffer, pmask_next, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, source_partition, globalposition, globalparamsK, globalparamsV);
+		MEMACCESSP0_saveV(enablereduce, kvdram, vbuffer, pmask_next, vpmaskVecSum, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, source_partition, globalposition, globalparamsK, globalparamsV);
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
@@ -318,6 +320,10 @@ void acts_all::TOPP0_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t so
 	}
 	// exit(EXIT_SUCCESS);///
 	
+	unsigned int sum = 0; for(unsigned int i=0; i<VECTOR2_SIZE; i++){ sum += vpmaskVecSum[i]; }
+	#ifdef _DEBUGMODE_STATS
+	cout<<"TOPP0_U_dispatch_reduce:: Number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<") [instance: "<<globalparamsK.ACTSPARAMS_INSTID<<"]: "<<sum<<endl;
+	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"TOPP0_U_dispatch_reduce:: globalparamsK.NUM_REDUCEPARTITIONS: "<<globalparamsK.NUM_REDUCEPARTITIONS<<endl;
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ if(pmask_next[i].data[0] > 0){ cout<<""<<pmask_next[i].data[0]<<"("<<i<<"),"<<endl; }} // FIXME.

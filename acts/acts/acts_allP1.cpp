@@ -5469,6 +5469,26 @@ void acts_all::MEMACCESSP1_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 		vdata[15] = kvdram[baseoffset_kvs + offset_kvs + i].data[7].value; 
 		#endif
 		
+		// reset any masks already present
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+		MEMCAP1_WRITEVMASK(&vdata[0], 0);
+		MEMCAP1_WRITEVMASK(&vdata[1], 0);
+		MEMCAP1_WRITEVMASK(&vdata[2], 0);
+		MEMCAP1_WRITEVMASK(&vdata[3], 0);
+		MEMCAP1_WRITEVMASK(&vdata[4], 0);
+		MEMCAP1_WRITEVMASK(&vdata[5], 0);
+		MEMCAP1_WRITEVMASK(&vdata[6], 0);
+		MEMCAP1_WRITEVMASK(&vdata[7], 0);
+		MEMCAP1_WRITEVMASK(&vdata[8], 0);
+		MEMCAP1_WRITEVMASK(&vdata[9], 0);
+		MEMCAP1_WRITEVMASK(&vdata[10], 0);
+		MEMCAP1_WRITEVMASK(&vdata[11], 0);
+		MEMCAP1_WRITEVMASK(&vdata[12], 0);
+		MEMCAP1_WRITEVMASK(&vdata[13], 0);
+		MEMCAP1_WRITEVMASK(&vdata[14], 0);
+		MEMCAP1_WRITEVMASK(&vdata[15], 0);
+		#endif
+		
 		buffer[0][bufferoffset_kvs + i] = vdata[0];
 		buffer[1][bufferoffset_kvs + i] = vdata[1];
 		buffer[2][bufferoffset_kvs + i] = vdata[2];
@@ -5493,7 +5513,7 @@ void acts_all::MEMACCESSP1_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void acts_all::MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, unsigned int source_partition, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
+void acts_all::MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask[BLOCKRAM_PMASK_SIZE], uint32_type vpmaskVecSum[VECTOR2_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, unsigned int source_partition, globalposition_t globalposition, globalparams_t globalparams, globalparams_t globalparamsV){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount =  REDUCESZ / 2;
 	
@@ -5537,6 +5557,7 @@ void acts_all::MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	temppmask[30] = 0;
 	temppmask[31] = 0;
 	
+	unit1_type vpmaskVec[VECTOR2_SIZE]; // for(unsigned int i=0; i<VECTOR2_SIZE; i++){ vpmaskVec[i] = 0; }
 	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	unsigned int IND = UTILP1_allignhigher_FACTOR((source_partition * globalparams.SIZEKVS2_REDUCEPARTITION) / VPARTITION_SHRINK_RATIO, 32);
@@ -5547,8 +5568,7 @@ void acts_all::MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"MEMACCESSP1_saveV: source_partition: "<<source_partition<<", IND: "<<IND<<", VProw: "<<VProw<<", VPcol: "<<VPcol<<", SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<endl;
-	#endif 
-	// unsigned int VPcol = 0;
+	#endif
 	#endif 
 	
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
@@ -5589,42 +5609,40 @@ void acts_all::MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 		
 		// collect active partitions for next iterations
 		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-			#ifdef _WIDEWORD
-			pmaski.range(0, 0) = MEMCAP1_READVMASK(vdata[0]); 
-			pmaski.range(1, 1) = MEMCAP1_READVMASK(vdata[1]); 
-			pmaski.range(2, 2) = MEMCAP1_READVMASK(vdata[2]); 
-			pmaski.range(3, 3) = MEMCAP1_READVMASK(vdata[3]); 
-			pmaski.range(4, 4) = MEMCAP1_READVMASK(vdata[4]); 
-			pmaski.range(5, 5) = MEMCAP1_READVMASK(vdata[5]); 
-			pmaski.range(6, 6) = MEMCAP1_READVMASK(vdata[6]); 
-			pmaski.range(7, 7) = MEMCAP1_READVMASK(vdata[7]); 
-			pmaski.range(8, 8) = MEMCAP1_READVMASK(vdata[8]); 
-			pmaski.range(9, 9) = MEMCAP1_READVMASK(vdata[9]); 
-			pmaski.range(10, 10) = MEMCAP1_READVMASK(vdata[10]); 
-			pmaski.range(11, 11) = MEMCAP1_READVMASK(vdata[11]); 
-			pmaski.range(12, 12) = MEMCAP1_READVMASK(vdata[12]); 
-			pmaski.range(13, 13) = MEMCAP1_READVMASK(vdata[13]); 
-			pmaski.range(14, 14) = MEMCAP1_READVMASK(vdata[14]); 
-			pmaski.range(15, 15) = MEMCAP1_READVMASK(vdata[15]); 
-			#else
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 0, 1, MEMCAP1_READVMASK(vdata[0]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 1, 1, MEMCAP1_READVMASK(vdata[1]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 2, 1, MEMCAP1_READVMASK(vdata[2]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 3, 1, MEMCAP1_READVMASK(vdata[3]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 4, 1, MEMCAP1_READVMASK(vdata[4]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 5, 1, MEMCAP1_READVMASK(vdata[5]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 6, 1, MEMCAP1_READVMASK(vdata[6]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 7, 1, MEMCAP1_READVMASK(vdata[7]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 8, 1, MEMCAP1_READVMASK(vdata[8]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 9, 1, MEMCAP1_READVMASK(vdata[9]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 10, 1, MEMCAP1_READVMASK(vdata[10]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 11, 1, MEMCAP1_READVMASK(vdata[11]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 12, 1, MEMCAP1_READVMASK(vdata[12]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 13, 1, MEMCAP1_READVMASK(vdata[13]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 14, 1, MEMCAP1_READVMASK(vdata[14]));
-			UTILP1_WRITEBITSTO_UINTV(&pmaski, 15, 1, MEMCAP1_READVMASK(vdata[15]));
+			vpmaskVec[0] = MEMCAP1_READVMASK(vdata[0]); 
+			vpmaskVec[1] = MEMCAP1_READVMASK(vdata[1]); 
+			vpmaskVec[2] = MEMCAP1_READVMASK(vdata[2]); 
+			vpmaskVec[3] = MEMCAP1_READVMASK(vdata[3]); 
+			vpmaskVec[4] = MEMCAP1_READVMASK(vdata[4]); 
+			vpmaskVec[5] = MEMCAP1_READVMASK(vdata[5]); 
+			vpmaskVec[6] = MEMCAP1_READVMASK(vdata[6]); 
+			vpmaskVec[7] = MEMCAP1_READVMASK(vdata[7]); 
+			vpmaskVec[8] = MEMCAP1_READVMASK(vdata[8]); 
+			vpmaskVec[9] = MEMCAP1_READVMASK(vdata[9]); 
+			vpmaskVec[10] = MEMCAP1_READVMASK(vdata[10]); 
+			vpmaskVec[11] = MEMCAP1_READVMASK(vdata[11]); 
+			vpmaskVec[12] = MEMCAP1_READVMASK(vdata[12]); 
+			vpmaskVec[13] = MEMCAP1_READVMASK(vdata[13]); 
+			vpmaskVec[14] = MEMCAP1_READVMASK(vdata[14]); 
+			vpmaskVec[15] = MEMCAP1_READVMASK(vdata[15]); 
+			
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 0, 1, vpmaskVec[0]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 1, 1, vpmaskVec[1]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 2, 1, vpmaskVec[2]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 3, 1, vpmaskVec[3]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 4, 1, vpmaskVec[4]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 5, 1, vpmaskVec[5]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 6, 1, vpmaskVec[6]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 7, 1, vpmaskVec[7]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 8, 1, vpmaskVec[8]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 9, 1, vpmaskVec[9]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 10, 1, vpmaskVec[10]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 11, 1, vpmaskVec[11]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 12, 1, vpmaskVec[12]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 13, 1, vpmaskVec[13]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 14, 1, vpmaskVec[14]);
+			UTILP1_WRITEBITSTO_UINTV(&pmaski, 15, 1, vpmaskVec[15]);
 	
-			#endif
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			if(MEMCAP1_READVMASK(vdata[0]) > 0){ cout<<"--- MEMACCESSP1_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 0, VProw: "<<VProw<<endl; }
@@ -5720,6 +5738,24 @@ void acts_all::MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 				VPcol = 0;
 				VProw += 1; 
 			}
+			
+			vpmaskVecSum[0] += vpmaskVec[0];
+			vpmaskVecSum[1] += vpmaskVec[1];
+			vpmaskVecSum[2] += vpmaskVec[2];
+			vpmaskVecSum[3] += vpmaskVec[3];
+			vpmaskVecSum[4] += vpmaskVec[4];
+			vpmaskVecSum[5] += vpmaskVec[5];
+			vpmaskVecSum[6] += vpmaskVec[6];
+			vpmaskVecSum[7] += vpmaskVec[7];
+			vpmaskVecSum[8] += vpmaskVec[8];
+			vpmaskVecSum[9] += vpmaskVec[9];
+			vpmaskVecSum[10] += vpmaskVec[10];
+			vpmaskVecSum[11] += vpmaskVec[11];
+			vpmaskVecSum[12] += vpmaskVec[12];
+			vpmaskVecSum[13] += vpmaskVec[13];
+			vpmaskVecSum[14] += vpmaskVec[14];
+			vpmaskVecSum[15] += vpmaskVec[15];
+	
 		#endif
 		
 		#ifdef _DEBUGMODE_CHECKS3
@@ -14072,166 +14108,6 @@ fetchmessage_t acts_all::PROCESSP1_readandprocess(bool_type enable, uint512_dt *
 				parsededge_t parsed_edge7 = PROCESSP1_PARSEEDGE(E[7]); // FIXME.
 				edata[7].value = parsed_edge7.incr; // source info
 				edata[7].key = parsed_edge7.dstvid;	
-	
-					#ifdef _DEBUGMODE_CHECKS
-					unsigned int partition0 = it+0;
-					if((partition0 == 1) && (i < lsize_kvs[0]) && (i*VECTOR2_SIZE+v < localcapsule[it+0].value)){
-						if(edata[0].value==42 && E[0] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: 0";
-							cout<<", i: "<<i;
-							cout<<", E[0]: "<<E[0];
-							cout<<", bramoffset_kvs[0]: "<<bramoffset_kvs[0];
-							cout<<", edata[0].key: "<<edata[0].key;
-							cout<<", edata[0].value: "<<edata[0].value;
-							cout<<", real dstvid: "<<(edata[0].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[0] + i: "<<bramoffset_kvs[0] + i<<" ["<<(bramoffset_kvs[0] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					unsigned int partition1 = it+1;
-					if((partition1 == 1) && (i < lsize_kvs[1]) && (i*VECTOR2_SIZE+v < localcapsule[it+1].value)){
-						if(edata[1].value==42 && E[1] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: 1";
-							cout<<", i: "<<i;
-							cout<<", E[1]: "<<E[1];
-							cout<<", bramoffset_kvs[1]: "<<bramoffset_kvs[1];
-							cout<<", edata[1].key: "<<edata[1].key;
-							cout<<", edata[1].value: "<<edata[1].value;
-							cout<<", real dstvid: "<<(edata[1].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[1] + i: "<<bramoffset_kvs[1] + i<<" ["<<(bramoffset_kvs[1] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					unsigned int partition2 = it+2;
-					if((partition2 == 1) && (i < lsize_kvs[2]) && (i*VECTOR2_SIZE+v < localcapsule[it+2].value)){
-						if(edata[2].value==42 && E[2] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: 2";
-							cout<<", i: "<<i;
-							cout<<", E[2]: "<<E[2];
-							cout<<", bramoffset_kvs[2]: "<<bramoffset_kvs[2];
-							cout<<", edata[2].key: "<<edata[2].key;
-							cout<<", edata[2].value: "<<edata[2].value;
-							cout<<", real dstvid: "<<(edata[2].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[2] + i: "<<bramoffset_kvs[2] + i<<" ["<<(bramoffset_kvs[2] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					unsigned int partition3 = it+3;
-					if((partition3 == 1) && (i < lsize_kvs[3]) && (i*VECTOR2_SIZE+v < localcapsule[it+3].value)){
-						if(edata[3].value==42 && E[3] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: 3";
-							cout<<", i: "<<i;
-							cout<<", E[3]: "<<E[3];
-							cout<<", bramoffset_kvs[3]: "<<bramoffset_kvs[3];
-							cout<<", edata[3].key: "<<edata[3].key;
-							cout<<", edata[3].value: "<<edata[3].value;
-							cout<<", real dstvid: "<<(edata[3].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[3] + i: "<<bramoffset_kvs[3] + i<<" ["<<(bramoffset_kvs[3] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					unsigned int partition4 = it+4;
-					if((partition4 == 1) && (i < lsize_kvs[4]) && (i*VECTOR2_SIZE+v < localcapsule[it+4].value)){
-						if(edata[4].value==42 && E[4] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: 4";
-							cout<<", i: "<<i;
-							cout<<", E[4]: "<<E[4];
-							cout<<", bramoffset_kvs[4]: "<<bramoffset_kvs[4];
-							cout<<", edata[4].key: "<<edata[4].key;
-							cout<<", edata[4].value: "<<edata[4].value;
-							cout<<", real dstvid: "<<(edata[4].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[4] + i: "<<bramoffset_kvs[4] + i<<" ["<<(bramoffset_kvs[4] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					unsigned int partition5 = it+5;
-					if((partition5 == 1) && (i < lsize_kvs[5]) && (i*VECTOR2_SIZE+v < localcapsule[it+5].value)){
-						if(edata[5].value==42 && E[5] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: 5";
-							cout<<", i: "<<i;
-							cout<<", E[5]: "<<E[5];
-							cout<<", bramoffset_kvs[5]: "<<bramoffset_kvs[5];
-							cout<<", edata[5].key: "<<edata[5].key;
-							cout<<", edata[5].value: "<<edata[5].value;
-							cout<<", real dstvid: "<<(edata[5].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[5] + i: "<<bramoffset_kvs[5] + i<<" ["<<(bramoffset_kvs[5] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					unsigned int partition6 = it+6;
-					if((partition6 == 1) && (i < lsize_kvs[6]) && (i*VECTOR2_SIZE+v < localcapsule[it+6].value)){
-						if(edata[6].value==42 && E[6] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: 6";
-							cout<<", i: "<<i;
-							cout<<", E[6]: "<<E[6];
-							cout<<", bramoffset_kvs[6]: "<<bramoffset_kvs[6];
-							cout<<", edata[6].key: "<<edata[6].key;
-							cout<<", edata[6].value: "<<edata[6].value;
-							cout<<", real dstvid: "<<(edata[6].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[6] + i: "<<bramoffset_kvs[6] + i<<" ["<<(bramoffset_kvs[6] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					unsigned int partition7 = it+7;
-					if((partition7 == 1) && (i < lsize_kvs[7]) && (i*VECTOR2_SIZE+v < localcapsule[it+7].value)){
-						if(edata[7].value==42 && E[7] != INVALIDDATA){
-							cout<<"###### processedges2: it: "<<it;
-							cout<<", p: 7";
-							cout<<", i: "<<i;
-							cout<<", E[7]: "<<E[7];
-							cout<<", bramoffset_kvs[7]: "<<bramoffset_kvs[7];
-							cout<<", edata[7].key: "<<edata[7].key;
-							cout<<", edata[7].value: "<<edata[7].value;
-							cout<<", real dstvid: "<<(edata[7].key * NUM_PEs) + globalparams.ACTSPARAMS_INSTID;
-							cout<<", bramoffset_kvs[7] + i: "<<bramoffset_kvs[7] + i<<" ["<<(bramoffset_kvs[7] + i) * VECTOR2_SIZE<<"]";
-							cout<<endl; }
-					}
-					#endif	
-					#ifdef _DEBUGMODE_KERNELPRINTS
-	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[0] + i: "<<bramoffset_kvs[0] + i<<", loadcount[0]: "<<loadcount[0]<<endl;	
-	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[1] + i: "<<bramoffset_kvs[1] + i<<", loadcount[1]: "<<loadcount[1]<<endl;	
-	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[2] + i: "<<bramoffset_kvs[2] + i<<", loadcount[2]: "<<loadcount[2]<<endl;	
-	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[3] + i: "<<bramoffset_kvs[3] + i<<", loadcount[3]: "<<loadcount[3]<<endl;	
-	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[4] + i: "<<bramoffset_kvs[4] + i<<", loadcount[4]: "<<loadcount[4]<<endl;	
-	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[5] + i: "<<bramoffset_kvs[5] + i<<", loadcount[5]: "<<loadcount[5]<<endl;	
-	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[6] + i: "<<bramoffset_kvs[6] + i<<", loadcount[6]: "<<loadcount[6]<<endl;	
-	
-					cout<<"-------------- readandprocess2(14):: bramoffset_kvs[7] + i: "<<bramoffset_kvs[7] + i<<", loadcount[7]: "<<loadcount[7]<<endl;	
-					#endif 
-				
-				/** //////////////////////////////////////////////////////////////////////////////////////////
-				// enable flags
-				if((ind0 >= localcapsule[it+0].key) && (ind0 < localcapsule[it+0].key + localcapsule[it+0].value)){ enx[0] = true; } else { enx[0] = false; edata[0].key = INVALIDDATA; }
-				if((ind1 >= localcapsule[it+1].key) && (ind1 < localcapsule[it+1].key + localcapsule[it+1].value)){ enx[1] = true; } else { enx[1] = false; edata[1].key = INVALIDDATA; }
-				if((ind2 >= localcapsule[it+2].key) && (ind2 < localcapsule[it+2].key + localcapsule[it+2].value)){ enx[2] = true; } else { enx[2] = false; edata[2].key = INVALIDDATA; }
-				if((ind3 >= localcapsule[it+3].key) && (ind3 < localcapsule[it+3].key + localcapsule[it+3].value)){ enx[3] = true; } else { enx[3] = false; edata[3].key = INVALIDDATA; }
-				if((ind4 >= localcapsule[it+4].key) && (ind4 < localcapsule[it+4].key + localcapsule[it+4].value)){ enx[4] = true; } else { enx[4] = false; edata[4].key = INVALIDDATA; }
-				if((ind5 >= localcapsule[it+5].key) && (ind5 < localcapsule[it+5].key + localcapsule[it+5].value)){ enx[5] = true; } else { enx[5] = false; edata[5].key = INVALIDDATA; }
-				if((ind6 >= localcapsule[it+6].key) && (ind6 < localcapsule[it+6].key + localcapsule[it+6].value)){ enx[6] = true; } else { enx[6] = false; edata[6].key = INVALIDDATA; }
-				if((ind7 >= localcapsule[it+7].key) && (ind7 < localcapsule[it+7].key + localcapsule[it+7].value)){ enx[7] = true; } else { enx[7] = false; edata[7].key = INVALIDDATA; }
-	
-				
-				// re-arrange 
-				PROCESSP1_RearrangeLayoutV(i, edata, edata2);
-				
-				// process	// enx[]
-				PROCESSP1_processvectorB(true, it+0, edata2[0].value, edata2[0], vbuffer[it+0], buffer[0], &loadcount[0], GraphAlgoClass, globalparams);
-				PROCESSP1_processvectorB(true, it+1, edata2[1].value, edata2[1], vbuffer[it+1], buffer[1], &loadcount[1], GraphAlgoClass, globalparams);
-				PROCESSP1_processvectorB(true, it+2, edata2[2].value, edata2[2], vbuffer[it+2], buffer[2], &loadcount[2], GraphAlgoClass, globalparams);
-				PROCESSP1_processvectorB(true, it+3, edata2[3].value, edata2[3], vbuffer[it+3], buffer[3], &loadcount[3], GraphAlgoClass, globalparams);
-				PROCESSP1_processvectorB(true, it+4, edata2[4].value, edata2[4], vbuffer[it+4], buffer[4], &loadcount[4], GraphAlgoClass, globalparams);
-				PROCESSP1_processvectorB(true, it+5, edata2[5].value, edata2[5], vbuffer[it+5], buffer[5], &loadcount[5], GraphAlgoClass, globalparams);
-				PROCESSP1_processvectorB(true, it+6, edata2[6].value, edata2[6], vbuffer[it+6], buffer[6], &loadcount[6], GraphAlgoClass, globalparams);
-				PROCESSP1_processvectorB(true, it+7, edata2[7].value, edata2[7], vbuffer[it+7], buffer[7], &loadcount[7], GraphAlgoClass, globalparams);
-	
-				////////////////////////////////////////////////////////////////////////////////////////// */
 				
 				// enable flags
 				if((ind0 >= localcapsule[it+0].key) && (ind0 < localcapsule[it+0].key + localcapsule[it+0].value)){ enx[0] = true; } else { enx[0] = false; }
@@ -22478,6 +22354,8 @@ void acts_all::TOPP1_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t so
 	bool_type enablereduce = ON;
 	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; // NOT USED.
 	
+	uint32_type vpmaskVecSum[VECTOR2_SIZE]; for(unsigned int i=0; i<VECTOR2_SIZE; i++){ vpmaskVecSum[i] = 0; }
+	
 	DISPATCHREDUCEP1_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loop1 avg=analysis_loop1
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -22496,7 +22374,7 @@ void acts_all::TOPP1_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t so
 		TOPP1_U_dispatch(OFF, OFF, enablereduce,  kvdram, sourcebuffer, vbuffer, pmask_curr, globalstatsbuffer, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp);
 
 		// writeback vertices
-		MEMACCESSP1_saveV(enablereduce, kvdram, vbuffer, pmask_next, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, source_partition, globalposition, globalparamsK, globalparamsV);
+		MEMACCESSP1_saveV(enablereduce, kvdram, vbuffer, pmask_next, vpmaskVecSum, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, 0, globalparamsK.SIZEKVS2_REDUCEPARTITION, source_partition, globalposition, globalparamsK, globalparamsV);
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
@@ -22505,6 +22383,10 @@ void acts_all::TOPP1_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t so
 	}
 	// exit(EXIT_SUCCESS);///
 	
+	unsigned int sum = 0; for(unsigned int i=0; i<VECTOR2_SIZE; i++){ sum += vpmaskVecSum[i]; }
+	#ifdef _DEBUGMODE_STATS
+	cout<<"TOPP1_U_dispatch_reduce:: Number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<") [instance: "<<globalparamsK.ACTSPARAMS_INSTID<<"]: "<<sum<<endl;
+	#endif 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"TOPP1_U_dispatch_reduce:: globalparamsK.NUM_REDUCEPARTITIONS: "<<globalparamsK.NUM_REDUCEPARTITIONS<<endl;
 	for(unsigned int i=0; i<BLOCKRAM_PMASK1_SIZE; i++){ if(pmask_next[i].data[0] > 0){ cout<<""<<pmask_next[i].data[0]<<"("<<i<<"),"<<endl; }} // FIXME.
