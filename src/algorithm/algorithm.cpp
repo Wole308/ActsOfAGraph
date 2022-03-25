@@ -31,7 +31,11 @@ unsigned algorithm::vertex_initdata(unsigned int Algo, unsigned int vid) {
 	if(Algo == PAGERANK){ return 1; } 
 	else if(Algo == CF){ return 1; } 
 	else if(Algo == CC){ return 1; } 
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+	else if(Algo == BFS){ 0b0; } // return MAXVDATA; } 0b01111111111111111111111111111111
+	#else 
 	else if(Algo == BFS){ return MAXVDATA; } 
+	#endif 
 	else if(Algo == SSSP){ return MAXVDATA; } 
 	else { return 0; }
 	return 0;

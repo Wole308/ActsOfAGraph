@@ -144,6 +144,13 @@ void utility::printallparameters(){
 	std::cout<<"utility:: NUMPROCESSEDGESPARTITIONS: "<<NUMPROCESSEDGESPARTITIONS<<std::endl;
 	std::cout<<"utility:: VPTR_SHRINK_RATIO: "<<VPTR_SHRINK_RATIO<<std::endl;
 	
+	std::cout<<"utility:: PROCESSPARTITIONSZ / NUM_PEs: "<<PROCESSPARTITIONSZ / NUM_PEs<<" (remainder "<<PROCESSPARTITIONSZ % NUM_PEs<<")"<<std::endl;
+	std::cout<<"utility:: PROCESSPARTITIONSZ_KVS2 / NUM_PEs: "<<PROCESSPARTITIONSZ_KVS2 / NUM_PEs<<" (remainder "<<PROCESSPARTITIONSZ_KVS2 % NUM_PEs<<")"<<std::endl;
+	std::cout<<"utility:: PROCESSPARTITIONSETSZ_KVS2: "<<PROCESSPARTITIONSETSZ_KVS2<<std::endl;
+	
+	std::cout<<"utility:: VDATA_SHRINK_RATIO_POW: "<<VDATA_SHRINK_RATIO_POW<<std::endl;
+	std::cout<<"utility:: VDATA_SHRINK_RATIO: "<<VDATA_SHRINK_RATIO<<std::endl;
+	
 	// std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	std::cout<<"utility:: FETFACTOR: "<<FETFACTOR<<std::endl;
 	

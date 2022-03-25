@@ -134,7 +134,8 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters){				
+long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters,
+		edge_t * vertexptrbuffer, edge2_type * edgedatabuffer){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
 	#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
@@ -159,12 +160,21 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	unsigned int D = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	
+	mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; 
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0;
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; } // reset
 	
-	unsigned int hybridmodeoffset_kvs = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_OTHERINFOS].data[0].key;
-	for(unsigned int it=0; it<64; it++){ vdram[hybridmodeoffset_kvs + it].data[0].key = OFF; } // hybrid-mode enables
-
+	#ifdef CONFIG_HYBRIDIMPL
+	cout<<">>> swkernel::runapp: populating edges, vptrs and active vertices into mdram... "<<endl;
+	unsigned int mdram_BASEOFFSETKVS_EDGESDATA = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key;
+	unsigned int mdram_BASEOFFSETKVS_VERTEXPTR = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
+	unsigned int mdram_BASEOFFSETKVS_ACTIVEVERTICES = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
+	unsigned int * temp = (unsigned int *)mdram; 
+	for(unsigned int t=0; t<graphobj->get_num_edges(); t++){ temp[(mdram_BASEOFFSETKVS_EDGESDATA * VECTOR2_SIZE) + t] = edgedatabuffer[t].dstvid; }
+	unsigned int index=0; for(unsigned int index=0; index<graphobj->get_num_vertices(); index++){ temp[(mdram_BASEOFFSETKVS_VERTEXPTR * VECTOR2_SIZE) + index] = vertexptrbuffer[index]; }
+	mdram[mdram_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key = 1;
+	#endif
+	
 	unsigned int baseoffsetkvs_verticesdata = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA].data[0].key;
 	kvdramsz_kvs = C + D;
 	edgessz_kvs = TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
@@ -249,10 +259,11 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		cout<<"attaching inoutBufExt_vdram["<<s<<"] to vdramtemp to HBM["<<hbmindex<<"]: "<<endl;
 		hbmindex += 1;
 	}
-	inoutBufExt_vdram[3].obj = vdram;
-	inoutBufExt_vdram[3].param = 0;
-	inoutBufExt_vdram[3].flags = bank[hbmindex];
-	cout<<"attaching inoutBufExt_vdram[3] to vdram to HBM["<<hbmindex<<"]: "<<endl;
+	// inoutBufExt_vdram[3].obj = vdram;
+	// inoutBufExt_vdram[3].param = 0;
+	// inoutBufExt_vdram[3].flags = bank[hbmindex];
+	// cout<<"attaching inoutBufExt_vdram[3] to vdram to HBM["<<hbmindex<<"]: "<<endl;
+	cout<<"attaching inoutBufExt_vdram[3] to vdram to DDR[0]: "<<endl;
 	
 	cout<<"goclkernel:: creating OCL buffers (P2)..."<<endl;
 	for(unsigned int i=0; i<_NUMCOMPUTEUNITS_SLR2; i++){ 
@@ -294,7 +305,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	}
 	
 	cout<<"goclkernel:: creating OCL buffers (S)..."<<endl;
-	for(unsigned int s=0; s<4; s++){
+	for(unsigned int s=0; s<3; s++){
 		OCL_CHECK(err,
 			  buffer_vdram[s] =
 				  cl::Buffer(context,
@@ -305,7 +316,22 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 							 &err));
 		cout<<"+++ goclkernel: created buffer_vdram["<<s<<"] "<<endl;
 	}
-	cout<<"+++ goclkernel: created buffer_vdram[3] "<<endl;
+	OCL_CHECK(err,
+			  buffer_vdram[3] =
+				  cl::Buffer(context,
+							 CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
+							 mdram,
+							 &err));
+		cout<<"+++ goclkernel: created buffer_vdram["<<3<<"] "<<endl;
+	// OCL_CHECK(err,
+              // cl::Buffer buffer_inImage(context,
+                                        // CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
+                                        // image_size_bytes,
+                                        // inputImage.data(),
+                                        // &err));
+										
+	// cout<<"+++ goclkernel: created buffer_vdram[3] "<<endl;
 	
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	printf("INFO: loading vmul kernel\n");
@@ -437,14 +463,28 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	
 	std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
 	for(unsigned int GraphIter=0; GraphIter<numValidIters; GraphIter++){ //
+		cout<< TIMINGRESULTSCOLOR <<">>> goclkernel::runapp: iteration: "<<GraphIter<<" (of "<<numValidIters<<" iterations"<< RESET <<endl;
+		std::chrono::steady_clock::time_point iter_starttime = std::chrono::steady_clock::now();
+		
+		// processing edges and applying updates...
+		std::cout <<">>> goclkernel: processing edges and applying updates in iteration "<<GraphIter<<"..."<<endl;
+		#if defined(CONFIG_ACTSONLYMODE) || defined(CONFIG_HYBRIDGPMODE)
 		for (unsigned int s = 0; s < 3; s++){ 
 			std::cout <<">>> goclkernel: processing krnls_proc["<<s<<"] in iteration "<<GraphIter<<"..."<<endl;
 			OCL_CHECK(err, err = q.enqueueTask(krnls_proc[s], NULL, &kernel_events[s])); 
 		}
 		for (unsigned int s = 0; s < 3; s++){ OCL_CHECK(err, err = kernel_events[s].wait()); }
-		std::cout <<">>> goclkernel: processing krnls_sync in iteration "<<GraphIter<<"..."<<endl;
-		// OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
-		// OCL_CHECK(err, err = kernel_events[3].wait());
+		#endif 
+		
+		// synchronizing...
+		std::cout <<">>> goclkernel: synchronizing vertices in iteration "<<GraphIter<<"..."<<endl;
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
+		OCL_CHECK(err, err = kernel_events[3].wait());
+		#endif 
+		
+		long double iter_timeelapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - iter_starttime).count();
+		cout<<">>> swkernel: Time elapsed for iteration: "<<GraphIter<<": "<<iter_timeelapsed<<"ms"<<endl;
 	}
 	WALLprocandsynkerneltimelapse_ms = (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - beginkerneltime1).count()) / 1000;			
 	std::cout <<">>> kernel time elapsed for all iterations : "<<WALLprocandsynkerneltimelapse_ms<<" ms, "<<(WALLprocandsynkerneltimelapse_ms * 1000)<<" microsecs, "<<std::endl;

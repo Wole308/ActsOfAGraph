@@ -7,12 +7,13 @@ unsigned int acts_all::MEMCAP0_READVMASK(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	return UTILP0_READBITSFROM_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK);
 }
-vmdata_t acts_all::MEMCAP0_READVDATAANDVMASK(keyvalue_vbuffer_t wideword){
+unsigned int acts_all::MEMCAP0_READVDATA2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata){
 	#pragma HLS INLINE
-	vmdata_t vmdata;
-	vmdata.vdata = UTILP0_READBITSFROM_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA);
-	vmdata.vmask = UTILP0_READBITSFROM_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK);
-	return vmdata;
+	return UTILP0_READBITSFROM_UINTV(wideword, offsetof_vdata, SIZEOF_VDATA);
+}
+unsigned int acts_all::MEMCAP0_READVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vmask){
+	#pragma HLS INLINE
+	return UTILP0_READBITSFROM_UINTV(wideword, offsetof_vmask, SIZEOF_VMASK);
 }
 
 void acts_all::MEMCAP0_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
@@ -25,28 +26,41 @@ void acts_all::MEMCAP0_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmas
 	UTILP0_WRITEBITSTO_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK, vmask);
 	return;
 }
+void acts_all::MEMCAP0_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata, unsigned int offsetof_vdata){
+	#pragma HLS INLINE
+	UTILP0_WRITEBITSTO_UINTV(wideword, offsetof_vdata, SIZEOF_VDATA, vdata);
+	return;
+}
+void acts_all::MEMCAP0_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vmask, unsigned int offsetof_vmask){
+	#pragma HLS INLINE
+	UTILP0_WRITEBITSTO_UINTV(wideword, offsetof_vmask, SIZEOF_VMASK, vmask);
+	return;
+}
 
 tuple_t acts_all::MEMCAP0_READVDATAWITHVMASK(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	tuple_t res;
-	#ifdef _WIDEWORD
-	res.A = wideword.range(OFFSETOF_VDATA + SIZEOF_VDATA - 1, OFFSETOF_VDATA); 
-	res.B = wideword.range(OFFSETOF_VMASK + SIZEOF_VMASK - 1, OFFSETOF_VMASK); 
-	#else 
 	res.A = MEMCAP0_READVDATA(wideword); 
 	res.B = MEMCAP0_READVMASK(wideword); 
-	#endif 
 	return res;
 }
 void acts_all::MEMCAP0_WRITEVDATAWITHVMASK(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	wideword->range(OFFSETOF_VDATA + SIZEOF_VDATA - 1, OFFSETOF_VDATA) = vdata; 
-	wideword->range(OFFSETOF_VMASK + SIZEOF_VMASK - 1, OFFSETOF_VMASK) = vmask; 
-	#else 
 	MEMCAP0_WRITEVDATA(wideword, vdata);
 	MEMCAP0_WRITEVMASK(wideword, vmask);
-	#endif 
+	return;
+}
+tuple_t acts_all::MEMCAP0_READVDATAWITHVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata, unsigned int offsetof_vmask){
+	#pragma HLS INLINE
+	tuple_t res;
+	res.A = MEMCAP0_READVDATA2(wideword, offsetof_vdata); 
+	res.B = MEMCAP0_READVMASK2(wideword, offsetof_vmask); 
+	return res;
+}
+void acts_all::MEMCAP0_WRITEVDATAWITHVMASK2(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask, unsigned int offsetof_vdata, unsigned int offsetof_vmask){
+	#pragma HLS INLINE
+	MEMCAP0_WRITEVDATA2(wideword, vdata, offsetof_vdata);
+	MEMCAP0_WRITEVMASK2(wideword, vmask, offsetof_vmask);
 	return;
 }
 
@@ -339,7 +353,7 @@ void acts_all::MEMCAP0_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_vbuffe
 }
 
 // vdata & vmasks 
-// used in {classname__processedges_splitdstvxs.cpp} 
+// used in {classname__processedges_splitdstvxs.cpp}
 vmdata_t acts_all::MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
@@ -351,109 +365,12 @@ vmdata_t acts_all::MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(unsigned int index, key
 	tup = MEMCAP0_READVDATAWITHVMASK(buffer[bufferoffset_kvs + index]);
 	vmdata.vdata = tup.A;
 	vmdata.vmask = tup.B;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	if(vmdata.vmask == 1){ cout<<">>> MEMCAP0_READFROMBUFFER_VDATAWITHVMASK:: *** :: ACTIVE VERTEX READ: @ bufferoffset_kvs: "<<bufferoffset_kvs<<", index: "<<index<<endl; }
+	#endif
 	return vmdata;
 }
-
-void acts_all::MEMCAP0_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], unit1_type vmdatas[VDATA_PACKINGSIZE], batch_type bufferoffset_kvs){
-	#pragma HLS INLINE
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_READFROMBUFFER_VDATASWITHVMASKS:", bufferoffset_kvs + index/2, BLOCKRAM_VDATA_SIZE, index, NAp, NAp);
-	#endif
-	
-	tuple_t tup0 = MEMCAP0_READVDATAWITHVMASK(buffer[0][bufferoffset_kvs + index]);
-	vdatas[0] = tup0.A;
-	vmdatas[0] = tup0.B;
-	tuple_t tup1 = MEMCAP0_READVDATAWITHVMASK(buffer[1][bufferoffset_kvs + index]);
-	vdatas[1] = tup1.A;
-	vmdatas[1] = tup1.B;
-	tuple_t tup2 = MEMCAP0_READVDATAWITHVMASK(buffer[2][bufferoffset_kvs + index]);
-	vdatas[2] = tup2.A;
-	vmdatas[2] = tup2.B;
-	tuple_t tup3 = MEMCAP0_READVDATAWITHVMASK(buffer[3][bufferoffset_kvs + index]);
-	vdatas[3] = tup3.A;
-	vmdatas[3] = tup3.B;
-	tuple_t tup4 = MEMCAP0_READVDATAWITHVMASK(buffer[4][bufferoffset_kvs + index]);
-	vdatas[4] = tup4.A;
-	vmdatas[4] = tup4.B;
-	tuple_t tup5 = MEMCAP0_READVDATAWITHVMASK(buffer[5][bufferoffset_kvs + index]);
-	vdatas[5] = tup5.A;
-	vmdatas[5] = tup5.B;
-	tuple_t tup6 = MEMCAP0_READVDATAWITHVMASK(buffer[6][bufferoffset_kvs + index]);
-	vdatas[6] = tup6.A;
-	vmdatas[6] = tup6.B;
-	tuple_t tup7 = MEMCAP0_READVDATAWITHVMASK(buffer[7][bufferoffset_kvs + index]);
-	vdatas[7] = tup7.A;
-	vmdatas[7] = tup7.B;
-	tuple_t tup8 = MEMCAP0_READVDATAWITHVMASK(buffer[8][bufferoffset_kvs + index]);
-	vdatas[8] = tup8.A;
-	vmdatas[8] = tup8.B;
-	tuple_t tup9 = MEMCAP0_READVDATAWITHVMASK(buffer[9][bufferoffset_kvs + index]);
-	vdatas[9] = tup9.A;
-	vmdatas[9] = tup9.B;
-	tuple_t tup10 = MEMCAP0_READVDATAWITHVMASK(buffer[10][bufferoffset_kvs + index]);
-	vdatas[10] = tup10.A;
-	vmdatas[10] = tup10.B;
-	tuple_t tup11 = MEMCAP0_READVDATAWITHVMASK(buffer[11][bufferoffset_kvs + index]);
-	vdatas[11] = tup11.A;
-	vmdatas[11] = tup11.B;
-	tuple_t tup12 = MEMCAP0_READVDATAWITHVMASK(buffer[12][bufferoffset_kvs + index]);
-	vdatas[12] = tup12.A;
-	vmdatas[12] = tup12.B;
-	tuple_t tup13 = MEMCAP0_READVDATAWITHVMASK(buffer[13][bufferoffset_kvs + index]);
-	vdatas[13] = tup13.A;
-	vmdatas[13] = tup13.B;
-	tuple_t tup14 = MEMCAP0_READVDATAWITHVMASK(buffer[14][bufferoffset_kvs + index]);
-	vdatas[14] = tup14.A;
-	vmdatas[14] = tup14.B;
-	tuple_t tup15 = MEMCAP0_READVDATAWITHVMASK(buffer[15][bufferoffset_kvs + index]);
-	vdatas[15] = tup15.A;
-	vmdatas[15] = tup15.B;
-	return;
-}
-
-// used in {classname__top_nusrcv_nudstv.cpp->processit_splitdstvxs->MEMACCESSP0_readVchunks} 
-void acts_all::MEMCAP0_READFROMBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], vmdata_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs){
-	#pragma HLS INLINE
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_READFROMBUFFER_VDATASANDVMASKS:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
-	#endif
-	
-	
-	datas[0] = MEMCAP0_READVDATAANDVMASK(buffer[0][bufferoffset_kvs + index]);	
-	
-	datas[1] = MEMCAP0_READVDATAANDVMASK(buffer[1][bufferoffset_kvs + index]);	
-	
-	datas[2] = MEMCAP0_READVDATAANDVMASK(buffer[2][bufferoffset_kvs + index]);	
-	
-	datas[3] = MEMCAP0_READVDATAANDVMASK(buffer[3][bufferoffset_kvs + index]);	
-	
-	datas[4] = MEMCAP0_READVDATAANDVMASK(buffer[4][bufferoffset_kvs + index]);	
-	
-	datas[5] = MEMCAP0_READVDATAANDVMASK(buffer[5][bufferoffset_kvs + index]);	
-	
-	datas[6] = MEMCAP0_READVDATAANDVMASK(buffer[6][bufferoffset_kvs + index]);	
-	
-	datas[7] = MEMCAP0_READVDATAANDVMASK(buffer[7][bufferoffset_kvs + index]);	
-	
-	datas[8] = MEMCAP0_READVDATAANDVMASK(buffer[8][bufferoffset_kvs + index]);	
-	
-	datas[9] = MEMCAP0_READVDATAANDVMASK(buffer[9][bufferoffset_kvs + index]);	
-	
-	datas[10] = MEMCAP0_READVDATAANDVMASK(buffer[10][bufferoffset_kvs + index]);	
-	
-	datas[11] = MEMCAP0_READVDATAANDVMASK(buffer[11][bufferoffset_kvs + index]);	
-	
-	datas[12] = MEMCAP0_READVDATAANDVMASK(buffer[12][bufferoffset_kvs + index]);	
-	
-	datas[13] = MEMCAP0_READVDATAANDVMASK(buffer[13][bufferoffset_kvs + index]);	
-	
-	datas[14] = MEMCAP0_READVDATAANDVMASK(buffer[14][bufferoffset_kvs + index]);	
-	
-	datas[15] = MEMCAP0_READVDATAANDVMASK(buffer[15][bufferoffset_kvs + index]);	
-	return;
-}
- 
 void acts_all::MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], value_t vdata, unit1_type vmdata, batch_type bufferoffset_kvs){
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
@@ -461,6 +378,42 @@ void acts_all::MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue
 	#endif
 
 	MEMCAP0_WRITEVDATAWITHVMASK(&buffer[bufferoffset_kvs + index], vdata, vmdata);
+	return;
+}
+
+vmdata_t acts_all::MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, unsigned int bitoffset, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("acts_all::MEMCAP0_READFROMBUFFER_VDATASWITHVMASKS:", bufferoffset_kvs + index/2, BLOCKRAM_VDATA_SIZE, index, NAp, NAp);
+	#endif
+	
+	vmdata_t vmdata;
+	tuple_t tup;
+	unsigned int offsetof_vdata = (index % VDATA_SHRINK_RATIO) * 2;
+	unsigned int offsetof_vmask = offsetof_vdata + 1;
+	keyvalue_vbuffer_t bits_vector = buffer[bufferoffset_kvs + (index / VDATA_SHRINK_RATIO)];
+	tup = MEMCAP0_READVDATAWITHVMASK2(bits_vector, offsetof_vdata, offsetof_vmask); 
+	vmdata.vdata = tup.A;
+	vmdata.vmask = tup.B;
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<">>> MEMCAP0_READFROMBUFFER_VDATAWITHVMASK:: *** :: ACTIVE VERTEX READ: @ bufferoffset_kvs: "<<bufferoffset_kvs<<", offsetof_vdata: "<<offsetof_vdata<<", offsetof_vmask: "<<offsetof_vmask<<", bitoffset: "<<bitoffset<<", index: "<<index<<endl; }
+	#endif
+	return vmdata;
+}
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], value_t vdata, unit1_type vmdata, batch_type bufferoffset_kvs){
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("{context['classname__mem_convert_and_access']}}MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK:", index/2, BLOCKRAM_SIZE, index, NAp, NAp);
+	#endif
+
+	unsigned int offsetof_vdata = (index % VDATA_SHRINK_RATIO) * 2;
+	unsigned int offsetof_vmask = offsetof_vdata + 1;
+	MEMCAP0_WRITEVDATAWITHVMASK2(&buffer[bufferoffset_kvs + (index / VDATA_SHRINK_RATIO)], vdata, vmdata, offsetof_vdata, offsetof_vmask);
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<">>> MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK2:: *** :: ACTIVE VERTEX WRITTEN: @ bufferoffset_kvs: "<<bufferoffset_kvs<<", offsetof_vdata: "<<offsetof_vdata<<", offsetof_vmask: "<<offsetof_vmask<<", index: "<<index<<endl; }
+	#endif
 	return;
 }
 

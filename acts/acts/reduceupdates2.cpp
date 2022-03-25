@@ -1,4 +1,3 @@
-#define RU_SETSZ 8
 void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS INLINE
 	keyvalue_t mykeyvalue = UTILP0_GETKV(kvdata);
@@ -18,9 +17,13 @@ void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer
 		#endif 
 		loc = 0; } //else{ loc = 0; }
 		
-	// read 
+	// read
 	vmdata_t vmdata;
-	if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); }
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(loc, NAp, vbuffer, 0); }
+			#else 
+				if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); }
+					#endif
 	
 	// reduce 
 	value_t new_vprop = REDUCEP0_reducefunc(vmdata.vdata, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -29,8 +32,12 @@ void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer
 	if(en == true && new_vprop != vmdata.vdata){ cout<<"REDUCEP0_reducevector:: ACTIVE MASK SEEN AT: "<<loc<<""<<endl; }
 	#endif
 	
-	// write 
-	if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, vmdata.vdata, vmdata.vmask, 0); }
+	// write
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		if(en == true){ vmdata = MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK2(loc, vbuffer, vmdata.vdata, vmdata.vmask, 0); }
+			#else 
+				if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, vmdata.vdata, vmdata.vmask, 0); }
+					#endif
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1); 

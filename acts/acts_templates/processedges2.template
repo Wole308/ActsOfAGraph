@@ -1,7 +1,6 @@
-#define PE_SETSZ {{context['PE_SETSZ']}}
 #define PROCESSEDGES_TYPE2A_INCORRECTONE
 
-void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
+void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){				
 	#pragma HLS INLINE
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -106,7 +105,7 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_calculateoff
 
 #ifdef PROCESSEDGES_TYPE2A_INCORRECTONE
 fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -234,6 +233,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 	
 	// process edge block
 	unsigned int readoffset = 0;
+	unsigned int bufferoffset_kvs = 0;
 	if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
 	buffer_type psetoffset=0;
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
@@ -287,7 +287,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 					// process
 					{%for v in context['VECTOR_SIZE_seq']%}
 					if(E[{{v}}] == INVALIDDATA){ enx[{{v}}] = false; } // edata[{{v}}].key = 0; edata[{{v}}].value  = INVALIDDATA; }
-					PROCESS{{context['id']}}_processvector(enx[{{v}}], {{v}}, edata[{{v}}].value, edata[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], &loadcount[{{v}}], GraphAlgoClass, globalparams);
+					PROCESS{{context['id']}}_processvector(enx[{{v}}], {{v}}, edata[{{v}}].value, edata[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], bufferoffset_kvs, &loadcount[{{v}}], GraphAlgoClass, globalposition, globalparams);
 					{%endfor%}
 					#ifdef _DEBUGMODE_CHECKS2
 					{%for v in context['VECTOR_SIZE_seq']%}
@@ -312,7 +312,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 
 #ifdef PROCESSEDGES_TYPE2B_CORRECTONE
 fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -442,6 +442,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 	
 	// process edge block
 	unsigned int readoffset = 0;
+	unsigned int bufferoffset_kvs = 0;
 	if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
 	buffer_type psetoffset=0;
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
@@ -515,7 +516,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 					// process
 					{%for v in context['VECTOR_SIZE_seq']%}	
 					// if(E[{{v}}] == INVALIDDATA){ enx[{{v}}] = false; } // edata[{{v}}].key = 0; edata[{{v}}].value  = INVALIDDATA; }		
-					PROCESS{{context['id']}}_processvector(enx[{{v}}], {{v}}, edata[{{v}}].value, edata[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], &loadcount[{{v}}], GraphAlgoClass, globalparams);
+					PROCESS{{context['id']}}_processvector(enx[{{v}}], {{v}}, edata[{{v}}].value, edata[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], bufferoffset_kvs, &loadcount[{{v}}], GraphAlgoClass, globalposition, globalparams);
 					{%endfor%}	
 					
 					#ifdef _DEBUGMODE_CHECKS2

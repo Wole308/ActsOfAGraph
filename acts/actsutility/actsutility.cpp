@@ -328,9 +328,10 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	
 	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER: "<<globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER<<endl;
 	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_INSTID: "<<globalparams.ACTSPARAMS_INSTID<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_NUM_EDGE_BANKS: "<<globalparams.ACTSPARAMS_NUM_EDGE_BANKS<<endl;
+	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM: "<<globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM<<endl;
 	
-	std::cout<<"Kernel Started: globalparams.RETURN_RETURNVALUES: "<<globalparams.RETURN_RETURNVALUES<<endl;
-	
+	std::cout<<"Kernel Started: globalparams.RETURNVALUES: "<<globalparams.RETURNVALUES<<endl;
 	
 	std::cout<<std::endl;
 }

@@ -137,6 +137,225 @@ unsigned int acts_all::UTILP0_GETREALVID(unsigned int lvid, unsigned int instid)
 	return (lvid * NUM_PEs) + instid;
 }
 
+unsigned int acts_all::UTILP0_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
+	#pragma HLS INLINE
+	unsigned int data = 0;
+	#ifdef _WIDEWORD
+	unsigned int row = index / VECTOR2_SIZE;
+	unsigned int col = loc % VECTOR2_SIZE;
+ if(col == 0){
+		data = kvdram[offset_kvs + row].range(31, 0); 
+	}
+else if(col == 1){
+		data = kvdram[offset_kvs + row].range(63, 32); 
+	}
+else if(col == 2){
+		data = kvdram[offset_kvs + row].range(95, 64); 
+	}
+else if(col == 3){
+		data = kvdram[offset_kvs + row].range(127, 96); 
+	}
+else if(col == 4){
+		data = kvdram[offset_kvs + row].range(159, 128); 
+	}
+else if(col == 5){
+		data = kvdram[offset_kvs + row].range(191, 160); 
+	}
+else if(col == 6){
+		data = kvdram[offset_kvs + row].range(223, 192); 
+	}
+else if(col == 7){
+		data = kvdram[offset_kvs + row].range(255, 224); 
+	}
+else if(col == 8){
+		data = kvdram[offset_kvs + row].range(287, 256); 
+	}
+else if(col == 9){
+		data = kvdram[offset_kvs + row].range(319, 288); 
+	}
+else if(col == 10){
+		data = kvdram[offset_kvs + row].range(351, 320); 
+	}
+else if(col == 11){
+		data = kvdram[offset_kvs + row].range(383, 352); 
+	}
+else if(col == 12){
+		data = kvdram[offset_kvs + row].range(415, 384); 
+	}
+else if(col == 13){
+		data = kvdram[offset_kvs + row].range(447, 416); 
+	}
+else if(col == 14){
+		data = kvdram[offset_kvs + row].range(479, 448); 
+	}
+else if(col == 15){
+		data = kvdram[offset_kvs + row].range(511, 480); 
+	}
+	else {} 
+	#else 
+	unsigned int loc = index / 2;
+	if(index % 2 == 0){ data = kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key; } 
+	else { data = kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value; }	
+	#endif 
+	return data;
+}
+void acts_all::UTILP0_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	unsigned int row = index / VECTOR2_SIZE;
+	unsigned int col = loc % VECTOR2_SIZE;
+ if(col == 0){
+		kvdram[offset_kvs + row].range(31, 0) = data; 
+	}
+else if(col == 1){
+		kvdram[offset_kvs + row].range(63, 32) = data; 
+	}
+else if(col == 2){
+		kvdram[offset_kvs + row].range(95, 64) = data; 
+	}
+else if(col == 3){
+		kvdram[offset_kvs + row].range(127, 96) = data; 
+	}
+else if(col == 4){
+		kvdram[offset_kvs + row].range(159, 128) = data; 
+	}
+else if(col == 5){
+		kvdram[offset_kvs + row].range(191, 160) = data; 
+	}
+else if(col == 6){
+		kvdram[offset_kvs + row].range(223, 192) = data; 
+	}
+else if(col == 7){
+		kvdram[offset_kvs + row].range(255, 224) = data; 
+	}
+else if(col == 8){
+		kvdram[offset_kvs + row].range(287, 256) = data; 
+	}
+else if(col == 9){
+		kvdram[offset_kvs + row].range(319, 288) = data; 
+	}
+else if(col == 10){
+		kvdram[offset_kvs + row].range(351, 320) = data; 
+	}
+else if(col == 11){
+		kvdram[offset_kvs + row].range(383, 352) = data; 
+	}
+else if(col == 12){
+		kvdram[offset_kvs + row].range(415, 384) = data; 
+	}
+else if(col == 13){
+		kvdram[offset_kvs + row].range(447, 416) = data; 
+	}
+else if(col == 14){
+		kvdram[offset_kvs + row].range(479, 448) = data; 
+	}
+else if(col == 15){
+		kvdram[offset_kvs + row].range(511, 480) = data; 
+	}
+	else {} 
+	#else 
+	unsigned int loc = index / 2;
+	if(index % 2 == 0){ kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key = data; } 
+	else { kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value = data; }	
+	#endif 
+	return;
+}
+unsigned int acts_all::UTILP0_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return kvdram[offset_kvs].range(31, 0);
+	#else 
+	return kvdram[offset_kvs].data[0].key;
+	#endif 
+}
+void acts_all::UTILP0_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	kvdram[offset_kvs].range(31, 0) = data;
+	#else 
+	kvdram[offset_kvs].data[0].key = data;
+	#endif 
+	return;
+}
+void acts_all::UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	datas[0] = kvdram[offset_kvs].range(31, 0); 
+	datas[1] = kvdram[offset_kvs].range(63, 32); 
+	datas[2] = kvdram[offset_kvs].range(95, 64); 
+	datas[3] = kvdram[offset_kvs].range(127, 96); 
+	datas[4] = kvdram[offset_kvs].range(159, 128); 
+	datas[5] = kvdram[offset_kvs].range(191, 160); 
+	datas[6] = kvdram[offset_kvs].range(223, 192); 
+	datas[7] = kvdram[offset_kvs].range(255, 224); 
+	datas[8] = kvdram[offset_kvs].range(287, 256); 
+	datas[9] = kvdram[offset_kvs].range(319, 288); 
+	datas[10] = kvdram[offset_kvs].range(351, 320); 
+	datas[11] = kvdram[offset_kvs].range(383, 352); 
+	datas[12] = kvdram[offset_kvs].range(415, 384); 
+	datas[13] = kvdram[offset_kvs].range(447, 416); 
+	datas[14] = kvdram[offset_kvs].range(479, 448); 
+	datas[15] = kvdram[offset_kvs].range(511, 480); 
+	#else 
+	datas[0] = kvdram[offset_kvs].data[0].key;
+	datas[1] = kvdram[offset_kvs].data[0].value; 
+	datas[2] = kvdram[offset_kvs].data[1].key;
+	datas[3] = kvdram[offset_kvs].data[1].value; 
+	datas[4] = kvdram[offset_kvs].data[2].key;
+	datas[5] = kvdram[offset_kvs].data[2].value; 
+	datas[6] = kvdram[offset_kvs].data[3].key;
+	datas[7] = kvdram[offset_kvs].data[3].value; 
+	datas[8] = kvdram[offset_kvs].data[4].key;
+	datas[9] = kvdram[offset_kvs].data[4].value; 
+	datas[10] = kvdram[offset_kvs].data[5].key;
+	datas[11] = kvdram[offset_kvs].data[5].value; 
+	datas[12] = kvdram[offset_kvs].data[6].key;
+	datas[13] = kvdram[offset_kvs].data[6].value; 
+	datas[14] = kvdram[offset_kvs].data[7].key;
+	datas[15] = kvdram[offset_kvs].data[7].value; 
+	#endif
+	return;
+}
+void acts_all::UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	kvdram[offset_kvs].range(31, 0) = datas[0]; 
+	kvdram[offset_kvs].range(63, 32) = datas[1]; 
+	kvdram[offset_kvs].range(95, 64) = datas[2]; 
+	kvdram[offset_kvs].range(127, 96) = datas[3]; 
+	kvdram[offset_kvs].range(159, 128) = datas[4]; 
+	kvdram[offset_kvs].range(191, 160) = datas[5]; 
+	kvdram[offset_kvs].range(223, 192) = datas[6]; 
+	kvdram[offset_kvs].range(255, 224) = datas[7]; 
+	kvdram[offset_kvs].range(287, 256) = datas[8]; 
+	kvdram[offset_kvs].range(319, 288) = datas[9]; 
+	kvdram[offset_kvs].range(351, 320) = datas[10]; 
+	kvdram[offset_kvs].range(383, 352) = datas[11]; 
+	kvdram[offset_kvs].range(415, 384) = datas[12]; 
+	kvdram[offset_kvs].range(447, 416) = datas[13]; 
+	kvdram[offset_kvs].range(479, 448) = datas[14]; 
+	kvdram[offset_kvs].range(511, 480) = datas[15]; 
+	#else 
+	kvdram[offset_kvs].data[0].key = datas[0];
+	kvdram[offset_kvs].data[0].value = datas[1]; 
+	kvdram[offset_kvs].data[1].key = datas[2];
+	kvdram[offset_kvs].data[1].value = datas[3]; 
+	kvdram[offset_kvs].data[2].key = datas[4];
+	kvdram[offset_kvs].data[2].value = datas[5]; 
+	kvdram[offset_kvs].data[3].key = datas[6];
+	kvdram[offset_kvs].data[3].value = datas[7]; 
+	kvdram[offset_kvs].data[4].key = datas[8];
+	kvdram[offset_kvs].data[4].value = datas[9]; 
+	kvdram[offset_kvs].data[5].key = datas[10];
+	kvdram[offset_kvs].data[5].value = datas[11]; 
+	kvdram[offset_kvs].data[6].key = datas[12];
+	kvdram[offset_kvs].data[6].value = datas[13]; 
+	kvdram[offset_kvs].data[7].key = datas[14];
+	kvdram[offset_kvs].data[7].value = datas[15]; 
+	#endif
+	return;
+}
+
 // utilities
 batch_type acts_all::UTILP0_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -236,7 +455,7 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.ENABLE_PROCESSCOMMAND = buffer[1];
 	globalparams.ENABLE_PARTITIONCOMMAND = buffer[2];
 	globalparams.ENABLE_APPLYUPDATESCOMMAND = buffer[3];
-	globalparams.ENABLE_SAVEVMASK = buffer[4];
+	globalparams.ENABLE_ACTSGP = buffer[4];
 	globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES = buffer[5];
 	
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[6];
@@ -303,21 +522,12 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = buffer[62];
 	globalparams.ACTSPARAMS_INSTID = buffer[63];
 	
-	globalparams.ACTSPARAMS_NUM_EDGE_BANKS = buffer[64];
-	globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = buffer[65];
+	globalparams.ACTSPARAMS_NUM_EDGE_BANKS = buffer[MESSAGES_ACTSPARAMS_NUM_EDGE_BANKS];
+	globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = buffer[MESSAGES_ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM];
 	
-	unsigned int validitytest2 = buffer[66];
-	globalparams.RETURN_RETURNVALUES = buffer[67];
-	globalparams.VARS_WORKBATCH = 0;
-	
-	if(validitytest2 != 70707070){
-		#ifdef _DEBUGMODE_CHECKS3
-		cout<<"acts_util:: _getglobalparams: ERROR: validitytest2("<<validitytest2<<") != 70707070. MISALLIGNMENT SOMEWHERE. EXITING..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	
-	// cout<<"acts_util:: globalparams.NUM_REDUCEPARTITIONS: "<<globalparams.NUM_REDUCEPARTITIONS<<endl;
+	unsigned int validitytest2 = buffer[MESSAGES_DUMMYCHKPOINT]; // buffer[66];
+	for(unsigned int m=0; m<MESSAGES_RETURNVALUES_SIZE; m++){ globalparams.RETURNVALUES[m] = buffer[MESSAGES_RETURNVALUES + m]; }
+	for(unsigned int m=0; m<MESSAGES_MAILBOX_SIZE; m++){ globalparams.MAILBOX[m] = buffer[MESSAGES_MAILBOX + m]; }
 	
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	if(GraphAlgo == BFS || GraphAlgo == SSSP){ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_NOTALLVERTEXISACTIVE; }
@@ -326,6 +536,15 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalparameters("acts_util::getglobalparams:: printing global parameters", globalparams);
 	#endif
+	
+	if(validitytest2 != 70707070){
+		#ifdef _DEBUGMODE_CHECKS3
+		cout<<"acts_util:: _getglobalparams: ERROR: validitytest2("<<validitytest2<<") != 70707070. MISALLIGNMENT SOMEWHERE. EXITING..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	
+	globalparams.VARS_WORKBATCH = 0;
 	return globalparams;
 }
 
@@ -454,7 +673,7 @@ partition_type acts_all::UTILP0_getpartition(bool_type enable, unsigned int mode
 	if(partition >= MAX_NUM_PARTITIONS){ 
 		#ifdef ENABLE_PERFECTACCURACY
 			#ifdef _DEBUGMODE_CHECKS3 // ENABLE_VOICEOUTKERNELERRORS
-			cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<endl; 
+			cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<", INVALIDDATA: "<<INVALIDDATA<<", UTILP0_GETV(INVALIDDATA): "<<UTILP0_GETV(INVALIDDATA)<<endl;			 
 			#endif 
 		exit(EXIT_FAILURE); 
 		#else
@@ -495,6 +714,9 @@ void acts_all::UTILP0_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, 
 	return;
 }
 void acts_all::UTILP0_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"..................... UTILP0_resetkvstatvalues: resetting global stats..."<<endl;
+	#endif 
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){

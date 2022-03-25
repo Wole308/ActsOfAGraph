@@ -1,6 +1,4 @@
-#define PE_SETSZ 16
-
-keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){			
+keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){									
 	#pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -12,10 +10,14 @@ keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned 
 	
 	// read 
 	vmdata_t vmdata;
-	if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(loc, (globalposition.source_partition % VDATA_SHRINK_RATIO), vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
+			#else 
+				if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
+					#endif 
 	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<endl; }
+	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vid: "<<UTILP0_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
 	#endif
 			
 	// process
@@ -31,7 +33,7 @@ keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned 
 	return mykeyvalue;
 }
 
-void acts_all::PROCESSP0_processvectorB(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
+void acts_all::PROCESSP0_processvectorB(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){
 	#pragma HLS INLINE
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -241,15 +243,8 @@ else {
 
 parsededge_t acts_all::PROCESSP0_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
-	#ifdef _WIDEWORD
-	// parsededge.incr = data.range(31, OFFSETOF_SRCV_IN_EDGEDSTVDATA);
-	// parsededge.dstvid = data.range(SIZEOF_DSTV_IN_EDGEDSTVDATA, 0);
 	parsededge.incr = UTILP0_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
 	parsededge.dstvid = UTILP0_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
-	#else
-	parsededge.incr = UTILP0_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
-	parsededge.dstvid = UTILP0_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
-	#endif
 	return parsededge; 
 }
 
@@ -263,7 +258,7 @@ void acts_all::PROCESSP0_calculateoffsets(keyvalue_capsule_t * buffer){
 }
 
 fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -322,6 +317,10 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 	buffer_type height_kvs = 0;
 	
 	unsigned int MYINVALIDDATA = UTILP0_GETV(INVALIDDATA);
+	unsigned int bufferoffset_kvs = 0;
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+	bufferoffset_kvs = globalposition.source_partition * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / VDATA_SHRINK_RATIO); //  ((BLOCKRAM_VDATA_SIZE / (NUM_PEs)) / 16) * NUM_PEs; // (3 * 24); // 0; BLOCKRAM_VDATA_SIZE
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	for (buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
@@ -515,14 +514,14 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 				if((ind7 >= localcapsule[it+7].key) && (ind7 < localcapsule[it+7].key + localcapsule[it+7].value)){ enx[7] = true; } else { enx[7] = false; }
 				
 				// process	
-				reskeyvalue[0] = PROCESSP0_processvector(enx[0], it+0, edata[0].value, edata[0], vbuffer[it+0], buffer[0], &loadcount[0], GraphAlgoClass, globalparams);
-				reskeyvalue[1] = PROCESSP0_processvector(enx[1], it+1, edata[1].value, edata[1], vbuffer[it+1], buffer[1], &loadcount[1], GraphAlgoClass, globalparams);
-				reskeyvalue[2] = PROCESSP0_processvector(enx[2], it+2, edata[2].value, edata[2], vbuffer[it+2], buffer[2], &loadcount[2], GraphAlgoClass, globalparams);
-				reskeyvalue[3] = PROCESSP0_processvector(enx[3], it+3, edata[3].value, edata[3], vbuffer[it+3], buffer[3], &loadcount[3], GraphAlgoClass, globalparams);
-				reskeyvalue[4] = PROCESSP0_processvector(enx[4], it+4, edata[4].value, edata[4], vbuffer[it+4], buffer[4], &loadcount[4], GraphAlgoClass, globalparams);
-				reskeyvalue[5] = PROCESSP0_processvector(enx[5], it+5, edata[5].value, edata[5], vbuffer[it+5], buffer[5], &loadcount[5], GraphAlgoClass, globalparams);
-				reskeyvalue[6] = PROCESSP0_processvector(enx[6], it+6, edata[6].value, edata[6], vbuffer[it+6], buffer[6], &loadcount[6], GraphAlgoClass, globalparams);
-				reskeyvalue[7] = PROCESSP0_processvector(enx[7], it+7, edata[7].value, edata[7], vbuffer[it+7], buffer[7], &loadcount[7], GraphAlgoClass, globalparams);
+				reskeyvalue[0] = PROCESSP0_processvector(enx[0], it+0, edata[0].value, edata[0], vbuffer[it+0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
+				reskeyvalue[1] = PROCESSP0_processvector(enx[1], it+1, edata[1].value, edata[1], vbuffer[it+1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
+				reskeyvalue[2] = PROCESSP0_processvector(enx[2], it+2, edata[2].value, edata[2], vbuffer[it+2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
+				reskeyvalue[3] = PROCESSP0_processvector(enx[3], it+3, edata[3].value, edata[3], vbuffer[it+3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
+				reskeyvalue[4] = PROCESSP0_processvector(enx[4], it+4, edata[4].value, edata[4], vbuffer[it+4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
+				reskeyvalue[5] = PROCESSP0_processvector(enx[5], it+5, edata[5].value, edata[5], vbuffer[it+5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
+				reskeyvalue[6] = PROCESSP0_processvector(enx[6], it+6, edata[6].value, edata[6], vbuffer[it+6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
+				reskeyvalue[7] = PROCESSP0_processvector(enx[7], it+7, edata[7].value, edata[7], vbuffer[it+7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
 	
 				
 				// re-arrange 
@@ -568,6 +567,8 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 	// fetchmessage.chunksize_kvs = 64; // CRITICAL REMOVEME.
 	
 	// cout<<"--- processedges:: fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<", edgessize_kvs*2: "<<edgessize_kvs*2<<endl;
+	
+	// exit(EXIT_SUCCESS); ////
 	return fetchmessage;
 }
 

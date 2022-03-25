@@ -1,11 +1,18 @@
 // util 
 unsigned int MEMCA{{context['id']}}_READVDATA(keyvalue_vbuffer_t wideword);
 unsigned int MEMCA{{context['id']}}_READVMASK(keyvalue_vbuffer_t wideword);
-vmdata_t MEMCA{{context['id']}}_READVDATAANDVMASK(keyvalue_vbuffer_t wideword);
+unsigned int MEMCA{{context['id']}}_READVDATA2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata);
+unsigned int MEMCA{{context['id']}}_READVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vmask);
+
 void MEMCA{{context['id']}}_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata);
 void MEMCA{{context['id']}}_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask);
+void MEMCA{{context['id']}}_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata, unsigned int offsetof_vdata);
+void MEMCA{{context['id']}}_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vmask, unsigned int offsetof_vmask);
+
 tuple_t MEMCA{{context['id']}}_READVDATAWITHVMASK(keyvalue_vbuffer_t wideword);
 void MEMCA{{context['id']}}_WRITEVDATAWITHVMASK(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask);
+tuple_t MEMCA{{context['id']}}_READVDATAWITHVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata, unsigned int offsetof_vmask);
+void MEMCA{{context['id']}}_WRITEVDATAWITHVMASK2(keyvalue_vbuffer_t * wideword, value_t vdata, unit1_type vmask, unsigned int offsetof_vdata, unsigned int offsetof_vmask);
 
 // any data 
 uint32_type MEMCA{{context['id']}}_READDATAFROMBUFFER(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs);
@@ -31,12 +38,10 @@ void MEMCA{{context['id']}}_READFROMBUFFER_VDATAS(unsigned int index, keyvalue_v
 
 // vdatas & vmasks 
 vmdata_t MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs);
-
-void MEMCA{{context['id']}}_READFROMBUFFER_VDATASWITHVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], value_t vdatas[VECTOR2_SIZE], unit1_type vmdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
-
-void MEMCA{{context['id']}}_READFROMBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], vmdata_t vdatas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
-
 void MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], value_t vdata, unit1_type vmdata, batch_type bufferoffset_kvs);
+
+vmdata_t MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, unsigned int bitoffset, keyvalue_vbuffer_t buffer[BLOCKRAM_VDATA_SIZE], batch_type bufferoffset_kvs);
+void MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t buffer[BLOCKRAM_SIZE], value_t vdata, unit1_type vmdata, batch_type bufferoffset_kvs);
 
 void MEMCA{{context['id']}}_WRITETOBUFFER_VDATASANDVMASKS(unsigned int index, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_vbuffer_t datas[VECTOR2_SIZE], batch_type bufferoffset_kvs);
 

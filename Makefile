@@ -59,7 +59,6 @@ HOST_SRCS_ACTS += $(RELREF)examples/hostprocess.cpp
 HOST_SRCS_ACTS += $(RELREF)src/algorithm/algorithm.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadgraph.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/loadedges_random.cpp
-HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/setupkernel.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/helperfunctions/evalparams.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/app/app.cpp
 HOST_SRCS_ACTS += $(RELREF)examples/test/test.cpp

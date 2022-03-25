@@ -1,6 +1,4 @@
-#define PE_SETSZ {{context['PE_SETSZ']}}
-
-keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){			
+keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){									
 	#pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -12,10 +10,14 @@ keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_proces
 	
 	// read 
 	vmdata_t vmdata;
-	if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK2(loc, (globalposition.source_partition % VDATA_SHRINK_RATIO), vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
+			#else 
+				if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
+					#endif 
 	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<endl; }
+	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vid: "<<UTIL{{context['id']}}_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
 	#endif
 			
 	// process
@@ -31,7 +33,7 @@ keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_proces
 	return mykeyvalue;
 }
 
-void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvectorB(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
+void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvectorB(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){
 	#pragma HLS INLINE
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -101,15 +103,8 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_RearrangeLay
 
 parsededge_t {{context['classname__processedges']}}PROCESS{{context['id']}}_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
-	#ifdef _WIDEWORD
-	// parsededge.incr = data.range(31, OFFSETOF_SRCV_IN_EDGEDSTVDATA);
-	// parsededge.dstvid = data.range(SIZEOF_DSTV_IN_EDGEDSTVDATA, 0);
 	parsededge.incr = UTIL{{context['id']}}_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
 	parsededge.dstvid = UTIL{{context['id']}}_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
-	#else
-	parsededge.incr = UTIL{{context['id']}}_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
-	parsededge.dstvid = UTIL{{context['id']}}_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
-	#endif
 	return parsededge; 
 }
 
@@ -123,7 +118,7 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_calculateoff
 }
 
 fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -182,6 +177,10 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 	buffer_type height_kvs = 0;
 	
 	unsigned int MYINVALIDDATA = UTIL{{context['id']}}_GETV(INVALIDDATA);
+	unsigned int bufferoffset_kvs = 0;
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+	bufferoffset_kvs = globalposition.source_partition * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / VDATA_SHRINK_RATIO); //  ((BLOCKRAM_VDATA_SIZE / (NUM_PEs)) / 16) * NUM_PEs; // (3 * 24); // 0; BLOCKRAM_VDATA_SIZE
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	for (buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
@@ -278,7 +277,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 				
 				// process	
 				{%for p in context['8_seq']%}
-				reskeyvalue[{{p}}] = PROCESS{{context['id']}}_processvector(enx[{{p}}], it+{{p}}, edata[{{p}}].value, edata[{{p}}], vbuffer[it+{{p}}], buffer[{{p}}], &loadcount[{{p}}], GraphAlgoClass, globalparams);
+				reskeyvalue[{{p}}] = PROCESS{{context['id']}}_processvector(enx[{{p}}], it+{{p}}, edata[{{p}}].value, edata[{{p}}], vbuffer[it+{{p}}], buffer[{{p}}], bufferoffset_kvs, &loadcount[{{p}}], GraphAlgoClass, globalposition, globalparams);
 				{%endfor%}	
 				
 				// re-arrange 
@@ -313,6 +312,8 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 	// fetchmessage.chunksize_kvs = 64; // CRITICAL REMOVEME.
 	
 	// cout<<"--- processedges:: fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<", edgessize_kvs*2: "<<edgessize_kvs*2<<endl;
+	
+	// exit(EXIT_SUCCESS); ////
 	return fetchmessage;
 }
 

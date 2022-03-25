@@ -1,39 +1,54 @@
 
-fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_SPL_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
-	// read source vertices
+void {{context['classname__acts_merge']}}TOP{{context['id']}}_tradGP(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * edram){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"utility::runsssp_sw:: running traditional sssp... "<<endl;
+	#endif 
 	
+	unsigned int MaxNumGraphIters = 0;
+	unsigned int total_edges_processed = 0;
+	long double edgesprocessedinGraphIter[128]; for(unsigned int i=0; i<128; i++){ edgesprocessedinGraphIter[i] = 0; }
+	unsigned int actvvcount_currit = 1;
+	unsigned int actvvcount_nextit = 0;
 	
-	{%for i in context['T_seq']%}{%if(i<n)%}
-	#ifdef _WIDEWORD
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	ES[{{v}}] = kvdram[offset{{i}}_kvs + i].range({{((v + 1) * 32) - 1}}, {{v * 32}}); 
-	{%endfor%}
-	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	ES[{{2*v}}] = kvdram[offset{{i}}_kvs + i].data[{{v}}].key; 
-	ES[{{2*v+1}}] = kvdram[offset{{i}}_kvs + i].data[{{v}}].value;	
-	{%endfor%}
-	#endif
-	{%endif%}{%endfor%}
-	
-	
-	for(buffer_type i=0; i<chunk_size; i++){
-		for(vector_type v=0; v<VECTOR2_SIZE; v++){
-			uint32_type edge = tempubuffer[i][v];
+	for(unsigned int GraphIter=0; GraphIter<MaxNumGraphIters; GraphIter++){
+		for(unsigned int i=0; i<actvvcount_currit; i++){
+			unsigned int vid = edram[BASEOFFSETKVS_ACTIVEVERTICES + CURR + i];
+			edge_t vptr_begin = edram[BASEOFFSETKVS_VERTEXPTR + (vid / VECTOR2_SIZE)].data[vid % VECTOR2_SIZE];
+			edge_t vptr_end = edram[BASEOFFSETKVS_VERTEXPTR + ((vid + 1) / VECTOR2_SIZE)].data[vid % VECTOR2_SIZE];
 			
-			parsededge_t parsed_edge = PROCESS{{context['id']}}_PARSEEDGE(edge); 
-			unsigned int srcvid = parsed_edge.incr; // source info FIXME.
-			unsigned int dstvid = parsed_edge.dstvid;	
+			edge_t edges_size = vptr_end - vptr_begin;
+			if(vptr_end < vptr_begin){ continue; } // FIXME.
+			#ifdef _DEBUGMODE_CHECKS3
+			if(vptr_end < vptr_begin){ cout<<"ERROR: vptr_end("<<vptr_end<<") < vptr_begin("<<vptr_begin<<"). exiting..."<<endl; exit(EXIT_FAILURE); }
+			#endif
+			
+			unsigned int res = unsigned int res = vdramA[BASEOFFSETKVS_SRCVERTICESDATA + vid] + 1;
+			
+			for(unsigned int k=0; k<edges_size; k++){
+				unsigned int dstvid = edram[BASEOFFSETKVS_EDGESDATA + vptr_begin + k];
 				
-			value_t udata = readvdata(vdram, srcvid);
-			value_t vdata = readvdata(vdram, dstvid);
+				value_t uprop = vdramA[BASEOFFSETKVS_SRCVERTICESDATA + srcvvid];
+				value_t vtemp = min(vprop, res);
+				vdramA[BASEOFFSETKVS_SRCVERTICESDATA + (dstvid/VECTOR2_SIZE)] = vtemp;
+				vdramB[BASEOFFSETKVS_SRCVERTICESDATA + (dstvid/VECTOR2_SIZE)] = vtemp;
+				vdramC[BASEOFFSETKVS_SRCVERTICESDATA + (dstvid/VECTOR2_SIZE)] = vtemp;
+				
+				if(vtemp != vprop){ edram[BASEOFFSETKVS_ACTIVEVERTICES + NEXT + actvvcount_nextit] = dstvid; } actvvcount_nextit += 1;
 			
-			value_t res = PROCESS{{context['id']}}_processfunc(udata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-			value_t vvdata = REDUCE{{context['id']}}_reducefunc(vdata, res, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-			
-			uint32_type edge = savevdata(vdram, dstvid);
+				total_edges_processed += 1;
+				edgesprocessedinGraphIter[GraphIter] += 1;
+			}
 		}
+		
+		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<actvvcount_nextit<<""<<endl;
+		if(actvvcount_nextit == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
 	}
+	
+	cout<<">>> utility::runsssp_sw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
+	cout<<">>> utility::runsssp_sw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
+	cout<< TIMINGRESULTSCOLOR <<">>> utility::runsssp_sw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
 	return;
 }
+
+
+

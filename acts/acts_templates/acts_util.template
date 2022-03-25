@@ -137,6 +137,91 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETREALVID
 	return (lvid * NUM_PEs) + instid;
 }
 
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
+	#pragma HLS INLINE
+	unsigned int data = 0;
+	#ifdef _WIDEWORD
+	unsigned int row = index / VECTOR2_SIZE;
+	unsigned int col = loc % VECTOR2_SIZE;
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} if(col == {{v}}){
+		data = kvdram[offset_kvs + row].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}); 
+	}
+	{%endfor%}
+	else {} 
+	#else 
+	unsigned int loc = index / 2;
+	if(index % 2 == 0){ data = kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key; } 
+	else { data = kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value; }	
+	#endif 
+	return data;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	unsigned int row = index / VECTOR2_SIZE;
+	unsigned int col = loc % VECTOR2_SIZE;
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} if(col == {{v}}){
+		kvdram[offset_kvs + row].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}) = data; 
+	}
+	{%endfor%}
+	else {} 
+	#else 
+	unsigned int loc = index / 2;
+	if(index % 2 == 0){ kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key = data; } 
+	else { kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value = data; }	
+	#endif 
+	return;
+}
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return kvdram[offset_kvs].range(31, 0);
+	#else 
+	return kvdram[offset_kvs].data[0].key;
+	#endif 
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	kvdram[offset_kvs].range(31, 0) = data;
+	#else 
+	kvdram[offset_kvs].data[0].key = data;
+	#endif 
+	return;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{2*v}}] = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	datas[{{2*v+1}}] = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{2*v}}] = kvdram[offset_kvs].data[{{v}}].key;
+	datas[{{2*v+1}}] = kvdram[offset_kvs].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	return;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = datas[{{2*v}}]; 
+	kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = datas[{{2*v+1}}]; 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	kvdram[offset_kvs].data[{{v}}].key = datas[{{2*v}}];
+	kvdram[offset_kvs].data[{{v}}].value = datas[{{2*v+1}}]; 
+	{%endfor%}
+	#endif
+	return;
+}
+
 // utilities
 batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
 	analysis_type analysis_treedepth = TREE_DEPTH;
@@ -231,7 +316,7 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.ENABLE_PROCESSCOMMAND = buffer[1];
 	globalparams.ENABLE_PARTITIONCOMMAND = buffer[2];
 	globalparams.ENABLE_APPLYUPDATESCOMMAND = buffer[3];
-	globalparams.ENABLE_SAVEVMASK = buffer[4];
+	globalparams.ENABLE_ACTSGP = buffer[4];
 	globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES = buffer[5];
 	
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[6];
@@ -298,21 +383,12 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = buffer[62];
 	globalparams.ACTSPARAMS_INSTID = buffer[63];
 	
-	globalparams.ACTSPARAMS_NUM_EDGE_BANKS = buffer[64];
-	globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = buffer[65];
+	globalparams.ACTSPARAMS_NUM_EDGE_BANKS = buffer[MESSAGES_ACTSPARAMS_NUM_EDGE_BANKS];
+	globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = buffer[MESSAGES_ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM];
 	
-	unsigned int validitytest2 = buffer[66];
-	globalparams.RETURN_RETURNVALUES = buffer[67];
-	globalparams.VARS_WORKBATCH = 0;
-	
-	if(validitytest2 != 70707070){
-		#ifdef _DEBUGMODE_CHECKS3
-		cout<<"acts_util:: _getglobalparams: ERROR: validitytest2("<<validitytest2<<") != 70707070. MISALLIGNMENT SOMEWHERE. EXITING..."<<endl;
-		exit(EXIT_FAILURE);
-		#endif 
-	}
-	
-	// cout<<"acts_util:: globalparams.NUM_REDUCEPARTITIONS: "<<globalparams.NUM_REDUCEPARTITIONS<<endl;
+	unsigned int validitytest2 = buffer[MESSAGES_DUMMYCHKPOINT]; // buffer[66];
+	for(unsigned int m=0; m<MESSAGES_RETURNVALUES_SIZE; m++){ globalparams.RETURNVALUES[m] = buffer[MESSAGES_RETURNVALUES + m]; }
+	for(unsigned int m=0; m<MESSAGES_MAILBOX_SIZE; m++){ globalparams.MAILBOX[m] = buffer[MESSAGES_MAILBOX + m]; }
 	
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	if(GraphAlgo == BFS || GraphAlgo == SSSP){ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_NOTALLVERTEXISACTIVE; }
@@ -321,6 +397,15 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalparameters("acts_util::getglobalparams:: printing global parameters", globalparams);
 	#endif
+	
+	if(validitytest2 != 70707070){
+		#ifdef _DEBUGMODE_CHECKS3
+		cout<<"acts_util:: _getglobalparams: ERROR: validitytest2("<<validitytest2<<") != 70707070. MISALLIGNMENT SOMEWHERE. EXITING..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	
+	globalparams.VARS_WORKBATCH = 0;
 	return globalparams;
 }
 
@@ -415,7 +500,7 @@ partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getparti
 	if(partition >= MAX_NUM_PARTITIONS){ 
 		#ifdef ENABLE_PERFECTACCURACY
 			#ifdef _DEBUGMODE_CHECKS3 // ENABLE_VOICEOUTKERNELERRORS
-			cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<endl; 
+			cout<<"acts_util::getpartition::ERROR 1. partition out of bounds partition: "<<partition<<", thiskeyvalue.key: "<<thiskeyvalue.key<<", thiskeyvalue.value: "<<thiskeyvalue.value<<", NUM_PARTITIONS: "<<NUM_PARTITIONS<<", upperlimit: "<<upperlimit<<", currentLOP: "<<currentLOP<<", batch_range_pow: "<<batch_range_pow<<", div factor: "<<(1 << (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP)))<<", INVALIDDATA: "<<INVALIDDATA<<", UTIL{{context['id']}}_GETV(INVALIDDATA): "<<UTIL{{context['id']}}_GETV(INVALIDDATA)<<endl;			 
 			#endif 
 		exit(EXIT_FAILURE); 
 		#else
@@ -456,6 +541,9 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetkeysandvalues
 	return;
 }
 void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"..................... UTIL{{context['id']}}_resetkvstatvalues: resetting global stats..."<<endl;
+	#endif 
 	unsigned int totalnumpartitionsb4last = 0;
 	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){

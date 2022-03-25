@@ -75,6 +75,10 @@ using namespace std;
 #define BLOCKRAM_PMASK_SIZE BLOCKRAM_SIZE
 #endif 
 #define BLOCKRAM_PMASK1_SIZE BLOCKRAM_PMASK_SIZE
+#define BLOCKRAM_PMASK2_SIZE BLOCKRAM_PMASK_SIZE
+
+#define BLOCKRAM_GLOBALSTATS_SIZE BLOCKRAM_SIZE // DOUBLE_BLOCKRAM_SIZE //
+#define BLOCKRAM_GLOBALSTATS_BIGSIZE DOUBLE_BLOCKRAM_SIZE
 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
 #define SRCBUFFER_SIZE (BLOCKRAM_SIZE - (4 * 4))
@@ -87,6 +91,8 @@ using namespace std;
 #else 
 #define WORKBUFFER_SIZE (SRCBUFFER_SIZE - (NUM_PARTITIONS*1))
 #endif 
+
+#define ACTVVBUFFER_SIZE (BLOCKRAM_SIZE * 2)
 
 #ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
 #define SOURCEBLOCKRAM_SIZE BLOCKRAM_SIZE 
@@ -127,7 +133,7 @@ using namespace std;
 #define KVSTATSDRAMSZ (KVSTATSSZ * VECTOR_SIZE)
 #define KVSTATSDRAMSZ_KVS KVSTATSDRAMSZ
 
-#ifdef ENABLERECURSIVEPARTITIONING
+#ifdef ENABLERECURSIVEPARTITIONING // 1024 // 
 #define ACTIVE_KVSTATSSZ ((1 << (NUM_PARTITIONS_POW * (TREE_DEPTH-1))) * 2) ///////////////////////////////////// CRITICAL FIXME. to accomodate TRAD and PRIOR?
 #else 
 #define ACTIVE_KVSTATSSZ KVSTATSSZ
@@ -189,10 +195,17 @@ using namespace std;
 #define SIZEOF_KEY 22
 #define SIZEOF_VALUE 10
 
+#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS //
+#define OFFSETOF_VDATA 0
+#define SIZEOF_VDATA 1
+#define OFFSETOF_VMASK 1
+#define SIZEOF_VMASK 1
+#else 
 #define OFFSETOF_VDATA 0
 #define SIZEOF_VDATA 31
 #define OFFSETOF_VMASK 31
 #define SIZEOF_VMASK 1
+#endif 
  
 #define SIZEOF_VDATAKEY 16
 #define SIZEOF_VDATAVALUE 16
@@ -303,7 +316,7 @@ typedef struct {
 	unsigned int ENABLE_PROCESSCOMMAND;
 	unsigned int ENABLE_PARTITIONCOMMAND;
 	unsigned int ENABLE_APPLYUPDATESCOMMAND;
-	unsigned int ENABLE_SAVEVMASK;
+	unsigned int ENABLE_ACTSGP;
 	unsigned int ACTSCONFIG_INSERTSTATSMETADATAINEDGES;
 
 	unsigned int BASEOFFSETKVS_MESSAGESDATA;
@@ -373,7 +386,8 @@ typedef struct {
 	unsigned int ACTSPARAMS_NUM_EDGE_BANKS;
 	unsigned int ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM;
 
-	unsigned int RETURN_RETURNVALUES;
+	unsigned int RETURNVALUES[MESSAGES_RETURNVALUES_SIZE];
+	unsigned int MAILBOX[MESSAGES_MAILBOX_SIZE];
 	
 	unsigned int VARS_WORKBATCH;
 } globalparams_t;
@@ -382,6 +396,7 @@ typedef struct {
 	globalparams_t globalparamsK;
 	globalparams_t globalparamsE;
 	globalparams_t globalparamsV;
+	globalparams_t globalparamsM;
 } globalparams_TWOt;
 
 typedef struct {

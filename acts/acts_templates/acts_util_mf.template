@@ -25,6 +25,13 @@ keyy_t UTIL{{context['id']}}_GETKEYENTRY(uint512_dt data, unsigned int v);
 unsigned int UTIL{{context['id']}}_GETLOCALVID(unsigned int vid, unsigned int instid);
 unsigned int UTIL{{context['id']}}_GETREALVID(unsigned int lvid, unsigned int instid);
 
+unsigned int UTIL{{context['id']}}_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
+void UTIL{{context['id']}}_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
+unsigned int UTIL{{context['id']}}_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTIL{{context['id']}}_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
+void UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+
 // functions (actsproc utilities)
 batch_type UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 batch_type UTIL{{context['id']}}_getrangeforeachllop(globalparams_t globalparams);

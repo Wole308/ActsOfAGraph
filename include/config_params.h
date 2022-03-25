@@ -82,6 +82,13 @@
 #define CONFIG_ENABLECLASS_ACTS_MERGE
 #define CONFIG_ENABLECLASS_MYDEBUG
 
+#define CONFIG_ACTSONLYMODE
+// #define CONFIG_TRADGPONLYMODE
+// #define CONFIG_HYBRIDGPMODE
+#ifdef CONFIG_HYBRIDGPMODE
+// #define CONFIG_HYBRIDGPMODE_ONLINESWITCHING
+#endif 
+
 // creating graphs 
 // #define CONFIG_CREATEGRAPHS_CHECK_FOR_NONINCREASINGEDGES
 
@@ -99,6 +106,17 @@ CHANGES:
 TESTKERNEL="RK"
 # TESTKERNEL="TESTKERNEL"
 TESTKERNELARG=1
+
+--- {top_usrcv_udstv.cpp}
+for (buffer_type i=0; i<BLOCKRAM_VDATA_SIZE; i++){ // REMOVEME LATER (NOT NECESSARY).
+		{%for i in context['T_seq']%}{%if(i<n)%}
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		vbuffer{{i}}[{{v}}][i] = 0;
+		{%endfor%}	
+		{%endif%}{%endfor%}
+	}
+
+--- {swkernel.cpp}
 
 --- {acts_merge.cpp}
 if(globalstatsbuffer{{i}}[partition].value > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || true){ // {acts_merge.cpp} REMOVEME 'true'
@@ -155,12 +173,16 @@ if(en == true && vmdata.vmask == 1 && *loadcount < WORKBUFFER_SIZE-2){ *loadcoun
 
 --- {loadedges_random.cpp}
 if(edge.dstvid >= KVDATA_RANGE){ edge.dstvid = edge.dstvid % KVDATA_RANGE; } // CRIICAL FIXME.
+for(unsigned int i=3; i<4; i++){ // NUM_PEs // CRIICAL FIXME.
 
 #ifdef FPGA_IMPL
 #define LOADSLICEDEDGES_INCORRECT
 #else 
 #define LOADSLICEDEDGES_CORRECT	
 #endif 
+
+--- {actscommon.h}
+#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS //
 */
 
 

@@ -220,14 +220,16 @@ void graph::closefilesforreading(){
 	for(unsigned int j=0; j<numedgebanks; j++){ fclose(nvmeFd_vertexptrs_r[j]); }
 	for(unsigned int j=0; j<numedgebanks; j++){ close(nvmeFd_edges_r2[j]); }
 	for(unsigned int j=0; j<numedgebanks; j++){ fclose(nvmeFd_edges_r[j]); }
+	cout<<"graph::closefilesforreading : files closed successfully... "<<endl;
 	return;
 }
 void graph::closefilesforwriting(){
-	cout<<"graph::closefilesforreading : close files for writing..."<<endl;
+	cout<<"graph::closefilesforwriting : close files for writing..."<<endl;
 	for(unsigned int j=0; j<numedgebanks; j++){ close(nvmeFd_vertexptrs_w2[j]); }
 	for(unsigned int j=0; j<numedgebanks; j++){ fclose(nvmeFd_vertexptrs_w[j]); }
 	for(unsigned int j=0; j<numedgebanks; j++){ close(nvmeFd_edges_w2[j]); }
 	for(unsigned int j=0; j<numedgebanks; j++){ fclose(nvmeFd_edges_w[j]); }
+	cout<<"graph::closefilesforwriting : files closed successfully... "<<endl;
 	return;
 }
 

@@ -25,6 +25,13 @@ keyy_t UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v);
 unsigned int UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid);
 unsigned int UTILP0_GETREALVID(unsigned int lvid, unsigned int instid);
 
+unsigned int UTILP0_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
+void UTILP0_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
+unsigned int UTILP0_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTILP0_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
+void UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+
 // functions (actsproc utilities)
 batch_type UTILP0_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
 batch_type UTILP0_getrangeforeachllop(globalparams_t globalparams);

@@ -41,7 +41,7 @@ public:
 	void savevdata(uint512_vec_dt * kvdram, unsigned int buffer[VDATA_PACKINGSIZE][REDUCEPARTITIONSZ_KVS2], batch_type vbaseoffset_kvs, batch_type voffset_kvs);
 	void setrootvid(unsigned int Algo, uint512_vec_dt * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams);
 	
-	globalparams_TWOt loadmessages(uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphIter, unsigned int GraphAlgo, globalparams_TWOt globalparams);
+	globalparams_TWOt loadmessages(uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], container_t * container, unsigned int GraphIter, unsigned int GraphAlgo, globalparams_TWOt globalparams);
 	globalparams_t createmessages(
 			unsigned int id,
 			uint512_vec_dt * kvstats,
@@ -59,7 +59,9 @@ public:
 
 	void setcustomeval(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS], unsigned int evalid);
 	
-	globalparams_t finishglobaparams(globalparams_t globalparams);
+	globalparams_t finishglobaparamsV(globalparams_t globalparams);
+	
+	globalparams_t finishglobaparamsM(globalparams_t globalparams);
 
 private:
 	utility * utilityobj;

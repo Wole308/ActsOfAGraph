@@ -1,4 +1,4 @@
-void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	#pragma HLS PIPELINE II=3
 	keyvalue_t mykeyvalue = UTIL{{context['id']}}_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
@@ -23,7 +23,11 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 		
 	// read 
 	vmdata_t vmdata;
-	if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(loc, destbuffer, 0); }
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK2(loc, NAp, destbuffer, 0); }
+			#else 
+				if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(loc, destbuffer, 0); }
+					#endif
 	
 	// reduce 
 	value_t new_vprop = REDUCE{{context['id']}}_reducefunc(vmdata.vdata, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
@@ -32,10 +36,12 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	if(en == true && new_vprop != vmdata.vdata){ cout<<"REDUCE{{context['id']}}_reducevector:: ACTIVE MASK SEEN AT: "<<loc<<""<<endl; }
 	#endif
 	
-	// write 
-	if(en == true){
-		MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(loc, destbuffer, new_vprop, vmdata.vmask, 0); 
-	}
+	// write
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS // (globalposition.source_partition % VDATA_SHRINK_RATIO)
+		if(en == true){ MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK2(loc, destbuffer, new_vprop, vmdata.vmask, 0); }
+			#else 
+				if(en == true){ MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(loc, destbuffer, new_vprop, vmdata.vmask, 0); }
+					#endif
 
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1);
@@ -84,7 +90,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 				{%endfor%}
 
 				{%for p in context['8_seq']%}
-				if(i< size_kvs[{{p}}]){ REDUCE{{context['id']}}_reducevector(it+{{p}}, kvdata{{p}}, vbuffer[it+{{p}}], 0, sweepparams.upperlimit, sweepparams, globalparams); }
+				if(i< size_kvs[{{p}}]){ REDUCE{{context['id']}}_reducevector(it+{{p}}, kvdata{{p}}, vbuffer[it+{{p}}], 0, sweepparams.upperlimit, sweepparams, globalposition, globalparams); }
 				{%endfor%}
 			}
 		}
@@ -116,7 +122,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_priorreducea
 			cout<<"priorreduceandbuffer: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
 			#endif 
 			
-			if(p < VDATA_PACKINGSIZE){ REDUCE{{context['id']}}_reducevector(p, kv, vbuffer[p], 0, upperlimit, sweepparams, globalparams); } // REMOVEME.
+			if(p < VDATA_PACKINGSIZE){ REDUCE{{context['id']}}_reducevector(p, kv, vbuffer[p], 0, upperlimit, sweepparams, globalposition, globalparams); } // REMOVEME.
 		}
 	}
 	return;

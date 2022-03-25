@@ -1,7 +1,6 @@
-#define PE_SETSZ 16
 #define PROCESSEDGES_TYPE2A_INCORRECTONE
 
-void acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalparams_t globalparams){
+void acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){				
 	#pragma HLS INLINE
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -246,7 +245,7 @@ void acts_all::PROCESSP0_calculateoffsets1(keyvalue_capsule_t * buffer){
 
 #ifdef PROCESSEDGES_TYPE2A_INCORRECTONE
 fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -417,6 +416,7 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 	
 	// process edge block
 	unsigned int readoffset = 0;
+	unsigned int bufferoffset_kvs = 0;
 	if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
 	buffer_type psetoffset=0;
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
@@ -523,21 +523,21 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 					
 					// process
 					if(E[0] == INVALIDDATA){ enx[0] = false; } // edata[0].key = 0; edata[0].value  = INVALIDDATA; }
-					PROCESSP0_processvector(enx[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], &loadcount[0], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
 					if(E[1] == INVALIDDATA){ enx[1] = false; } // edata[1].key = 0; edata[1].value  = INVALIDDATA; }
-					PROCESSP0_processvector(enx[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], &loadcount[1], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
 					if(E[2] == INVALIDDATA){ enx[2] = false; } // edata[2].key = 0; edata[2].value  = INVALIDDATA; }
-					PROCESSP0_processvector(enx[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], &loadcount[2], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
 					if(E[3] == INVALIDDATA){ enx[3] = false; } // edata[3].key = 0; edata[3].value  = INVALIDDATA; }
-					PROCESSP0_processvector(enx[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], &loadcount[3], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
 					if(E[4] == INVALIDDATA){ enx[4] = false; } // edata[4].key = 0; edata[4].value  = INVALIDDATA; }
-					PROCESSP0_processvector(enx[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], &loadcount[4], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
 					if(E[5] == INVALIDDATA){ enx[5] = false; } // edata[5].key = 0; edata[5].value  = INVALIDDATA; }
-					PROCESSP0_processvector(enx[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], &loadcount[5], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
 					if(E[6] == INVALIDDATA){ enx[6] = false; } // edata[6].key = 0; edata[6].value  = INVALIDDATA; }
-					PROCESSP0_processvector(enx[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], &loadcount[6], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
 					if(E[7] == INVALIDDATA){ enx[7] = false; } // edata[7].key = 0; edata[7].value  = INVALIDDATA; }
-					PROCESSP0_processvector(enx[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], &loadcount[7], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
 					#ifdef _DEBUGMODE_CHECKS2
 					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[0], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
 					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[1], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
@@ -567,7 +567,7 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 
 #ifdef PROCESSEDGES_TYPE2B_CORRECTONE
 fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalparams_t globalparams){
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -740,6 +740,7 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 	
 	// process edge block
 	unsigned int readoffset = 0;
+	unsigned int bufferoffset_kvs = 0;
 	if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
 	buffer_type psetoffset=0;
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
@@ -934,28 +935,28 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 					// process
 	
 					// if(E[0] == INVALIDDATA){ enx[0] = false; } // edata[0].key = 0; edata[0].value  = INVALIDDATA; }		
-					PROCESSP0_processvector(enx[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], &loadcount[0], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
 	
 					// if(E[1] == INVALIDDATA){ enx[1] = false; } // edata[1].key = 0; edata[1].value  = INVALIDDATA; }		
-					PROCESSP0_processvector(enx[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], &loadcount[1], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
 	
 					// if(E[2] == INVALIDDATA){ enx[2] = false; } // edata[2].key = 0; edata[2].value  = INVALIDDATA; }		
-					PROCESSP0_processvector(enx[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], &loadcount[2], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
 	
 					// if(E[3] == INVALIDDATA){ enx[3] = false; } // edata[3].key = 0; edata[3].value  = INVALIDDATA; }		
-					PROCESSP0_processvector(enx[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], &loadcount[3], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
 	
 					// if(E[4] == INVALIDDATA){ enx[4] = false; } // edata[4].key = 0; edata[4].value  = INVALIDDATA; }		
-					PROCESSP0_processvector(enx[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], &loadcount[4], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
 	
 					// if(E[5] == INVALIDDATA){ enx[5] = false; } // edata[5].key = 0; edata[5].value  = INVALIDDATA; }		
-					PROCESSP0_processvector(enx[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], &loadcount[5], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
 	
 					// if(E[6] == INVALIDDATA){ enx[6] = false; } // edata[6].key = 0; edata[6].value  = INVALIDDATA; }		
-					PROCESSP0_processvector(enx[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], &loadcount[6], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
 	
 					// if(E[7] == INVALIDDATA){ enx[7] = false; } // edata[7].key = 0; edata[7].value  = INVALIDDATA; }		
-					PROCESSP0_processvector(enx[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], &loadcount[7], GraphAlgoClass, globalparams);
+					PROCESSP0_processvector(enx[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
 	
 					
 					#ifdef _DEBUGMODE_CHECKS2

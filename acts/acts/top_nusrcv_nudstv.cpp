@@ -1,4 +1,4 @@
-void acts_all::TOPP0_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK1_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
+void acts_all::TOPP0_NU_processit_splitdstvxs(uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], pmask_dt pmask_curr[BLOCKRAM_PMASK1_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK,								
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -6,7 +6,7 @@ void acts_all::TOPP0_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buf
 	actsutilityobj->clearglobalvars();
 	#endif
 	
-	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE]; 
 	
 	batch_type sourcestatsmarker = 0;
 	batch_type deststatsmarker = 1;
@@ -48,9 +48,9 @@ void acts_all::TOPP0_NU_processit_splitdstvxs( uint512_dt * kvdram, keyvalue_buf
 		#endif
 		
 		if(voffset_kvs2 >= avtravstate.end_kvs){ voffset_kvs2 += globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION; vreadoffset_kvs2 += vreadskipsz_kvs2; continue; }
-		if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE) { if(pmask_curr[source_partition].data[0] == 0){ voffset_kvs2 += globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION; vreadoffset_kvs2 += vreadskipsz_kvs2; continue; }}
+		if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE) { if(pmask_curr[source_partition] == 0){ voffset_kvs2 += globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION; vreadoffset_kvs2 += vreadskipsz_kvs2; continue; }}
 		#ifdef _DEBUGMODE_KERNELPRINTsS
-		if(pmask_curr[source_partition].data[0] > 0){ cout<<"TOPP0_NU_processit_splitdstvxs:: source partition is active [pmask_curr["<<source_partition<<"].data[0]: "<<pmask_curr[source_partition].data[0]<<"] ..."<<endl; }
+		if(pmask_curr[source_partition] > 0){ cout<<"TOPP0_NU_processit_splitdstvxs:: source partition is active [pmask_curr["<<source_partition<<"]: "<<pmask_curr[source_partition]<<"] ..."<<endl; }
 		#endif 
 		
 		sweepparams.source_partition = source_partition;
@@ -165,7 +165,7 @@ void acts_all::TOPP0_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sour
 	unsigned int edgesdstv_sum = 0;
 	#endif
 	
-	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE]; 
 	globalposition_t globalposition; // DUMMY.
 	
 	batch_type sourcestatsmarker = 1;
@@ -253,7 +253,7 @@ void acts_all::TOPP0_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourceb
 	analysis_type analysis_numsourcepartitions = 1;
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
-	keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE]; 
+	keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE]; 
 	globalposition_t globalposition; // DUMMY.
 	
 	config_t config;
@@ -267,6 +267,7 @@ void acts_all::TOPP0_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourceb
 	
 	sweepparams = UTILP0_getsweepparams(globalparams, currentLOP, source_partition);
 	travstate_t ptravstate = UTILP0_gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);
+	UTILP0_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0);
 
 	if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablereduce = OFF; }
 	else { config.enablereduce = ON; }

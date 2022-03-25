@@ -83,15 +83,13 @@ void acts_all::MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, 
 	if(enable == OFF){ return; }
 	analysis_type analysis_destpartitionsz = DESTBLOCKRAM_SIZE / NUM_PARTITIONS;
 	
+	// if(globalparams.ALGORITHMINFO_GRAPHITERATIONID > 5){ // REMOVEME.
 	// actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 37--", (keyvalue_t *)globalcapsule, NUM_PARTITIONS); 
-			// exit(EXIT_SUCCESS); 
-	
+	// }	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("savekeyvalues::localcapsule", (keyvalue_t *)localcapsule, MAX_NUM_PARTITIONS);
 	actsutilityobj->printvaluecount("savekeyvalues::localcapsule", (keyvalue_t *)localcapsule, MAX_NUM_PARTITIONS);
-	// actsutilityobj->scankeyvalues("savekeyvalues::buffer", (keyvalue_t *)buffer, localcapsule, NUM_PARTITIONS, globalparams.SIZE_BATCHRANGE / NUM_PARTITIONS, actsutilityobj->getsweepparams().upperlimit);
 	#endif
-	// exit(EXIT_SUCCESS); 
 	
 	SAVEPARTITIONS_LOOP1: for(partition_type p=0; p<NUM_PARTITIONS; p++){
 		batch_type dramoffset_kvs = globalbaseaddress_kvs + ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE);
@@ -99,10 +97,15 @@ void acts_all::MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, 
 		buffer_type realsize_kvs = localcapsule[p].value / VECTOR_SIZE;
 		buffer_type size_kvs = UTILP0_getpartitionwritesz(realsize_kvs, bramoffset_kvs);
 		
-		#ifdef _DEBUGMODE_CHECKS2
+		// if(bramoffset_kvs + size_kvs >= DESTBLOCKRAM_SIZE){ size_kvs = 0; } // FIXME. STOPPED AT ERROR: orkut
+		// if(globalcapsule[p].key + globalcapsule[p].value >= globalparams.SIZE_KVDRAM){ size_kvs = 0; }
+		#ifdef _DEBUGMODE_CHECKS3
+		if(globalcapsule[p].key + globalcapsule[p].value > globalparams.SIZE_KVDRAM + 1){ actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 337--", (keyvalue_t *)globalcapsule, NUM_PARTITIONS);  } 
 		actsutilityobj->checkoutofbounds("savekeyvalues 23", bramoffset_kvs + size_kvs, DESTBLOCKRAM_SIZE + 1, p, NAp, NAp);
-		actsutilityobj->checkoutofbounds("savekeyvalues 25", ((globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE), globalparams.SIZE_KVDRAM + 1, p, NAp, NAp);
+		actsutilityobj->checkoutofbounds("savekeyvalues 255", globalcapsule[p].key + globalcapsule[p].value, globalparams.SIZE_KVDRAM + 1, p, globalcapsule[p].key, globalcapsule[p].value);
+		actsutilityobj->checkoutofbounds("savekeyvalues 256", localcapsule[p].key + localcapsule[p].value, DESTBLOCKRAM_SIZE * VECTOR_SIZE, p, localcapsule[p].key, localcapsule[p].value);
 		#endif
+		
 		if(realsize_kvs > 0){
 			SAVEPARTITIONS_LOOP1B: for(buffer_type i=0; i<size_kvs; i++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_destpartitionsz avg=analysis_destpartitionsz
@@ -160,9 +163,8 @@ void acts_all::MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, 
 	SAVEPARTITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; }
 	
 	// actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 34--", (keyvalue_t *)globalcapsule, NUM_PARTITIONS); 
-	// exit(EXIT_SUCCESS);
-
-	#if defined(ENABLE_PERFECTACCURACY) && defined(_DEBUGMODE_CHECKS2)
+	#if defined(ENABLE_PERFECTACCURACY) && defined(_DEBUGMODE_CHECKS2)	
+	// #ifdef _DEBUGMODE_CHECKS3
 	for(unsigned int i=0; i<NUM_PARTITIONS-1; i++){ 
 		if(globalcapsule[i].key + globalcapsule[i].value >= globalcapsule[i+1].key && globalcapsule[i].value > 0){ 
 			cout<<"savekeyvalues::globalcapsule 33. ERROR. out of bounds. (globalcapsule["<<i<<"].key("<<globalcapsule[i].key<<") + globalcapsule["<<i<<"].value("<<globalcapsule[i].value<<") >= globalcapsule["<<i+1<<"].key("<<globalcapsule[i+1].key<<")) printing and exiting..."<<endl; 
@@ -1171,53 +1173,7 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	unit1_type temppmask[32];
 	#pragma HLS DATA_PACK variable = temppmask
 	
-	uint32_type pmaski = 0;
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	unit1_type vpmaskVec[VECTOR2_SIZE]; // for(unsigned int i=0; i<VECTOR2_SIZE; i++){ vpmaskVec[i] = 0; }
-	
-	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	unsigned int IND = UTILP0_allignhigher_FACTOR((source_partition * globalparams.SIZEKVS2_REDUCEPARTITION) / VPARTITION_SHRINK_RATIO, 32);
-	unsigned int VProw = IND / 32; unsigned int VPcol = IND % 32;
-	#ifdef _DEBUGMODE_CHECKS3
-	actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", VProw, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
-	if(VPcol != 0){ cout<<"MEMACCESSP0_saveV: ERROR SOMEWHERE. VPcol("<<VPcol<<") != 0, source_partition: "<<source_partition<<", globalparams.SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
-	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<"MEMACCESSP0_saveV: source_partition: "<<source_partition<<", IND: "<<IND<<", VProw: "<<VProw<<", VPcol: "<<VPcol<<", SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<", VPARTITION_SHRINK_RATIO: "<<VPARTITION_SHRINK_RATIO<<endl;
-	#endif
-	#endif 
+	unit1_type vmaskVec[VECTOR2_SIZE];
 	
 	SAVEVDATA_LOOP1: for(buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
@@ -1254,157 +1210,6 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 		vdata[14] = vbuffer[14][bufferoffset_kvs + i];
 	
 		vdata[15] = vbuffer[15][bufferoffset_kvs + i];
-		
-		// collect active partitions for next iterations
-		#ifndef ALLVERTEXISACTIVE_ALGORITHM
-			vpmaskVec[0] = MEMCAP0_READVMASK(vdata[0]); 
-			vpmaskVec[1] = MEMCAP0_READVMASK(vdata[1]); 
-			vpmaskVec[2] = MEMCAP0_READVMASK(vdata[2]); 
-			vpmaskVec[3] = MEMCAP0_READVMASK(vdata[3]); 
-			vpmaskVec[4] = MEMCAP0_READVMASK(vdata[4]); 
-			vpmaskVec[5] = MEMCAP0_READVMASK(vdata[5]); 
-			vpmaskVec[6] = MEMCAP0_READVMASK(vdata[6]); 
-			vpmaskVec[7] = MEMCAP0_READVMASK(vdata[7]); 
-			vpmaskVec[8] = MEMCAP0_READVMASK(vdata[8]); 
-			vpmaskVec[9] = MEMCAP0_READVMASK(vdata[9]); 
-			vpmaskVec[10] = MEMCAP0_READVMASK(vdata[10]); 
-			vpmaskVec[11] = MEMCAP0_READVMASK(vdata[11]); 
-			vpmaskVec[12] = MEMCAP0_READVMASK(vdata[12]); 
-			vpmaskVec[13] = MEMCAP0_READVMASK(vdata[13]); 
-			vpmaskVec[14] = MEMCAP0_READVMASK(vdata[14]); 
-			vpmaskVec[15] = MEMCAP0_READVMASK(vdata[15]); 
-			
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 0, 1, vpmaskVec[0]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 1, 1, vpmaskVec[1]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 2, 1, vpmaskVec[2]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 3, 1, vpmaskVec[3]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 4, 1, vpmaskVec[4]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 5, 1, vpmaskVec[5]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 6, 1, vpmaskVec[6]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 7, 1, vpmaskVec[7]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 8, 1, vpmaskVec[8]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 9, 1, vpmaskVec[9]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 10, 1, vpmaskVec[10]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 11, 1, vpmaskVec[11]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 12, 1, vpmaskVec[12]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 13, 1, vpmaskVec[13]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 14, 1, vpmaskVec[14]);
-			UTILP0_WRITEBITSTO_UINTV(&pmaski, 15, 1, vpmaskVec[15]);
-	
-			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			if(MEMCAP0_READVMASK(vdata[0]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 0, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[1]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 1, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[2]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 2, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[3]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 3, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[4]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 4, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[5]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 5, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[6]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 6, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[7]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 7, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[8]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 8, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[9]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 9, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[10]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 10, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[11]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 11, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[12]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 12, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[13]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 13, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[14]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 14, VProw: "<<VProw<<endl; }
-			if(MEMCAP0_READVMASK(vdata[15]) > 0){ cout<<"--- MEMACCESSP0_saveV:: NEXT ACTIVE PARTITION ACTIVATED i: "<<i<<", v: 15, VProw: "<<VProw<<endl; }
-			#endif
-			
-			#ifdef _DEBUGMODE_CHECKS3
-			actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", VPcol, 32, NAp, NAp, NAp);
-			#endif
-			if(pmaski>0){ temppmask[VPcol] = 1; } if(i%VPARTITION_SHRINK_RATIO==0){ VPcol += 1; }	
-			if(VPcol % 32 == 31){
-				#ifdef _DEBUGMODE_CHECKS3
-				actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", VProw, BLOCKRAM_PMASK_SIZE, NAp, NAp, NAp);
-				#endif
-				pmask[VProw].data[0] = temppmask[0];
-				pmask[VProw].data[1] = temppmask[1];
-				pmask[VProw].data[2] = temppmask[2];
-				pmask[VProw].data[3] = temppmask[3];
-				pmask[VProw].data[4] = temppmask[4];
-				pmask[VProw].data[5] = temppmask[5];
-				pmask[VProw].data[6] = temppmask[6];
-				pmask[VProw].data[7] = temppmask[7];
-				pmask[VProw].data[8] = temppmask[8];
-				pmask[VProw].data[9] = temppmask[9];
-				pmask[VProw].data[10] = temppmask[10];
-				pmask[VProw].data[11] = temppmask[11];
-				pmask[VProw].data[12] = temppmask[12];
-				pmask[VProw].data[13] = temppmask[13];
-				pmask[VProw].data[14] = temppmask[14];
-				pmask[VProw].data[15] = temppmask[15];
-				pmask[VProw].data[16] = temppmask[16];
-				pmask[VProw].data[17] = temppmask[17];
-				pmask[VProw].data[18] = temppmask[18];
-				pmask[VProw].data[19] = temppmask[19];
-				pmask[VProw].data[20] = temppmask[20];
-				pmask[VProw].data[21] = temppmask[21];
-				pmask[VProw].data[22] = temppmask[22];
-				pmask[VProw].data[23] = temppmask[23];
-				pmask[VProw].data[24] = temppmask[24];
-				pmask[VProw].data[25] = temppmask[25];
-				pmask[VProw].data[26] = temppmask[26];
-				pmask[VProw].data[27] = temppmask[27];
-				pmask[VProw].data[28] = temppmask[28];
-				pmask[VProw].data[29] = temppmask[29];
-				pmask[VProw].data[30] = temppmask[30];
-				pmask[VProw].data[31] = temppmask[31];
-				temppmask[0] = 0;
-				temppmask[1] = 0;
-				temppmask[2] = 0;
-				temppmask[3] = 0;
-				temppmask[4] = 0;
-				temppmask[5] = 0;
-				temppmask[6] = 0;
-				temppmask[7] = 0;
-				temppmask[8] = 0;
-				temppmask[9] = 0;
-				temppmask[10] = 0;
-				temppmask[11] = 0;
-				temppmask[12] = 0;
-				temppmask[13] = 0;
-				temppmask[14] = 0;
-				temppmask[15] = 0;
-				temppmask[16] = 0;
-				temppmask[17] = 0;
-				temppmask[18] = 0;
-				temppmask[19] = 0;
-				temppmask[20] = 0;
-				temppmask[21] = 0;
-				temppmask[22] = 0;
-				temppmask[23] = 0;
-				temppmask[24] = 0;
-				temppmask[25] = 0;
-				temppmask[26] = 0;
-				temppmask[27] = 0;
-				temppmask[28] = 0;
-				temppmask[29] = 0;
-				temppmask[30] = 0;
-				temppmask[31] = 0;
-				VPcol = 0;
-				VProw += 1; 
-			}
-			
-			vpmaskVecSum[0] += vpmaskVec[0];
-			vpmaskVecSum[1] += vpmaskVec[1];
-			vpmaskVecSum[2] += vpmaskVec[2];
-			vpmaskVecSum[3] += vpmaskVec[3];
-			vpmaskVecSum[4] += vpmaskVec[4];
-			vpmaskVecSum[5] += vpmaskVec[5];
-			vpmaskVecSum[6] += vpmaskVec[6];
-			vpmaskVecSum[7] += vpmaskVec[7];
-			vpmaskVecSum[8] += vpmaskVec[8];
-			vpmaskVecSum[9] += vpmaskVec[9];
-			vpmaskVecSum[10] += vpmaskVec[10];
-			vpmaskVecSum[11] += vpmaskVec[11];
-			vpmaskVecSum[12] += vpmaskVec[12];
-			vpmaskVecSum[13] += vpmaskVec[13];
-			vpmaskVecSum[14] += vpmaskVec[14];
-			vpmaskVecSum[15] += vpmaskVec[15];
-	
-		#endif
 		
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", baseoffset_kvs + offset_kvs + i, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
@@ -1444,19 +1249,16 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 		kvdram[baseoffset_kvs + offset_kvs + i].data[7].key = vdata[14];
 		kvdram[baseoffset_kvs + offset_kvs + i].data[7].value = vdata[15]; 
 		#endif
+		
+		#ifdef _DEBUGMODE_STATS // collect number of active vertices for current iteration.
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ if(MEMCAP0_READVMASK(vdata[v]) > 0){	
+			kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + globalparams.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += 1; }}
+		#endif 
 
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countvswritten(VECTOR2_SIZE);
 		#endif
 	}
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	cout<<"saveV:: printing pmask... VProw: "<<VProw<<", VPcol: "<<VPcol<<endl;
-	for(unsigned int i=0; i<BLOCKRAM_PMASK_SIZE; i++){
-		for(unsigned int v=0; v<32; v++){ if(pmask[i].data[v] > 0){ cout<<"$$$ MEMACCESSP0_saveV:: MASK POS [i:"<<i<<", v:"<<v<<"] is ACTIVE ("<<pmask[i].data[v]<<") "<<endl; }}
-		// for(unsigned int v=0; v<32; v++){ cout<<pmask[i].data[v]<<", "; } cout<<endl;
-	}
-	#endif 
 	// exit(EXIT_SUCCESS); //
 	return;
 }
@@ -5488,346 +5290,26 @@ void acts_all::MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdra
 	return;
 }
 
-#ifdef RANDOMVERTEXISACTIVE_ALGORITHM_XXXXXXXXXXXXXXXXXXXXXXXXXXx
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer4, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer4, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer5, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer4, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer5, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer6, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer4, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer5, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer6, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer7, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer4, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer5, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer6, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer7, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer8, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer4, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer5, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer6, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer7, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer8, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer9, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer4, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer5, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer6, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer7, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer8, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer9, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer10, data, 0);
-		}
-	}
-	return;
-}
-void acts_all::MEMACCESSP0_RANDreadANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type vbaseoffset_kvs, globalparams_t globalparams){		
-	
-	unsigned int randvids[BLOCKRAM_SIZE];
-	
-	unsigned int offset = source_partition * SIZEKVS_ACTIVEVERTICESPERSOURCEPARTITION;
-	for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		randvids[i] = vdram[globalparams.BASEOFFSETKVS_ACTIVEVERTICES + i].data[0].key;
-	}
-	
-	RANDREADANDRVCHUNKS_LOOP1: for(unsigned int i=0; i<globalparams.NUM_ACTIVE_VERTICES[source_partition]; i++){
-		if(randvids[i] != INVALIDDATA){
-			unsigned int gsrcv = randvids[i]; // FIXME. might need to be converted first
-			unsigned int lsrcv = randvids[i] - voffset; // FIXME. might need to be converted first
-			
-			value_t data = MEMCAP0_READDATAFROMDRAM(gsrcv, vdram, vbaseoffset_kvs, 0);
-			
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer0, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer1, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer2, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer3, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer4, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer5, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer6, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer7, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer8, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer9, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer10, data, 0);
-			MEMCAP0_WRITEDATATOBUFFER(lsrcv, buffer11, data, 0);
-		}
-	}
-	return;
-}
-#endif 
-
 // -------------------- pmasks -------------------- //
 void acts_all::MEMACCESSP0_readpmask(uint512_dt * kvdram, pmask_dt pmask[BLOCKRAM_PMASK1_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	LOADACTIVEPARTITIONS_LOOP: for (buffer_type i=0; i<size_kvs; i++){
 		#ifdef _WIDEWORD
-		pmask[i].data[0] = kvdram[offset_kvs + i].range(31, 0);
+		pmask[i] = kvdram[offset_kvs + i].range(31, 0);
 		#else
-		pmask[i].data[0] = kvdram[offset_kvs + i].data[0].key;
+		pmask[i] = kvdram[offset_kvs + i].data[0].key;
 		#endif 
 	}
 	return;
 }
 
 // -------------------- stats -------------------- //
-void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, NAp, NAp, NAp);
 	#endif
 	
+	// cout<<"MEMACCESSP0_readglobalstats: offset_kvs: "<<offset_kvs<<", offset_kvs: "<<offset_kvs<<endl;
 	READGLOBALSTATS_LOOP: for (buffer_type i=0; i<NUM_PARTITIONS; i++){
 	#pragma HLS PIPELINE II=1
 		uint512_vec_dt vec;
@@ -5857,13 +5339,24 @@ void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram
 		globalstatsbuffer[i] = vec.data[globalparams.VARS_WORKBATCH];
 	}
 	
+	// actsutilityobj->printkeyvalues("MEMACCESSP0_readglobalstats:: globalstatsbuffer 37--", (keyvalue_t *)globalstatsbuffer, NUM_PARTITIONS); 
+	#ifdef _DEBUGMODE_CHECKS3
+	for(unsigned int i=0; i<NUM_PARTITIONS; i++){
+		if(globalstatsbuffer[i].key + globalstatsbuffer[i].value >= globalparams.SIZE_KVDRAM){
+			cout<<"MEMACCESSP0_readglobalstats 36. ERROR. out of bounds. (globalstatsbuffer["<<i<<"].key("<<globalstatsbuffer[i].key<<") + globalstatsbuffer["<<i<<"].value("<<globalstatsbuffer[i].value<<") >= globalparams.SIZE_KVDRAM("<<globalparams.SIZE_KVDRAM<<")). offset_kvs: "<<offset_kvs<<". printing and exiting..."<<endl; 
+			actsutilityobj->printkeyvalues("MEMACCESSP0_readglobalstats 37", (keyvalue_t *)globalstatsbuffer, NUM_PARTITIONS); 
+			exit(EXIT_FAILURE); 
+		}
+	}
+	#endif
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("readglobalstats.globalstatsbuffer", globalstatsbuffer, NUM_PARTITIONS); 
 	#endif
 	return;
 }
 
-void acts_all::MEMACCESSP0_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void acts_all::MEMACCESSP0_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + NUM_PARTITIONS, globalparams.BASEOFFSETKVS_STATSDRAM + KVSTATSDRAMSZ_KVS + 1, offset_kvs, NUM_PARTITIONS, KVSTATSDRAMSZ_KVS);
@@ -6179,3020 +5672,266 @@ void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 
 // -------------------- multiple accesses -------------------- //
 void acts_all::MEMACCESSP0_readmanypmask1(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask2(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask3(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask4(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask5(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask4[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
+		pmask4[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
-		pmask4[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask6(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask4[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask5[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
+		pmask4[i] = vdram[offset_kvs + i].data[0].key;
+		pmask5[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
-		pmask4[i] = pmask0[i];
-		pmask5[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask7(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask4[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask5[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask6[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
+		pmask4[i] = vdram[offset_kvs + i].data[0].key;
+		pmask5[i] = vdram[offset_kvs + i].data[0].key;
+		pmask6[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
-		pmask4[i] = pmask0[i];
-		pmask5[i] = pmask0[i];
-		pmask6[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask8(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask4[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask5[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask6[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask7[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
+		pmask4[i] = vdram[offset_kvs + i].data[0].key;
+		pmask5[i] = vdram[offset_kvs + i].data[0].key;
+		pmask6[i] = vdram[offset_kvs + i].data[0].key;
+		pmask7[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
-		pmask4[i] = pmask0[i];
-		pmask5[i] = pmask0[i];
-		pmask6[i] = pmask0[i];
-		pmask7[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask9(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask4[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask5[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask6[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask7[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask8[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
+		pmask4[i] = vdram[offset_kvs + i].data[0].key;
+		pmask5[i] = vdram[offset_kvs + i].data[0].key;
+		pmask6[i] = vdram[offset_kvs + i].data[0].key;
+		pmask7[i] = vdram[offset_kvs + i].data[0].key;
+		pmask8[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
-		pmask4[i] = pmask0[i];
-		pmask5[i] = pmask0[i];
-		pmask6[i] = pmask0[i];
-		pmask7[i] = pmask0[i];
-		pmask8[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask10(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask4[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask5[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask6[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask7[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask8[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask9[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
+		pmask4[i] = vdram[offset_kvs + i].data[0].key;
+		pmask5[i] = vdram[offset_kvs + i].data[0].key;
+		pmask6[i] = vdram[offset_kvs + i].data[0].key;
+		pmask7[i] = vdram[offset_kvs + i].data[0].key;
+		pmask8[i] = vdram[offset_kvs + i].data[0].key;
+		pmask9[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
-		pmask4[i] = pmask0[i];
-		pmask5[i] = pmask0[i];
-		pmask6[i] = pmask0[i];
-		pmask7[i] = pmask0[i];
-		pmask8[i] = pmask0[i];
-		pmask9[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask11(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask4[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask5[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask6[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask7[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask8[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask9[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask10[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
+		pmask4[i] = vdram[offset_kvs + i].data[0].key;
+		pmask5[i] = vdram[offset_kvs + i].data[0].key;
+		pmask6[i] = vdram[offset_kvs + i].data[0].key;
+		pmask7[i] = vdram[offset_kvs + i].data[0].key;
+		pmask8[i] = vdram[offset_kvs + i].data[0].key;
+		pmask9[i] = vdram[offset_kvs + i].data[0].key;
+		pmask10[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
-		pmask4[i] = pmask0[i];
-		pmask5[i] = pmask0[i];
-		pmask6[i] = pmask0[i];
-		pmask7[i] = pmask0[i];
-		pmask8[i] = pmask0[i];
-		pmask9[i] = pmask0[i];
-		pmask10[i] = pmask0[i];
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask12(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_PMASK_SIZE],pmask_dt pmask1[BLOCKRAM_PMASK_SIZE],pmask_dt pmask2[BLOCKRAM_PMASK_SIZE],pmask_dt pmask3[BLOCKRAM_PMASK_SIZE],pmask_dt pmask4[BLOCKRAM_PMASK_SIZE],pmask_dt pmask5[BLOCKRAM_PMASK_SIZE],pmask_dt pmask6[BLOCKRAM_PMASK_SIZE],pmask_dt pmask7[BLOCKRAM_PMASK_SIZE],pmask_dt pmask8[BLOCKRAM_PMASK_SIZE],pmask_dt pmask9[BLOCKRAM_PMASK_SIZE],pmask_dt pmask10[BLOCKRAM_PMASK_SIZE],pmask_dt pmask11[BLOCKRAM_PMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
-	unit1_type temppmask[32];
-	#pragma HLS DATA_PACK variable = temppmask
-	temppmask[0] = 0;
-	temppmask[1] = 0;
-	temppmask[2] = 0;
-	temppmask[3] = 0;
-	temppmask[4] = 0;
-	temppmask[5] = 0;
-	temppmask[6] = 0;
-	temppmask[7] = 0;
-	temppmask[8] = 0;
-	temppmask[9] = 0;
-	temppmask[10] = 0;
-	temppmask[11] = 0;
-	temppmask[12] = 0;
-	temppmask[13] = 0;
-	temppmask[14] = 0;
-	temppmask[15] = 0;
-	temppmask[16] = 0;
-	temppmask[17] = 0;
-	temppmask[18] = 0;
-	temppmask[19] = 0;
-	temppmask[20] = 0;
-	temppmask[21] = 0;
-	temppmask[22] = 0;
-	temppmask[23] = 0;
-	temppmask[24] = 0;
-	temppmask[25] = 0;
-	temppmask[26] = 0;
-	temppmask[27] = 0;
-	temppmask[28] = 0;
-	temppmask[29] = 0;
-	temppmask[30] = 0;
-	temppmask[31] = 0;
-	
-	
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
-		uint32_type temp;
 		#ifdef _WIDEWORD
-		temp = vdram[offset_kvs + i].range(31, 0);
+		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask2[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask3[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask4[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask5[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask6[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask7[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask8[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask9[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask10[i] = vdram[offset_kvs + i].range(31, 0);
+		pmask11[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
-		temp = vdram[offset_kvs + i].data[0].key;
+		pmask0[i] = vdram[offset_kvs + i].data[0].key;
+		pmask1[i] = vdram[offset_kvs + i].data[0].key;
+		pmask2[i] = vdram[offset_kvs + i].data[0].key;
+		pmask3[i] = vdram[offset_kvs + i].data[0].key;
+		pmask4[i] = vdram[offset_kvs + i].data[0].key;
+		pmask5[i] = vdram[offset_kvs + i].data[0].key;
+		pmask6[i] = vdram[offset_kvs + i].data[0].key;
+		pmask7[i] = vdram[offset_kvs + i].data[0].key;
+		pmask8[i] = vdram[offset_kvs + i].data[0].key;
+		pmask9[i] = vdram[offset_kvs + i].data[0].key;
+		pmask10[i] = vdram[offset_kvs + i].data[0].key;
+		pmask11[i] = vdram[offset_kvs + i].data[0].key;
 		#endif 
-		
-		pmask0[i].data[0] = 
-			#ifdef _WIDEWORD
-			temp.range(0, 0);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 0, 1);	
-			#endif 
-		pmask0[i].data[1] = 
-			#ifdef _WIDEWORD
-			temp.range(1, 1);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 1, 1);	
-			#endif 
-		pmask0[i].data[2] = 
-			#ifdef _WIDEWORD
-			temp.range(2, 2);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 2, 1);	
-			#endif 
-		pmask0[i].data[3] = 
-			#ifdef _WIDEWORD
-			temp.range(3, 3);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 3, 1);	
-			#endif 
-		pmask0[i].data[4] = 
-			#ifdef _WIDEWORD
-			temp.range(4, 4);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 4, 1);	
-			#endif 
-		pmask0[i].data[5] = 
-			#ifdef _WIDEWORD
-			temp.range(5, 5);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 5, 1);	
-			#endif 
-		pmask0[i].data[6] = 
-			#ifdef _WIDEWORD
-			temp.range(6, 6);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 6, 1);	
-			#endif 
-		pmask0[i].data[7] = 
-			#ifdef _WIDEWORD
-			temp.range(7, 7);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 7, 1);	
-			#endif 
-		pmask0[i].data[8] = 
-			#ifdef _WIDEWORD
-			temp.range(8, 8);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 8, 1);	
-			#endif 
-		pmask0[i].data[9] = 
-			#ifdef _WIDEWORD
-			temp.range(9, 9);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 9, 1);	
-			#endif 
-		pmask0[i].data[10] = 
-			#ifdef _WIDEWORD
-			temp.range(10, 10);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 10, 1);	
-			#endif 
-		pmask0[i].data[11] = 
-			#ifdef _WIDEWORD
-			temp.range(11, 11);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 11, 1);	
-			#endif 
-		pmask0[i].data[12] = 
-			#ifdef _WIDEWORD
-			temp.range(12, 12);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 12, 1);	
-			#endif 
-		pmask0[i].data[13] = 
-			#ifdef _WIDEWORD
-			temp.range(13, 13);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 13, 1);	
-			#endif 
-		pmask0[i].data[14] = 
-			#ifdef _WIDEWORD
-			temp.range(14, 14);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 14, 1);	
-			#endif 
-		pmask0[i].data[15] = 
-			#ifdef _WIDEWORD
-			temp.range(15, 15);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 15, 1);	
-			#endif 
-		pmask0[i].data[16] = 
-			#ifdef _WIDEWORD
-			temp.range(16, 16);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 16, 1);	
-			#endif 
-		pmask0[i].data[17] = 
-			#ifdef _WIDEWORD
-			temp.range(17, 17);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 17, 1);	
-			#endif 
-		pmask0[i].data[18] = 
-			#ifdef _WIDEWORD
-			temp.range(18, 18);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 18, 1);	
-			#endif 
-		pmask0[i].data[19] = 
-			#ifdef _WIDEWORD
-			temp.range(19, 19);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 19, 1);	
-			#endif 
-		pmask0[i].data[20] = 
-			#ifdef _WIDEWORD
-			temp.range(20, 20);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 20, 1);	
-			#endif 
-		pmask0[i].data[21] = 
-			#ifdef _WIDEWORD
-			temp.range(21, 21);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 21, 1);	
-			#endif 
-		pmask0[i].data[22] = 
-			#ifdef _WIDEWORD
-			temp.range(22, 22);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 22, 1);	
-			#endif 
-		pmask0[i].data[23] = 
-			#ifdef _WIDEWORD
-			temp.range(23, 23);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 23, 1);	
-			#endif 
-		pmask0[i].data[24] = 
-			#ifdef _WIDEWORD
-			temp.range(24, 24);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 24, 1);	
-			#endif 
-		pmask0[i].data[25] = 
-			#ifdef _WIDEWORD
-			temp.range(25, 25);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 25, 1);	
-			#endif 
-		pmask0[i].data[26] = 
-			#ifdef _WIDEWORD
-			temp.range(26, 26);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 26, 1);	
-			#endif 
-		pmask0[i].data[27] = 
-			#ifdef _WIDEWORD
-			temp.range(27, 27);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 27, 1);	
-			#endif 
-		pmask0[i].data[28] = 
-			#ifdef _WIDEWORD
-			temp.range(28, 28);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 28, 1);	
-			#endif 
-		pmask0[i].data[29] = 
-			#ifdef _WIDEWORD
-			temp.range(29, 29);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 29, 1);	
-			#endif 
-		pmask0[i].data[30] = 
-			#ifdef _WIDEWORD
-			temp.range(30, 30);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 30, 1);	
-			#endif 
-		pmask0[i].data[31] = 
-			#ifdef _WIDEWORD
-			temp.range(31, 31);
-			#else 
-			UTILP0_READBITSFROM_UINTV(temp, 31, 1);	
-			#endif 
-	}
-	
-	READMANYPMASKS_LOOP2: for (buffer_type i=0; i<size_kvs; i++){	
-	#pragma HLS PIPELINE II=1
-		pmask0[i] = pmask0[i];
-		pmask1[i] = pmask0[i];
-		pmask2[i] = pmask0[i];
-		pmask3[i] = pmask0[i];
-		pmask4[i] = pmask0[i];
-		pmask5[i] = pmask0[i];
-		pmask6[i] = pmask0[i];
-		pmask7[i] = pmask0[i];
-		pmask8[i] = pmask0[i];
-		pmask9[i] = pmask0[i];
-		pmask10[i] = pmask0[i];
-		pmask11[i] = pmask0[i];
 	}
 	return;
 }

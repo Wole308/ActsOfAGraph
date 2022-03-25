@@ -18,15 +18,15 @@
 #include <iostream>
 #include <mutex>
 #include <vector>
+#include "../../kernels/swkernel.h"
+#include "../../kernels/goclkernel.h"
 #include "../../src/utility/utility.h"
 #include "../../src/algorithm/algorithm.h"
 #include "../../src/graphs/graph.h"
 #include "../../src/dataset/dataset.h"
 #include "../../examples/helperfunctions/loadgraph.h"
 #include "../../examples/helperfunctions/loadedges_random.h"
-#include "../../examples/helperfunctions/setupkernel.h"
 #include "../../src/graphs/createundirectedgraph.h" // 
-#include "../../kernels/swkernel.h"
 #include "../../src/stats/stats.h"
 #include "../../include/common.h"
 #include "../include/examplescommon.h"
@@ -49,7 +49,6 @@ private:
 	utility * utilityobj;
 	loadgraph * loadgraphobj;
 	loadedges_random * loadedgesobj;
-	setupkernel * setupkernelobj;
 	swkernel * swkernelobj;
 	stats * statsobj;
 	algorithm * algorithmobj;
@@ -60,10 +59,21 @@ private:
 	
 	uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS];
 	uint512_vec_dt * vdram;
+	uint512_vec_dt * mdram;
 	edge_t * vptrs[NUMSUBCPUTHREADS];
 	uint512_vec_dt * edges[NUMSUBCPUTHREADS];
 	
 	std::string binaryFile[2];
+	
+	#if defined(SW)
+	swkernel * kernelobj;	
+	#elif defined(SW_ALLINONE)
+	swkernel * kernelobj;
+	#elif defined(FPGA_IMPL)
+	goclkernel * kernelobj;
+	#else 
+	NOT DEFINED.
+	#endif 
 };
 #endif
 
