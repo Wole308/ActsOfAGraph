@@ -135,6 +135,11 @@ BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP0.xo
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP1.xo
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vP2.xo
 BINARY_CONTAINER_vmult_vadd_OBJS += $(TEMP_DIR)/vS.xo
+BINARY_CONTAINER_vmult_vsingle_OBJS += $(TEMP_DIR)/vS.xo
+
+# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_1and1.$(TARGET).$(DSA).xclbin
+# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_1w.cfg
+# KERNELS_NAME = TOPS_topkernelS
 
 # BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_3w.cfg
@@ -171,7 +176,8 @@ CP = cp -rf
 # all: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 all: check-platform check-device $(BINARY_CONTAINERS) emconfig
 
-all_procandsync_1by1by1by0_3and1: check-platform check-device $(BINARY_CONTAINERS) emconfig
+all_procandsync_1by1by1by0_1and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
+all_procandsync_1by1by1by0_3and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 all_procandsync_1by1by1by0_16and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 all_procandsync_1by1by1by0_20and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
 all_procandsync_1by1by1by0_22and1: check-platform check-device $(EXECUTABLE) $(BINARY_CONTAINERS) emconfig
@@ -200,6 +206,10 @@ $(TEMP_DIR)/vP2.xo: $(RELREF)acts/acts/acts_allP2.cpp
 $(TEMP_DIR)/vS.xo: $(RELREF)acts/acts/acts_allS.cpp
 	mkdir -p $(TEMP_DIR)
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNELS_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
+$(XCLBIN)/topkernel_1by1by1by0_1and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vsingle_OBJS)
+	mkdir -p $(BUILD_DIR)
+	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
+	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/topkernel_1by1by1by0_1and1.$(TARGET).$(DSA).xclbin
 $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
 	mkdir -p $(BUILD_DIR)
 	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)

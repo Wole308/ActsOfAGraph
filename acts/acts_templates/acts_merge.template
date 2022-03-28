@@ -7,7 +7,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_actvpsta
 	// this returns the stats of the last level of partitioning
 	unsigned int _offset = 0;
 	#ifdef ENABLERECURSIVEPARTITIONING
-	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ _offset += (1 << (NUM_PARTITIONS_POW * k)); }
+	if(globalparams.ACTSPARAMS_TREEDEPTH > 1){ for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ _offset += (1 << (NUM_PARTITIONS_POW * k)); }} else { _offset = 1; }
 	#else 
 	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ _offset += (1 << (NUM_PARTITIONS_POW * k)); }
 	#endif
@@ -50,7 +50,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_collects(
 		unsigned int gvoffset_kvs,
 		value_t vdatas[VECTOR2_SIZE],
 		keyvalue_t actvvbuffer[VECTOR2_SIZE][ACTVVBUFFER_SIZE],
-		unsigned int vpmaskbuffer[BLOCKRAM_PMASK2_SIZE],
+		unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE],
 		unsigned int loadcount[VECTOR2_SIZE],
 		unsigned int numactvvs[VECTOR2_SIZE],
 		unsigned int local_actvv[VECTOR2_SIZE],
@@ -60,19 +60,58 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_collects(
 		){
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	#pragma HLS INLINE
-	unit1_type vmaskVec[VECTOR2_SIZE];
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	vmaskVec[{{v}}] = MEMCA{{context['id']}}_READVMASK(vdatas[{{v}}]); 
-	{%endfor%}
-	
 	// collect vertex partition masks for next iteration
+	unit1_type vmaskVec[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=vmaskVec complete
+	
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+	// {1st 16 is masks}{2nd 16 is vdatas} (see classname__mem_convert_and_access.cpp)
+		uint16_type vmaskVec16[VECTOR2_SIZE];
+		#pragma HLS ARRAY_PARTITION variable=vmaskVec16 complete
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		vmaskVec16[{{v}}] = UTIL{{context['id']}}_READBITSFROM_UINTV(vdatas[{{v}}], BEGINOFFSETOF_VMASK, 16);
+		{%endfor%}
+		
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		if(vmaskVec16[{{v}}] > 0){ vmaskVec[{{v}}] = 1; } else{ vmaskVec[{{v}}] = 0; }
+		{%endfor%}
+	#else
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		vmaskVec[{{v}}] = MEMCA{{context['id']}}_READVMASK(vdatas[{{v}}]); 
+		{%endfor%}
+	#endif 
+	
 	uint32_type pmaski = 0; unsigned int vid = 0;
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	UTIL{{context['id']}}_WRITEBITSTO_UINTV(&pmaski, {{v}}, 1, vmaskVec[{{v}}]);
 	{%endfor%}
-	if(pmaski > 0){ vid = UTIL{{context['id']}}_GETREALVID((voffset_kvs * VECTOR2_SIZE), instanceid); vpmaskbuffer[vid / PROCESSPARTITIONSZ] = 1; } // FIXME. TOO EXPENSIVE????????????????????????????
+	if(pmaski > 0){
+		#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS	
+		// vid = UTIL{{context['id']}}_GETREALVID((voffset_kvs * VECTOR2_SIZE * VDATA_SHRINK_RATIO), instanceid); 
+		// vpmaskbuffer[vid / PROCESSPARTITIONSZ] = 1;
+		
+		// vid = UTIL{{context['id']}}_GETREALVID((voffset_kvs * VECTOR2_SIZE), instanceid); 
+		// for(unsigned int m=0; m<16; m++){ vpmaskbuffer[(vid + m) / PROCESSPARTITIONSZ] = 1; } // REMOVEME.
+		
+		
+		{%for m in context['VECTOR2_SIZE_seq']%}
+		if(vmaskVec16[{{m}}] > 0){ 
+			vid = UTIL{{context['id']}}_GETREALVID((voffset_kvs * VECTOR2_SIZE * VDATA_SHRINK_RATIO) + ({{m}} * VECTOR2_SIZE), instanceid); 
+			vpmaskbuffer[vid / PROCESSPARTITIONSZ] = 1; 
+			// cout<<"~~~~ _collects:: active partition seen: vpmaskbuffer[vid("<<vid<<") / PROCESSPARTITIONSZ("<<PROCESSPARTITIONSZ<<")]: "<<vpmaskbuffer[vid / PROCESSPARTITIONSZ]<<endl;
+		}
+		{%endfor%}
+			
+			
+		#else 	
+		vid = UTIL{{context['id']}}_GETREALVID((voffset_kvs * VECTOR2_SIZE), instanceid); 
+		vpmaskbuffer[vid / PROCESSPARTITIONSZ] = 1;
+		#endif 	
+		// vpmaskbuffer[vid / PROCESSPARTITIONSZ] = 1; 
+	}
+	
 	#ifdef _DEBUGMODE_CHECKS3
-	actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_collects: ERROR 20", vid / PROCESSPARTITIONSZ, BLOCKRAM_PMASK2_SIZE, pmaski, voffset_kvs, instanceid);
+	actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_collects: ERROR 20", vid / PROCESSPARTITIONSZ, BLOCKRAM_CUMMTVPMASK_SIZE, pmaski, voffset_kvs, instanceid);
 	actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_collects: ERROR 21", vid, KVDATA_RANGE, pmaski, voffset_kvs, instanceid);
 	#endif
 		
@@ -127,6 +166,10 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 	
 	globalparams_t globalparams = UTIL{{context['id']}}_getglobalparams(kvdram, 0);
 	globalparams_t globalparamsv = UTIL{{context['id']}}_getglobalparams(vdram, 0);
+	
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+	globalparams.NUM_REDUCEPARTITIONS = (globalparams.NUM_REDUCEPARTITIONS + (VDATA_SHRINK_RATIO-1)) / VDATA_SHRINK_RATIO;
+	#endif 
 	
 	keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE];
 	unsigned int _offset = MERGE{{context['id']}}_actvpstatsoffset(globalparams);
@@ -205,17 +248,18 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, 
 		{%for i in context['T_seq']%}{%if(i<n)%}keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_GLOBALSTATS_SIZE],{%endif%}{%endfor%}
 			globalparams_t globalparams, globalparams_t globalparamsv){
-	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
+	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices..."<<endl; 
 	#endif
 	
 	unsigned int globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE];
-	pmask_dt pmask_next[BLOCKRAM_PMASK1_SIZE]; 
-	#pragma HLS DATA_PACK variable = pmask_next
-	
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	unsigned int GraphAlgoClass = globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS;
 	unsigned int actvpstats_beginoffset = MERGE{{context['id']}}_actvpstatsoffset(globalparamsv);
+	
+	// #ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+	// globalparams.NUM_REDUCEPARTITIONS = (globalparams.NUM_REDUCEPARTITIONS + (VDATA_SHRINK_RATIO-1)) / VDATA_SHRINK_RATIO;
+	// #endif 
 	
 	// expensive variables 
 	unsigned int lbasevoffset_kvs2;
@@ -223,9 +267,9 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs{{n}}({%f
 	else if(globalparams.ACTSPARAMS_INSTID >= NUMCOMPUTEUNITS_SLR2 && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1))){ lbasevoffset_kvs2 = NUMCOMPUTEUNITS_SLR2 * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }
 	else if((globalparams.ACTSPARAMS_INSTID >= (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)) && (globalparams.ACTSPARAMS_INSTID < (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0))){ lbasevoffset_kvs2 = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION; }					
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
 	cout<<"Printing active global stats..."<<endl;
-	{%for i in context['T_seq']%}{%if(i<n)%} // i<n
+	{%for i in context['T_seq']%}{%if(i<n)%}
 	for(unsigned int i=0; i<globalparams.NUM_REDUCEPARTITIONS; i++){ if(globalstatsbuffer{{i}}[i].value > 0){ cout<<"MERGE: globalstatsbuffer{{i}}["<<i<<"].key : "<<globalstatsbuffer{{i}}[i].key<<", globalstatsbuffer{{i}}["<<i<<"].value : "<<globalstatsbuffer{{i}}[i].value<<endl; }}
 	{%endif%}{%endfor%}
 	#endif 
@@ -300,14 +344,14 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	cout<<"MERGE::EXCHANGE:: ACTS EXCHANGE LAUNCHED. Exchanging vertices across different SLRs..."<<endl; 
 	#endif
 	
-	bool exchangeall = false;
+	bool exchangeall = false; // true;//false;
 	
 	unsigned int globalstatsbuffer[3][BLOCKRAM_GLOBALSTATS_BIGSIZE];
 	#pragma HLS array_partition variable = globalstatsbuffer
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	keyvalue_t actvvbuffer[VECTOR2_SIZE][ACTVVBUFFER_SIZE];
 	#pragma HLS array_partition variable = actvvbuffer
-	unsigned int vpmaskbuffer[BLOCKRAM_PMASK2_SIZE];
+	unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE];
 	unsigned int loadcount[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=loadcount complete
 	unsigned int numactvvs[VECTOR2_SIZE];
@@ -379,6 +423,11 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 		#endif
 		globalstatsbuffer[2][rpartition] = UTIL{{context['id']}}_GetData(vdramC, globalparamsvC.BASEOFFSETKVS_STATSDRAM + rpartition, 0);
 	}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	cout<<"Printing active global stats..."<<endl;
+	for(unsigned int i=0; i<_TOTALNUMREDUCEPARTITIONS_SLR0; i++){ if(globalstatsbuffer[0] > 0 || globalstatsbuffer[1] > 0 || globalstatsbuffer[2] > 0){ cout<<"EXCHANGE: globalstatsbuffer[0]["<<i<<"] : "<<globalstatsbuffer[0][i]<<", globalstatsbuffer[1]["<<i<<"] : "<<globalstatsbuffer[1][i]<<", globalstatsbuffer[2]["<<i<<"] : "<<globalstatsbuffer[2][i]<<endl; }}
+	#endif 
 	
 	// vertices
 	reduce_partition = 0;
@@ -524,11 +573,16 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	cout<<"MERGE::EXCHANGE:: merging vertices partition masks across vdramA, vdramB & vdramC."<<endl; 
 	#endif
 	unsigned int pA = 0; unsigned int pB = 0; unsigned int pC = 0; 
-	MERGE{{context['id']}}_EXCHANGEVPMS_LOOP1: for(unsigned int partition=0; partition<BLOCKRAM_PMASK1_SIZE; partition++){ // BLOCKRAM_PMASK1_SIZE, globalparamsvA.NUM_PROCESSEDGESPARTITIONS
+	MERGE{{context['id']}}_EXCHANGEVPMS_LOOP1: for(unsigned int partition=0; partition<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; partition++){ // BLOCKRAM_NEXTPMASK_SIZE, globalparamsvA.NUM_PROCESSEDGESPARTITIONS
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 31", globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
 		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 32", globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
 		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 33", globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+		#endif
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		// cout<<"+++ TOP{{context['id']}}_topkernelS: vpmaskbuffer["<<partition<<"]: "<<vpmaskbuffer[partition]<<endl;
+		if(vpmaskbuffer[partition] > 0){ cout<<"--- TOP{{context['id']}}_topkernelS: vpmaskbuffer["<<partition<<"]: "<<vpmaskbuffer[partition]<<endl; }
 		#endif
 		
 		UTIL{{context['id']}}_SetFirstData(vdramA, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, vpmaskbuffer[partition]);
@@ -596,6 +650,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	num_acvvs += vdramA[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID - 1].data[0].key;
 	num_acvvs += vdramB[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID - 1].data[0].key;
 	num_acvvs += vdramC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID - 1].data[0].key;
+	mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID - 1].data[0].key = num_acvvs;
 	cout<< TIMINGRESULTSCOLOR << ">>> MERGE::EXCHANGE:: number of active vertices for next iteration (iteration "<<globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID<<"): "<<num_acvvs<< RESET << endl;
 	#endif 
 	
@@ -613,7 +668,7 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 	globalparams_t globalparamsvB = UTIL{{context['id']}}_getglobalparams(vdramB, 0);
 	globalparams_t globalparamsvC = UTIL{{context['id']}}_getglobalparams(vdramC, 0);
 	
-	unsigned int vpmaskbuffer[BLOCKRAM_PMASK2_SIZE];
+	unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE];
 	
 	unsigned int GraphIter = globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID;
 	unsigned int actvvcount_currit = globalparamsm.SIZE_ACTIVEVERTICES;
@@ -701,7 +756,7 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 	
 	// vertices partition masks
 	#ifdef CONFIG_MERGE_VPARTITIONS
-	MERGE{{context['id']}}_EXCHANGEVPMS_LOOP1: for(unsigned int partition=0; partition<BLOCKRAM_PMASK1_SIZE; partition++){
+	MERGE{{context['id']}}_EXCHANGEVPMS_LOOP1: for(unsigned int partition=0; partition<BLOCKRAM_NEXTPMASK_SIZE; partition++){
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 31", globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
 		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 32", globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);

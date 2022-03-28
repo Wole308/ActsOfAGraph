@@ -10,7 +10,8 @@ keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned 
 	
 	// read 
 	vmdata_t vmdata;
-	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS	
+	// if((bufferoffset_kvs + loc/VDATA_SHRINK_RATIO) >= BLOCKRAM_VDATA_SIZE){ cout<<"PROCESS VECTOR:: ERROR: (bufferoffset_kvs("<<bufferoffset_kvs<<") + loc("<<loc<<")/2) >= BLOCKRAM_VDATA_SIZE("<<BLOCKRAM_VDATA_SIZE<<") ||| globalposition.source_partition("<<globalposition.source_partition<<") * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<") / VDATA_SHRINK_RATIO("<<VDATA_SHRINK_RATIO<<")). EXITING..."<<endl; exit(EXIT_FAILURE); }				
 		if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(loc, (globalposition.source_partition % VDATA_SHRINK_RATIO), vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
 			#else 
 				if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
@@ -319,7 +320,7 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 	unsigned int MYINVALIDDATA = UTILP0_GETV(INVALIDDATA);
 	unsigned int bufferoffset_kvs = 0;
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-	bufferoffset_kvs = globalposition.source_partition * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION / VDATA_SHRINK_RATIO); //  ((BLOCKRAM_VDATA_SIZE / (NUM_PEs)) / 16) * NUM_PEs; // (3 * 24); // 0; BLOCKRAM_VDATA_SIZE
+	bufferoffset_kvs = (globalposition.source_partition % VDATA_SHRINK_RATIO) * (UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams) / VDATA_SHRINK_RATIO); //  ((BLOCKRAM_VDATA_SIZE / (NUM_PEs)) / 16) * NUM_PEs; // (3 * 24); // 0; BLOCKRAM_VDATA_SIZE
 	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE

@@ -10,7 +10,7 @@ void MERGEP0_collects(
 		unsigned int gvoffset_kvs,
 		value_t vdatas[VECTOR2_SIZE],
 		keyvalue_t actvvbuffer[VECTOR2_SIZE][ACTVVBUFFER_SIZE],
-		unsigned int vpmaskbuffer[BLOCKRAM_PMASK2_SIZE],
+		unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE],
 		unsigned int loadcount[VECTOR2_SIZE],
 		unsigned int numactvvs[VECTOR2_SIZE],
 		unsigned int local_actvv[VECTOR2_SIZE],

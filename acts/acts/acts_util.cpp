@@ -3,6 +3,10 @@ unsigned int acts_all::UTILP0_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
+unsigned int acts_all::UTILP0_amax(unsigned int val1, unsigned int val2){
+	if(val1 > val2){ return val1; }
+	else { return val2; }
+}
 unsigned int acts_all::UTILP0_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
@@ -27,6 +31,10 @@ batch_type acts_all::UTILP0_allignhigher_KV2(batch_type val){
 batch_type acts_all::UTILP0_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR){
 	#pragma HLS INLINE
 	batch_type fac = (val + (_FACTOR - 1)) / _FACTOR;
+	return (fac * _FACTOR);
+}
+batch_type acts_all::UTILP0_allignlower_FACTOR(batch_type val, unsigned int _FACTOR){
+	batch_type fac = val / _FACTOR;
 	return (fac * _FACTOR);
 }
 
@@ -76,6 +84,17 @@ void acts_all::UTILP0_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, 
 	#else
 	UTILP0_WRITETO_UINT(data, index, size, value);
 	#endif
+	return; 
+}
+unsigned int acts_all::UTILP0_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+	#pragma HLS INLINE
+	unsigned int res = 0;
+	res = UTILP0_READFROM_UINT(data, index, size);
+	return res;
+}
+void acts_all::UTILP0_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+	#pragma HLS INLINE
+	UTILP0_WRITETO_UINT(data, index, size, value);
 	return; 
 }
 
@@ -135,6 +154,11 @@ unsigned int acts_all::UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid)
 unsigned int acts_all::UTILP0_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
 	return (lvid * NUM_PEs) + instid;
+}
+unsigned int acts_all::UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
+	#pragma HLS INLINE
+	// return globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	return PROCESSPARTITIONSZ_KVS2;
 }
 
 unsigned int acts_all::UTILP0_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){

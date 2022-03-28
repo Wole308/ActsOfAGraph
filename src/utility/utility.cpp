@@ -146,7 +146,7 @@ void utility::printallparameters(){
 	
 	std::cout<<"utility:: PROCESSPARTITIONSZ / NUM_PEs: "<<PROCESSPARTITIONSZ / NUM_PEs<<" (remainder "<<PROCESSPARTITIONSZ % NUM_PEs<<")"<<std::endl;
 	std::cout<<"utility:: PROCESSPARTITIONSZ_KVS2 / NUM_PEs: "<<PROCESSPARTITIONSZ_KVS2 / NUM_PEs<<" (remainder "<<PROCESSPARTITIONSZ_KVS2 % NUM_PEs<<")"<<std::endl;
-	std::cout<<"utility:: PROCESSPARTITIONSETSZ_KVS2: "<<PROCESSPARTITIONSETSZ_KVS2<<std::endl;
+	std::cout<<"utility:: SUB_CHUNK_HEIGHT: "<<SUB_CHUNK_HEIGHT<<std::endl;
 	
 	std::cout<<"utility:: VDATA_SHRINK_RATIO_POW: "<<VDATA_SHRINK_RATIO_POW<<std::endl;
 	std::cout<<"utility:: VDATA_SHRINK_RATIO: "<<VDATA_SHRINK_RATIO<<std::endl;
@@ -159,7 +159,9 @@ void utility::printallparameters(){
 	std::cout<<"utility:: SOURCEBLOCKRAM_SIZE: "<<SOURCEBLOCKRAM_SIZE<<std::endl;
 	std::cout<<"utility:: DESTBLOCKRAM_SIZE: "<<DESTBLOCKRAM_SIZE<<std::endl;
 	std::cout<<"utility:: BLOCKRAM_VDATA_SIZE: "<<BLOCKRAM_VDATA_SIZE<<std::endl;
-	std::cout<<"utility:: BLOCKRAM_PMASK_SIZE: "<<BLOCKRAM_PMASK_SIZE<<std::endl;
+	std::cout<<"utility:: BLOCKRAM_CURRPMASK_SIZE: "<<BLOCKRAM_CURRPMASK_SIZE<<std::endl;
+	std::cout<<"utility:: BLOCKRAM_NEXTPMASK_SIZE: "<<BLOCKRAM_NEXTPMASK_SIZE<<std::endl;
+	std::cout<<"utility:: BLOCKRAM_CUMMTVPMASK_SIZE: "<<BLOCKRAM_CUMMTVPMASK_SIZE<<std::endl;
 	
 	// std::cout<<"utility:: NUM_EDGECHUNKS_IN_A_BUFFER: "<<NUM_EDGECHUNKS_IN_A_BUFFER<<std::endl;
 	

@@ -26,9 +26,6 @@
 #else 
 #define ALLVERTEXISACTIVE_ALGORITHM
 #endif
-// #ifdef BFS_ALGORITHM
-// #define ALGORITHMTYPE_REPRESENTVDATASASBITS
-// #endif 
 
 #ifdef ACTS_1by1by1byN
 #define ALL_VERTEXPROPERTIES_IN_SINGLE_DRAM // NEWCHANGE.
@@ -173,8 +170,9 @@
 
 #ifdef BFS_ALGORITHM
 #define ALGORITHMTYPE_REPRESENTVDATASASBITS
+#define TREEDEPTHISONE // FIXME.
 #endif 
-#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS // {actscommon.h, classname__mem_convert_and_access.cpp, loadedges_random.cpp, processedges.cpp, algorithm.cpp}
+#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS // {actscommon.h, classname__mem_convert_and_access.cpp, loadedges_random.cpp, processedges.cpp, algorithm.cpp, loadgraph.cpp, mem_access.cpp, algo_funcs.cpp}				
 #define VDATA_SHRINK_RATIO_POW 4 // CONSTANT. // NUM_PARTITIONS_POW
 #else 
 #define VDATA_SHRINK_RATIO_POW 0	
@@ -227,10 +225,11 @@
 
 #ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
 #define PROCESSPARTITIONSZ ((((SRAMSZ / NUM_PEs) / VDATA_SHRINK_RATIO) * VDATA_SHRINK_RATIO) * NUM_PEs * VDATA_PACKINGSIZE)
-#define PROCESSPARTITIONSETSZ_KVS2 ((SRAMSZ / NUM_PEs) / VDATA_SHRINK_RATIO)
+#define SUB_CHUNK_HEIGHT ((SRAMSZ / NUM_PEs) / VDATA_SHRINK_RATIO)
 #else 
 #define PROCESSPARTITIONSZ ((SRAMSZ / NUM_PEs) * NUM_PEs * VDATA_PACKINGSIZE) // 16128
-#endif 
+#endif 	
+#define SUB_CHUNK_HEIGHT ((SRAMSZ / NUM_PEs) / VDATA_SHRINK_RATIO)
 #define PROCESSPARTITIONSZ_KVS2 (PROCESSPARTITIONSZ / VECTOR2_SIZE) // 1024
 #define NUMPROCESSEDGESPARTITIONS (KVDATA_RANGE / PROCESSPARTITIONSZ)
 
@@ -511,9 +510,9 @@ typedef unsigned int unit4_type;
 #endif 
 
 #ifdef _WIDEWORD
-typedef ap_uint<16> unit16_type;
+typedef ap_uint<16> uint16_type;
 #else 
-typedef unsigned int unit16_type;
+typedef unsigned int uint16_type;
 #endif
 
 #ifdef _WIDEWORD

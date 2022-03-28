@@ -84,7 +84,11 @@ value_t {{context['classname__algofuncs']}}REDUCE{{context['id']}}_reducefunc(va
 			temp = UTIL{{context['id']}}_amin(vtemp, res);
 		#elif defined(BFS_ALGORITHM)
 			// Atomic Min
+			#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+			temp = UTIL{{context['id']}}_amax(vtemp, 1);
+			#else 
 			temp = UTIL{{context['id']}}_amin(vtemp, GraphIter);
+			#endif 
 		#elif defined(SSSP_ALGORITHM)
 			// Atomic Min
 			temp = UTIL{{context['id']}}_amin(vtemp, res);

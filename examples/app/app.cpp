@@ -44,7 +44,7 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	#if not defined(ALLVERTEXISACTIVE_ALGORITHM) && defined(CONFIG_HYBRIDGPMODE)
 	unsigned int mdramsz = graphobj->get_num_edges() + graphobj->get_num_vertices() + (graphobj->get_num_vertices()*2) + 1000000;
 	#else 
-	unsigned int mdramsz = 32;	
+	unsigned int mdramsz = 1024;	
 	#endif 
 	
 	#ifndef SW_IMPL 
@@ -416,6 +416,9 @@ void app::verifyresults_splitdstvtxs(uint512_vec_dt * vdram, globalparams_t glob
 	
 	cout<<">>> swkernel::verifyresults:: Printing results from app.cpp."<<endl;
 	utilityobj->printvalues("swkernel::verifyresults:: verifying results after kernel run (app.cpp)", vdatas, 16);
+	for(unsigned int GraphIter=0; GraphIter<16; GraphIter++){
+		cout<<">>> swkernel:: Iter "<<GraphIter<<": "<<mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + GraphIter].data[0].key<<endl;
+	}
 	return;
 }
 

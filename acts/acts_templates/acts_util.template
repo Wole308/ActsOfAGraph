@@ -3,6 +3,10 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_amin(unsig
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_amax(unsigned int val1, unsigned int val2){
+	if(val1 > val2){ return val1; }
+	else { return val2; }
+}
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
@@ -27,6 +31,10 @@ batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_allignhigher
 batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR){
 	#pragma HLS INLINE
 	batch_type fac = (val + (_FACTOR - 1)) / _FACTOR;
+	return (fac * _FACTOR);
+}
+batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_allignlower_FACTOR(batch_type val, unsigned int _FACTOR){
+	batch_type fac = val / _FACTOR;
 	return (fac * _FACTOR);
 }
 
@@ -76,6 +84,17 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_WRITEBITSTO_UINTV(
 	#else
 	UTIL{{context['id']}}_WRITETO_UINT(data, index, size, value);
 	#endif
+	return; 
+}
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+	#pragma HLS INLINE
+	unsigned int res = 0;
+	res = UTIL{{context['id']}}_READFROM_UINT(data, index, size);
+	return res;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+	#pragma HLS INLINE
+	UTIL{{context['id']}}_WRITETO_UINT(data, index, size, value);
 	return; 
 }
 
@@ -135,6 +154,11 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETLOCALVI
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
 	return (lvid * NUM_PEs) + instid;
+}
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
+	#pragma HLS INLINE
+	// return globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
+	return PROCESSPARTITIONSZ_KVS2;
 }
 
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){

@@ -1,5 +1,6 @@
 // functions (basic)
 unsigned int UTILP0_amin(unsigned int val1, unsigned int val2);
+unsigned int UTILP0_amax(unsigned int val1, unsigned int val2);
 unsigned int UTILP0_aplus(unsigned int val1, unsigned int val2);
 
 // functions (allignment)
@@ -8,6 +9,7 @@ batch_type UTILP0_allignhigher_KV(batch_type val);
 batch_type UTILP0_allignlower_KV2(batch_type val);
 batch_type UTILP0_allignhigher_KV2(batch_type val);
 batch_type UTILP0_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR);
+batch_type UTILP0_allignlower_FACTOR(batch_type val, unsigned int _FACTOR);
 
 // functions (bit manipulation)
 unsigned int UTILP0_GETMASK_UINT(unsigned int index, unsigned int size);
@@ -15,6 +17,8 @@ unsigned int UTILP0_READFROM_UINT(unsigned int data, unsigned int index, unsigne
 void UTILP0_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTILP0_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
 void UTILP0_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
+unsigned int UTILP0_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
+void UTILP0_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 
 // functions (converters)
 keyvalue_t UTILP0_GETKV(keyvalue_buffer_t data);
@@ -24,6 +28,7 @@ value_t UTILP0_GETV(uint32_type data);
 keyy_t UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v);
 unsigned int UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid);
 unsigned int UTILP0_GETREALVID(unsigned int lvid, unsigned int instid);
+unsigned int UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams);
 
 unsigned int UTILP0_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
 void UTILP0_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);

@@ -1,5 +1,6 @@
 // functions (basic)
 unsigned int UTIL{{context['id']}}_amin(unsigned int val1, unsigned int val2);
+unsigned int UTIL{{context['id']}}_amax(unsigned int val1, unsigned int val2);
 unsigned int UTIL{{context['id']}}_aplus(unsigned int val1, unsigned int val2);
 
 // functions (allignment)
@@ -8,6 +9,7 @@ batch_type UTIL{{context['id']}}_allignhigher_KV(batch_type val);
 batch_type UTIL{{context['id']}}_allignlower_KV2(batch_type val);
 batch_type UTIL{{context['id']}}_allignhigher_KV2(batch_type val);
 batch_type UTIL{{context['id']}}_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR);
+batch_type UTIL{{context['id']}}_allignlower_FACTOR(batch_type val, unsigned int _FACTOR);
 
 // functions (bit manipulation)
 unsigned int UTIL{{context['id']}}_GETMASK_UINT(unsigned int index, unsigned int size);
@@ -15,6 +17,8 @@ unsigned int UTIL{{context['id']}}_READFROM_UINT(unsigned int data, unsigned int
 void UTIL{{context['id']}}_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTIL{{context['id']}}_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
 void UTIL{{context['id']}}_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
+unsigned int UTIL{{context['id']}}_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
+void UTIL{{context['id']}}_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 
 // functions (converters)
 keyvalue_t UTIL{{context['id']}}_GETKV(keyvalue_buffer_t data);
@@ -24,6 +28,7 @@ value_t UTIL{{context['id']}}_GETV(uint32_type data);
 keyy_t UTIL{{context['id']}}_GETKEYENTRY(uint512_dt data, unsigned int v);
 unsigned int UTIL{{context['id']}}_GETLOCALVID(unsigned int vid, unsigned int instid);
 unsigned int UTIL{{context['id']}}_GETREALVID(unsigned int lvid, unsigned int instid);
+unsigned int UTIL{{context['id']}}_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams);
 
 unsigned int UTIL{{context['id']}}_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
 void UTIL{{context['id']}}_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);

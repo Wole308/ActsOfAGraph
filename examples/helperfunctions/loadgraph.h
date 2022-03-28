@@ -53,7 +53,7 @@ public:
 			unsigned int GraphIter,
 			unsigned int GraphAlgo,
 			unsigned int runsize,
-			unsigned int _PROCESSEDGESPARTITIONS,
+			unsigned int _NUMPROCESSEDGESPARTITIONS,
 			unsigned int _NUMREDUCEPARTITIONS,
 			globalparams_t globalparams);	
 

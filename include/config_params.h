@@ -102,6 +102,9 @@ CHANGES:
 // #define CONFIG_ENABLECLASS_REDUCEUPDATES
 #define CONFIG_ENABLECLASS_REDUCEUPDATES2
 
+--- {common.h}
+#define TREEDEPTHISONE // FIXME.
+
 --- {evaluate.sh}
 TESTKERNEL="RK"
 # TESTKERNEL="TESTKERNEL"
@@ -115,6 +118,13 @@ for (buffer_type i=0; i<BLOCKRAM_VDATA_SIZE; i++){ // REMOVEME LATER (NOT NECESS
 		{%endfor%}	
 		{%endif%}{%endfor%}
 	}
+// if(globalposition.source_partition==globalposition.last_source_partition){ // ADDME.
+
+--- {acts.cpp}
+if(globalparams.ACTSPARAMS_TREEDEPTH == 1){ for(partition_type p=0; p<NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; }} // NEWCHANGE.
+	
+--- {classname__mem_convert_and_access.cpp}
+tup = MEMCA{{context['id']}}_READVDATAWITHVMASK2(bits_vector, offsetof_vdata, offsetof_vmask);  // MEMCA:FIXME. USE SIMPLE SHIFTING OP INSTEAD.
 
 --- {swkernel.cpp}
 
