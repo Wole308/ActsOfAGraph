@@ -34,6 +34,8 @@ unsigned int UTIL{{context['id']}}_GetData(uint512_dt * kvdram, unsigned int off
 void UTIL{{context['id']}}_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
 unsigned int UTIL{{context['id']}}_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTIL{{context['id']}}_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
+unsigned int UTIL{{context['id']}}_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTIL{{context['id']}}_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
 void UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
 void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
 

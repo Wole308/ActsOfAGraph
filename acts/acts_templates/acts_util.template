@@ -215,6 +215,23 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetFirstData(uint5
 	#endif 
 	return;
 }
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	return kvdram[offset_kvs].range(63, 32);
+	#else 
+	return kvdram[offset_kvs].data[0].value;
+	#endif 
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	kvdram[offset_kvs].range(63, 32) = data;
+	#else 
+	kvdram[offset_kvs].data[0].value = data;
+	#endif 
+	return;
+}
 void {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
@@ -510,16 +527,16 @@ partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getparti
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTIL{{context['id']}}_GETKV(keyvalue);
 	
-	// if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
-	// else { partition = ((thiskeyvalue.key - upperlimit) >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
-	
-	// if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = thiskeyvalue.key; } 
+	#ifdef TREEDEPTHISONE
+	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = 0; } 
+	else { keyy_t lkey = thiskeyvalue.key - upperlimit; partition = (lkey % NUM_PARTITIONS); }
+	#else 
 	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = 0; } 
 	else {
 		keyy_t lkey = thiskeyvalue.key - upperlimit;
-		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } 
-		else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
 	}
+	#endif 
 
 	if(partition >= MAX_NUM_PARTITIONS){ 
 		#ifdef ENABLE_PERFECTACCURACY
@@ -569,7 +586,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetkvstatvalues(
 	cout<<"..................... UTIL{{context['id']}}_resetkvstatvalues: resetting global stats..."<<endl;
 	#endif 
 	unsigned int totalnumpartitionsb4last = 0;
-	RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
+	if(globalparams.ACTSPARAMS_TREEDEPTH > 1){ RESETKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }} else { totalnumpartitionsb4last = 1 + NUM_PARTITIONS; }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -601,7 +618,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetkvstatvalues(
 }
 void {{context['classname__acts_util']}}UTIL{{context['id']}}_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
-	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }
+	if(globalparams.ACTSPARAMS_TREEDEPTH > 1){ SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }} else { totalnumpartitionsb4last = 1 + NUM_PARTITIONS; }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
 		{%for v in context['5_seq']%}
 		{%if(v>0)%}else{%endif%} if(globalparams.VARS_WORKBATCH == {{v}}){

@@ -12,7 +12,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(u
 		}
 	}
 	#endif
-	
+
 	sweepparams_t sweepparams;
 	
 	if(globalposition.source_partition == globalposition.first_source_partition){ UTIL{{context['id']}}_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0); } 
@@ -45,6 +45,12 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(u
 	if(voffset_kvs >= avtravstate.end_kvs){ returncmd = true; } // check if we are at the end of file
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	if(pmask_curr[globalposition.source_partition] == 0){ returncmd = true; } // check if vertex partition is active
+	#endif 
+	
+	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(TREEDEPTHISONE) //
+	if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && globalposition.stage == 0 && globalposition.source_partition == globalposition.first_source_partition){
+		MEMACCESS{{context['id']}}_readV(ON, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, 0, BLOCKRAM_VDATA_SIZE/2, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); 
+	}
 	#endif 
 	
 	if(returncmd == false){
@@ -128,10 +134,10 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_processit(u
 	if(globalposition.source_partition==globalposition.last_source_partition){ actsutilityobj->printkeyvalues("--- TOP{{context['id']}}_U_processit", globalstatsbuffer, NUM_PARTITIONS); }
 	#endif		
 		
-	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(TREEDEPTHISONE)
-	if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && globalposition.source_partition == globalposition.last_source_partition){ // writeback vertices	
-		MEMACCESS{{context['id']}}_saveV(ON, kvdram, vbuffer, pmask_curr, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, 0, BLOCKRAM_VDATA_SIZE/2, BLOCKRAM_VDATA_SIZE/2, globalposition, globalparamsK); }
-	#endif 
+	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(TREEDEPTHISONE) //
+	if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){
+		MEMACCESS{{context['id']}}_saveV(ON, kvdram, vbuffer, pmask_curr, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, 0, BLOCKRAM_VDATA_SIZE/2, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK); }
+	#endif
 	// exit(EXIT_SUCCESS); //
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -163,7 +169,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_dispatch_re
 	#ifdef _DEBUGMODE_STATS_XXX
 	actsutilityobj->clearglobalvars();
 	#endif
-	// exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS); //////
 	
 	unsigned int sourcestatsmarker = 0;
 	#ifdef ENABLERECURSIVEPARTITIONING
@@ -376,7 +382,7 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -552,8 +558,6 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -561,19 +565,6 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTIL{{context['id']}}_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -632,18 +623,18 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// {%for i in context['T_seq']%}{%if(i<n)%}
-	// globalparams_t globalparamsK{{i}} = UTIL{{context['id']}}_getglobalparams(kvdram{{i}}, 0);
-	// MERGE{{context['id']}}_mergeVs(kvdram{{i}}, vdram); // globalstatsbuffer{{i}}, globalparamsK{{i}}, globalparamsV);
-	// {%endif%}{%endfor%}
-	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, 
-		{%for i in context['T_seq']%}{%if(i<n)%}globalstatsbuffer{{i}},{%endif%}{%endfor%} 
-			globalparamsK, globalparamsV);
+	{%for i in context['T_seq']%}{%if(i<n)%}	
+	globalparams_t globalparamsK{{i}}; // = UTIL{{context['id']}}_getglobalparams(kvdram{{i}}, 0);	
+	MERGE{{context['id']}}_mergeVs(kvdram{{i}}, vdram); // globalstatsbuffer{{i}}, globalparamsK{{i}}, globalparamsV);
+	{%endif%}{%endfor%}
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} vdram, 
+		// {%for i in context['T_seq']%}{%if(i<n)%}globalstatsbuffer{{i}},{%endif%}{%endfor%} 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM

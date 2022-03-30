@@ -96,6 +96,9 @@
 
 /**
 CHANGES:
+*** UTIL{{context['id']}}_WRITEBITSTO_UINTV(&vdata[{{v}}], BEGINOFFSETOF_VMASK, 32, zero{{v}}); // mem_acces.cpp
+*** #define MESSAGES_RETURNVALUES_SIZE 32//16 // 8//16
+
 --- {config_params.h}
 #define CONFIG_INSERTSTATSMETADATAINEDGES
 

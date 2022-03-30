@@ -105,7 +105,11 @@ value_t {{context['classname__algofuncs']}}REDUCE{{context['id']}}_reducefunc(va
 	} else if(GraphAlgo == CC){
 		temp = UTIL{{context['id']}}_amin(vtemp, res);
 	} else if(GraphAlgo == BFS){
+		#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		temp = UTIL{{context['id']}}_amax(vtemp, 1);
+		#else 
 		temp = UTIL{{context['id']}}_amin(vtemp, GraphIter);
+		#endif 
 	} else if(GraphAlgo == SSSP){
 		temp = UTIL{{context['id']}}_amin(vtemp, res);
 	} else {

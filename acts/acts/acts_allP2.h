@@ -69,6 +69,8 @@ unsigned int UTILP2_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsign
 void UTILP2_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
 unsigned int UTILP2_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTILP2_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
+unsigned int UTILP2_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTILP2_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
 void UTILP2_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
 void UTILP2_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
 

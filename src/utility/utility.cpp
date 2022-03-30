@@ -67,6 +67,7 @@ void utility::printallparameters(){
 	std::cout<<"utility:: BATCH_RANGE_POW: "<<BATCH_RANGE_POW<<std::endl;
 	std::cout<<"utility:: SRAMSZ_POW: "<<SRAMSZ_POW<<std::endl;
 	std::cout<<"utility:: TREE_DEPTH: "<<TREE_DEPTH<<std::endl;
+	std::cout<<"utility:: ACTUAL TREE_DEPTH: "<<TREE_DEPTH-(VDATA_SHRINK_RATIO/NUM_PARTITIONS)<<std::endl;
 	std::cout<<"utility:: KVDATA_RANGE_POW: "<<KVDATA_RANGE_POW<<std::endl;
 	std::cout<<"utility:: KVDATA_RANGE: "<<KVDATA_RANGE<<std::endl;
 	std::cout<<"utility:: MESSAGES_SIZE: "<<MESSAGES_SIZE<<std::endl;
@@ -150,9 +151,15 @@ void utility::printallparameters(){
 	
 	std::cout<<"utility:: VDATA_SHRINK_RATIO_POW: "<<VDATA_SHRINK_RATIO_POW<<std::endl;
 	std::cout<<"utility:: VDATA_SHRINK_RATIO: "<<VDATA_SHRINK_RATIO<<std::endl;
+	std::cout<<"utility:: BLOCKRAM_VDATA_SIZE: "<<BLOCKRAM_VDATA_SIZE<<std::endl;
 	
 	// std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	std::cout<<"utility:: FETFACTOR: "<<FETFACTOR<<std::endl;
+	#ifdef TREEDEPTHISONE
+	std::cout<<"utility:: RUNNING TREE_DEPTH IS ONE: "<<TREE_DEPTH<<std::endl;
+	#else 
+	std::cout<<"utility:: RUNNING TREE_DEPTH IS NOT ONE: "<<TREE_DEPTH<<std::endl;	
+	#endif 
 	
 	std::cout<<"utility:: SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<std::endl;
 	std::cout<<"utility:: WORKBUFFER_SIZE: "<<WORKBUFFER_SIZE<<std::endl;

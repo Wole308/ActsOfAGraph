@@ -12,7 +12,7 @@ void acts_all::TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebu
 		}
 	}
 	#endif
-	
+
 	sweepparams_t sweepparams;
 	
 	if(globalposition.source_partition == globalposition.first_source_partition){ UTILP0_resetkeysandvalues(globalstatsbuffer, NUM_PARTITIONS, 0); } 
@@ -45,6 +45,12 @@ void acts_all::TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebu
 	if(voffset_kvs >= avtravstate.end_kvs){ returncmd = true; } // check if we are at the end of file
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
 	if(pmask_curr[globalposition.source_partition] == 0){ returncmd = true; } // check if vertex partition is active
+	#endif 
+	
+	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(TREEDEPTHISONE) //
+	if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && globalposition.stage == 0 && globalposition.source_partition == globalposition.first_source_partition){
+		MEMACCESSP0_readV(ON, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, 0, BLOCKRAM_VDATA_SIZE/2, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); 
+	}
 	#endif 
 	
 	if(returncmd == false){
@@ -128,10 +134,10 @@ void acts_all::TOPP0_U_processit(uint512_dt * kvdram, keyvalue_buffer_t sourcebu
 	if(globalposition.source_partition==globalposition.last_source_partition){ actsutilityobj->printkeyvalues("--- TOPP0_U_processit", globalstatsbuffer, NUM_PARTITIONS); }
 	#endif		
 		
-	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(TREEDEPTHISONE)
-	if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && globalposition.source_partition == globalposition.last_source_partition){ // writeback vertices	
-		MEMACCESSP0_saveV(ON, kvdram, vbuffer, pmask_curr, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, 0, BLOCKRAM_VDATA_SIZE/2, BLOCKRAM_VDATA_SIZE/2, globalposition, globalparamsK); }
-	#endif 
+	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(TREEDEPTHISONE) //
+	if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){
+		MEMACCESSP0_saveV(ON, kvdram, vbuffer, pmask_curr, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, 0, BLOCKRAM_VDATA_SIZE/2, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK); }
+	#endif
 	// exit(EXIT_SUCCESS); //
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -163,7 +169,7 @@ void acts_all::TOPP0_U_dispatch_reduce(uint512_dt * kvdram, keyvalue_buffer_t so
 	#ifdef _DEBUGMODE_STATS_XXX
 	actsutilityobj->clearglobalvars();
 	#endif
-	// exit(EXIT_SUCCESS);
+	// exit(EXIT_SUCCESS); //////
 	
 	unsigned int sourcestatsmarker = 0;
 	#ifdef ENABLERECURSIVEPARTITIONING
@@ -366,7 +372,7 @@ void acts_all::TOPP0_U_topkernelP1(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -552,8 +558,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; 	}
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -561,19 +565,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; 	}
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -627,16 +618,17 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; 	}
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs1(kvdram0, vdram, 
-globalstatsbuffer0, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs1(kvdram0, vdram, 
+		// globalstatsbuffer0, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -714,7 +706,7 @@ void acts_all::TOPP0_U_topkernelP2(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -919,8 +911,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -928,19 +918,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -996,18 +973,20 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs2(kvdram0,kvdram1, vdram, 
-globalstatsbuffer0,globalstatsbuffer1, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs2(kvdram0,kvdram1, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -1095,7 +1074,7 @@ void acts_all::TOPP0_U_topkernelP3(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -1319,8 +1298,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -1328,19 +1305,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -1399,20 +1363,23 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs3(kvdram0,kvdram1,kvdram2, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs3(kvdram0,kvdram1,kvdram2, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -1510,7 +1477,7 @@ void acts_all::TOPP0_U_topkernelP4(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -1753,8 +1720,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -1762,19 +1727,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -1835,22 +1787,26 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs4(kvdram0,kvdram1,kvdram2,kvdram3, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -1958,7 +1914,7 @@ void acts_all::TOPP0_U_topkernelP5(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -2220,8 +2176,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -2229,19 +2183,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -2304,24 +2245,29 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// globalparams_t globalparamsK4 = UTILP0_getglobalparams(kvdram4, 0);
-	// MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
+	
+	globalparams_t globalparamsK4; // = UTILP0_getglobalparams(kvdram4, 0);	
+	MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs5(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -2439,7 +2385,7 @@ void acts_all::TOPP0_U_topkernelP6(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -2720,8 +2666,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -2729,19 +2673,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -2806,26 +2737,32 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// globalparams_t globalparamsK4 = UTILP0_getglobalparams(kvdram4, 0);
-	// MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
-	// 	// globalparams_t globalparamsK5 = UTILP0_getglobalparams(kvdram5, 0);
-	// MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
+	
+	globalparams_t globalparamsK4; // = UTILP0_getglobalparams(kvdram4, 0);	
+	MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
+	
+	globalparams_t globalparamsK5; // = UTILP0_getglobalparams(kvdram5, 0);	
+	MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs6(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -2953,7 +2890,7 @@ void acts_all::TOPP0_U_topkernelP7(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -3253,8 +3190,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -3262,19 +3197,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -3341,28 +3263,35 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// globalparams_t globalparamsK4 = UTILP0_getglobalparams(kvdram4, 0);
-	// MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
-	// 	// globalparams_t globalparamsK5 = UTILP0_getglobalparams(kvdram5, 0);
-	// MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
-	// 	// globalparams_t globalparamsK6 = UTILP0_getglobalparams(kvdram6, 0);
-	// MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
+	
+	globalparams_t globalparamsK4; // = UTILP0_getglobalparams(kvdram4, 0);	
+	MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
+	
+	globalparams_t globalparamsK5; // = UTILP0_getglobalparams(kvdram5, 0);	
+	MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
+	
+	globalparams_t globalparamsK6; // = UTILP0_getglobalparams(kvdram6, 0);	
+	MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs7(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -3500,7 +3429,7 @@ void acts_all::TOPP0_U_topkernelP8(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -3819,8 +3748,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -3828,19 +3755,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -3909,30 +3823,38 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// globalparams_t globalparamsK4 = UTILP0_getglobalparams(kvdram4, 0);
-	// MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
-	// 	// globalparams_t globalparamsK5 = UTILP0_getglobalparams(kvdram5, 0);
-	// MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
-	// 	// globalparams_t globalparamsK6 = UTILP0_getglobalparams(kvdram6, 0);
-	// MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
-	// 	// globalparams_t globalparamsK7 = UTILP0_getglobalparams(kvdram7, 0);
-	// MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
+	
+	globalparams_t globalparamsK4; // = UTILP0_getglobalparams(kvdram4, 0);	
+	MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
+	
+	globalparams_t globalparamsK5; // = UTILP0_getglobalparams(kvdram5, 0);	
+	MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
+	
+	globalparams_t globalparamsK6; // = UTILP0_getglobalparams(kvdram6, 0);	
+	MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
+	
+	globalparams_t globalparamsK7; // = UTILP0_getglobalparams(kvdram7, 0);	
+	MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs8(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -4080,7 +4002,7 @@ void acts_all::TOPP0_U_topkernelP9(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -4418,8 +4340,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -4427,19 +4347,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -4510,32 +4417,41 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// globalparams_t globalparamsK4 = UTILP0_getglobalparams(kvdram4, 0);
-	// MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
-	// 	// globalparams_t globalparamsK5 = UTILP0_getglobalparams(kvdram5, 0);
-	// MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
-	// 	// globalparams_t globalparamsK6 = UTILP0_getglobalparams(kvdram6, 0);
-	// MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
-	// 	// globalparams_t globalparamsK7 = UTILP0_getglobalparams(kvdram7, 0);
-	// MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
-	// 	// globalparams_t globalparamsK8 = UTILP0_getglobalparams(kvdram8, 0);
-	// MERGEP0_mergeVs(kvdram8, vdram); // globalstatsbuffer8, globalparamsK8, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
+	
+	globalparams_t globalparamsK4; // = UTILP0_getglobalparams(kvdram4, 0);	
+	MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
+	
+	globalparams_t globalparamsK5; // = UTILP0_getglobalparams(kvdram5, 0);	
+	MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
+	
+	globalparams_t globalparamsK6; // = UTILP0_getglobalparams(kvdram6, 0);	
+	MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
+	
+	globalparams_t globalparamsK7; // = UTILP0_getglobalparams(kvdram7, 0);	
+	MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
+	
+	globalparams_t globalparamsK8; // = UTILP0_getglobalparams(kvdram8, 0);	
+	MERGEP0_mergeVs(kvdram8, vdram); // globalstatsbuffer8, globalparamsK8, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs9(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -4693,7 +4609,7 @@ void acts_all::TOPP0_U_topkernelP10(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -5050,8 +4966,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -5059,19 +4973,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -5144,34 +5045,44 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// globalparams_t globalparamsK4 = UTILP0_getglobalparams(kvdram4, 0);
-	// MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
-	// 	// globalparams_t globalparamsK5 = UTILP0_getglobalparams(kvdram5, 0);
-	// MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
-	// 	// globalparams_t globalparamsK6 = UTILP0_getglobalparams(kvdram6, 0);
-	// MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
-	// 	// globalparams_t globalparamsK7 = UTILP0_getglobalparams(kvdram7, 0);
-	// MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
-	// 	// globalparams_t globalparamsK8 = UTILP0_getglobalparams(kvdram8, 0);
-	// MERGEP0_mergeVs(kvdram8, vdram); // globalstatsbuffer8, globalparamsK8, globalparamsV);
-	// 	// globalparams_t globalparamsK9 = UTILP0_getglobalparams(kvdram9, 0);
-	// MERGEP0_mergeVs(kvdram9, vdram); // globalstatsbuffer9, globalparamsK9, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
+	
+	globalparams_t globalparamsK4; // = UTILP0_getglobalparams(kvdram4, 0);	
+	MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
+	
+	globalparams_t globalparamsK5; // = UTILP0_getglobalparams(kvdram5, 0);	
+	MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
+	
+	globalparams_t globalparamsK6; // = UTILP0_getglobalparams(kvdram6, 0);	
+	MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
+	
+	globalparams_t globalparamsK7; // = UTILP0_getglobalparams(kvdram7, 0);	
+	MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
+	
+	globalparams_t globalparamsK8; // = UTILP0_getglobalparams(kvdram8, 0);	
+	MERGEP0_mergeVs(kvdram8, vdram); // globalstatsbuffer8, globalparamsK8, globalparamsV);
+	
+	globalparams_t globalparamsK9; // = UTILP0_getglobalparams(kvdram9, 0);	
+	MERGEP0_mergeVs(kvdram9, vdram); // globalstatsbuffer9, globalparamsK9, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs10(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -5339,7 +5250,7 @@ void acts_all::TOPP0_U_topkernelP11(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -5715,8 +5626,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -5724,19 +5633,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -5811,36 +5707,47 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// globalparams_t globalparamsK4 = UTILP0_getglobalparams(kvdram4, 0);
-	// MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
-	// 	// globalparams_t globalparamsK5 = UTILP0_getglobalparams(kvdram5, 0);
-	// MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
-	// 	// globalparams_t globalparamsK6 = UTILP0_getglobalparams(kvdram6, 0);
-	// MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
-	// 	// globalparams_t globalparamsK7 = UTILP0_getglobalparams(kvdram7, 0);
-	// MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
-	// 	// globalparams_t globalparamsK8 = UTILP0_getglobalparams(kvdram8, 0);
-	// MERGEP0_mergeVs(kvdram8, vdram); // globalstatsbuffer8, globalparamsK8, globalparamsV);
-	// 	// globalparams_t globalparamsK9 = UTILP0_getglobalparams(kvdram9, 0);
-	// MERGEP0_mergeVs(kvdram9, vdram); // globalstatsbuffer9, globalparamsK9, globalparamsV);
-	// 	// globalparams_t globalparamsK10 = UTILP0_getglobalparams(kvdram10, 0);
-	// MERGEP0_mergeVs(kvdram10, vdram); // globalstatsbuffer10, globalparamsK10, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9,globalstatsbuffer10, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
+	
+	globalparams_t globalparamsK4; // = UTILP0_getglobalparams(kvdram4, 0);	
+	MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
+	
+	globalparams_t globalparamsK5; // = UTILP0_getglobalparams(kvdram5, 0);	
+	MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
+	
+	globalparams_t globalparamsK6; // = UTILP0_getglobalparams(kvdram6, 0);	
+	MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
+	
+	globalparams_t globalparamsK7; // = UTILP0_getglobalparams(kvdram7, 0);	
+	MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
+	
+	globalparams_t globalparamsK8; // = UTILP0_getglobalparams(kvdram8, 0);	
+	MERGEP0_mergeVs(kvdram8, vdram); // globalstatsbuffer8, globalparamsK8, globalparamsV);
+	
+	globalparams_t globalparamsK9; // = UTILP0_getglobalparams(kvdram9, 0);	
+	MERGEP0_mergeVs(kvdram9, vdram); // globalstatsbuffer9, globalparamsK9, globalparamsV);
+	
+	globalparams_t globalparamsK10; // = UTILP0_getglobalparams(kvdram10, 0);	
+	MERGEP0_mergeVs(kvdram10, vdram); // globalstatsbuffer10, globalparamsK10, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs11(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9,globalstatsbuffer10, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -6018,7 +5925,7 @@ void acts_all::TOPP0_U_topkernelP12(
 		return; }
 	#endif 
 	#endif 
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"--- topkernelP: GraphIter: "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<", TREEDEPTH: "<<globalparamsK.ACTSPARAMS_TREEDEPTH<<endl;
 	#endif 
 	
@@ -6413,8 +6320,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							else{ enable_readandreplicatevdata = ON; }
 						} else { enable_readandreplicatevdata = OFF; }
 						#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-						
-						
 						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ 
 							unsigned int cummtv = 0; for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition + t]; }
 							if(cummtv > 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
@@ -6422,19 +6327,6 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 							if(cummtv > 0 == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
 							#endif 
 						} else { enable_readandreplicatevdata = OFF; }
-						
-						
-						// if(globalposition.EN_PROCESS == ON){
-							// unsigned int source_partition_upperlimit = UTILP0_allignlower_FACTOR(source_partition, VDATA_SHRINK_RATIO); unsigned int cummtv = 0; 
-							// for(unsigned int t=0; t<VDATA_SHRINK_RATIO; t++){ cummtv += pmask0_curr[source_partition_upperlimit + t]; }
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ enable_readandreplicatevdata = ON; } else {  enable_readandreplicatevdata = OFF; }
-							// #ifdef _DEBUGMODE_KERNELPRINTS
-							// if(cummtv > 0 && (source_partition % VDATA_SHRINK_RATIO) == 0){ cout<<"topkernelP: reading and replicating vdata for this source partition...."<<endl; } else { cout<<"topkernelP: NOT reading and replicating vdata for this source partition...."<<endl; }
-							// #endif 
-						// }
-						
-						
-						
 						#endif 
 						
 						bool_type enablepartition = OFF;
@@ -6511,38 +6403,50 @@ pmask0_curr[i] = 0; pmask0_next[i] = 0; pmask1_curr[i] = 0; pmask1_next[i] = 0; 
 	cout<<">>> topkernelP:: number of active vertices for next iteration (iteration "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID+1<<"): "<<num_acvvs<<endl;
 	#endif 
 	
-	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-	// 	// globalparams_t globalparamsK0 = UTILP0_getglobalparams(kvdram0, 0);
-	// MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
-	// 	// globalparams_t globalparamsK1 = UTILP0_getglobalparams(kvdram1, 0);
-	// MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
-	// 	// globalparams_t globalparamsK2 = UTILP0_getglobalparams(kvdram2, 0);
-	// MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
-	// 	// globalparams_t globalparamsK3 = UTILP0_getglobalparams(kvdram3, 0);
-	// MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
-	// 	// globalparams_t globalparamsK4 = UTILP0_getglobalparams(kvdram4, 0);
-	// MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
-	// 	// globalparams_t globalparamsK5 = UTILP0_getglobalparams(kvdram5, 0);
-	// MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
-	// 	// globalparams_t globalparamsK6 = UTILP0_getglobalparams(kvdram6, 0);
-	// MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
-	// 	// globalparams_t globalparamsK7 = UTILP0_getglobalparams(kvdram7, 0);
-	// MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
-	// 	// globalparams_t globalparamsK8 = UTILP0_getglobalparams(kvdram8, 0);
-	// MERGEP0_mergeVs(kvdram8, vdram); // globalstatsbuffer8, globalparamsK8, globalparamsV);
-	// 	// globalparams_t globalparamsK9 = UTILP0_getglobalparams(kvdram9, 0);
-	// MERGEP0_mergeVs(kvdram9, vdram); // globalstatsbuffer9, globalparamsK9, globalparamsV);
-	// 	// globalparams_t globalparamsK10 = UTILP0_getglobalparams(kvdram10, 0);
-	// MERGEP0_mergeVs(kvdram10, vdram); // globalstatsbuffer10, globalparamsK10, globalparamsV);
-	// 	// globalparams_t globalparamsK11 = UTILP0_getglobalparams(kvdram11, 0);
-	// MERGEP0_mergeVs(kvdram11, vdram); // globalstatsbuffer11, globalparamsK11, globalparamsV);
-	// 	// #endif 
-	
 	#ifndef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram, 
-globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9,globalstatsbuffer10,globalstatsbuffer11, 
-			globalparamsK, globalparamsV);
+	
+	globalparams_t globalparamsK0; // = UTILP0_getglobalparams(kvdram0, 0);	
+	MERGEP0_mergeVs(kvdram0, vdram); // globalstatsbuffer0, globalparamsK0, globalparamsV);
+	
+	globalparams_t globalparamsK1; // = UTILP0_getglobalparams(kvdram1, 0);	
+	MERGEP0_mergeVs(kvdram1, vdram); // globalstatsbuffer1, globalparamsK1, globalparamsV);
+	
+	globalparams_t globalparamsK2; // = UTILP0_getglobalparams(kvdram2, 0);	
+	MERGEP0_mergeVs(kvdram2, vdram); // globalstatsbuffer2, globalparamsK2, globalparamsV);
+	
+	globalparams_t globalparamsK3; // = UTILP0_getglobalparams(kvdram3, 0);	
+	MERGEP0_mergeVs(kvdram3, vdram); // globalstatsbuffer3, globalparamsK3, globalparamsV);
+	
+	globalparams_t globalparamsK4; // = UTILP0_getglobalparams(kvdram4, 0);	
+	MERGEP0_mergeVs(kvdram4, vdram); // globalstatsbuffer4, globalparamsK4, globalparamsV);
+	
+	globalparams_t globalparamsK5; // = UTILP0_getglobalparams(kvdram5, 0);	
+	MERGEP0_mergeVs(kvdram5, vdram); // globalstatsbuffer5, globalparamsK5, globalparamsV);
+	
+	globalparams_t globalparamsK6; // = UTILP0_getglobalparams(kvdram6, 0);	
+	MERGEP0_mergeVs(kvdram6, vdram); // globalstatsbuffer6, globalparamsK6, globalparamsV);
+	
+	globalparams_t globalparamsK7; // = UTILP0_getglobalparams(kvdram7, 0);	
+	MERGEP0_mergeVs(kvdram7, vdram); // globalstatsbuffer7, globalparamsK7, globalparamsV);
+	
+	globalparams_t globalparamsK8; // = UTILP0_getglobalparams(kvdram8, 0);	
+	MERGEP0_mergeVs(kvdram8, vdram); // globalstatsbuffer8, globalparamsK8, globalparamsV);
+	
+	globalparams_t globalparamsK9; // = UTILP0_getglobalparams(kvdram9, 0);	
+	MERGEP0_mergeVs(kvdram9, vdram); // globalstatsbuffer9, globalparamsK9, globalparamsV);
+	
+	globalparams_t globalparamsK10; // = UTILP0_getglobalparams(kvdram10, 0);	
+	MERGEP0_mergeVs(kvdram10, vdram); // globalstatsbuffer10, globalparamsK10, globalparamsV);
+	
+	globalparams_t globalparamsK11; // = UTILP0_getglobalparams(kvdram11, 0);	
+	MERGEP0_mergeVs(kvdram11, vdram); // globalstatsbuffer11, globalparamsK11, globalparamsV);
 	#endif 
+	
+	// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+	// MERGEP0_mergeVs12(kvdram0,kvdram1,kvdram2,kvdram3,kvdram4,kvdram5,kvdram6,kvdram7,kvdram8,kvdram9,kvdram10,kvdram11, vdram, 
+		// globalstatsbuffer0,globalstatsbuffer1,globalstatsbuffer2,globalstatsbuffer3,globalstatsbuffer4,globalstatsbuffer5,globalstatsbuffer6,globalstatsbuffer7,globalstatsbuffer8,globalstatsbuffer9,globalstatsbuffer10,globalstatsbuffer11, 
+			// globalparamsK, globalparamsV);
+	// #endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM

@@ -105,7 +105,11 @@ value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t res, unsigned int G
 	} else if(GraphAlgo == CC){
 		temp = UTILP0_amin(vtemp, res);
 	} else if(GraphAlgo == BFS){
+		#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		temp = UTILP0_amax(vtemp, 1);
+		#else 
 		temp = UTILP0_amin(vtemp, GraphIter);
+		#endif 
 	} else if(GraphAlgo == SSSP){
 		temp = UTILP0_amin(vtemp, res);
 	} else {

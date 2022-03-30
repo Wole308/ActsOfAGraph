@@ -291,6 +291,16 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
 		#endif
 		
+		// if(globalparams.ALGORITHMINFO_GRAPHITERATIONID > 0){
+			// unsigned int num_errors = 0;
+			// for(unsigned int t=0; t<BLOCKRAM_VDATA_SIZE/2; t++){ // BLOCKRAM_VDATA_SIZE/2 // VERY CRITICAL REMOVEME.
+				// for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
+					// if(vbuffer[v][BLOCKRAM_VDATA_SIZE/2 + t] > 0){ num_errors += 1; cout<<"ACTS{{context['id']}}_actit:: ERROR(>0) vbuffer["<<v<<"]["<<BLOCKRAM_VDATA_SIZE/2 + t<<"]: "<<vbuffer[v][BLOCKRAM_VDATA_SIZE/2 + t]<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+				// }
+			// }
+			// if(num_errors == 0){ cout<<"TOP{{context['id']}}_U_processit:: NO ERRORS while scanning through vbuffer...."<<endl; }
+		// }
+		
 		ptravstatepp0.i_kvs = offset_kvs;
 		fetchmessagepp0 = ACTS{{context['id']}}_fetchkeyvalues(ON, mode,  kvdram, vbuffer, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, _WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalposition, globalparams, edgebankID);
 		#ifdef PUP1

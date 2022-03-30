@@ -250,13 +250,13 @@ for evaluation_type in EV_PERFORMANCEOFALGORITHM
 # for evaluation_type in EV_IMPACTOFRANGE EV_IMPACTOFPARTITIONFANOUT EV_IMPACTOFNUMSUBWORKERS EV_IMPACTOFBANDWIDTH EV_IMPACTOFPLATFORM
 do 
 	### >>> LOOP1: hardware types
-	for setup in $SW__ACTGRAPH_SETUP
+	# for setup in $SW__ACTGRAPH_SETUP
 	# for setup in $HW__ACTGRAPH_SETUP
 	# for setup in $SWEMU__ACTGRAPH_SETUP
 	# for setup in $SW__GRAFBOOST_SETUP
 	# for setup in $SW__GUNROCK_SETUP
 	# for setup in $VHLSVHLSHW__ACTGRAPH_SETUP
-	# for setup in $CTHWSYN__ACTGRAPH_SETUP
+	for setup in $CTHWSYN__ACTGRAPH_SETUP
 	# for setup in $AWSHWSYN__ACTGRAPH_SETUP
 	
 	do 
@@ -329,7 +329,7 @@ do
 			for locke in $_LOCKE
 			do
 				# for dataset in $NODATASET
-				for dataset in $ORKUT_3M_212M
+				# for dataset in $ORKUT_3M_212M
 				# for dataset in $HOLLYWOOD_1M_114M
 				# for dataset in $KRON20_1M_45M
 				# for dataset in $KRON21_2M_91M
@@ -345,7 +345,7 @@ do
 				# for dataset in $RMAT24_268M
 				# for dataset in $RMAT25_268M
 				# for dataset in $RMAT26_268M
-				# for dataset in $RMAT21_SPARSE0
+				for dataset in $RMAT21_SPARSE0
 				# for dataset in $RMAT21_SPARSE2
 				# for dataset in $RMAT21_SPARSE4
 				
@@ -358,7 +358,7 @@ do
 					# for evaluation_param0 in 0 4
 					for evaluation_param0 in 0
 					do
-						for num_pes in $NUM_PEs_EQ24
+						for num_pes in $NUM_PEs_EQ3
 						# for num_pes in $NUM_PEs_EQ16 $NUM_PEs_EQ22 $NUM_PEs_EQ24
 						do
 							ACTS_CONFIG="1by1by1by0"

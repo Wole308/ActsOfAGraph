@@ -2,7 +2,8 @@ keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_proces
 	#pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
-	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){
+	if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && en == true){
+	// if(loc >= (globalparams.SIZEKVS2_PROCESSEDGESPARTITION * VDATA_SHRINK_RATIO) && en == true){
 		#ifdef _DEBUGMODE_CHECKS
 		if(true){ cout<<"PROCESS{{context['id']}}_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		#endif 
@@ -12,7 +13,7 @@ keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_proces
 	vmdata_t vmdata;
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS	
 	// if((bufferoffset_kvs + loc/VDATA_SHRINK_RATIO) >= BLOCKRAM_VDATA_SIZE){ cout<<"PROCESS VECTOR:: ERROR: (bufferoffset_kvs("<<bufferoffset_kvs<<") + loc("<<loc<<")/2) >= BLOCKRAM_VDATA_SIZE("<<BLOCKRAM_VDATA_SIZE<<") ||| globalposition.source_partition("<<globalposition.source_partition<<") * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<") / VDATA_SHRINK_RATIO("<<VDATA_SHRINK_RATIO<<")). EXITING..."<<endl; exit(EXIT_FAILURE); }				
-		if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK2(loc, (globalposition.source_partition % VDATA_SHRINK_RATIO), vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
+		if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK2(loc, NAp, vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
 			#else 
 				if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
 					#endif 
