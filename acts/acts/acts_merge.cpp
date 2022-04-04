@@ -621,7 +621,6 @@ void acts_all::MERGEP0_collects(
 	#pragma HLS ARRAY_PARTITION variable=vmaskVec complete
 	
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-	// {1st 16 is masks}{2nd 16 is vdatas} (see classname__mem_convert_and_access.cpp)
 		uint16_type vmaskVec16[VECTOR2_SIZE];
 		#pragma HLS ARRAY_PARTITION variable=vmaskVec16 complete
 		vmaskVec16[0] = UTILP0_READBITSFROM_UINTV(vdatas[0], BEGINOFFSETOF_VMASK, 16);
@@ -838,7 +837,7 @@ void acts_all::MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	#endif 
 	unsigned int voffset_kvs2 = i * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
-	MERGEP0_MERGEVSLOOP: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+	MERGEP0_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
 		// unsigned int voffset_kvs2 = (i * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + (partition * globalparams.SIZEKVS2_REDUCEPARTITION);
 		// unsigned int voffseti_kvs2 = partition * globalparams.SIZEKVS2_REDUCEPARTITION;
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -851,7 +850,7 @@ void acts_all::MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 			#if defined(_DEBUGMODE_KERNELPRINTS) && not defined(ALLVERTEXISACTIVE_ALGORITHM)
 			cout<<"acts_merge::MERGE Vertices :: [instance "<<globalparams.ACTSPARAMS_INSTID<<", partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<"] "<<endl;
 			#endif
-			MERGEP0_MERGEVSLOOPB: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
+			MERGEP0_MERGEVSLOOP2B: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS3
 				actsutilityobj->checkoutofbounds("MERGEP0_mergeVs---: ERROR 21", lbasevoffset_kvs2 + voffset_kvs2 + k, globalparamsv.SIZE_SRCVERTICESDATA / VECTOR2_SIZE, lbasevoffset_kvs2, voffset_kvs2, globalparamsv.SIZE_SRCVERTICESDATA);
@@ -875,7 +874,7 @@ void acts_all::MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	
 	// active reduce partitions
 	unsigned int offset_kvs = i * globalparamsv.NUM_REDUCEPARTITIONS;
-	for(unsigned int reduce_partition=0; reduce_partition<globalparamsv.NUM_REDUCEPARTITIONS; reduce_partition++){
+	MERGEP0_MERGEVSLOOP3: for(unsigned int reduce_partition=0; reduce_partition<globalparamsv.NUM_REDUCEPARTITIONS; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGEP0_mergeVs: ERROR 1s20", offset_kvs + reduce_partition, globalparamsv.SIZE_KVSTATSDRAM, NAp, NAp, NAp);
@@ -4865,7 +4864,7 @@ void acts_all::MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	cout<<"MERGE::EXCHANGE:: retrieving stats from vdramA, vdramB & vdramC. "<<endl; 
 	#endif
 	// active reduce partitions
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR2; reduce_partition++){
+	MERGEP0_EXCHANGEC_LOOP1A: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR2; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGEP0_exchange: ERROR 1s20", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -4874,7 +4873,7 @@ void acts_all::MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 		if(tempdata > 0){ globalstatsbuffer0[reduce_partition / FACTOR101].data[reduce_partition % FACTOR101] = 1; }
 	}
 	
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR1; reduce_partition++){
+	MERGEP0_EXCHANGEC_LOOP1B: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR1; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGEP0_exchange: ERROR 1s21", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -4883,7 +4882,7 @@ void acts_all::MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 		if(tempdata > 0){ globalstatsbuffer1[reduce_partition / FACTOR101].data[reduce_partition % FACTOR101]; }
 	}
 	
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR0; reduce_partition++){
+	MERGEP0_EXCHANGEC_LOOP1C: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR0; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGEP0_exchange: ERROR 1s22", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -5202,7 +5201,9 @@ void acts_all::TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 	unsigned int actvvcount_currit = globalparamsm.SIZE_ACTIVEVERTICES;
 	unsigned int actvvcount_nextit = 0;
 	unsigned int nextGraphIter = GraphIter + 1;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"TradGP:: running traditional sssp... (iteration "<<GraphIter<<", number of active vertices to process: "<<actvvcount_currit<<")"<<endl;
+	#endif 
 	
 	unsigned int offsetkvs_curractvvs;
 	unsigned int offsetkvs_nxtactvvs;
@@ -5246,8 +5247,8 @@ void acts_all::TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 			unsigned int ldstvid = (dstvid - s) / NUM_PEs; 
 			unsigned int offset_kvs = s * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 			
-			value_t vprop = MEMCAP0_READVDATA(UTILP0_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid)); 
-			value_t vtemp = min(vprop, res);
+			uint32_type vprop = MEMCAP0_READVDATA(UTILP0_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid)); 
+			uint32_type vtemp = UTILP0_amin2(vprop, res);
 			
 			if(vtemp != vprop){
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
@@ -5257,7 +5258,8 @@ void acts_all::TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 			}
 			
 			if(vtemp != vprop){
-				UTILP0_WRITETO_UINT((unsigned int *)&vtemp, OFFSETOF_VMASK, SIZEOF_VMASK, 1);  // write active mask before save
+				// UTILP0_WRITETO_UINT((unsigned int *)&vtemp, OFFSETOF_VMASK, SIZEOF_VMASK, 1);  // write active mask before save
+				MEMCAP0_WRITEVMASK(&vtemp, 1); // write active mask before save
 				UTILP0_SetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
 				UTILP0_SetData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
 				UTILP0_SetData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
@@ -5279,8 +5281,10 @@ void acts_all::TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 	UTILP0_SetFirstData(vdramB, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	UTILP0_SetFirstData(vdramC, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"TradGP: number of active vertices for iteration "<<nextGraphIter<<": "<<actvvcount_nextit<<""<<endl;
 	if(actvvcount_nextit == 0){ cout<<"TradGP: no more active vertices to process. breaking out... "<<endl; }
+	#endif 
 	
 	// vertices partition masks
 	#ifdef CONFIG_MERGE_VPARTITIONS

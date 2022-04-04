@@ -6930,30 +6930,33 @@ void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 void acts_all::MEMACCESSP0_readmanypmask1(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
 		pmask0[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask2(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
 		pmask0[i] = vdram[offset_kvs + i].data[0].key;
 		pmask1[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask3(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -6962,13 +6965,14 @@ void acts_all::MEMACCESSP0_readmanypmask3(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask0[i] = vdram[offset_kvs + i].data[0].key;
 		pmask1[i] = vdram[offset_kvs + i].data[0].key;
 		pmask2[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask4(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -6979,13 +6983,14 @@ void acts_all::MEMACCESSP0_readmanypmask4(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask1[i] = vdram[offset_kvs + i].data[0].key;
 		pmask2[i] = vdram[offset_kvs + i].data[0].key;
 		pmask3[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask5(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -6998,13 +7003,14 @@ void acts_all::MEMACCESSP0_readmanypmask5(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask2[i] = vdram[offset_kvs + i].data[0].key;
 		pmask3[i] = vdram[offset_kvs + i].data[0].key;
 		pmask4[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask6(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -7019,13 +7025,14 @@ void acts_all::MEMACCESSP0_readmanypmask6(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask3[i] = vdram[offset_kvs + i].data[0].key;
 		pmask4[i] = vdram[offset_kvs + i].data[0].key;
 		pmask5[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask7(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -7042,13 +7049,14 @@ void acts_all::MEMACCESSP0_readmanypmask7(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask4[i] = vdram[offset_kvs + i].data[0].key;
 		pmask5[i] = vdram[offset_kvs + i].data[0].key;
 		pmask6[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask8(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -7067,13 +7075,14 @@ void acts_all::MEMACCESSP0_readmanypmask8(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask5[i] = vdram[offset_kvs + i].data[0].key;
 		pmask6[i] = vdram[offset_kvs + i].data[0].key;
 		pmask7[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask9(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -7094,13 +7103,14 @@ void acts_all::MEMACCESSP0_readmanypmask9(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask6[i] = vdram[offset_kvs + i].data[0].key;
 		pmask7[i] = vdram[offset_kvs + i].data[0].key;
 		pmask8[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask10(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -7123,13 +7133,14 @@ void acts_all::MEMACCESSP0_readmanypmask10(uint512_dt * vdram, pmask_dt pmask0[B
 		pmask7[i] = vdram[offset_kvs + i].data[0].key;
 		pmask8[i] = vdram[offset_kvs + i].data[0].key;
 		pmask9[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask11(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask10[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -7154,13 +7165,14 @@ void acts_all::MEMACCESSP0_readmanypmask11(uint512_dt * vdram, pmask_dt pmask0[B
 		pmask8[i] = vdram[offset_kvs + i].data[0].key;
 		pmask9[i] = vdram[offset_kvs + i].data[0].key;
 		pmask10[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP0_readmanypmask12(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask10[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask11[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -7187,10 +7199,1291 @@ void acts_all::MEMACCESSP0_readmanypmask12(uint512_dt * vdram, pmask_dt pmask0[B
 		pmask9[i] = vdram[offset_kvs + i].data[0].key;
 		pmask10[i] = vdram[offset_kvs + i].data[0].key;
 		pmask11[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
+
+#ifdef NOT_USED_XXXXXXXXXXXXXXXX
+void acts_all::MEMACCESSP0_readmanypmask1(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask1: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask2(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask2: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask3(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask3: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask4(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask4: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask5(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask5: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask6(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask6: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask7(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask7: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask8(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask8: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask9(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask9: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask10(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask10: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask11(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask10[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask11: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
+		pmask10[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP0_readmanypmask12(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask10[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask11[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP0_readmanypmask12: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
+		pmask10[i] = pmask0[i];
+		pmask11[i] = pmask0[i];
+	}
+	return;
+}
+#endif
 
 // -------------------- others -------------------- //
 void acts_all::MEMACCESSP0_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){

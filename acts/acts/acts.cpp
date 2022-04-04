@@ -275,7 +275,6 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 	cout<<"actit: "<<((ptravstate.end_kvs + flushsz) - ptravstate.begin_kvs) / _WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES<<" states of acts pipeline processing..."<<endl; 
 	#endif 
 	
-	// cout<<"--------------------------- actit: mode: "<<mode<<endl;
 	// actsutilityobj->printkeyvalues("actit::globalstatsbuffer 37--", (keyvalue_t *)globalstatsbuffer, NUM_PARTITIONS); 
 	
 	ACTIT_MAINLOOP: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + flushsz; offset_kvs+=_WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES){
@@ -290,16 +289,6 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 		#else 
 		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
 		#endif
-		
-		// if(globalparams.ALGORITHMINFO_GRAPHITERATIONID > 0){
-			// unsigned int num_errors = 0;
-			// for(unsigned int t=0; t<BLOCKRAM_VDATA_SIZE/2; t++){ // BLOCKRAM_VDATA_SIZE/2 // VERY CRITICAL REMOVEME.
-				// for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
-					// if(vbuffer[v][BLOCKRAM_VDATA_SIZE/2 + t] > 0){ num_errors += 1; cout<<"ACTSP0_actit:: ERROR(>0) vbuffer["<<v<<"]["<<BLOCKRAM_VDATA_SIZE/2 + t<<"]: "<<vbuffer[v][BLOCKRAM_VDATA_SIZE/2 + t]<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
-				// }
-			// }
-			// if(num_errors == 0){ cout<<"TOPP0_U_processit:: NO ERRORS while scanning through vbuffer...."<<endl; }
-		// }
 		
 		ptravstatepp0.i_kvs = offset_kvs;
 		fetchmessagepp0 = ACTSP0_fetchkeyvalues(ON, mode,  kvdram, vbuffer, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, _WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalposition, globalparams, edgebankID);

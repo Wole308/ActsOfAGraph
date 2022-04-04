@@ -27,7 +27,9 @@ using namespace std;
 
 // #define _DEBUGMODE_KERNELPRINTS_TRACE
 #ifndef ALLVERTEXISACTIVE_ALGORITHM
+#ifndef FPGA_IMPL
 // #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#endif 
 #endif
 // #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 // #define _DEBUGMODE_SUBPMASKING_TRACE
@@ -198,7 +200,7 @@ using namespace std;
 #define SIZEOF_KEY 22
 #define SIZEOF_VALUE 10
 
-#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS //
+#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS // {1st 16 is masks}{2nd 16 is vdatas} (see classname__mem_convert_and_access.cpp)
 #define BEGINOFFSETOF_VDATA 0
 #define OFFSETOF_VDATA 0
 #define SIZEOF_VDATA 1

@@ -623,6 +623,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstat
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readmanypmask{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}pmask_dt pmask{{i}}[BLOCKRAM_CURRPMASK_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		{%for i in context['T_seq']%}{%if(i<n)%}
 		pmask{{i}}[i] = vdram[offset_kvs + i].range(31, 0);
@@ -631,11 +632,45 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readmanypmas
 		{%for i in context['T_seq']%}{%if(i<n)%}
 		pmask{{i}}[i] = vdram[offset_kvs + i].data[0].key;
 		{%endif%}{%endfor%}
-		#endif 
+		#endif
 	}
 	return;
 }
 {%endif%}{%endfor%}
+
+#ifdef NOT_USED_XXXXXXXXXXXXXXXX
+{%for n in context['T_seq']%}{%if(n>=1)%}
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readmanypmask{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}pmask_dt pmask{{i}}[BLOCKRAM_CURRPMASK_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+		{%for v in context['12_seq']%}
+		{%if(v>0)%}else{%endif%} if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == {{v}}){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}});
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		{%endfor%}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESS{{context['id']}}_readmanypmask{{n}}: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		{%for i in context['T_seq']%}{%if(i<n and i>0)%}
+		pmask{{i}}[i] = pmask0[i];
+		{%endif%}{%endfor%}
+	}
+	return;
+}
+{%endif%}{%endfor%}
+#endif
 
 // -------------------- others -------------------- //
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){

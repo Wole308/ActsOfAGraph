@@ -33,8 +33,6 @@
 #define USEHBMMEMORY
 // #define USEDDRAMMEMORY
 
-// #define CONFIG_LASTWORKINGVERSION /////////////////////////////// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ // USe this when synthesizing and running FPGA_IMPL mode (FIXME.)
-
 ////////////////////////////////////////////////////////////////////////////////////
 #define CONFIG_SPLIT_DESTVTXS // [OBSOLETE] // {reduceupdates.cpp, acts_util.cpp, app.cpp, loadgraph.cpp, top_nusrcv_nudstv.cpp, reduceupdates.cpp, actscommon.h}
 // #define CONFIG_SEPERATEVMASKFROMVDATA // [OBSOLETE] // seperating vmask and vbuffer datas {loadedges_sequential.cpp, processedges.cpp, reduceupdates.cpp, acts_merge.cpp, actscommon.h, common.h}
@@ -51,9 +49,7 @@
 
 #define CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS // NEW {classname__top_usrcv_udstv.cpp}
 
-#ifndef CONFIG_LASTWORKINGVERSION
-#define CONFIG_INSERTSTATSMETADATAINEDGES /////////////////////////////////////////// {acts.cpp, loadedges_random.cpp, classname__top_usrcv_udstv.cpp, processedges2.cpp}
-#endif 
+#define CONFIG_INSERTSTATSMETADATAINEDGES // {acts.cpp, loadedges_random.cpp, classname__top_usrcv_udstv.cpp, processedges2.cpp}
 
 #define CONFIG_VDATAIS32BITSWIDE // NEW, FIXME. IMPLEMENT FOR ALL CASES.
 
@@ -66,13 +62,10 @@
 #define CONFIG_ENABLECLASS_ACTSUTILITY
 #define CONFIG_ENABLECLASS_TOP_USRCV_UDSTV
 
-#ifdef CONFIG_LASTWORKINGVERSION
-#define CONFIG_ENABLECLASS_PROCESSEDGES2 /////////////////////////////////////////// FPGA IMPL
+// #define CONFIG_ENABLECLASS_PROCESSEDGES	// More LUTs, Faster?
+// #define CONFIG_ENABLECLASS_REDUCEUPDATES	
+#define CONFIG_ENABLECLASS_PROCESSEDGES2 // Fewer LUTs, Slower ***
 #define CONFIG_ENABLECLASS_REDUCEUPDATES2
-#else 
-#define CONFIG_ENABLECLASS_PROCESSEDGES	// SW
-#define CONFIG_ENABLECLASS_REDUCEUPDATES	
-#endif 
 
 #define CONFIG_ENABLECLASS_PARTITIONUPDATES
 #define CONFIG_ENABLECLASS_MEM_ACCESS

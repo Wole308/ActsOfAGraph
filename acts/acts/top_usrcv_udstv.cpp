@@ -343,8 +343,6 @@ void acts_all::TOPP0_U_topkernelP1(
 	pmask_dt pmask0_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[1];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -677,8 +675,6 @@ void acts_all::TOPP0_U_topkernelP2(
 	pmask_dt pmask1_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[2];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -1045,8 +1041,6 @@ void acts_all::TOPP0_U_topkernelP3(
 	pmask_dt pmask2_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[3];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -1448,8 +1442,6 @@ void acts_all::TOPP0_U_topkernelP4(
 	pmask_dt pmask3_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[4];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -1885,8 +1877,6 @@ void acts_all::TOPP0_U_topkernelP5(
 	pmask_dt pmask4_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[5];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -2356,8 +2346,6 @@ void acts_all::TOPP0_U_topkernelP6(
 	pmask_dt pmask5_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[6];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -2861,8 +2849,6 @@ void acts_all::TOPP0_U_topkernelP7(
 	pmask_dt pmask6_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask6_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer6[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[7];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -3400,8 +3386,6 @@ void acts_all::TOPP0_U_topkernelP8(
 	pmask_dt pmask7_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask7_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer7[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[8];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -3973,8 +3957,6 @@ void acts_all::TOPP0_U_topkernelP9(
 	pmask_dt pmask8_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask8_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer8[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[9];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -4580,8 +4562,6 @@ void acts_all::TOPP0_U_topkernelP10(
 	pmask_dt pmask9_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask9_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer9[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[10];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -5221,8 +5201,6 @@ void acts_all::TOPP0_U_topkernelP11(
 	pmask_dt pmask10_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask10_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer10[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[11];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -5896,8 +5874,6 @@ void acts_all::TOPP0_U_topkernelP12(
 	pmask_dt pmask11_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask11_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer11[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[12];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;

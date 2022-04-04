@@ -37,6 +37,7 @@ public:
 unsigned int UTILS_amin(unsigned int val1, unsigned int val2);
 unsigned int UTILS_amax(unsigned int val1, unsigned int val2);
 unsigned int UTILS_aplus(unsigned int val1, unsigned int val2);
+uint32_type UTILS_amin2(uint32_type val1, uint32_type val2);
 
 // functions (allignment)
 batch_type UTILS_allignlower_KV(batch_type val);
@@ -47,9 +48,9 @@ batch_type UTILS_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR);
 batch_type UTILS_allignlower_FACTOR(batch_type val, unsigned int _FACTOR);
 
 // functions (bit manipulation)
-unsigned int UTILS_GETMASK_UINT(unsigned int index, unsigned int size);
-unsigned int UTILS_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-void UTILS_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
+unsigned int UTILS_GETMASK_UINT(uint32_type index, unsigned int size);
+unsigned int UTILS_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size);
+void UTILS_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTILS_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
 void UTILS_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTILS_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
@@ -284,6 +285,9 @@ void MEMACCESSS_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PAC
 	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES
 keyvalue_t PROCESSS_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams);				
 
+keyvalue_t PROCESSS_processvectorA(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, 
+		unsigned int _ACTSPARAMS_INSTID, unsigned int _ALGORITHMINFO_GRAPHALGORITHMID, unsigned int _SIZEKVS2_PROCESSEDGESPARTITION);
+		
 void PROCESSS_processvectorB(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams);
 
 void PROCESSS_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth);
@@ -311,11 +315,11 @@ void PROCESSS_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], uns
 
 void PROCESSS_RearrangeLayoutV(unsigned int s, uint32_type vdata[VECTOR_SIZE], uint32_type vdata2[VECTOR_SIZE]);
 
+void PROCESSS_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]);
+
 parsededge_t PROCESSS_PARSEEDGE(uint32_type data);
 
-void PROCESSS_calculateoffsets1(keyvalue_capsule_t * buffer);
-
-void PROCESSS_calculateoffsets2(keyvalue_capsule_t * buffer);
+void PROCESSS_calculateoffsets(keyvalue_capsule_t * buffer);
 
 fetchmessage_t PROCESSS_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams);
@@ -364,6 +368,8 @@ void REDUCES_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, 
 void REDUCES_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth);
 
 void REDUCES_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]);
+
+void REDUCES_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]);
 
 void REDUCES_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams);					
 

@@ -404,8 +404,8 @@ vmdata_t acts_all::MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, un
 	vmdata.vmask = UTILP0_SWREADBITSFROM_UINTV(bits_vector, BEGINOFFSETOF_VMASK + offsetof_vdata, SIZEOF_VMASK);
 	#endif 
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	if(vmdata.vmask == 1){ cout<<">>> MEMCAP0_READFROMBUFFER(224):: ACTIVE VERTEX READ: @ bufferoffset_kvs: "<<bufferoffset_kvs<<", offsetof_vdata: "<<offsetof_vdata<<", vmdata.vdata: "<<vmdata.vdata<<", vmdata.vmask: "<<vmdata.vmask<<", sub_chunk_height: "<<(index / VDATA_SHRINK_RATIO)<<", index: "<<index<<endl; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<">>> MEMCAP0_VDATAWITHVMASK2(224):: ACTIVE VERTEX READ: @ bufferoffset_kvs: "<<bufferoffset_kvs<<", offsetof_vdata: "<<offsetof_vdata<<", vmdata.vdata: "<<vmdata.vdata<<", vmdata.vmask: "<<vmdata.vmask<<", sub_chunk_height: "<<(index / VDATA_SHRINK_RATIO)<<", index: "<<index<<endl; }
 	#endif
 	return vmdata;
 }

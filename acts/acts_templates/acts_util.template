@@ -10,6 +10,10 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_amax(unsig
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
+uint32_type {{context['classname__acts_util']}}UTIL{{context['id']}}_amin2(uint32_type val1, uint32_type val2){
+	if(val1 < val2){ return val1; }
+	else { return val2; }
+}
 
 // allignment
 batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_allignlower_KV(batch_type val){
@@ -39,17 +43,17 @@ batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_allignlower_
 }
 
 // bit manipulation
-unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETMASK_UINT(unsigned int index, unsigned int size){
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETMASK_UINT(uint32_type index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
 }
-unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size){ 
 	unsigned int res = 0;
 	res = (((data) & UTIL{{context['id']}}_GETMASK_UINT((index), (size))) >> (index)); 
 	return res;
 }
-void {{context['classname__acts_util']}}UTIL{{context['id']}}_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
 	unsigned int A = ((value) << (index));
 	unsigned int B = (~UTIL{{context['id']}}_GETMASK_UINT((index), (size)));
@@ -166,7 +170,7 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GetData(ui
 	unsigned int data = 0;
 	#ifdef _WIDEWORD
 	unsigned int row = index / VECTOR2_SIZE;
-	unsigned int col = loc % VECTOR2_SIZE;
+	unsigned int col = index % VECTOR2_SIZE;
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	{%if(v>0)%}else{%endif%} if(col == {{v}}){
 		data = kvdram[offset_kvs + row].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}); 
@@ -184,7 +188,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetData(uint512_dt
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	unsigned int row = index / VECTOR2_SIZE;
-	unsigned int col = loc % VECTOR2_SIZE;
+	unsigned int col = index % VECTOR2_SIZE;
 	{%for v in context['VECTOR2_SIZE_seq']%}
 	{%if(v>0)%}else{%endif%} if(col == {{v}}){
 		kvdram[offset_kvs + row].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}) = data; 

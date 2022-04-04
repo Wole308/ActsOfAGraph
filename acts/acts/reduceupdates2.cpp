@@ -1,49 +1,55 @@
 void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
-	#pragma HLS INLINE
+	#pragma HLS PIPELINE II=3
 	keyvalue_t mykeyvalue = UTILP0_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"REDUCEP0_reducevector:: col: "<<col<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", mykeyvalue.value: "<<mykeyvalue.value<<endl;
+	#endif
 	
 	bool en = true;
 	if(mykeyvalue.key == UTILP0_GETK(INVALIDDATA) || mykeyvalue.value == UTILP0_GETV(INVALIDDATA) || mykeyvalue.key == MAXVDATA || mykeyvalue.value == MAXVDATA){ en = false; } // REMOVEME?????????????????????????????
 	if(mykeyvalue.key == 0 && mykeyvalue.value == 0){ en = false; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true){ cout<<">>> REDUCE VECTOR:: REDUCE SEEN @ Instance "<<globalparams.ACTSPARAMS_INSTID<<", vid: "<<UTILP0_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", Partition: "<<UTILP0_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID) / PROCESSPARTITIONSZ<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<endl; }
-	#endif 	
+	if(en == true){ cout<<"$$$ REDUCE VECTOR:: REDUCE SEEN @ instance "<<globalparams.ACTSPARAMS_INSTID<<", col: "<<col<<", loc: "<<loc<<", vid: "<<UTILP0_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", partition: "<<UTILP0_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID) / PROCESSPARTITIONSZ<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<endl; }
+	#endif 
 	
-	if(loc >= globalparams.SIZE_REDUCE && en == true){ 
-		#ifdef _DEBUGMODE_CHECKS2X
+	if(loc >= (globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_SHRINK_RATIO) && en == true){
+		#ifdef ENABLE_PERFECTACCURACY
 		if(true){ cout<<"REDUCEP0_reducevector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		actsutilityobj->reducehelper_checkreduceloc(0, loc, mykeyvalue, sweepparams, globalparams); 
 		#endif 
-		loc = 0; } //else{ loc = 0; }
+		loc = 0; }
 		
-	// read
-	vmdata_t vmdata;
+	// read 
+	vmdata_t vmdata; vmdata.vmask = 0;
+	unsigned int bufferoffset_kvs = 0; 
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-		unsigned int bufferoffset_kvs; if(globalparams.ACTSPARAMS_TREEDEPTH == 1){ bufferoffset_kvs = BLOCKRAM_VDATA_SIZE / 2; } else { bufferoffset_kvs = 0; }
+	if(globalparams.ACTSPARAMS_TREEDEPTH == 1){ bufferoffset_kvs = BLOCKRAM_VDATA_SIZE / 2; } else { bufferoffset_kvs = 0; }
+	#endif 
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
 		if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(loc, NAp, vbuffer, bufferoffset_kvs); }
 			#else 
 				if(en == true){ vmdata = MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); }
 					#endif
-	
+					
 	// reduce 
 	value_t new_vprop = REDUCEP0_reducefunc(vmdata.vdata, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	if(en == true && new_vprop != vmdata.vdata){ vmdata.vmask = 1; } else { vmdata.vmask = 0; } // NEWCHANGE.
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true && new_vprop != vmdata.vdata){ cout<<">>> REDUCE VECTOR:: ACTIVE MASK SEEN AT: "<<loc<<""<<endl; }
+	if(en == true && new_vprop != vmdata.vdata){ cout<<">>> REDUCE VECTOR:: ACTIVE MASK SEEN AT: loc: "<<loc<<", vmdata.vdata: "<<vmdata.vdata<<", vmdata.vmask: "<<vmdata.vmask<<endl; }
+	if(en == true && new_vprop != vmdata.vdata){ cout<<">>> REDUCE VECTOR:: ACTIVE REDUCE SEEN @ instance "<<globalparams.ACTSPARAMS_INSTID<<", col: "<<col<<", loc: "<<loc<<", vid: "<<UTILP0_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
 	#endif
 	
 	// write
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-		if(en == true){ vmdata = MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK2(loc, vbuffer, vmdata.vdata, vmdata.vmask, bufferoffset_kvs); }
+		if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK2(loc, vbuffer, new_vprop, vmdata.vmask, bufferoffset_kvs); }
 			#else 
-				if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, vmdata.vdata, vmdata.vmask, 0); }
+				if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, new_vprop, vmdata.vmask, 0); }
 					#endif
-	
+
 	#ifdef _DEBUGMODE_STATS
-	actsutilityobj->globalstats_countkvsreduced(1); 
+	actsutilityobj->globalstats_countkvsreduced(1);
 	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-	// if(enx == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
 	#endif
 	return;
 }
@@ -219,6 +225,91 @@ else {
 	return;
 }
 
+void acts_all::REDUCEP0_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
+	unsigned int s_ = s;// % VECTOR_SIZE;
+ if(s_==0){ 
+		en2[0] = en[0]; 
+		en2[1] = en[1]; 
+		en2[2] = en[2]; 
+		en2[3] = en[3]; 
+		en2[4] = en[4]; 
+		en2[5] = en[5]; 
+		en2[6] = en[6]; 
+		en2[7] = en[7]; 
+	}
+else if(s_==1){ 
+		en2[7] = en[0]; 
+		en2[0] = en[1]; 
+		en2[1] = en[2]; 
+		en2[2] = en[3]; 
+		en2[3] = en[4]; 
+		en2[4] = en[5]; 
+		en2[5] = en[6]; 
+		en2[6] = en[7]; 
+	}
+else if(s_==2){ 
+		en2[6] = en[0]; 
+		en2[7] = en[1]; 
+		en2[0] = en[2]; 
+		en2[1] = en[3]; 
+		en2[2] = en[4]; 
+		en2[3] = en[5]; 
+		en2[4] = en[6]; 
+		en2[5] = en[7]; 
+	}
+else if(s_==3){ 
+		en2[5] = en[0]; 
+		en2[6] = en[1]; 
+		en2[7] = en[2]; 
+		en2[0] = en[3]; 
+		en2[1] = en[4]; 
+		en2[2] = en[5]; 
+		en2[3] = en[6]; 
+		en2[4] = en[7]; 
+	}
+else if(s_==4){ 
+		en2[4] = en[0]; 
+		en2[5] = en[1]; 
+		en2[6] = en[2]; 
+		en2[7] = en[3]; 
+		en2[0] = en[4]; 
+		en2[1] = en[5]; 
+		en2[2] = en[6]; 
+		en2[3] = en[7]; 
+	}
+else if(s_==5){ 
+		en2[3] = en[0]; 
+		en2[4] = en[1]; 
+		en2[5] = en[2]; 
+		en2[6] = en[3]; 
+		en2[7] = en[4]; 
+		en2[0] = en[5]; 
+		en2[1] = en[6]; 
+		en2[2] = en[7]; 
+	}
+else if(s_==6){ 
+		en2[2] = en[0]; 
+		en2[3] = en[1]; 
+		en2[4] = en[2]; 
+		en2[5] = en[3]; 
+		en2[6] = en[4]; 
+		en2[7] = en[5]; 
+		en2[0] = en[6]; 
+		en2[1] = en[7]; 
+	}
+else { 
+		en2[1] = en[0]; 
+		en2[2] = en[1]; 
+		en2[3] = en[2]; 
+		en2[4] = en[3]; 
+		en2[5] = en[4]; 
+		en2[6] = en[5]; 
+		en2[7] = en[6]; 
+		en2[0] = en[7]; 
+	}
+	return;
+}
+
 void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
@@ -232,8 +323,15 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	#pragma HLS ARRAY_PARTITION variable=depths complete
 	bool enx[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=enx complete
+	bool enx2[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=enx2 complete
 	unsigned int d_kvs[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=d_kvs complete
+	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=localcapsule_kvs complete
+	
+	keyvalue_t invalid_dataa; invalid_dataa.key = INVALIDDATA; invalid_dataa.value = INVALIDDATA;
+	keyvalue_buffer_t invalid_data = UTILP0_GETKV(invalid_dataa);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
@@ -258,74 +356,81 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"reduceupdates2: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
 		#endif
-		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
-		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
+		localcapsule_kvs[p].key = localcapsule[p].key / VECTOR_SIZE;
+		localcapsule_kvs[p].value = (localcapsule[p].value + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	}
 	
-	unsigned int tot = 0;
 	REDUCEBUFFERPARTITIONS_LOOP2: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
 		REDUCEBUFFERPARTITIONS_LOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
 			REDUCEBUFFERPARTITIONS_LOOP2C: for(buffer_type i=0; i<mmaxsz_kvs; i++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 			#pragma HLS PIPELINE II=3
-				// read updates
+				// get layout
 				REDUCEP0_GetXYLayoutV(r, depths, 0);
-				
-				unsigned int tdepth0 = capsule_offset + depths[0];
-				unsigned int tdepth1 = capsule_offset + depths[1];
-				unsigned int tdepth2 = capsule_offset + depths[2];
-				unsigned int tdepth3 = capsule_offset + depths[3];
-				unsigned int tdepth4 = capsule_offset + depths[4];
-				unsigned int tdepth5 = capsule_offset + depths[5];
-				unsigned int tdepth6 = capsule_offset + depths[6];
-				unsigned int tdepth7 = capsule_offset + depths[7];
- 	
-				if(i < localcapsule[tdepth0].value){ enx[0] = true; } else { enx[0] = false; }
-				if(i < localcapsule[tdepth1].value){ enx[1] = true; } else { enx[1] = false; }
-				if(i < localcapsule[tdepth2].value){ enx[2] = true; } else { enx[2] = false; }
-				if(i < localcapsule[tdepth3].value){ enx[3] = true; } else { enx[3] = false; }
-				if(i < localcapsule[tdepth4].value){ enx[4] = true; } else { enx[4] = false; }
-				if(i < localcapsule[tdepth5].value){ enx[5] = true; } else { enx[5] = false; }
-				if(i < localcapsule[tdepth6].value){ enx[6] = true; } else { enx[6] = false; }
-				if(i < localcapsule[tdepth7].value){ enx[7] = true; } else { enx[7] = false; }
+			
+				// calculate enable
+				enx[0] = true;	
+				enx[1] = true;	
+				enx[2] = true;	
+				enx[3] = true;	
+				enx[4] = true;	
+				enx[5] = true;	
+				enx[6] = true;	
+				enx[7] = true;	
  
 				
-				d_kvs[0] = localcapsule[tdepth0].key + i; 	
-				d_kvs[1] = localcapsule[tdepth1].key + i; 	
-				d_kvs[2] = localcapsule[tdepth2].key + i; 	
-				d_kvs[3] = localcapsule[tdepth3].key + i; 	
-				d_kvs[4] = localcapsule[tdepth4].key + i; 	
-				d_kvs[5] = localcapsule[tdepth5].key + i; 	
-				d_kvs[6] = localcapsule[tdepth6].key + i; 	
-				d_kvs[7] = localcapsule[tdepth7].key + i; 	
+				// read 
+				unsigned int tdepth0 = capsule_offset + depths[0];
+				d_kvs[0] = localcapsule_kvs[tdepth0].key + i; 	
+				unsigned int tdepth1 = capsule_offset + depths[1];
+				d_kvs[1] = localcapsule_kvs[tdepth1].key + i; 	
+				unsigned int tdepth2 = capsule_offset + depths[2];
+				d_kvs[2] = localcapsule_kvs[tdepth2].key + i; 	
+				unsigned int tdepth3 = capsule_offset + depths[3];
+				d_kvs[3] = localcapsule_kvs[tdepth3].key + i; 	
+				unsigned int tdepth4 = capsule_offset + depths[4];
+				d_kvs[4] = localcapsule_kvs[tdepth4].key + i; 	
+				unsigned int tdepth5 = capsule_offset + depths[5];
+				d_kvs[5] = localcapsule_kvs[tdepth5].key + i; 	
+				unsigned int tdepth6 = capsule_offset + depths[6];
+				d_kvs[6] = localcapsule_kvs[tdepth6].key + i; 	
+				unsigned int tdepth7 = capsule_offset + depths[7];
+				d_kvs[7] = localcapsule_kvs[tdepth7].key + i; 	
  	
-				if(d_kvs[0] < height_kvs){ kvdata[0] = buffer[0][d_kvs[0]]; } else { }	
-				if(d_kvs[1] < height_kvs){ kvdata[1] = buffer[1][d_kvs[1]]; } else { }	
-				if(d_kvs[2] < height_kvs){ kvdata[2] = buffer[2][d_kvs[2]]; } else { }	
-				if(d_kvs[3] < height_kvs){ kvdata[3] = buffer[3][d_kvs[3]]; } else { }	
-				if(d_kvs[4] < height_kvs){ kvdata[4] = buffer[4][d_kvs[4]]; } else { }	
-				if(d_kvs[5] < height_kvs){ kvdata[5] = buffer[5][d_kvs[5]]; } else { }	
-				if(d_kvs[6] < height_kvs){ kvdata[6] = buffer[6][d_kvs[6]]; } else { }	
-				if(d_kvs[7] < height_kvs){ kvdata[7] = buffer[7][d_kvs[7]]; } else { }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth0].value){ enx[0] = true; kvdata[0] = buffer[0][d_kvs[0]]; } else { enx[0] = false; kvdata[0] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth1].value){ enx[1] = true; kvdata[1] = buffer[1][d_kvs[1]]; } else { enx[1] = false; kvdata[1] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth2].value){ enx[2] = true; kvdata[2] = buffer[2][d_kvs[2]]; } else { enx[2] = false; kvdata[2] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth3].value){ enx[3] = true; kvdata[3] = buffer[3][d_kvs[3]]; } else { enx[3] = false; kvdata[3] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth4].value){ enx[4] = true; kvdata[4] = buffer[4][d_kvs[4]]; } else { enx[4] = false; kvdata[4] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth5].value){ enx[5] = true; kvdata[5] = buffer[5][d_kvs[5]]; } else { enx[5] = false; kvdata[5] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth6].value){ enx[6] = true; kvdata[6] = buffer[6][d_kvs[6]]; } else { enx[6] = false; kvdata[6] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth7].value){ enx[7] = true; kvdata[7] = buffer[7][d_kvs[7]]; } else { enx[7] = false; kvdata[7] = invalid_data; }	
 				
 				// re-arrange 
 				REDUCEP0_RearrangeLayoutV(r, kvdata, kvdata2);
+				REDUCEP0_RearrangeLayoutEn(r, enx, enx2); // NEWCHANGE.
 			
 				// reduce 
-				REDUCEP0_reducevector(enx[0], 0, kvdata2[0], vbuffer[capsule_offset + 0], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP0_reducevector(enx[1], 1, kvdata2[1], vbuffer[capsule_offset + 1], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP0_reducevector(enx[2], 2, kvdata2[2], vbuffer[capsule_offset + 2], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP0_reducevector(enx[3], 3, kvdata2[3], vbuffer[capsule_offset + 3], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP0_reducevector(enx[4], 4, kvdata2[4], vbuffer[capsule_offset + 4], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP0_reducevector(enx[5], 5, kvdata2[5], vbuffer[capsule_offset + 5], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP0_reducevector(enx[6], 6, kvdata2[6], vbuffer[capsule_offset + 6], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP0_reducevector(enx[7], 7, kvdata2[7], vbuffer[capsule_offset + 7], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP0_reducevector(enx2[0], 0, kvdata2[0], vbuffer[capsule_offset + 0], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP0_reducevector(enx2[1], 1, kvdata2[1], vbuffer[capsule_offset + 1], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP0_reducevector(enx2[2], 2, kvdata2[2], vbuffer[capsule_offset + 2], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP0_reducevector(enx2[3], 3, kvdata2[3], vbuffer[capsule_offset + 3], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP0_reducevector(enx2[4], 4, kvdata2[4], vbuffer[capsule_offset + 4], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP0_reducevector(enx2[5], 5, kvdata2[5], vbuffer[capsule_offset + 5], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP0_reducevector(enx2[6], 6, kvdata2[6], vbuffer[capsule_offset + 6], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP0_reducevector(enx2[7], 7, kvdata2[7], vbuffer[capsule_offset + 7], 0, sweepparams.upperlimit, sweepparams, globalparams);
 			}
 		}
 	}
-	
-	// cout<<"------------------------ reduceupdates2: tot: "<<tot<<endl;
 	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); ////
 	return;

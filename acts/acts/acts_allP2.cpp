@@ -24,6 +24,10 @@ unsigned int acts_all::UTILP2_amax(unsigned int val1, unsigned int val2){
 unsigned int acts_all::UTILP2_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
+uint32_type acts_all::UTILP2_amin2(uint32_type val1, uint32_type val2){
+	if(val1 < val2){ return val1; }
+	else { return val2; }
+}
 
 // allignment
 batch_type acts_all::UTILP2_allignlower_KV(batch_type val){
@@ -53,17 +57,17 @@ batch_type acts_all::UTILP2_allignlower_FACTOR(batch_type val, unsigned int _FAC
 }
 
 // bit manipulation
-unsigned int acts_all::UTILP2_GETMASK_UINT(unsigned int index, unsigned int size){
+unsigned int acts_all::UTILP2_GETMASK_UINT(uint32_type index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
 }
-unsigned int acts_all::UTILP2_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
+unsigned int acts_all::UTILP2_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size){ 
 	unsigned int res = 0;
 	res = (((data) & UTILP2_GETMASK_UINT((index), (size))) >> (index)); 
 	return res;
 }
-void acts_all::UTILP2_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
+void acts_all::UTILP2_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
 	unsigned int A = ((value) << (index));
 	unsigned int B = (~UTILP2_GETMASK_UINT((index), (size)));
@@ -180,7 +184,7 @@ unsigned int acts_all::UTILP2_GetData(uint512_dt * kvdram, unsigned int offset_k
 	unsigned int data = 0;
 	#ifdef _WIDEWORD
 	unsigned int row = index / VECTOR2_SIZE;
-	unsigned int col = loc % VECTOR2_SIZE;
+	unsigned int col = index % VECTOR2_SIZE;
  if(col == 0){
 		data = kvdram[offset_kvs + row].range(31, 0); 
 	}
@@ -241,7 +245,7 @@ void acts_all::UTILP2_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsi
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	unsigned int row = index / VECTOR2_SIZE;
-	unsigned int col = loc % VECTOR2_SIZE;
+	unsigned int col = index % VECTOR2_SIZE;
  if(col == 0){
 		kvdram[offset_kvs + row].range(31, 0) = data; 
 	}
@@ -1445,8 +1449,8 @@ vmdata_t acts_all::MEMCAP2_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, un
 	vmdata.vmask = UTILP2_SWREADBITSFROM_UINTV(bits_vector, BEGINOFFSETOF_VMASK + offsetof_vdata, SIZEOF_VMASK);
 	#endif 
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	if(vmdata.vmask == 1){ cout<<">>> MEMCAP2_READFROMBUFFER(224):: ACTIVE VERTEX READ: @ bufferoffset_kvs: "<<bufferoffset_kvs<<", offsetof_vdata: "<<offsetof_vdata<<", vmdata.vdata: "<<vmdata.vdata<<", vmdata.vmask: "<<vmdata.vmask<<", sub_chunk_height: "<<(index / VDATA_SHRINK_RATIO)<<", index: "<<index<<endl; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<">>> MEMCAP2_VDATAWITHVMASK2(224):: ACTIVE VERTEX READ: @ bufferoffset_kvs: "<<bufferoffset_kvs<<", offsetof_vdata: "<<offsetof_vdata<<", vmdata.vdata: "<<vmdata.vdata<<", vmdata.vmask: "<<vmdata.vmask<<", sub_chunk_height: "<<(index / VDATA_SHRINK_RATIO)<<", index: "<<index<<endl; }
 	#endif
 	return vmdata;
 }
@@ -11520,30 +11524,33 @@ void acts_all::MEMACCESSP2_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 void acts_all::MEMACCESSP2_readmanypmask1(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
 		pmask0[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask2(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
 		#else
 		pmask0[i] = vdram[offset_kvs + i].data[0].key;
 		pmask1[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask3(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11552,13 +11559,14 @@ void acts_all::MEMACCESSP2_readmanypmask3(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask0[i] = vdram[offset_kvs + i].data[0].key;
 		pmask1[i] = vdram[offset_kvs + i].data[0].key;
 		pmask2[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask4(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11569,13 +11577,14 @@ void acts_all::MEMACCESSP2_readmanypmask4(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask1[i] = vdram[offset_kvs + i].data[0].key;
 		pmask2[i] = vdram[offset_kvs + i].data[0].key;
 		pmask3[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask5(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11588,13 +11597,14 @@ void acts_all::MEMACCESSP2_readmanypmask5(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask2[i] = vdram[offset_kvs + i].data[0].key;
 		pmask3[i] = vdram[offset_kvs + i].data[0].key;
 		pmask4[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask6(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11609,13 +11619,14 @@ void acts_all::MEMACCESSP2_readmanypmask6(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask3[i] = vdram[offset_kvs + i].data[0].key;
 		pmask4[i] = vdram[offset_kvs + i].data[0].key;
 		pmask5[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask7(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11632,13 +11643,14 @@ void acts_all::MEMACCESSP2_readmanypmask7(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask4[i] = vdram[offset_kvs + i].data[0].key;
 		pmask5[i] = vdram[offset_kvs + i].data[0].key;
 		pmask6[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask8(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11657,13 +11669,14 @@ void acts_all::MEMACCESSP2_readmanypmask8(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask5[i] = vdram[offset_kvs + i].data[0].key;
 		pmask6[i] = vdram[offset_kvs + i].data[0].key;
 		pmask7[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask9(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11684,13 +11697,14 @@ void acts_all::MEMACCESSP2_readmanypmask9(uint512_dt * vdram, pmask_dt pmask0[BL
 		pmask6[i] = vdram[offset_kvs + i].data[0].key;
 		pmask7[i] = vdram[offset_kvs + i].data[0].key;
 		pmask8[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask10(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11713,13 +11727,14 @@ void acts_all::MEMACCESSP2_readmanypmask10(uint512_dt * vdram, pmask_dt pmask0[B
 		pmask7[i] = vdram[offset_kvs + i].data[0].key;
 		pmask8[i] = vdram[offset_kvs + i].data[0].key;
 		pmask9[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask11(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask10[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11744,13 +11759,14 @@ void acts_all::MEMACCESSP2_readmanypmask11(uint512_dt * vdram, pmask_dt pmask0[B
 		pmask8[i] = vdram[offset_kvs + i].data[0].key;
 		pmask9[i] = vdram[offset_kvs + i].data[0].key;
 		pmask10[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
 void acts_all::MEMACCESSP2_readmanypmask12(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask10[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask11[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
 	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
 	#pragma HLS PIPELINE II=1
+		
 		#ifdef _WIDEWORD
 		pmask0[i] = vdram[offset_kvs + i].range(31, 0);
 		pmask1[i] = vdram[offset_kvs + i].range(31, 0);
@@ -11777,10 +11793,1291 @@ void acts_all::MEMACCESSP2_readmanypmask12(uint512_dt * vdram, pmask_dt pmask0[B
 		pmask9[i] = vdram[offset_kvs + i].data[0].key;
 		pmask10[i] = vdram[offset_kvs + i].data[0].key;
 		pmask11[i] = vdram[offset_kvs + i].data[0].key;
-		#endif 
+		#endif
 	}
 	return;
 }
+
+#ifdef NOT_USED_XXXXXXXXXXXXXXXX
+void acts_all::MEMACCESSP2_readmanypmask1(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask1: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask2(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask2: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask3(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask3: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask4(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask4: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask5(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask5: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask6(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask6: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask7(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask7: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask8(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask8: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask9(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask9: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask10(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask10: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask11(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask10[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask11: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
+		pmask10[i] = pmask0[i];
+	}
+	return;
+}
+void acts_all::MEMACCESSP2_readmanypmask12(uint512_dt * vdram, pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask1[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask2[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask3[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask4[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask5[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask6[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask7[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask8[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask9[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask10[BLOCKRAM_CURRPMASK_SIZE],pmask_dt pmask11[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs){
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+	
+ if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 0){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(31, 0);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 1){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(63, 32);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 2){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(95, 64);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 3){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(127, 96);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 4){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(159, 128);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 5){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(191, 160);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 6){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(223, 192);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 7){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(255, 224);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 8){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(287, 256);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 9){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(319, 288);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 10){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(351, 320);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+else if(globalparams.ALGORITHMINFO_GRAPHITERATIONID == 11){
+			#ifdef _WIDEWORD
+			pmask0[i] = vdram[offset_kvs + i].range(383, 352);
+			#else
+			pmask0[i] = vdram[offset_kvs + i].data[0].key;
+			#endif  
+		}
+		else {
+			#ifdef _DEBUGMODE_CHECKS3
+			cout<<"MEMACCESSP2_readmanypmask12: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
+			exit(EXIT_FAILURE);
+			#endif 
+		}
+	}
+	
+	READMANYPMASKS_LOOP1B: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		pmask1[i] = pmask0[i];
+		pmask2[i] = pmask0[i];
+		pmask3[i] = pmask0[i];
+		pmask4[i] = pmask0[i];
+		pmask5[i] = pmask0[i];
+		pmask6[i] = pmask0[i];
+		pmask7[i] = pmask0[i];
+		pmask8[i] = pmask0[i];
+		pmask9[i] = pmask0[i];
+		pmask10[i] = pmask0[i];
+		pmask11[i] = pmask0[i];
+	}
+	return;
+}
+#endif
 
 // -------------------- others -------------------- //
 void acts_all::MEMACCESSP2_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK){
@@ -11841,16 +13138,14 @@ keyvalue_t acts_all::PROCESSP2_processvector(bool enx, unsigned int v, unsigned 
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
 	if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && en == true){
-	// if(loc >= (globalparams.SIZEKVS2_PROCESSEDGESPARTITION * VDATA_SHRINK_RATIO) && en == true){
 		#ifdef _DEBUGMODE_CHECKS
 		if(true){ cout<<"PROCESSP2_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
-		#endif 
+		#endif
 		loc = 0; }
 	
 	// read 
 	vmdata_t vmdata;
-	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS	
-	// if((bufferoffset_kvs + loc/VDATA_SHRINK_RATIO) >= BLOCKRAM_VDATA_SIZE){ cout<<"PROCESS VECTOR:: ERROR: (bufferoffset_kvs("<<bufferoffset_kvs<<") + loc("<<loc<<")/2) >= BLOCKRAM_VDATA_SIZE("<<BLOCKRAM_VDATA_SIZE<<") ||| globalposition.source_partition("<<globalposition.source_partition<<") * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<") / VDATA_SHRINK_RATIO("<<VDATA_SHRINK_RATIO<<")). EXITING..."<<endl; exit(EXIT_FAILURE); }				
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS			
 		if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK2(loc, NAp, vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
 			#else 
 				if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
@@ -11862,6 +13157,42 @@ keyvalue_t acts_all::PROCESSP2_processvector(bool enx, unsigned int v, unsigned 
 			
 	// process
 	value_t res = PROCESSP2_processfunc(vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
+	keyvalue_t mykeyvalue; mykeyvalue.key = edata.key; mykeyvalue.value = res;
+	
+	if(en == true && vmdata.vmask == 1){ } else { mykeyvalue.key = INVALIDDATA; }
+	
+	#ifdef _DEBUGMODE_STATS
+	actsutilityobj->globalstats_countkvsprocessed(1);
+	if(en == true && vmdata.vmask == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
+	#endif
+	return mykeyvalue;
+}
+
+keyvalue_t acts_all::PROCESSP2_processvectorA(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, 
+		unsigned int _ACTSPARAMS_INSTID, unsigned int _ALGORITHMINFO_GRAPHALGORITHMID, unsigned int _SIZEKVS2_PROCESSEDGESPARTITION){									
+	// #pragma HLS PIPELINE II=2
+	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
+
+	if(loc >= _SIZEKVS2_PROCESSEDGESPARTITION && en == true){
+		#ifdef _DEBUGMODE_CHECKS
+		if(true){ cout<<"PROCESSP2_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+		#endif 
+		loc = 0; }
+	
+	// read 
+	vmdata_t vmdata;
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS			
+		if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK2(loc, NAp, vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
+			#else 
+				if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
+					#endif 
+	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vid: "<<UTILP2_GETREALVID(edata.key, _ACTSPARAMS_INSTID)<<endl; }
+	#endif
+			
+	// process
+	value_t res = PROCESSP2_processfunc(vmdata.vdata, 1, _ALGORITHMINFO_GRAPHALGORITHMID);
 	keyvalue_t mykeyvalue; mykeyvalue.key = edata.key; mykeyvalue.value = res;
 	
 	if(en == true && vmdata.vmask == 1){ } else { mykeyvalue.key = INVALIDDATA; }
@@ -12269,7 +13600,8 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 		}
 		
 		PROCESSBUFFERPARTITIONS_LOOP2C: for(buffer_type i=0; i<maxsize_kvs; i++){
-		#pragma HLS PIPELINE II=16
+		// #pragma HLS PIPELINE II=16
+		#pragma HLS PIPELINE II=48
 			for(vector_type v=0; v<VECTOR2_SIZE; v++){
 	
 				unsigned int partition0 = it+0;
@@ -12354,14 +13686,47 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 				if((ind7 >= localcapsule[it+7].key) && (ind7 < localcapsule[it+7].key + localcapsule[it+7].value)){ enx[7] = true; } else { enx[7] = false; }
 				
 				// process	
-				reskeyvalue[0] = PROCESSP2_processvector(enx[0], it+0, edata[0].value, edata[0], vbuffer[it+0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
-				reskeyvalue[1] = PROCESSP2_processvector(enx[1], it+1, edata[1].value, edata[1], vbuffer[it+1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
-				reskeyvalue[2] = PROCESSP2_processvector(enx[2], it+2, edata[2].value, edata[2], vbuffer[it+2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
-				reskeyvalue[3] = PROCESSP2_processvector(enx[3], it+3, edata[3].value, edata[3], vbuffer[it+3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
-				reskeyvalue[4] = PROCESSP2_processvector(enx[4], it+4, edata[4].value, edata[4], vbuffer[it+4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
-				reskeyvalue[5] = PROCESSP2_processvector(enx[5], it+5, edata[5].value, edata[5], vbuffer[it+5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
-				reskeyvalue[6] = PROCESSP2_processvector(enx[6], it+6, edata[6].value, edata[6], vbuffer[it+6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
-				reskeyvalue[7] = PROCESSP2_processvector(enx[7], it+7, edata[7].value, edata[7], vbuffer[it+7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
+				// 	
+				// reskeyvalue[0] = PROCESSP2_processvector(enx[0], it+0, edata[0].value, edata[0], vbuffer[it+0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
+				// 	
+				// reskeyvalue[1] = PROCESSP2_processvector(enx[1], it+1, edata[1].value, edata[1], vbuffer[it+1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
+				// 	
+				// reskeyvalue[2] = PROCESSP2_processvector(enx[2], it+2, edata[2].value, edata[2], vbuffer[it+2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
+				// 	
+				// reskeyvalue[3] = PROCESSP2_processvector(enx[3], it+3, edata[3].value, edata[3], vbuffer[it+3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
+				// 	
+				// reskeyvalue[4] = PROCESSP2_processvector(enx[4], it+4, edata[4].value, edata[4], vbuffer[it+4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
+				// 	
+				// reskeyvalue[5] = PROCESSP2_processvector(enx[5], it+5, edata[5].value, edata[5], vbuffer[it+5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
+				// 	
+				// reskeyvalue[6] = PROCESSP2_processvector(enx[6], it+6, edata[6].value, edata[6], vbuffer[it+6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
+				// 	
+				// reskeyvalue[7] = PROCESSP2_processvector(enx[7], it+7, edata[7].value, edata[7], vbuffer[it+7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
+				// 	
+	
+				reskeyvalue[0] = PROCESSP2_processvectorA(enx[0], it+0, edata[0].value, edata[0], vbuffer[it+0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, 
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+	
+				reskeyvalue[1] = PROCESSP2_processvectorA(enx[1], it+1, edata[1].value, edata[1], vbuffer[it+1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, 
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+	
+				reskeyvalue[2] = PROCESSP2_processvectorA(enx[2], it+2, edata[2].value, edata[2], vbuffer[it+2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, 
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+	
+				reskeyvalue[3] = PROCESSP2_processvectorA(enx[3], it+3, edata[3].value, edata[3], vbuffer[it+3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, 
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+	
+				reskeyvalue[4] = PROCESSP2_processvectorA(enx[4], it+4, edata[4].value, edata[4], vbuffer[it+4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, 
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+	
+				reskeyvalue[5] = PROCESSP2_processvectorA(enx[5], it+5, edata[5].value, edata[5], vbuffer[it+5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, 
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+	
+				reskeyvalue[6] = PROCESSP2_processvectorA(enx[6], it+6, edata[6].value, edata[6], vbuffer[it+6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, 
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+	
+				reskeyvalue[7] = PROCESSP2_processvectorA(enx[7], it+7, edata[7].value, edata[7], vbuffer[it+7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, 
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
 	
 				
 				// re-arrange 
@@ -12387,7 +13752,6 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[7], WORKBUFFER_SIZE, WORKBUFFER_SIZE, SOURCEBLOCKRAM_SIZE, SRCBUFFER_SIZE);
  
 				#endif
-				
 			}
 		}
 	}
@@ -12425,13 +13789,11 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 	
 #endif 
 #ifdef CONFIG_ENABLECLASS_PROCESSEDGES2
-#define PROCESSEDGES_TYPE2A_INCORRECTONE
-
 void acts_all::PROCESSP2_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){				
 	#pragma HLS INLINE
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
-	if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){
+	if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && en == true){
 		#ifdef _DEBUGMODE_CHECKS
 		if(true){ cout<<"PROCESSP2_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		#endif 
@@ -12439,15 +13801,14 @@ void acts_all::PROCESSP2_processvector(bool enx, unsigned int v, unsigned int lo
 	
 	// read 
 	vmdata_t vmdata;
-	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS	
-	// if((bufferoffset_kvs + loc/VDATA_SHRINK_RATIO) >= BLOCKRAM_VDATA_SIZE){ cout<<"PROCESS VECTOR:: ERROR: (bufferoffset_kvs("<<bufferoffset_kvs<<") + loc("<<loc<<")/2) >= BLOCKRAM_VDATA_SIZE("<<BLOCKRAM_VDATA_SIZE<<") ||| globalposition.source_partition("<<globalposition.source_partition<<") * (globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<") / VDATA_SHRINK_RATIO("<<VDATA_SHRINK_RATIO<<")). EXITING..."<<endl; exit(EXIT_FAILURE); }				
-		if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK2(loc, (globalposition.source_partition % VDATA_SHRINK_RATIO), vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS				
+		if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK2(loc, NAp, vbuffer, bufferoffset_kvs); } else { vmdata.vmask = 0; }
 			#else 
 				if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); } else { vmdata.vmask = 0; }
 					#endif 
 	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<endl; }
+	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vid: "<<UTILP2_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
 	#endif
 			
 	// process
@@ -12455,9 +13816,10 @@ void acts_all::PROCESSP2_processvector(bool enx, unsigned int v, unsigned int lo
 	keyvalue_t mykeyvalue; mykeyvalue.key = edata.key; mykeyvalue.value = res;
 	
 	// write 
-	if(en == true && vmdata.vmask == 1){ buffer[*loadcount] = UTILP2_GETKV(mykeyvalue); }
-	if(en == true && vmdata.vmask == 1){ *loadcount += 1; }
-	// if(en == true && vmdata.vmask == 1 && *loadcount < SRCBUFFER_SIZE-2){ *loadcount += 1; } // CRITICAL FIXME.
+	// if(en == true && vmdata.vmask == 1){ buffer[*loadcount] = UTILP2_GETKV(mykeyvalue); }
+	// if(en == true && vmdata.vmask == 1){ *loadcount += 1; }
+	if(en == true && vmdata.vmask == 1 && *loadcount < WORKBUFFER_SIZE-2){ buffer[*loadcount] = UTILP2_GETKV(mykeyvalue); }
+	if(en == true && vmdata.vmask == 1 && *loadcount < WORKBUFFER_SIZE-2){ *loadcount += 1; } // CRITICAL FIXME. WORKBUFFER_SIZE
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsprocessed(1);
@@ -12466,9 +13828,6 @@ void acts_all::PROCESSP2_processvector(bool enx, unsigned int v, unsigned int lo
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("PROCESSP2_processvector::DEBUG CODE 14::1", *loadcount, SRCBUFFER_SIZE, SOURCEBLOCKRAM_SIZE, SRCBUFFER_SIZE, NAp); // SOURCEBLOCKRAM_SIZE
 	#endif
-	
-	// if(*loadcount >= SOURCEBLOCKRAM_SIZE){ return false; } else { return true; } 
-	
 	return;
 }
 
@@ -12643,30 +14002,99 @@ else {
 	return;
 }
 
-parsededge_t acts_all::PROCESSP2_PARSEEDGE(uint32_type data){ 
-	parsededge_t parsededge;
-	#ifdef _WIDEWORD
-	// parsededge.incr = data.range(31, OFFSETOF_SRCV_IN_EDGEDSTVDATA);
-	// parsededge.dstvid = data.range(SIZEOF_DSTV_IN_EDGEDSTVDATA, 0);
-	parsededge.incr = UTILP2_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
-	parsededge.dstvid = UTILP2_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
-	#else
-	parsededge.incr = UTILP2_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
-	parsededge.dstvid = UTILP2_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
-	#endif
-	return parsededge; 
-}
-
-void acts_all::PROCESSP2_calculateoffsets2(keyvalue_capsule_t * buffer){
-	buffer[0].key = 0;
-	for(buffer_type i=1; i<NUM_PARTITIONS; i++){ 
-	#pragma HLS PIPELINE II=2	
-		buffer[i].key = UTILP2_allignlower_KV2(buffer[i-1].key + buffer[i-1].value); 
+void acts_all::PROCESSP2_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
+	unsigned int s_ = s;// % VECTOR_SIZE;
+ if(s_==0){ 
+		en2[0] = en[0]; 
+		en2[1] = en[1]; 
+		en2[2] = en[2]; 
+		en2[3] = en[3]; 
+		en2[4] = en[4]; 
+		en2[5] = en[5]; 
+		en2[6] = en[6]; 
+		en2[7] = en[7]; 
+	}
+else if(s_==1){ 
+		en2[7] = en[0]; 
+		en2[0] = en[1]; 
+		en2[1] = en[2]; 
+		en2[2] = en[3]; 
+		en2[3] = en[4]; 
+		en2[4] = en[5]; 
+		en2[5] = en[6]; 
+		en2[6] = en[7]; 
+	}
+else if(s_==2){ 
+		en2[6] = en[0]; 
+		en2[7] = en[1]; 
+		en2[0] = en[2]; 
+		en2[1] = en[3]; 
+		en2[2] = en[4]; 
+		en2[3] = en[5]; 
+		en2[4] = en[6]; 
+		en2[5] = en[7]; 
+	}
+else if(s_==3){ 
+		en2[5] = en[0]; 
+		en2[6] = en[1]; 
+		en2[7] = en[2]; 
+		en2[0] = en[3]; 
+		en2[1] = en[4]; 
+		en2[2] = en[5]; 
+		en2[3] = en[6]; 
+		en2[4] = en[7]; 
+	}
+else if(s_==4){ 
+		en2[4] = en[0]; 
+		en2[5] = en[1]; 
+		en2[6] = en[2]; 
+		en2[7] = en[3]; 
+		en2[0] = en[4]; 
+		en2[1] = en[5]; 
+		en2[2] = en[6]; 
+		en2[3] = en[7]; 
+	}
+else if(s_==5){ 
+		en2[3] = en[0]; 
+		en2[4] = en[1]; 
+		en2[5] = en[2]; 
+		en2[6] = en[3]; 
+		en2[7] = en[4]; 
+		en2[0] = en[5]; 
+		en2[1] = en[6]; 
+		en2[2] = en[7]; 
+	}
+else if(s_==6){ 
+		en2[2] = en[0]; 
+		en2[3] = en[1]; 
+		en2[4] = en[2]; 
+		en2[5] = en[3]; 
+		en2[6] = en[4]; 
+		en2[7] = en[5]; 
+		en2[0] = en[6]; 
+		en2[1] = en[7]; 
+	}
+else { 
+		en2[1] = en[0]; 
+		en2[2] = en[1]; 
+		en2[3] = en[2]; 
+		en2[4] = en[3]; 
+		en2[5] = en[4]; 
+		en2[6] = en[5]; 
+		en2[7] = en[6]; 
+		en2[0] = en[7]; 
 	}
 	return;
 }
 
-void acts_all::PROCESSP2_calculateoffsets1(keyvalue_capsule_t * buffer){
+parsededge_t acts_all::PROCESSP2_PARSEEDGE(uint32_type data){ 
+	parsededge_t parsededge;
+	parsededge.incr = UTILP2_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
+	parsededge.dstvid = UTILP2_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
+	return parsededge; 
+}
+
+void acts_all::PROCESSP2_calculateoffsets(keyvalue_capsule_t * buffer){
 	buffer[0].key = 0;
 	for(buffer_type i=1; i<NUM_PARTITIONS; i++){ 
 	#pragma HLS PIPELINE II=2	
@@ -12675,7 +14103,6 @@ void acts_all::PROCESSP2_calculateoffsets1(keyvalue_capsule_t * buffer){
 	return;
 }
 
-#ifdef PROCESSEDGES_TYPE2A_INCORRECTONE
 fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
@@ -12711,328 +14138,8 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 	#pragma HLS ARRAY_PARTITION variable=d_kvs complete
 	bool enx[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=enx complete
-
-	batch_type vptrbaseoffset_kvs = globalparams.BASEOFFSETKVS_VERTEXPTR + (globalparams.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE);
-	batch_type voffset_kvs = sweepparams.source_partition * reducebuffersz * FETFACTOR;
-
-	fetchmessage.chunksize_kvs = edgessize_kvs;
-	fetchmessage.nextoffset_kvs = -1;
-	
-	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
-	unsigned int GraphAlgoClass = globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS;
-	
-	keyvalue_t edata[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=edata complete
-	value_t tempbuffer[VECTOR2_SIZE][SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
-	#pragma HLS array_partition variable = tempbuffer
-	keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS];
-	
-	buffer_type chunk_size = UTILP2_getchunksize_kvs(edgessize_kvs, mytravstate, 0);
-	for(unsigned int t=0; t<VECTOR2_SIZE; t++){ loadcount[t] = 0; }
-	buffer_type maxsize_kvs[2]; 
-	buffer_type height_kvs = 0;
-	
-	unsigned int MYINVALIDDATA = UTILP2_GETV(INVALIDDATA);
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	for (buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
-		if(MEMCAP2_READVMASK(vbuffer[0][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 0"<<", vbuffer[0]["<<i<<"]: "<<vbuffer[0][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[1][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 1"<<", vbuffer[1]["<<i<<"]: "<<vbuffer[1][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[2][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 2"<<", vbuffer[2]["<<i<<"]: "<<vbuffer[2][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[3][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 3"<<", vbuffer[3]["<<i<<"]: "<<vbuffer[3][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[4][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 4"<<", vbuffer[4]["<<i<<"]: "<<vbuffer[4][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[5][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 5"<<", vbuffer[5]["<<i<<"]: "<<vbuffer[5][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[6][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 6"<<", vbuffer[6]["<<i<<"]: "<<vbuffer[6][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[7][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 7"<<", vbuffer[7]["<<i<<"]: "<<vbuffer[7][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[8][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 8"<<", vbuffer[8]["<<i<<"]: "<<vbuffer[8][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[9][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 9"<<", vbuffer[9]["<<i<<"]: "<<vbuffer[9][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[10][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 10"<<", vbuffer[10]["<<i<<"]: "<<vbuffer[10][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[11][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 11"<<", vbuffer[11]["<<i<<"]: "<<vbuffer[11][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[12][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 12"<<", vbuffer[12]["<<i<<"]: "<<vbuffer[12][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[13][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 13"<<", vbuffer[13]["<<i<<"]: "<<vbuffer[13][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[14][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 14"<<", vbuffer[14]["<<i<<"]: "<<vbuffer[14][i]<<endl; }
-		if(MEMCAP2_READVMASK(vbuffer[15][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 15"<<", vbuffer[15]["<<i<<"]: "<<vbuffer[15][i]<<endl; }
-	}
-	#endif
-	
-	// read edge block
-	#ifdef DEBUGME_PROCESSEDGES2
-	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<", edgessize_kvs: "<<edgessize_kvs<<", mytravstate.i_kvs: "<<mytravstate.i_kvs<<", mytravstate.end_kvs: "<<mytravstate.end_kvs<<endl;
-	#endif 
-	PROCESSBUFFERPARTITIONS_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS PIPELINE II=1
-		#ifdef _WIDEWORD
-		tempbuffer[0][i] = edges[offset_kvs + i].range(31, 0); 
-		tempbuffer[1][i] = edges[offset_kvs + i].range(63, 32); 
-		tempbuffer[2][i] = edges[offset_kvs + i].range(95, 64); 
-		tempbuffer[3][i] = edges[offset_kvs + i].range(127, 96); 
-		tempbuffer[4][i] = edges[offset_kvs + i].range(159, 128); 
-		tempbuffer[5][i] = edges[offset_kvs + i].range(191, 160); 
-		tempbuffer[6][i] = edges[offset_kvs + i].range(223, 192); 
-		tempbuffer[7][i] = edges[offset_kvs + i].range(255, 224); 
-		tempbuffer[8][i] = edges[offset_kvs + i].range(287, 256); 
-		tempbuffer[9][i] = edges[offset_kvs + i].range(319, 288); 
-		tempbuffer[10][i] = edges[offset_kvs + i].range(351, 320); 
-		tempbuffer[11][i] = edges[offset_kvs + i].range(383, 352); 
-		tempbuffer[12][i] = edges[offset_kvs + i].range(415, 384); 
-		tempbuffer[13][i] = edges[offset_kvs + i].range(447, 416); 
-		tempbuffer[14][i] = edges[offset_kvs + i].range(479, 448); 
-		tempbuffer[15][i] = edges[offset_kvs + i].range(511, 480); 
-		#else 
-		tempbuffer[0][i] = edges[offset_kvs + i].data[0].key; 
-		tempbuffer[1][i] = edges[offset_kvs + i].data[0].value;	
-		tempbuffer[2][i] = edges[offset_kvs + i].data[1].key; 
-		tempbuffer[3][i] = edges[offset_kvs + i].data[1].value;	
-		tempbuffer[4][i] = edges[offset_kvs + i].data[2].key; 
-		tempbuffer[5][i] = edges[offset_kvs + i].data[2].value;	
-		tempbuffer[6][i] = edges[offset_kvs + i].data[3].key; 
-		tempbuffer[7][i] = edges[offset_kvs + i].data[3].value;	
-		tempbuffer[8][i] = edges[offset_kvs + i].data[4].key; 
-		tempbuffer[9][i] = edges[offset_kvs + i].data[4].value;	
-		tempbuffer[10][i] = edges[offset_kvs + i].data[5].key; 
-		tempbuffer[11][i] = edges[offset_kvs + i].data[5].value;	
-		tempbuffer[12][i] = edges[offset_kvs + i].data[6].key; 
-		tempbuffer[13][i] = edges[offset_kvs + i].data[6].value;	
-		tempbuffer[14][i] = edges[offset_kvs + i].data[7].key; 
-		tempbuffer[15][i] = edges[offset_kvs + i].data[7].value;	
-		#endif
-		
-		#ifdef DEBUGME_PROCESSEDGES
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[0].key: "<<edges[offset_kvs + i].data[0].key<<", edges["<<offset_kvs + i<<"].data[0].value: "<<edges[offset_kvs + i].data[0].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[1].key: "<<edges[offset_kvs + i].data[1].key<<", edges["<<offset_kvs + i<<"].data[1].value: "<<edges[offset_kvs + i].data[1].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[2].key: "<<edges[offset_kvs + i].data[2].key<<", edges["<<offset_kvs + i<<"].data[2].value: "<<edges[offset_kvs + i].data[2].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[3].key: "<<edges[offset_kvs + i].data[3].key<<", edges["<<offset_kvs + i<<"].data[3].value: "<<edges[offset_kvs + i].data[3].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[4].key: "<<edges[offset_kvs + i].data[4].key<<", edges["<<offset_kvs + i<<"].data[4].value: "<<edges[offset_kvs + i].data[4].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[5].key: "<<edges[offset_kvs + i].data[5].key<<", edges["<<offset_kvs + i<<"].data[5].value: "<<edges[offset_kvs + i].data[5].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[6].key: "<<edges[offset_kvs + i].data[6].key<<", edges["<<offset_kvs + i<<"].data[6].value: "<<edges[offset_kvs + i].data[6].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[7].key: "<<edges[offset_kvs + i].data[7].key<<", edges["<<offset_kvs + i<<"].data[7].value: "<<edges[offset_kvs + i].data[7].value<<endl; }
-		#endif 
-	}
-	
-	// read edge block stats  
-	// bool statsiscorrect = true;
-	unsigned int sum_values = 0;
-	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ localcapsule[p].key = 0; localcapsule[p].value = tempbuffer[p][0]; if(p<NUM_PARTITIONS-1){ sum_values += tempbuffer[p][0]; }}
-	localcapsule[NUM_PARTITIONS-1].value = (chunk_size * VECTOR2_SIZE) - sum_values;
-	if(tempbuffer[NUM_PARTITIONS-1][0] != 8888888 || sum_values > chunk_size * VECTOR2_SIZE){
-		#if defined(_DEBUGMODE_CHECKS3) && defined(CONFIG_INSERTSTATSMETADATAINEDGES)
-		if(sum_values > chunk_size * VECTOR2_SIZE && chunk_size > 0){ cout<<"processedges2: ERROR: sum_values("<<sum_values<<") > chunk_size("<<chunk_size<<") * VECTOR2_SIZE. EXITING... "<<endl; actsutilityobj->printkeyvalues("processandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS); exit(EXIT_FAILURE); } 
-		if(tempbuffer[NUM_PARTITIONS-1][0] != 8888888){ cout<<"processedges2: ERROR: tempbuffer[NUM_PARTITIONS-1][0] != 8888888. EXITING... "<<endl; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<"tempbuffer["<<v<<"][0]: "<<tempbuffer[v][0]<<endl; } exit(EXIT_FAILURE); }
-		#endif 
-		unsigned int modelsz = chunk_size / NUM_PARTITIONS; // mock it
-		for(unsigned int i=0; i<NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR2_SIZE; localcapsule[i].value = modelsz * VECTOR2_SIZE; } 
-	}
-	PROCESSP2_calculateoffsets2(localcapsule);
-	#ifdef DEBUGME_PROCESSEDGES2
-	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS); 
-	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", edgessize_kvs * VECTOR2_SIZE: "<<edgessize_kvs * VECTOR2_SIZE<<", WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
-	#endif
-	
-	// process edge block stats 
-	maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
-	unsigned int _poff = 0;
-	PROCESSBUFFERPARTITIONS_LOOP3: for(unsigned int cid=0; cid<2; cid++){
-		PROCESSBUFFERPARTITIONS_LOOP3B: for(partition_type p=0; p<NUM_PARTITIONS/2; p++){
-		#pragma HLS PIPELINE II=2
-			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR2_SIZE;
-			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
-		}
-		_poff += NUM_PARTITIONS/2;
-	}
-	height_kvs = (localcapsule[NUM_PARTITIONS-1].key + localcapsule[NUM_PARTITIONS-1].value) / VECTOR2_SIZE;
-
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){
-		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
-		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
-	}
-	
-	// process edge block
-	unsigned int readoffset = 0;
-	unsigned int bufferoffset_kvs = 0;
-	if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
-	buffer_type psetoffset=0;
-	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
-		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
-		PROCESSBUFFERPARTITIONS_LOOP4B: for(buffer_type block_offset=0; block_offset<VECTOR2_SIZE; block_offset+=VECTOR_SIZE){ // processing next block set 
-			PROCESSBUFFERPARTITIONS_LOOP4C: for(unsigned int r=0; r<VECTOR_SIZE; r++){ // interchanging columns
-				PROCESSBUFFERPARTITIONS_LOOP4D: for(buffer_type i=0; i<mmaxsz_kvs; i++){ // processing a column data
-				#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
-				#pragma HLS PIPELINE II=1
-					#ifdef _DEBUGMODE_CHECKS2
-					actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					#endif
-					// read edges . FIXME
-					PROCESSP2_GetXYLayoutV(r, depths, 0);
-					#ifdef _DEBUGMODE_CHECKS3
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[0], NUM_PARTITIONS, capsule_offset, depths[0], NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[1], NUM_PARTITIONS, capsule_offset, depths[1], NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[2], NUM_PARTITIONS, capsule_offset, depths[2], NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[3], NUM_PARTITIONS, capsule_offset, depths[3], NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[4], NUM_PARTITIONS, capsule_offset, depths[4], NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[5], NUM_PARTITIONS, capsule_offset, depths[5], NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[6], NUM_PARTITIONS, capsule_offset, depths[6], NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[7], NUM_PARTITIONS, capsule_offset, depths[7], NAp);
- 
-					#endif
-
-					unsigned int tdepth0 = capsule_offset + depths[0];
-					unsigned int tdepth1 = capsule_offset + depths[1];
-					unsigned int tdepth2 = capsule_offset + depths[2];
-					unsigned int tdepth3 = capsule_offset + depths[3];
-					unsigned int tdepth4 = capsule_offset + depths[4];
-					unsigned int tdepth5 = capsule_offset + depths[5];
-					unsigned int tdepth6 = capsule_offset + depths[6];
-					unsigned int tdepth7 = capsule_offset + depths[7];
- 	
-					if(i < localcapsule[tdepth0].value){ enx[0] = true; } else { enx[0] = false; }
-					if(i < localcapsule[tdepth1].value){ enx[1] = true; } else { enx[1] = false; }
-					if(i < localcapsule[tdepth2].value){ enx[2] = true; } else { enx[2] = false; }
-					if(i < localcapsule[tdepth3].value){ enx[3] = true; } else { enx[3] = false; }
-					if(i < localcapsule[tdepth4].value){ enx[4] = true; } else { enx[4] = false; }
-					if(i < localcapsule[tdepth5].value){ enx[5] = true; } else { enx[5] = false; }
-					if(i < localcapsule[tdepth6].value){ enx[6] = true; } else { enx[6] = false; }
-					if(i < localcapsule[tdepth7].value){ enx[7] = true; } else { enx[7] = false; }
- 
-					
-					d_kvs[0] = readoffset + localcapsule[tdepth0].key + i; 
-					d_kvs[1] = readoffset + localcapsule[tdepth1].key + i; 
-					d_kvs[2] = readoffset + localcapsule[tdepth2].key + i; 
-					d_kvs[3] = readoffset + localcapsule[tdepth3].key + i; 
-					d_kvs[4] = readoffset + localcapsule[tdepth4].key + i; 
-					d_kvs[5] = readoffset + localcapsule[tdepth5].key + i; 
-					d_kvs[6] = readoffset + localcapsule[tdepth6].key + i; 
-					d_kvs[7] = readoffset + localcapsule[tdepth7].key + i; 
- 	
-					if(d_kvs[0] < height_kvs){ E[0] = tempbuffer[block_offset + 0][d_kvs[0]]; } else { E[0] = INVALIDDATA; }	
-					if(d_kvs[1] < height_kvs){ E[1] = tempbuffer[block_offset + 1][d_kvs[1]]; } else { E[1] = INVALIDDATA; }	
-					if(d_kvs[2] < height_kvs){ E[2] = tempbuffer[block_offset + 2][d_kvs[2]]; } else { E[2] = INVALIDDATA; }	
-					if(d_kvs[3] < height_kvs){ E[3] = tempbuffer[block_offset + 3][d_kvs[3]]; } else { E[3] = INVALIDDATA; }	
-					if(d_kvs[4] < height_kvs){ E[4] = tempbuffer[block_offset + 4][d_kvs[4]]; } else { E[4] = INVALIDDATA; }	
-					if(d_kvs[5] < height_kvs){ E[5] = tempbuffer[block_offset + 5][d_kvs[5]]; } else { E[5] = INVALIDDATA; }	
-					if(d_kvs[6] < height_kvs){ E[6] = tempbuffer[block_offset + 6][d_kvs[6]]; } else { E[6] = INVALIDDATA; }	
-					if(d_kvs[7] < height_kvs){ E[7] = tempbuffer[block_offset + 7][d_kvs[7]]; } else { E[7] = INVALIDDATA; }	
- 	
-					
-					// re-arrange 
-					PROCESSP2_RearrangeLayoutV(r, E, E2);
-					
-					#ifdef _DEBUGMODE_CHECKS3
-					if(E2[0]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					if(E2[1]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					if(E2[2]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					if(E2[3]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					if(E2[4]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					if(E2[5]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					if(E2[6]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					if(E2[7]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					#endif 
-					
-					// parse
-					parsededge_t parsed_edge0 = PROCESSP2_PARSEEDGE(E2[0]); // FIXME.
-					edata[0].value = parsed_edge0.incr; // source info
-					edata[0].key = parsed_edge0.dstvid;	
-					parsededge_t parsed_edge1 = PROCESSP2_PARSEEDGE(E2[1]); // FIXME.
-					edata[1].value = parsed_edge1.incr; // source info
-					edata[1].key = parsed_edge1.dstvid;	
-					parsededge_t parsed_edge2 = PROCESSP2_PARSEEDGE(E2[2]); // FIXME.
-					edata[2].value = parsed_edge2.incr; // source info
-					edata[2].key = parsed_edge2.dstvid;	
-					parsededge_t parsed_edge3 = PROCESSP2_PARSEEDGE(E2[3]); // FIXME.
-					edata[3].value = parsed_edge3.incr; // source info
-					edata[3].key = parsed_edge3.dstvid;	
-					parsededge_t parsed_edge4 = PROCESSP2_PARSEEDGE(E2[4]); // FIXME.
-					edata[4].value = parsed_edge4.incr; // source info
-					edata[4].key = parsed_edge4.dstvid;	
-					parsededge_t parsed_edge5 = PROCESSP2_PARSEEDGE(E2[5]); // FIXME.
-					edata[5].value = parsed_edge5.incr; // source info
-					edata[5].key = parsed_edge5.dstvid;	
-					parsededge_t parsed_edge6 = PROCESSP2_PARSEEDGE(E2[6]); // FIXME.
-					edata[6].value = parsed_edge6.incr; // source info
-					edata[6].key = parsed_edge6.dstvid;	
-					parsededge_t parsed_edge7 = PROCESSP2_PARSEEDGE(E2[7]); // FIXME.
-					edata[7].value = parsed_edge7.incr; // source info
-					edata[7].key = parsed_edge7.dstvid;	
-					
-					// process
-					if(E[0] == INVALIDDATA){ enx[0] = false; } // edata[0].key = 0; edata[0].value  = INVALIDDATA; }
-					PROCESSP2_processvector(enx[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
-					if(E[1] == INVALIDDATA){ enx[1] = false; } // edata[1].key = 0; edata[1].value  = INVALIDDATA; }
-					PROCESSP2_processvector(enx[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
-					if(E[2] == INVALIDDATA){ enx[2] = false; } // edata[2].key = 0; edata[2].value  = INVALIDDATA; }
-					PROCESSP2_processvector(enx[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
-					if(E[3] == INVALIDDATA){ enx[3] = false; } // edata[3].key = 0; edata[3].value  = INVALIDDATA; }
-					PROCESSP2_processvector(enx[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
-					if(E[4] == INVALIDDATA){ enx[4] = false; } // edata[4].key = 0; edata[4].value  = INVALIDDATA; }
-					PROCESSP2_processvector(enx[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
-					if(E[5] == INVALIDDATA){ enx[5] = false; } // edata[5].key = 0; edata[5].value  = INVALIDDATA; }
-					PROCESSP2_processvector(enx[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
-					if(E[6] == INVALIDDATA){ enx[6] = false; } // edata[6].key = 0; edata[6].value  = INVALIDDATA; }
-					PROCESSP2_processvector(enx[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
-					if(E[7] == INVALIDDATA){ enx[7] = false; } // edata[7].key = 0; edata[7].value  = INVALIDDATA; }
-					PROCESSP2_processvector(enx[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
-					#ifdef _DEBUGMODE_CHECKS2
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[0], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[1], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[2], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[3], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[4], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[5], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[6], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[7], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
- 
-					#endif
-				}
-			}
-		}
-	}
-	
-	// for(unsigned int t=0; t<VECTOR_SIZE; t++){ cout<<"--- loadcount["<<t<<"]: "<<loadcount[t]<<endl; }
-	// actsutilityobj->printglobalvars();
-	// exit(EXIT_SUCCESS); ////
-	
-	unsigned int maxsz_kvs = 0;
-	for(unsigned int t=0; t<VECTOR_SIZE; t++){ if(loadcount[t] > maxsz_kvs){ maxsz_kvs = loadcount[t]; }}
-	fetchmessage.chunksize_kvs = maxsz_kvs;//chunk_size * 2; // loadcount; // CRITICAL FIXME
-	return fetchmessage;
-}
-#endif 
-
-#ifdef PROCESSEDGES_TYPE2B_CORRECTONE
-fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
-	fetchmessage_t fetchmessage;
-	fetchmessage.chunksize_kvs = -1;
-	fetchmessage.nextoffset_kvs = -1;
-	if(enable == OFF){ return fetchmessage; }
-	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2));
-	
-	uint32_type E[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=E complete
-	uint32_type E2[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=E2 complete
-
-	buffer_type reducebuffersz = globalparams.SIZE_REDUCE / 2;
-	unsigned int validbound = reducebuffersz * FETFACTOR * VECTOR2_SIZE;
-	
-	travstate_t mytravstate = travstate;
-	mytravstate.i_kvs = travstate.i_kvs / 2;
-	mytravstate.end_kvs = travstate.end_kvs / 2;
-	
-	loffset_kvs = loffset_kvs / 2; //
-	buffer_type edgessize_kvs = size_kvs / 2;
-	
-	batch_type offset_kvs = goffset_kvs + loffset_kvs;
-	
-	value_t res[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=res complete
-	unsigned int loadcount[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=loadcount complete
-	unsigned int depths[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=depths complete
-	unsigned int d_kvs[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=d_kvs complete
-	bool enx[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=enx complete
+	bool enx2[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=enx2 complete
 
 	batch_type vptrbaseoffset_kvs = globalparams.BASEOFFSETKVS_VERTEXPTR + (globalparams.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE);
 	batch_type voffset_kvs = sweepparams.source_partition * reducebuffersz * FETFACTOR;
@@ -13142,14 +14249,14 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 	for(unsigned int p=0; p<NUM_PARTITIONS; p++){ localcapsule[p].key = 0; localcapsule[p].value = tempbuffer[p][0]; if(p<NUM_PARTITIONS-1){ sum_values += tempbuffer[p][0]; }}
 	localcapsule[NUM_PARTITIONS-1].value = (chunk_size * VECTOR2_SIZE) - sum_values;
 	if(tempbuffer[NUM_PARTITIONS-1][0] != 8888888 || sum_values > chunk_size * VECTOR2_SIZE){
-		#if defined(_DEBUGMODE_CHECKS3) && defined(CONFIG_INSERTSTATSMETADATAINEDGES)
+		#if defined(_DEBUGMODE_CHECKS) && defined(CONFIG_INSERTSTATSMETADATAINEDGES) // CRITICAL FIXME.
 		if(sum_values > chunk_size * VECTOR2_SIZE && chunk_size > 0){ cout<<"processedges2: ERROR: sum_values("<<sum_values<<") > chunk_size("<<chunk_size<<") * VECTOR2_SIZE. EXITING... "<<endl; actsutilityobj->printkeyvalues("processandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS); exit(EXIT_FAILURE); } 
 		if(tempbuffer[NUM_PARTITIONS-1][0] != 8888888){ cout<<"processedges2: ERROR: tempbuffer[NUM_PARTITIONS-1][0] != 8888888. EXITING... "<<endl; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<"tempbuffer["<<v<<"][0]: "<<tempbuffer[v][0]<<endl; } exit(EXIT_FAILURE); }
 		#endif 
 		unsigned int modelsz = chunk_size / NUM_PARTITIONS; // mock it
 		for(unsigned int i=0; i<NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR2_SIZE; localcapsule[i].value = modelsz * VECTOR2_SIZE; } 
 	}
-	PROCESSP2_calculateoffsets1(localcapsule);
+	PROCESSP2_calculateoffsets(localcapsule);
 	#ifdef DEBUGME_PROCESSEDGES2
 	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS); 
 	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", edgessize_kvs * VECTOR2_SIZE: "<<edgessize_kvs * VECTOR2_SIZE<<", WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
@@ -13175,9 +14282,7 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 	}
 	
 	// process edge block
-	unsigned int readoffset = 0;
-	if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
-	buffer_type psetoffset=0;
+	unsigned int readoffset = 0; if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
 		PROCESSBUFFERPARTITIONS_LOOP4B: for(buffer_type block_offset=0; block_offset<VECTOR2_SIZE; block_offset+=VECTOR_SIZE){ // processing next block set 
@@ -13189,7 +14294,7 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 					actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
 					#endif
 					
-					// read edges . FIXME
+					// get layout
 					PROCESSP2_GetXYLayoutV(r, depths, 0);
 					#ifdef _DEBUGMODE_CHECKS3
 					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[0], NUM_PARTITIONS, capsule_offset, depths[0], NAp);
@@ -13203,122 +14308,55 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
  
 					#endif
 					
-					// variables
-	
-					unsigned int tdepth0 = capsule_offset + depths[0];
-					unsigned int ind0 = ((localcapsule_kvs[tdepth0].key + i) * VECTOR2_SIZE) + 0;
-	
-					unsigned int tdepth1 = capsule_offset + depths[1];
-					unsigned int ind1 = ((localcapsule_kvs[tdepth1].key + i) * VECTOR2_SIZE) + 1;
-	
-					unsigned int tdepth2 = capsule_offset + depths[2];
-					unsigned int ind2 = ((localcapsule_kvs[tdepth2].key + i) * VECTOR2_SIZE) + 2;
-	
-					unsigned int tdepth3 = capsule_offset + depths[3];
-					unsigned int ind3 = ((localcapsule_kvs[tdepth3].key + i) * VECTOR2_SIZE) + 3;
-	
-					unsigned int tdepth4 = capsule_offset + depths[4];
-					unsigned int ind4 = ((localcapsule_kvs[tdepth4].key + i) * VECTOR2_SIZE) + 4;
-	
-					unsigned int tdepth5 = capsule_offset + depths[5];
-					unsigned int ind5 = ((localcapsule_kvs[tdepth5].key + i) * VECTOR2_SIZE) + 5;
-	
-					unsigned int tdepth6 = capsule_offset + depths[6];
-					unsigned int ind6 = ((localcapsule_kvs[tdepth6].key + i) * VECTOR2_SIZE) + 6;
-	
-					unsigned int tdepth7 = capsule_offset + depths[7];
-					unsigned int ind7 = ((localcapsule_kvs[tdepth7].key + i) * VECTOR2_SIZE) + 7;
-
-					/* 	
-					if(i < localcapsule_kvs[tdepth0].value){ enx[0] = true; } else { enx[0] = false; }
-	
-					if(i < localcapsule_kvs[tdepth1].value){ enx[1] = true; } else { enx[1] = false; }
-	
-					if(i < localcapsule_kvs[tdepth2].value){ enx[2] = true; } else { enx[2] = false; }
-	
-					if(i < localcapsule_kvs[tdepth3].value){ enx[3] = true; } else { enx[3] = false; }
-	
-					if(i < localcapsule_kvs[tdepth4].value){ enx[4] = true; } else { enx[4] = false; }
-	
-					if(i < localcapsule_kvs[tdepth5].value){ enx[5] = true; } else { enx[5] = false; }
-	
-					if(i < localcapsule_kvs[tdepth6].value){ enx[6] = true; } else { enx[6] = false; }
-	
-					if(i < localcapsule_kvs[tdepth7].value){ enx[7] = true; } else { enx[7] = false; }
-  */	
-					/* 					if((ind0 >= localcapsule[tdepth0].key) 
-							&& (ind0 < localcapsule[tdepth0].key + localcapsule[tdepth0].value))
-					{ enx[0] = true; } else { enx[0] = false; }
-					if((ind1 >= localcapsule[tdepth1].key) 
-							&& (ind1 < localcapsule[tdepth1].key + localcapsule[tdepth1].value))
-					{ enx[1] = true; } else { enx[1] = false; }
-					if((ind2 >= localcapsule[tdepth2].key) 
-							&& (ind2 < localcapsule[tdepth2].key + localcapsule[tdepth2].value))
-					{ enx[2] = true; } else { enx[2] = false; }
-					if((ind3 >= localcapsule[tdepth3].key) 
-							&& (ind3 < localcapsule[tdepth3].key + localcapsule[tdepth3].value))
-					{ enx[3] = true; } else { enx[3] = false; }
-					if((ind4 >= localcapsule[tdepth4].key) 
-							&& (ind4 < localcapsule[tdepth4].key + localcapsule[tdepth4].value))
-					{ enx[4] = true; } else { enx[4] = false; }
-					if((ind5 >= localcapsule[tdepth5].key) 
-							&& (ind5 < localcapsule[tdepth5].key + localcapsule[tdepth5].value))
-					{ enx[5] = true; } else { enx[5] = false; }
-					if((ind6 >= localcapsule[tdepth6].key) 
-							&& (ind6 < localcapsule[tdepth6].key + localcapsule[tdepth6].value))
-					{ enx[6] = true; } else { enx[6] = false; }
-					if((ind7 >= localcapsule[tdepth7].key) 
-							&& (ind7 < localcapsule[tdepth7].key + localcapsule[tdepth7].value))
-					{ enx[7] = true; } else { enx[7] = false; }
-  */ 		
-					if((ind0 >= localcapsule[tdepth0].key) 
-							&& (ind0 < localcapsule[tdepth0].key + localcapsule[tdepth0].value))
-					{ enx[0] = true; } else { enx[0] = false; }
-					if((ind1 >= localcapsule[tdepth1].key) 
-							&& (ind1 < localcapsule[tdepth1].key + localcapsule[tdepth1].value))
-					{ enx[1] = true; } else { enx[1] = false; }
-					if((ind2 >= localcapsule[tdepth2].key) 
-							&& (ind2 < localcapsule[tdepth2].key + localcapsule[tdepth2].value))
-					{ enx[2] = true; } else { enx[2] = false; }
-					if((ind3 >= localcapsule[tdepth3].key) 
-							&& (ind3 < localcapsule[tdepth3].key + localcapsule[tdepth3].value))
-					{ enx[3] = true; } else { enx[3] = false; }
-					if((ind4 >= localcapsule[tdepth4].key) 
-							&& (ind4 < localcapsule[tdepth4].key + localcapsule[tdepth4].value))
-					{ enx[4] = true; } else { enx[4] = false; }
-					if((ind5 >= localcapsule[tdepth5].key) 
-							&& (ind5 < localcapsule[tdepth5].key + localcapsule[tdepth5].value))
-					{ enx[5] = true; } else { enx[5] = false; }
-					if((ind6 >= localcapsule[tdepth6].key) 
-							&& (ind6 < localcapsule[tdepth6].key + localcapsule[tdepth6].value))
-					{ enx[6] = true; } else { enx[6] = false; }
-					if((ind7 >= localcapsule[tdepth7].key) 
-							&& (ind7 < localcapsule[tdepth7].key + localcapsule[tdepth7].value))
-					{ enx[7] = true; } else { enx[7] = false; }
- 
+					// calculate enable
+					enx[0] = true;	
+					enx[1] = true;	
+					enx[2] = true;	
+					enx[3] = true;	
+					enx[4] = true;	
+					enx[5] = true;	
+					enx[6] = true;	
+					enx[7] = true;	
 					
+					// read 
+					unsigned int tdepth0 = capsule_offset + depths[0];	
 					d_kvs[0] = readoffset + localcapsule_kvs[tdepth0].key + i; 
+					unsigned int tdepth1 = capsule_offset + depths[1];	
 					d_kvs[1] = readoffset + localcapsule_kvs[tdepth1].key + i; 
+					unsigned int tdepth2 = capsule_offset + depths[2];	
 					d_kvs[2] = readoffset + localcapsule_kvs[tdepth2].key + i; 
+					unsigned int tdepth3 = capsule_offset + depths[3];	
 					d_kvs[3] = readoffset + localcapsule_kvs[tdepth3].key + i; 
+					unsigned int tdepth4 = capsule_offset + depths[4];	
 					d_kvs[4] = readoffset + localcapsule_kvs[tdepth4].key + i; 
+					unsigned int tdepth5 = capsule_offset + depths[5];	
 					d_kvs[5] = readoffset + localcapsule_kvs[tdepth5].key + i; 
+					unsigned int tdepth6 = capsule_offset + depths[6];	
 					d_kvs[6] = readoffset + localcapsule_kvs[tdepth6].key + i; 
+					unsigned int tdepth7 = capsule_offset + depths[7];	
 					d_kvs[7] = readoffset + localcapsule_kvs[tdepth7].key + i; 
  	
-					if(d_kvs[0] < height_kvs){ E[0] = tempbuffer[block_offset + 0][d_kvs[0]]; } else { enx[0] = false; E[0] = INVALIDDATA; }	
-					if(d_kvs[1] < height_kvs){ E[1] = tempbuffer[block_offset + 1][d_kvs[1]]; } else { enx[1] = false; E[1] = INVALIDDATA; }	
-					if(d_kvs[2] < height_kvs){ E[2] = tempbuffer[block_offset + 2][d_kvs[2]]; } else { enx[2] = false; E[2] = INVALIDDATA; }	
-					if(d_kvs[3] < height_kvs){ E[3] = tempbuffer[block_offset + 3][d_kvs[3]]; } else { enx[3] = false; E[3] = INVALIDDATA; }	
-					if(d_kvs[4] < height_kvs){ E[4] = tempbuffer[block_offset + 4][d_kvs[4]]; } else { enx[4] = false; E[4] = INVALIDDATA; }	
-					if(d_kvs[5] < height_kvs){ E[5] = tempbuffer[block_offset + 5][d_kvs[5]]; } else { enx[5] = false; E[5] = INVALIDDATA; }	
-					if(d_kvs[6] < height_kvs){ E[6] = tempbuffer[block_offset + 6][d_kvs[6]]; } else { enx[6] = false; E[6] = INVALIDDATA; }	
-					if(d_kvs[7] < height_kvs){ E[7] = tempbuffer[block_offset + 7][d_kvs[7]]; } else { enx[7] = false; E[7] = INVALIDDATA; }	
+ // FIXME.
+					if(d_kvs[0] < height_kvs && i < localcapsule_kvs[tdepth0].value){ E[0] = tempbuffer[block_offset + 0][d_kvs[0]]; } else { enx[0] = false; E[0] = INVALIDDATA; }	
+ // FIXME.
+					if(d_kvs[1] < height_kvs && i < localcapsule_kvs[tdepth1].value){ E[1] = tempbuffer[block_offset + 1][d_kvs[1]]; } else { enx[1] = false; E[1] = INVALIDDATA; }	
+ // FIXME.
+					if(d_kvs[2] < height_kvs && i < localcapsule_kvs[tdepth2].value){ E[2] = tempbuffer[block_offset + 2][d_kvs[2]]; } else { enx[2] = false; E[2] = INVALIDDATA; }	
+ // FIXME.
+					if(d_kvs[3] < height_kvs && i < localcapsule_kvs[tdepth3].value){ E[3] = tempbuffer[block_offset + 3][d_kvs[3]]; } else { enx[3] = false; E[3] = INVALIDDATA; }	
+ // FIXME.
+					if(d_kvs[4] < height_kvs && i < localcapsule_kvs[tdepth4].value){ E[4] = tempbuffer[block_offset + 4][d_kvs[4]]; } else { enx[4] = false; E[4] = INVALIDDATA; }	
+ // FIXME.
+					if(d_kvs[5] < height_kvs && i < localcapsule_kvs[tdepth5].value){ E[5] = tempbuffer[block_offset + 5][d_kvs[5]]; } else { enx[5] = false; E[5] = INVALIDDATA; }	
+ // FIXME.
+					if(d_kvs[6] < height_kvs && i < localcapsule_kvs[tdepth6].value){ E[6] = tempbuffer[block_offset + 6][d_kvs[6]]; } else { enx[6] = false; E[6] = INVALIDDATA; }	
+ // FIXME.
+					if(d_kvs[7] < height_kvs && i < localcapsule_kvs[tdepth7].value){ E[7] = tempbuffer[block_offset + 7][d_kvs[7]]; } else { enx[7] = false; E[7] = INVALIDDATA; }	
  	
 					
 					// re-arrange 
 					PROCESSP2_RearrangeLayoutV(r, E, E2);
-					
+					PROCESSP2_RearrangeLayoutEn(r, enx, enx2); // NEWCHANGE.
 					#ifdef _DEBUGMODE_CHECKS3
 					if(E2[0]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
 					if(E2[1]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
@@ -13355,7 +14393,6 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 					parsededge_t parsed_edge7 = PROCESSP2_PARSEEDGE(E2[7]); // FIXME.
 					edata[7].value = parsed_edge7.incr; // source info
 					edata[7].key = parsed_edge7.dstvid;	
-					
 					#ifdef _DEBUGMODE_KERNELPRINTS
 					if(edata[0].value==42 && enx[0] == true){ cout<<"######################################### processedges2: edata[0].value("<<edata[0].value<<")==42. edata[0].key: "<<edata[0].key<<endl; }
 					if(edata[1].value==42 && enx[1] == true){ cout<<"######################################### processedges2: edata[1].value("<<edata[1].value<<")==42. edata[1].key: "<<edata[1].key<<endl; }
@@ -13368,32 +14405,15 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 					#endif 
 					
 					// process
+					PROCESSP2_processvector(enx2[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
+					PROCESSP2_processvector(enx2[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
+					PROCESSP2_processvector(enx2[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
+					PROCESSP2_processvector(enx2[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
+					PROCESSP2_processvector(enx2[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
+					PROCESSP2_processvector(enx2[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
+					PROCESSP2_processvector(enx2[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
+					PROCESSP2_processvector(enx2[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
 	
-					// if(E[0] == INVALIDDATA){ enx[0] = false; } // edata[0].key = 0; edata[0].value  = INVALIDDATA; }		
-					PROCESSP2_processvector(enx[0], 0, edata[0].value, edata[0], vbuffer[capsule_offset + 0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
-	
-					// if(E[1] == INVALIDDATA){ enx[1] = false; } // edata[1].key = 0; edata[1].value  = INVALIDDATA; }		
-					PROCESSP2_processvector(enx[1], 1, edata[1].value, edata[1], vbuffer[capsule_offset + 1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
-	
-					// if(E[2] == INVALIDDATA){ enx[2] = false; } // edata[2].key = 0; edata[2].value  = INVALIDDATA; }		
-					PROCESSP2_processvector(enx[2], 2, edata[2].value, edata[2], vbuffer[capsule_offset + 2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
-	
-					// if(E[3] == INVALIDDATA){ enx[3] = false; } // edata[3].key = 0; edata[3].value  = INVALIDDATA; }		
-					PROCESSP2_processvector(enx[3], 3, edata[3].value, edata[3], vbuffer[capsule_offset + 3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
-	
-					// if(E[4] == INVALIDDATA){ enx[4] = false; } // edata[4].key = 0; edata[4].value  = INVALIDDATA; }		
-					PROCESSP2_processvector(enx[4], 4, edata[4].value, edata[4], vbuffer[capsule_offset + 4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
-	
-					// if(E[5] == INVALIDDATA){ enx[5] = false; } // edata[5].key = 0; edata[5].value  = INVALIDDATA; }		
-					PROCESSP2_processvector(enx[5], 5, edata[5].value, edata[5], vbuffer[capsule_offset + 5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
-	
-					// if(E[6] == INVALIDDATA){ enx[6] = false; } // edata[6].key = 0; edata[6].value  = INVALIDDATA; }		
-					PROCESSP2_processvector(enx[6], 6, edata[6].value, edata[6], vbuffer[capsule_offset + 6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
-	
-					// if(E[7] == INVALIDDATA){ enx[7] = false; } // edata[7].key = 0; edata[7].value  = INVALIDDATA; }		
-					PROCESSP2_processvector(enx[7], 7, edata[7].value, edata[7], vbuffer[capsule_offset + 7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
-	
-					
 					#ifdef _DEBUGMODE_CHECKS2
 					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[0], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
 					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[1], SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
@@ -13419,7 +14439,9 @@ fetchmessage_t acts_all::PROCESSP2_readandprocess(bool_type enable, uint512_dt *
 	fetchmessage.chunksize_kvs = maxsz_kvs;//chunk_size * 2; // loadcount; // CRITICAL FIXME
 	return fetchmessage;
 }
-#endif 
+
+
+
 
 
 
@@ -14117,51 +15139,57 @@ void acts_all::REDUCEP2_tradreduceandbuffer(bool_type enable, uint512_dt * kvdra
 #endif 
 #ifdef CONFIG_ENABLECLASS_REDUCEUPDATES2
 void acts_all::REDUCEP2_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams){
-	#pragma HLS INLINE
+	#pragma HLS PIPELINE II=3
 	keyvalue_t mykeyvalue = UTILP2_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"REDUCEP2_reducevector:: col: "<<col<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", mykeyvalue.value: "<<mykeyvalue.value<<endl;
+	#endif
 	
 	bool en = true;
 	if(mykeyvalue.key == UTILP2_GETK(INVALIDDATA) || mykeyvalue.value == UTILP2_GETV(INVALIDDATA) || mykeyvalue.key == MAXVDATA || mykeyvalue.value == MAXVDATA){ en = false; } // REMOVEME?????????????????????????????
 	if(mykeyvalue.key == 0 && mykeyvalue.value == 0){ en = false; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true){ cout<<">>> REDUCE VECTOR:: REDUCE SEEN @ Instance "<<globalparams.ACTSPARAMS_INSTID<<", vid: "<<UTILP2_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", Partition: "<<UTILP2_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID) / PROCESSPARTITIONSZ<<", loc: "<<loc<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<endl; }
-	#endif 	
+	if(en == true){ cout<<"$$$ REDUCE VECTOR:: REDUCE SEEN @ instance "<<globalparams.ACTSPARAMS_INSTID<<", col: "<<col<<", loc: "<<loc<<", vid: "<<UTILP2_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", partition: "<<UTILP2_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID) / PROCESSPARTITIONSZ<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<endl; }
+	#endif 
 	
-	if(loc >= globalparams.SIZE_REDUCE && en == true){ 
-		#ifdef _DEBUGMODE_CHECKS2X
+	if(loc >= (globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_SHRINK_RATIO) && en == true){
+		#ifdef ENABLE_PERFECTACCURACY
 		if(true){ cout<<"REDUCEP2_reducevector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). mykeyvalue.key: "<<mykeyvalue.key<<", upperlimit: "<<upperlimit<<", col: "<<col<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 		actsutilityobj->reducehelper_checkreduceloc(0, loc, mykeyvalue, sweepparams, globalparams); 
 		#endif 
-		loc = 0; } //else{ loc = 0; }
+		loc = 0; }
 		
-	// read
-	vmdata_t vmdata;
+	// read 
+	vmdata_t vmdata; vmdata.vmask = 0;
+	unsigned int bufferoffset_kvs = 0; 
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-		unsigned int bufferoffset_kvs; if(globalparams.ACTSPARAMS_TREEDEPTH == 1){ bufferoffset_kvs = BLOCKRAM_VDATA_SIZE / 2; } else { bufferoffset_kvs = 0; }
+	if(globalparams.ACTSPARAMS_TREEDEPTH == 1){ bufferoffset_kvs = BLOCKRAM_VDATA_SIZE / 2; } else { bufferoffset_kvs = 0; }
+	#endif 
+	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
 		if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK2(loc, NAp, vbuffer, bufferoffset_kvs); }
 			#else 
 				if(en == true){ vmdata = MEMCAP2_READFROMBUFFER_VDATAWITHVMASK(loc, vbuffer, 0); }
 					#endif
-	
+					
 	// reduce 
 	value_t new_vprop = REDUCEP2_reducefunc(vmdata.vdata, mykeyvalue.value, globalparams.ALGORITHMINFO_GRAPHITERATIONID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
 	if(en == true && new_vprop != vmdata.vdata){ vmdata.vmask = 1; } else { vmdata.vmask = 0; } // NEWCHANGE.
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(en == true && new_vprop != vmdata.vdata){ cout<<">>> REDUCE VECTOR:: ACTIVE MASK SEEN AT: "<<loc<<""<<endl; }
+	if(en == true && new_vprop != vmdata.vdata){ cout<<">>> REDUCE VECTOR:: ACTIVE MASK SEEN AT: loc: "<<loc<<", vmdata.vdata: "<<vmdata.vdata<<", vmdata.vmask: "<<vmdata.vmask<<endl; }
+	if(en == true && new_vprop != vmdata.vdata){ cout<<">>> REDUCE VECTOR:: ACTIVE REDUCE SEEN @ instance "<<globalparams.ACTSPARAMS_INSTID<<", col: "<<col<<", loc: "<<loc<<", vid: "<<UTILP2_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
 	#endif
 	
 	// write
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-		if(en == true){ vmdata = MEMCAP2_WRITETOBUFFER_VDATAWITHVMASK2(loc, vbuffer, vmdata.vdata, vmdata.vmask, bufferoffset_kvs); }
+		if(en == true){ MEMCAP2_WRITETOBUFFER_VDATAWITHVMASK2(loc, vbuffer, new_vprop, vmdata.vmask, bufferoffset_kvs); }
 			#else 
-				if(en == true){ MEMCAP2_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, vmdata.vdata, vmdata.vmask, 0); }
+				if(en == true){ MEMCAP2_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, new_vprop, vmdata.vmask, 0); }
 					#endif
-	
+
 	#ifdef _DEBUGMODE_STATS
-	actsutilityobj->globalstats_countkvsreduced(1); 
+	actsutilityobj->globalstats_countkvsreduced(1);
 	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
-	// if(enx == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
 	#endif
 	return;
 }
@@ -14337,6 +15365,91 @@ else {
 	return;
 }
 
+void acts_all::REDUCEP2_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
+	unsigned int s_ = s;// % VECTOR_SIZE;
+ if(s_==0){ 
+		en2[0] = en[0]; 
+		en2[1] = en[1]; 
+		en2[2] = en[2]; 
+		en2[3] = en[3]; 
+		en2[4] = en[4]; 
+		en2[5] = en[5]; 
+		en2[6] = en[6]; 
+		en2[7] = en[7]; 
+	}
+else if(s_==1){ 
+		en2[7] = en[0]; 
+		en2[0] = en[1]; 
+		en2[1] = en[2]; 
+		en2[2] = en[3]; 
+		en2[3] = en[4]; 
+		en2[4] = en[5]; 
+		en2[5] = en[6]; 
+		en2[6] = en[7]; 
+	}
+else if(s_==2){ 
+		en2[6] = en[0]; 
+		en2[7] = en[1]; 
+		en2[0] = en[2]; 
+		en2[1] = en[3]; 
+		en2[2] = en[4]; 
+		en2[3] = en[5]; 
+		en2[4] = en[6]; 
+		en2[5] = en[7]; 
+	}
+else if(s_==3){ 
+		en2[5] = en[0]; 
+		en2[6] = en[1]; 
+		en2[7] = en[2]; 
+		en2[0] = en[3]; 
+		en2[1] = en[4]; 
+		en2[2] = en[5]; 
+		en2[3] = en[6]; 
+		en2[4] = en[7]; 
+	}
+else if(s_==4){ 
+		en2[4] = en[0]; 
+		en2[5] = en[1]; 
+		en2[6] = en[2]; 
+		en2[7] = en[3]; 
+		en2[0] = en[4]; 
+		en2[1] = en[5]; 
+		en2[2] = en[6]; 
+		en2[3] = en[7]; 
+	}
+else if(s_==5){ 
+		en2[3] = en[0]; 
+		en2[4] = en[1]; 
+		en2[5] = en[2]; 
+		en2[6] = en[3]; 
+		en2[7] = en[4]; 
+		en2[0] = en[5]; 
+		en2[1] = en[6]; 
+		en2[2] = en[7]; 
+	}
+else if(s_==6){ 
+		en2[2] = en[0]; 
+		en2[3] = en[1]; 
+		en2[4] = en[2]; 
+		en2[5] = en[3]; 
+		en2[6] = en[4]; 
+		en2[7] = en[5]; 
+		en2[0] = en[6]; 
+		en2[1] = en[7]; 
+	}
+else { 
+		en2[1] = en[0]; 
+		en2[2] = en[1]; 
+		en2[3] = en[2]; 
+		en2[4] = en[3]; 
+		en2[5] = en[4]; 
+		en2[6] = en[5]; 
+		en2[7] = en[6]; 
+		en2[0] = en[7]; 
+	}
+	return;
+}
+
 void acts_all::REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
@@ -14350,8 +15463,15 @@ void acts_all::REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	#pragma HLS ARRAY_PARTITION variable=depths complete
 	bool enx[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=enx complete
+	bool enx2[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=enx2 complete
 	unsigned int d_kvs[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=d_kvs complete
+	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=localcapsule_kvs complete
+	
+	keyvalue_t invalid_dataa; invalid_dataa.key = INVALIDDATA; invalid_dataa.value = INVALIDDATA;
+	keyvalue_buffer_t invalid_data = UTILP2_GETKV(invalid_dataa);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
@@ -14376,74 +15496,81 @@ void acts_all::REDUCEP2_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"reduceupdates2: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
 		#endif
-		localcapsule[p].key = localcapsule[p].key / VECTOR2_SIZE;
-		localcapsule[p].value = localcapsule[p].value / VECTOR2_SIZE;
+		localcapsule_kvs[p].key = localcapsule[p].key / VECTOR_SIZE;
+		localcapsule_kvs[p].value = (localcapsule[p].value + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	}
 	
-	unsigned int tot = 0;
 	REDUCEBUFFERPARTITIONS_LOOP2: for(buffer_type capsule_offset=0; capsule_offset<NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
 		REDUCEBUFFERPARTITIONS_LOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
 			REDUCEBUFFERPARTITIONS_LOOP2C: for(buffer_type i=0; i<mmaxsz_kvs; i++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 			#pragma HLS PIPELINE II=3
-				// read updates
+				// get layout
 				REDUCEP2_GetXYLayoutV(r, depths, 0);
-				
-				unsigned int tdepth0 = capsule_offset + depths[0];
-				unsigned int tdepth1 = capsule_offset + depths[1];
-				unsigned int tdepth2 = capsule_offset + depths[2];
-				unsigned int tdepth3 = capsule_offset + depths[3];
-				unsigned int tdepth4 = capsule_offset + depths[4];
-				unsigned int tdepth5 = capsule_offset + depths[5];
-				unsigned int tdepth6 = capsule_offset + depths[6];
-				unsigned int tdepth7 = capsule_offset + depths[7];
- 	
-				if(i < localcapsule[tdepth0].value){ enx[0] = true; } else { enx[0] = false; }
-				if(i < localcapsule[tdepth1].value){ enx[1] = true; } else { enx[1] = false; }
-				if(i < localcapsule[tdepth2].value){ enx[2] = true; } else { enx[2] = false; }
-				if(i < localcapsule[tdepth3].value){ enx[3] = true; } else { enx[3] = false; }
-				if(i < localcapsule[tdepth4].value){ enx[4] = true; } else { enx[4] = false; }
-				if(i < localcapsule[tdepth5].value){ enx[5] = true; } else { enx[5] = false; }
-				if(i < localcapsule[tdepth6].value){ enx[6] = true; } else { enx[6] = false; }
-				if(i < localcapsule[tdepth7].value){ enx[7] = true; } else { enx[7] = false; }
+			
+				// calculate enable
+				enx[0] = true;	
+				enx[1] = true;	
+				enx[2] = true;	
+				enx[3] = true;	
+				enx[4] = true;	
+				enx[5] = true;	
+				enx[6] = true;	
+				enx[7] = true;	
  
 				
-				d_kvs[0] = localcapsule[tdepth0].key + i; 	
-				d_kvs[1] = localcapsule[tdepth1].key + i; 	
-				d_kvs[2] = localcapsule[tdepth2].key + i; 	
-				d_kvs[3] = localcapsule[tdepth3].key + i; 	
-				d_kvs[4] = localcapsule[tdepth4].key + i; 	
-				d_kvs[5] = localcapsule[tdepth5].key + i; 	
-				d_kvs[6] = localcapsule[tdepth6].key + i; 	
-				d_kvs[7] = localcapsule[tdepth7].key + i; 	
+				// read 
+				unsigned int tdepth0 = capsule_offset + depths[0];
+				d_kvs[0] = localcapsule_kvs[tdepth0].key + i; 	
+				unsigned int tdepth1 = capsule_offset + depths[1];
+				d_kvs[1] = localcapsule_kvs[tdepth1].key + i; 	
+				unsigned int tdepth2 = capsule_offset + depths[2];
+				d_kvs[2] = localcapsule_kvs[tdepth2].key + i; 	
+				unsigned int tdepth3 = capsule_offset + depths[3];
+				d_kvs[3] = localcapsule_kvs[tdepth3].key + i; 	
+				unsigned int tdepth4 = capsule_offset + depths[4];
+				d_kvs[4] = localcapsule_kvs[tdepth4].key + i; 	
+				unsigned int tdepth5 = capsule_offset + depths[5];
+				d_kvs[5] = localcapsule_kvs[tdepth5].key + i; 	
+				unsigned int tdepth6 = capsule_offset + depths[6];
+				d_kvs[6] = localcapsule_kvs[tdepth6].key + i; 	
+				unsigned int tdepth7 = capsule_offset + depths[7];
+				d_kvs[7] = localcapsule_kvs[tdepth7].key + i; 	
  	
-				if(d_kvs[0] < height_kvs){ kvdata[0] = buffer[0][d_kvs[0]]; } else { }	
-				if(d_kvs[1] < height_kvs){ kvdata[1] = buffer[1][d_kvs[1]]; } else { }	
-				if(d_kvs[2] < height_kvs){ kvdata[2] = buffer[2][d_kvs[2]]; } else { }	
-				if(d_kvs[3] < height_kvs){ kvdata[3] = buffer[3][d_kvs[3]]; } else { }	
-				if(d_kvs[4] < height_kvs){ kvdata[4] = buffer[4][d_kvs[4]]; } else { }	
-				if(d_kvs[5] < height_kvs){ kvdata[5] = buffer[5][d_kvs[5]]; } else { }	
-				if(d_kvs[6] < height_kvs){ kvdata[6] = buffer[6][d_kvs[6]]; } else { }	
-				if(d_kvs[7] < height_kvs){ kvdata[7] = buffer[7][d_kvs[7]]; } else { }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth0].value){ enx[0] = true; kvdata[0] = buffer[0][d_kvs[0]]; } else { enx[0] = false; kvdata[0] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth1].value){ enx[1] = true; kvdata[1] = buffer[1][d_kvs[1]]; } else { enx[1] = false; kvdata[1] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth2].value){ enx[2] = true; kvdata[2] = buffer[2][d_kvs[2]]; } else { enx[2] = false; kvdata[2] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth3].value){ enx[3] = true; kvdata[3] = buffer[3][d_kvs[3]]; } else { enx[3] = false; kvdata[3] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth4].value){ enx[4] = true; kvdata[4] = buffer[4][d_kvs[4]]; } else { enx[4] = false; kvdata[4] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth5].value){ enx[5] = true; kvdata[5] = buffer[5][d_kvs[5]]; } else { enx[5] = false; kvdata[5] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth6].value){ enx[6] = true; kvdata[6] = buffer[6][d_kvs[6]]; } else { enx[6] = false; kvdata[6] = invalid_data; }	
+ // FIXME.
+				if(i < localcapsule_kvs[tdepth7].value){ enx[7] = true; kvdata[7] = buffer[7][d_kvs[7]]; } else { enx[7] = false; kvdata[7] = invalid_data; }	
 				
 				// re-arrange 
 				REDUCEP2_RearrangeLayoutV(r, kvdata, kvdata2);
+				REDUCEP2_RearrangeLayoutEn(r, enx, enx2); // NEWCHANGE.
 			
 				// reduce 
-				REDUCEP2_reducevector(enx[0], 0, kvdata2[0], vbuffer[capsule_offset + 0], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP2_reducevector(enx[1], 1, kvdata2[1], vbuffer[capsule_offset + 1], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP2_reducevector(enx[2], 2, kvdata2[2], vbuffer[capsule_offset + 2], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP2_reducevector(enx[3], 3, kvdata2[3], vbuffer[capsule_offset + 3], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP2_reducevector(enx[4], 4, kvdata2[4], vbuffer[capsule_offset + 4], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP2_reducevector(enx[5], 5, kvdata2[5], vbuffer[capsule_offset + 5], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP2_reducevector(enx[6], 6, kvdata2[6], vbuffer[capsule_offset + 6], 0, sweepparams.upperlimit, sweepparams, globalparams);
-				REDUCEP2_reducevector(enx[7], 7, kvdata2[7], vbuffer[capsule_offset + 7], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP2_reducevector(enx2[0], 0, kvdata2[0], vbuffer[capsule_offset + 0], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP2_reducevector(enx2[1], 1, kvdata2[1], vbuffer[capsule_offset + 1], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP2_reducevector(enx2[2], 2, kvdata2[2], vbuffer[capsule_offset + 2], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP2_reducevector(enx2[3], 3, kvdata2[3], vbuffer[capsule_offset + 3], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP2_reducevector(enx2[4], 4, kvdata2[4], vbuffer[capsule_offset + 4], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP2_reducevector(enx2[5], 5, kvdata2[5], vbuffer[capsule_offset + 5], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP2_reducevector(enx2[6], 6, kvdata2[6], vbuffer[capsule_offset + 6], 0, sweepparams.upperlimit, sweepparams, globalparams);
+				REDUCEP2_reducevector(enx2[7], 7, kvdata2[7], vbuffer[capsule_offset + 7], 0, sweepparams.upperlimit, sweepparams, globalparams);
 			}
 		}
 	}
-	
-	// cout<<"------------------------ reduceupdates2: tot: "<<tot<<endl;
 	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS); ////
 	return;
@@ -15094,7 +16221,6 @@ void acts_all::MERGEP2_collects(
 	#pragma HLS ARRAY_PARTITION variable=vmaskVec complete
 	
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-	// {1st 16 is masks}{2nd 16 is vdatas} (see classname__mem_convert_and_access.cpp)
 		uint16_type vmaskVec16[VECTOR2_SIZE];
 		#pragma HLS ARRAY_PARTITION variable=vmaskVec16 complete
 		vmaskVec16[0] = UTILP2_READBITSFROM_UINTV(vdatas[0], BEGINOFFSETOF_VMASK, 16);
@@ -15311,7 +16437,7 @@ void acts_all::MERGEP2_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	#endif 
 	unsigned int voffset_kvs2 = i * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
-	MERGEP2_MERGEVSLOOP: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+	MERGEP2_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
 		// unsigned int voffset_kvs2 = (i * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + (partition * globalparams.SIZEKVS2_REDUCEPARTITION);
 		// unsigned int voffseti_kvs2 = partition * globalparams.SIZEKVS2_REDUCEPARTITION;
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -15324,7 +16450,7 @@ void acts_all::MERGEP2_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 			#if defined(_DEBUGMODE_KERNELPRINTS) && not defined(ALLVERTEXISACTIVE_ALGORITHM)
 			cout<<"acts_merge::MERGE Vertices :: [instance "<<globalparams.ACTSPARAMS_INSTID<<", partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<"] "<<endl;
 			#endif
-			MERGEP2_MERGEVSLOOPB: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
+			MERGEP2_MERGEVSLOOP2B: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS3
 				actsutilityobj->checkoutofbounds("MERGEP2_mergeVs---: ERROR 21", lbasevoffset_kvs2 + voffset_kvs2 + k, globalparamsv.SIZE_SRCVERTICESDATA / VECTOR2_SIZE, lbasevoffset_kvs2, voffset_kvs2, globalparamsv.SIZE_SRCVERTICESDATA);
@@ -15348,7 +16474,7 @@ void acts_all::MERGEP2_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	
 	// active reduce partitions
 	unsigned int offset_kvs = i * globalparamsv.NUM_REDUCEPARTITIONS;
-	for(unsigned int reduce_partition=0; reduce_partition<globalparamsv.NUM_REDUCEPARTITIONS; reduce_partition++){
+	MERGEP2_MERGEVSLOOP3: for(unsigned int reduce_partition=0; reduce_partition<globalparamsv.NUM_REDUCEPARTITIONS; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGEP2_mergeVs: ERROR 1s20", offset_kvs + reduce_partition, globalparamsv.SIZE_KVSTATSDRAM, NAp, NAp, NAp);
@@ -19338,7 +20464,7 @@ void acts_all::MERGEP2_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	cout<<"MERGE::EXCHANGE:: retrieving stats from vdramA, vdramB & vdramC. "<<endl; 
 	#endif
 	// active reduce partitions
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR2; reduce_partition++){
+	MERGEP2_EXCHANGEC_LOOP1A: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR2; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGEP2_exchange: ERROR 1s20", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -19347,7 +20473,7 @@ void acts_all::MERGEP2_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 		if(tempdata > 0){ globalstatsbuffer0[reduce_partition / FACTOR101].data[reduce_partition % FACTOR101] = 1; }
 	}
 	
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR1; reduce_partition++){
+	MERGEP2_EXCHANGEC_LOOP1B: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR1; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGEP2_exchange: ERROR 1s21", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -19356,7 +20482,7 @@ void acts_all::MERGEP2_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 		if(tempdata > 0){ globalstatsbuffer1[reduce_partition / FACTOR101].data[reduce_partition % FACTOR101]; }
 	}
 	
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR0; reduce_partition++){
+	MERGEP2_EXCHANGEC_LOOP1C: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR0; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGEP2_exchange: ERROR 1s22", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -19675,7 +20801,9 @@ void acts_all::TradGPP2(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 	unsigned int actvvcount_currit = globalparamsm.SIZE_ACTIVEVERTICES;
 	unsigned int actvvcount_nextit = 0;
 	unsigned int nextGraphIter = GraphIter + 1;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"TradGP:: running traditional sssp... (iteration "<<GraphIter<<", number of active vertices to process: "<<actvvcount_currit<<")"<<endl;
+	#endif 
 	
 	unsigned int offsetkvs_curractvvs;
 	unsigned int offsetkvs_nxtactvvs;
@@ -19719,8 +20847,8 @@ void acts_all::TradGPP2(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 			unsigned int ldstvid = (dstvid - s) / NUM_PEs; 
 			unsigned int offset_kvs = s * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 			
-			value_t vprop = MEMCAP2_READVDATA(UTILP2_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid)); 
-			value_t vtemp = min(vprop, res);
+			uint32_type vprop = MEMCAP2_READVDATA(UTILP2_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid)); 
+			uint32_type vtemp = UTILP2_amin2(vprop, res);
 			
 			if(vtemp != vprop){
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
@@ -19730,7 +20858,8 @@ void acts_all::TradGPP2(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 			}
 			
 			if(vtemp != vprop){
-				UTILP2_WRITETO_UINT((unsigned int *)&vtemp, OFFSETOF_VMASK, SIZEOF_VMASK, 1);  // write active mask before save
+				// UTILP2_WRITETO_UINT((unsigned int *)&vtemp, OFFSETOF_VMASK, SIZEOF_VMASK, 1);  // write active mask before save
+				MEMCAP2_WRITEVMASK(&vtemp, 1); // write active mask before save
 				UTILP2_SetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
 				UTILP2_SetData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
 				UTILP2_SetData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
@@ -19752,8 +20881,10 @@ void acts_all::TradGPP2(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 	UTILP2_SetFirstData(vdramB, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	UTILP2_SetFirstData(vdramC, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"TradGP: number of active vertices for iteration "<<nextGraphIter<<": "<<actvvcount_nextit<<""<<endl;
 	if(actvvcount_nextit == 0){ cout<<"TradGP: no more active vertices to process. breaking out... "<<endl; }
+	#endif 
 	
 	// vertices partition masks
 	#ifdef CONFIG_MERGE_VPARTITIONS
@@ -20139,7 +21270,6 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 	cout<<"actit: "<<((ptravstate.end_kvs + flushsz) - ptravstate.begin_kvs) / _WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES<<" states of acts pipeline processing..."<<endl; 
 	#endif 
 	
-	// cout<<"--------------------------- actit: mode: "<<mode<<endl;
 	// actsutilityobj->printkeyvalues("actit::globalstatsbuffer 37--", (keyvalue_t *)globalstatsbuffer, NUM_PARTITIONS); 
 	
 	ACTIT_MAINLOOP: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + flushsz; offset_kvs+=_WORKBUFFER_SIZE * NUMPIPELINES_PARTITIONUPDATES){
@@ -20154,16 +21284,6 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 		#else 
 		if(itercount >= 0){ pp0writeen = ON; } else { pp0writeen = OFF; }
 		#endif
-		
-		// if(globalparams.ALGORITHMINFO_GRAPHITERATIONID > 0){
-			// unsigned int num_errors = 0;
-			// for(unsigned int t=0; t<BLOCKRAM_VDATA_SIZE/2; t++){ // BLOCKRAM_VDATA_SIZE/2 // VERY CRITICAL REMOVEME.
-				// for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
-					// if(vbuffer[v][BLOCKRAM_VDATA_SIZE/2 + t] > 0){ num_errors += 1; cout<<"ACTSP2_actit:: ERROR(>0) vbuffer["<<v<<"]["<<BLOCKRAM_VDATA_SIZE/2 + t<<"]: "<<vbuffer[v][BLOCKRAM_VDATA_SIZE/2 + t]<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
-				// }
-			// }
-			// if(num_errors == 0){ cout<<"TOPP2_U_processit:: NO ERRORS while scanning through vbuffer...."<<endl; }
-		// }
 		
 		ptravstatepp0.i_kvs = offset_kvs;
 		fetchmessagepp0 = ACTSP2_fetchkeyvalues(ON, mode,  kvdram, vbuffer, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, _WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalposition, globalparams, edgebankID);
@@ -20967,8 +22087,6 @@ void acts_all::TOPP2_U_topkernelP1(
 	pmask_dt pmask0_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask0_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[1];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -21301,8 +22419,6 @@ void acts_all::TOPP2_U_topkernelP2(
 	pmask_dt pmask1_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask1_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[2];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -21669,8 +22785,6 @@ void acts_all::TOPP2_U_topkernelP3(
 	pmask_dt pmask2_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask2_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[3];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -22072,8 +23186,6 @@ void acts_all::TOPP2_U_topkernelP4(
 	pmask_dt pmask3_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask3_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[4];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -22509,8 +23621,6 @@ void acts_all::TOPP2_U_topkernelP5(
 	pmask_dt pmask4_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask4_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[5];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -22980,8 +24090,6 @@ void acts_all::TOPP2_U_topkernelP6(
 	pmask_dt pmask5_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask5_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[6];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -23485,8 +24593,6 @@ void acts_all::TOPP2_U_topkernelP7(
 	pmask_dt pmask6_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask6_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer6[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[7];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -24024,8 +25130,6 @@ void acts_all::TOPP2_U_topkernelP8(
 	pmask_dt pmask7_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask7_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer7[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[8];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -24597,8 +25701,6 @@ void acts_all::TOPP2_U_topkernelP9(
 	pmask_dt pmask8_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask8_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer8[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[9];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -25204,8 +26306,6 @@ void acts_all::TOPP2_U_topkernelP10(
 	pmask_dt pmask9_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask9_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer9[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[10];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -25845,8 +26945,6 @@ void acts_all::TOPP2_U_topkernelP11(
 	pmask_dt pmask10_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask10_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer10[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[11];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;
@@ -26520,8 +27618,6 @@ void acts_all::TOPP2_U_topkernelP12(
 	pmask_dt pmask11_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt pmask11_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer11[BLOCKRAM_GLOBALSTATS_SIZE];
-	travstate_t rtravstates[12];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;

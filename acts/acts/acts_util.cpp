@@ -10,6 +10,10 @@ unsigned int acts_all::UTILP0_amax(unsigned int val1, unsigned int val2){
 unsigned int acts_all::UTILP0_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
+uint32_type acts_all::UTILP0_amin2(uint32_type val1, uint32_type val2){
+	if(val1 < val2){ return val1; }
+	else { return val2; }
+}
 
 // allignment
 batch_type acts_all::UTILP0_allignlower_KV(batch_type val){
@@ -39,17 +43,17 @@ batch_type acts_all::UTILP0_allignlower_FACTOR(batch_type val, unsigned int _FAC
 }
 
 // bit manipulation
-unsigned int acts_all::UTILP0_GETMASK_UINT(unsigned int index, unsigned int size){
+unsigned int acts_all::UTILP0_GETMASK_UINT(uint32_type index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
 }
-unsigned int acts_all::UTILP0_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size){ 
+unsigned int acts_all::UTILP0_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size){ 
 	unsigned int res = 0;
 	res = (((data) & UTILP0_GETMASK_UINT((index), (size))) >> (index)); 
 	return res;
 }
-void acts_all::UTILP0_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
+void acts_all::UTILP0_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
 	unsigned int A = ((value) << (index));
 	unsigned int B = (~UTILP0_GETMASK_UINT((index), (size)));
@@ -166,7 +170,7 @@ unsigned int acts_all::UTILP0_GetData(uint512_dt * kvdram, unsigned int offset_k
 	unsigned int data = 0;
 	#ifdef _WIDEWORD
 	unsigned int row = index / VECTOR2_SIZE;
-	unsigned int col = loc % VECTOR2_SIZE;
+	unsigned int col = index % VECTOR2_SIZE;
  if(col == 0){
 		data = kvdram[offset_kvs + row].range(31, 0); 
 	}
@@ -227,7 +231,7 @@ void acts_all::UTILP0_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsi
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	unsigned int row = index / VECTOR2_SIZE;
-	unsigned int col = loc % VECTOR2_SIZE;
+	unsigned int col = index % VECTOR2_SIZE;
  if(col == 0){
 		kvdram[offset_kvs + row].range(31, 0) = data; 
 	}

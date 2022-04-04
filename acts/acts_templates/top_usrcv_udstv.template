@@ -353,8 +353,6 @@ void {{context['classname__top_usrcv_udstv']}}TOP{{context['id']}}_U_topkernelP{
 	pmask_dt pmask{{i}}_next[BLOCKRAM_NEXTPMASK_SIZE];
 	keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_GLOBALSTATS_SIZE];
 	{%endif%}{%endfor%}
-	travstate_t rtravstates[{{n}}];
-	#pragma HLS ARRAY_PARTITION variable=rtravstates complete
 	globalparams_t globalparamsEs[MAX_NUM_EDGE_BANKS];
 	
 	unsigned int sourcestatsmarker = 0;

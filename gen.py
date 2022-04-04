@@ -586,6 +586,10 @@ context['15_seq'] = []
 for i in range (0,15):
 		context['15_seq'].append(i)
         
+context['12_seq'] = []
+for i in range (0,12):
+		context['12_seq'].append(i)
+        
 context['T_val'] = 13
 context['T_seq'] = []
 for i in range (0,(context['T_val'])):

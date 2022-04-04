@@ -65,7 +65,6 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_collects(
 	#pragma HLS ARRAY_PARTITION variable=vmaskVec complete
 	
 	#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-	// {1st 16 is masks}{2nd 16 is vdatas} (see classname__mem_convert_and_access.cpp)
 		uint16_type vmaskVec16[VECTOR2_SIZE];
 		#pragma HLS ARRAY_PARTITION variable=vmaskVec16 complete
 		{%for v in context['VECTOR2_SIZE_seq']%}
@@ -191,7 +190,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 	#endif 
 	unsigned int voffset_kvs2 = i * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
-	MERGE{{context['id']}}_MERGEVSLOOP: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
+	MERGE{{context['id']}}_MERGEVSLOOP2: for(unsigned int partition=0; partition<globalparams.NUM_REDUCEPARTITIONS; partition++){
 		// unsigned int voffset_kvs2 = (i * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION) + (partition * globalparams.SIZEKVS2_REDUCEPARTITION);
 		// unsigned int voffseti_kvs2 = partition * globalparams.SIZEKVS2_REDUCEPARTITION;
 		#ifdef _DEBUGMODE_KERNELPRINTS
@@ -204,7 +203,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 			#if defined(_DEBUGMODE_KERNELPRINTS) && not defined(ALLVERTEXISACTIVE_ALGORITHM)
 			cout<<"acts_merge::MERGE Vertices {{n}}:: [instance "<<globalparams.ACTSPARAMS_INSTID<<", partition "<<partition<<"] is active: [offset: "<<(lbasevoffset_kvs2 + voffseti_kvs2)*VECTOR2_SIZE<<", size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<"] "<<endl;
 			#endif
-			MERGE{{context['id']}}_MERGEVSLOOPB: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
+			MERGE{{context['id']}}_MERGEVSLOOP2B: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
 			#pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS3
 				actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_mergeVs{{n}}---: ERROR 21", lbasevoffset_kvs2 + voffset_kvs2 + k, globalparamsv.SIZE_SRCVERTICESDATA / VECTOR2_SIZE, lbasevoffset_kvs2, voffset_kvs2, globalparamsv.SIZE_SRCVERTICESDATA);
@@ -228,7 +227,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 	
 	// active reduce partitions
 	unsigned int offset_kvs = i * globalparamsv.NUM_REDUCEPARTITIONS;
-	for(unsigned int reduce_partition=0; reduce_partition<globalparamsv.NUM_REDUCEPARTITIONS; reduce_partition++){
+	MERGE{{context['id']}}_MERGEVSLOOP3: for(unsigned int reduce_partition=0; reduce_partition<globalparamsv.NUM_REDUCEPARTITIONS; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_mergeVs{{n}}: ERROR 1s20", offset_kvs + reduce_partition, globalparamsv.SIZE_KVSTATSDRAM, NAp, NAp, NAp);
@@ -412,7 +411,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	cout<<"MERGE::EXCHANGE:: retrieving stats from vdramA, vdramB & vdramC. "<<endl; 
 	#endif
 	// active reduce partitions
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR2; reduce_partition++){
+	MERGE{{context['id']}}_EXCHANGEC_LOOP1A: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR2; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_exchange: ERROR 1s20", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -421,7 +420,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 		if(tempdata > 0){ globalstatsbuffer0[reduce_partition / FACTOR101].data[reduce_partition % FACTOR101] = 1; }
 	}
 	
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR1; reduce_partition++){
+	MERGE{{context['id']}}_EXCHANGEC_LOOP1B: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR1; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_exchange: ERROR 1s21", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -430,7 +429,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 		if(tempdata > 0){ globalstatsbuffer1[reduce_partition / FACTOR101].data[reduce_partition % FACTOR101]; }
 	}
 	
-	for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR0; reduce_partition++){
+	MERGE{{context['id']}}_EXCHANGEC_LOOP1C: for(unsigned int reduce_partition=0; reduce_partition<_TOTALNUMREDUCEPARTITIONS_SLR0; reduce_partition++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MERGE{{context['id']}}_exchange: ERROR 1s22", reduce_partition / FACTOR101, BLOCKRAM_GLOBALSTATS_BIGSIZE, reduce_partition, NAp, NAp);
@@ -692,7 +691,9 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 	unsigned int actvvcount_currit = globalparamsm.SIZE_ACTIVEVERTICES;
 	unsigned int actvvcount_nextit = 0;
 	unsigned int nextGraphIter = GraphIter + 1;
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"TradGP:: running traditional sssp... (iteration "<<GraphIter<<", number of active vertices to process: "<<actvvcount_currit<<")"<<endl;
+	#endif 
 	
 	unsigned int offsetkvs_curractvvs;
 	unsigned int offsetkvs_nxtactvvs;
@@ -736,8 +737,8 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 			unsigned int ldstvid = (dstvid - s) / NUM_PEs; 
 			unsigned int offset_kvs = s * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 			
-			value_t vprop = MEMCA{{context['id']}}_READVDATA(UTIL{{context['id']}}_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid)); 
-			value_t vtemp = min(vprop, res);
+			uint32_type vprop = MEMCA{{context['id']}}_READVDATA(UTIL{{context['id']}}_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid)); 
+			uint32_type vtemp = UTIL{{context['id']}}_amin2(vprop, res);
 			
 			if(vtemp != vprop){
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
@@ -747,7 +748,8 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 			}
 			
 			if(vtemp != vprop){
-				UTIL{{context['id']}}_WRITETO_UINT((unsigned int *)&vtemp, OFFSETOF_VMASK, SIZEOF_VMASK, 1);  // write active mask before save
+				// UTIL{{context['id']}}_WRITETO_UINT((unsigned int *)&vtemp, OFFSETOF_VMASK, SIZEOF_VMASK, 1);  // write active mask before save
+				MEMCA{{context['id']}}_WRITEVMASK(&vtemp, 1); // write active mask before save
 				UTIL{{context['id']}}_SetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
 				UTIL{{context['id']}}_SetData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
 				UTIL{{context['id']}}_SetData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
@@ -769,8 +771,10 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 	UTIL{{context['id']}}_SetFirstData(vdramB, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	UTIL{{context['id']}}_SetFirstData(vdramC, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"TradGP: number of active vertices for iteration "<<nextGraphIter<<": "<<actvvcount_nextit<<""<<endl;
 	if(actvvcount_nextit == 0){ cout<<"TradGP: no more active vertices to process. breaking out... "<<endl; }
+	#endif 
 	
 	// vertices partition masks
 	#ifdef CONFIG_MERGE_VPARTITIONS

@@ -2,6 +2,7 @@
 unsigned int UTILP0_amin(unsigned int val1, unsigned int val2);
 unsigned int UTILP0_amax(unsigned int val1, unsigned int val2);
 unsigned int UTILP0_aplus(unsigned int val1, unsigned int val2);
+uint32_type UTILP0_amin2(uint32_type val1, uint32_type val2);
 
 // functions (allignment)
 batch_type UTILP0_allignlower_KV(batch_type val);
@@ -12,9 +13,9 @@ batch_type UTILP0_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR);
 batch_type UTILP0_allignlower_FACTOR(batch_type val, unsigned int _FACTOR);
 
 // functions (bit manipulation)
-unsigned int UTILP0_GETMASK_UINT(unsigned int index, unsigned int size);
-unsigned int UTILP0_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-void UTILP0_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
+unsigned int UTILP0_GETMASK_UINT(uint32_type index, unsigned int size);
+unsigned int UTILP0_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size);
+void UTILP0_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTILP0_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
 void UTILP0_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTILP0_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);

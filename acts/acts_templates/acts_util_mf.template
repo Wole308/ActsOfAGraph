@@ -2,6 +2,7 @@
 unsigned int UTIL{{context['id']}}_amin(unsigned int val1, unsigned int val2);
 unsigned int UTIL{{context['id']}}_amax(unsigned int val1, unsigned int val2);
 unsigned int UTIL{{context['id']}}_aplus(unsigned int val1, unsigned int val2);
+uint32_type UTIL{{context['id']}}_amin2(uint32_type val1, uint32_type val2);
 
 // functions (allignment)
 batch_type UTIL{{context['id']}}_allignlower_KV(batch_type val);
@@ -12,9 +13,9 @@ batch_type UTIL{{context['id']}}_allignhigher_FACTOR(batch_type val, unsigned in
 batch_type UTIL{{context['id']}}_allignlower_FACTOR(batch_type val, unsigned int _FACTOR);
 
 // functions (bit manipulation)
-unsigned int UTIL{{context['id']}}_GETMASK_UINT(unsigned int index, unsigned int size);
-unsigned int UTIL{{context['id']}}_READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-void UTIL{{context['id']}}_WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
+unsigned int UTIL{{context['id']}}_GETMASK_UINT(uint32_type index, unsigned int size);
+unsigned int UTIL{{context['id']}}_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size);
+void UTIL{{context['id']}}_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTIL{{context['id']}}_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
 void UTIL{{context['id']}}_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
 unsigned int UTIL{{context['id']}}_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
