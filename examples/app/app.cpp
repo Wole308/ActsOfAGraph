@@ -15,7 +15,7 @@ using namespace std;
 #define APP_LOADMASKS
 #define APP_LOADROOTVID
 #define APP_LOADSTATSINFO
-#define APP_LOADMESSAGES
+#define APP_LOADMESSAGES // THE CAUSE OF ERROR.
 #define APP_RUNSWVERSION
 #define APP_RUNHWVERSION
 	
@@ -26,13 +26,7 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	algorithmobj = new algorithm();
 	utilityobj = new utility();
 	loadgraphobj = new loadgraph(graphobj, statsobj);
-	#if defined(CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS)
-	loadedgesobj = new loadedges_sequential(graphobj, statsobj);
-	#elif defined(CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS)
 	loadedgesobj = new loadedges_random(graphobj, statsobj);
-	#else
-	NOT DEFINED.	
-	#endif	
 	swkernelobj = new swkernel(graphobj, thisalgorithmobj, statsobj);
 	
 	#ifdef FPGA_IMPL
@@ -41,21 +35,21 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	kernelobj = new swkernel(graphobj, thisalgorithmobj, statsobj);
 	#endif
 	
-	#if not defined(ALLVERTEXISACTIVE_ALGORITHM) && defined(CONFIG_HYBRIDGPMODE)
-	unsigned int mdramsz = graphobj->get_num_edges() + graphobj->get_num_vertices() + (graphobj->get_num_vertices()*2) + 1000000;
+	#if (defined(CONFIG_HYBRIDGPMODE) || defined(CONFIG_TRADGPONLYMODE))
+	unsigned int mdramsz_kvs = (graphobj->get_num_edges() + graphobj->get_num_vertices() + (graphobj->get_num_vertices()*2) + 1000000) / VECTOR2_SIZE;
 	#else 
-	unsigned int mdramsz = 1024;	
+	unsigned int mdramsz_kvs = 4096; //  * VECTOR2_SIZE;	
 	#endif 
 	
 	#ifndef SW_IMPL 
 	#ifdef FPGA_IMPL
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt))); }				
 	vdram = (uint512_vec_dt *) aligned_alloc(4096, (TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	mdram = (uint512_vec_dt *) aligned_alloc(4096, (mdramsz / VECTOR2_SIZE) * sizeof(uint512_vec_dt));
+	mdram = (uint512_vec_dt *) aligned_alloc(4096, mdramsz_kvs * sizeof(uint512_vec_dt));
 	#else
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS]; }
 	vdram = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
-	mdram = new uint512_vec_dt[mdramsz / VECTOR2_SIZE]; // stores {edges, vptrs, active vertices} all in large DDR memory. '1000000' is padding
+	mdram = new uint512_vec_dt[mdramsz_kvs]; // stores {edges, vptrs, active vertices} all in large DDR memory. '1000000' is padding
 	#endif
 	#endif 
 	
@@ -119,13 +113,16 @@ runsummary_t app::run_hw(){
 	
 	long double edgesprocessed_totals[128];
 	long double timeelapsed_totals[128][8];
+	unsigned int vpmaskbuffer[MAXNUMGRAPHITERATIONS][NUMPROCESSEDGESPARTITIONS]; 
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){ vpmaskbuffer[iter][t] = 0; }}
 	
 	// set root vid
-	#ifdef ALLVERTEXISACTIVE_ALGORITHM
-	unsigned int NumGraphIters = 1;
-	#else 
-	unsigned int NumGraphIters = 8;//8; // 32; // 3,12,32
-	#endif
+	// #if (defined(BFS_ALGORITHM) || defined(SSSP_ALGORITHM))
+	// unsigned int NumGraphIters = 8;
+	// #else 
+	// unsigned int NumGraphIters = 1;//8; // 32; // 3,12,32
+	// #endif	
+	unsigned int NumGraphIters = 8;
 	
 	container_t container;
 	vector<value_t> actvvs;
@@ -321,12 +318,15 @@ runsummary_t app::run_hw(){
 	// run_sw
 	#ifdef APP_RUNSWVERSION
 	cout<<"app::experiements: running sw version..."<<endl;
-	#ifdef ALLVERTEXISACTIVE_ALGORITHM
+	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
+	total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters, vpmaskbuffer, (uint512_ivec_dt *)mdram, (uint512_ivec_dt *)vdram, (uint512_ivec_dt **)kvbuffer, true, true);
+	#else 
 	numValidIters = 1;
-	total_edges_processed = graphobj->get_num_edges(); for(unsigned int k=0; k<128; k++){ edgesprocessed_totals[k] = total_edges_processed; }
-	#else
-	total_edges_processed = utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters);
-	#endif
+	total_edges_processed = graphobj->get_num_edges(); for(unsigned int k=0; k<128; k++){ edgesprocessed_totals[k] = total_edges_processed; }	
+	#endif 	
+	#if not (defined(BFS_ALGORITHM) || defined(SSSP_ALGORITHM))
+	total_edges_processed = graphobj->get_num_edges();
+	#endif 
 	#endif 
 	// exit(EXIT_SUCCESS); //
 	
@@ -334,7 +334,7 @@ runsummary_t app::run_hw(){
 	#ifdef APP_RUNHWVERSION
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
 	long double total_time_elapsed = kernelobj->runapp(binaryFile, (uint512_vec_dt *)mdram, (uint512_vec_dt *)vdram, (uint512_vec_dt **)edges, (uint512_vec_dt **)kvbuffer, timeelapsed_totals, numValidIters, 
-			vertexptrbuffer, edgedatabuffer);
+		vpmaskbuffer, vertexptrbuffer, edgedatabuffer);
 	#endif 
 	// exit(EXIT_SUCCESS); //
 	
@@ -377,7 +377,7 @@ runsummary_t app::run_hw(){
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;			
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUM_PEs)<<" million edges/sec)"<< RESET <<endl;
 
-	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters);
+	utilityobj->runsssp_sw(actvvs, vertexptrbuffer, edgedatabuffer, NumGraphIters, edgesprocessed_totals, &numValidIters, vpmaskbuffer, (uint512_ivec_dt *)mdram, (uint512_ivec_dt *)vdram, (uint512_ivec_dt **)kvbuffer, false, false);
 	verifyresults_splitdstvtxs(vdram, globalparams.globalparamsV);
 	
 	finish();
@@ -414,11 +414,13 @@ void app::verifyresults_splitdstvtxs(uint512_vec_dt * vdram, globalparams_t glob
 		}
 	}
 	
-	cout<<">>> swkernel::verifyresults:: Printing results from app.cpp."<<endl;
-	utilityobj->printvalues("swkernel::verifyresults:: verifying results after kernel run (app.cpp)", vdatas, 16);
-	for(unsigned int GraphIter=0; GraphIter<16; GraphIter++){
-		cout<<">>> swkernel:: Iter "<<GraphIter<<": "<<mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + GraphIter].data[0].key<<endl;
-	}
+	// verifying results 
+	cout<<">>> app::verifyresults:: Printing results from app.cpp [@ counting from host]"<<endl;
+	utilityobj->printvalues("app::verifyresults:: verifying results after kernel run (app.cpp)", vdatas, 16);
+	
+	#ifndef FPGA_IMPL
+	utilityobj->printallfeedback("app", vdram, vdram, vdram, vdram, kvbuffer);
+	#endif 
 	return;
 }
 

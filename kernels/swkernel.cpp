@@ -48,15 +48,89 @@ void swkernel::verifyresults(uint512_vec_dt * vdram, unsigned int id){
 	cout<<">>> swkernel::verifyresults:: Printing results. id: "<<id<<endl;
 	utilityobj->printvalues("swkernel::verifyresults:: verifying results (vdatas)", vdatas, 16);
 }
+void swkernel::print_active_vpartitions(unsigned int GraphIter, uint512_vec_dt * vdram){
+	pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE];
+	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;		
+	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+	unsigned int offset_kvs = vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
+	// for(unsigned int GraphIter=0; GraphIter<8; GraphIter++){
+		for (buffer_type i=0; i<512; i++){
+			uint32_type tempdata = 0;
+			
+			if(GraphIter == 0){ tempdata = tempvdram[offset_kvs + i].data[0]; }
+			else if(GraphIter == 1){ tempdata = tempvdram[offset_kvs + i].data[1]; }
+			else if(GraphIter == 2){ tempdata = tempvdram[offset_kvs + i].data[2]; }
+			else if(GraphIter == 3){ tempdata = tempvdram[offset_kvs + i].data[3]; }
+			else if(GraphIter == 4){ tempdata = tempvdram[offset_kvs + i].data[4]; }
+			else if(GraphIter == 5){ tempdata = tempvdram[offset_kvs + i].data[5]; }
+			else if(GraphIter == 6){ tempdata = tempvdram[offset_kvs + i].data[6]; }
+			else if(GraphIter == 7){ tempdata = tempvdram[offset_kvs + i].data[7]; }
+			else if(GraphIter == 8){ tempdata = tempvdram[offset_kvs + i].data[8]; }
+			else if(GraphIter == 9){ tempdata = tempvdram[offset_kvs + i].data[9]; }
+			else if(GraphIter == 10){ tempdata = tempvdram[offset_kvs + i].data[10]; }
+			else if(GraphIter == 11){ tempdata = tempvdram[offset_kvs + i].data[11]; }
+			else if(GraphIter == 12){ tempdata = tempvdram[offset_kvs + i].data[12]; }
+			else if(GraphIter == 13){ tempdata = tempvdram[offset_kvs + i].data[13]; }
+			else if(GraphIter == 14){ tempdata = tempvdram[offset_kvs + i].data[14]; }
+			else if(GraphIter == 15){ tempdata = tempvdram[offset_kvs + i].data[15]; }
+			
+			pmask0[i].data[0] = utilityobj->READBITSFROM_UINTV(tempdata, 0, 1);
+			pmask0[i].data[1] = utilityobj->READBITSFROM_UINTV(tempdata, 1, 1);
+			pmask0[i].data[2] = utilityobj->READBITSFROM_UINTV(tempdata, 2, 1);
+			pmask0[i].data[3] = utilityobj->READBITSFROM_UINTV(tempdata, 3, 1);
+			pmask0[i].data[4] = utilityobj->READBITSFROM_UINTV(tempdata, 4, 1);
+			pmask0[i].data[5] = utilityobj->READBITSFROM_UINTV(tempdata, 5, 1);
+			pmask0[i].data[6] = utilityobj->READBITSFROM_UINTV(tempdata, 6, 1);
+			pmask0[i].data[7] = utilityobj->READBITSFROM_UINTV(tempdata, 7, 1);
+			pmask0[i].data[8] = utilityobj->READBITSFROM_UINTV(tempdata, 8, 1);
+			pmask0[i].data[9] = utilityobj->READBITSFROM_UINTV(tempdata, 9, 1);
+			pmask0[i].data[10] = utilityobj->READBITSFROM_UINTV(tempdata, 10, 1);
+			pmask0[i].data[11] = utilityobj->READBITSFROM_UINTV(tempdata, 11, 1);
+			pmask0[i].data[12] = utilityobj->READBITSFROM_UINTV(tempdata, 12, 1);
+			pmask0[i].data[13] = utilityobj->READBITSFROM_UINTV(tempdata, 13, 1);
+			pmask0[i].data[14] = utilityobj->READBITSFROM_UINTV(tempdata, 14, 1);
+			pmask0[i].data[15] = utilityobj->READBITSFROM_UINTV(tempdata, 15, 1);
+			pmask0[i].data[16] = utilityobj->READBITSFROM_UINTV(tempdata, 16, 1);
+			pmask0[i].data[17] = utilityobj->READBITSFROM_UINTV(tempdata, 17, 1);
+			pmask0[i].data[18] = utilityobj->READBITSFROM_UINTV(tempdata, 18, 1);
+			pmask0[i].data[19] = utilityobj->READBITSFROM_UINTV(tempdata, 19, 1);
+			pmask0[i].data[20] = utilityobj->READBITSFROM_UINTV(tempdata, 20, 1);
+			pmask0[i].data[21] = utilityobj->READBITSFROM_UINTV(tempdata, 21, 1);
+			pmask0[i].data[22] = utilityobj->READBITSFROM_UINTV(tempdata, 22, 1);
+			pmask0[i].data[23] = utilityobj->READBITSFROM_UINTV(tempdata, 23, 1);
+			pmask0[i].data[24] = utilityobj->READBITSFROM_UINTV(tempdata, 24, 1);
+			pmask0[i].data[25] = utilityobj->READBITSFROM_UINTV(tempdata, 25, 1);
+			pmask0[i].data[26] = utilityobj->READBITSFROM_UINTV(tempdata, 26, 1);
+			pmask0[i].data[27] = utilityobj->READBITSFROM_UINTV(tempdata, 27, 1);
+			pmask0[i].data[28] = utilityobj->READBITSFROM_UINTV(tempdata, 28, 1);
+			pmask0[i].data[29] = utilityobj->READBITSFROM_UINTV(tempdata, 29, 1);
+			pmask0[i].data[30] = utilityobj->READBITSFROM_UINTV(tempdata, 30, 1);
+			pmask0[i].data[31] = utilityobj->READBITSFROM_UINTV(tempdata, 31, 1);
+		}
+		
+		#ifdef _DEBUGMODE_HOSTPRINTS3
+		cout<<">>> swkernel(91): printing active vertex partitions: BLOCKRAM_CURRPMASK_SIZE: "<<BLOCKRAM_CURRPMASK_SIZE<<endl;
+		// for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
+			cout<<">>> goclkernel::print_active_vpartitions: GraphIter: "<<GraphIter<<endl;
+			for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){
+				if(pmask0[t / BRAM_BIT_WIDTH].data[t % BRAM_BIT_WIDTH] > 0){ cout<<t<<", "; }
+			}
+			cout<<endl;
+		// }
+		#endif 
+	// }
+}
 
-long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters,
-		edge_t * vertexptrbuffer, edge2_type * edgedatabuffer){
+long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters, 
+		unsigned int vpmaskbuffer[MAXNUMGRAPHITERATIONS][NUMPROCESSEDGESPARTITIONS], edge_t * vertexptrbuffer, edge2_type * edgedatabuffer){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
+	#if defined(CONFIG_TRADGPONLYMODE) || defined(CONFIG_HYBRIDGPMODE)
 	mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; 
+	#endif 
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; 
 	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; } // reset
 	
@@ -70,12 +144,47 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 	#endif 
 	cout<< TIMINGRESULTSCOLOR <<">>> swkernel::runapp: ACTS started. Parameters: NUMSUBCPUTHREADS: ["<<NUMSUBCPUTHREADS<<"], NUMSYNCTHREADS: ["<<NUMSYNCTHREADS<<"]"<< RESET <<endl;	
 	
-	uint512_vec_dt * vdramA;
-	uint512_vec_dt * vdramB; 
-	uint512_vec_dt * vdramC; 
-	vdramA = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
-	vdramB = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
-	vdramC = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	uint512_vec_dt * vdramA; vdramA = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	uint512_vec_dt * vdramB; vdramB = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	uint512_vec_dt * vdramC; vdramC = new uint512_vec_dt[TOTALDRAMCAPACITY_KVS];
+	
+	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
+	cout<<">>> swkernel::runapp: populating active streaming partitions... "<<endl;					
+	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;		
+	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
+		for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){
+			utilityobj->WRITETO_UINT(&tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + (t / BRAM_BIT_WIDTH)].data[iter], (t % BRAM_BIT_WIDTH), 1, vpmaskbuffer[iter][t]);
+		}
+	}	
+	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+		// for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){
+			// tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[v] = 0xFFFFFFFF;
+		// }
+	// }	
+	#if defined(_DEBUGMODE_HOSTPRINTS3)
+	pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE];
+	unsigned int offset_kvs = vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
+	for(unsigned int GraphIter=0; GraphIter<8; GraphIter++){
+		print_active_vpartitions(GraphIter, vdram);
+	}
+	#endif
+	#endif 
+	
+	#ifdef KKK
+	cout<<">>> swkernel::runapp: populating active vertices masks... "<<endl;	
+	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;		
+	unsigned int vdram_BASEOFFSETKVS_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA].data[0].key;
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
+		for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){
+			unsigned int offsetof_vmask = (index % VDATA_SHRINK_RATIO);
+			UTIL{{context['id']}}_WRITEBITSTO_UINTV(&tempvdram[vdram_BASEOFFSETKVS_SRCVERTICESDATA + (index / VDATA_SHRINK_RATIO)].data[index % VDATA_SHRINK_RATIO], BEGINOFFSETOF_VMASK + offsetof_vmask, SIZEOF_VMASK, vmaskbuffer[iter][s][t]);
+		}
+	}	
+	#endif 
+	
+	
+	// exit(EXIT_SUCCESS);
 	
 	#if defined(CONFIG_TRADGPONLYMODE) || defined(CONFIG_HYBRIDGPMODE)
 	cout<<">>> swkernel::runapp: populating edges, vptrs and active vertices into mdram... "<<endl;
@@ -122,12 +231,15 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 		NOT DEFINED.
 		#endif
 		
-		kernelobjs_process[0]->TOPP0_topkernelS((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)mdram);	
+		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+		kernelobjs_process[0]->TOPP0_topkernelS((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC, (uint512_dt *)vdram);	
+		#endif 
 		
 		long double total_time_elapsed_proc = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
 		cout<<">>> swkernel: Time elapsed for iteration: "<<GraphIter<<": "<<total_time_elapsed_proc<<"ms"<<endl;
 		
 		if(kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter].data[0].key == ON){
+			#ifdef KKK
 			uint512_vec_dt * ref = (uint512_vec_dt *)vdramA;
 			unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = ref[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 			cout<<endl<<"swkernel: active partitions for next iteration: (iteration "<<GraphIter+1<<"): ";
@@ -137,6 +249,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 				if(partition_is_active > 0){ cout<<source_partition<<", "; }
 			}
 			cout<<""<<endl;
+			#endif 
 			
 			#ifdef _DEBUGMODE_HOSTPRINTS
 			cout<<"swkernel: verifying vdramA..."<<endl;
@@ -146,8 +259,12 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 			cout<<"swkernel: verifying vdramC..."<<endl;
 			verifyresults(vdramC, 0);
 			#endif 
+			#ifndef ALLVERTEXISACTIVE_ALGORITHM
+			#ifndef CONFIG_SKELETAL_ALGORITHM
 			cout<<"swkernel: verifying vdramA..."<<endl;
 			verifyresults(vdramA, 0);
+			#endif 
+			#endif 
 		}
 		
 		// if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
@@ -155,6 +272,9 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 	}
 	for(unsigned int i=0; i<TOTALDRAMCAPACITY_KVS; i++){ vdram[i] = vdramA[i]; }
 	
+	// cout<<"swkernel: verifying vdramA..."<<endl;
+	// verifyresults(vdramA, 0);
+			
 	#ifdef _DEBUGMODE_TIMERS3
 	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	statsobj->appendkerneltimeelapsed(total_time_elapsed);

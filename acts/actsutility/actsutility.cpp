@@ -256,19 +256,26 @@ void actsutility::printglobalvars(){
 	cout<<"acts::printglobalvars:: globalvar_savepartitions_invalids: "<<globalvar_savepartitions_invalids<<endl;	
 	cout<<"acts::printglobalvars:: globalvar_inmemory_totalvalidkeyvalues: "<<globalvar_inmemory_totalvalidkeyvalues<<endl;	
 	cout<<"acts::printglobalvars:: globalstats_totalkvspartitioned: "<<globalstats_totalkvspartitioned<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten: "<<globalstats_totalkvspartitionswritten<<endl;
+	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten: "<<globalstats_totalkvspartitionswritten[0]<<endl;
 	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten_actual: "<<globalstats_totalkvspartitionswritten_actual<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten (valids): "<<globalstats_totalkvspartitionswritten - globalvar_savepartitions_invalids<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<endl;
-	cout<<"acts::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten<<endl;
-	cout<<"acts::printglobalvars:: globalstats_totalkvsprocessed: "<<globalstats_totalkvsprocessed<<endl;
-	cout<<"acts::printglobalvars:: globalstats_processedges_validkvsprocessed (valids): "<<globalstats_processedges_validkvsprocessed<<endl;
+	cout<<"acts::printglobalvars:: globalstats_totalkvspartitionswritten (valids): "<<globalstats_totalkvspartitionswritten[0] - globalvar_savepartitions_invalids<<endl;
+	cout<<"acts::printglobalvars:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced[0]<<endl;
+	cout<<"acts::printglobalvars:: globalstats_reduce_validkvsreduced (valids): "<<globalstats_reduce_validkvsreduced[0]<<endl;
+	cout<<"acts::printglobalvars:: globalstats_totalkvsreducewritten: "<<globalstats_totalkvsreducewritten[0]<<endl;
+	cout<<"acts::printglobalvars:: globalstats_totalkvsprocessed: "<<globalstats_totalkvsprocessed[0]<<endl;
+	cout<<"acts::printglobalvars:: globalstats_processedges_validkvsprocessed (valids): "<<globalstats_processedges_validkvsprocessed[0]<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsingetpartition: "<<globalvar_errorsingetpartition<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsinreduce: "<<globalvar_errorsinreduce<<endl;
 	cout<<"acts::printglobalvars:: globalvar_errorsinprocessedges: "<<globalvar_errorsinprocessedges<<endl;
 	cout<<"acts::printglobalvars:: globalstats_totalkvsmerged: "<<globalstats_totalkvsmerged<<endl;
 	cout<<"acts::printglobalvars:: globalvar_totalactvvsseen: "<<globalvar_totalactvvsseen<<endl;
+}
+void actsutility::printglobalvars2(unsigned int instID, string messagea, string messageb, string messagec, string messaged, unsigned int varA, unsigned int varB, unsigned int varC, unsigned int varD){
+	// cout<<"actsutility::printglobalvars2:: globalstats_totalkvsprocessed: "<<globalstats_totalkvsprocessed<<" (valid processed: "<<globalstats_processedges_validkvsprocessed<<")"<<endl;
+	// cout<<"actsutility::printglobalvars2:: globalstats_totalkvspartitionswritten: "<<globalstats_totalkvspartitionswritten<<" (valid partitioned: "<<globalstats_totalkvspartitionswritten<<")"<<endl;
+	// cout<<"actsutility::printglobalvars2:: globalstats_totalkvsreduced: "<<globalstats_totalkvsreduced<<" (valid reduce: "<<globalstats_reduce_validkvsreduced<<")"<<endl;
+	cout<<"actsutility::printglobalvars2[instID: "<<instID<<", "<<messagea<<":"<<varA<<", "<<messageb<<":"<<varB<<", "<<messagec<<":"<<varC<<", "<<messaged<<":"<<varD<<"]:: Pr: "<<globalstats_totalkvsprocessed[instID]<<"("<<globalstats_processedges_validkvsprocessed[instID]<<"), P: "<<globalstats_totalkvspartitionswritten[instID]<<"("<<globalstats_totalkvspartitionswritten[instID]<<"), R: "<< globalstats_totalkvsreduced[instID]<<"("<<globalstats_reduce_validkvsreduced[instID]<<")"<<endl;			
+	return;
 }
 void actsutility::printglobalparameters(string message, globalparams_t globalparams){
 	cout<<endl<<"actsutility::printglobalparameters: "<<message<<endl;
@@ -331,7 +338,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_NUM_EDGE_BANKS: "<<globalparams.ACTSPARAMS_NUM_EDGE_BANKS<<endl;
 	std::cout<<"Kernel Started: globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM: "<<globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM<<endl;
 	
-	std::cout<<"Kernel Started: globalparams.RETURNVALUES: "<<globalparams.RETURNVALUES<<endl;
+	// std::cout<<"Kernel Started: globalparams.RETURNVALUES: "<<globalparams.RETURNVALUES<<endl;
 	
 	std::cout<<std::endl;
 }
@@ -405,7 +412,7 @@ void actsutility::clearglobalvars(){
 	globalvar_totalvsread = 0;
 	globalvar_totalvswritten = 0;
 	
-	globalstats_totalkvspartitionswritten = 0;
+	for(unsigned int t=0; t<64; t++){ globalstats_totalkvspartitionswritten[t] = 0; }
 	globalstats_totalkvspartitionswritten_actual = 0;
 	globalstats_totalkvspartitioned = 0;
 	globalvar_totalkvstatsread = 0;
@@ -415,12 +422,12 @@ void actsutility::clearglobalvars(){
 	globalvar_savestats_totalstatswritten = 0;
 	globalvar_savepartitions_invalids = 0;
 	globalvar_inmemory_totalvalidkeyvalues = 0;
-	globalstats_totalkvsreduced = 0;
-	globalstats_reduce_validkvsreduced = 0;
+	for(unsigned int t=0; t<64; t++){ globalstats_totalkvsreduced[t] = 0; }
+	for(unsigned int t=0; t<64; t++){ globalstats_reduce_validkvsreduced[t] = 0; }
 	globalstats_reduce_var1 = 0;
-	globalstats_totalkvsreducewritten = 0;
-	globalstats_totalkvsprocessed = 0;
-	globalstats_processedges_validkvsprocessed = 0;
+	for(unsigned int t=0; t<64; t++){ globalstats_totalkvsreducewritten[t] = 0; }
+	for(unsigned int t=0; t<64; t++){ globalstats_totalkvsprocessed[t] = 0; }
+	for(unsigned int t=0; t<64; t++){ globalstats_processedges_validkvsprocessed[t] = 0; }
 	globalvar_totalkvsreadV = 0;
 	globalvar_errorsingetpartition = 0;
 	globalvar_errorsinreduce = 0;
@@ -630,8 +637,8 @@ void actsutility::globalstats_countvswritten(unsigned int count){
 	return;
 }
 
-void actsutility::globalstats_countkvspartitionswritten(unsigned int count){
-	globalstats_totalkvspartitionswritten += count;
+void actsutility::globalstats_countkvspartitionswritten(unsigned int instID, unsigned int count){
+	globalstats_totalkvspartitionswritten[instID] += count;
 	return;
 }
 void actsutility::globalstats_countkvspartitionswritten_actual(unsigned int count){
@@ -642,29 +649,29 @@ void actsutility::globalstats_countkvspartitioned(unsigned int count){
 	globalstats_totalkvspartitioned += count;
 	return;
 }
-void actsutility::globalstats_countkvsreduced(unsigned int count){
-	globalstats_totalkvsreduced += count;
+void actsutility::globalstats_countkvsreduced(unsigned int instID, unsigned int count){
+	globalstats_totalkvsreduced[instID] += count;
 	return;
 }
-void actsutility::globalstats_reduce_countvalidkvsreduced(unsigned int count){
-	globalstats_reduce_validkvsreduced += count;
+void actsutility::globalstats_reduce_countvalidkvsreduced(unsigned int instID, unsigned int count){
+	globalstats_reduce_validkvsreduced[instID] += count;
 	return;
 }
 void actsutility::globalstats_reduce_countvar1(unsigned int count){
 	globalstats_reduce_var1 += count;
 	return;
 }
-void actsutility::globalstats_countkvsreducewritten(unsigned int count){
-	globalstats_totalkvsreducewritten += count;
+void actsutility::globalstats_countkvsreducewritten(unsigned int instID, unsigned int count){
+	globalstats_totalkvsreducewritten[instID] += count;
 	return;
 }
-void actsutility::globalstats_countkvsprocessed(unsigned int count){
-	globalstats_totalkvsprocessed += count;
+void actsutility::globalstats_countkvsprocessed(unsigned int instID, unsigned int count){
+	globalstats_totalkvsprocessed[instID] += count;
 	// cout<<" ------------------- actsutility::globalstats_countkvsprocessed: globalstats_totalkvsprocessed: "<<globalstats_totalkvsprocessed<<endl;
 	return;
 }
-void actsutility::globalstats_processedges_countvalidkvsprocessed(unsigned int count){
-	globalstats_processedges_validkvsprocessed += count;
+void actsutility::globalstats_processedges_countvalidkvsprocessed(unsigned int instID, unsigned int count){
+	globalstats_processedges_validkvsprocessed[instID] += count;
 	// cout<<" ------------------- actsutility::globalstats_processedges_countvalidkvsprocessed: globalstats_processedges_validkvsprocessed: "<<globalstats_processedges_validkvsprocessed<<endl;
 	return;
 }
@@ -693,11 +700,14 @@ void actsutility::globalstats_countactvvsseen(unsigned int count){
 	return;
 }
 
+unsigned int actsutility::globalstats_getcountvalidkvsprocessed(unsigned int instID){
+	return globalstats_totalkvsprocessed[instID];
+}
 unsigned int actsutility::globalstats_getcounterrorsinreduce(){
 	return globalvar_errorsinreduce;
 }
-unsigned int actsutility::globalstats_getcountvalidkvsreduced(){
-	return globalstats_reduce_validkvsreduced;
+unsigned int actsutility::globalstats_getcountvalidkvsreduced(unsigned int instID){
+	return globalstats_reduce_validkvsreduced[instID];
 }
 unsigned int actsutility::globalstats_getreducevar1(){
 	return globalstats_reduce_var1;
@@ -705,8 +715,8 @@ unsigned int actsutility::globalstats_getreducevar1(){
 unsigned int actsutility::globalstats_getcounterrorsinprocessedges(){
 	return globalvar_errorsinprocessedges;
 }
-unsigned int actsutility::globalstats_getcountnumvalidprocessedges(){
-	return globalstats_processedges_validkvsprocessed;
+unsigned int actsutility::globalstats_getcountnumvalidprocessedges(unsigned int instID){
+	return globalstats_processedges_validkvsprocessed[instID];
 }
 unsigned int actsutility::globalstats_getactvvsseen(){
 	return globalvar_totalactvvsseen;

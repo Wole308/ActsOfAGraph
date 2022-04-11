@@ -28,7 +28,7 @@ using namespace std;
 // #define _DEBUGMODE_KERNELPRINTS_TRACE
 #ifndef ALLVERTEXISACTIVE_ALGORITHM
 #ifndef FPGA_IMPL
-// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 #endif 
 #endif
 // #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
@@ -73,14 +73,9 @@ using namespace std;
 #define BLOCKRAM_VDATA_SIZE (1 << SRAMSZ_POW)
 #endif
 
-#ifdef ALLVERTEXISACTIVE_ALGORITHM
-#define BLOCKRAM_CURRPMASK_SIZE DOUBLE_BLOCKRAM_SIZE // BLOCKRAM_SIZE // 1
-#else 
-#define BLOCKRAM_CURRPMASK_SIZE DOUBLE_BLOCKRAM_SIZE // BLOCKRAM_SIZE
-#endif 	
-// #define BLOCKRAM_CURRPMASK_SIZE BLOCKRAM_SIZE
+#define BLOCKRAM_CURRPMASK_SIZE DOUBLE_BLOCKRAM_SIZE
 #define BLOCKRAM_NEXTPMASK_SIZE BLOCKRAM_SIZE // BLOCKRAM_CURRPMASK_SIZE
-#define BLOCKRAM_CUMMTVPMASK_SIZE DOUBLE_BLOCKRAM_SIZE // BLOCKRAM_CURRPMASK_SIZE
+#define BLOCKRAM_CUMMTVPMASK_SIZE BLOCKRAM_SIZE // DOUBLE_BLOCKRAM_SIZE // BLOCKRAM_CURRPMASK_SIZE
 
 #define BLOCKRAM_GLOBALSTATS_SIZE BLOCKRAM_SIZE // DOUBLE_BLOCKRAM_SIZE //
 #define BLOCKRAM_GLOBALSTATS_BIGSIZE BLOCKRAM_SIZE // DOUBLE_BLOCKRAM_SIZE
@@ -146,7 +141,7 @@ using namespace std;
 #define ACTIVE_KVSTATSDRAMSZ (ACTIVE_KVSTATSSZ * VECTOR_SIZE)
 #define ACTIVE_KVSTATSDRAMSZ_KVS (ACTIVE_KVSTATSDRAMSZ / VECTOR_SIZE)
 
-#define EDGESSTATSDRAMSZ 64
+#define EDGESSTATSDRAMSZ 8 // 64
 
 #ifdef USEHBMMEMORY
 	#define TOTALDRAMCAPACITY_V ((1 << 28) / 4) // (256MB/4=64M)
@@ -223,7 +218,10 @@ using namespace std;
 // #define MAXVDATA 0b00000000000000000111111111111111
 #define MAXVDATA 0b01111111111111111111111111111111
 
-#ifdef FPGA_IMPL
+#define NUM_COLLECTIONS 16
+#define COLLECTIONS_BUFFERSZ 2
+
+/* #ifdef FPGA_IMPL
 typedef unsigned int batch_type;
 typedef ap_uint<13> buffer_type;
 // typedef ap_uint<8> partition_type; // FIXME. some bug somewhere
@@ -242,7 +240,15 @@ typedef unsigned int step_type;
 typedef unsigned int bool_type;
 typedef unsigned int analysis_type;
 typedef unsigned int visitstate_type;
-#endif
+#endif */
+typedef unsigned int batch_type;
+typedef unsigned int buffer_type;
+typedef unsigned int partition_type;
+typedef unsigned int vector_type;
+typedef unsigned int step_type;
+typedef unsigned int bool_type;
+typedef unsigned int analysis_type;
+typedef unsigned int visitstate_type;
 
 typedef struct {
 	#ifdef _WIDEWORD
@@ -279,6 +285,10 @@ typedef ap_uint<32> vtxbuffer_type;
 #else
 typedef unsigned int vtxbuffer_type;
 #endif 
+
+typedef struct {
+	unsigned int data1;
+} collection_t;
 
 typedef struct {
 	unsigned int currentLOP;
@@ -395,8 +405,13 @@ typedef struct {
 	unsigned int ACTSPARAMS_NUM_EDGE_BANKS;
 	unsigned int ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM;
 
-	unsigned int RETURNVALUES[MESSAGES_RETURNVALUES_SIZE];
-	unsigned int MAILBOX[MESSAGES_MAILBOX_SIZE];
+	unsigned int DUMMYCHKPOINT;
+	unsigned int BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM;
+	unsigned int RETURNVALUES;
+	unsigned int MAILBOX;
+
+	// unsigned int RETURNVALUES[MESSAGES_RETURNVALUES_SIZE];
+	// unsigned int MAILBOX[MESSAGES_MAILBOX_SIZE];
 	
 	unsigned int VARS_WORKBATCH;
 } globalparams_t;

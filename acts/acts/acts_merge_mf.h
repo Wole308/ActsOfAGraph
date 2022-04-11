@@ -4,6 +4,8 @@ void MERGEP0_RearrangeLayoutV(unsigned int s, unsigned int data[VECTOR2_SIZE], u
 
 void MERGEP0_RearrangeLayoutA(unsigned int s, unit1_type data[VECTOR2_SIZE], unit1_type data2[VECTOR2_SIZE]);
 
+void MERGEP0_SavingBufferedPartitions(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int instanceid, unsigned int partition, unsigned int voffset_kvs, unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE], unsigned int * partition_offset, globalparams_t globalparamsvA, globalparams_t globalparamsvB, globalparams_t globalparamsvC);
+
 void MERGEP0_collects(
 		unsigned int instanceid,
 		unsigned int voffset_kvs,
@@ -16,7 +18,8 @@ void MERGEP0_collects(
 		unsigned int local_actvv[VECTOR2_SIZE],
 		unsigned int local_actvv2[VECTOR2_SIZE],
 		unsigned int global_actvvs[VECTOR2_SIZE],
-		uint32_type vpmaskVecSum[VECTOR2_SIZE]
+		uint32_type vpmaskVecSum[VECTOR2_SIZE],
+		unsigned int partition_offset
 		);
 
 void MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram);

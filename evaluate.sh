@@ -45,8 +45,8 @@ OUTPUTDIRNAME="outputs"
 HWRESULTSPATHNAME="hwresults"
 SWRESULTSPATHNAME="swresults"
 
-TESTKERNEL="RK"
-# TESTKERNEL="TESTKERNEL"
+# TESTKERNEL="RK"
+TESTKERNEL="TESTKERNEL"
 TESTKERNELARG=1
 
 SYNKERNELSPATHNAME="xclbins"
@@ -335,24 +335,18 @@ do
 				# for dataset in $KRON21_2M_91M
 				# for dataset in $KRON22_4M_200M
 				# for dataset in $RGG_N_2_24_S0_16M_265M
-				# for dataset in $EUROPE_OSM_50M_108M
-				# for dataset in $KMER_V2A_55M_117M
-				# for dataset in $HUGEBUBBLES_00020_21M_63M
 				# for dataset in $INDOCHINA_2004_7M_194M
 				# for dataset in $UK_2002_18M_298M
 				# for dataset in $IJOURNAL_2008_5M_79M
-				# for dataset in $MAWI_201512020030_68M_71M
 				# for dataset in $RMAT24_268M
 				# for dataset in $RMAT25_268M
 				# for dataset in $RMAT26_268M
 				# for dataset in $RMAT21_SPARSE0
 				# for dataset in $RMAT21_SPARSE2
-				# for dataset in $RMAT21_SPARSE4
 				
-				# for dataset in $RMAT21_SPARSE2 $RMAT21_SPARSE4
+				# for dataset in $RMAT21_SPARSE0 $RMAT21_SPARSE2
 				
-				# for dataset in $INDOCHINA_2004_7M_194M $UK_2002_18M_298M $IJOURNAL_2008_5M_79M $HOLLYWOOD_1M_114M $HUGEBUBBLES_00020_21M_63M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $RMAT24_268M $RMAT25_268M $RMAT21_SPARSE0 $RMAT21_SPARSE2 $RMAT21_SPARSE4
-				# for dataset in $ORKUT_3M_212M $INDOCHINA_2004_7M_194M $UK_2002_18M_298M $IJOURNAL_2008_5M_79M $HOLLYWOOD_1M_114M $HUGEBUBBLES_00020_21M_63M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $RMAT24_268M $RMAT25_268M $RMAT21_SPARSE0 $RMAT21_SPARSE2 $RMAT21_SPARSE4
+				# for dataset in $ORKUT_3M_212M $INDOCHINA_2004_7M_194M $UK_2002_18M_298M $IJOURNAL_2008_5M_79M $HOLLYWOOD_1M_114M $KRON20_1M_45M $KRON21_2M_91M $RGG_N_2_24_S0_16M_265M $RMAT24_268M $RMAT25_268M $RMAT21_SPARSE0 $RMAT21_SPARSE2
 				
 				do
 					# for evaluation_param0 in 0 4
@@ -416,7 +410,7 @@ do
 									then
 										echo "crabtree.ACTS_1BY2BY1 setup specified.---"
 										make host
-										./host $BACKUPDIR_KERNELXCLBIN > $HWRESULTDIR_RESULT
+										./host $BACKUPDIR_KERNELXCLBIN #> $HWRESULTDIR_RESULT
 									elif [ $AWS == $ON ]
 									then
 										echo "aws setup specified."

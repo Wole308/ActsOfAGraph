@@ -111,6 +111,7 @@ void utility::printallparameters(){
 	std::cout<<">> host[sizes]:: ACTIVE_KVSTATSDRAMSZ (keyvalues): "<<ACTIVE_KVSTATSDRAMSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: PADDEDVDRAMSZ (keyvalues): "<<PADDEDVDRAMSZ<<" keyvalues"<<std::endl;
 	std::cout<<">> host[sizes]:: PADDEDKVSOURCEDRAMSZ (keyvalues): "<<PADDEDKVSOURCEDRAMSZ<<" keyvalues"<<std::endl;
+	std::cout<<">> host[sizes]:: TOTALDRAMCAPACITY (keyvalues): "<<TOTALDRAMCAPACITY_KVS * VECTOR_SIZE<<" keyvalues"<<std::endl;
 	
 	// >>>
 	std::cout<<">> host[bytes]:: MESSAGESDRAMSZ (bytes): "<<MESSAGESDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
@@ -121,6 +122,7 @@ void utility::printallparameters(){
 	std::cout<<">> host[bytes]:: VERTICESDATAMASKSZ (bytes): "<<VERTICESDATAMASKSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: PADDEDVDRAMSZ (bytes): "<<PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: PADDEDKVSOURCEDRAMSZ (bytes): "<<PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: TOTALDRAMCAPACITY (bytes): "<<TOTALDRAMCAPACITY_KVS * VECTOR_SIZE * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<"utility:: KVSTATSDRAMSZ: "<<KVSTATSDRAMSZ<<std::endl;
 	std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
@@ -710,6 +712,15 @@ void utility::WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned
 	return WRITETO_ULONG(data, index, size, value);
 	return; 
 }
+unsigned int utility::READBITSFROM_UINTV(unsigned int data, unsigned int index, unsigned int size){
+	unsigned int res = 0;
+	res = READFROM_UINT(data, index, size);
+	return res;
+}
+void utility::WRITEBITSTO_UINTV(unsigned int * data, unsigned int index, unsigned int size, unsigned int value){
+	WRITETO_UINT(data, index, size, value);
+	return; 
+}
 unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
 	#pragma HLS INLINE
 	return (vid - instid) / NUM_PEs;
@@ -775,7 +786,8 @@ void utility::set_callback(cl_event event, const char *queue_name) {
 }
 #endif 
 
-unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters, long double edgesprocessed_totals[128], unsigned int * numValidIters){
+unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters, long double edgesprocessed_totals[128], unsigned int * numValidIters, 
+		unsigned int vpmaskbuffer[MAXNUMGRAPHITERATIONS][NUMPROCESSEDGESPARTITIONS], uint512_ivec_dt * mdram, uint512_ivec_dt * vdram, uint512_ivec_dt * kvbuffer[NUMSUBCPUTHREADS], bool savemasks, bool printactivepartitios){						
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"utility::runsssp_sw:: running traditional sssp... "<<endl;
 	#endif 
@@ -798,12 +810,26 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	unsigned int GraphIter=0;
 	*numValidIters = 0;
 	
+	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
+	unsigned int vdram_BASEOFFSETKVS_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA].data[0];
+	unsigned int vdram_SIZE_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_SRCVERTICESDATA].data[0];
+	#endif 
+
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	
 	// cout<<"-------+++++++++++++++++++++++++++++++++++++(A)-------------- NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<endl;
+	vpmaskbuffer[0][0] = 1; 
 	for(GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
 		// cout<<">>> GraphIter: "<<GraphIter<<endl;
-
+		
+		unsigned int actvvcount_nextit = 0;
+		#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
+		unsigned int vdram_SRC_BASE_KVS = GraphIter * ((vdram_SIZE_SRCVERTICESDATA / VECTOR2_SIZE) / MAXNUMGRAPHITERATIONS); // NOTE: must correspond with what is defined in classname__top_usrcv_udstv.cpp
+		#endif 
+		#if defined(CONFIG_HYBRIDGPMODE) && defined(CONFIG_PRELOADEDVERTICESMASKS)
+		unsigned int actvvs_nextit_basekvs = (GraphIter + 1) * (CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD / VECTOR2_SIZE);
+		#endif 
+		
 		for(unsigned int i=0; i<actvvs.size(); i++){
 			unsigned int vid = actvvs[i];
 			edge_t vptr_begin = vertexptrbuffer[vid];
@@ -821,18 +847,52 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 				value_t vprop = vdatas[dstvid];
 				value_t vtemp = min(vprop, res);
 				vdatas[dstvid] = vtemp;
-				if(vtemp != vprop){ actvvs_nextit.push_back(dstvid); } 
+				if(vtemp != vprop){ 
+					actvvs_nextit.push_back(dstvid);
+					checkoutofbounds("utility::runsssp_sw:: ERROR 20", dstvid / PROCESSPARTITIONSZ, NUMPROCESSEDGESPARTITIONS, dstvid, vid, dstvid);
+					
+					#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
+					if(GraphIter+1 < MAXNUMGRAPHITERATIONS){ vpmaskbuffer[GraphIter+1][dstvid / PROCESSPARTITIONSZ] = 1; }
+					#endif 
+					#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
+					if(savemasks == true){
+						// cout<<">>> utility::runsssp_sw[Iter: "<<GraphIter<<"]: inserting active vertex mask ("<<dstvid<<") into vdram... "<<endl;	
+						unsigned int s = dstvid % NUM_PEs;
+						unsigned int lvid = UTIL_GETLOCALVID(dstvid, s);
+						unsigned int offsetof_vmask = (lvid % VDATA_SHRINK_RATIO);
+						unsigned int depth_kvs2 = s * (NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2);
+						WRITEBITSTO_UINTV(&vdram[vdram_BASEOFFSETKVS_SRCVERTICESDATA + vdram_SRC_BASE_KVS + depth_kvs2 + ((lvid / VECTOR2_SIZE) / VDATA_SHRINK_RATIO)].data[(lvid % VECTOR2_SIZE)], BEGINOFFSETOF_VMASK + (lvid % VDATA_SHRINK_RATIO), SIZEOF_VMASK, 1);
+					}
+					#endif
+					#if defined(CONFIG_HYBRIDGPMODE) && defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
+					if(savemasks == true && actvvs_nextit.size() < CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD){
+						// cout<<">>> utility::runsssp_sw[Iter: "<<GraphIter<<"]: inserting active vertex ("<<dstvid<<") into mdram... "<<endl;	
+						unsigned int loc = globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + actvvs_nextit_basekvs + actvvcount_nextit;
+						mdram[(loc / VECTOR2_SIZE)].data[loc % VECTOR2_SIZE] = dstvid;
+						actvvcount_nextit += 1;
+					}
+					#endif 
+				} 
 			
 				total_edges_processed += 1;
 				edgesprocessed_totals[GraphIter] += 1;
 			}
+		
+			unsigned int acts_mode = ON;
+			#ifdef CONFIG_HYBRIDGPMODE
+			if(actvvs_nextit.size() < CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD){ acts_mode = OFF; }
+			#endif
+			mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter].data[0] = acts_mode;
+			vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter].data[0] = acts_mode;
+			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+				kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter].data[0] = acts_mode; // {TRAD=OFF, ACTS=ON} 
+			}
 		}
 		
 		// cout<<"-------))))))))))))))))))))))))))))))))(B)-------------- NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<", GraphIter: "<<GraphIter<<endl;
-		
 		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<actvvs_nextit.size()<<""<<endl;
 		if(actvvs_nextit.size() == 0){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
-		
+	
 		actvvs.clear();
 		for(unsigned int i=0; i<actvvs_nextit.size(); i++){ actvvs.push_back(actvvs_nextit[i]); }
 		actvvs_nextit.clear();
@@ -840,18 +900,196 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	
 	if(GraphIter == NumGraphIters){ *numValidIters = GraphIter; }
 	else { *numValidIters = GraphIter+1; }
-	// cout<<"-------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^(B)-------------- GraphIter: "<<GraphIter<<", NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<endl;
+	cout<<">>> )))))))))))))))))))))))))))))))))))) utility::runsssp_sw: FINISHED. GraphIter: "<<GraphIter<<", NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<endl;
 	
 	long double total_time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begintime).count();
 	cout<<">>> utility::runsssp_sw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
 	cout<<">>> utility::runsssp_sw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	cout<< TIMINGRESULTSCOLOR <<">>> utility::runsssp_sw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;
 	
+	if(printactivepartitios == true){
+		cout<<">>> utility::runsssp_sw: printing active vertex partitions: MAXNUMGRAPHITERATIONS: "<<MAXNUMGRAPHITERATIONS<<", NUMPROCESSEDGESPARTITIONS: "<<NUMPROCESSEDGESPARTITIONS<<", PROCESSPARTITIONSZ: "<<PROCESSPARTITIONSZ<<endl;
+		for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
+			cout<<">>> utility::runsssp_sw: iter: "<<iter<<endl;
+			for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){
+				if(vpmaskbuffer[iter][t] > 0){ cout<<t<<", "; }
+			}
+			cout<<endl;
+		}
+	}
+	
+	cout<<">>> utility::runsssp_sw: printing modes for Hybrid Engine... "<<endl;
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
+		if(vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[0] == ON){ cout<<">>> iter "<<iter<<": ACTS MODE "<<endl; }
+		else { cout<<">>> iter "<<iter<<": TRADITIONAL MODE "<<endl; }
+	}
+	
 	// exit(EXIT_SUCCESS); // --------------
 	delete vdatas;
 	return total_edges_processed;
 }
 
+// #define UTILITY_PRINTONLY_NUMEDGESPROCESSED
+void utility::printallfeedback(string message, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){
+	
+	// unsigned int F0 = 0;
+	// unsigned int F1 = NUMCOMPUTEUNITS_SLR2;
+	// unsigned int F2 = NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1;
+	
+	unsigned int F0 = 0;
+	unsigned int F1 = 1;
+	unsigned int F2 = 2;
+	
+	for(unsigned int i=0; i<1; i++){
+		for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){
+			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	
+			unsigned int num_vertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
+			
+			unsigned int num_validedgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].value;	
+			unsigned int num_validvertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].value;	
+			
+			cout<<">>> utility::[A]["<<message<<"][PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges processed: "<<num_edgesprocessed<<"("<<num_validedgesprocessed<<"), num vertex updates reduced: "<<num_vertexupdatesreduced<<"("<<num_validvertexupdatesreduced<<")"<<endl;	
+		}
+	}
+	
+	for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){
+		unsigned int sum_edgesprocessed = 0;
+		unsigned int sum_vertexupdatesreduced = 0;
+		for(unsigned int i=0; i<NUM_PEs; i++){
+			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	
+			unsigned int num_vertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
+			sum_edgesprocessed += num_edgesprocessed;	
+			sum_vertexupdatesreduced += num_vertexupdatesreduced;	
+			cout<<">>> utility::[B]["<<message<<"][PE:"<<i<<"]:: num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_vertexupdatesreduced<<""<<endl;	
+		}
+		cout<<">>> utility::[B]["<<message<<"]:: num edges processed: "<<sum_edgesprocessed<<", num vertex updates reduced: "<<sum_vertexupdatesreduced<<""<<endl;	
+	}
+	
+	#ifndef UTILITY_PRINTONLY_NUMEDGESPROCESSED
+	cout<<">>> utility::verifyresults:: Printing results from app.cpp [vdram @ 0][num processed edges stats @ processedges.cpp] & [@ 32][num reduced vertex-update stats @ processedges.cpp]"<<endl;
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
+	}
+	
+	cout<<">>> utility::verifyresults:: Printing results from app.cpp [vdram @ 64][num processed edges stats @ processedges.cpp->actsutility.cpp]."<<endl;
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED2 + "<<GraphIter<<"]]: "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED2 + GraphIter].data[0].key<<endl;
+	}
+	
+	cout<<">>> utility::verifyresults:: Printing results from app.cpp [vdram @ 96][num active vertices for next iteration @ mem_access.cpp]."<<endl;
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMACTIVEVERTICESFORNEXTITERATION + "<<GraphIter<<"]]: "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMACTIVEVERTICESFORNEXTITERATION + GraphIter].data[0].key<<endl;
+	}
+	
+	cout<<">>> utility::verifyresults:: Printing results from app.cpp [@ 0][num processed edges stats @ processedges.cpp] & [@ 32][num reduced vertex-update stats @ processedges.cpp]"<<endl;
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[vdramtemp0[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
+	}
+	
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[vdramtemp1[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<vdramtemp1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<vdramtemp1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
+	}
+	
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[vdramtemp2[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<vdramtemp2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<vdramtemp2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
+	}
+	
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
+	}
+	
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F0<<"][MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<kvbuffer[F0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<kvbuffer[F0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
+	}
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F1<<"][MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
+	}
+	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F2<<"][MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<kvbuffer[F2][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<kvbuffer[F2][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
+	}
+	
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F0<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[F0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F1<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F2<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[F2][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
+	}
+	
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F0<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[F0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F1<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F2<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[F2][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
+	}
+	
+	// for(unsigned int t=0; t<4; t++){ // 128
+		// cout<<">>> utility::["<<message<<"]::[kvbuffer[5][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[5][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
+	// }
+	// for(unsigned int t=0; t<4; t++){ // 128
+		// cout<<">>> utility::["<<message<<"]::[kvbuffer[6][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[6][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
+	// }
+	// for(unsigned int t=0; t<4; t++){ // 128
+		// cout<<">>> utility::["<<message<<"]::[kvbuffer[7][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[7][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
+	// }
+	
+	// for(unsigned int t=0; t<4; t++){ // 128
+		// cout<<">>> utility::["<<message<<"]::[kvbuffer[5][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[5][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
+	// }
+	// for(unsigned int t=0; t<4; t++){ // 128
+		// cout<<">>> utility::["<<message<<"]::[kvbuffer[6][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[6][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
+	// }
+	// for(unsigned int t=0; t<4; t++){ // 128
+		// cout<<">>> utility::["<<message<<"]::[kvbuffer[7][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[7][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
+	// }
+	
+	unsigned int offset = kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F0<<"]["<<offset + t<<"]]: "<<kvbuffer[F0][offset + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F1<<"]["<<offset + t<<"]]: "<<kvbuffer[F1][offset + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F2<<"]["<<offset + t<<"]]: "<<kvbuffer[F2][offset + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer[5]["<<offset + t<<"]]: "<<kvbuffer[5][offset + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer[6]["<<offset + t<<"]]: "<<kvbuffer[6][offset + t].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){ // 128
+		cout<<">>> utility::["<<message<<"]::[kvbuffer[7]["<<offset + t<<"]]: "<<kvbuffer[7][offset + t].data[0].key<<""<<endl;
+	}
+	
+	unsigned int F = 0;
+	for(unsigned int t=0; t<3; t++){
+		if(t==0){ F = F0; } if(t==1){ F = F1; } if(t==2){ F = F2; }
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_EDGEBANKLOOP]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_EDGEBANKLOOP].data[0].key<<""<<endl;
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_VCHUNKLOOP]]: "<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_VCHUNKLOOP].data[0].key<<""<<endl;
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_STAGELOOP]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_STAGELOOP].data[0].key<<""<<endl;
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_LOPLOOP]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_LOPLOOP].data[0].key<<""<<endl;
+		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP].data[0].key<<""<<endl;
+	}
+	
+	for(unsigned int t2=0; t2<64; t2++){
+		cout<<">>> utility::["<<message<<"]::[vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + "<<BASEOFFSET_MESSAGESDATA_KVS + t2<<"]]: "<<vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + t2].data[0].key<<""<<endl;
+	}
+	for(unsigned int t=0; t<4; t++){
+		for(unsigned int t2=0; t2<64; t2++){
+			if(t==0){ F = F0; } if(t==1){ F = F1; } if(t==2){ F = F2; } if(t==2){ F = 3; }
+			cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][BASEOFFSET_MESSAGESDATA_KVS + "<<BASEOFFSET_MESSAGESDATA_KVS + t2<<"]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + t2].data[0].key<<""<<endl;
+		}
+	}
+	#endif 
+	return;
+}
 
 
 

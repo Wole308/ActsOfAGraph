@@ -1,4 +1,4 @@
-void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector(unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t destbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[COLLECTIONS_BUFFERSZ]){
 	#pragma HLS PIPELINE II=3
 	keyvalue_t mykeyvalue = UTIL{{context['id']}}_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
@@ -50,6 +50,9 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 				if(en == true){ MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(loc, destbuffer, new_vprop, vmdata.vmask, 0); }
 					#endif
 
+	#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
+	collections[1].data1 += 1;
+	#endif 
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(1);
 	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(1); }
@@ -57,7 +60,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	return;
 }
 
-void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){				
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
 	// cout<<"--------------- REDUCE{{context['id']}}_reduceandbuffer"<<endl;
@@ -97,7 +100,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 				{%endfor%}
 
 				{%for p in context['8_seq']%}
-				if(i< size_kvs[{{p}}]){ REDUCE{{context['id']}}_reducevector(it+{{p}}, kvdata{{p}}, vbuffer[it+{{p}}], 0, sweepparams.upperlimit, sweepparams, globalposition, globalparams); }
+				if(i< size_kvs[{{p}}]){ REDUCE{{context['id']}}_reducevector(it+{{p}}, kvdata{{p}}, vbuffer[it+{{p}}], 0, sweepparams.upperlimit, sweepparams, globalposition, globalparams, collections[it+{{p}}]); }
 				{%endfor%}
 			}
 		}
@@ -105,7 +108,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reduceandbuf
 	return;
 }
 
-void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){				
+void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
 	
@@ -129,7 +132,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_priorreducea
 			cout<<"priorreduceandbuffer: kv2.key: "<<kv2.key<<", kv2.value: "<<kv2.value<<", p: "<<p<<", upperlimit: "<<upperlimit<<", sweepparams.upperlimit: "<<sweepparams.upperlimit<<", currentLOP: "<<sweepparams.currentLOP<<endl;
 			#endif 
 			
-			if(p < VDATA_PACKINGSIZE){ REDUCE{{context['id']}}_reducevector(p, kv, vbuffer[p], 0, upperlimit, sweepparams, globalposition, globalparams); } // REMOVEME.
+			if(p < VDATA_PACKINGSIZE){ REDUCE{{context['id']}}_reducevector(p, kv, vbuffer[p], 0, upperlimit, sweepparams, globalposition, globalparams, collections); } // REMOVEME.
 		}
 	}
 	return;

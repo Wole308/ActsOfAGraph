@@ -108,10 +108,15 @@ public:
 	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 	void WRITETO_ULONG(unsigned long * data, unsigned long index, unsigned long size, unsigned long value);
 	void WRITETO_ULONG(keyvalue_t * keyvalue, unsigned long index, unsigned long size, unsigned long value);
+	unsigned int READBITSFROM_UINTV(unsigned int data, unsigned int index, unsigned int size);
+	void WRITEBITSTO_UINTV(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 	unsigned int UTIL_GETLOCALVID(unsigned int vid, unsigned int instid);
 	unsigned int UTIL_GETREALVID(unsigned int lvid, unsigned int instid);
 
-	unsigned int runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters, long double edgesprocessed_totals[128], unsigned int * numValidIters);
+	unsigned int runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbuffer, edge2_type * edgedatabuffer, unsigned int NumGraphIters, long double edgesprocessed_totals[128], unsigned int * numValidIters, 
+			unsigned int vpmaskbuffer[MAXNUMGRAPHITERATIONS][NUMPROCESSEDGESPARTITIONS], uint512_ivec_dt * mdram, uint512_ivec_dt * vdram, uint512_ivec_dt * kvbuffer[NUMSUBCPUTHREADS], bool savemasks, bool printactivepartitios);							
+	
+	void printallfeedback(string message, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]);
 	
 	#ifdef FPGA_IMPL
 	void set_callback(cl_event event, const char *queue_name);

@@ -29,8 +29,10 @@ public:
 	
 	#ifndef FPGA_IMPL
 	void verifyresults(uint512_vec_dt * vdram, unsigned int id);
+	void print_active_vpartitions(unsigned int GraphIter, uint512_vec_dt * vdram);
+	
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters,
-		edge_t * vertexptrbuffer, edge2_type * edgedatabuffer);						
+		unsigned int vpmaskbuffer[MAXNUMGRAPHITERATIONS][NUMPROCESSEDGESPARTITIONS], edge_t * vertexptrbuffer, edge2_type * edgedatabuffer);						
 	
 	void run3(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_vec_dt * vdramC, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);
 	void run12(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_vec_dt * vdramC, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS]);

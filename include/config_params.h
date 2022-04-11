@@ -64,7 +64,7 @@
 
 // #define CONFIG_ENABLECLASS_PROCESSEDGES	// More LUTs, Faster?
 // #define CONFIG_ENABLECLASS_REDUCEUPDATES	
-#define CONFIG_ENABLECLASS_PROCESSEDGES2 // Fewer LUTs, Slower ***
+#define CONFIG_ENABLECLASS_PROCESSEDGES2 // Fewer LUTs, Slower (use this for FPGA_IMPL)***
 #define CONFIG_ENABLECLASS_REDUCEUPDATES2
 
 #define CONFIG_ENABLECLASS_PARTITIONUPDATES
@@ -77,18 +77,91 @@
 
 #define CONFIG_ACTSONLYMODE
 // #define CONFIG_TRADGPONLYMODE
-// #define CONFIG_HYBRIDGPMODE
+// #define CONFIG_HYBRIDGPMODE // { acts_util.cpp }
 #ifdef CONFIG_HYBRIDGPMODE
 // #define CONFIG_HYBRIDGPMODE_ONLINESWITCHING
+#define CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD (1 << 14) // 16384, 32768, 20000
 #endif 
 
 // creating graphs 
 // #define CONFIG_CREATEGRAPHS_CHECK_FOR_NONINCREASINGEDGES
 
+#define CONFIG_SKELETAL_ALGORITHM // {loadgraph.cpp, swkernel.cpp, goclkernel.cpp, classname__top_usrcv_udstv.cpp, mem_acces.cpp} // FIXME.
+// #define CONFIG_COLLECT_DATAS1_DURING_RUN // { data collected in processedges.cpp & reduceupdates.cpp }
+#define CONFIG_COLLECT_DATAS2_DURING_RUN // {loops entered, number of vptrs across source partitions, number of edges across source partitions}
+#define CONFIG_COLLECT_DATAS3_DURING_RUN // { data collected in actsutility.cpp }
+
+// #define CONFIG_PROCESSEDGES_READOFFLINESTATS // FIXME.
+
+#define CONFIG_ACTS_MEMORYLAYOUT
+#define CONFIG_ACTS_PARTITIONINGLOGIC //
+#define CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
+#define CONFIG_ACTS_HYBRIDLOGIC
+
+// #define CONFIG_TRADITIONAL_MEMORYLAYOUT
+// #define CONFIG_TRADITIONAL_PARTITIONINGLOGIC
+// #define CONFIG_TRADITIONAL_RECURSIVEPARTITIONINGLOGIC
+// #define CONFIG_TRADITIONAL_HYBRIDLOGIC
+
+#define CONFIG_SELECTIVEVERTEXPARTITIONS // OBSOLETE.
+#define CONFIG_PRELOADEDVERTEXPARTITIONMASKS
+#define CONFIG_PRELOADEDVERTICESMASKS // { utility.cpp classname__top_usrcv_udstv.cpp, acts_merge.cpp}
+
 #endif
 
 /**
 CHANGES:
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+// #define CONFIG_PROCESSEDGES_READOFFLINESTATS
+typedef unsigned int batch_type;
+typedef unsigned int buffer_type;
+typedef unsigned int partition_type;
+typedef unsigned int vector_type;
+typedef unsigned int step_type;
+typedef unsigned int bool_type;
+typedef unsigned int analysis_type;
+typedef unsigned int visitstate_type; // actscommon.h
+#ifndef ALLVERTEXISACTIVE_ALGORITHM
+	if(pmask_curr[globalposition.source_partition / BRAM_BIT_WIDTH].data[globalposition.source_partition % BRAM_BIT_WIDTH] == 0){ returncmd = true; } // check if vertex partition is active
+	else{
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"processit: source_partition: "<<globalposition.source_partition<<" is active (Instance "<<globalparamsK.ACTSPARAMS_INSTID<<")"<<endl; 
+		#endif 
+	}
+	#endif 
+#define CONFIG_COLLECT_DATAS2_DURING_RUN
+// if(returncmd == false){ // CRITICAL REMOVEME...............................................................................................
+// if(en_partition == ON){ TOP{{context['id']}}_NU_partitionit( kvdram, sourcebuffer, vbuffer, globalparamsK, NAp, collections); } 
+	// if(en_reduce == ON){ TOP{{context['id']}}_NU_reduceit( kvdram, sourcebuffer, vbuffer, sourcestatsmarker, source_partition, globalparamsK, NAp, collections); } 
+OCL_CHECK( // CRITICAL RESTOREME.
+        err,
+        cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err));
+OCL_CHECK(err, err = kernel_events[s].wait()); // NEWCHANGE.
+// if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; } // NEWCHANGE.
+SAVEPARTITIONS_LOOP2: for(partition_type p=0; p<NUM_PARTITIONS; p++){ // NEWCHANGE.
+		if(globalcapsule[p].key + globalcapsule[p].value < globalparams.SIZE_KVDRAM){ globalcapsule[p].value += localcapsule[p].value; }
+	}
+if(localcapsule[p].key + localcapsule[p].value >= DESTBLOCKRAM_SIZE){ realsize_kvs = 0; } // ERROR CHECK
+// if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){ 
+		resetenv = ON; flush = ON; 
+		// } // CRITICAL NEWCHANGE.
+Algo = BFS; // FIXME. app.cpp
+// #if defined(BFS_ALGORITHM) || defined(SSSP_ALGORITHM)
+// #define RANDOMVERTEXISACTIVE_ALGORITHM
+// #else 
+// #define ALLVERTEXISACTIVE_ALGORITHM
+// #endif	// common.h
+// #if not defined(ALLVERTEXISACTIVE_ALGORITHM) && defined(CONFIG_HYBRIDGPMODE)
+	// {%for i in context['T_seq']%}{%if(i<n)%}	
+	// MERGE{{context['id']}}_broadcastVs(vdram, kvdram{{i}});	
+	// {%endif%}{%endfor%}
+	// #endif  // top_usrcv_udstv.cpp
+	
+#ifdef BFS_ALGORITHM 
+#define ALGORITHMTYPE_REPRESENTVDATASASBITS
+#endif 
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 *** UTIL{{context['id']}}_WRITEBITSTO_UINTV(&vdata[{{v}}], BEGINOFFSETOF_VMASK, 32, zero{{v}}); // mem_acces.cpp
 *** #define MESSAGES_RETURNVALUES_SIZE 32//16 // 8//16
 

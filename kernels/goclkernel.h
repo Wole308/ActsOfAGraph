@@ -24,8 +24,9 @@ public:
 	long double getaveragetimeelapsed(long double kerneltimelapse[NUMSUBCPUTHREADS]);
 
 	#ifdef FPGA_IMPL
+	void print_active_vpartitions(unsigned int GraphIter, uint512_vec_dt * vdram);
 	long double runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[NUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[NUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters,
-			edge_t * vertexptrbuffer, edge2_type * edgedatabuffer);					
+			unsigned int vpmaskbuffer[MAXNUMGRAPHITERATIONS][NUMPROCESSEDGESPARTITIONS], edge_t * vertexptrbuffer, edge2_type * edgedatabuffer);					
 	#endif
 	
 	void verifyresults_hw(uint512_vec_dt * kvbuffer, unsigned int baseoffsetkvs_verticesdata);

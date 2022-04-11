@@ -384,56 +384,6 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 					
 					if(yy==0){ for(unsigned int p=0; p<NUM_PARTITIONS; p++){ block_partitions[p].value = 0; }}
 				}
-				#ifdef kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-				// calculate edge-block's capsule stats
-				for(unsigned int p=0; p<NUM_PARTITIONS; p++){ block_partitions[p].key = 0; block_partitions[p].value = 0; }
-				for(unsigned int t=0; t<chunk_size; t++){
-					edge2_type thisedge = edgedatabuffers_temp[i][tempe_index + t];
-					tuple_t _p = get_partition_and_incr(thisedge.srcvid, NAp);
-					block_partitions[_p.A].value += 1;
-				}
-				calculateoffsets(block_partitions, NUM_PARTITIONS);
-				if(debug2b==true){ for(unsigned int _p=0; _p<NUM_PARTITIONS; _p++){ cout<<"loadedges_random:: block_partitions["<<_p<<"].key: "<<block_partitions[_p].key<<", block_partitions["<<_p<<"].value: "<<block_partitions[_p].value<<endl; }}
-				
-				// load capsule stats 
-				#ifdef CONFIG_INSERTSTATSMETADATAINEDGES
-				for(unsigned int p=0; p<NUM_PARTITIONS; p++){
-					edge3_type edge_temp; edge_temp.srcvid = 0; edge_temp.dstvid = block_partitions[p].value; edge_temp.status = EDGESTATUS_INVALIDEDGE; edge_temp.metadata = 0;
-					if(p==NUM_PARTITIONS-1){ edge_temp.dstvid = 8888888; } // JUST FOR DEBUGGING. REMOVEME.
-					edges_temp[i].push_back(edge_temp); // CAUSE OF ERROR.
-					edges2_temp[i].push_back(edge_temp);
-					#ifdef _DEBUGMODE_HOSTPRINTS
-					if(eid_offset==0 && p==NUM_PARTITIONS-1){ cout<<"loadedges_random: 16th INVALID edge in v_partition and edgeblock: srcvid: "<<edge_temp.srcvid<<", dstvid: "<<edge_temp.dstvid<<", edges_temp["<<i<<"].size(): "<<edges_temp[i].size()<<endl; }
-					#endif 
-					counts_alledges_for_channel[i][firstedgeinblock.srcvid] += 1;
-					counts_alledges_for_vpartition[i][v_partition] += 1;
-				}
-				#endif 
-				
-				// load edge block 
-				for(unsigned int p=0; p<NUM_PARTITIONS; p++){ block_partitions[p].value = 0; }
-				for(unsigned int t=0; t<chunk_size; t++){
-					edge2_type thisedge = edgedatabuffers_temp[i][tempe_index + t];
-					#ifdef _DEBUGMODE_HOSTPRINTS
-					if(eid_offset==0 && t==0){ cout<<"loadedges_random: first edge in v_partition and edgeblock: srcvid: "<<thisedge.srcvid<<", dstvid: "<<thisedge.dstvid<<endl; }
-					#endif 
-					utilityobj->checkoutofbounds("loadedges_random(21)::", thisedge.dstvid, graphobj->get_num_vertices()+10, thisedge.dstvid, tempe_index, t);
-					tuple_t _p = get_partition_and_incr(thisedge.srcvid, NAp);
-					utilityobj->checkoutofbounds("loadedges_random(22)::", block_partitions[_p.A].key + block_partitions[_p.A].value, _ACTS_READEDGEGRANULARITY, NAp, NAp, NAp);
-					edgeblock[block_partitions[_p.A].key + block_partitions[_p.A].value] = thisedge;
-					if(debug2b==true){ if(block_partitions[_p.A].value < 8){ cout<<"loadedges_random::contents:: _p: "<<_p.A<<", thisedge.srcvid: "<<thisedge.srcvid<<", thisedge.dstvid: "<<thisedge.dstvid<<endl; }}
-					block_partitions[_p.A].value += 1;
-					if(_p.A < NUM_PARTITIONS-1){ if(block_partitions[_p.A].key + block_partitions[_p.A].value >= block_partitions[_p.A+1].key){ 
-						cout<<"loadedges_random::contents:: ERROR 3435, block_partitions["<<_p.A<<"].key("<<block_partitions[_p.A].key<<") + block_partitions["<<_p.A<<"].value("<<block_partitions[_p.A].value<<") >= block_partitions["<<_p.A+1<<"].key("<<block_partitions[_p.A+1].key<<"). EXITING..."<<endl; 
-						for(unsigned int pt=0; pt<NUM_PARTITIONS; pt++){ cout<<"loadedges_random:: block_partitions["<<pt<<"].key: "<<block_partitions[pt].key<<", block_partitions["<<pt<<"].value: "<<block_partitions[pt].value<<endl; }
-						exit(EXIT_FAILURE); }}
-				}
-				#ifdef _DEBUGMODE_HOSTPRINTS
-				if(debug2b==true){ for(unsigned int t=0; t<4; t++){ cout<<"loadedges_random[AFTER]:: edgeblock["<<t<<"].srcvid: "<<edgeblock[t].srcvid<<", edgeblock["<<t<<"].dstvid: "<<edgeblock[t].dstvid<<endl; }}
-				unsigned int sm=0; if(i==0 && v_partition==0 && eid_offset==0){ for(unsigned int _p=0; _p<NUM_PARTITIONS; _p++){ cout<<"loadedges_random:: block_partitions["<<_p<<"].key: "<<block_partitions[_p].key<<", block_partitions["<<_p<<"].value: "<<block_partitions[_p].value<<endl; sm+=block_partitions[_p].value; } cout<<"loadedges_random:: sum(values): "<<sm<<endl; }
-				#endif 
-				// exit(EXIT_SUCCESS);
-				#endif 
 				
 				// insert edges into buffer...
 				for(unsigned int t=0; t<chunk_size; t++){
@@ -458,7 +408,7 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 					// insert edge
 					edge3_type edge_temp; edge_temp.srcvid = edge.srcvid; edge_temp.dstvid = edge.dstvid; edge_temp.status = EDGESTATUS_VALIDEDGE; edge_temp.metadata = 0; edges_temp[i].push_back(edge_temp);
 					edge3_type edge2_temp; edge2_temp.srcvid = edge2.srcvid; edge2_temp.dstvid = edge2.dstvid; edge2_temp.status = EDGESTATUS_VALIDEDGE; edge2_temp.metadata = 0, edges2_temp[i].push_back(edge2_temp);
-					utilityobj->checkoutofbounds("loadedges_random::(203)::", edge2_temp.dstvid, (1 << SIZEOF_DSTV_IN_EDGEDSTVDATA), partition, edge2.srcvid, edge2.dstvid); ///////////
+					utilityobj->checkoutofbounds("loadedges_random::(203)::", ((edge2_temp.dstvid - i) / NUM_PEs), (1 << SIZEOF_DSTV_IN_EDGEDSTVDATA), partition, edge2.srcvid, edge2.dstvid); ///////////
 					
 					#ifdef _DEBUGMODE_CHECKS
 					if(i==2 && partition==1 && edge2.srcvid==42 && edge2.dstvid<1000){ cout<<"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ loadedges_random: i: "<<i<<", edge2.srcvid: "<<edge2.srcvid<<", edge2.dstvid: "<<edge2.dstvid<<", ldstvid: "<<(edge2.dstvid - i) / NUM_PEs<<", partition: "<<partition<<", edges2_temp["<<i<<"].size(): "<<edges2_temp[i].size()<<endl; }

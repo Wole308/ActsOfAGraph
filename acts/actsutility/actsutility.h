@@ -73,6 +73,7 @@ public:
 	void printvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data);
 	void printparameters();
 	void printglobalvars();
+	void printglobalvars2(unsigned int instID, string messagea, string messageb, string messagec, string messaged, unsigned int varA, unsigned int varB, unsigned int varC, unsigned int varD);
 	void printglobalparameters(string message, globalparams_t globalparams);
 	void printpartitionresult(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globaldestoffsets, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams);
 	void printpartitionresult2(unsigned int enable, uint512_dt * kvdram, keyvalue_t * globalstatsbuffer, sweepparams_t sweepparams);
@@ -113,15 +114,15 @@ public:
 	void globalstats_countkvswritten_reduce(unsigned int count);
 	void globalstats_countvsread(unsigned int count);
 	void globalstats_countvswritten(unsigned int count);
-	void globalstats_countkvspartitionswritten(unsigned int count);
+	void globalstats_countkvspartitionswritten(unsigned int instID, unsigned int count);
 	void globalstats_countkvspartitionswritten_actual(unsigned int count);
 	void globalstats_countkvspartitioned(unsigned int count);
-	void globalstats_countkvsreduced(unsigned int count);
-	void globalstats_reduce_countvalidkvsreduced(unsigned int count);
+	void globalstats_countkvsreduced(unsigned int instID, unsigned int count);
+	void globalstats_reduce_countvalidkvsreduced(unsigned int instID, unsigned int count);
 	void globalstats_reduce_countvar1(unsigned int count);
-	void globalstats_countkvsreducewritten(unsigned int count);
-	void globalstats_countkvsprocessed(unsigned int count);
-	void globalstats_processedges_countvalidkvsprocessed(unsigned int count);
+	void globalstats_countkvsreducewritten(unsigned int instID, unsigned int count);
+	void globalstats_countkvsprocessed(unsigned int instID, unsigned int count);
+	void globalstats_processedges_countvalidkvsprocessed(unsigned int instID, unsigned int count);
 	void globalstats_countkvsreadV(unsigned int count);
 	void globalstats_counterrorsingetpartition(unsigned int count);
 	void globalstats_counterrorsinreduce(unsigned int count);
@@ -129,11 +130,12 @@ public:
 	void globalstats_countkvsmerged(unsigned int count);
 	void globalstats_countactvvsseen(unsigned int count);
 	
+	unsigned int globalstats_getcountvalidkvsprocessed(unsigned int instID);
 	unsigned int globalstats_getcounterrorsinreduce();
-	unsigned int globalstats_getcountvalidkvsreduced();
+	unsigned int globalstats_getcountvalidkvsreduced(unsigned int instID);
 	unsigned int globalstats_getreducevar1();
 	unsigned int globalstats_getcounterrorsinprocessedges();
-	unsigned int globalstats_getcountnumvalidprocessedges();
+	unsigned int globalstats_getcountnumvalidprocessedges(unsigned int instID);
 	unsigned int globalstats_getactvvsseen();
 	
 	void globalstats_setactvvsseen(unsigned int val);
@@ -234,14 +236,14 @@ private:
 	unsigned int globalvar_totalvswritten;
 	
 	unsigned int globalstats_totalkvspartitioned;
-	unsigned int globalstats_totalkvspartitionswritten;
+	unsigned int globalstats_totalkvspartitionswritten[64];
 	unsigned int globalstats_totalkvspartitionswritten_actual;
-	unsigned int globalstats_totalkvsreduced;
-	unsigned int globalstats_reduce_validkvsreduced;
+	unsigned int globalstats_totalkvsreduced[64];
+	unsigned int globalstats_reduce_validkvsreduced[64];
 	unsigned int globalstats_reduce_var1;
-	unsigned int globalstats_totalkvsprocessed;
-	unsigned int globalstats_processedges_validkvsprocessed;
-	unsigned int globalstats_totalkvsreducewritten;
+	unsigned int globalstats_totalkvsprocessed[64];
+	unsigned int globalstats_processedges_validkvsprocessed[64];
+	unsigned int globalstats_totalkvsreducewritten[64];
 	unsigned int globalvar_errorsingetpartition;
 	unsigned int globalvar_errorsinreduce;
 	unsigned int globalvar_errorsinprocessedges;

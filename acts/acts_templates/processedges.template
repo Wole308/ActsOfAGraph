@@ -1,4 +1,4 @@
-keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){									
+keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[COLLECTIONS_BUFFERSZ]){									
 	#pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -26,6 +26,9 @@ keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_proces
 	
 	if(en == true && vmdata.vmask == 1){ } else { mykeyvalue.key = INVALIDDATA; }
 	
+	#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
+	collections[0].data1 += 1;
+	#endif 
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsprocessed(1);
 	if(en == true && vmdata.vmask == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
@@ -34,7 +37,7 @@ keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_proces
 }
 
 keyvalue_t {{context['classname__processedges']}}PROCESS{{context['id']}}_processvectorA(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, 
-		unsigned int _ACTSPARAMS_INSTID, unsigned int _ALGORITHMINFO_GRAPHALGORITHMID, unsigned int _SIZEKVS2_PROCESSEDGESPARTITION){									
+		unsigned int _ACTSPARAMS_INSTID, unsigned int _ALGORITHMINFO_GRAPHALGORITHMID, unsigned int _SIZEKVS2_PROCESSEDGESPARTITION, collection_t collections[COLLECTIONS_BUFFERSZ]){									
 	// #pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -154,7 +157,7 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_calculateoff
 }
 
 fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -314,11 +317,11 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 				
 				// process	
 				// {%for p in context['8_seq']%}	
-				// reskeyvalue[{{p}}] = PROCESS{{context['id']}}_processvector(enx[{{p}}], it+{{p}}, edata[{{p}}].value, edata[{{p}}], vbuffer[it+{{p}}], buffer[{{p}}], bufferoffset_kvs, &loadcount[{{p}}], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[{{p}}] = PROCESS{{context['id']}}_processvector(enx[{{p}}], it+{{p}}, edata[{{p}}].value, edata[{{p}}], vbuffer[it+{{p}}], buffer[{{p}}], bufferoffset_kvs, &loadcount[{{p}}], GraphAlgoClass, globalposition, globalparams, collections[it+{{p}}]);
 				// {%endfor%}	
 				{%for p in context['8_seq']%}	
 				reskeyvalue[{{p}}] = PROCESS{{context['id']}}_processvectorA(enx[{{p}}], it+{{p}}, edata[{{p}}].value, edata[{{p}}], vbuffer[it+{{p}}], buffer[{{p}}], bufferoffset_kvs, &loadcount[{{p}}], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+{{p}}]);	
 				{%endfor%}	
 				
 				// re-arrange 

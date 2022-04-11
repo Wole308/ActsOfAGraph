@@ -1,4 +1,4 @@
-keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){									
+keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[COLLECTIONS_BUFFERSZ]){									
 	#pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -26,6 +26,9 @@ keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned 
 	
 	if(en == true && vmdata.vmask == 1){ } else { mykeyvalue.key = INVALIDDATA; }
 	
+	#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
+	collections[0].data1 += 1;
+	#endif 
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsprocessed(1);
 	if(en == true && vmdata.vmask == 1){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(1); } // mask0? FIXME.
@@ -34,7 +37,7 @@ keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned 
 }
 
 keyvalue_t acts_all::PROCESSP0_processvectorA(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, 
-		unsigned int _ACTSPARAMS_INSTID, unsigned int _ALGORITHMINFO_GRAPHALGORITHMID, unsigned int _SIZEKVS2_PROCESSEDGESPARTITION){									
+		unsigned int _ACTSPARAMS_INSTID, unsigned int _ALGORITHMINFO_GRAPHALGORITHMID, unsigned int _SIZEKVS2_PROCESSEDGESPARTITION, collection_t collections[COLLECTIONS_BUFFERSZ]){									
 	// #pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -294,7 +297,7 @@ void acts_all::PROCESSP0_calculateoffsets(keyvalue_capsule_t * buffer){
 }
 
 fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams){
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -552,46 +555,46 @@ fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt *
 				
 				// process	
 				// 	
-				// reskeyvalue[0] = PROCESSP0_processvector(enx[0], it+0, edata[0].value, edata[0], vbuffer[it+0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[0] = PROCESSP0_processvector(enx[0], it+0, edata[0].value, edata[0], vbuffer[it+0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams, collections[it+0]);
 				// 	
-				// reskeyvalue[1] = PROCESSP0_processvector(enx[1], it+1, edata[1].value, edata[1], vbuffer[it+1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[1] = PROCESSP0_processvector(enx[1], it+1, edata[1].value, edata[1], vbuffer[it+1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams, collections[it+1]);
 				// 	
-				// reskeyvalue[2] = PROCESSP0_processvector(enx[2], it+2, edata[2].value, edata[2], vbuffer[it+2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[2] = PROCESSP0_processvector(enx[2], it+2, edata[2].value, edata[2], vbuffer[it+2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams, collections[it+2]);
 				// 	
-				// reskeyvalue[3] = PROCESSP0_processvector(enx[3], it+3, edata[3].value, edata[3], vbuffer[it+3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[3] = PROCESSP0_processvector(enx[3], it+3, edata[3].value, edata[3], vbuffer[it+3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams, collections[it+3]);
 				// 	
-				// reskeyvalue[4] = PROCESSP0_processvector(enx[4], it+4, edata[4].value, edata[4], vbuffer[it+4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[4] = PROCESSP0_processvector(enx[4], it+4, edata[4].value, edata[4], vbuffer[it+4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams, collections[it+4]);
 				// 	
-				// reskeyvalue[5] = PROCESSP0_processvector(enx[5], it+5, edata[5].value, edata[5], vbuffer[it+5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[5] = PROCESSP0_processvector(enx[5], it+5, edata[5].value, edata[5], vbuffer[it+5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams, collections[it+5]);
 				// 	
-				// reskeyvalue[6] = PROCESSP0_processvector(enx[6], it+6, edata[6].value, edata[6], vbuffer[it+6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[6] = PROCESSP0_processvector(enx[6], it+6, edata[6].value, edata[6], vbuffer[it+6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams, collections[it+6]);
 				// 	
-				// reskeyvalue[7] = PROCESSP0_processvector(enx[7], it+7, edata[7].value, edata[7], vbuffer[it+7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
+				// reskeyvalue[7] = PROCESSP0_processvector(enx[7], it+7, edata[7].value, edata[7], vbuffer[it+7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams, collections[it+7]);
 				// 	
 	
 				reskeyvalue[0] = PROCESSP0_processvectorA(enx[0], it+0, edata[0].value, edata[0], vbuffer[it+0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+0]);	
 	
 				reskeyvalue[1] = PROCESSP0_processvectorA(enx[1], it+1, edata[1].value, edata[1], vbuffer[it+1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+1]);	
 	
 				reskeyvalue[2] = PROCESSP0_processvectorA(enx[2], it+2, edata[2].value, edata[2], vbuffer[it+2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+2]);	
 	
 				reskeyvalue[3] = PROCESSP0_processvectorA(enx[3], it+3, edata[3].value, edata[3], vbuffer[it+3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+3]);	
 	
 				reskeyvalue[4] = PROCESSP0_processvectorA(enx[4], it+4, edata[4].value, edata[4], vbuffer[it+4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+4]);	
 	
 				reskeyvalue[5] = PROCESSP0_processvectorA(enx[5], it+5, edata[5].value, edata[5], vbuffer[it+5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+5]);	
 	
 				reskeyvalue[6] = PROCESSP0_processvectorA(enx[6], it+6, edata[6].value, edata[6], vbuffer[it+6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+6]);	
 	
 				reskeyvalue[7] = PROCESSP0_processvectorA(enx[7], it+7, edata[7].value, edata[7], vbuffer[it+7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, 
-					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION);	
+					globalparams.ACTSPARAMS_INSTID, globalparams.ALGORITHMINFO_GRAPHALGORITHMID, globalparams.SIZEKVS2_PROCESSEDGESPARTITION, collections[it+7]);	
 	
 				
 				// re-arrange 

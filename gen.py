@@ -31,6 +31,7 @@ context['EVALUATION_PARAM0'] = int(sys.argv[11])
 context['NUM_PEs'] = int(sys.argv[12])
 context['TESTKERNEL'] = sys.argv[13]
 context['TESTKERNELARG'] = int(sys.argv[14])
+
 awspath = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 is_aws_path = os.path.isfile(awspath)  
 print(is_aws_path) 
@@ -240,7 +241,6 @@ print ('ALGORITHM: ' + str(context['ALGORITHM']))
 print ('DATASET: ' + str(context['DATASET']))
 print ('NUMSUPERCPUTHREADS: ' + str(context['NUMSUPERCPUTHREADS']))
 print ('NUMCPUTHREADS: ' + str(context['NUMCPUTHREADS']))
-print ('NUMSUBCPUTHREADS: ' + str(context['NUMSUBCPUTHREADS']))
 print ('NUMSUBCPUTHREADS: ' + str(context['NUMSUBCPUTHREADS']))
 print ('LOCKE: ' + str(context['LOCKE']))
 print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
