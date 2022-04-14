@@ -1,4 +1,4 @@
-keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[COLLECTIONS_BUFFERSZ]){									
+keyvalue_t PROCESSP0_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[COLLECTIONS_BUFFERSZ]){									
 	#pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -36,7 +36,7 @@ keyvalue_t acts_all::PROCESSP0_processvector(bool enx, unsigned int v, unsigned 
 	return mykeyvalue;
 }
 
-keyvalue_t acts_all::PROCESSP0_processvectorA(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, 
+keyvalue_t PROCESSP0_processvectorA(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, 
 		unsigned int _ACTSPARAMS_INSTID, unsigned int _ALGORITHMINFO_GRAPHALGORITHMID, unsigned int _SIZEKVS2_PROCESSEDGESPARTITION, collection_t collections[COLLECTIONS_BUFFERSZ]){									
 	// #pragma HLS PIPELINE II=2
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
@@ -72,7 +72,7 @@ keyvalue_t acts_all::PROCESSP0_processvectorA(bool enx, unsigned int v, unsigned
 	return mykeyvalue;
 }
 
-void acts_all::PROCESSP0_processvectorB(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){
+void PROCESSP0_processvectorB(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[SOURCEBLOCKRAM_SIZE], unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){
 	#pragma HLS INLINE
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
@@ -109,7 +109,7 @@ void acts_all::PROCESSP0_processvectorB(bool enx, unsigned int v, unsigned int l
 	return;
 }
 
-void acts_all::PROCESSP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+void PROCESSP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR_SIZE;
 	
  if(s_==0){ 
@@ -195,7 +195,7 @@ else {
 	return;
 }
 
-void acts_all::PROCESSP0_RearrangeLayoutV(unsigned int s, keyvalue_t vdata[VECTOR_SIZE], keyvalue_t vdata2[VECTOR_SIZE]){
+void PROCESSP0_RearrangeLayoutV(unsigned int s, keyvalue_t vdata[VECTOR_SIZE], keyvalue_t vdata2[VECTOR_SIZE]){
 	unsigned int s_ = s % VECTOR_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -280,14 +280,14 @@ else {
 	return;
 }
 
-parsededge_t acts_all::PROCESSP0_PARSEEDGE(uint32_type data){ 
+parsededge_t PROCESSP0_PARSEEDGE(uint32_type data){ 
 	parsededge_t parsededge;
 	parsededge.incr = UTILP0_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
 	parsededge.dstvid = UTILP0_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
 	return parsededge; 
 }
 
-void acts_all::PROCESSP0_calculateoffsets(keyvalue_capsule_t * buffer){
+void PROCESSP0_calculateoffsets(keyvalue_capsule_t * buffer){
 	buffer[0].key = 0;
 	for(buffer_type i=1; i<NUM_PARTITIONS; i++){ 
 	#pragma HLS PIPELINE II=2	
@@ -296,7 +296,7 @@ void acts_all::PROCESSP0_calculateoffsets(keyvalue_capsule_t * buffer){
 	return;
 }
 
-fetchmessage_t acts_all::PROCESSP0_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t PROCESSP0_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;

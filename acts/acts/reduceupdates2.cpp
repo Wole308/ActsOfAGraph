@@ -1,9 +1,10 @@
-void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams
+void REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[BLOCKRAM_VDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, sweepparams_t sweepparams, globalparams_t globalparams
 		#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
 		,collection_t collections[COLLECTIONS_BUFFERSZ]
 		#endif 
 		){
-	#pragma HLS PIPELINE II=3
+	#pragma HLS INLINE
+	
 	keyvalue_t mykeyvalue = UTILP0_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> NUM_PARTITIONS_POW;
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -61,7 +62,7 @@ void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer
 	return;
 }
 
-void acts_all::REDUCEP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+void REDUCEP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR_SIZE;
 	
  if(s_==0){ 
@@ -147,7 +148,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP0_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
+void REDUCEP0_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -232,7 +233,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP0_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
+void REDUCEP0_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		en2[0] = en[0]; 
@@ -317,7 +318,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+void REDUCEP0_ACTSreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
 	// exit(EXIT_SUCCESS);
@@ -372,7 +373,11 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 		REDUCEBUFFERPARTITIONS_LOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
 			REDUCEBUFFERPARTITIONS_LOOP2C: for(buffer_type i=0; i<mmaxsz_kvs; i++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+			#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+			#pragma HLS PIPELINE II=4
+			#else 
 			#pragma HLS PIPELINE II=3
+			#endif 
 				// get layout
 				REDUCEP0_GetXYLayoutV(r, depths, 0);
 			
@@ -475,22 +480,61 @@ void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	return;
 }
 
-#ifdef BASIC_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP0_priorreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], buffer_type chunk_size, sweepparams_t sweepparams, globalparams_t globalparams){				
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"reduceupdates2: REDUCEP0_tradreduceandbuffer NOT DEFINED HERE."<<endl;
-	exit(EXIT_FAILURE);
-	#endif 
-	return;
-}
-#endif 
+void REDUCEP0_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+	if(enable == OFF){ return; }
+	analysis_type analysis_loopcount = (DESTBLOCKRAM_SIZE / (NUM_PARTITIONS / 2)); // =46: '2' is safety padding.
+	// exit(EXIT_SUCCESS);
+	
+	keyvalue_buffer_t kvdata[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=kvdata complete
+	keyvalue_buffer_t kvdata2[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=kvdata2 complete
+	bool enx[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=enx complete
+	
+	keyvalue_t invalid_dataa; invalid_dataa.key = INVALIDDATA; invalid_dataa.value = INVALIDDATA;
+	keyvalue_buffer_t invalid_data = UTILP0_GETKV(invalid_dataa);
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, NUM_PARTITIONS);
+	#endif
+	
+	REDUCEBUFFERPARTITIONS_LOOP2A: for(partition_type p=0; p<NUM_PARTITIONS; p++){
+		REDUCEBUFFERPARTITIONS_LOOP2B: for(buffer_type i=localcapsule[p].key; i<localcapsule[p].key + localcapsule[p].value; i++){
+		#pragma HLS PIPELINE II=3
+			// read 
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", i / VECTOR_SIZE, DESTBLOCKRAM_SIZE, i, DESTBLOCKRAM_SIZE, NAp);
+			#endif
+			keyvalue_buffer_t kvdata = buffer[i % VECTOR_SIZE][i / VECTOR_SIZE];
 
-#ifdef TRAD_PARTITION_AND_REDUCE_STRETEGY
-void acts_all::REDUCEP0_tradreduceandbuffer(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], buffer_type chunk_size, keyvalue_t globalstatsbuffer[MAX_NUM_PARTITIONS], sweepparams_t sweepparams, globalparams_t globalparams){				
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"reduceupdates2: REDUCEP0_tradreduceandbuffer NOT DEFINED HERE."<<endl;
-	exit(EXIT_FAILURE);
-	#endif 
+			// reduce 
+			REDUCEP0_reducevector(ON, p, kvdata, vbuffer[p], 0, sweepparams.upperlimit, sweepparams, globalparams
+				#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
+				,collections[p]
+				#endif 
+				);
+		}
+	}
+
+	// actsutilityobj->printglobalvars();
+	// exit(EXIT_SUCCESS); ////
 	return;
 }
-#endif 
+
+void REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+	#ifdef CONFIG_ALL_EVALUATIONTYPES_IN_ONE_KERNEL
+	if(globalparams.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC == ON){
+		return REDUCEP0_ACTSreduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
+	} else {
+		return REDUCEP0_TRADreduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
+	}
+	#else 
+		#ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
+		return REDUCEP0_ACTSreduceandbuffer
+		#else 
+		return REDUCEP0_TRADreduceandbuffer
+		#endif 
+		(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
+	#endif 
+}

@@ -1,59 +1,59 @@
 // basic
-unsigned int acts_all::UTILP0_amin(unsigned int val1, unsigned int val2){
+unsigned int UTILP0_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
-unsigned int acts_all::UTILP0_amax(unsigned int val1, unsigned int val2){
+unsigned int UTILP0_amax(unsigned int val1, unsigned int val2){
 	if(val1 > val2){ return val1; }
 	else { return val2; }
 }
-unsigned int acts_all::UTILP0_aplus(unsigned int val1, unsigned int val2){
+unsigned int UTILP0_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
-uint32_type acts_all::UTILP0_amin2(uint32_type val1, uint32_type val2){
+uint32_type UTILP0_amin2(uint32_type val1, uint32_type val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
 
 // allignment
-batch_type acts_all::UTILP0_allignlower_KV(batch_type val){
+batch_type UTILP0_allignlower_KV(batch_type val){
 	batch_type fac = val / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-batch_type acts_all::UTILP0_allignhigher_KV(batch_type val){
+batch_type UTILP0_allignhigher_KV(batch_type val){
 	batch_type fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-batch_type acts_all::UTILP0_allignlower_KV2(batch_type val){
+batch_type UTILP0_allignlower_KV2(batch_type val){
 	batch_type fac = val / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
-batch_type acts_all::UTILP0_allignhigher_KV2(batch_type val){
+batch_type UTILP0_allignhigher_KV2(batch_type val){
 	batch_type fac = (val + (VECTOR2_SIZE - 1)) / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
-batch_type acts_all::UTILP0_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR){
+batch_type UTILP0_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR){
 	#pragma HLS INLINE
 	batch_type fac = (val + (_FACTOR - 1)) / _FACTOR;
 	return (fac * _FACTOR);
 }
-batch_type acts_all::UTILP0_allignlower_FACTOR(batch_type val, unsigned int _FACTOR){
+batch_type UTILP0_allignlower_FACTOR(batch_type val, unsigned int _FACTOR){
 	batch_type fac = val / _FACTOR;
 	return (fac * _FACTOR);
 }
 
 // bit manipulation
-unsigned int acts_all::UTILP0_GETMASK_UINT(uint32_type index, unsigned int size){
+unsigned int UTILP0_GETMASK_UINT(uint32_type index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
 }
-unsigned int acts_all::UTILP0_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size){ 
+unsigned int UTILP0_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size){ 
 	unsigned int res = 0;
 	res = (((data) & UTILP0_GETMASK_UINT((index), (size))) >> (index)); 
 	return res;
 }
-void acts_all::UTILP0_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+void UTILP0_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
 	unsigned int A = ((value) << (index));
 	unsigned int B = (~UTILP0_GETMASK_UINT((index), (size)));
@@ -71,7 +71,7 @@ void acts_all::UTILP0_WRITETO_UINT(uint32_type * data, unsigned int index, unsig
 	#endif
 	return; 
 }
-unsigned int acts_all::UTILP0_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+unsigned int UTILP0_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
 	#pragma HLS INLINE
 	unsigned int res = 0;
 	#ifdef _WIDEWORD
@@ -81,7 +81,7 @@ unsigned int acts_all::UTILP0_READBITSFROM_UINTV(uint32_type data, unsigned int 
 	#endif
 	return res;
 }
-void acts_all::UTILP0_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+void UTILP0_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	data->range(index + size - 1, index) = value;
@@ -90,20 +90,20 @@ void acts_all::UTILP0_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, 
 	#endif
 	return; 
 }
-unsigned int acts_all::UTILP0_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+unsigned int UTILP0_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
 	#pragma HLS INLINE
 	unsigned int res = 0;
 	res = UTILP0_READFROM_UINT(data, index, size);
 	return res;
 }
-void acts_all::UTILP0_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+void UTILP0_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	UTILP0_WRITETO_UINT(data, index, size, value);
 	return; 
 }
 
 // converters
-keyvalue_t acts_all::UTILP0_GETKV(keyvalue_buffer_t data){
+keyvalue_t UTILP0_GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD
@@ -115,7 +115,7 @@ keyvalue_t acts_all::UTILP0_GETKV(keyvalue_buffer_t data){
 	#endif 
 	return res;
 }
-keyvalue_buffer_t acts_all::UTILP0_GETKV(keyvalue_t data){
+keyvalue_buffer_t UTILP0_GETKV(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_buffer_t res;
 	#ifdef _WIDEWORD
@@ -127,7 +127,7 @@ keyvalue_buffer_t acts_all::UTILP0_GETKV(keyvalue_t data){
 	#endif 
 	return res;
 }
-keyy_t acts_all::UTILP0_GETK(uint32_type data){
+keyy_t UTILP0_GETK(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_KEY - 1, 0);
@@ -135,7 +135,7 @@ keyy_t acts_all::UTILP0_GETK(uint32_type data){
 	return data;
 	#endif
 }
-value_t acts_all::UTILP0_GETV(uint32_type data){
+value_t UTILP0_GETV(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(SIZEOF_VALUE - 1, 0);
@@ -143,7 +143,7 @@ value_t acts_all::UTILP0_GETV(uint32_type data){
 	return data;
 	#endif
 }
-keyy_t acts_all::UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v){
+keyy_t UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
@@ -151,21 +151,21 @@ keyy_t acts_all::UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v){
 	return data.data[v].key;	
 	#endif
 }		
-unsigned int acts_all::UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid){ 
+unsigned int UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid){ 
 	#pragma HLS INLINE
 	return (vid - instid) / NUM_PEs;
 }
-unsigned int acts_all::UTILP0_GETREALVID(unsigned int lvid, unsigned int instid){ 
+unsigned int UTILP0_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
 	return (lvid * NUM_PEs) + instid;
 }
-unsigned int acts_all::UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
+unsigned int UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
 	#pragma HLS INLINE
 	// return globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
 	return PROCESSPARTITIONSZ_KVS2;
 }
 
-unsigned int acts_all::UTILP0_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
+unsigned int UTILP0_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
 	#pragma HLS INLINE
 	unsigned int data = 0;
 	#ifdef _WIDEWORD
@@ -227,7 +227,7 @@ else if(col == 15){
 	#endif 
 	return data;
 }
-void acts_all::UTILP0_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
+void UTILP0_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	unsigned int row = index / VECTOR2_SIZE;
@@ -288,7 +288,7 @@ else if(col == 15){
 	#endif 
 	return;
 }
-unsigned int acts_all::UTILP0_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs){
+unsigned int UTILP0_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return kvdram[offset_kvs].range(31, 0);
@@ -296,7 +296,7 @@ unsigned int acts_all::UTILP0_GetFirstData(uint512_dt * kvdram, unsigned int off
 	return kvdram[offset_kvs].data[0].key;
 	#endif 
 }
-void acts_all::UTILP0_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
+void UTILP0_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	kvdram[offset_kvs].range(31, 0) = data;
@@ -305,7 +305,7 @@ void acts_all::UTILP0_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs,
 	#endif 
 	return;
 }
-void acts_all::UTILP0_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int * data, unsigned int size){
+void UTILP0_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int * data, unsigned int size){
 	#pragma HLS INLINE
 	for(unsigned int i=0; i<size; i++){
 		#ifdef _WIDEWORD
@@ -316,7 +316,7 @@ void acts_all::UTILP0_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs
 	}
 	return;
 }
-unsigned int acts_all::UTILP0_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs){
+unsigned int UTILP0_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return kvdram[offset_kvs].range(63, 32);
@@ -324,7 +324,7 @@ unsigned int acts_all::UTILP0_GetSecondData(uint512_dt * kvdram, unsigned int of
 	return kvdram[offset_kvs].data[0].value;
 	#endif 
 }
-void acts_all::UTILP0_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
+void UTILP0_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	kvdram[offset_kvs].range(63, 32) = data;
@@ -333,7 +333,7 @@ void acts_all::UTILP0_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs
 	#endif 
 	return;
 }
-void acts_all::UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+void UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	datas[0] = kvdram[offset_kvs].range(31, 0); 
@@ -372,7 +372,7 @@ void acts_all::UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, v
 	#endif
 	return;
 }
-void acts_all::UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	kvdram[offset_kvs].range(31, 0) = datas[0]; 
@@ -413,7 +413,7 @@ void acts_all::UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, v
 }
 
 // utilities
-batch_type acts_all::UTILP0_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
+batch_type UTILP0_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	batch_type result;
 	
@@ -427,7 +427,7 @@ batch_type acts_all::UTILP0_getskipsize(step_type currentLOP, bool_type sourceOR
 	}
 	return result;
 }
-batch_type acts_all::UTILP0_getrangeforeachllop(globalparams_t globalparams){
+batch_type UTILP0_getrangeforeachllop(globalparams_t globalparams){
 	analysis_type analysis_loop1 = TREE_DEPTH;
 	unsigned int range = globalparams.SIZE_BATCHRANGE;
 	for(unsigned int i=0; i<globalparams.ACTSPARAMS_TREEDEPTH; i++){
@@ -436,7 +436,7 @@ batch_type acts_all::UTILP0_getrangeforeachllop(globalparams_t globalparams){
 	}
 	return range;
 }
-buffer_type acts_all::UTILP0_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
+buffer_type UTILP0_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
 	buffer_type chunk_size = buffer_size;
 	batch_type i = travstate.i_kvs + localoffset;
 	if (i > travstate.end_kvs){ chunk_size = 0; }
@@ -444,12 +444,12 @@ buffer_type acts_all::UTILP0_getchunksize_kvs(buffer_type buffer_size, travstate
 	else {}
 	return chunk_size;
 }
-buffer_type acts_all::UTILP0_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+buffer_type UTILP0_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	buffer_type size_kvs = 0;
 	size_kvs = realsize_kvs;
 	return size_kvs;
 }
-void acts_all::UTILP0_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size){
+void UTILP0_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size){
 	unsigned int analysis_size = NUM_PARTITIONS;
 	for(buffer_type i=1; i<size; i++){ 
 	#pragma HLS PIPELINE II=2
@@ -458,7 +458,7 @@ void acts_all::UTILP0_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type 
 	}
 	return;
 }
-void acts_all::UTILP0_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+void UTILP0_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = buffer[0][i-1].key + buffer[0][i-1].value + skipspacing; 
 		buffer[1][i].key = buffer[1][i-1].key + buffer[1][i-1].value + skipspacing; 
@@ -471,7 +471,7 @@ void acts_all::UTILP0_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[V
 	}
 	return;
 }
-batch_type acts_all::UTILP0_get_num_source_partitions(step_type currentLOP){
+batch_type UTILP0_get_num_source_partitions(step_type currentLOP){
 	analysis_type analysis_treedepth = TREE_DEPTH;
 	
 	if(currentLOP == 0){ currentLOP = 1; }
@@ -483,7 +483,7 @@ batch_type acts_all::UTILP0_get_num_source_partitions(step_type currentLOP){
 	return pow;
 }
 
-globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
+/* globalparams_t UTILP0_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
 	globalparams_t globalparams;
 	
 	if(banksection==0){ globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS; }
@@ -511,7 +511,7 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.ENABLE_PROCESSCOMMAND = buffer[1];
 	globalparams.ENABLE_PARTITIONCOMMAND = buffer[2];
 	globalparams.ENABLE_APPLYUPDATESCOMMAND = buffer[3];
-	globalparams.ENABLE_ACTSGP = buffer[4];
+	globalparams.GPMODE = buffer[4];
 	globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES = buffer[5];
 	
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[6];
@@ -609,8 +609,143 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.VARS_WORKBATCH = 0;
 	return globalparams;
 }
+ */
+globalparams_t UTILP0_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
+	globalparams_t globalparams;
+	
+	if(banksection==0){ globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS; }
+	else if (banksection==1) { globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS + (TOTALDRAMCAPACITY_KVS/2); }
+	else {
+		#ifdef _DEBUGMODE_CHECKS3
+		cout<<"UTILP0_getglobalparams: NOT IMPLEMENTED. EXITING..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	// globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS;
+	
+	unsigned int buffer[BLOCKRAM_SIZE];
+	GETGLOBALPARAMS_LOOP1: for(unsigned int t=0; t<128; t++){
+	#pragma HLS PIPELINE II=1
+		buffer[t] = kvdram[globalparams.DRAM_BASE_KVS + t]
+			#ifdef _WIDEWORD
+				.range(31, 0); 
+					#else 
+						.data[0].key; 	
+							#endif 
+	}
 
-sweepparams_t acts_all::UTILP0_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition){
+	globalparams.ENABLE_RUNKERNELCOMMAND = buffer[MESSAGES_ENABLE_RUNKERNELCOMMAND];
+	globalparams.ENABLE_PROCESSCOMMAND = buffer[MESSAGES_ENABLE_PROCESSCOMMAND];
+	globalparams.ENABLE_PARTITIONCOMMAND = buffer[MESSAGES_ENABLE_PARTITIONCOMMAND];
+	globalparams.ENABLE_APPLYUPDATESCOMMAND = buffer[MESSAGES_ENABLE_APPLYUPDATESCOMMAND];
+	globalparams.GPMODE = buffer[MESSAGES_GPMODE];
+	globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES = buffer[MESSAGES_ACTSCONFIG_INSERTSTATSMETADATAINEDGES];
+
+	globalparams.EVALUATION_ACTS_MEMORYLAYOUT = buffer[MESSAGES_EVALUATION_ACTS_MEMORYLAYOUT];
+	globalparams.EVALUATION_ACTS_PARTITIONINGLOGIC = buffer[MESSAGES_EVALUATION_ACTS_PARTITIONINGLOGIC];
+	globalparams.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC = buffer[MESSAGES_EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC];
+	globalparams.EVALUATION_ACTS_HYBRIDLOGIC = buffer[MESSAGES_EVALUATION_ACTS_HYBRIDLOGIC];
+	globalparams.EVALUATION_ACTS_UNUSED1 = buffer[MESSAGES_EVALUATION_ACTS_UNUSED1];
+	globalparams.EVALUATION_ACTS_UNUSED2 = buffer[MESSAGES_EVALUATION_ACTS_UNUSED2];
+	globalparams.EVALUATION_ACTS_UNUSED3 = buffer[MESSAGES_EVALUATION_ACTS_UNUSED3];
+	
+	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_MESSAGESDATA];
+	globalparams.BASEOFFSETKVS_EDGESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESDATA];
+	globalparams.BASEOFFSETKVS_VERTEXPTR = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTEXPTR];
+	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA];
+	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA];
+	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES];
+	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK];
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK];
+	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_STATSDRAM];
+	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM]; //
+	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_KVDRAM];
+	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE];
+	globalparams.BASEOFFSETKVS_OTHERINFOS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_ACTSMESSAGE_OTHERINFOS];
+
+	globalparams.SIZE_MESSAGESDRAM = buffer[MESSAGES_SIZE_MESSAGESDATA];
+	globalparams.SIZE_EDGES = buffer[MESSAGES_SIZE_EDGES];
+	globalparams.SIZE_VERTEXPTRS = buffer[MESSAGES_SIZE_VERTEXPTRS];
+	globalparams.SIZE_SRCVERTICESDATA = buffer[MESSAGES_SIZE_SRCVERTICESDATA];
+	globalparams.SIZE_DESTVERTICESDATA = buffer[MESSAGES_SIZE_DESTVERTICESDATA];
+	globalparams.SIZE_ACTIVEVERTICES = buffer[MESSAGES_SIZE_ACTIVEVERTICES];
+	globalparams.SIZE_VERTICESDATAMASK = buffer[MESSAGES_SIZE_VERTICESDATAMASK];
+	globalparams.SIZE_VERTICESPARTITIONMASK = buffer[MESSAGES_SIZE_VERTICESPARTITIONMASK];
+	globalparams.SIZE_KVSTATSDRAM = buffer[MESSAGES_SIZE_KVSTATSDRAM];
+	globalparams.SIZE_EDGESSTATSDRAM = buffer[MESSAGES_SIZE_EDGESSTATSDRAM];
+	globalparams.SIZE_KVDRAM = buffer[MESSAGES_SIZE_KVDRAM];
+	globalparams.SIZE_KVDRAMWORKSPACE = buffer[MESSAGES_SIZE_KVDRAMWORKSPACE];
+	globalparams.SIZE_OTHERINFOS = buffer[MESSAGES_SIZE_OTHERINFOS];
+	globalparams.SIZEKVS2_PROCESSEDGESPARTITION = buffer[MESSAGES_SIZEKVS_PROCESSEDGESPARTITION];
+	globalparams.SIZE_REDUCE = buffer[MESSAGES_SIZE_REDUCE];
+	globalparams.SIZEKVS2_REDUCEPARTITION = buffer[MESSAGES_SIZEKVS_REDUCEPARTITION];
+	globalparams.SIZEKVS_VMASKBUFFER = buffer[MESSAGES_SIZEKVS_VMASKBUFFER];
+	globalparams.SIZE_BATCHRANGE = buffer[MESSAGES_SIZE_BATCHRANGE];
+	globalparams.SIZE_RUN = buffer[MESSAGES_SIZE_RUN];
+
+	globalparams.POW_MESSAGESDRAM = buffer[MESSAGES_POW_MESSAGESDRAM];
+	globalparams.POW_EDGES = buffer[MESSAGES_POW_EDGES];
+	globalparams.POW_VERTEXPTRS = buffer[MESSAGES_POW_VERTEXPTRS];
+	globalparams.POW_SRCVERTICESDATA = buffer[MESSAGES_POW_SRCVERTICESDATA];
+	globalparams.POW_DESTVERTICESDATA = buffer[MESSAGES_POW_DESTVERTICESDATA];
+	globalparams.POW_ACTIVEVERTICES = buffer[MESSAGES_POW_ACTIVEVERTICES];
+	globalparams.POW_VERTICESDATAMASK = buffer[MESSAGES_POW_VERTICESDATAMASK];
+	globalparams.POW_KVSTATSDRAM = buffer[MESSAGES_POW_KVSTATSDRAM];
+	globalparams.POW_EDGESSTATSDRAM = buffer[MESSAGES_POW_EDGESSTATSDRAM];
+	globalparams.POW_KVDRAM = buffer[MESSAGES_POW_KVDRAM];
+	globalparams.POW_KVDRAMWORKSPACE = buffer[MESSAGES_POW_KVDRAMWORKSPACE];
+	globalparams.POW_REDUCE = buffer[MESSAGES_POW_REDUCE];
+	globalparams.POW_BATCHRANGE = buffer[MESSAGES_POW_BATCHRANGE];
+
+	globalparams.NUM_PROCESSEDGESPARTITIONS = buffer[MESSAGES_NUM_PROCESSEDGESPARTITIONS];
+	globalparams.NUM_REDUCEPARTITIONS = buffer[MESSAGES_NUM_REDUCEPARTITIONS];
+	
+	globalparams.ALGORITHMINFO_GRAPHITERATIONID = buffer[MESSAGES_ALGORITHMINFO_GRAPHITERATIONID];
+	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = buffer[MESSAGES_ALGORITHMINFO_GRAPHALGORITHMID];
+
+	globalparams.ACTSPARAMS_BEGINLOP = buffer[MESSAGES_ACTSPARAMS_BEGINLOP];
+	globalparams.ACTSPARAMS_NUMLOPS = buffer[MESSAGES_ACTSPARAMS_NUMLOPS];
+	globalparams.ACTSPARAMS_TREEDEPTH = buffer[MESSAGES_ACTSPARAMS_TREEDEPTH];
+	globalparams.ACTSPARAMS_FINALNUMPARTITIONS = buffer[MESSAGES_ACTSPARAMS_FINALNUMPARTITIONS];
+	globalparams.ACTSPARAMS_SRCVOFFSET = buffer[MESSAGES_ACTSPARAMS_SRCVOFFSET];
+	globalparams.ACTSPARAMS_SRCVSIZE = buffer[MESSAGES_ACTSPARAMS_SRCVSIZE];
+	globalparams.ACTSPARAMS_DESTVOFFSET = buffer[MESSAGES_ACTSPARAMS_DESTVOFFSET];
+	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = buffer[MESSAGES_ACTSPARAMS_NUMEDGECHUNKSINABUFFER];
+	globalparams.ACTSPARAMS_INSTID = buffer[MESSAGES_ACTSPARAMS_INSTID];
+	
+	globalparams.ACTSPARAMS_NUM_EDGE_BANKS = buffer[MESSAGES_ACTSPARAMS_NUM_EDGE_BANKS];
+	globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = buffer[MESSAGES_ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM];
+	
+	globalparams.DUMMYCHKPOINT = buffer[MESSAGES_DUMMYCHKPOINT]; // buffer[66];	
+	// for(unsigned int m=0; m<MESSAGES_RETURNVALUES_SIZE; m++){ globalparams.RETURNVALUES[m] = buffer[MESSAGES_RETURNVALUES + m]; }
+	// #ifdef CONFIG_HYBRIDGPMODE
+	// for(unsigned int m=0; m<MESSAGES_MAILBOX_SIZE; m++){ globalparams.MAILBOX[m] = buffer[MESSAGES_MAILBOX + m]; }
+	// #endif 
+	// for(unsigned int m=0; m<1; m++){ globalparams.RETURNVALUES[m] = buffer[MESSAGES_RETURNVALUES + m]; }
+	// for(unsigned int m=0; m<1; m++){ globalparams.MAILBOX[m] = buffer[MESSAGES_MAILBOX + m]; }
+	
+	globalparams.BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM];
+	
+	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo == BFS || GraphAlgo == SSSP){ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_NOTALLVERTEXISACTIVE; }
+	else{ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_ALLVERTEXISACTIVE; }
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printglobalparameters("acts_util::getglobalparams:: printing global parameters", globalparams);
+	#endif
+	
+	if(globalparams.DUMMYCHKPOINT != 70707070){
+		#ifdef _DEBUGMODE_CHECKS3
+		cout<<"acts_util:: _getglobalparams: ERROR: globalparams.DUMMYCHKPOINT("<<globalparams.DUMMYCHKPOINT<<") != 70707070. MISALLIGNMENT SOMEWHERE. EXITING..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	
+	globalparams.VARS_WORKBATCH = 0;
+	return globalparams;
+}
+
+sweepparams_t UTILP0_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition){
 	sweepparams_t sweepparams;
 	batch_type sourceskipsize = UTILP0_getskipsize(currentLOP, SOURCE, globalparams);
 	
@@ -632,7 +767,7 @@ sweepparams_t acts_all::UTILP0_getsweepparams(globalparams_t globalparams, step_
 	sweepparams.source_partition = source_partition;
 	return sweepparams;
 }
-travstate_t acts_all::UTILP0_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
+travstate_t UTILP0_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
 	travstate_t travstate;
 	if(enable == OFF){ return travstate; }
 	keyvalue_t keyvalue;
@@ -706,7 +841,7 @@ else if(globalparams.VARS_WORKBATCH == 4){
 	travstate.i_kvs = travstate.begin_kvs; 
 	return travstate;	
 }
-void acts_all::UTILP0_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value){			
+void UTILP0_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value){			
 	if(enable == OFF){ return; }
 	#ifdef _WIDEWORD
 	kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset].range(31, 0) = value; // 64; 
@@ -717,20 +852,22 @@ void acts_all::UTILP0_settravstate(bool_type enable, uint512_dt * kvdram, global
 	#endif
 	return;	
 }
-partition_type acts_all::UTILP0_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
+partition_type UTILP0_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, unsigned int tree_depth){
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTILP0_GETKV(keyvalue);
 	
-	#ifdef TREEDEPTHISONE // globalparamsK.ACTSPARAMS_TREEDEPTH == 1
-	if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = 0; } 
-	else { keyy_t lkey = thiskeyvalue.key - upperlimit; partition = (lkey % NUM_PARTITIONS); }
-	#else 
-	if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = 0; } 
-	else {
-		keyy_t lkey = thiskeyvalue.key - upperlimit;
-		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	if(tree_depth == 1){
+		#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = 0; } 
+		else { keyy_t lkey = thiskeyvalue.key - upperlimit; partition = (lkey % NUM_PARTITIONS); }
+		#endif 
+	} else {
+		if(thiskeyvalue.value == UTILP0_GETV(INVALIDDATA)){ partition = 0; } 
+		else {
+			keyy_t lkey = thiskeyvalue.key - upperlimit;
+			if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+		}
 	}
-	#endif 
 
 	if(partition >= MAX_NUM_PARTITIONS){ 
 		#ifdef ENABLE_PERFECTACCURACY
@@ -750,32 +887,32 @@ partition_type acts_all::UTILP0_getpartition(bool_type enable, unsigned int mode
 }
 
 // resets 
-void acts_all::UTILP0_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP0_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i].value = resetval; 
 	}
 }
-void acts_all::UTILP0_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP0_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i].value = resetval; 
 	}
 }
-void acts_all::UTILP0_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP0_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i] = resetval; 
 	}
 }
-void acts_all::UTILP0_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP0_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){
 		buffer[i].key = resetval; 
 		buffer[i].value = resetval; 
 	}
 	return;
 }
-void acts_all::UTILP0_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
+void UTILP0_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"..................... UTILP0_resetkvstatvalues: resetting global stats..."<<endl;
 	#endif 
@@ -806,7 +943,7 @@ void acts_all::UTILP0_resetkvstatvalues(uint512_dt * kvdram, globalparams_t glob
 	}
 	return;
 }
-void acts_all::UTILP0_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
+void UTILP0_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
 	for(unsigned int k=0; k<size_kvs; k++){
 	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
 		#ifdef _WIDEWORD
@@ -831,7 +968,7 @@ void acts_all::UTILP0_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_k
 	}
 	return;
 }
-void acts_all::UTILP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void UTILP0_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	if(globalparams.ACTSPARAMS_TREEDEPTH > 1){ SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (NUM_PARTITIONS_POW * k)); }} else { totalnumpartitionsb4last = 1 + NUM_PARTITIONS; }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -879,7 +1016,7 @@ else if(globalparams.VARS_WORKBATCH == 4){
 	}
 	return;
 }
-void acts_all::UTILP0_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
+void UTILP0_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
 	#ifdef _WIDEWORD
 	kvdram[globalparams.DRAM_BASE_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
 	#else
@@ -887,7 +1024,7 @@ void acts_all::UTILP0_increment_graphiteration(uint512_dt * kvdram, globalparams
 	#endif 
 	return;
 }
-void acts_all::UTILP0_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
+void UTILP0_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so1[0][p].key = 0;
@@ -911,7 +1048,7 @@ void acts_all::UTILP0_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE
 	}
 	return;
 }
-void acts_all::UTILP0_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
+void UTILP0_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so8[p].key = 0;

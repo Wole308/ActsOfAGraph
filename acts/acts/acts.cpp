@@ -1,5 +1,4 @@
-#ifdef CONFIG_ACTS_PARTITIONINGLOGIC
-void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void ACTSP0_ACTSactspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	analysis_type analysis_loop1 = SRCBUFFER_SIZE / 4;
@@ -45,7 +44,7 @@ void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigne
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	if(maxcutoff % 4 != 0){ maxcutoff = 0; } // 4, CRITICAL FIXME.
 	#endif 
-	// cout<<"------------------- acts_all::ACTSP0_actspipeline: maxcutoff: "<<maxcutoff<<endl;
+	// cout<<"------------------- ACTSP0_actspipeline: maxcutoff: "<<maxcutoff<<endl;
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
@@ -98,10 +97,10 @@ void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigne
 			actsutilityobj->checkn(enablebufferA, "kvA6", kvA6, currentLOP, upperlimit, globalparams.POW_BATCHRANGE, 4);
 			#endif
 			
-			partition_type pA0 = UTILP0_getpartition(ON, mode, kvA0[0], currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
-			partition_type pA2 = UTILP0_getpartition(ON, mode, kvA2[0], currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
-			partition_type pA4 = UTILP0_getpartition(ON, mode, kvA4[0], currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
-			partition_type pA6 = UTILP0_getpartition(ON, mode, kvA6[0], currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			partition_type pA0 = UTILP0_getpartition(ON, mode, kvA0[0], currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE, globalparams.ACTSPARAMS_TREEDEPTH);
+			partition_type pA2 = UTILP0_getpartition(ON, mode, kvA2[0], currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE, globalparams.ACTSPARAMS_TREEDEPTH);
+			partition_type pA4 = UTILP0_getpartition(ON, mode, kvA4[0], currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE, globalparams.ACTSPARAMS_TREEDEPTH);
+			partition_type pA6 = UTILP0_getpartition(ON, mode, kvA6[0], currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE, globalparams.ACTSPARAMS_TREEDEPTH);
 			
 			/// LOADING FROM AND INTO D
 			buffer_type posD0 = capsule_so8[pA0].key + tempbufferDcapsule[pA0];
@@ -196,34 +195,37 @@ void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigne
 	}
 	return;
 }
-#endif 
-#ifdef CONFIG_TRADITIONAL_PARTITIONINGLOGIC
-void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+
+void ACTSP0_TRADactspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
-							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams)
-// void acts_all::PARTITIONP0_basicpartition(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, buffer_type size_kvs, globalparams_t globalparams)
-{
+							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_loopcount = SOURCEBLOCKRAM_SIZE;
 	analysis_type analysis_loopcount2 = VECTOR_SIZE;
 	
-	buffer_type chunk_size = size_kvs;
+	buffer_type chunk_size = cutoffs[0];
 	unsigned int upperlimit = sweepparams.upperlimit;
 	unsigned int upperpartition = sweepparams.upperpartition;
 	
-	for(partition_type p=0; p<NUM_PARTITIONS; p++){ 
+	for(partition_type p=0; p<NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so8[p].key = 0;
 		capsule_so8[p].value = 0; 
 	}
 	
+	// if(chunk_size >= BLOCKRAM_SIZE){ cout<<"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ acts:: chunk_size too large. chunk_size: "<<chunk_size<<endl;  } 
+	if(chunk_size >= BLOCKRAM_SIZE){ chunk_size = WORKBUFFER_SIZE; } // BLOCKRAM_SIZE, WORKBUFFER_SIZE
+	#ifdef _DEBUGMODE_CHECKS3
+	actsutilityobj->checkoutofbounds("TRADactspipeline (22)", chunk_size, BLOCKRAM_SIZE, cutoffs[0], NAp, NAp);
+	#endif
+	
 	TRADITIONALPARTITIONKEYVALUES_LOOP: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 		TRADITIONALPARTITIONKEYVALUES_LOOPB: for(unsigned int v=0; v<VECTOR_SIZE; v++){
 		#pragma HLS PIPELINE II=2
-			keyvalue_buffer_t kv = sourcebuffer[v][i];
+			keyvalue_buffer_t kv = buffer_setof1[v][i];
 			
-			partition_type p = UTILP0_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			partition_type p = UTILP0_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE, globalparams.ACTSPARAMS_TREEDEPTH);
 			if(UTILP0_GETKV(kv).key != UTILP0_GETV(INVALIDDATA) && UTILP0_GETKV(kv).value != UTILP0_GETV(INVALIDDATA)){ capsule_so8[p].value += 1; }
 		}
 	}
@@ -235,11 +237,14 @@ void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigne
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 		TRADITIONALPARTITIONKEYVALUES_LOOP2B: for(unsigned int v=0; v<VECTOR_SIZE; v++){
 		#pragma HLS PIPELINE II=2
-			keyvalue_buffer_t kv = sourcebuffer[v][i];
+			keyvalue_buffer_t kv = buffer_setof1[v][i];
 			// cout<<"--- priorpartitionkeyvalues: kv.key: "<<kv.key<<endl; // REMOVEME.
-			partition_type p = UTILP0_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE);
+			partition_type p = UTILP0_getpartition(ON, mode, kv, currentLOP, upperlimit, upperpartition, globalparams.POW_BATCHRANGE, globalparams.ACTSPARAMS_TREEDEPTH);
 			buffer_type pos = capsule_so8[p].key + capsule_so8[p].value;
 			
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("TRADactspipeline (23)", pos / VECTOR_SIZE, DESTBLOCKRAM_SIZE, NAp, NAp, NAp);
+			#endif
 			if(UTILP0_GETKV(kv).key != UTILP0_GETV(INVALIDDATA) && UTILP0_GETKV(kv).value != UTILP0_GETV(INVALIDDATA)){ buffer_setof8[pos % VECTOR_SIZE][pos / VECTOR_SIZE] = kv; } // NOTE: could this be the cause of slight imperfection in results?
 			if(UTILP0_GETKV(kv).key != UTILP0_GETV(INVALIDDATA) && UTILP0_GETKV(kv).value != UTILP0_GETV(INVALIDDATA)){ capsule_so8[p].value += 1; }
 		}
@@ -255,6 +260,9 @@ void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigne
 		unsigned int xpos = endoffset % VECTOR_SIZE;
 		unsigned int ypos = endoffset / VECTOR_SIZE;
 		
+		#ifdef _DEBUGMODE_CHECKS3
+		actsutilityobj->checkoutofbounds("TRADactspipeline (24)", ypos, DESTBLOCKRAM_SIZE, NAp, NAp, NAp);
+		#endif
 		if(capsule_so8[p].value > 0){
 			TRADITIONALPARTITIONKEYVALUES_LOOP3B: for(vector_type v=xpos; v<VECTOR_SIZE; v++){
 			#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount2 avg=analysis_loopcount2
@@ -266,9 +274,33 @@ void acts_all::ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigne
 	}
 	return;
 }
-#endif 
 
-fetchmessage_t acts_all::ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
+void ACTSP0_actspipeline(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
+							unsigned int currentLOP, sweepparams_t sweepparams, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){
+	#ifdef CONFIG_ALL_EVALUATIONTYPES_IN_ONE_KERNEL
+	if(globalparams.EVALUATION_ACTS_PARTITIONINGLOGIC == ON){
+		ACTSP0_ACTSactspipeline(enable1, enable2, mode, buffer_setof1, capsule_so1, 
+						buffer_setof8, capsule_so8,
+							currentLOP, sweepparams, cutoffs, shiftcount, globalparams);
+	} else {
+		ACTSP0_TRADactspipeline(enable1, enable2, mode, buffer_setof1, capsule_so1, 
+						buffer_setof8, capsule_so8,
+							currentLOP, sweepparams, cutoffs, shiftcount, globalparams);
+	}			
+	#else 
+		#ifdef CONFIG_ACTS_PARTITIONINGLOGIC
+		ACTSP0_ACTSactspipeline
+		#else 
+		ACTSP0_TRADactspipeline
+		#endif 
+		(enable1, enable2, mode, buffer_setof1, capsule_so1, 
+						buffer_setof8, capsule_so8,
+							currentLOP, sweepparams, cutoffs, shiftcount, globalparams);
+	#endif
+}
+										
+fetchmessage_t ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams,
 		unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	fetchmessage_t fetchmessage;
@@ -280,7 +312,7 @@ fetchmessage_t acts_all::ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mo
 	return fetchmessage; 
 }
 
-void acts_all::ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],
+void ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE],
 		keyvalue_buffer_t destbuffer[VECTOR_SIZE][DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 			batch_type destbaseaddr_kvs, buffer_type chunk_size, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	if(mode == ACTSREDUCEMODE || globalparams.ACTSPARAMS_TREEDEPTH == 1){
@@ -294,7 +326,7 @@ void acts_all::ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsig
 	return;
 } 
 
-void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
+void ACTSP0_actit(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE],				
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
@@ -363,13 +395,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 		ptravstatepp0.i_kvs = offset_kvs;
 		fetchmessagepp0 = ACTSP0_fetchkeyvalues(ON, mode,  kvdram, vbuffer, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, _WORKBUFFER_SIZE, ptravstatepp0, sweepparams, globalposition, globalparams, edgebankID, collections);
 		#ifdef PUP1
-		ACTSP0_actspipeline(pp1runpipelineen, ON, mode, 
-					#ifdef CONFIG_ACTS_PARTITIONINGLOGIC
-					buffer_setof1, 
-						#else 
-							sourcebuffer, 
-							#endif 
-						capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
+		ACTSP0_actspipeline(pp1runpipelineen, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 
 		
 		PARTITIONP0_preparekeyvalues(ON, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
@@ -377,13 +403,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 		ACTSP0_commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, fetchmessagepp1.chunksize_kvs, sweepparams, globalposition, globalparams, collections); 
 		#endif 
 		
-		ACTSP0_actspipeline(ON, ON, mode, 
-					#ifdef CONFIG_ACTS_PARTITIONINGLOGIC
-					buffer_setof1, 
-						#else 
-							sourcebuffer, 
-							#endif 
-						capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
+		ACTSP0_actspipeline(ON, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, pp0cutoffs, itercount, globalparams);
 		#ifdef PUP1
 		ptravstatepp1.i_kvs = offset_kvs + _WORKBUFFER_SIZE;
 		fetchmessagepp1 = ACTSP0_fetchkeyvalues(ON, mode,  kvdram, vbuffer, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, _WORKBUFFER_SIZE, ptravstatepp1, sweepparams, globalposition, globalparams, edgebankID, collections);

@@ -63,6 +63,8 @@ public:
 	void stopTIME(string caption, std::chrono::steady_clock::time_point begintime, unsigned int iteration_idx);
 	void stopBTIME(string caption, std::chrono::steady_clock::time_point begintime, unsigned int iteration_idx);
 	
+	bool isbufferused(unsigned int id);
+	
 	size_t hsub(size_t val1, size_t val2);
 	size_t hceildiv(size_t val1, size_t val2);
 	int hmin(size_t val1, size_t val2);

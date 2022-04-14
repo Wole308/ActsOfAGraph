@@ -344,7 +344,7 @@ batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_get_num_sour
 	return pow;
 }
 
-globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
+/* globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
 	globalparams_t globalparams;
 	
 	if(banksection==0){ globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS; }
@@ -372,7 +372,7 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.ENABLE_PROCESSCOMMAND = buffer[1];
 	globalparams.ENABLE_PARTITIONCOMMAND = buffer[2];
 	globalparams.ENABLE_APPLYUPDATESCOMMAND = buffer[3];
-	globalparams.ENABLE_ACTSGP = buffer[4];
+	globalparams.GPMODE = buffer[4];
 	globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES = buffer[5];
 	
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[6];
@@ -438,6 +438,141 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.ACTSPARAMS_DESTVOFFSET = buffer[61];
 	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = buffer[62];
 	globalparams.ACTSPARAMS_INSTID = buffer[63];
+	
+	globalparams.ACTSPARAMS_NUM_EDGE_BANKS = buffer[MESSAGES_ACTSPARAMS_NUM_EDGE_BANKS];
+	globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = buffer[MESSAGES_ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM];
+	
+	globalparams.DUMMYCHKPOINT = buffer[MESSAGES_DUMMYCHKPOINT]; // buffer[66];	
+	// for(unsigned int m=0; m<MESSAGES_RETURNVALUES_SIZE; m++){ globalparams.RETURNVALUES[m] = buffer[MESSAGES_RETURNVALUES + m]; }
+	// #ifdef CONFIG_HYBRIDGPMODE
+	// for(unsigned int m=0; m<MESSAGES_MAILBOX_SIZE; m++){ globalparams.MAILBOX[m] = buffer[MESSAGES_MAILBOX + m]; }
+	// #endif 
+	// for(unsigned int m=0; m<1; m++){ globalparams.RETURNVALUES[m] = buffer[MESSAGES_RETURNVALUES + m]; }
+	// for(unsigned int m=0; m<1; m++){ globalparams.MAILBOX[m] = buffer[MESSAGES_MAILBOX + m]; }
+	
+	globalparams.BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM];
+	
+	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
+	if(GraphAlgo == BFS || GraphAlgo == SSSP){ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_NOTALLVERTEXISACTIVE; }
+	else{ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_ALLVERTEXISACTIVE; }
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printglobalparameters("acts_util::getglobalparams:: printing global parameters", globalparams);
+	#endif
+	
+	if(globalparams.DUMMYCHKPOINT != 70707070){
+		#ifdef _DEBUGMODE_CHECKS3
+		cout<<"acts_util:: _getglobalparams: ERROR: globalparams.DUMMYCHKPOINT("<<globalparams.DUMMYCHKPOINT<<") != 70707070. MISALLIGNMENT SOMEWHERE. EXITING..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	
+	globalparams.VARS_WORKBATCH = 0;
+	return globalparams;
+}
+ */
+globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
+	globalparams_t globalparams;
+	
+	if(banksection==0){ globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS; }
+	else if (banksection==1) { globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS + (TOTALDRAMCAPACITY_KVS/2); }
+	else {
+		#ifdef _DEBUGMODE_CHECKS3
+		cout<<"UTIL{{context['id']}}_getglobalparams: NOT IMPLEMENTED. EXITING..."<<endl;
+		exit(EXIT_FAILURE);
+		#endif 
+	}
+	// globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS;
+	
+	unsigned int buffer[BLOCKRAM_SIZE];
+	GETGLOBALPARAMS_LOOP1: for(unsigned int t=0; t<128; t++){
+	#pragma HLS PIPELINE II=1
+		buffer[t] = kvdram[globalparams.DRAM_BASE_KVS + t]
+			#ifdef _WIDEWORD
+				.range(31, 0); 
+					#else 
+						.data[0].key; 	
+							#endif 
+	}
+
+	globalparams.ENABLE_RUNKERNELCOMMAND = buffer[MESSAGES_ENABLE_RUNKERNELCOMMAND];
+	globalparams.ENABLE_PROCESSCOMMAND = buffer[MESSAGES_ENABLE_PROCESSCOMMAND];
+	globalparams.ENABLE_PARTITIONCOMMAND = buffer[MESSAGES_ENABLE_PARTITIONCOMMAND];
+	globalparams.ENABLE_APPLYUPDATESCOMMAND = buffer[MESSAGES_ENABLE_APPLYUPDATESCOMMAND];
+	globalparams.GPMODE = buffer[MESSAGES_GPMODE];
+	globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES = buffer[MESSAGES_ACTSCONFIG_INSERTSTATSMETADATAINEDGES];
+
+	globalparams.EVALUATION_ACTS_MEMORYLAYOUT = buffer[MESSAGES_EVALUATION_ACTS_MEMORYLAYOUT];
+	globalparams.EVALUATION_ACTS_PARTITIONINGLOGIC = buffer[MESSAGES_EVALUATION_ACTS_PARTITIONINGLOGIC];
+	globalparams.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC = buffer[MESSAGES_EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC];
+	globalparams.EVALUATION_ACTS_HYBRIDLOGIC = buffer[MESSAGES_EVALUATION_ACTS_HYBRIDLOGIC];
+	globalparams.EVALUATION_ACTS_UNUSED1 = buffer[MESSAGES_EVALUATION_ACTS_UNUSED1];
+	globalparams.EVALUATION_ACTS_UNUSED2 = buffer[MESSAGES_EVALUATION_ACTS_UNUSED2];
+	globalparams.EVALUATION_ACTS_UNUSED3 = buffer[MESSAGES_EVALUATION_ACTS_UNUSED3];
+	
+	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_MESSAGESDATA];
+	globalparams.BASEOFFSETKVS_EDGESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESDATA];
+	globalparams.BASEOFFSETKVS_VERTEXPTR = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTEXPTR];
+	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA];
+	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA];
+	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES];
+	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK];
+	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK];
+	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_STATSDRAM];
+	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM]; //
+	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_KVDRAM];
+	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE];
+	globalparams.BASEOFFSETKVS_OTHERINFOS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_ACTSMESSAGE_OTHERINFOS];
+
+	globalparams.SIZE_MESSAGESDRAM = buffer[MESSAGES_SIZE_MESSAGESDATA];
+	globalparams.SIZE_EDGES = buffer[MESSAGES_SIZE_EDGES];
+	globalparams.SIZE_VERTEXPTRS = buffer[MESSAGES_SIZE_VERTEXPTRS];
+	globalparams.SIZE_SRCVERTICESDATA = buffer[MESSAGES_SIZE_SRCVERTICESDATA];
+	globalparams.SIZE_DESTVERTICESDATA = buffer[MESSAGES_SIZE_DESTVERTICESDATA];
+	globalparams.SIZE_ACTIVEVERTICES = buffer[MESSAGES_SIZE_ACTIVEVERTICES];
+	globalparams.SIZE_VERTICESDATAMASK = buffer[MESSAGES_SIZE_VERTICESDATAMASK];
+	globalparams.SIZE_VERTICESPARTITIONMASK = buffer[MESSAGES_SIZE_VERTICESPARTITIONMASK];
+	globalparams.SIZE_KVSTATSDRAM = buffer[MESSAGES_SIZE_KVSTATSDRAM];
+	globalparams.SIZE_EDGESSTATSDRAM = buffer[MESSAGES_SIZE_EDGESSTATSDRAM];
+	globalparams.SIZE_KVDRAM = buffer[MESSAGES_SIZE_KVDRAM];
+	globalparams.SIZE_KVDRAMWORKSPACE = buffer[MESSAGES_SIZE_KVDRAMWORKSPACE];
+	globalparams.SIZE_OTHERINFOS = buffer[MESSAGES_SIZE_OTHERINFOS];
+	globalparams.SIZEKVS2_PROCESSEDGESPARTITION = buffer[MESSAGES_SIZEKVS_PROCESSEDGESPARTITION];
+	globalparams.SIZE_REDUCE = buffer[MESSAGES_SIZE_REDUCE];
+	globalparams.SIZEKVS2_REDUCEPARTITION = buffer[MESSAGES_SIZEKVS_REDUCEPARTITION];
+	globalparams.SIZEKVS_VMASKBUFFER = buffer[MESSAGES_SIZEKVS_VMASKBUFFER];
+	globalparams.SIZE_BATCHRANGE = buffer[MESSAGES_SIZE_BATCHRANGE];
+	globalparams.SIZE_RUN = buffer[MESSAGES_SIZE_RUN];
+
+	globalparams.POW_MESSAGESDRAM = buffer[MESSAGES_POW_MESSAGESDRAM];
+	globalparams.POW_EDGES = buffer[MESSAGES_POW_EDGES];
+	globalparams.POW_VERTEXPTRS = buffer[MESSAGES_POW_VERTEXPTRS];
+	globalparams.POW_SRCVERTICESDATA = buffer[MESSAGES_POW_SRCVERTICESDATA];
+	globalparams.POW_DESTVERTICESDATA = buffer[MESSAGES_POW_DESTVERTICESDATA];
+	globalparams.POW_ACTIVEVERTICES = buffer[MESSAGES_POW_ACTIVEVERTICES];
+	globalparams.POW_VERTICESDATAMASK = buffer[MESSAGES_POW_VERTICESDATAMASK];
+	globalparams.POW_KVSTATSDRAM = buffer[MESSAGES_POW_KVSTATSDRAM];
+	globalparams.POW_EDGESSTATSDRAM = buffer[MESSAGES_POW_EDGESSTATSDRAM];
+	globalparams.POW_KVDRAM = buffer[MESSAGES_POW_KVDRAM];
+	globalparams.POW_KVDRAMWORKSPACE = buffer[MESSAGES_POW_KVDRAMWORKSPACE];
+	globalparams.POW_REDUCE = buffer[MESSAGES_POW_REDUCE];
+	globalparams.POW_BATCHRANGE = buffer[MESSAGES_POW_BATCHRANGE];
+
+	globalparams.NUM_PROCESSEDGESPARTITIONS = buffer[MESSAGES_NUM_PROCESSEDGESPARTITIONS];
+	globalparams.NUM_REDUCEPARTITIONS = buffer[MESSAGES_NUM_REDUCEPARTITIONS];
+	
+	globalparams.ALGORITHMINFO_GRAPHITERATIONID = buffer[MESSAGES_ALGORITHMINFO_GRAPHITERATIONID];
+	globalparams.ALGORITHMINFO_GRAPHALGORITHMID = buffer[MESSAGES_ALGORITHMINFO_GRAPHALGORITHMID];
+
+	globalparams.ACTSPARAMS_BEGINLOP = buffer[MESSAGES_ACTSPARAMS_BEGINLOP];
+	globalparams.ACTSPARAMS_NUMLOPS = buffer[MESSAGES_ACTSPARAMS_NUMLOPS];
+	globalparams.ACTSPARAMS_TREEDEPTH = buffer[MESSAGES_ACTSPARAMS_TREEDEPTH];
+	globalparams.ACTSPARAMS_FINALNUMPARTITIONS = buffer[MESSAGES_ACTSPARAMS_FINALNUMPARTITIONS];
+	globalparams.ACTSPARAMS_SRCVOFFSET = buffer[MESSAGES_ACTSPARAMS_SRCVOFFSET];
+	globalparams.ACTSPARAMS_SRCVSIZE = buffer[MESSAGES_ACTSPARAMS_SRCVSIZE];
+	globalparams.ACTSPARAMS_DESTVOFFSET = buffer[MESSAGES_ACTSPARAMS_DESTVOFFSET];
+	globalparams.ACTSPARAMS_NUMEDGECHUNKSINABUFFER = buffer[MESSAGES_ACTSPARAMS_NUMEDGECHUNKSINABUFFER];
+	globalparams.ACTSPARAMS_INSTID = buffer[MESSAGES_ACTSPARAMS_INSTID];
 	
 	globalparams.ACTSPARAMS_NUM_EDGE_BANKS = buffer[MESSAGES_ACTSPARAMS_NUM_EDGE_BANKS];
 	globalparams.ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = buffer[MESSAGES_ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM];
@@ -544,20 +679,22 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_settravstate(bool_
 	#endif
 	return;	
 }
-partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow){
+partition_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, unsigned int tree_depth){
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTIL{{context['id']}}_GETKV(keyvalue);
 	
-	#ifdef TREEDEPTHISONE // globalparamsK.ACTSPARAMS_TREEDEPTH == 1
-	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = 0; } 
-	else { keyy_t lkey = thiskeyvalue.key - upperlimit; partition = (lkey % NUM_PARTITIONS); }
-	#else 
-	if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = 0; } 
-	else {
-		keyy_t lkey = thiskeyvalue.key - upperlimit;
-		if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+	if(tree_depth == 1){
+		#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+		if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = 0; } 
+		else { keyy_t lkey = thiskeyvalue.key - upperlimit; partition = (lkey % NUM_PARTITIONS); }
+		#endif 
+	} else {
+		if(thiskeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA)){ partition = 0; } 
+		else {
+			keyy_t lkey = thiskeyvalue.key - upperlimit;
+			if(mode == ACTSREDUCEMODE){ partition = (lkey % NUM_PARTITIONS); } else { partition = (lkey >> (batch_range_pow - (NUM_PARTITIONS_POW * currentLOP))); }
+		}
 	}
-	#endif 
 
 	if(partition >= MAX_NUM_PARTITIONS){ 
 		#ifdef ENABLE_PERFECTACCURACY

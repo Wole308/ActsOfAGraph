@@ -2,19 +2,28 @@
 #ifndef ALLVERTEXISACTIVE_ALGORITHM
 // #define CONFIG_MERGE_COLLECTACTIVEVPARTITIONS
 #endif
+// #define MERGECONFIG_ACTIVATE_HYBRIDMODE
 
-unsigned int acts_all::MERGEP0_actvpstatsoffset(globalparams_t globalparams){
+typedef struct {
+	keyvalue_vbuffer_t srcp;
+	keyvalue_vbuffer_t dstp; // keyvalue_vbuffer_t, uint32_type
+	unsigned int srcvid;
+	unsigned int dstvid;
+	unsigned int status;
+	unsigned int tocommit;
+} arrow_t;
+#define TRADGP_BUFFER_SIZE DOUBLE_BLOCKRAM_SIZE
+#define TRADGP_BUFFER_BIGSIZE (DOUBLE_BLOCKRAM_SIZE * VECTOR2_SIZE)
+#define TRADGP_LOADCHUNKSZ 64 // 256 // 1024
+
+unsigned int MERGEP0_actvpstatsoffset(globalparams_t globalparams){
 	// this returns the stats of the last level of partitioning
 	unsigned int _offset = 0;
-	#ifdef ENABLERECURSIVEPARTITIONING
 	if(globalparams.ACTSPARAMS_TREEDEPTH > 1){ for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ _offset += (1 << (NUM_PARTITIONS_POW * k)); }} else { _offset = 1; }
-	#else 
-	for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ _offset += (1 << (NUM_PARTITIONS_POW * k)); }
-	#endif
 	return _offset;
 }
 
-void acts_all::MERGEP0_RearrangeLayoutV(unsigned int s, unsigned int data[VECTOR2_SIZE], unsigned int data2[VECTOR2_SIZE]){
+void MERGEP0_RearrangeLayoutV(unsigned int s, unsigned int data[VECTOR2_SIZE], unsigned int data2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;
  if(s_==0){ 
 		data2[0] = data[0]; 
@@ -307,7 +316,7 @@ else {
 	return;
 }
 
-void acts_all::MERGEP0_RearrangeLayoutA(unsigned int s, unit1_type data[VECTOR2_SIZE], unit1_type data2[VECTOR2_SIZE]){
+void MERGEP0_RearrangeLayoutA(unsigned int s, unit1_type data[VECTOR2_SIZE], unit1_type data2[VECTOR2_SIZE]){
 	unsigned int s_ = s % VECTOR2_SIZE;
  if(s_==0){ 
 		data2[0] = data[0]; 
@@ -600,7 +609,7 @@ else {
 	return;
 }
 
-void acts_all::MERGEP0_SavingBufferedPartitions(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int instanceid, unsigned int partition, unsigned int voffset_kvs, unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE], unsigned int * partition_offset, globalparams_t globalparamsvA, globalparams_t globalparamsvB, globalparams_t globalparamsvC){
+void MERGEP0_SavingBufferedPartitions(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int instanceid, unsigned int partition, unsigned int voffset_kvs, unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE], unsigned int * partition_offset, globalparams_t globalparamsvA, globalparams_t globalparamsvB, globalparams_t globalparamsvC){
 	#pragma HLS INLINE
 	// cout<<"--- MERGEP0_SavingBufferedPartitions: SAVING BUFFERED PARTITIONS. instanceid: "<<instanceid<<", partition: "<<partition<<", voffset_kvs: "<<voffset_kvs<<", *partition_offset: "<<*partition_offset<<endl;
 	MERGEP0_EXCHANGEVS_LOOP1C: for(unsigned int p=0; p<BLOCKRAM_CUMMTVPMASK_SIZE; p++){
@@ -618,7 +627,7 @@ void acts_all::MERGEP0_SavingBufferedPartitions(uint512_dt * vdramA, uint512_dt 
 	return;
 }
 
-void acts_all::MERGEP0_collects(
+void MERGEP0_collects(
 		unsigned int instanceid,
 		unsigned int voffset_kvs,
 		unsigned int gvoffset_kvs,
@@ -727,7 +736,7 @@ void acts_all::MERGEP0_collects(
 	#endif 
 		
 	// collect active vertices
-	#ifdef CONFIG_HYBRIDGPMODE
+	#ifdef MERGECONFIG_ACTIVATE_HYBRIDMODE
 	unit1_type vmaskVec2[VECTOR2_SIZE];
 	if(vmaskVec[0] == 1){ local_actvv[0] = (voffset_kvs * VECTOR2_SIZE) + 0; } else{ local_actvv[0] = INVALIDDATA; }; 
 	if(vmaskVec[1] == 1){ local_actvv[1] = (voffset_kvs * VECTOR2_SIZE) + 1; } else{ local_actvv[1] = INVALIDDATA; }; 
@@ -787,7 +796,7 @@ void acts_all::MERGEP0_collects(
 	return;
 }
 
-void acts_all::MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram){
+void MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::BROADCAST:: ACTS BROADCAST LAUNCHED. Broadcasting vertices..."<<endl; 
 	#endif
@@ -809,7 +818,7 @@ void acts_all::MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram){
 	return;
 }
 
-void acts_all::MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
+void MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (997)..."<<endl; 
 	#endif
@@ -927,7 +936,7 @@ void acts_all::MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	return;
 }
 
-void acts_all::MERGEP0_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram, 
+void MERGEP0_mergeVs1(uint512_dt * kvdram0, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -1016,7 +1025,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globa
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram, 
+void MERGEP0_mergeVs2(uint512_dt * kvdram0,uint512_dt * kvdram1, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -1148,7 +1157,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram, 
+void MERGEP0_mergeVs3(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -1323,7 +1332,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram, 
+void MERGEP0_mergeVs4(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -1541,7 +1550,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram, 
+void MERGEP0_mergeVs5(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -1802,7 +1811,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram, 
+void MERGEP0_mergeVs6(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -2106,7 +2115,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram, 
+void MERGEP0_mergeVs7(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -2453,7 +2462,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram, 
+void MERGEP0_mergeVs8(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -2843,7 +2852,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram, 
+void MERGEP0_mergeVs9(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -3276,7 +3285,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram, 
+void MERGEP0_mergeVs10(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -3752,7 +3761,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram, 
+void MERGEP0_mergeVs11(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer10[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -4271,7 +4280,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	// exit(EXIT_SUCCESS); // 
 	return;
 }
-void acts_all::MERGEP0_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram, 
+void MERGEP0_mergeVs12(uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, uint512_dt * vdram, 
 keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer1[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer2[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer3[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer4[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer5[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer6[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer7[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer8[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer9[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer10[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsbuffer11[BLOCKRAM_GLOBALSTATS_SIZE],			globalparams_t globalparams, globalparams_t globalparamsv){
 	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<"MERGE::MERGE:: ACTS MERGE LAUNCHED. Merging vertices (229)..."<<endl; 
@@ -4834,7 +4843,7 @@ keyvalue_t globalstatsbuffer0[BLOCKRAM_GLOBALSTATS_SIZE],keyvalue_t globalstatsb
 	return;
 }
 
-void acts_all::MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"MERGE::EXCHANGE:: ACTS EXCHANGE LAUNCHED. Exchanging vertices across different SLRs..."<<endl; 
 	#endif
@@ -5107,7 +5116,7 @@ void acts_all::MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	#endif 
 	
 	// collect active vertices 
-	#if not defined (ALLVERTEXISACTIVE_ALGORITHM) && defined(CONFIG_HYBRIDGPMODE)
+	#if not defined (ALLVERTEXISACTIVE_ALGORITHM) && defined(MERGECONFIG_ACTIVATE_HYBRIDMODE)
 	unsigned int maxloadcount_vs = 0;
 	unsigned int maxnumactvvs_vs = 0;
 	unsigned int sumloadcount = 0;
@@ -5202,7 +5211,7 @@ void acts_all::MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	#endif 
 	
 	// judging what mode (ACTS or TradGP) to use for next iteration
-	#if not defined (ALLVERTEXISACTIVE_ALGORITHM) && defined(CONFIG_HYBRIDGPMODE) && defined(CONFIG_HYBRIDGPMODE_ONLINESWITCHING)
+	#if not defined (ALLVERTEXISACTIVE_ALGORITHM) && defined(MERGECONFIG_ACTIVATE_HYBRIDMODE) && defined(CONFIG_HYBRIDGPMODE_ONLINESWITCHING)
 	unsigned int _mode = ON; if(maxloadcount_vs <= maxnumactvvs_vs){ _mode = OFF; } else { _mode = ON; }
 	UTILP0_SetFirstData(mdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + nextGraphIter, _mode);
 	UTILP0_SetFirstData(vdramA, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + nextGraphIter, _mode);
@@ -5261,7 +5270,7 @@ void acts_all::MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	return;
 }
 
-void acts_all::TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"TradGP:: running traditional sssp... "<<endl;
 	#endif 
@@ -5270,159 +5279,209 @@ void acts_all::TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 	globalparams_t globalparamsvA = UTILP0_getglobalparams(vdramA, 0);
 	globalparams_t globalparamsvB = UTILP0_getglobalparams(vdramB, 0);
 	globalparams_t globalparamsvC = UTILP0_getglobalparams(vdramC, 0);
+	unsigned int inACTSMODE = UTILP0_GetFirstData(vdramA, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID);
+	#ifdef _DEBUGMODE_KERNELPRINTS3
+	if(globalparamsvA.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalparamsvA.EVALUATION_ACTS_HYBRIDLOGIC == ON){
+		if(inACTSMODE != ON){ cout<<"################################ TRADGP::[SWITCH?]:: TRADGP CALLED IN ITERATION ("<<globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID<<"). ################################"<<endl; } 
+		else { if(true){cout<<"################################ TRADGP::[SWITCH?]:: TRADGP NOT CALLED IN ITERATION ("<<globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID<<"). ################################"<<endl;} }
+	} else { if(true){cout<<"################################ TRADGP::[SWITCH?]:: Hybrid Func Not Applicable ("<<globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID<<"). ################################"<<endl;} }
+	#endif
+	if(globalparamsvA.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalparamsvA.EVALUATION_ACTS_HYBRIDLOGIC == ON){ if(inACTSMODE == ON){ return; }} 
 	
 	unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE];
-	
+
 	unsigned int GraphIter = globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID;
-	unsigned int actvvcount_currit = globalparamsm.SIZE_ACTIVEVERTICES;
+	unsigned int actvvcount_currit = UTILP0_GetSecondData(vdramA, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID); // globalparamsm.SIZE_ACTIVEVERTICES;
 	unsigned int actvvcount_nextit = 0;
 	unsigned int nextGraphIter = GraphIter + 1;
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"TradGP:: running traditional sssp... (iteration "<<GraphIter<<", number of active vertices to process: "<<actvvcount_currit<<")"<<endl;
 	#endif 
 	
-	#if defined(CONFIG_HYBRIDGPMODE) && defined(CONFIG_PRELOADEDVERTICESMASKS)
+	unsigned int offsetkvs_curractvvs = 0;
+	unsigned int offsetkvs_nxtactvvs = 0;
+	#if defined(CONFIG_PRELOADEDVERTICESMASKS)
 	offsetkvs_curractvvs = 0; offsetkvs_nxtactvvs = globalparamsm.SIZE_VERTEXPTRS / VECTOR_SIZE;
-	#else 
-	unsigned int offsetkvs_curractvvs;
-	unsigned int offsetkvs_nxtactvvs;
+	#else
 	if(GraphIter % 2 == 0){ offsetkvs_curractvvs = 0; offsetkvs_nxtactvvs = globalparamsm.SIZE_VERTEXPTRS / VECTOR_SIZE; } 
 	else { offsetkvs_curractvvs = globalparamsm.SIZE_VERTEXPTRS / VECTOR_SIZE; offsetkvs_nxtactvvs = 0; }
 	#endif 
 	
-	#if defined(CONFIG_HYBRIDGPMODE) && defined(CONFIG_PRELOADEDVERTICESMASKS)
-	unsigned int actvvs_currentit_basekvs = GraphIter * (CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD / VECTOR2_SIZE);
-	unsigned int actvvs_nextit_basekvs = (GraphIter + 1) * (CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD / VECTOR2_SIZE);
+	unsigned int actvvs_currentit_basekvs = 0;
+	unsigned int actvvs_nextit_basekvs = 0;
+	#if defined(CONFIG_PRELOADEDVERTICESMASKS)
+	actvvs_currentit_basekvs = GraphIter * (CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ / VECTOR2_SIZE);
+	actvvs_nextit_basekvs = (GraphIter + 1) * (CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ / VECTOR2_SIZE);
 	#endif 
 	
 	unsigned int total_edges_processed = 0;
 	long double edgesprocessedinGraphIter[128]; for(unsigned int i=0; i<128; i++){ edgesprocessedinGraphIter[i] = 0; }
 	for(unsigned int v=0; v<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; v++){ vpmaskbuffer[v] = 0; }
 	
-	for(unsigned int i=0; i<actvvcount_currit; i++){
-		#if defined(CONFIG_HYBRIDGPMODE) && defined(CONFIG_PRELOADEDVERTICESMASKS)
-		unsigned int vid = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + offsetkvs_curractvvs + actvvs_currentit_basekvs, i); 
-		#else 
-		unsigned int vid = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + offsetkvs_curractvvs, i); 
+	unsigned int actvvids[TRADGP_BUFFER_SIZE];
+	keyvalue_t tempbuffer_vptr[TRADGP_BUFFER_SIZE];
+	#pragma HLS DATA_PACK variable = tempbuffer_vptr
+	arrow_t independent_edge[TRADGP_BUFFER_BIGSIZE];
+	
+	TRADGP_LOOP1: for(unsigned int i=0; i<actvvcount_currit; i+=TRADGP_LOADCHUNKSZ){
+		unsigned int chunk_size = TRADGP_LOADCHUNKSZ;
+		if(i + TRADGP_LOADCHUNKSZ >= actvvcount_currit){ chunk_size = actvvcount_currit - i; }
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		cout<<">>> TRADGP:: processing chunk: i "<<i<<" (of "<<actvvcount_currit<<"), chunk_size: "<<chunk_size<<", TRADGP_LOADCHUNKSZ: "<<TRADGP_LOADCHUNKSZ<<endl;
 		#endif 
 		
-		if(vid == INVALIDDATA || vid > globalparamsm.SIZE_VERTEXPTRS){ continue; } // if(vid == INVALIDDATA){ continue; }
-		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("MERGEP0_collects: ERROR 20", vid, globalparamsm.SIZE_VERTEXPTRS, actvvcount_currit, offsetkvs_curractvvs, NAp);
-		#endif
-		edge_t vptr_begin = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, vid); 
-		edge_t vptr_end = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, vid + 1); 
+		// read & buffer (actvv ids)
+		unsigned int actvvids[VECTOR2_SIZE];
+		TRADGP_LOOP2: for(unsigned int i=0; i<chunk_size; i++){
+		#pragma HLS PIPELINE
+			actvvids[i] = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + actvvs_currentit_basekvs, i); 
+		}
 		
-		edge_t edges_size = vptr_end - vptr_begin;
-		if(vptr_end < vptr_begin){ edges_size = 0; } // continue; // FIXME.
-		#ifdef _DEBUGMODE_CHECKS
-		if(vptr_end < vptr_begin){ cout<<"TradGP:: ERROR: vptr_end("<<vptr_end<<") < vptr_begin("<<vptr_begin<<"). vid: "<<vid<<". exiting..."<<endl; exit(EXIT_FAILURE); }
-		#endif
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		cout<<"~~~ TradGP:: VERTEX: vid: "<<vid<<", vptr_begin: "<<vptr_begin<<", vptr_end: "<<vptr_end<<", edges_size: "<<edges_size<<endl;
-		#endif
+		// read & buffer (vertex ptrs)
+		TRADGP_LOOP3: for(unsigned int t=0; t<chunk_size; t++){
+		// #pragma HLS PIPELINE
+			unsigned int srcvid = actvvids[t];
+			edge_t vptr_begin = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid); 
+			edge_t vptr_end = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid + 1); 
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("MERGE(2): ERROR 20", t, TRADGP_BUFFER_SIZE, vptr_begin, vptr_end, NAp);
+			#endif
+			tempbuffer_vptr[t].key = vptr_begin;
+			tempbuffer_vptr[t].value = vptr_end;
+			if(tempbuffer_vptr[t].value < tempbuffer_vptr[t].key){ tempbuffer_vptr[t].key = 0; tempbuffer_vptr[t].value = 0; }
+		}
 		
-		unsigned int s = vid % NUM_PEs;
-		unsigned int lvid = (vid - s) / NUM_PEs; 
-		unsigned int offset_kvs = s * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
-		keyvalue_vbuffer_t res = MEMCAP0_READVDATA(UTILP0_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, lvid)) + 1; 
-		
-		for(unsigned int k=0; k<edges_size; k++){
-			unsigned int dstvid = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_EDGESDATA, vptr_begin + k);
+		// read & buffer (dstv properties)
+		unsigned int index = 0;
+		unsigned int sumEs = 0;
+		TRADGP_LOOP4: for(unsigned int i=0; i<chunk_size; i++){
+			sumEs += tempbuffer_vptr[i].value - tempbuffer_vptr[i].key;
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			cout<<"TradGP:: EDGE: vid: "<<vid<<", dstvid: "<<dstvid<<endl;
+			cout<<"TradGP:: read & buffer (dstv properties): number of edges to read: "<<tempbuffer_vptr[i].value - tempbuffer_vptr[i].key<<", (tempbuffer_vptr["<<i<<"].key: "<<tempbuffer_vptr[i].key<<", tempbuffer_vptr["<<i<<"].value: "<<tempbuffer_vptr[i].value<<", sumEs: "<<sumEs<<")"<<endl;
 			#endif 
+			TRADGP_LOOP4B: for(unsigned int t=tempbuffer_vptr[i].key; t<tempbuffer_vptr[i].value; t++){
+			#pragma HLS PIPELINE
+				unsigned int srcvid = actvvids[i];
+				unsigned int dstvid = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_EDGESDATA, t);
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+				cout<<"TradGP:: EDGE: srcvid: "<<srcvid<<", dstvid: "<<dstvid<<endl;
+				#endif 
+				
+				unsigned int s = dstvid % NUM_PEs;
+				unsigned int ldstvid = (dstvid - s) / NUM_PEs; 
+				unsigned int offset_kvs = s * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
+				
+				#ifdef _DEBUGMODE_CHECKS3
+				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 21", index, TRADGP_BUFFER_BIGSIZE, dstvid, tempbuffer_vptr[i].key, tempbuffer_vptr[i].value);
+				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 22", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + (ldstvid / VDATA_SHRINK_RATIO), TOTALDRAMCAPACITY_KVS, index, dstvid, offset_kvs);
+				#endif
+				independent_edge[index].dstp = UTILP0_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO));
+				independent_edge[index].srcvid = actvvids[i];
+				independent_edge[index].dstvid = dstvid;
+				independent_edge[index].status = 0;
+				independent_edge[index].tocommit = 0;
+				// index += 1;
+				#ifdef CONFIG_FORCEDCORRECT_TRADGP
+				if(index + 1 < TRADGP_BUFFER_BIGSIZE-2){ index += 1; }
+				#endif 
+			}
+		}
+		
+		// process 
+		TRADGP_LOOP5: for(unsigned int edge=0; edge<index; edge++){
+		#pragma HLS PIPELINE
+			unsigned int srcvid = independent_edge[edge].srcvid;
+			unsigned int dstvid = independent_edge[edge].dstvid;
 			
 			unsigned int s = dstvid % NUM_PEs;
 			unsigned int ldstvid = (dstvid - s) / NUM_PEs; 
 			unsigned int offset_kvs = s * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 			
-			uint32_type vprop = MEMCAP0_READVDATA(UTILP0_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid)); 
-			uint32_type vtemp = UTILP0_amin2(vprop, res);
+			// read 
+			vmdata_t vmdata;
+			#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS	
+			unsigned int offsetof_vdata = (ldstvid % VDATA_SHRINK_RATIO);
+			vmdata.vdata = UTILP0_SWREADBITSFROM_UINTV(independent_edge[edge].dstp, offsetof_vdata, SIZEOF_VDATA);
+			vmdata.vmask = UTILP0_SWREADBITSFROM_UINTV(independent_edge[edge].dstp, BEGINOFFSETOF_VMASK + offsetof_vdata, SIZEOF_VMASK);
+			#else
+			vmdata.vdata = MEMCAP0_READVDATA(independent_edge[edge].dstp); 
+			vmdata.vmask = MEMCAP0_READVMASK(independent_edge[edge].dstp); 
+			#endif 
 			
-			if(vtemp != vprop){
-				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				cout<<"TradGP:: ACTIVE VERTEX for next iteration: dstvid: "<<dstvid<<endl;
-				#endif
-				#if defined(CONFIG_HYBRIDGPMODE) && defined(CONFIG_PRELOADEDVERTICESMASKS)
-				UTILP0_SetData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + offsetkvs_nxtactvvs, actvvcount_nextit, dstvid); actvvcount_nextit += 1; 
+			// reduce 
+			value_t new_vprop = REDUCEP0_reducefunc(vmdata.vdata, NAp, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA.ALGORITHMINFO_GRAPHALGORITHMID);
+			if(new_vprop != vmdata.vdata){ vmdata.vmask = 1; } else { vmdata.vmask = 0; } // NEWCHANGE.
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+			if(new_vprop != vmdata.vdata){ cout<<">>> TRADGP::REDUCE VECTOR(1):: ACTIVE REDUCE SEEN @ srcvid: "<<srcvid<<", dstvid: "<<dstvid<<endl; }
+			#endif
+			
+			// write 
+			if(vmdata.vmask == 1){
+				#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
+				unsigned int offsetof_vdata = (ldstvid % VDATA_SHRINK_RATIO);
+				UTILP0_SWWRITEBITSTO_UINTV(&independent_edge[edge].dstp, BEGINOFFSETOF_VMASK + offsetof_vdata, SIZEOF_VMASK, vmdata.vmask);
 				#else 
-				UTILP0_SetData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + offsetkvs_nxtactvvs, actvvcount_nextit, dstvid); actvvcount_nextit += 1; 
+				MEMCAP0_WRITEVMASK(&independent_edge[edge].dstp, vmdata.vmask); 
+				#endif
+				independent_edge[edge].tocommit = 1;
+			}
+			
+			#ifdef _DEBUGMODE_STATS
+			actsutilityobj->globalstats_countkvsprocessed(0, 1);
+			actsutilityobj->globalstats_processedges_countvalidkvsprocessed(0, 1); 
+			#endif 
+		}
+		
+		// commit 
+		TRADGP_LOOP6: for(unsigned int edge=0; edge<index; edge++){
+			#pragma HLS PIPELINE
+			unsigned int srcvid = independent_edge[edge].srcvid;
+			unsigned int dstvid = independent_edge[edge].dstvid;
+			
+			if(independent_edge[edge].tocommit == 1){ // (vtemp != vprop)
+				unsigned int s = independent_edge[edge].dstvid % NUM_PEs;
+				unsigned int ldstvid = (independent_edge[edge].dstvid - s) / NUM_PEs; 
+				unsigned int offset_kvs = s * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
+				
+				#ifdef _DEBUGMODE_CHECKS3
+				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 28", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + (ldstvid / VDATA_SHRINK_RATIO), TOTALDRAMCAPACITY_KVS, index, dstvid, offset_kvs);
+				#endif
+				UTILP0_SetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				UTILP0_SetData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				UTILP0_SetData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				
+				// set active vertices mask in vdramA, vdramB and vdramC
+				vpmaskbuffer[independent_edge[edge].dstvid / PROCESSPARTITIONSZ] = 1;
+				
+				// collect stats 
+				#ifdef _DEBUGMODE_STATS
+				actsutilityobj->globalstats_countkvsreduced(0, 1);
+				actsutilityobj->globalstats_reduce_countvalidkvsreduced(0, 1); 
 				#endif 
 			}
-			
-			if(vtemp != vprop){
-				// UTILP0_WRITETO_UINT((unsigned int *)&vtemp, OFFSETOF_VMASK, SIZEOF_VMASK, 1);  // write active mask before save
-				MEMCAP0_WRITEVMASK(&vtemp, 1); // write active mask before save
-				UTILP0_SetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
-				UTILP0_SetData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
-				UTILP0_SetData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, ldstvid, vtemp);
-				
-				vpmaskbuffer[dstvid / PROCESSPARTITIONSZ] = 1; 
-			}
-		
-			total_edges_processed += 1;
-			edgesprocessedinGraphIter[GraphIter] += 1;
 		}
 	}
-	
-	UTILP0_SetFirstData(mdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_ACTIVEVERTICES, actvvcount_nextit);
-	if(actvvcount_nextit == 0){ UTILP0_SetFirstData(mdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES, 1); } 
-	else { UTILP0_SetFirstData(mdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES, 0); }
 	
 	UTILP0_SetFirstData(mdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	UTILP0_SetFirstData(vdramA, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	UTILP0_SetFirstData(vdramB, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	UTILP0_SetFirstData(vdramC, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID, nextGraphIter);
 	
+	#if not defined(FPGA_IMPL) && defined(CONFIG_COLLECT_DATAS3_DURING_RUN)
+	cout<<">>> TRADGP::[A][Iter: "<<GraphIter<<"]:: num edges processed: "<<actsutilityobj->globalstats_getcountnumvalidprocessedges(0)<<"("<<actsutilityobj->globalstats_getcountnumvalidprocessedges(0)<<"), num vertex updates reduced: "<<actsutilityobj->globalstats_getcountvalidkvsreduced(0)<<"("<<actsutilityobj->globalstats_getcountvalidkvsreduced(0)<<")"<<endl;	
+	actsutilityobj->clearglobalvars();
+	#endif 
+	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"TradGP: number of active vertices for iteration "<<nextGraphIter<<": "<<actvvcount_nextit<<""<<endl;
 	if(actvvcount_nextit == 0){ cout<<"TradGP: no more active vertices to process. breaking out... "<<endl; }
 	#endif 
-	
-	// vertices partition masks
-	#ifdef CONFIG_MERGE_COLLECTACTIVEVPARTITIONS
-	MERGEP0_EXCHANGEVPMS_LOOP1: for(unsigned int partition=0; partition<BLOCKRAM_NEXTPMASK_SIZE; partition++){
-		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 31", globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 32", globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 33", globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
-		#endif
-		
-		#ifdef _WIDEWORD
-		vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0) = vpmaskbuffer[partition];
-		vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0) = vpmaskbuffer[partition];
-		vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].range(31, 0) = vpmaskbuffer[partition];
-		#else 
-		vdramA[globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key = vpmaskbuffer[partition];
-		vdramB[globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key = vpmaskbuffer[partition];
-		vdramC[globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition].data[0].key = vpmaskbuffer[partition];
-		#endif 
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS
-		cout<<"--- TOPP0_topkernelS: vdramA["<<partition<<"]: "<<p<<endl; 
-		#endif
-	}
-	#endif 
-	
-	// judging what mode (ACTS or TradGP) to use for next iteration
-	unsigned int _mode = ON; if(actvvcount_nextit < (ACTVVBUFFER_SIZE * VECTOR2_SIZE)){ _mode = OFF; } else { _mode = ON; }
-	#ifdef CONFIG_HYBRIDGPMODE_ONLINESWITCHING
-	UTILP0_SetFirstData(mdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + nextGraphIter, _mode);
-	UTILP0_SetFirstData(vdramA, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + nextGraphIter, _mode);
-	UTILP0_SetFirstData(vdramB, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + nextGraphIter, _mode);
-	UTILP0_SetFirstData(vdramC, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + nextGraphIter, _mode);
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	if(_mode == OFF){ cout<<"TradGP:: few active vertices. Use TradGP in next iteration. [actvvcount_nextit: "<<actvvcount_nextit<<", ACTVVBUFFER_SIZE * VECTOR2_SIZE: "<<ACTVVBUFFER_SIZE * VECTOR2_SIZE<<"]"<<endl; }	
-	else{ cout<<"TradGP:: too many active vertices. Use ACTS in next iteration. [actvvcount_nextit: "<<actvvcount_nextit<<", ACTVVBUFFER_SIZE * VECTOR2_SIZE: "<<ACTVVBUFFER_SIZE * VECTOR2_SIZE<<"]"<<endl; }
-	#endif 
-	#endif
 	// exit(EXIT_SUCCESS); //
 	return;
 }
 
 extern "C" {
-void acts_all::TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
 #pragma HLS INTERFACE m_axi port = vdramA offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = vdramB offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = vdramC offset = slave bundle = gmem2
@@ -5445,38 +5504,14 @@ void acts_all::TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	cout<<"~~~ TOPP0_topkernelS:: GraphIter: "<<globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID<<", globalparamsvA.MAILBOX["<<globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID<<"]: "<<globalparamsvA.MAILBOX[globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID]<<endl;
 	#endif
 	
-	#ifdef ALLVERTEXISACTIVE_ALGORITHM
-	MERGEP0_exchange(vdramA, vdramB, vdramC, mdram);
-	#else
-		#ifdef CONFIG_HYBRIDGPMODE
-			if(globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID > 0){
-				if(globalparamsvA.MAILBOX[globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID - 1] == ON){
-					#ifdef _DEBUGMODE_KERNELPRINTS3
-					cout<<"TOPP0_topkernelS:: HybridMode: ACTS executing..."<<endl;
-					#endif
-					MERGEP0_exchange(vdramA, vdramB, vdramC, mdram);
-				}
-			}
-			if(globalparamsvA.MAILBOX[globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID] != ON){
-				#ifdef _DEBUGMODE_KERNELPRINTS3
-				cout<<"TOPP0_topkernelS:: HybridMode: TradGP executing..."<<endl;
-				#endif 
-				TradGPP0(vdramA, vdramB, vdramC, mdram);
-			}
-		#elif defined(CONFIG_ACTSONLYMODE)
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"TOPP0_topkernelS:: ACTS Only Mode executing..."<<endl;
-			#endif 
-			MERGEP0_exchange(vdramA, vdramB, vdramC, mdram);	
-		#elif defined(CONFIG_TRADGPONLYMODE)
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"TOPP0_topkernelS:: TradGP Only Mode executing..."<<endl;
-			#endif 
-			TradGPP0(vdramA, vdramB, vdramC, mdram);
-		#else 
-		NOT DEFINED.
+	#ifdef CONFIG_ALL_EVALUATIONTYPES_IN_ONE_KERNEL
+	if(globalparamsvA.EVALUATION_ACTS_HYBRIDLOGIC == ON){ TradGPP0(vdramA, vdramB, vdramC, mdram); }
+	#else 
+		#ifdef CONFIG_ACTS_HYBRIDLOGIC
+		TradGPP0(vdramA, vdramB, vdramC, mdram);
 		#endif 
-	#endif
+	#endif 
+	// MERGEP0_exchange(vdramA, vdramB, vdramC, mdram);
 	return;
 }
 }

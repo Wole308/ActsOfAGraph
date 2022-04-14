@@ -139,72 +139,18 @@ void goclkernel::print_active_vpartitions(unsigned int GraphIter, uint512_vec_dt
 	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;		
 	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 	unsigned int offset_kvs = vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
-	// for(unsigned int GraphIter=0; GraphIter<8; GraphIter++){
-		for (buffer_type i=0; i<512; i++){
-			uint32_type tempdata = 0;
-			
-			if(GraphIter == 0){ tempdata = tempvdram[offset_kvs + i].data[0]; }
-			else if(GraphIter == 1){ tempdata = tempvdram[offset_kvs + i].data[1]; }
-			else if(GraphIter == 2){ tempdata = tempvdram[offset_kvs + i].data[2]; }
-			else if(GraphIter == 3){ tempdata = tempvdram[offset_kvs + i].data[3]; }
-			else if(GraphIter == 4){ tempdata = tempvdram[offset_kvs + i].data[4]; }
-			else if(GraphIter == 5){ tempdata = tempvdram[offset_kvs + i].data[5]; }
-			else if(GraphIter == 6){ tempdata = tempvdram[offset_kvs + i].data[6]; }
-			else if(GraphIter == 7){ tempdata = tempvdram[offset_kvs + i].data[7]; }
-			else if(GraphIter == 8){ tempdata = tempvdram[offset_kvs + i].data[8]; }
-			else if(GraphIter == 9){ tempdata = tempvdram[offset_kvs + i].data[9]; }
-			else if(GraphIter == 10){ tempdata = tempvdram[offset_kvs + i].data[10]; }
-			else if(GraphIter == 11){ tempdata = tempvdram[offset_kvs + i].data[11]; }
-			else if(GraphIter == 12){ tempdata = tempvdram[offset_kvs + i].data[12]; }
-			else if(GraphIter == 13){ tempdata = tempvdram[offset_kvs + i].data[13]; }
-			else if(GraphIter == 14){ tempdata = tempvdram[offset_kvs + i].data[14]; }
-			else if(GraphIter == 15){ tempdata = tempvdram[offset_kvs + i].data[15]; }
-			
-			pmask0[i].data[0] = utilityobj->READBITSFROM_UINTV(tempdata, 0, 1);
-			pmask0[i].data[1] = utilityobj->READBITSFROM_UINTV(tempdata, 1, 1);
-			pmask0[i].data[2] = utilityobj->READBITSFROM_UINTV(tempdata, 2, 1);
-			pmask0[i].data[3] = utilityobj->READBITSFROM_UINTV(tempdata, 3, 1);
-			pmask0[i].data[4] = utilityobj->READBITSFROM_UINTV(tempdata, 4, 1);
-			pmask0[i].data[5] = utilityobj->READBITSFROM_UINTV(tempdata, 5, 1);
-			pmask0[i].data[6] = utilityobj->READBITSFROM_UINTV(tempdata, 6, 1);
-			pmask0[i].data[7] = utilityobj->READBITSFROM_UINTV(tempdata, 7, 1);
-			pmask0[i].data[8] = utilityobj->READBITSFROM_UINTV(tempdata, 8, 1);
-			pmask0[i].data[9] = utilityobj->READBITSFROM_UINTV(tempdata, 9, 1);
-			pmask0[i].data[10] = utilityobj->READBITSFROM_UINTV(tempdata, 10, 1);
-			pmask0[i].data[11] = utilityobj->READBITSFROM_UINTV(tempdata, 11, 1);
-			pmask0[i].data[12] = utilityobj->READBITSFROM_UINTV(tempdata, 12, 1);
-			pmask0[i].data[13] = utilityobj->READBITSFROM_UINTV(tempdata, 13, 1);
-			pmask0[i].data[14] = utilityobj->READBITSFROM_UINTV(tempdata, 14, 1);
-			pmask0[i].data[15] = utilityobj->READBITSFROM_UINTV(tempdata, 15, 1);
-			pmask0[i].data[16] = utilityobj->READBITSFROM_UINTV(tempdata, 16, 1);
-			pmask0[i].data[17] = utilityobj->READBITSFROM_UINTV(tempdata, 17, 1);
-			pmask0[i].data[18] = utilityobj->READBITSFROM_UINTV(tempdata, 18, 1);
-			pmask0[i].data[19] = utilityobj->READBITSFROM_UINTV(tempdata, 19, 1);
-			pmask0[i].data[20] = utilityobj->READBITSFROM_UINTV(tempdata, 20, 1);
-			pmask0[i].data[21] = utilityobj->READBITSFROM_UINTV(tempdata, 21, 1);
-			pmask0[i].data[22] = utilityobj->READBITSFROM_UINTV(tempdata, 22, 1);
-			pmask0[i].data[23] = utilityobj->READBITSFROM_UINTV(tempdata, 23, 1);
-			pmask0[i].data[24] = utilityobj->READBITSFROM_UINTV(tempdata, 24, 1);
-			pmask0[i].data[25] = utilityobj->READBITSFROM_UINTV(tempdata, 25, 1);
-			pmask0[i].data[26] = utilityobj->READBITSFROM_UINTV(tempdata, 26, 1);
-			pmask0[i].data[27] = utilityobj->READBITSFROM_UINTV(tempdata, 27, 1);
-			pmask0[i].data[28] = utilityobj->READBITSFROM_UINTV(tempdata, 28, 1);
-			pmask0[i].data[29] = utilityobj->READBITSFROM_UINTV(tempdata, 29, 1);
-			pmask0[i].data[30] = utilityobj->READBITSFROM_UINTV(tempdata, 30, 1);
-			pmask0[i].data[31] = utilityobj->READBITSFROM_UINTV(tempdata, 31, 1);
+	for (buffer_type i=0; i<BLOCKRAM_CURRPMASK_SIZE; i++){
+		pmask0[i] = tempvdram[offset_kvs + i].data[GraphIter];
+	}
+	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<">>> goclkernel:print_active_vpartitions: printing active vertex partitions: BLOCKRAM_CURRPMASK_SIZE: "<<BLOCKRAM_CURRPMASK_SIZE<<endl;
+		cout<<">>> goclkernel::print_active_vpartitions: GraphIter: "<<GraphIter<<endl;
+		for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){
+			if(pmask0[t] > 0){ cout<<t<<", "; }
 		}
-		
-		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<">>> goclkernel:print_active_vpartitions: printing active vertex partitions: BLOCKRAM_CURRPMASK_SIZE: "<<BLOCKRAM_CURRPMASK_SIZE<<endl;
-		// for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
-			cout<<">>> goclkernel::print_active_vpartitions: GraphIter: "<<GraphIter<<endl;
-			for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){
-				if(pmask0[t / BRAM_BIT_WIDTH].data[t % BRAM_BIT_WIDTH] > 0){ cout<<t<<", "; }
-			}
-			cout<<endl;
-		// }
-		#endif 
-	// }
+		cout<<endl;
+	#endif 
 	return;
 }
 
@@ -230,6 +176,15 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	unsigned int index_count = 0;
 	unsigned int edgessz_kvs = 0;
 	unsigned int kvdramsz_kvs = 0;
+	unsigned int mdramsz_kvs = 0;
+	edgessz_kvs = TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
+	kvdramsz_kvs = TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;
+	#ifdef CONFIG_ACTS_HYBRIDLOGIC
+	mdramsz_kvs = (graphobj->get_num_edges() + graphobj->get_num_vertices() + (graphobj->get_num_vertices()*2) + 1000000) / VECTOR2_SIZE;
+	#else 
+	mdramsz_kvs = 4096; //  * VECTOR2_SIZE;	
+	#endif 
+	
 	unsigned int C = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	unsigned int D = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
@@ -245,15 +200,10 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	unsigned int vdram_SIZE_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESPARTITIONMASK].data[0].key;	
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
 		for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){
-			utilityobj->WRITETO_UINT(&tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + (t / BRAM_BIT_WIDTH)].data[iter], (t % BRAM_BIT_WIDTH), 1, vpmaskbuffer[iter][t]);
-			// utilityobj->WRITETO_UINT(&tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + (t / BRAM_BIT_WIDTH)].data[iter], (t % BRAM_BIT_WIDTH), 1, 1);
+			tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpmaskbuffer[iter][t];
+			// tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + (t / BRAM_BIT_WIDTH)].data[iter] = 1;
 		}
 	}	
-	// for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-		// for(unsigned int t=0; t<vdram_SIZE_VERTICESPARTITIONMASK; t++){
-			// tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[v] = 0xFFFFFFFF;
-		// }
-	// }	
 	#if defined(_DEBUGMODE_HOSTPRINTS3)
 	pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE];
 	unsigned int offset_kvs = vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
@@ -265,7 +215,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	#endif 
 	// exit(EXIT_SUCCESS);
 	
-	#ifdef CONFIG_HYBRIDGPMODE
+	
+	#ifdef CONFIG_ACTS_HYBRIDLOGIC
 	cout<<">>> goclkernel::runapp: populating edges, vptrs and active vertices into mdram... "<<endl;
 	unsigned int mdram_BASEOFFSETKVS_EDGESDATA = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key;
 	unsigned int mdram_BASEOFFSETKVS_VERTEXPTR = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
@@ -275,10 +226,11 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	unsigned int index=0; for(unsigned int index=0; index<graphobj->get_num_vertices(); index++){ temp[(mdram_BASEOFFSETKVS_VERTEXPTR * VECTOR2_SIZE) + index] = vertexptrbuffer[index]; }
 	mdram[mdram_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key = 1;
 	#endif
+	/////////////////////////// FIXME.
+	std::vector<int, aligned_allocator<int> > mdram_vec(mdramsz_kvs * sizeof(uint512_vec_dt));
+    memcpy(mdram_vec.data(), mdram, mdramsz_kvs * sizeof(uint512_vec_dt));
+	///////////////////////////
 	
-	// kvdramsz_kvs = C + D;
-	edgessz_kvs = TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
-	kvdramsz_kvs = TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;
 	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUMSUBCPUTHREADS: "<<NUMSUBCPUTHREADS<<endl;
 	
 	uint512_vec_dt * vdramtemp[3];
@@ -347,19 +299,12 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		if(s==1){ numI = _NUMCOMPUTEUNITS_SLR1; } // SLR 1
 		if(s==2){ numI = _NUMCOMPUTEUNITS_SLR0; } // SLR 0
 		for(unsigned int i=0; i<numI; i+=1){ 
-			// #ifdef TESTHWKERNEL
-			// if(s==0){ assigned_kvindex = 0; } // SLR 2
-			// if(s==1){ assigned_kvindex = NUMCOMPUTEUNITS_SLR2; } // SLR 1
-			// if(s==2){ assigned_kvindex = NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1; } // SLR 0
-			// kvindex = assigned_kvindex;
-			// #endif 
-			
-			// #ifdef TESTHWKERNEL
-			// if(s==0){ assigned_kvindex = 0; } // SLR 2
-			// if(s==1){ assigned_kvindex = _NUMCOMPUTEUNITS_SLR2; } // SLR 1
-			// if(s==2){ assigned_kvindex = _NUMCOMPUTEUNITS_SLR2 + _NUMCOMPUTEUNITS_SLR1; } // SLR 0
-			// kvindex = assigned_kvindex;
-			// #endif 
+			#ifdef TESTHWKERNEL
+			if(s==0){ assigned_kvindex = 0; } // SLR 2
+			if(s==1){ assigned_kvindex = NUMCOMPUTEUNITS_SLR2; } // SLR 1
+			if(s==2){ assigned_kvindex = NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1; } // SLR 0
+			kvindex = assigned_kvindex;
+			#endif 
 			
 			inoutBufExt_kvdram[s][i].obj = kvsourcedram[kvindex];
 			inoutBufExt_kvdram[s][i].param = 0;
@@ -374,13 +319,10 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		cout<<"attaching inoutBufExt_vdram["<<s<<"] to vdramtemp to {vdramtemp["<<s<<"], HBM["<<hbmindex<<"]} "<<endl;
 		hbmindex += 1;
 	}
-	#ifdef CONFIG_HYBRIDGPMODE
-	#else 
 	inoutBufExt_vdram[3].obj = vdram;
 	inoutBufExt_vdram[3].param = 0;
 	inoutBufExt_vdram[3].flags = bank[hbmindex];
 	cout<<"attaching inoutBufExt_vdram[3] to vdram to HBM["<<hbmindex<<"]: "<<endl;
-	#endif 
 	
 	cout<<"goclkernel:: creating OCL buffers (P2)..."<<endl;
 	for(unsigned int i=0; i<_NUMCOMPUTEUNITS_SLR2; i++){ 
@@ -422,18 +364,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	}
 	
 	cout<<"goclkernel:: creating OCL buffers (S)..."<<endl;
-	#ifdef CONFIG_HYBRIDGPMODE
-	OCL_CHECK(err,
-			  buffer_vdram[3] =
-				  cl::Buffer(context,
-							 CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
-							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
-							 mdram,
-							 &err));
-		cout<<"+++ goclkernel: created buffer_vdram["<<3<<"] "<<endl;
-	#else 									
-	cout<<"goclkernel:: creating OCL buffers (S)..."<<endl;
-	for(unsigned int s=0; s<4; s++){
+	// #ifdef CONFIG_ACTS_HYBRIDLOGIC // _XXXXXXXXXXXX // FIXME............................................................
+	for(unsigned int s=0; s<3; s++){
 		OCL_CHECK(err,
 			  buffer_vdram[s] =
 				  cl::Buffer(context,
@@ -444,8 +376,29 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 							 &err));
 		cout<<"+++ goclkernel: created buffer_vdram["<<s<<"] "<<endl;
 	}
-	cout<<"+++ goclkernel: created buffer_vdram[3] "<<endl;
-	#endif
+	OCL_CHECK(err,
+			  buffer_vdram[3] =
+				  cl::Buffer(context,
+							 CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+							 sizeof(uint512_vec_dt) * mdramsz_kvs, // kvdramsz_kvs,
+							 mdram_vec.data(),
+							 &err));
+		cout<<"+++ goclkernel: created buffer_vdram["<<3<<"] "<<endl;
+	// #else 									
+	// cout<<"goclkernel:: creating OCL buffers (S)..."<<endl;
+	// for(unsigned int s=0; s<4; s++){
+		// OCL_CHECK(err,
+			  // buffer_vdram[s] =
+				  // cl::Buffer(context,
+							 // CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
+									 // CL_MEM_USE_HOST_PTR,
+							 // sizeof(uint512_vec_dt) * kvdramsz_kvs,
+							 // &inoutBufExt_vdram[s], 
+							 // &err));
+		// cout<<"+++ goclkernel: created buffer_vdram["<<s<<"] "<<endl;
+	// }
+	// cout<<"+++ goclkernel: created buffer_vdram[3] "<<endl;
+	// #endif
 	
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	printf("INFO: loading vmul kernel\n");
@@ -500,6 +453,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	}
 	OCL_CHECK(err, err = krnls_proc[0].setArg(argindex, buffer_vdram[0]));
 	cout<<"setting argument krnls_proc[0].setArg("<<argindex<<", buffer_vdram[0])"<<endl;
+	// exit(EXIT_SUCCESS);
 	
 	// Setting kernel arguments (P1)...
 	argindex = 0;
@@ -523,10 +477,12 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	
 	// Setting kernel arguments (S)...
 	cout<<"goclkernel:: Setting kernel (sync) arguments..."<<endl;
-	for(unsigned int i=0; i<4; i++){ 
+	for(unsigned int i=0; i<3; i++){ 
 		OCL_CHECK(err, err = krnls_sync.setArg(i, buffer_vdram[i]));
 		cout<<"setting argument krnls_sync.setArg("<<i<<", buffer_vdram["<<i<<"])"<<endl;
 	}
+	OCL_CHECK(err, err = krnls_sync.setArg(3, buffer_vdram[3]));
+	cout<<"setting argument krnls_sync.setArg(3, buffer_vdram["<<3<<"])"<<endl;
 	OCL_CHECK(err, err = q.finish());
 	
 	// Migrating input data to device global memory...
@@ -574,6 +530,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	#endif 
 	OCL_CHECK(err, err = write_events[0].wait());
 	OCL_CHECK(err, err = q.finish());
+	// exit(EXIT_SUCCESS); ////
 	
 	std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
 	for(unsigned int GraphIter=0; GraphIter<numValidIters; GraphIter++){ // numValidIters
@@ -586,18 +543,16 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		
 		// processing edges and applying updates...
 		std::cout <<">>> goclkernel: processing edges and applying updates in iteration "<<GraphIter<<"..."<<endl;
-		#if defined(CONFIG_ACTSONLYMODE) || defined(CONFIG_HYBRIDGPMODE)
 		for (unsigned int s = 0; s < 3; s++){ 
 			std::cout <<">>> goclkernel: processing krnls_proc["<<s<<"] in iteration "<<GraphIter<<"..."<<endl;
 			OCL_CHECK(err, err = q.enqueueTask(krnls_proc[s], NULL, &kernel_events[s])); 
-			// OCL_CHECK(err, err = kernel_events[s].wait()); // NEWCHANGE.
+			// OCL_CHECK(err, err = kernel_events[s].wait());
 		}
 		for (unsigned int s = 0; s < 3; s++){ OCL_CHECK(err, err = kernel_events[s].wait()); }
-		#endif 
 		
 		// synchronizing...
 		std::cout <<">>> goclkernel: synchronizing vertices in iteration "<<GraphIter<<"..."<<endl;
-		#ifndef ALLVERTEXISACTIVE_ALGORITHM
+		#ifdef CONFIG_ACTS_HYBRIDLOGIC
 		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
 		OCL_CHECK(err, err = kernel_events[3].wait());
 		#endif 

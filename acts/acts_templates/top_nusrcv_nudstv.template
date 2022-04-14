@@ -112,11 +112,11 @@ void {{context['classname__top_nusrcv_nudstv']}}TOP{{context['id']}}_NU_reduceit
 	config_t config;
 	sweepparams_t sweepparams;
 	
-	#ifdef ENABLERECURSIVEPARTITIONING
+	// #ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
 	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
-	#else 
-	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH + 1;
-	#endif 
+	// #else 
+	// step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH + 1;
+	// #endif 
 	
 	sweepparams = UTIL{{context['id']}}_getsweepparams(globalparams, currentLOP, source_partition);
 	travstate_t ptravstate = UTIL{{context['id']}}_gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);

@@ -137,6 +137,10 @@ tuple_t loadedges_random::get_partition_and_incr(unsigned int vid, unsigned int 
 	// res.A = lcol; // twist_getpartition(lcol, s); // partition // FIXME............
 	res.B = incr; // incr 
 	
+	#ifdef CONFIG_FORCEDCORRECT_LOADEDGES
+	res.B = res.B % (1 << SIZEOF_SRCV_IN_EDGEDSTVDATA); // FIXME. FORCED CORRECT.
+	#endif 
+	
 	if(res.A >= NUM_PARTITIONS){ cout<<"loadedges_random::getpartition(111)::. out of bounds res.A: "<<res.A<<", vid: "<<vid<<", lvid: "<<lvid<<", lvid_inbank: "<<lvid_inbank<<", lcol: "<<lcol<<", lrow: "<<lrow<<", incr: "<<incr<<", s: "<<s<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 	if(res.B >= PROCESSPARTITIONSZ_KVS2){ cout<<"loadedges_random::getpartition(112)::. out of bounds incr: "<<incr<<", vid: "<<vid<<", lvid: "<<lvid<<", lvid_inbank: "<<lvid_inbank<<", lcol: "<<lcol<<", lrow: "<<lrow<<", incr: "<<incr<<", s: "<<s<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 	
@@ -265,6 +269,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 			
 			unsigned int H = gethash(edge.dstvid);
 			
+			#ifdef TESTKERNEL // ignore unused loads when testing
+			if(utilityobj->isbufferused(H) == false){ continue; }
+			#endif 
+			
 			utilityobj->checkoutofbounds("loadedges_random::calculate counts_validedges_for_channel(20)::", H, NUM_PEs, NAp, NAp, NAp);
 			utilityobj->checkoutofbounds("loadedges_random::calculate counts_validedges_for_channel(21)::", edge.srcvid, KVDATA_RANGE, NAp, NAp, NAp);
 			edgedatabuffers_temp[H].push_back(edge);
@@ -309,6 +317,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<0; t++){ cout<<"sample edges:: edgedatabuffers_temp["<<i<<"]["<<t<<"].srcvid: "<<edgedatabuffers_temp[i][t].srcvid<<", edgedatabuffers_temp["<<i<<"]["<<t<<"].dstvid: "<<edgedatabuffers_temp[i][t].dstvid<<endl; }}
 	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs // CRIICAL FIXME.
+		#ifdef TESTKERNEL // ignore unused loads when testing
+		if(utilityobj->isbufferused(i) == false){ continue; }
+		#endif 
+		
 		cout<<endl<<">>>  loadedges_random::loadedges:: loading edges into PE: "<<i<<", edgedatabuffers_temp["<<i<<"].size(): "<<edgedatabuffers_temp[i].size()<<"..."<<endl;
 		tempe_index = 0;
 		index = 0;
@@ -471,6 +483,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	#ifdef CALCULATELOCALDSTVIDS
 	cout<<"### loadedges_random:: calculating local edge dstvids..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
+		#ifdef TESTKERNEL // ignore unused loads when testing
+		if(utilityobj->isbufferused(i) == false){ continue; }
+		#endif 
+		
 		#ifdef _DEBUGMODE_HOSTPRINTS
 		cout<<"### loadedges_random:: calculating local edge dstvids for instance "<<i<<": (edges_temp["<<i<<"].size(): "<<edges_temp[i].size()<<", edges2_temp["<<i<<"].size(): "<<edges2_temp[i].size()<<")"<<endl;
 		#endif 
@@ -497,6 +513,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	cout<<"### loadedges_random::insert.bitmap:: inserting bitmap..."<<endl;
 	unsigned int num_errors = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
+		#ifdef TESTKERNEL // ignore unused loads when testing
+		if(utilityobj->isbufferused(i) == false){ continue; }
+		#endif 
+		
 		if(debug2b==true){ utilityobj->printtriples("loadedges_random::insert.bitmap::[before.insert.bitmap]: printing edges2_temp["+std::to_string(i)+"][~]", (triple_t *)&edges2_temp[i][0], 8); }
 		for(unsigned int j=0; j<edges2_temp[i].size(); j+=VECTOR2_SIZE){
 			for(unsigned int v=0; v<VECTOR2_SIZE; v++){
@@ -551,6 +571,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	#ifdef LOADEDGES
 	cout<<"### loadedges_random::insert.bitmap:: loading edges..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
+		#ifdef TESTKERNEL // ignore unused loads when testing
+		if(utilityobj->isbufferused(i) == false){ continue; }
+		#endif 
+		
 		for(unsigned int k=0; k<edges2_temp[i].size(); k++){
 			utilityobj->checkoutofbounds("loadedges_random::insert.bitmap(20)::", TWOO*_BASEOFFSET_EDGESDATA + k, TOTALDRAMCAPACITY_KVS * VECTOR_SIZE, NAp, NAp, NAp);
 			edges[i][TWOO*_BASEOFFSET_EDGESDATA + k].dstvid = edges2_temp[i][k].dstvid;
@@ -587,6 +611,10 @@ globalparams_TWOt loadedges_random::loadedges(unsigned int col, graph * graphobj
 	#ifdef CALCULATEOFFSETS
 	unsigned int _baseoffset = TWOO * (globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE);
 	for(unsigned int i=0; i<NUM_PEs; i++){
+		#ifdef TESTKERNEL // ignore unused loads when testing
+		if(utilityobj->isbufferused(i) == false){ continue; }
+		#endif 
+		
 		vptrs[i][_baseoffset + 0].key = 0;
 		for(unsigned int vid=1; vid<KVDATA_RANGE__DIV__VPTR_SHRINK_RATIO; vid++){
 			vptrs[i][_baseoffset + vid].key = vptrs[i][_baseoffset + vid - 1].key + counts_alledges_for_vpartition[i][vid-1]; 

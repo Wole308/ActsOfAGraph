@@ -141,12 +141,12 @@ BINARY_CONTAINER_vmult_vsingle_OBJS += $(TEMP_DIR)/vS.xo
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_1w.cfg
 # KERNELS_NAME = TOPS_topkernelS
 
-# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
-# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_3w.cfg
-# KERNELP0_NAME = TOPP0_U_topkernelP1
-# KERNELP1_NAME = TOPP1_U_topkernelP1
-# KERNELP2_NAME = TOPP2_U_topkernelP1
-# KERNELS_NAME = TOPS_topkernelS
+BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
+VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_3w.cfg
+KERNELP0_NAME = TOPP0_U_topkernelP1
+KERNELP1_NAME = TOPP1_U_topkernelP1
+KERNELP2_NAME = TOPP2_U_topkernelP1
+KERNELS_NAME = TOPS_topkernelS
 
 # BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_16and1.$(TARGET).$(DSA).xclbin
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_16w.cfg
@@ -162,12 +162,12 @@ BINARY_CONTAINER_vmult_vsingle_OBJS += $(TEMP_DIR)/vS.xo
 # KERNELP2_NAME = TOPP2_U_topkernelP6
 # KERNELS_NAME = TOPS_topkernelS
 
-BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_20and1.$(TARGET).$(DSA).xclbin
-VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_20w.cfg
-KERNELP0_NAME = TOPP0_U_topkernelP7
-KERNELP1_NAME = TOPP1_U_topkernelP7
-KERNELP2_NAME = TOPP2_U_topkernelP6
-KERNELS_NAME = TOPS_topkernelS
+# BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_20and1.$(TARGET).$(DSA).xclbin
+# VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_20w.cfg
+# KERNELP0_NAME = TOPP0_U_topkernelP7
+# KERNELP1_NAME = TOPP1_U_topkernelP7
+# KERNELP2_NAME = TOPP2_U_topkernelP6
+# KERNELS_NAME = TOPS_topkernelS
 
 # BINARY_CONTAINERS += $(XCLBIN)/topkernel_1by1by1by0_22and1.$(TARGET).$(DSA).xclbin
 # VPP_LDFLAGS_vmult_vadd += --config connectivity_files/connectivity_22w.cfg
@@ -227,8 +227,8 @@ $(XCLBIN)/topkernel_1by1by1by0_1and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER
 	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/topkernel_1by1by1by0_1and1.$(TARGET).$(DSA).xclbin
 $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
 	mkdir -p $(BUILD_DIR)
-	# $(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
-	# $(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
+	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
+	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/topkernel_1by1by1by0_3and1.$(TARGET).$(DSA).xclbin
 $(XCLBIN)/topkernel_1by1by1by0_16and1.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
 	mkdir -p $(BUILD_DIR)
 	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)

@@ -32,17 +32,16 @@ context['NUM_PEs'] = int(sys.argv[12])
 context['TESTKERNEL'] = sys.argv[13]
 context['TESTKERNELARG'] = int(sys.argv[14])
 
+if context['NUM_PEs'] == 3: 
+    context['NUM_PEs'] = 24
+    context['NUMSUBCPUTHREADS'] = 24
+
 awspath = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 is_aws_path = os.path.isfile(awspath)  
 print(is_aws_path) 
 # quit()
 ###
-
-if ((context['EVALUATION_TYPE'] != "EV_CREATENDGRAPH") and ((context['DATASET'] == "_RMAT_RANGE0") or (context['DATASET'] == "_RMAT_RANGE1") or (context['DATASET'] == "_RMAT_RANGE2") or (context['DATASET'] == "_RMAT_RANGE3") or (context['DATASET'] == "_RMAT_RANGE4") or (context['DATASET'] == "_RMAT_RANGE5") or (context['DATASET'] == "_RMAT_RANGE6") or (context['DATASET'] == "_RMAT_RANGE7"))):                                     
-    context['NUMSUBCPUTHREADS']=1
-    
-# context['XWARE'] = OFF
-    
+ 
 ###
 
 context['VECTOR_SIZE'] = 8
@@ -61,30 +60,6 @@ for i in range (0,context['NUM_PEs']):
     
 ###
 
-EV_PERFORMANCEOFALGORITHM = [0, 1, 2, 3, 4]
-if context['EVALUATION_TYPE'] == "EV_PERFORMANCEOFALGORITHM":
-    context['VECTOR_SIZE'] = 8
-        
-EV_IMPACTOFRANGE = [0, 2, 4, 8, 12, 16]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFRANGE":
-    context['VECTOR_SIZE'] = 8
-
-EV_IMPACTOFPARTITIONFANOUT = [3, 4, 5, 6, 7, 8]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFPARTITIONFANOUT":
-    context['NUM_PARTITIONS_POW'] = EV_IMPACTOFPARTITIONFANOUT[context['EVALUATION_PARAM0']]
-    
-EV_IMPACTOFBANDWIDTH = [1, 2, 4, 6, 8, 8]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFBANDWIDTH": 
-    context['VECTOR_SIZE'] = EV_IMPACTOFBANDWIDTH[context['EVALUATION_PARAM0']]
-    
-EV_IMPACTOFPLATFORM = [1, 2, 4, 8, 12, 16]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFPLATFORM": 
-    context['LOCKE'] = "NOLOCKE"
-    
-EV_IMPACTOFNUMSUBWORKERS = [1, 2, 4, 8, 12, 16]
-if context['EVALUATION_TYPE'] == "EV_IMPACTOFNUMSUBWORKERS": 
-    context['NUMSUBWORKERS'] = EV_IMPACTOFNUMSUBWORKERS[context['EVALUATION_PARAM0']]
-    
 EV_CREATENDGRAPH = [0, 1, 2, 3, 4]
 if context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH":
     context['VECTOR_SIZE'] = 8

@@ -2,7 +2,7 @@
 #define CONFIG_PARAMS_H
 
 /** CRITICAL NOTES
-	DEFAULT SETTINGS: ENABLERECURSIVEPARTITIONING, HWIMPLFOR_ACTSPROC, USEHBMMEMORY, NUMSYNCTHREADS(gen.py)=NUMSUBCPUTHREADS
+	DEFAULT SETTINGS: CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC, HWIMPLFOR_ACTSPROC, USEHBMMEMORY, NUMSYNCTHREADS(gen.py)=NUMSUBCPUTHREADS
 	Num_procs: 16 worked
 	
 	ACTS_XbyYbyZbyM: X: num kernels, Y: num compute units (1: everything packed in one, 2: 2 CUs in one kernel), Z: num KV HBM channels per compute unit, M: num Edge HBM channels per compute unit
@@ -19,13 +19,8 @@
 // #define ENABLE_APPROXIMATEPARTITIONWRITES // CRITICAL FIXME. FPGA hangs if this is disabled // REMOVEME.
 
 // === parameters for ACTS design (actscommon_h, goclkernel.cpp, app.cpp, actsproc.cpp, common_h, loadgraph) ===
-#define ENABLERECURSIVEPARTITIONING
-#ifdef ENABLERECURSIVEPARTITIONING
+#define ENABLERECURSIVEPARTITIONING // OBSOLETE.
 #define ACTS_PARTITION_AND_REDUCE_STRETEGY
-#else
-// #define BASIC_PARTITION_AND_REDUCE_STRETEGY // {acts.cpp}
-#define TRAD_PARTITION_AND_REDUCE_STRETEGY
-#endif
 
 #define HWIMPLFOR_ACTSPROC
 #define HWIMPLFOR_ACTSSYNC
@@ -75,13 +70,7 @@
 #define CONFIG_ENABLECLASS_ACTS_MERGE
 #define CONFIG_ENABLECLASS_MYDEBUG
 
-#define CONFIG_ACTSONLYMODE
-// #define CONFIG_TRADGPONLYMODE
-// #define CONFIG_HYBRIDGPMODE // { acts_util.cpp }
-#ifdef CONFIG_HYBRIDGPMODE
-// #define CONFIG_HYBRIDGPMODE_ONLINESWITCHING
-#define CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD (1 << 14) // 16384, 32768, 20000
-#endif 
+#define CONFIG_ACTSONLYMODE // (OBSOLETE)
 
 // creating graphs 
 // #define CONFIG_CREATEGRAPHS_CHECK_FOR_NONINCREASINGEDGES
@@ -93,19 +82,16 @@
 
 // #define CONFIG_PROCESSEDGES_READOFFLINESTATS // FIXME.
 
-#define CONFIG_ACTS_MEMORYLAYOUT
-#define CONFIG_ACTS_PARTITIONINGLOGIC //
-#define CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
-#define CONFIG_ACTS_HYBRIDLOGIC
-
-// #define CONFIG_TRADITIONAL_MEMORYLAYOUT
-// #define CONFIG_TRADITIONAL_PARTITIONINGLOGIC
-// #define CONFIG_TRADITIONAL_RECURSIVEPARTITIONINGLOGIC
-// #define CONFIG_TRADITIONAL_HYBRIDLOGIC
+#define CONFIG_FORBFS_REPRESENTVDATASASBITS // { common.h }
 
 #define CONFIG_SELECTIVEVERTEXPARTITIONS // OBSOLETE.
 #define CONFIG_PRELOADEDVERTEXPARTITIONMASKS
 #define CONFIG_PRELOADEDVERTICESMASKS // { utility.cpp classname__top_usrcv_udstv.cpp, acts_merge.cpp}
+
+#define CONFIG_FORCEDCORRECT_LOADEDGES
+#define CONFIG_FORCEDCORRECT_TRADGP
+
+#define CONFIG_INCLUDE_IMPL_WITH_TREEDEPTH_OF_1 // {actscommon.h, classname__top_usrcv_udstv.cpp, acts_util.cpp, mem_access.cpp, config_params.h}
 
 #endif
 
@@ -151,7 +137,7 @@ Algo = BFS; // FIXME. app.cpp
 // #else 
 // #define ALLVERTEXISACTIVE_ALGORITHM
 // #endif	// common.h
-// #if not defined(ALLVERTEXISACTIVE_ALGORITHM) && defined(CONFIG_HYBRIDGPMODE)
+// #if not defined(ALLVERTEXISACTIVE_ALGORITHM) && defined(CONFIG_ACTS_HYBRIDLOGIC)
 	// {%for i in context['T_seq']%}{%if(i<n)%}	
 	// MERGE{{context['id']}}_broadcastVs(vdram, kvdram{{i}});	
 	// {%endif%}{%endfor%}
@@ -160,6 +146,16 @@ Algo = BFS; // FIXME. app.cpp
 #ifdef BFS_ALGORITHM 
 #define ALGORITHMTYPE_REPRESENTVDATASASBITS
 #endif 
+
+// #if TREE_DEPTH==2 && defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) //
+// #define TREEDEPTHISONE // {actscommon.h, classname__top_usrcv_udstv.cpp, acts_util.cpp, mem_access.cpp, config_params.h}
+// #endif 
+
+// UTIL{{context['id']}}_SetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				// UTIL{{context['id']}}_SetData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				// UTIL{{context['id']}}_SetData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				
+				
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 *** UTIL{{context['id']}}_WRITEBITSTO_UINTV(&vdata[{{v}}], BEGINOFFSETOF_VMASK, 32, zero{{v}}); // mem_acces.cpp
@@ -172,7 +168,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #define CONFIG_ENABLECLASS_REDUCEUPDATES2
 
 --- {common.h}
-#define TREEDEPTHISONE // FIXME.
+// #define TREEDEPTHISONE // FIXME.
 
 --- {evaluate.sh}
 TESTKERNEL="RK"
@@ -199,7 +195,7 @@ tup = MEMCA{{context['id']}}_READVDATAWITHVMASK2(bits_vector, offsetof_vdata, of
 
 --- {acts_merge.cpp}
 if(globalstatsbuffer{{i}}[partition].value > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || true){ // {acts_merge.cpp} REMOVEME 'true'
-#ifdef ENABLERECURSIVEPARTITIONING // {common.h}
+#ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC // {common.h}
 	#ifdef FPGA_IMPL
 	#define SRAMSZ_POW 9//10 // 1024
 	#else 

@@ -1,4 +1,4 @@
-void acts_all::TOPP0_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+void TOPP0_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -100,7 +100,7 @@ void acts_all::TOPP0_NU_partitionit( uint512_dt * kvdram, keyvalue_buffer_t sour
 	return;
 }
 
-void acts_all::TOPP0_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){	
+void TOPP0_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][SOURCEBLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -112,11 +112,11 @@ void acts_all::TOPP0_NU_reduceit( uint512_dt * kvdram, keyvalue_buffer_t sourceb
 	config_t config;
 	sweepparams_t sweepparams;
 	
-	#ifdef ENABLERECURSIVEPARTITIONING
+	// #ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
 	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
-	#else 
-	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH + 1;
-	#endif 
+	// #else 
+	// step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH + 1;
+	// #endif 
 	
 	sweepparams = UTILP0_getsweepparams(globalparams, currentLOP, source_partition);
 	travstate_t ptravstate = UTILP0_gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);

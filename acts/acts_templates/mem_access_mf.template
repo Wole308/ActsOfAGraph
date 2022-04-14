@@ -43,14 +43,14 @@ void MEMACCESS{{context['id']}}_accumkvstats(uint512_dt * kvdram, value_t * buff
 void MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 
 // -------------------- multiple accesses -------------------- //
+void MEMACCESS{{context['id']}}_readpmask(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, unsigned int _ACTSPARAMS_INSTID);
+
 {%for n in context['T_seq']%}
 {%if(n>=1)%}
 void MEMACCESS{{context['id']}}_readmanypmask{{n}}(uint512_dt * kvdram, {%for i in context['T_seq']%}{%if(i<n)%}pmask_dt pmask{{i}}[BLOCKRAM_CURRPMASK_SIZE],{%endif%}{%endfor%} batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, unsigned int _ACTSPARAMS_INSTID);
 {%endif%}
 {%endfor%}
 
-// -------------------- others -------------------- //
-void MEMACCESS{{context['id']}}_copyvs(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][BLOCKRAM_VDATA_SIZE], globalparams_t globalparamsK);
 
 
 

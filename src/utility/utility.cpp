@@ -157,10 +157,10 @@ void utility::printallparameters(){
 	
 	// std::cout<<"utility:: NUMLASTLEVELPARTITIONS: "<<NUMLASTLEVELPARTITIONS<<std::endl;
 	std::cout<<"utility:: FETFACTOR: "<<FETFACTOR<<std::endl;
-	#ifdef TREEDEPTHISONE
-	std::cout<<"utility:: RUNNING TREE_DEPTH IS ONE: "<<TREE_DEPTH<<std::endl;
+	#ifdef CONFIG_INCLUDE_IMPL_WITH_TREEDEPTH_OF_1
+	std::cout<<"utility:: *** INCLUDES IMPLEMENTATION WITH TREE_DEPTH OF ONE: "<<TREE_DEPTH<<std::endl;
 	#else 
-	std::cout<<"utility:: RUNNING TREE_DEPTH IS NOT ONE: "<<TREE_DEPTH<<std::endl;	
+	std::cout<<"utility:: *** DOES NOT INCLUDE IMPLEMENTATION WITH TREE_DEPTH OF ONE: "<<TREE_DEPTH<<std::endl;	
 	#endif 
 	
 	std::cout<<"utility:: SRCBUFFER_SIZE: "<<SRCBUFFER_SIZE<<std::endl;
@@ -181,6 +181,34 @@ void utility::printallparameters(){
 	#else 
 	std::cout<<"utility:: ENABLE_KERNEL_PROFILING NOT DEFINED: "<<std::endl;	
 	#endif 
+	
+	#ifdef CONFIG_ACTS_MEMORYLAYOUT
+	std::cout<<"utility:: CONFIG_ACTS_MEMORYLAYOUT DEFINED: "<<std::endl;	
+	#endif 
+	#ifdef CONFIG_ACTS_PARTITIONINGLOGIC
+	std::cout<<"utility:: CONFIG_ACTS_PARTITIONINGLOGIC DEFINED: "<<std::endl;	
+	#endif
+	#ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
+	std::cout<<"utility:: CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC DEFINED: "<<std::endl;	
+	#endif
+	#ifdef CONFIG_ACTS_HYBRIDLOGIC
+	std::cout<<"utility:: CONFIG_ACTS_HYBRIDLOGIC DEFINED: "<<std::endl;	
+	#endif
+	
+	#ifndef CONFIG_ACTS_MEMORYLAYOUT
+	std::cout<<"utility:: CONFIG_TRADITIONAL_MEMORYLAYOUT DEFINED: "<<std::endl;	
+	#endif 
+	#ifndef CONFIG_ACTS_PARTITIONINGLOGIC
+	std::cout<<"utility:: CONFIG_TRADITIONAL_PARTITIONINGLOGIC DEFINED: "<<std::endl;	
+	#endif
+	#ifndef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
+	std::cout<<"utility:: CONFIG_TRADITIONAL_RECURSIVEPARTITIONINGLOGIC DEFINED: "<<std::endl;	
+	#endif
+	#ifndef CONFIG_ACTS_HYBRIDLOGIC
+	std::cout<<"utility:: CONFIG_TRADITIONAL_HYBRIDLOGIC DEFINED: "<<std::endl;	
+	#endif
+	
+	
 	// exit(EXIT_SUCCESS);
 	return;
 }
@@ -401,6 +429,11 @@ void utility::stopBTIME(string caption, std::chrono::steady_clock::time_point be
 	std::cout << TIMINGRESULTSCOLOR << ">>> "<<caption<<": Time Elapsed = " << std::chrono::duration_cast<std::chrono::seconds> (endtime - begintime).count() << "[seconds]" << "(Iteration "<<iteration_idx<<")"<< RESET << std::endl;
 	std::cout << std::endl;
 	return;
+}
+
+bool utility::isbufferused(unsigned int id){
+	if(id==0 || id==NUMCOMPUTEUNITS_SLR2 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; }
+	return true;
 }
 
 size_t utility::hsub(size_t val1, size_t val2){
@@ -810,25 +843,51 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	unsigned int GraphIter=0;
 	*numValidIters = 0;
 	
-	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
 	unsigned int vdram_BASEOFFSETKVS_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA].data[0];
 	unsigned int vdram_SIZE_SRCVERTICESDATA = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_SRCVERTICESDATA].data[0];
-	#endif 
-
-	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
+	unsigned int mdram_BASEOFFSETKVS_ACTIVEVERTICES = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0];
 	
+	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	// cout<<"-------+++++++++++++++++++++++++++++++++++++(A)-------------- NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<endl;
+	
+	// defaults
+	//
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
+		vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[0] = ON;
+		vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[0] = ON;
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+			kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[0] = OFF; // {TRAD=OFF, ACTS=ON} 
+			kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[0] = 0;
+		}
+	}
+	
 	vpmaskbuffer[0][0] = 1; 
+	#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
+	if(savemasks == true){
+		unsigned int s = 1;
+		unsigned int lvid = UTIL_GETLOCALVID(1, s);
+		unsigned int offsetof_vmask = (lvid % VDATA_SHRINK_RATIO);
+		unsigned int depth_kvs2 = s * (NUMREDUCEPARTITIONS * REDUCEPARTITIONSZ_KVS2);
+		WRITEBITSTO_UINTV(&vdram[vdram_BASEOFFSETKVS_SRCVERTICESDATA + 0 + depth_kvs2 + ((lvid / VECTOR2_SIZE) / VDATA_SHRINK_RATIO)].data[(lvid % VECTOR2_SIZE)], BEGINOFFSETOF_VMASK + (lvid % VDATA_SHRINK_RATIO), SIZEOF_VMASK, 1);
+	}
+	#endif
+
+	mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + 0].data[0] = OFF;
+	mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + 0].data[1] = 1;
+	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + 0].data[0] = OFF;
+	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + 0].data[1] = 1;
+	for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+		kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + 0].data[0] = OFF; // {TRAD=OFF, ACTS=ON} 
+		kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + 0].data[1] = 1;
+	}
+	//
+	
 	for(GraphIter=0; GraphIter<NumGraphIters; GraphIter++){
 		// cout<<">>> GraphIter: "<<GraphIter<<endl;
 		
 		unsigned int actvvcount_nextit = 0;
-		#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
 		unsigned int vdram_SRC_BASE_KVS = GraphIter * ((vdram_SIZE_SRCVERTICESDATA / VECTOR2_SIZE) / MAXNUMGRAPHITERATIONS); // NOTE: must correspond with what is defined in classname__top_usrcv_udstv.cpp
-		#endif 
-		#if defined(CONFIG_HYBRIDGPMODE) && defined(CONFIG_PRELOADEDVERTICESMASKS)
-		unsigned int actvvs_nextit_basekvs = (GraphIter + 1) * (CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD / VECTOR2_SIZE);
-		#endif 
+		unsigned int actvvs_nextit_basekvs = (GraphIter + 1) * (CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ / VECTOR2_SIZE);
 		
 		for(unsigned int i=0; i<actvvs.size(); i++){
 			unsigned int vid = actvvs[i];
@@ -851,9 +910,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 					actvvs_nextit.push_back(dstvid);
 					checkoutofbounds("utility::runsssp_sw:: ERROR 20", dstvid / PROCESSPARTITIONSZ, NUMPROCESSEDGESPARTITIONS, dstvid, vid, dstvid);
 					
-					#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
 					if(GraphIter+1 < MAXNUMGRAPHITERATIONS){ vpmaskbuffer[GraphIter+1][dstvid / PROCESSPARTITIONSZ] = 1; }
-					#endif 
 					#if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
 					if(savemasks == true){
 						// cout<<">>> utility::runsssp_sw[Iter: "<<GraphIter<<"]: inserting active vertex mask ("<<dstvid<<") into vdram... "<<endl;	
@@ -864,11 +921,11 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 						WRITEBITSTO_UINTV(&vdram[vdram_BASEOFFSETKVS_SRCVERTICESDATA + vdram_SRC_BASE_KVS + depth_kvs2 + ((lvid / VECTOR2_SIZE) / VDATA_SHRINK_RATIO)].data[(lvid % VECTOR2_SIZE)], BEGINOFFSETOF_VMASK + (lvid % VDATA_SHRINK_RATIO), SIZEOF_VMASK, 1);
 					}
 					#endif
-					#if defined(CONFIG_HYBRIDGPMODE) && defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) && defined(CONFIG_PRELOADEDVERTICESMASKS)
-					if(savemasks == true && actvvs_nextit.size() < CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD){
+					#if defined(CONFIG_ACTS_HYBRIDLOGIC) && defined(CONFIG_PRELOADEDVERTICESMASKS)
+					if(savemasks == true && actvvs_nextit.size() < CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ){
 						// cout<<">>> utility::runsssp_sw[Iter: "<<GraphIter<<"]: inserting active vertex ("<<dstvid<<") into mdram... "<<endl;	
-						unsigned int loc = globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + actvvs_nextit_basekvs + actvvcount_nextit;
-						mdram[(loc / VECTOR2_SIZE)].data[loc % VECTOR2_SIZE] = dstvid;
+						unsigned int loc = mdram_BASEOFFSETKVS_ACTIVEVERTICES + actvvs_nextit_basekvs + actvvcount_nextit;
+						mdram[mdram_BASEOFFSETKVS_ACTIVEVERTICES + actvvs_nextit_basekvs + (actvvcount_nextit / VECTOR2_SIZE)].data[actvvcount_nextit % VECTOR2_SIZE] = dstvid;
 						actvvcount_nextit += 1;
 					}
 					#endif 
@@ -877,17 +934,20 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 				total_edges_processed += 1;
 				edgesprocessed_totals[GraphIter] += 1;
 			}
-		
-			unsigned int acts_mode = ON;
-			#ifdef CONFIG_HYBRIDGPMODE
-			if(actvvs_nextit.size() < CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD){ acts_mode = OFF; }
-			#endif
-			mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter].data[0] = acts_mode;
-			vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter].data[0] = acts_mode;
-			for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
-				kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter].data[0] = acts_mode; // {TRAD=OFF, ACTS=ON} 
-			}
 		}
+		
+		unsigned int acts_mode = ON;
+		if(actvvs_nextit.size() < CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD){ acts_mode = OFF; }
+		mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter + 1].data[0] = acts_mode;
+		mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter + 1].data[1] = actvvs_nextit.size();
+		vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter + 1].data[0] = acts_mode;
+		vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter + 1].data[1] = actvvs_nextit.size();
+		for(unsigned int i=0; i<NUMSUBCPUTHREADS; i++){
+			kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter + 1].data[0] = acts_mode; // {TRAD=OFF, ACTS=ON} 
+			kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + GraphIter + 1].data[1] = actvvs_nextit.size();
+		}
+		
+		// actvvs_count[GraphIter + 1] = actvvs_nextit.size();
 		
 		// cout<<"-------))))))))))))))))))))))))))))))))(B)-------------- NumGraphIters: "<<NumGraphIters<<", numValidIters: "<<*numValidIters<<", GraphIter: "<<GraphIter<<endl;
 		cout<<"utility::runsssp_sw: number of active vertices for iteration "<<GraphIter + 1<<": "<<actvvs_nextit.size()<<""<<endl;
@@ -920,8 +980,8 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	
 	cout<<">>> utility::runsssp_sw: printing modes for Hybrid Engine... "<<endl;
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
-		if(vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[0] == ON){ cout<<">>> iter "<<iter<<": ACTS MODE "<<endl; }
-		else { cout<<">>> iter "<<iter<<": TRADITIONAL MODE "<<endl; }
+		if(vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[0] == ON){ cout<<">>> iter "<<iter<<": ACTS MODE ("<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[1]<<" active vertices) "<<endl; }
+		else { cout<<">>> iter "<<iter<<": TRADITIONAL MODE ("<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_MAILBOX + iter].data[1]<<" active vertices)"<<endl; }
 	}
 	
 	// exit(EXIT_SUCCESS); // --------------
@@ -929,7 +989,7 @@ unsigned int utility::runsssp_sw(vector<vertex_t> &srcvids, edge_t * vertexptrbu
 	return total_edges_processed;
 }
 
-// #define UTILITY_PRINTONLY_NUMEDGESPROCESSED
+#define UTILITY_BRIEFPRINTONLY
 void utility::printallfeedback(string message, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUMSUBCPUTHREADS]){
 	
 	// unsigned int F0 = 0;
@@ -952,6 +1012,17 @@ void utility::printallfeedback(string message, uint512_vec_dt * vdram, uint512_v
 		}
 	}
 	
+	// for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){
+		// unsigned int num_edgesprocessed = vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	
+		// unsigned int num_vertexupdatesreduced = vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
+		
+		// unsigned int num_validedgesprocessed = vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].value;	
+		// unsigned int num_validvertexupdatesreduced = vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].value;	
+		
+		// cout<<">>> utility::[A]["<<message<<"][PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges processed: "<<num_edgesprocessed<<"("<<num_validedgesprocessed<<"), num vertex updates reduced: "<<num_vertexupdatesreduced<<"("<<num_validvertexupdatesreduced<<")"<<endl;	
+	// }
+	
+	#ifndef UTILITY_BRIEFPRINTONLY
 	for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){
 		unsigned int sum_edgesprocessed = 0;
 		unsigned int sum_vertexupdatesreduced = 0;
@@ -965,7 +1036,6 @@ void utility::printallfeedback(string message, uint512_vec_dt * vdram, uint512_v
 		cout<<">>> utility::[B]["<<message<<"]:: num edges processed: "<<sum_edgesprocessed<<", num vertex updates reduced: "<<sum_vertexupdatesreduced<<""<<endl;	
 	}
 	
-	#ifndef UTILITY_PRINTONLY_NUMEDGESPROCESSED
 	cout<<">>> utility::verifyresults:: Printing results from app.cpp [vdram @ 0][num processed edges stats @ processedges.cpp] & [@ 32][num reduced vertex-update stats @ processedges.cpp]"<<endl;
 	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
 		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + "<<GraphIter<<"]]: ("<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key<<", "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;

@@ -47,6 +47,8 @@ public:
 
 	unsigned int twist_getpartition(unsigned int partition, unsigned int s);
 	
+	bool isbufferused(unsigned int id);
+	
 	unsigned int getpartition(unsigned int data, vertex_t upperlimit);
 	tuple_t get_partition_and_incr(unsigned int vid, unsigned int dstvid);
 	

@@ -35,7 +35,7 @@ app::app(unsigned int algorithmid, unsigned int datasetid, std::string _binaryFi
 	kernelobj = new swkernel(graphobj, thisalgorithmobj, statsobj);
 	#endif
 	
-	#if (defined(CONFIG_HYBRIDGPMODE) || defined(CONFIG_TRADGPONLYMODE))
+	#ifdef CONFIG_ACTS_HYBRIDLOGIC
 	unsigned int mdramsz_kvs = (graphobj->get_num_edges() + graphobj->get_num_vertices() + (graphobj->get_num_vertices()*2) + 1000000) / VECTOR2_SIZE;
 	#else 
 	unsigned int mdramsz_kvs = 4096; //  * VECTOR2_SIZE;	
@@ -116,13 +116,11 @@ runsummary_t app::run_hw(){
 	unsigned int vpmaskbuffer[MAXNUMGRAPHITERATIONS][NUMPROCESSEDGESPARTITIONS]; 
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<NUMPROCESSEDGESPARTITIONS; t++){ vpmaskbuffer[iter][t] = 0; }}
 	
-	// set root vid
-	// #if (defined(BFS_ALGORITHM) || defined(SSSP_ALGORITHM))
-	// unsigned int NumGraphIters = 8;
-	// #else 
-	// unsigned int NumGraphIters = 1;//8; // 32; // 3,12,32
-	// #endif	
-	unsigned int NumGraphIters = 8;
+	// set maximum number of iterations
+	unsigned int NumGraphIters = 8; // 12;
+	#if not defined(BFS_ALGORITHM) && not defined(SSSP_ALGORITHM)
+	NumGraphIters = 1;
+	#endif 
 	
 	container_t container;
 	vector<value_t> actvvs;
@@ -274,7 +272,7 @@ runsummary_t app::run_hw(){
 	globalparams = loadgraphobj->generatevmaskdata(actvvs, kvbuffer, vdram, globalparams);
 	#endif 
 	globalparams.globalparamsM.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.globalparamsM.BASEOFFSETKVS_DESTVERTICESDATA + ((globalparams.globalparamsM.SIZE_DESTVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
-	globalparams.globalparamsM.SIZE_ACTIVEVERTICES = (graphobj->get_num_vertices() * 2); // current and next it active vertices
+	globalparams.globalparamsM.SIZE_ACTIVEVERTICES = CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ * MAXNUMGRAPHITERATIONS * 2; // (graphobj->get_num_vertices() * 2); // current and next it active vertices
 	// exit(EXIT_SUCCESS); //
 	
 	// setting root vid
@@ -421,6 +419,34 @@ void app::verifyresults_splitdstvtxs(uint512_vec_dt * vdram, globalparams_t glob
 	#ifndef FPGA_IMPL
 	utilityobj->printallfeedback("app", vdram, vdram, vdram, vdram, kvbuffer);
 	#endif 
+	
+	cout<<endl;
+	#ifdef CONFIG_ACTS_MEMORYLAYOUT
+	std::cout<< TIMINGRESULTSCOLOR << "app:: CONFIG_ACTS_MEMORYLAYOUT DEFINED: "<< RESET << std::endl;	
+	#endif 
+	#ifdef CONFIG_ACTS_PARTITIONINGLOGIC
+	std::cout<< TIMINGRESULTSCOLOR <<"app:: CONFIG_ACTS_PARTITIONINGLOGIC DEFINED: "<<std::endl;	
+	#endif
+	#ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
+	std::cout<< TIMINGRESULTSCOLOR <<"app:: CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC DEFINED: "<< RESET << std::endl;	
+	#endif
+	#ifdef CONFIG_ACTS_HYBRIDLOGIC
+	std::cout<< TIMINGRESULTSCOLOR <<"app:: CONFIG_ACTS_HYBRIDLOGIC DEFINED: "<< RESET << std::endl;	
+	#endif
+
+	#ifndef CONFIG_ACTS_MEMORYLAYOUT
+	std::cout<< TIMINGRESULTSCOLOR <<"app:: CONFIG_TRADITIONAL_MEMORYLAYOUT DEFINED: "<< RESET << std::endl;	
+	#endif 
+	#ifndef CONFIG_ACTS_PARTITIONINGLOGIC
+	std::cout<< TIMINGRESULTSCOLOR <<"app:: CONFIG_TRADITIONAL_PARTITIONINGLOGIC DEFINED: "<< RESET << std::endl;	
+	#endif
+	#ifndef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
+	std::cout<< TIMINGRESULTSCOLOR <<"app:: CONFIG_TRADITIONAL_RECURSIVEPARTITIONINGLOGIC DEFINED: "<< RESET << std::endl;	
+	#endif
+	#ifndef CONFIG_ACTS_HYBRIDLOGIC
+	std::cout<< TIMINGRESULTSCOLOR <<"app:: CONFIG_TRADITIONAL_HYBRIDLOGIC DEFINED: "<< RESET << std::endl;	
+	#endif
+	cout<<endl;
 	return;
 }
 
