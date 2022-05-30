@@ -388,7 +388,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 	#endif 
 	// actsutilityobj->printkeyvalues("actit::globalstatsbuffer 37--", (keyvalue_t *)globalstatsbuffer, NUM_PARTITIONS); 
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"actit: processing all chunks [begin_kvs: "<<ptravstate.begin_kvs<<"][end_kvs: "<<ptravstate.end_kvs<<"][flushsz: "<<flushsz<<"][size_kvs: "<<ptravstate.begin_kvs - (ptravstate.end_kvs + flushsz)<<"][workbuffer_size: "<<workbuffer_size<<"][num_chunks: "<<(ptravstate.begin_kvs - (ptravstate.end_kvs + flushsz)) / workbuffer_size<<"] ... "<<endl;
 	#endif
 		
@@ -429,6 +429,7 @@ buffer_type pp1cutoffs[VECTOR_SIZE];
 		itercount += NUMPIPELINES_PARTITIONUPDATES;
 		// exit(EXIT_SUCCESS);
 	}
+	// exit(EXIT_SUCCESS); //////////////////////////
 	return;
 }
 

@@ -555,9 +555,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		for (unsigned int s = 0; s < _NUM_KERNELS_LAUNCHED; s++){ OCL_CHECK(err, err = kernel_events[s].wait()); }
 		
 		// synchronizing...
-		std::cout <<">>> goclkernel: synchronizing vertices in iteration "<<GraphIter<<"..."<<endl;
-		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
-		OCL_CHECK(err, err = kernel_events[3].wait());
+		// std::cout <<">>> goclkernel: synchronizing vertices in iteration "<<GraphIter<<"..."<<endl;
+		// OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
+		// OCL_CHECK(err, err = kernel_events[3].wait());
 		
 		#ifdef CONFIG_ENABLE_PROFILING
 		long double iter_timeelapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - iter_starttime).count();

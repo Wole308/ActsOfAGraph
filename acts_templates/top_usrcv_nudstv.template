@@ -327,7 +327,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 	UTIL{{context['id']}}_resetkeysandvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 	
 	DISPATCHREDUCE{{context['id']}}_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		actsutilityobj->print4("### TOP{{context['id']}}_dispatch_reduce:: source_partition", "currentLOP", "num_source_partitions", "vreadoffset_kvs2", source_partition, currentLOP, num_source_partitions, vreadoffset_kvs2); 							
 		#endif
 		
@@ -338,8 +338,6 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 		#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 		collections[0][1].data1 += rtravstate.size_kvs * VECTOR_SIZE;
 		#endif 
-		
-		cout<<"_dispatch_reduce: rrrrrtravstate.size_kvs * VECTOR_SIZE: "<<rtravstate.size_kvs * VECTOR_SIZE<<endl;
 		
 		// read vertices
 		MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);

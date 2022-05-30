@@ -17,9 +17,9 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_processvecto
 	keyvalue_vbuffer_t bits_vector = vbuffer[bufferoffset_kvs + (loc / VDATA_SHRINK_RATIO)];
 	if(en == true){ vmdata = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(bits_vector); } else { vmdata.vmask = 0; }
 	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
-	// vmdata.vmask = 1; // FIXME.
+	vmdata.vmask = 1; // FIXME. REMOVEME.
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vid: "<<UTIL{{context['id']}}_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
+	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", en: "<<en<<", vid: "<<UTIL{{context['id']}}_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
 	#endif
 			
 	// process
@@ -108,26 +108,29 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_calculateoff
 void {{context['classname__processedges']}}PROCESS{{context['id']}}_readedgeblockstats(value_t tempbuffer[VECTOR2_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], buffer_type chunk_size, globalparams_t globalparams){
 	// read edge block stats  
 	// bool statsiscorrect = true;
-	#ifdef CONFIG_PROCESSEDGES_READOFFLINESTATS
-	unsigned int sum_values = 0;
-	for(unsigned int p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){ localcapsule[p].key = 0; localcapsule[p].value = tempbuffer[p][0]; if(p<globalparams.ACTSPARAMS_NUM_PARTITIONS-1){ sum_values += tempbuffer[p][0]; }}
-	localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value = (chunk_size * VECTOR2_SIZE) - sum_values;
-	if(tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888 || sum_values > chunk_size * VECTOR2_SIZE){
-		#if defined(_DEBUGMODE_CHECKS) && defined(CONFIG_INSERTSTATSMETADATAINEDGES) // CRITICAL FIXME.
-		if(sum_values > chunk_size * VECTOR2_SIZE && chunk_size > 0){ cout<<"processedges2: ERROR: sum_values("<<sum_values<<") > chunk_size("<<chunk_size<<") * VECTOR2_SIZE. EXITING... "<<endl; actsutilityobj->printkeyvalues("processandbuffer.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); exit(EXIT_FAILURE); } 
-		if(tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888){ cout<<"processedges2: ERROR: tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888. EXITING... "<<endl; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<"tempbuffer["<<v<<"][0]: "<<tempbuffer[v][0]<<endl; } exit(EXIT_FAILURE); }
-		#endif 
-		unsigned int modelsz = chunk_size / globalparams.ACTSPARAMS_NUM_PARTITIONS; // mock it
+	// #ifdef CONFIG_PROCESSEDGES_READOFFLINESTATS
+	if(globalparams.ACTSPARAMS_READOFFLINESTATS == 1){
+		unsigned int sum_values = 0;
+		for(unsigned int p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){ localcapsule[p].key = 0; localcapsule[p].value = tempbuffer[p][0]; if(p<globalparams.ACTSPARAMS_NUM_PARTITIONS-1){ sum_values += tempbuffer[p][0]; }}
+		localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value = (chunk_size * VECTOR2_SIZE) - sum_values;
+		if(tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888 || sum_values > chunk_size * VECTOR2_SIZE){
+			#if defined(_DEBUGMODE_CHECKS) && defined(CONFIG_INSERTSTATSMETADATAINEDGES) // CRITICAL FIXME.
+			if(sum_values > chunk_size * VECTOR2_SIZE && chunk_size > 0){ cout<<"processedges2: ERROR: sum_values("<<sum_values<<") > chunk_size("<<chunk_size<<") * VECTOR2_SIZE. EXITING... "<<endl; actsutilityobj->printkeyvalues("processandbuffer.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); exit(EXIT_FAILURE); } 
+			if(tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888){ cout<<"processedges2: ERROR: tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888. EXITING... "<<endl; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<"tempbuffer["<<v<<"][0]: "<<tempbuffer[v][0]<<endl; } exit(EXIT_FAILURE); }
+			#endif 
+			unsigned int modelsz = chunk_size / globalparams.ACTSPARAMS_NUM_PARTITIONS; // mock it
+			for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR2_SIZE; localcapsule[i].value = modelsz * VECTOR2_SIZE; } 
+		}
+	// #else
+	} else {
+		unsigned int modelsz = chunk_size / globalparams.ACTSPARAMS_NUM_PARTITIONS;
 		for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR2_SIZE; localcapsule[i].value = modelsz * VECTOR2_SIZE; } 
 	}
-	#else
-	unsigned int modelsz = chunk_size / globalparams.ACTSPARAMS_NUM_PARTITIONS;
-	for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR2_SIZE; localcapsule[i].value = modelsz * VECTOR2_SIZE; } 
-	#endif 
+	// #endif 
 	PROCESS{{context['id']}}_calculateoffsets(localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);
-	#ifdef DEBUGME_PROCESSEDGES2
+	#ifdef _DEBUGMODE_KERNELPRINTS3 // DEBUGME_PROCESSEDGES2
 	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); 
-	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", edgessize_kvs * VECTOR2_SIZE: "<<edgessize_kvs * VECTOR2_SIZE<<", globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
+	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
 	#endif
 }
 
@@ -281,7 +284,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 					#else 
 					{%for v in context['VECTOR2_SIZE_seq']%} E2[{{v}}] = E[{{v}}]; {%endfor%}	
 					#endif 
-					{%for v in context['VECTOR_SIZE_seq']%} if(E2[{{v}}]==8888888){ E2[{{v}}] = 0; } {%endfor%}	
+					{%for v in context['VECTOR_SIZE_seq']%} if(E2[{{v}}]==8888888){ E2[{{v}}] = 0; } enx2[{{v}}] = enx[{{v}}]; {%endfor%}	
 					#ifdef _DEBUGMODE_CHECKS3
 					{%for v in context['VECTOR_SIZE_seq']%}
 					if(E2[{{v}}]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
@@ -325,6 +328,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 	unsigned int maxsz_kvs = 0;
 	for(unsigned int t=0; t<VECTOR_SIZE; t++){ if(loadcount[t] > maxsz_kvs){ maxsz_kvs = loadcount[t]; }}
 	fetchmessage.chunksize_kvs = maxsz_kvs;//chunk_size * 2; // loadcount; // CRITICAL FIXME
+	// cout<<"--- processedges: fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
 	return fetchmessage;
 }
 
@@ -458,6 +462,8 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 	}
 
 	fetchmessage.chunksize_kvs = (loadcount + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	// exit(EXIT_SUCCESS);
+	// cout<<">>> PROCESS VECTOR:: ^^^^^^^^^^ACTIVE VERTEX PROCESSED: SEEN: @ fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
 	// exit(EXIT_SUCCESS);
 	return fetchmessage;
 }

@@ -103,8 +103,7 @@ loadgraph.cpp
 #define CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ (1 << 14)
 
 #define CONFIG_SEPERATESRCVDESTVBUFFER
-
-// #define CONFIG_USEURAM_FOR_SRCVBUFFER
+#define CONFIG_USEURAM_FOR_SRCVBUFFER // CRITICAL REMOVEME!
 #define CONFIG_USEURAM_FOR_DESTVBUFFER
 
 // #define CONFIG_BITMASK_NOT_USED // { classname__mem_convert_and_access.cpp }
@@ -126,6 +125,9 @@ _WIDEWORD_FOR_KV
 reduceupdates.cpp: #pragma HLS dependence variable=vbuffer inter false // NEWCHANGE.
 
 _TRADreadandprocess used (change before synthesize)
+
+CONFIG_USEURAM_FOR_SRCVBUFFER
+PROCESS{{context['id']}}_readedgeblockstats. #ifdef CONFIG_PROCESSEDGES_READOFFLINESTATS
 */
 
 

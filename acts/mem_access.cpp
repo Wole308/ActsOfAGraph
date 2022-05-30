@@ -104,6 +104,10 @@ void MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_b
 		// if(bramoffset_kvs + size_kvs >= MAX_DESTBLOCKRAM_SIZE){ size_kvs = 0; } // FIXME. STOPPED AT ERROR: orkut
 		// if(globalcapsule[p].key + globalcapsule[p].value >= globalparams.SIZE_KVDRAM){ size_kvs = 0; }
 		
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		cout<<"savekeyvalues:: saving key-value partitions... (size_kvs: "<<size_kvs<<")"<<endl;
+		#endif 
+		
 		#ifdef _DEBUGMODE_CHECKS3
 		if(globalcapsule[p].key + globalcapsule[p].value > globalparams.SIZE_KVDRAM + 1){ actsutilityobj->printkeyvalues("savekeyvalues::globalcapsule 337--", (keyvalue_t *)globalcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);  } 
 		actsutilityobj->checkoutofbounds("savekeyvalues 23", bramoffset_kvs + size_kvs, MAX_DESTBLOCKRAM_SIZE + 1, p, bramoffset_kvs, size_kvs);
@@ -185,7 +189,7 @@ void MEMACCESSP0_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_b
 	cout<<"savekeyvalues:: keyvalues saved: offset_kvs from: "<<globalbaseaddress_kvs + ((globalcapsule[0].key + globalcapsule[0].value) / VECTOR_SIZE)<<endl;
 	actsutilityobj->printkeyvalues("actsutility::savekeyvalues: globalcapsule.", (keyvalue_t *)globalcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);
 	#endif
-	// exit(EXIT_SUCCESS);
+	exit(EXIT_SUCCESS);
 	return;
 }
 

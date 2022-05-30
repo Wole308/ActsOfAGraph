@@ -421,13 +421,14 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	unsigned int num_traversed_edges = actshelperobj->getfeedback("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer);
 	
 	cout<<endl<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
+	cout<<">>> app::run_hw: num_traversed_edges: "<<num_traversed_edges<<" edges ("<<num_traversed_edges/1000000<<" million edges)"<<endl;
 	cout<<">>> app::run_hw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;			
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUM_PEs)<<" million edges/sec)"<< RESET <<endl;
 	
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput (MTEPS): "<<((total_edges_processed / total_time_elapsed) * (1000))<<" TEPS ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" MTEPS) ("<<((total_edges_processed / total_time_elapsed) / (1000000))<<" BTEPS)"<< RESET <<endl;			
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput (MTEPS): "<<((num_traversed_edges / total_time_elapsed) * (1000))<<" TEPS ("<<((num_traversed_edges / total_time_elapsed) / (1000))<<" MTEPS) ("<<((total_edges_processed / total_time_elapsed) / (1000000))<<" BTEPS)"<< RESET <<endl;			
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput (MPEPS): "<<((total_edges_processed / total_time_elapsed) * (1000))<<" PEPS ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" MPEPS) ("<<((total_edges_processed / total_time_elapsed) / (1000000))<<" BPEPS)"<< RESET <<endl;			
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput (MTEPS): "<<((num_traversed_edges / total_time_elapsed) * (1000))<<" TEPS ("<<((num_traversed_edges / total_time_elapsed) / (1000))<<" MTEPS) ("<<((num_traversed_edges / total_time_elapsed) / (1000000))<<" BTEPS)"<< RESET <<endl;			
 	
 	actshelperobj->extract_stats(actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpmaskbuffer, num_edges_processed);
 	verifyresults(GRAPH_PATH, vdram, globalparams.globalparamsV);
