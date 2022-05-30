@@ -339,6 +339,8 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 		collections[0][1].data1 += rtravstate.size_kvs * VECTOR_SIZE;
 		#endif 
 		
+		cout<<"_dispatch_reduce: rrrrrtravstate.size_kvs * VECTOR_SIZE: "<<rtravstate.size_kvs * VECTOR_SIZE<<endl;
+		
 		// read vertices
 		MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
 		if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID == CF){ MEMACCESS{{context['id']}}_copyV(enablereduce, vbuffer_dest, vbuffer2_dest, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.BUFFERBASEOFFSETKVS_VDATA2, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalparamsK); } // CUSTOMPROVISION
