@@ -1,0 +1,48 @@
+#include "acts_all.h"
+
+#ifdef SW
+acts_all::acts_all(mydebug * _mydebugobj){
+	actsutilityobj = new actsutility();
+	mydebugobj = _mydebugobj;
+}
+acts_all::~acts_all(){}
+#endif
+#ifdef SWEMU
+// actsutility * actsutilityobj = new actsutility();
+#endif 
+
+#ifdef CONFIG_ENABLECLASS_ACTS_UTIL
+{% include 'acts_util.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ALGO_FUNCS
+{% include 'algo_funcs.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
+{% include 'mem_convert_and_access.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_MEM_ACCESS
+{% include 'mem_access.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_PROCESSEDGES
+{% include 'processedges.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_PARTITIONUPDATES
+{% include 'partitionupdates.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
+{% include 'reduceupdates.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
+{% include 'trad_gp.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
+{% include 'acts_merge.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ACTS
+{% include 'acts.template' %}	
+#endif 			
+#if defined(CONFIG_ACTSONLYMODE) || defined(CONFIG_HYBRIDGPMODE)
+{% include 'top_usrcv_nudstv.template' %}	
+#endif 
+
+

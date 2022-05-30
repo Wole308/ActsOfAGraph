@@ -1,0 +1,79 @@
+// functions (basic)
+unsigned int UTIL{{context['id']}}_amin(unsigned int val1, unsigned int val2);
+unsigned int UTIL{{context['id']}}_amax(unsigned int val1, unsigned int val2);
+unsigned int UTIL{{context['id']}}_aplus(unsigned int val1, unsigned int val2);
+uint32_type UTIL{{context['id']}}_amin2(uint32_type val1, uint32_type val2);
+
+// functions (allignment)
+batch_type UTIL{{context['id']}}_allignlower_KV(batch_type val);
+batch_type UTIL{{context['id']}}_allignhigher_KV(batch_type val);
+batch_type UTIL{{context['id']}}_allignlower_KV2(batch_type val);
+batch_type UTIL{{context['id']}}_allignhigher_KV2(batch_type val);
+batch_type UTIL{{context['id']}}_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR);
+batch_type UTIL{{context['id']}}_allignlower_FACTOR(batch_type val, unsigned int _FACTOR);
+
+unsigned int UTIL{{context['id']}}_GETNUMPARTITIONS_FIRSTSWEEP_NONRECURSIVEMODE(unsigned int tree_depth);
+
+// functions (bit manipulation)
+unsigned int UTIL{{context['id']}}_GETMASK_UINT(uint32_type index, unsigned int size);
+unsigned int UTIL{{context['id']}}_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size);
+void UTIL{{context['id']}}_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
+unsigned int UTIL{{context['id']}}_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
+void UTIL{{context['id']}}_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
+unsigned int UTIL{{context['id']}}_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size);
+void UTIL{{context['id']}}_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value);
+
+// functions (converters)
+keyvalue_t UTIL{{context['id']}}_GETKV(keyvalue_buffer_t data);
+keyvalue_buffer_t UTIL{{context['id']}}_GETKV(keyvalue_t data);
+keyy_t UTIL{{context['id']}}_GETK(uint32_type data);
+value_t UTIL{{context['id']}}_GETV(uint32_type data);
+keyy_t UTIL{{context['id']}}_GETKEYENTRY(uint512_dt data, unsigned int v);
+unsigned int UTIL{{context['id']}}_GETLOCALVID(unsigned int vid, unsigned int instid);
+unsigned int UTIL{{context['id']}}_GETREALVID(unsigned int lvid, unsigned int instid);
+unsigned int UTIL{{context['id']}}_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams);
+
+unsigned int UTIL{{context['id']}}_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
+void UTIL{{context['id']}}_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
+unsigned int UTIL{{context['id']}}_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTIL{{context['id']}}_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
+void UTIL{{context['id']}}_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int * data, unsigned int size);
+unsigned int UTIL{{context['id']}}_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTIL{{context['id']}}_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
+void UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+
+// functions (actsproc utilities)
+batch_type UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
+batch_type UTIL{{context['id']}}_getrangeforeachllop(globalparams_t globalparams);
+buffer_type UTIL{{context['id']}}_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset);
+buffer_type UTIL{{context['id']}}_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs);
+void UTIL{{context['id']}}_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size);
+void UTIL{{context['id']}}_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing);
+batch_type UTIL{{context['id']}}_get_num_source_partitions(step_type currentLOP);
+globalparams_t UTIL{{context['id']}}_getglobalparams(uint512_dt * kvdram, unsigned int banksection);
+globalparams_t UTIL{{context['id']}}_getglobalparamsUNUSED(uint512_dt * kvdram, unsigned int banksection);
+sweepparams_t UTIL{{context['id']}}_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
+travstate_t UTIL{{context['id']}}_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
+void UTIL{{context['id']}}_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value);
+
+partition_type UTIL{{context['id']}}_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, unsigned int tree_depth);				
+partition_type UTIL{{context['id']}}_getpartition2(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, globalparams_t globalparams);
+// functions (resets)
+void UTIL{{context['id']}}_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
+void UTIL{{context['id']}}_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval);
+void UTIL{{context['id']}}_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval);
+void UTIL{{context['id']}}_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
+void UTIL{{context['id']}}_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams);
+void UTIL{{context['id']}}_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams);
+void UTIL{{context['id']}}_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
+void UTIL{{context['id']}}_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams);
+void UTIL{{context['id']}}_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
+void UTIL{{context['id']}}_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
+
+
+
+
+
+
+

@@ -8,33 +8,16 @@ import array as arr
 
 context = {}
 print ('ACTGraph (Courtesy: Jinja 2.0)...')
-# context['XWARE'] = sys.argv[1]
-# context['XWARE'] = "SW_ALLINONE"
 
 context['id'] = "P0"
 context['XWARE'] = sys.argv[1]
-if context['XWARE'] == "SW":
-    context['XWARE'] = "SW_ALLINONE"
-else:
-    context['XWARE'] = context['XWARE']
-
-context['SETUP'] = sys.argv[2]
-context['ALGORITHM'] = sys.argv[3] 
-context['DATASET'] = sys.argv[4]
-context['NUMSUPERCPUTHREADS'] = sys.argv[5]
-context['NUMCPUTHREADS'] = sys.argv[6] # FIXME. this is overriden in common.h
-context['NUMSUBCPUTHREADS'] = int(sys.argv[7])
-context['NUM_PARTITIONS_POW'] = int(sys.argv[8])
-context['LOCKE'] = sys.argv[9]
-context['EVALUATION_TYPE'] = sys.argv[10]
-context['EVALUATION_PARAM0'] = int(sys.argv[11])
-context['NUM_PEs'] = int(sys.argv[12])
-context['TESTKERNEL'] = sys.argv[13]
-context['TESTKERNELARG'] = int(sys.argv[14])
+context['ALGORITHM'] = sys.argv[2] 
+context['EVALUATION_TYPE'] = sys.argv[3]
+context['NUM_PEs'] = int(sys.argv[4])
+context['TESTKERNEL'] = sys.argv[5]
 
 if context['NUM_PEs'] == 3: 
     context['NUM_PEs'] = 24
-    context['NUMSUBCPUTHREADS'] = 24
 
 awspath = '/home/centos/src/project_data/oj2zf/ActsOfAGraph/gen.py'
 is_aws_path = os.path.isfile(awspath)  
@@ -47,228 +30,27 @@ print(is_aws_path)
 context['VECTOR_SIZE'] = 8
 context['VECTOR2_SIZE'] = 16
 context['DUMMY'] = 0
-context['NUMSUBWORKERS'] = 1 # 3#4
-
-context['NUM_EDGE_BANKS'] = 0 
-context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 0
-# context['NUM_EDGE_BANKS'] = 1
-# context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-
 context['NUM_PEs_seq'] = []
 for i in range (0,context['NUM_PEs']):
 		context['NUM_PEs_seq'].append(i)
-    
-###
-
-EV_CREATENDGRAPH = [0, 1, 2, 3, 4]
-if context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH":
-    context['VECTOR_SIZE'] = 8
-    
-if context['DATASET'] == "DATASET_ORKUT_3M_212M": # small dataset
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_HOLLYWOOD_1M_114M":
-    context['KVDATA_RANGE_POW'] = 21
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_KRON20_1M_45M":
-    context['KVDATA_RANGE_POW'] = 20
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_KRON21_2M_91M":
-    context['KVDATA_RANGE_POW'] = 21
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_KRON22_4M_200M":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RGG_N_2_24_S0_16M_265M":
-    context['KVDATA_RANGE_POW'] = 24
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_EUROPE_OSM_50M_108M":
-    context['KVDATA_RANGE_POW'] = 26
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_KMER_V2A_55M_117M":
-    context['KVDATA_RANGE_POW'] = 26
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_HUGEBUBBLES_00020_21M_63M":
-    context['KVDATA_RANGE_POW'] = 25
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_KMER_U1A_67M_138M":
-    context['KVDATA_RANGE_POW'] = 26
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_INDOCHINA_2004_7M_194M":
-    context['KVDATA_RANGE_POW'] = 23
-    context['NUM_EDGE_BANKS'] = 1
-elif context['DATASET'] == "DATASET_UK_2002_18M_298M":
-    context['KVDATA_RANGE_POW'] = 25
-    context['NUM_EDGE_BANKS'] = 1
-elif context['DATASET'] == "DATASET_IJOURNAL_2008_5M_79M":
-    context['KVDATA_RANGE_POW'] = 23
-    context['NUM_EDGE_BANKS'] = 0
-elif context['DATASET'] == "DATASET_MAWI_201512020030_68M_71M":
-    context['KVDATA_RANGE_POW'] = 26
-    context['NUM_EDGE_BANKS'] = 0
-
-elif context['DATASET'] == "DATASET_RMAT22_SPARSE0":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT22_SPARSE2":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT22_SPARSE4":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0
-    
-elif context['DATASET'] == "DATASET_RMAT21_SPARSE0":
-    context['KVDATA_RANGE_POW'] = 21 
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT21_SPARSE2":
-    context['KVDATA_RANGE_POW'] = 21
-    context['NUM_EDGE_BANKS'] = 1
-elif context['DATASET'] == "DATASET_RMAT21_SPARSE4":
-    context['KVDATA_RANGE_POW'] = 21 
-    context['NUM_EDGE_BANKS'] = 1
-    
-elif context['DATASET'] == "DATASET_RMAT24_268M":
-    context['KVDATA_RANGE_POW'] = 24
-    context['NUM_EDGE_BANKS'] = 1
-elif context['DATASET'] == "DATASET_RMAT25_268M":
-    context['KVDATA_RANGE_POW'] = 25
-    context['NUM_EDGE_BANKS'] = 1
-elif context['DATASET'] == "DATASET_RMAT26_268M":
-    context['KVDATA_RANGE_POW'] = 26
-    context['NUM_EDGE_BANKS'] = 1 
-elif context['DATASET'] == "DATASET_RMAT24_380M":
-    context['KVDATA_RANGE_POW'] = 24
-    context['NUM_EDGE_BANKS'] = 1
-elif context['DATASET'] == "DATASET_RMAT25_380M":
-    context['KVDATA_RANGE_POW'] = 25
-    context['NUM_EDGE_BANKS'] = 1
-elif context['DATASET'] == "DATASET_RMAT26_380M":
-    context['KVDATA_RANGE_POW'] = 26
-    context['NUM_EDGE_BANKS'] = 1 
-    
-elif context['DATASET'] == "DATASET_RMAT_RANGE0":
-    context['KVDATA_RANGE_POW'] = 20
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT_RANGE1":
-    context['KVDATA_RANGE_POW'] = 21
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT_RANGE2":
-    context['KVDATA_RANGE_POW'] = 22
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT_RANGE3":
-    context['KVDATA_RANGE_POW'] = 23
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT_RANGE4":
-    context['KVDATA_RANGE_POW'] = 24
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT_RANGE5":
-    context['KVDATA_RANGE_POW'] = 25
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT_RANGE6":
-    context['KVDATA_RANGE_POW'] = 26
-    context['NUM_EDGE_BANKS'] = 0 
-elif context['DATASET'] == "DATASET_RMAT_RANGE7":
-    context['KVDATA_RANGE_POW'] = 27
-    context['NUM_EDGE_BANKS'] = 0 
-else:
-    context['KVDATA_RANGE_POW'] = 0
-
-###
-
-if context['NUM_EDGE_BANKS'] > 0:
-    context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] = 1
-    
-###
-
-if (is_aws_path):
-    context['PLATFORM'] = "AWS_PLATFORM"
-else:
-    context['PLATFORM'] = "CRABTREE_PLATFORM"
-    
-if context['XWARE'] == "SW":
-	context['NUMINSTANCES'] = 1
-elif context['XWARE'] == "HW":
-	context['NUMINSTANCES'] = 1
-elif context['XWARE'] == "SWEMU":
-	context['NUMINSTANCES'] = 1
-else:
-	context['NUMINSTANCES'] = 1
-    
-if (context['PLATFORM'] == "AWS_PLATFORM"):
-	context['PROJECT_BASEPATH'] = "/home/centos/src/project_data/oj2zf/ActsOfAFastGraph"
-else:
-	context['PROJECT_BASEPATH'] = "/home/oj2zf/Documents/ActsOfAFastGraph"
-    
 context['DATAWIDTH'] = 512
 context['NUMBITSINKVPAIR'] = 64
-context['NUMDRAMBANKS'] = 4
-context['NUMWORKERS'] = 1
-context['NUMPEFUNCS'] = 8
-context['NUMSUBWORKERSPERVECTOR'] = context['VECTOR_SIZE'] / context['NUMSUBWORKERS']
 context['KERNELNAME'] = "ACTS"
-# context['NUM_PARTITIONS'] = 2**context['NUM_PARTITIONS_POW']
-context['NUMCOMPUTEUNITS'] = context['NUMSUBCPUTHREADS']
+context['NUMCOMPUTEUNITS'] = context['NUM_PEs']
     
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
-print ('SETUP: ' + str(context['SETUP']))
 print ('ALGORITHM: ' + str(context['ALGORITHM']))
-print ('DATASET: ' + str(context['DATASET']))
-print ('NUMSUPERCPUTHREADS: ' + str(context['NUMSUPERCPUTHREADS']))
-print ('NUMCPUTHREADS: ' + str(context['NUMCPUTHREADS']))
-print ('NUMSUBCPUTHREADS: ' + str(context['NUMSUBCPUTHREADS']))
-print ('LOCKE: ' + str(context['LOCKE']))
-print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
-print ('EVALUATION_PARAM0: ' + str(context['EVALUATION_PARAM0']))
 print ('NUM_PEs: ' + str(context['NUM_PEs']))
-print ('NUMDRAMBANKS: ' + str(context['NUMDRAMBANKS']))
-print ('NUMINSTANCES: ' + str(context['NUMINSTANCES']))
-# print ('NUM_PARTITIONS: ' + str(context['NUM_PARTITIONS']))
-print ('NUMWORKERS: ' + str(context['NUMWORKERS'])) 
-print ('NUMSUBWORKERS: ' + str(context['NUMSUBWORKERS']))
+print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))
 print ('TESTKERNEL: ' + str(context['TESTKERNEL']))
-print ('TESTKERNELARG: ' + str(context['TESTKERNELARG']))
-print ('NUM_EDGE_BANKS: ' + str(context['NUM_EDGE_BANKS']))
-context['KERNELTYPE'] = "_SINGLEKERNEL"
 
 ###
 
-if context['XWARE'] == "SW":
-    context['classname__top_nusrcv_nudstv'] = "top_nusrcv_nudstv::"
-    context['classname__top_usrcv_udstv'] = "top_usrcv_udstv::"
-    context['classname__processedges_and_reduceupdates'] = "processedge_and_reduceupdates::"
-    context['classname__processedgesu'] = "processedgesu::"
-    context['classname__processedges'] = "processedges::"
-    context['classname__partitionupdates'] = "partitionupdates::"
-    context['classname__reduceupdates'] = "reduceupdates::"
-    context['classname__mem_access'] = "mem_access::"
-    context['classname__mem_access'] = "mem_access::"
-    context['classname__mem_convert_and_access'] = "mem_convert_and_access::" 
-    context['classname__acts_util'] = "acts_util::"
-    context['classname__algofuncs'] = "algo_funcs::"
-    context['classname__acts'] = "acts::"
-    context['classname__acts_merge'] = "acts_merge::"
-    context['classname__acts_merge'] = "acts_merge::"
-elif (context['XWARE'] == "SW_ALLINONE"):
-    context['classname__top_nusrcv_nudstv'] = "acts_all::"
-    context['classname__top_usrcv_udstv'] = "acts_all::"
-    context['classname__processedges_and_reduceupdates'] = "acts_all::"
-    context['classname__processedgesu'] = "acts_all::"
-    context['classname__processedges'] = "acts_all::"
-    context['classname__partitionupdates'] = "acts_all::"
-    context['classname__reduceupdates'] = "acts_all::"
-    context['classname__mem_access'] = "acts_all::"
-    context['classname__mem_access'] = "acts_all::" 
-    context['classname__mem_convert_and_access'] = "acts_all::" 
-    context['classname__acts_util'] = "acts_all::"
-    context['classname__algofuncs'] = "acts_all::"
-    context['classname__acts'] = "acts_all::"
-    context['classname__acts_merge'] = "acts_all::"
-    context['classname__acts_merge'] = "acts_all::"
-elif ((context['XWARE'] == "HW") or (context['XWARE'] == "SWEMU")):
-    context['classname__top_nusrcv_nudstv'] = ""
-    context['classname__top_usrcv_udstv'] = ""
+if ((context['XWARE'] == "HW") or (context['XWARE'] == "SWEMU")):
+    context['classname__top_usrcv_nudstv'] = ""
+    context['classname__top_usrcv_nudstv'] = ""
     context['classname__processedgesu'] = ""
     context['classname__processedges'] = ""
     context['classname__partitionupdates'] = ""
@@ -282,8 +64,21 @@ elif ((context['XWARE'] == "HW") or (context['XWARE'] == "SWEMU")):
     context['classname__acts_merge'] = ""
     context['classname__acts_merge'] = ""
 else:
-    print ('gen.py: NOT YET IMPLEMENTED 38... EXITING...')
-    quit()
+    context['classname__top_usrcv_nudstv'] = "acts_all::"
+    context['classname__top_usrcv_nudstv'] = "acts_all::"
+    context['classname__processedges_and_reduceupdates'] = "acts_all::"
+    context['classname__processedgesu'] = "acts_all::"
+    context['classname__processedges'] = "acts_all::"
+    context['classname__partitionupdates'] = "acts_all::"
+    context['classname__reduceupdates'] = "acts_all::"
+    context['classname__mem_access'] = "acts_all::"
+    context['classname__mem_access'] = "acts_all::" 
+    context['classname__mem_convert_and_access'] = "acts_all::" 
+    context['classname__acts_util'] = "acts_all::"
+    context['classname__algofuncs'] = "acts_all::"
+    context['classname__acts'] = "acts_all::"
+    context['classname__acts_merge'] = "acts_all::"
+    context['classname__acts_merge'] = "acts_all::"
 
 ###
 
@@ -298,66 +93,66 @@ else:
 # relref="../"
 relref=""
 
-o_path0=relref+"acts/acts/acts.cpp"
-o_path1=relref+"acts/acts/acts.cpp"
-o_path2=relref+"acts/acts/acts.cpp"
-o_path3=relref+"acts/acts/acts.h"
+o_path0=relref+"acts/acts.cpp"
+o_path1=relref+"acts/acts.cpp"
+o_path2=relref+"acts/acts.cpp"
+o_path3=relref+"acts/acts.h"
 o_path4=relref+"include/common.h"
 o_path5=relref+"include/common.h"
 o_path6=relref+"include/common.h"
 o_path7=relref+"include/common.h"
-o_path8=relref+"acts/acts/acts.cpp"
-o_path9=relref+"acts/acts/acts.h"
-o_path10=relref+"acts/acts/top_usrcv_udstv.cpp"
-o_path11=relref+"acts/acts/top_usrcv_udstv.cpp"
-o_path12=relref+"acts/acts/top_nusrcv_nudstv.cpp"
-o_path13=relref+"acts/acts/top_nusrcv_nudstv.cpp"
-o_path14=relref+"acts/acts/processedges.cpp"
-o_path15=relref+"acts/acts/processedges.cpp"
-o_path16=relref+"acts/acts/processedges2.cpp"
-o_path17=relref+"acts/acts/acts.cpp"
-o_path18=relref+"acts/acts/reduceupdates.cpp"
-o_path19=relref+"acts/acts/reduceupdates.cpp"
-o_path20=relref+"acts/acts/acts_util.cpp"
-o_path21=relref+"acts/acts/algo_funcs.cpp"
-o_path22=relref+"acts/acts/reduceupdates2.cpp"
-o_path23=relref+"acts/acts/reduceupdates2.cpp"
-o_path24=relref+"acts/acts/acts.cpp"
-o_path25=relref+"acts/acts/acts.cpp"
-o_path26=relref+"acts/acts/partitionupdates.cpp"
-o_path27=relref+"acts/acts/partitionupdates.cpp"
-o_path28=relref+"acts/acts/acts.cpp"
-o_path29=relref+"acts/acts/acts.cpp"
-o_path30=relref+"acts/acts/mem_access.cpp"
-o_path31=relref+"acts/acts/mem_access.cpp"
-o_path32=relref+"acts/acts/acts_merge.cpp"
-o_path33=relref+"acts/acts/acts_merge.cpp"
-o_path34=relref+"acts/acts/acts_all.cpp"
-o_path35=relref+"acts/acts/acts_all.h"
-o_path36=relref+"acts/acts/mem_convert_and_access.cpp"
-o_path37=relref+"acts/acts/mem_convert_and_access.cpp"
-o_path100=relref+"acts/acts/top_usrcv_udstv_mf.h"
-o_path101=relref+"acts/acts/top_nusrcv_nudstv_mf.h"
-o_path102=relref+"acts/acts/processedges_mf.h"
-o_path103=relref+"acts/acts/acts_mf.h"
-o_path104=relref+"acts/acts/reduceupdates_mf.h"
-o_path105=relref+"acts/acts/acts_util_mf.h"
-o_path106=relref+"acts/acts/reduceupdates2_mf.h"
-o_path107=relref+"acts/acts/partitionupdates_mf.h"
-o_path108=relref+"acts/acts/processedges2_mf.h"
-o_path109=relref+"acts/acts/mem_access_mf.h"
-o_path110=relref+"acts/acts/acts_merge_mf.h"
-o_path111=relref+"acts/acts/mem_convert_and_access_mf.h"
-o_path112=relref+"acts/acts/algo_funcs_mf.h"
-o_path113=relref+"acts/acts/algo_funcs_mf.h"
-o_path200=relref+"acts/acts/acts_allP0.cpp"
-o_path201=relref+"acts/acts/acts_allP0.h"
-o_path202=relref+"acts/acts/acts_allP1.cpp"
-o_path203=relref+"acts/acts/acts_allP1.h"
-o_path204=relref+"acts/acts/acts_allP2.cpp"
-o_path205=relref+"acts/acts/acts_allP2.h"
-o_path206=relref+"acts/acts/acts_allS.cpp"
-o_path207=relref+"acts/acts/acts_allS.h"
+o_path8=relref+"acts/trad_gp.cpp"
+o_path9=relref+"acts/trad_gp.h"
+o_path10=relref+"acts/top_usrcv_nudstv.cpp"
+o_path11=relref+"acts/top_usrcv_nudstv.cpp"
+o_path12=relref+"acts/top_usrcv_nudstv.cpp"
+o_path13=relref+"acts/top_usrcv_nudstv.cpp"
+o_path14=relref+"acts/processedges.cpp"
+o_path15=relref+"acts/processedges.cpp"
+o_path16=relref+"acts/processedges.cpp"
+o_path17=relref+"acts/acts.cpp"
+o_path18=relref+"acts/reduceupdates.cpp"
+o_path19=relref+"acts/reduceupdates.cpp"
+o_path20=relref+"acts/acts_util.cpp"
+o_path21=relref+"acts/algo_funcs.cpp"
+o_path22=relref+"acts/reduceupdates.cpp"
+o_path23=relref+"acts/reduceupdates.cpp"
+o_path24=relref+"acts/acts.cpp"
+o_path25=relref+"acts/acts.cpp"
+o_path26=relref+"acts/partitionupdates.cpp"
+o_path27=relref+"acts/partitionupdates.cpp"
+o_path28=relref+"acts/acts.cpp"
+o_path29=relref+"acts/acts.cpp"
+o_path30=relref+"acts/mem_access.cpp"
+o_path31=relref+"acts/mem_access.cpp"
+o_path32=relref+"acts/acts_merge.cpp"
+o_path33=relref+"acts/acts_merge.cpp"
+o_path34=relref+"acts/acts_all.cpp"
+o_path35=relref+"acts/acts_all.h"
+o_path36=relref+"acts/mem_convert_and_access.cpp"
+o_path37=relref+"acts/mem_convert_and_access.cpp"
+o_path100=relref+"acts/top_usrcv_nudstv_mf.h"
+o_path101=relref+"acts/top_usrcv_nudstv_mf.h"
+o_path102=relref+"acts/processedges_mf.h"
+o_path103=relref+"acts/acts_mf.h"
+o_path104=relref+"acts/reduceupdates_mf.h"
+o_path105=relref+"acts/acts_util_mf.h"
+o_path106=relref+"acts/reduceupdates_mf.h"
+o_path107=relref+"acts/partitionupdates_mf.h"
+o_path108=relref+"acts/processedges_mf.h"
+o_path109=relref+"acts/mem_access_mf.h"
+o_path110=relref+"acts/acts_merge_mf.h"
+o_path111=relref+"acts/mem_convert_and_access_mf.h"
+o_path112=relref+"acts/algo_funcs_mf.h"
+o_path113=relref+"acts/algo_funcs_mf.h"
+o_path200=relref+"acts/acts_allP0.cpp"
+o_path201=relref+"acts/acts_allP0.h"
+o_path202=relref+"acts/acts_allP1.cpp"
+o_path203=relref+"acts/acts_allP1.h"
+o_path204=relref+"acts/acts_allP2.cpp"
+o_path205=relref+"acts/acts_allP2.h"
+o_path206=relref+"acts/acts_allS.cpp"
+o_path207=relref+"acts/acts_allS.h"
 
 out_path0=os.path.abspath(o_path0)
 out_path1=os.path.abspath(o_path1)
@@ -420,66 +215,66 @@ out_path205=os.path.abspath(o_path205)
 out_path206=os.path.abspath(o_path206)
 out_path207=os.path.abspath(o_path207)
 
-templ_path0=relref+"acts/acts_templates"
-templ_path1=relref+"acts/acts_templates"
-templ_path2=relref+"acts/acts_templates"
-templ_path3=relref+"acts/acts_templates"
+templ_path0=relref+"acts_templates"
+templ_path1=relref+"acts_templates"
+templ_path2=relref+"acts_templates"
+templ_path3=relref+"acts_templates"
 templ_path4=relref+"include/"
 templ_path5=relref+"include/"
 templ_path6=relref+"include/"
 templ_path7=relref+"include/"
-templ_path8=relref+"acts/acts_templates"
-templ_path9=relref+"acts/acts_templates"
-templ_path10=relref+"acts/acts_templates"
-templ_path11=relref+"acts/acts_templates"
-templ_path12=relref+"acts/acts_templates"
-templ_path13=relref+"acts/acts_templates"
-templ_path14=relref+"acts/acts_templates"
-templ_path15=relref+"acts/acts_templates"
-templ_path16=relref+"acts/acts_templates"
-templ_path17=relref+"acts/acts_templates"
-templ_path18=relref+"acts/acts_templates"
-templ_path19=relref+"acts/acts_templates"
-templ_path20=relref+"acts/acts_templates"
-templ_path21=relref+"acts/acts_templates"
-templ_path22=relref+"acts/acts_templates"
-templ_path23=relref+"acts/acts_templates"
-templ_path24=relref+"acts/acts_templates"
-templ_path25=relref+"acts/acts_templates"
-templ_path26=relref+"acts/acts_templates"
-templ_path27=relref+"acts/acts_templates"
-templ_path28=relref+"acts/acts_templates"
-templ_path29=relref+"acts/acts_templates"
-templ_path30=relref+"acts/acts_templates"
-templ_path31=relref+"acts/acts_templates"
-templ_path32=relref+"acts/acts_templates"
-templ_path33=relref+"acts/acts_templates"
-templ_path34=relref+"acts/acts_templates"
-templ_path35=relref+"acts/acts_templates"
-templ_path36=relref+"acts/acts_templates"
-templ_path37=relref+"acts/acts_templates"
-templ_path100=relref+"acts/acts_templates"
-templ_path101=relref+"acts/acts_templates"
-templ_path102=relref+"acts/acts_templates"
-templ_path103=relref+"acts/acts_templates"
-templ_path104=relref+"acts/acts_templates"
-templ_path105=relref+"acts/acts_templates"
-templ_path106=relref+"acts/acts_templates"
-templ_path107=relref+"acts/acts_templates"
-templ_path108=relref+"acts/acts_templates"
-templ_path109=relref+"acts/acts_templates"
-templ_path110=relref+"acts/acts_templates"
-templ_path111=relref+"acts/acts_templates"
-templ_path112=relref+"acts/acts_templates"
-templ_path113=relref+"acts/acts_templates"
-templ_path200=relref+"acts/acts_templates"
-templ_path201=relref+"acts/acts_templates"
-templ_path202=relref+"acts/acts_templates"
-templ_path203=relref+"acts/acts_templates"
-templ_path204=relref+"acts/acts_templates"
-templ_path205=relref+"acts/acts_templates"
-templ_path206=relref+"acts/acts_templates"
-templ_path207=relref+"acts/acts_templates"
+templ_path8=relref+"acts_templates"
+templ_path9=relref+"acts_templates"
+templ_path10=relref+"acts_templates"
+templ_path11=relref+"acts_templates"
+templ_path12=relref+"acts_templates"
+templ_path13=relref+"acts_templates"
+templ_path14=relref+"acts_templates"
+templ_path15=relref+"acts_templates"
+templ_path16=relref+"acts_templates"
+templ_path17=relref+"acts_templates"
+templ_path18=relref+"acts_templates"
+templ_path19=relref+"acts_templates"
+templ_path20=relref+"acts_templates"
+templ_path21=relref+"acts_templates"
+templ_path22=relref+"acts_templates"
+templ_path23=relref+"acts_templates"
+templ_path24=relref+"acts_templates"
+templ_path25=relref+"acts_templates"
+templ_path26=relref+"acts_templates"
+templ_path27=relref+"acts_templates"
+templ_path28=relref+"acts_templates"
+templ_path29=relref+"acts_templates"
+templ_path30=relref+"acts_templates"
+templ_path31=relref+"acts_templates"
+templ_path32=relref+"acts_templates"
+templ_path33=relref+"acts_templates"
+templ_path34=relref+"acts_templates"
+templ_path35=relref+"acts_templates"
+templ_path36=relref+"acts_templates"
+templ_path37=relref+"acts_templates"
+templ_path100=relref+"acts_templates"
+templ_path101=relref+"acts_templates"
+templ_path102=relref+"acts_templates"
+templ_path103=relref+"acts_templates"
+templ_path104=relref+"acts_templates"
+templ_path105=relref+"acts_templates"
+templ_path106=relref+"acts_templates"
+templ_path107=relref+"acts_templates"
+templ_path108=relref+"acts_templates"
+templ_path109=relref+"acts_templates"
+templ_path110=relref+"acts_templates"
+templ_path111=relref+"acts_templates"
+templ_path112=relref+"acts_templates"
+templ_path113=relref+"acts_templates"
+templ_path200=relref+"acts_templates"
+templ_path201=relref+"acts_templates"
+templ_path202=relref+"acts_templates"
+templ_path203=relref+"acts_templates"
+templ_path204=relref+"acts_templates"
+templ_path205=relref+"acts_templates"
+templ_path206=relref+"acts_templates"
+templ_path207=relref+"acts_templates"
 
 ###
 context['1_seq'] = []
@@ -497,33 +292,7 @@ for i in range (0,(context['VECTOR2_SIZE'])):
 context['VECTOR_SIZEPLUS1_seq'] = []
 for i in range (1,(context['VECTOR_SIZE'])):
 		context['VECTOR_SIZEPLUS1_seq'].append(i)
-        
-context['DRAMBANKS_charseq'] = []
-for i in range (0,(context['NUMDRAMBANKS'])):
-		c = chr(ord('A') + i)
-		context['DRAMBANKS_charseq'].append(c)
 
-context['NUMDRAMBANKS_seq'] = []
-for i in range (0,(context['NUMDRAMBANKS'])):
-		context['NUMDRAMBANKS_seq'].append(i)
-		
-context['INSTANCES_charseq'] = []
-for i in range (0,(context['NUMINSTANCES'])):
-		c = chr(ord('A') + i)
-		context['INSTANCES_charseq'].append(c)
-
-context['NUMINSTANCES_seq'] = []
-for i in range (0,(context['NUMINSTANCES'])):
-		context['NUMINSTANCES_seq'].append(i)
-
-context['NUMWORKERS_seq'] = []
-for i in range (0,(context['NUMWORKERS'])):
-		context['NUMWORKERS_seq'].append(i)   
-
-context['NUMSUBWORKERS_seq'] = []
-for i in range (0,(context['NUMSUBWORKERS'])):
-		context['NUMSUBWORKERS_seq'].append(i)
-        
 ###
 context['VECTOR2_SIZE_F_seq'] = []
 for i in range (0,8):
@@ -625,86 +394,7 @@ for i in range (0,1):
 context['k_seq'] = []
 for i in range (0,2):
 		context['k_seq'].append(i)
-        
-context['COMPUTEUNITS_seq'] = []
-for i in range (0,(context['NUMCOMPUTEUNITS'])):
-		context['COMPUTEUNITS_seq'].append(i)
-        
-context['COMPUTEUNITSPLUS1_seq'] = []
-for i in range (0,(context['NUMCOMPUTEUNITS']+1)):
-		context['COMPUTEUNITSPLUS1_seq'].append(i)
-        
-context['COMPUTEUNITSPLUS2_seq'] = []
-for i in range (0,(context['NUMCOMPUTEUNITS']+2)):
-		context['COMPUTEUNITSPLUS2_seq'].append(i)
-        
-context['COMPUTEUNITS_1seq'] = []
-for i in range (1,(context['NUMCOMPUTEUNITS'])):
-		context['COMPUTEUNITS_1seq'].append(i)
-        
-context['NUMSUBCPUTHREADS_seq'] = []
-for i in range (0,(context['NUMSUBCPUTHREADS'])):
-		context['NUMSUBCPUTHREADS_seq'].append(i)
-        
-context['NUMSUBCPUTHREADS_DIV2_seq'] = []
-for i in range (0,(context['NUMSUBCPUTHREADS']/2)):
-		context['NUMSUBCPUTHREADS_DIV2_seq'].append(i)
-        
-context['NUMSUBCPUTHREADS_DIV4_seq'] = []
-for i in range (0,(context['NUMSUBCPUTHREADS']/4)):
-		context['NUMSUBCPUTHREADS_DIV4_seq'].append(i)
-        
-context['NUMSUBCPUTHREADS_DIV8_seq'] = []
-for i in range (0,(context['NUMSUBCPUTHREADS']/8)):
-		context['NUMSUBCPUTHREADS_DIV8_seq'].append(i)
-        
-# SYNC
-context['NUM_EDGE_BANKS_seq'] = []
-for i in range (0,(context['NUM_EDGE_BANKS'])):
-		context['NUM_EDGE_BANKS_seq'].append(i)
-        
-context['NUMSYNCTHREADS'] = 3
-# context['NUMSYNCTHREADS'] = context['NUM_PEs']
-    
-context['KKL'] = (context['NUMSYNCTHREADS']/4) * 4
-context['KKM'] = context['NUMSYNCTHREADS'] - context['KKL']
-if context['KKM'] == 0:
-    context['KKM'] = 4
-
-context['SYNCTHREADS_seq'] = []
-for i in range (0,(context['NUMSYNCTHREADS'])):
-		context['SYNCTHREADS_seq'].append(i)
-        
-# context['NUMSYNCTHREADS_DIV_4'] = context['NUMSYNCTHREADS'] / 4
-context['NUMSYNCTHREADS_DIV_4'] = (context['NUMSYNCTHREADS'] + (4-1)) / 4 # CRITICAL NEWCHANGE.
-context['NUMSYNCTHREADS_DIV_4_seq'] = []
-for i in range (0,(context['NUMSYNCTHREADS_DIV_4'])):
-		context['NUMSYNCTHREADS_DIV_4_seq'].append(i)
-        
-context['NUMSYNCTHREADS_DIV_4__PLUS1'] = context['NUMSYNCTHREADS_DIV_4'] + 1
-context['NUMSYNCTHREADS_DIV_4__PLUS1_seq'] = []
-for i in range (0,(context['NUMSYNCTHREADS_DIV_4__PLUS1'])):
-		context['NUMSYNCTHREADS_DIV_4__PLUS1_seq'].append(i)
-        
-context['NUMSYNCTHREADS_DIV_4__PLUS2'] = context['NUMSYNCTHREADS_DIV_4'] + 2
-context['NUMSYNCTHREADS_DIV_4__PLUS2_seq'] = []
-for i in range (0,(context['NUMSYNCTHREADS_DIV_4__PLUS2'])):
-		context['NUMSYNCTHREADS_DIV_4__PLUS2_seq'].append(i)
-   
-context['PE_SETSZ'] = 16 #8, 16 # for classname__processedges.cpp
-context['PE_SETSZ_seq'] = []
-for i in range (0,context['PE_SETSZ']):
-		context['PE_SETSZ_seq'].append(i)
-        
-context['RU_SETSZ'] = 8 #8, 16 # for classname__processedges.cpp
-context['RU_SETSZ_seq'] = []
-for i in range (0,context['RU_SETSZ']):
-		context['RU_SETSZ_seq'].append(i)
-
-context['TESTKERNELARG_seq'] = []
-for i in range (0,(context['TESTKERNELARG'])):
-		context['TESTKERNELARG_seq'].append(i)
-        
+ 
 env0 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path0)), trim_blocks=True, lstrip_blocks=True)
 env1 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path1)), trim_blocks=True, lstrip_blocks=True)
 env2 = Environment(loader=FileSystemLoader(os.path.abspath(templ_path2)), trim_blocks=True, lstrip_blocks=True)
@@ -835,22 +525,22 @@ template4 = env4.get_template('common_h.template')
 template5 = env5.get_template('common_h.template')
 template6 = env6.get_template('common_h.template')
 template7 = env7.get_template('common_h.template')
-template8 = env8.get_template('acts.template')
-template9 = env9.get_template('acts.template')
-template10 = env10.get_template('top_usrcv_udstv.template')
-template11 = env11.get_template('top_usrcv_udstv.template')
-template12 = env12.get_template('top_nusrcv_nudstv.template')
-template13 = env13.get_template('top_nusrcv_nudstv.template')
+template8 = env8.get_template('trad_gp.template')
+template9 = env9.get_template('trad_gp_mf.template')
+template10 = env10.get_template('top_usrcv_nudstv.template')
+template11 = env11.get_template('top_usrcv_nudstv.template')
+template12 = env12.get_template('top_usrcv_nudstv.template')
+template13 = env13.get_template('top_usrcv_nudstv.template')
 template14 = env14.get_template('processedges.template')
 template15 = env15.get_template('processedges.template')
-template16 = env16.get_template('processedges2.template')
+template16 = env16.get_template('processedges.template')
 template17 = env17.get_template('acts.template')
 template18 = env18.get_template('reduceupdates.template')
 template19 = env19.get_template('reduceupdates.template')
 template20 = env20.get_template('acts_util.template')
 template21 = env21.get_template('algo_funcs.template')
-template22 = env22.get_template('reduceupdates2.template')
-template23 = env23.get_template('reduceupdates2.template')
+template22 = env22.get_template('reduceupdates.template')
+template23 = env23.get_template('reduceupdates.template')
 template24 = env24.get_template('acts.template')
 template25 = env25.get_template('acts.template')
 template26 = env26.get_template('partitionupdates.template')
@@ -865,15 +555,15 @@ template34 = env34.get_template('acts_all.template')
 template35 = env35.get_template('acts_all_h.template')
 template36 = env36.get_template('mem_convert_and_access.template')
 template37 = env37.get_template('mem_convert_and_access.template')
-template100 = env100.get_template('top_usrcv_udstv_mf.template')
-template101 = env101.get_template('top_nusrcv_nudstv_mf.template')
+template100 = env100.get_template('top_usrcv_nudstv_mf.template')
+template101 = env101.get_template('top_usrcv_nudstv_mf.template')
 template102 = env102.get_template('processedges_mf.template')
 template103 = env103.get_template('acts_mf.template')
 template104 = env104.get_template('reduceupdates_mf.template')
 template105 = env105.get_template('acts_util_mf.template')
-template106 = env106.get_template('reduceupdates2_mf.template')
+template106 = env106.get_template('reduceupdates_mf.template')
 template107 = env107.get_template('partitionupdates_mf.template')
-template108 = env108.get_template('processedges2_mf.template')
+template108 = env108.get_template('processedges_mf.template')
 template109 = env109.get_template('mem_access_mf.template')
 template110 = env110.get_template('acts_merge_mf.template')
 template111 = env111.get_template('mem_convert_and_access_mf.template')

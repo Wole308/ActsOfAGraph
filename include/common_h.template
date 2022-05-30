@@ -1,70 +1,57 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-{%if(context['XWARE'] == "HW" or context['XWARE'] == "SWEMU")%}
 #include <string.h>
 #include <cmath>
+{%if(context['XWARE'] == "HW" or context['XWARE'] == "SWEMU")%}
 #include <ap_int.h>
+// #include "ap_fixed.h"	
 {%endif%}
+
+// CUSTOMPROVISION: { classname__top_usrcv_nudstv.cpp, reduceupdates.cpp, }
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-{%if(context['TESTKERNEL'] == "RK")%}
-#define COMPLETEKERNEL
-{%else%}
 #define {{context['TESTKERNEL']}}
-{%endif%}
 #define {{context['XWARE']}} // SWEMU, HW, SW
-#define {{context['SETUP']}} // ACTGRAPH_SETUP, GRAFBOOST_SETUP
 #define {{context['ALGORITHM']}} // PR_ALGORITHM, CF_ALGORITHM, HITS_ALGORITHM, CC_ALGORITHM, SSSP_ALGORITHM, BFS_ALGORITHM
-#define {{context['DATASET']}} 
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
 #endif 
-#define {{context['PLATFORM']}} // AWS_PLATFORM, CRABTREE_PLATFORM
 
 #if defined(BFS_ALGORITHM) || defined(SSSP_ALGORITHM)
-#define CONFIG_ALGORITHMTYPE_RANDOMACTIVEVERTICES
-#endif 
+#define CONFIG_ALGORITHMTYPE_RANDOMACTIVEVERTICES // { utility.cpp }
+#endif
 
-#ifdef GRAFBOOST_SETUP
-#define SORTREDUCEMODEL
-#endif 
-
-#define {{context['LOCKE']}}
 #define _SINGLEKERNEL
 #ifdef FPGA_IMPL
 #define _WIDEWORD
-#endif
-// #if defined(BFS_ALGORITHM) || defined(SSSP_ALGORITHM)
-// #define RANDOMVERTEXISACTIVE_ALGORITHM
-// #else 
-// #define ALLVERTEXISACTIVE_ALGORITHM
-// #endif	
+// #define _WIDEWORD_FOR_KV
+#endif 
+
 #define ALLVERTEXISACTIVE_ALGORITHM
+#if defined(BFS_ALGORITHM) && defined(CONFIG_FORBFS_REPRESENTVDATASASBITS)
+#define ALGORITHMTYPE_REPRESENTVDATASASBITS
+#endif 
 
 #define PARAM_ACTSONLYMODE 1
 #define PARAM_TRADGPONLYMODE 2
 #define PARAM_HYBRIDGPMODE 3
 
-{%if(context['EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM'] == 1)%}
-#define EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM // {actscommon.h, common.h}
-{%endif%}
-#ifdef ACTS_1by1by1byN
-#define ALL_VERTEXPROPERTIES_IN_SINGLE_DRAM // NEWCHANGE.
-#endif 
-
 #define {{context['KERNELNAME']}}
 {%if(context['EVALUATION_TYPE'] == "EV_PERFORMANCEOFALGORITHM")%}
-#define CONFIG_ACTS_MEMORYLAYOUT // { processedges.cpp }
+#define CONFIG_ACTS_PERFORMANCEOFALGORITHM // { mem_access.cpp, acts.cpp }
+// #define CONFIG_ACTS_MEMORYLAYOUT // { processedges.cpp } // CRITICAL FIXME?
 #define CONFIG_ACTS_PARTITIONINGLOGIC // { partitionupdates.cpp, acts.cpp }
-#define CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC // { common.h, reduceupdates2.cpp }
-	#ifdef CONFIG_ALGORITHMTYPE_RANDOMACTIVEVERTICES
-		#define CONFIG_ACTS_HYBRIDLOGIC
-			#endif 
+#define CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC // { common.h, reduceupdates2.cpp, acts_util.cpp, classname__top_usrcv_udstv.cpp, acts.cpp }
+// #define CONFIG_ACTS_HYBRIDLOGIC // CRITICAL FIXME?
+{%endif%}
+{%if(context['EVALUATION_TYPE'] == "EV_IMPACTOF__ACTS_VERYBARE")%}
+#define CONFIG_ACTS_VERYBARE
 {%endif%}
 {%if(context['EVALUATION_TYPE'] == "EV_IMPACTOF__ACTS_BARE")%}
+#define CONFIG_ACTS_BARE
 {%endif%}
 {%if(context['EVALUATION_TYPE'] == "EV_IMPACTOF__ACTS_PLUS_MEMLAYOUT")%}
 #define CONFIG_ACTS_MEMORYLAYOUT
@@ -82,15 +69,13 @@
 #define CONFIG_ACTS_MEMORYLAYOUT 
 #define CONFIG_ACTS_PARTITIONINGLOGIC 
 #define CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC 
-	#ifdef CONFIG_ALGORITHMTYPE_RANDOMACTIVEVERTICES
-		#define CONFIG_ACTS_HYBRIDLOGIC
-			#endif 
+#define CONFIG_ACTS_HYBRIDLOGIC
 {%endif%}
+// #define CONFIG_IMPACT_OF_SCALING_NUMPEs	
 {%if(context['EVALUATION_TYPE'] == "EV_CREATENDGRAPH")%}
 // #define _GENERATE2DGRAPH
 #define _GENERATEUNDIRECTEDGRAPH //
-{%endif%}
-#define CONFIG_ALL_EVALUATIONTYPES_IN_ONE_KERNEL // for evaluation { processedges2.cpp reduceupdates.cpp, acts.cpp, partitionupdates.cpp }
+{%endif%}	
 ////////////////
 
 #ifndef TESTKERNEL_IMPACTOFRANGE
@@ -132,19 +117,19 @@
 ////////////////
 
 #define PAGERANK 222
-#define BFS 333
-#define SSSP 444
-#define CF 555
-#define CC 666
-#define HITS 777
+#define CF 333
+#define HITS 444
+#define SPMV 555
+#define BFS 666
+#define SSSP 777
 #define ALGORITHMCLASS_ALLVERTEXISACTIVE 2222 // {classname__top_usrcv_udstv, classname__processedges_splitdstvxs, classname__top_nusrcv_nudstv}
 #define ALGORITHMCLASS_NOTALLVERTEXISACTIVE 3333
 
 ////////////////
 
-#define MAX_NUM_PEs 32
+#define MAXNUM_PEs 32
 #define NUM_PEs {{context['NUM_PEs']}}
-#define NUMSUBCPUTHREADS {{context['NUMSUBCPUTHREADS']}}
+#define MAXNUMSUBCPUTHREADS 32
 #define NUMSYNCTHREADS {{context['NUMSYNCTHREADS']}}
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 
@@ -157,7 +142,13 @@
 #endif 
 #if NUM_PEs==12
 #define NUMCOMPUTEUNITS_SLR1AND2 5 
-#define NUMCOMPUTEUNITS_SLR0 5
+#define NUMCOMPUTEUNITS_SLR0 2
+#define NUMCOMPUTEUNITS_SLR1 5
+#define NUMCOMPUTEUNITS_SLR2 5
+#endif 
+#if NUM_PEs==14
+#define NUMCOMPUTEUNITS_SLR1AND2 5 
+#define NUMCOMPUTEUNITS_SLR0 4
 #define NUMCOMPUTEUNITS_SLR1 5
 #define NUMCOMPUTEUNITS_SLR2 5
 #endif 
@@ -211,112 +202,18 @@
 #define VECTOR2_SIZE (VECTOR_SIZE * 2)
 #define VECTOR1024_SIZE 16
 #define DATATYPE_SIZE 32
-#define NUMCOMPUTEUNITS {{context['NUMCOMPUTEUNITS']}}
+#define NUMCOMPUTEUNITS {{context['NUMCOMPUTEUNITS']}} 
 #define NUMCOMPUTEUNITS_HALF (NUMCOMPUTEUNITS / 2)
 #define NUMINTSINKEYVALUETYPE 2
 #define VDATA_PACKINGSIZE_POW 4 // AUTOMATEME.
 #define VDATA_PACKINGSIZE (1 << VDATA_PACKINGSIZE_POW) //
+#define VDATA_BITWIDTH 32
+// #define VDATA_BITWIDTH 64
 
-#define NUMDRAMBANKS {{context['NUMDRAMBANKS']}}
-#define NUMINSTANCES {{context['NUMINSTANCES']}}
-
-#define NUM_PARTITIONS_POW {{context['NUM_PARTITIONS_POW']}}
-#define NUM_PARTITIONS (1 << NUM_PARTITIONS_POW)
-#define MAX_NUM_PARTITIONS NUM_PARTITIONS 
-
-#define OPT_SRAMSZ_POW 10 // 9 // 10
-#define MAX_SRAMSZ_POW (((25 - NUM_PARTITIONS_POW) - NUM_PARTITIONS_POW) - NUM_PARTITIONS_POW) // KVDATA_RANGE_POW // 8192 // 13
-#ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
-	#define SRAMSZ_POW OPT_SRAMSZ_POW 
-#else
-	#define SRAMSZ_POW MAX(MAX_SRAMSZ_POW, OPT_SRAMSZ_POW)
-#endif
-#define SRAMSZ (1 << SRAMSZ_POW)
-
-#if defined(BFS_ALGORITHM) && defined(CONFIG_FORBFS_REPRESENTVDATASASBITS)
-#define ALGORITHMTYPE_REPRESENTVDATASASBITS
-#endif 
-#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS // {actscommon.h, classname__mem_convert_and_access.cpp, loadedges_random.cpp, processedges.cpp, algorithm.cpp, loadgraph.cpp, mem_access.cpp, algo_funcs.cpp}				
-#define VDATA_SHRINK_RATIO_POW 4 // CONSTANT. // NUM_PARTITIONS_POW
-#else 
-#define VDATA_SHRINK_RATIO_POW 0
-#endif 
-#define VDATA_SHRINK_RATIO (1 << VDATA_SHRINK_RATIO_POW)
-
-#define MAXNUMGRAPHITERATIONS 16
-
-#define MAXNUMVERTEXBANKS 1
-#define MAXNUMEDGEBANKS 1
-#define MAXNUMVERTICESPERBANK (KVDATA_RANGE / MAXNUMEDGEBANKS)
-#define MAXNUMVERTICESPERBANK_KVS (MAXNUMVERTICESPERBANK / VECTOR_SIZE)
-
-#define KVDATA_RANGE_POW {{context['KVDATA_RANGE_POW']}}
-#define KVDATA_RANGE (1 << KVDATA_RANGE_POW)
-
-#define NUMWORKERS {{context['NUMWORKERS']}}
-#define NUMSUBWORKERS {{context['NUMSUBWORKERS']}}
-
-#define FETFACTOR (VDATA_PACKINGSIZE / VECTOR_SIZE) // how many stacks of VDATA_PACKINGSIZE vertices are read for every last-level partition
-
-////////////////
-
-#define BATCH_RANGE_POW (KVDATA_RANGE_POW - NUM_PARTITIONS_POW)
-#define BATCH_RANGE (1 << BATCH_RANGE_POW)
-#define BATCH_RANGE_KVS (BATCH_RANGE / VECTOR_SIZE)
-
-#define BATCHRANGESZ (BATCH_RANGE / 2)
-#define BATCHRANGESZ_KVS (BATCHRANGESZ / VECTOR_SIZE)
-
-// tree-depth:sramsz constraint
-/** ACTS constraints equation! (NUM_PARTITIONS_POWx = KVDATA_RANGE_POW - SRAMSZ_POW) */
-#define TREE_DEPTH (((BATCH_RANGE_POW - SRAMSZ_POW) + (NUM_PARTITIONS_POW - 1)) / NUM_PARTITIONS_POW)
-
-#define REDUCESZ_POW (BATCH_RANGE_POW - (TREE_DEPTH * NUM_PARTITIONS_POW))
-#define REDUCESZ (1 << REDUCESZ_POW) // 1024
-#define REDUCEBUFFERSZ (REDUCESZ / 2) // 512
-#define MAXREDUCEBUFFERSZ DOUBLE_BLOCKRAM_SIZE // AUTOMATEME.
-
-#define REDUCEPARTITIONSZ (REDUCESZ * VDATA_PACKINGSIZE) // 16384
-#define REDUCEPARTITIONSZ_KVS2 (REDUCEPARTITIONSZ / VECTOR2_SIZE) // 1024
-#define NUMREDUCEPARTITIONS (((KVDATA_RANGE / NUM_PEs) + (REDUCEPARTITIONSZ - 1)) / REDUCEPARTITIONSZ) // 11 // FIXME: 
-
-/* #ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-	// #ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
-	// #define PROCESSPARTITIONSZ ((((SRAMSZ / NUM_PEs) / VDATA_SHRINK_RATIO) * VDATA_SHRINK_RATIO) * NUM_PEs * VDATA_PACKINGSIZE)
-	// #else 
-	// #define PROCESSPARTITIONSZ (((((1 << OPT_SRAMSZ_POW) / NUM_PEs) / VDATA_SHRINK_RATIO) * VDATA_SHRINK_RATIO) * NUM_PEs * VDATA_PACKINGSIZE)	
-	// #endif 
-	#define PROCESSPARTITIONSZ (((((1 << OPT_SRAMSZ_POW) / NUM_PEs) / VDATA_SHRINK_RATIO) * VDATA_SHRINK_RATIO) * NUM_PEs * VDATA_PACKINGSIZE)	
-#else 
-	#ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
-	#define PROCESSPARTITIONSZ ((SRAMSZ / NUM_PEs) * NUM_PEs * VDATA_PACKINGSIZE) // 16128
-	#else 
-	#define PROCESSPARTITIONSZ (((1 << OPT_SRAMSZ_POW) / NUM_PEs) * NUM_PEs * VDATA_PACKINGSIZE) // 16128
-	#endif 
-	#define PROCESSPARTITIONSZ (((1 << OPT_SRAMSZ_POW) / NUM_PEs) * NUM_PEs * VDATA_PACKINGSIZE) // 16128
-#endif 	 */	
-#define PROCESSPARTITIONSZ (((((1 << OPT_SRAMSZ_POW) / NUM_PEs) / VDATA_SHRINK_RATIO) * VDATA_SHRINK_RATIO) * NUM_PEs * VDATA_PACKINGSIZE)	
-#define SUB_CHUNK_HEIGHT ((SRAMSZ / NUM_PEs) / VDATA_SHRINK_RATIO)
-#define PROCESSPARTITIONSZ_KVS2 (PROCESSPARTITIONSZ / VECTOR2_SIZE) // 1024
-#define NUMPROCESSEDGESPARTITIONS ((KVDATA_RANGE + (PROCESSPARTITIONSZ - 1)) / PROCESSPARTITIONSZ)
-
-#define VMASKBUFFERSZ_KVS (REDUCEPARTITIONSZ / 512) // 32 //>>> 16384=[WidthxHeight*]=512*32 [OBSOLETE]
-#define FACTOR_REDUCEPARTITIONSZ_VMASKSZ (REDUCEPARTITIONSZ_KVS2 / VMASKBUFFERSZ_KVS) // 32 [OBSOLETE]
-
-#define NUMLASTLEVELPARTITIONS (1 << (NUM_PARTITIONS_POW * TREE_DEPTH))
-
-#define NUM_EDGE_BANKS {{context['NUM_EDGE_BANKS']}}
-#define MAX_NUM_EDGE_BANKS 1 // 16
-#define NUMSYNCTHREADS {{context['NUMSYNCTHREADS']}}
-
-#define VPTR_SHRINK_RATIO PROCESSPARTITIONSZ // 16384 // 1, 16, 16384
-
-////////////////
-
-#define MODEL_BATCHSIZE 10000000
-#define MODEL_BATCHSIZE_KVS (MODEL_BATCHSIZE / VECTOR_SIZE)
-
-////////////////
+// messages area
+#define MESSAGESDRAMSZ 1024
+#define BASEOFFSET_MESSAGESDATA 0 
+#define BASEOFFSET_MESSAGESDATA_KVS (BASEOFFSET_MESSAGESDATA / VECTOR_SIZE) 
 
 #define MESSAGES_SIZE 1024
 #define MESSAGES_SIZE_KVS (MESSAGES_SIZE / VECTOR_SIZE)
@@ -349,11 +246,12 @@
 #define MESSAGES_EVALUATION_ACTS_PARTITIONINGLOGIC (MESSAGES_EVALUATION_ACTS_MEMORYLAYOUT + 1)
 #define MESSAGES_EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC (MESSAGES_EVALUATION_ACTS_PARTITIONINGLOGIC + 1)
 #define MESSAGES_EVALUATION_ACTS_HYBRIDLOGIC (MESSAGES_EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC + 1)
-#define MESSAGES_EVALUATION_ACTS_UNUSED1 (MESSAGES_EVALUATION_ACTS_HYBRIDLOGIC + 1)
-#define MESSAGES_EVALUATION_ACTS_UNUSED2 (MESSAGES_EVALUATION_ACTS_UNUSED1 + 1)
-#define MESSAGES_EVALUATION_ACTS_UNUSED3 (MESSAGES_EVALUATION_ACTS_UNUSED2 + 1)
+#define MESSAGES_EVALUATION_ACTS_VERYBARE (MESSAGES_EVALUATION_ACTS_HYBRIDLOGIC + 1)
 
-#define MESSAGES_BASEOFFSETKVS_MESSAGESDATA (MESSAGES_EVALUATION_ACTS_UNUSED3 + 1) // (MESSAGES_ACTSCONFIG_INSERTSTATSMETADATAINEDGES + 1)
+#define MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD (MESSAGES_EVALUATION_ACTS_VERYBARE + 1)
+#define MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION (MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD + 1)
+
+#define MESSAGES_BASEOFFSETKVS_MESSAGESDATA (MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION + 1)
 #define MESSAGES_BASEOFFSETKVS_EDGESDATA (MESSAGES_BASEOFFSETKVS_MESSAGESDATA + 1)
 #define MESSAGES_BASEOFFSETKVS_VERTEXPTR (MESSAGES_BASEOFFSETKVS_EDGESDATA + 1)
 #define MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA (MESSAGES_BASEOFFSETKVS_VERTEXPTR + 1)
@@ -367,7 +265,13 @@
 #define MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE (MESSAGES_BASEOFFSETKVS_KVDRAM + 1)
 #define MESSAGES_ACTSMESSAGE_OTHERINFOS (MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE + 1)
 
-#define MESSAGES_SIZE_MESSAGESDATA (MESSAGES_ACTSMESSAGE_OTHERINFOS + 1)
+#define MESSAGES_BUFFERBASEOFFSETKVS_VDATA1 (MESSAGES_ACTSMESSAGE_OTHERINFOS + 1) // NEWCHANGE.
+#define MESSAGES_BUFFERBASEOFFSETKVS_VDATA2 (MESSAGES_BUFFERBASEOFFSETKVS_VDATA1 + 1)
+#define MESSAGES_BUFFERBASEOFFSETKVS_VDATA3 (MESSAGES_BUFFERBASEOFFSETKVS_VDATA2 + 1)
+#define MESSAGES_BUFFERBASEOFFSETKVS_VDATA4 (MESSAGES_BUFFERBASEOFFSETKVS_VDATA3 + 1)
+#define MESSAGES_BUFFERBASEOFFSETKVS_VDATA5 (MESSAGES_BUFFERBASEOFFSETKVS_VDATA4 + 1)
+
+#define MESSAGES_SIZE_MESSAGESDATA (MESSAGES_BUFFERBASEOFFSETKVS_VDATA5 + 1)
 #define MESSAGES_SIZE_EDGES (MESSAGES_SIZE_MESSAGESDATA + 1)
 #define MESSAGES_SIZE_VERTEXPTRS (MESSAGES_SIZE_EDGES + 1)
 #define MESSAGES_SIZE_SRCVERTICESDATA (MESSAGES_SIZE_VERTEXPTRS + 1)
@@ -418,15 +322,24 @@
 #define MESSAGES_ACTSPARAMS_INSTID (MESSAGES_ACTSPARAMS_NUMEDGECHUNKSINABUFFER + 1)
 #define MESSAGES_ACTSPARAMS_NUM_EDGE_BANKS (MESSAGES_ACTSPARAMS_INSTID + 1)
 #define MESSAGES_ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM (MESSAGES_ACTSPARAMS_NUM_EDGE_BANKS + 1)
+#define MESSAGES_ACTSPARAMS_NUM_PARTITIONS (MESSAGES_ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM + 1)
+#define MESSAGES_ACTSPARAMS_NUM_PARTITIONS_LOP1 (MESSAGES_ACTSPARAMS_NUM_PARTITIONS + 1)
+#define MESSAGES_ACTSPARAMS_NUM_PARTITIONS_LOP2 (MESSAGES_ACTSPARAMS_NUM_PARTITIONS_LOP1 + 1)
+#define MESSAGES_ACTSPARAMS_NUM_PARTITIONS_LOP3 (MESSAGES_ACTSPARAMS_NUM_PARTITIONS_LOP2 + 1)
+#define MESSAGES_ACTSPARAMS_POW_PARTITIONS (MESSAGES_ACTSPARAMS_NUM_PARTITIONS_LOP3 + 1)
+#define MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP1 (MESSAGES_ACTSPARAMS_POW_PARTITIONS + 1)
+#define MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP2 (MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP1 + 1)
+#define MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP3 (MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP2 + 1)
+#define MESSAGES_ACTSPARAMS_WORKBUFFER_SIZE (MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP3 + 1)
+#define MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS (MESSAGES_ACTSPARAMS_WORKBUFFER_SIZE + 1)
+#define MESSAGES_ACTSPARAMS_VPTR_SHRINK_RATIO (MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS + 1) /////////////////////// pass through loadgraph.cpp
+#define MESSAGES_ACTSPARAMS_UNUSED3 (MESSAGES_ACTSPARAMS_VPTR_SHRINK_RATIO + 1)
+#define MESSAGES_ACTSPARAMS_UNUSED4 (MESSAGES_ACTSPARAMS_UNUSED3 + 1)
 
-#define MESSAGES_DUMMYCHKPOINT (MESSAGES_ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM + 1)
+#define MESSAGES_DUMMYCHKPOINT (MESSAGES_ACTSPARAMS_UNUSED4 + 1)
 #define MESSAGES_BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM (MESSAGES_DUMMYCHKPOINT + 1)
 #define MESSAGES_RETURNVALUES (MESSAGES_BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM + MESSAGES_EDGESSTATSDRAM_SIZE)
 #define MESSAGES_MAILBOX (MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_SIZE)
-
-////////////////
-
-#define MAX_NUM_UNIQ_EDGES_PER_VEC 16 // 8, 16
 
 ////////////////
 
@@ -489,7 +402,6 @@ struct _bitData {
 #endif
 
 #define INFINITI ((1 << 30) - 1)
-// #define INFINITI (0xFFFFFFFF) // FIXME. is this better?
 
 #define NAp 666
 #define INVALIDDATA 0x0FFFFFFF 
@@ -500,13 +412,6 @@ struct _bitData {
 
 #define SNAP 1
 #define SYNTHETIC 2
-
-// #define KVDRAMWORKCAPACITY_BYTES 256000000 // HBM has 256MB capacity
-#ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-#define KVDRAMWORKCAPACITY_BYTES (256000000 / 2)
-#else 
-#define KVDRAMWORKCAPACITY_BYTES 256000000	
-#endif 
 
 #define OFFSETOF_DSTV_IN_EDGEDSTVDATA 0
 #define SIZEOF_DSTV_IN_EDGEDSTVDATA 22
@@ -521,8 +426,176 @@ struct _bitData {
 
 #define BRAM_BIT_WIDTH 32
 
-#define CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD (1 << 12)
-#define CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ (1 << 14)
+// #define _DEBUGMODE_KERNELPRINTS_TRACE
+// #ifndef ALLVERTEXISACTIVE_ALGORITHM
+#ifndef FPGA_IMPL
+// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#endif 
+// #endif
+// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+// #define _DEBUGMODE_SUBPMASKING_TRACE
+
+#define ACTSPROCESSMODE 0
+#define ACTSPARTITIONMODE 1
+#define ACTSREDUCEMODE 2
+#define ACTSFETCHMODE 3
+#define ACTSCOMMITMODE 4
+
+// acts-main parameters 
+#ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
+#define NUMPIPELINES_PARTITIONUPDATES 2//1,2* 
+#else 
+#define NUMPIPELINES_PARTITIONUPDATES 2
+#endif 
+#if NUMPIPELINES_PARTITIONUPDATES==1
+#define PUP0
+#endif 
+#if NUMPIPELINES_PARTITIONUPDATES==2
+#define PUP0
+#define PUP1
+#endif
+
+#define ACTSPROC_AUTOMATE_ACROSSDATASETS
+#define ACTSSYNC_AUTOMATE_ACROSSALGORITHMS
+
+#define REDUCEBUFFERFACTOR 8 // CONSTANT
+
+// #define ENABLE_SUBVMASKING
+#define SUBPMASKFACTOR_POW 4
+#define SUBPMASKFACTOR 16 // NOTE: CONSTANT
+
+// buffer parameters
+#define BLOCKRAM_SIZE 512
+#define DOUBLE_BLOCKRAM_SIZE (BLOCKRAM_SIZE * 2)
+
+#ifdef CONFIG_USEURAM_FOR_SRCVBUFFER
+#define MAX_PROC_SRAMSZ_POW 13
+#else 
+// #define MAX_PROC_SRAMSZ_POW 10
+#define MAX_PROC_SRAMSZ_POW 9
+#endif
+
+#ifdef CONFIG_USEURAM_FOR_DESTVBUFFER
+#define MAX_RED_SRAMSZ_POW 13
+#else 
+// #define MAX_RED_SRAMSZ_POW 10
+#define MAX_RED_SRAMSZ_POW 9
+#endif
+
+#define MAX_BLOCKRAM_VSRCDATA_SIZE (1 << MAX_PROC_SRAMSZ_POW)
+#ifdef CONFIG_SEPERATESRCVDESTVBUFFER
+#define MAX_BLOCKRAM_VDESTDATA_SIZE (1 << MAX_RED_SRAMSZ_POW)
+#else 
+#define MAX_BLOCKRAM_VDESTDATA_SIZE	MAX_BLOCKRAM_VSRCDATA_SIZE
+#endif 
+
+#define MAX_BLOCKRAM_VDEST2DATA_SIZE 1	
+
+#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS // {actscommon.h, loadedges_random.cpp, processedges.cpp, algorithm.cpp, loadgraph.cpp, mem_access.cpp, algo_funcs.cpp}				
+#define VDATA_SHRINK_RATIO_POW 4 // CONSTANT. // NUM_PARTITIONS_POW
+#else 
+#define VDATA_SHRINK_RATIO_POW 0
+#endif 
+#define VDATA_SHRINK_RATIO (1 << VDATA_SHRINK_RATIO_POW)
+
+#define OPT_NUM_PARTITIONS_POW 4
+#define OPT_NUM_PARTITIONS (1 << OPT_NUM_PARTITIONS_POW)
+#define MAX_NUM_PARTITIONS 16
+
+#define BLOCKRAM_VDATA_SECTION0 0
+// #define BLOCKRAM_VDATA_SECTION1 (MAX_BLOCKRAXMEM_VDATA_SIZE / 2)
+#define BLOCKRAM_VDATA_SECTION1 0 // FIXME.
+
+#define BLOCKRAM_CURRPMASK_SIZE 256 
+#define BLOCKRAM_NEXTPMASK_SIZE BLOCKRAM_CURRPMASK_SIZE 
+#define BLOCKRAM_CUMMTVPMASK_SIZE BLOCKRAM_CURRPMASK_SIZE
+
+#define BLOCKRAM_GLOBALSTATS_SIZE BLOCKRAM_SIZE 
+#define BLOCKRAM_GLOBALSTATS_BIGSIZE BLOCKRAM_SIZE 
+
+#define MAX_SRCBUFFER_SIZE (BLOCKRAM_SIZE - (4 * 4))
+#define MAX_WORKBUFFER_SIZE (MAX_SRCBUFFER_SIZE - (NUM_PARTITIONS*4))
+
+#define MAX_SOURCEBLOCKRAM_SIZE BLOCKRAM_SIZE 
+#define MAX_DESTBLOCKRAM_SIZE MAX_SOURCEBLOCKRAM_SIZE
+
+#define MAX_ACTVVBUFFER_SIZE (BLOCKRAM_SIZE * 2)
+
+#define MAX_NUMPROCESSEDGESPARTITIONS 16384 // FIXME.
+
+#define MAX_NUM_EDGE_BANKS 1
+
+#define EDGESSTATSDRAMSZ 8
+
+#define MAXNUMGRAPHITERATIONS 16
+
+#define MAX_TOTALDRAMCAPACITY_V ((1 << 28) / 4) // (256MB/4=64M)
+#define MAX_TOTALDRAMCAPACITY_KV ((1 << 28) / 8) // (256MB/8=32M)
+#define MAX_TOTALDRAMCAPACITY_VS (MAX_TOTALDRAMCAPACITY_V / VECTOR2_SIZE) // (64M/16=4M)
+#define MAX_TOTALDRAMCAPACITY_KVS (MAX_TOTALDRAMCAPACITY_KV / VECTOR_SIZE) // (32M/8=4M)
+#define MAX_KVSOURCEDRAMSZ (MAX_TOTALDRAMCAPACITY_KVS * VECTOR_SIZE) // max HBM capacity (256MB)
+#define MAX_KVSOURCEDRAMSZ_KVS (MAX_KVSOURCEDRAMSZ / VECTOR_SIZE)
+#define MAX_PADDEDKVSOURCEDRAMSZ MAX_KVSOURCEDRAMSZ
+#define MAX_PADDEDKVSOURCEDRAMSZ_KVS (MAX_PADDEDKVSOURCEDRAMSZ / VECTOR_SIZE)
+
+// #define MAX_KVDATA_RANGE (1 << {{context['KVDATA_RANGE_POW']}}) // FIXME.
+
+#define SRC_VOLUME_SIZE_KVS (6000000 / VECTOR2_SIZE)
+
+// others
+#define COLLECTGLOBALSTATSCOMMAND 2
+#define COLLECTSTATSCOMMAND 3
+#define PARTITIONKEYVALUECOMMAND 4
+#define COLLECTSTATSANDPARTITIONCOMMAND 5
+#define APPENDINVALIDSCOMMAND 6
+#define NOCOMMAND 8
+
+#define NOBUFFERADDRESS 999999999
+
+#define SIZEOF_KEY 22
+#define SIZEOF_VALUE 10
+
+// #if defined(ALGORITHMTYPE_REPRESENTVDATASASBITS) // {1st 16 is masks}{2nd 16 is vdatas} (see classname__mem_convert_and_access.cpp)
+// #define BEGINOFFSETOF_VDATA 0
+// #define OFFSETOF_VDATA 0
+// #define SIZEOF_VDATA 1
+// #define BEGINOFFSETOF_VMASK 16
+// #define OFFSETOF_VMASK 0
+// #define SIZEOF_VMASK 1
+// #else 
+// #define BEGINOFFSETOF_VDATA 0
+// #define OFFSETOF_VDATA 0
+// #define SIZEOF_VDATA 31
+// #define BEGINOFFSETOF_VMASK 31
+// #define OFFSETOF_VMASK 31
+// #define SIZEOF_VMASK 1
+// #endif 
+
+#define BEGINOFFSETOF_VDATA 0
+#define OFFSETOF_VDATA 0
+#define SIZEOF_VDATA 31
+#define BEGINOFFSETOF_VMASK 31
+#define OFFSETOF_VMASK 31
+#define SIZEOF_VMASK 1
+
+#define BEGINOFFSETOF_DEST_VDATA 0
+#define OFFSETOF_DEST_VDATA 0
+#define SIZEOF_DEST_VDATA 1
+#define BEGINOFFSETOF_DEST_VMASK 16
+#define OFFSETOF_DEST_VMASK 0
+#define SIZEOF_DEST_VMASK 1
+
+#define OFFSETOF_EDIR 31
+#define SIZEOF_EDIR 1
+ 
+#define SIZEOF_VDATAKEY 16
+#define SIZEOF_VDATAVALUE 16
+
+// #define MAXVDATA 0xFFFFFFFF
+#define MAXVDATA 0b01111111111111111111111111111111
+
+#define NUM_COLLECTIONS 16
+#define COLLECTIONS_BUFFERSZ 2
 
 typedef unsigned int vertex_t;
 typedef unsigned int edge_t;
@@ -530,6 +603,15 @@ typedef unsigned int edge_t;
 typedef unsigned int keyy_t;
 typedef unsigned int value_t;
 typedef unsigned int value2_dt;
+
+typedef unsigned int batch_type;
+typedef unsigned int buffer_type;
+typedef unsigned int partition_type;
+typedef unsigned int vector_type;
+typedef unsigned int step_type;
+typedef unsigned int bool_type;
+typedef unsigned int analysis_type;
+typedef unsigned int visitstate_type;
 
 typedef struct {
 	unsigned int key;
@@ -571,23 +653,12 @@ typedef struct {
 	#endif 
 } uint32_vec_dt;
 
-/* typedef struct {
-	// #ifdef _WIDEWORD
-	// ap_uint<1> data[1]; // 32
-	// #else 
-	unsigned int data[1]; // 32
-	// #endif 
-} pmask_dt; */
-
 #ifdef _WIDEWORD
 typedef ap_uint<1> unit1_type;
 #else 
 typedef unsigned int unit1_type;
 #endif 
 
-// typedef struct {
-	// unit1_type data[BRAM_BIT_WIDTH];
-// } pmask_dt;
 typedef unsigned int pmask_dt;
 
 #ifdef _WIDEWORD
@@ -609,7 +680,7 @@ typedef unsigned int uint16_type;
 #endif
 
 #ifdef _WIDEWORD
-typedef ap_uint<32> uint32_type;
+typedef ap_uint<VDATA_BITWIDTH> uint32_type; // REMOVEME.
 #else
 typedef unsigned int uint32_type;
 #endif
@@ -777,6 +848,376 @@ typedef struct {
 	unsigned int C;
 	unsigned int D;
 } triple_t;
+
+typedef struct {
+	#ifdef _WIDEWORD
+	ap_uint<16> key;
+	ap_uint<16> value;
+	#else 
+	unsigned int key;
+	unsigned int value;
+	#endif 
+} keyvalue_capsule_t;
+
+#ifdef _WIDEWORD_FOR_KV
+typedef ap_uint<32> keyvalue_buffer_t;
+#else
+typedef struct {
+	unsigned int key;
+	unsigned int value;
+} keyvalue_buffer_t;
+#endif
+
+typedef struct {
+	unsigned int vmask;
+	unsigned int vdata;
+} vmdata_t;
+
+#ifdef _WIDEWORD
+typedef ap_uint<VDATA_BITWIDTH> keyvalue_vbuffer_t;
+#else
+typedef unsigned int keyvalue_vbuffer_t;
+#endif 
+
+#ifdef _WIDEWORD
+typedef ap_uint<32> vtxbuffer_type;
+#else
+typedef unsigned int vtxbuffer_type;
+#endif 
+
+typedef struct {
+	unsigned int data1;
+} collection_t;
+
+typedef struct {
+	unsigned int currentLOP;
+	unsigned int upperlimit;
+	unsigned int upperpartition;
+	unsigned int source_partition;
+	unsigned int worksourcebaseaddress_kvs;
+	unsigned int workdestbaseaddress_kvs;
+} sweepparams_t;
+
+typedef struct {
+	unsigned int i;
+	unsigned int i_kvs;
+	unsigned int begin;
+	unsigned int begin_kvs;
+	unsigned int end;
+	unsigned int end_kvs;
+	unsigned int size;
+	unsigned int size_kvs;
+	unsigned int skip;
+	unsigned int skip_kvs;
+	unsigned int i2;
+	unsigned int i2_kvs;
+	unsigned int info;
+} travstate_t;
+
+typedef struct {
+	unsigned int i;
+	unsigned int begin;
+	unsigned int size;	
+} state_t;
+
+typedef struct {
+	unsigned int enablecollectglobalstats;
+	unsigned int enablepartition;
+	unsigned int enablereduce;
+	unsigned int enableprocessedges;
+} config_t;
+
+typedef struct {
+	unsigned int DRAM_BASE_KVS;
+	
+	unsigned int ENABLE_RUNKERNELCOMMAND;
+	unsigned int ENABLE_PROCESSCOMMAND;
+	unsigned int ENABLE_PARTITIONCOMMAND;
+	unsigned int ENABLE_APPLYUPDATESCOMMAND;
+	unsigned int GPMODE;
+	unsigned int ACTSCONFIG_INSERTSTATSMETADATAINEDGES;
+	
+	unsigned int EVALUATION_ACTS_MEMORYLAYOUT;
+	unsigned int EVALUATION_ACTS_PARTITIONINGLOGIC;
+	unsigned int EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC;
+	unsigned int EVALUATION_ACTS_HYBRIDLOGIC;
+	unsigned int EVALUATION_ACTS_VERYBARE;
+	
+	unsigned int THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD;
+	unsigned int THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION;
+
+	unsigned int BASEOFFSETKVS_MESSAGESDATA;
+	unsigned int BASEOFFSETKVS_EDGESDATA;
+	unsigned int BASEOFFSETKVS_VERTEXPTR;
+	unsigned int BASEOFFSETKVS_SRCVERTICESDATA;
+	unsigned int BASEOFFSETKVS_DESTVERTICESDATA;
+	unsigned int BASEOFFSETKVS_ACTIVEVERTICES;
+	unsigned int BASEOFFSETKVS_VERTICESDATAMASK;
+	unsigned int BASEOFFSETKVS_VERTICESPARTITIONMASK;
+	unsigned int BASEOFFSETKVS_STATSDRAM;
+	unsigned int BASEOFFSETKVS_EDGESSTATSDRAM;
+	unsigned int BASEOFFSETKVS_KVDRAM;
+	unsigned int BASEOFFSETKVS_KVDRAMWORKSPACE;
+	unsigned int BASEOFFSETKVS_OTHERINFOS;
+	
+	unsigned int BUFFERBASEOFFSETKVS_VDATA1;
+	unsigned int BUFFERBASEOFFSETKVS_VDATA2;
+	unsigned int BUFFERBASEOFFSETKVS_VDATA3;
+	unsigned int BUFFERBASEOFFSETKVS_VDATA4;
+	unsigned int BUFFERBASEOFFSETKVS_VDATA5;
+
+	unsigned int SIZE_MESSAGESDRAM;
+	unsigned int SIZE_EDGES;
+	unsigned int SIZE_VERTEXPTRS;
+	unsigned int SIZE_SRCVERTICESDATA;
+	unsigned int SIZE_DESTVERTICESDATA;
+	unsigned int SIZE_ACTIVEVERTICES;
+	unsigned int SIZE_VERTICESDATAMASK;
+	unsigned int SIZE_VERTICESPARTITIONMASK;
+	unsigned int SIZE_KVSTATSDRAM;
+	unsigned int SIZE_EDGESSTATSDRAM;
+	unsigned int SIZE_KVDRAM;
+	unsigned int SIZE_KVDRAMWORKSPACE;
+	unsigned int SIZE_OTHERINFOS;
+	unsigned int SIZEKVS2_PROCESSEDGESPARTITION;
+	unsigned int SIZE_REDUCE;
+	unsigned int SIZEKVS2_REDUCEPARTITION;
+	unsigned int SIZEKVS_VMASKBUFFER;
+	unsigned int SIZE_BATCHRANGE;
+	unsigned int SIZE_RUN;
+
+	unsigned int POW_MESSAGESDRAM;
+	unsigned int POW_EDGES;
+	unsigned int POW_VERTEXPTRS;
+	unsigned int POW_SRCVERTICESDATA;
+	unsigned int POW_DESTVERTICESDATA;
+	unsigned int POW_ACTIVEVERTICES;
+	unsigned int POW_VERTICESDATAMASK;
+	unsigned int POW_KVSTATSDRAM;
+	unsigned int POW_EDGESSTATSDRAM;
+	unsigned int POW_KVDRAM;
+	unsigned int POW_KVDRAMWORKSPACE;
+	unsigned int POW_REDUCE;
+	unsigned int POW_BATCHRANGE;
+	
+	unsigned int NUM_PROCESSEDGESPARTITIONS;
+	unsigned int NUM_REDUCEPARTITIONS;
+
+	unsigned int ALGORITHMINFO_GRAPHITERATIONID;
+	unsigned int ALGORITHMINFO_GRAPHALGORITHMID;
+	unsigned int ALGORITHMINFO_GRAPHALGORITHMCLASS; // computed online
+
+	unsigned int ACTSPARAMS_BEGINLOP;
+	unsigned int ACTSPARAMS_NUMLOPS;
+	unsigned int ACTSPARAMS_TREEDEPTH;
+	unsigned int ACTSPARAMS_FINALNUMPARTITIONS;
+	unsigned int ACTSPARAMS_SRCVOFFSET;
+	unsigned int ACTSPARAMS_SRCVSIZE;
+	unsigned int ACTSPARAMS_DESTVOFFSET;
+	unsigned int ACTSPARAMS_NUMEDGECHUNKSINABUFFER;
+	unsigned int ACTSPARAMS_INSTID;
+	unsigned int ACTSPARAMS_NUM_EDGE_BANKS;
+	unsigned int ACTSPARAMS_EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM;
+	unsigned int ACTSPARAMS_NUM_PARTITIONS;
+	unsigned int ACTSPARAMS_NUM_PARTITIONS_LOP1;
+	unsigned int ACTSPARAMS_NUM_PARTITIONS_LOP2;
+	unsigned int ACTSPARAMS_NUM_PARTITIONS_LOP3;
+	unsigned int ACTSPARAMS_POW_PARTITIONS;
+	unsigned int ACTSPARAMS_POW_PARTITIONS_LOP1;
+	unsigned int ACTSPARAMS_POW_PARTITIONS_LOP2;
+	unsigned int ACTSPARAMS_POW_PARTITIONS_LOP3;
+	unsigned int ACTSPARAMS_WORKBUFFER_SIZE;
+	unsigned int ACTSPARAMS_TOTALDRAMCAPACITY_KVS;
+	unsigned int ACTSPARAMS_VPTR_SHRINK_RATIO;
+	unsigned int ACTSPARAMS_UNUSED3;
+	unsigned int ACTSPARAMS_UNUSED4;
+	
+	unsigned int DUMMYCHKPOINT;
+	unsigned int BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM;
+	unsigned int RETURNVALUES;
+	unsigned int MAILBOX;
+
+	unsigned int VARS_WORKBATCH;
+} globalparams_t;
+
+typedef struct {
+	// string GRAPH_NAME;
+	// string GRAPH_PATH;
+	
+	unsigned int ALGORITHM; 
+	unsigned int NUM_ITERATIONS;
+	unsigned int ROOTVID;
+	
+	unsigned int NUM_VERTICES;
+	unsigned int NUM_EDGES;
+	
+	unsigned int KVDRAMWORKCAPACITY_BYTES;
+	
+	unsigned int NUM_PARTITIONS_POW;
+	unsigned int NUM_PARTITIONS;
+
+	unsigned int OPT_PROC_SRAMSZ_POW;
+	unsigned int PROC_SRAMSZ_POW;
+	unsigned int PROC_SRAMSZ;
+	
+	unsigned int OPT_RED_SRAMSZ_POW;
+	unsigned int RED_SRAMSZ_POW;
+	unsigned int RED_SRAMSZ;
+
+	unsigned int KVDATA_RANGE_POW;
+	unsigned int KVDATA_RANGE;
+
+	unsigned int BATCH_RANGE_POW;
+	unsigned int BATCH_RANGE;
+	unsigned int BATCH_RANGE_KVS;
+
+	unsigned int TREE_DEPTH;
+
+	unsigned int REDUCESZ_POW;
+	unsigned int REDUCESZ;
+
+	unsigned int REDUCEPARTITIONSZ;
+	unsigned int REDUCEPARTITIONSZ_KVS2;
+	unsigned int NUMREDUCEPARTITIONS;
+
+	unsigned int PROCESSPARTITIONSZ;
+	unsigned int SUB_CHUNK_HEIGHT;
+	unsigned int PROCESSPARTITIONSZ_KVS2;
+	unsigned int NUMPROCESSEDGESPARTITIONS;
+	
+	unsigned int NUMLASTLEVELPARTITIONS;
+
+	unsigned int NUM_EDGE_BANKS;
+	
+	unsigned int VPTR_SHRINK_RATIO;
+
+	unsigned int TOTALDRAMCAPACITY_V; // (256MB/4=64M)
+	unsigned int TOTALDRAMCAPACITY_KV; // (256MB/8=32M)
+	unsigned int TOTALDRAMCAPACITY_VS; // (64M/16=4M)
+	unsigned int TOTALDRAMCAPACITY_KVS; // (32M/8=4M)
+	unsigned int KVSOURCEDRAMSZ; // TOTALDRAMCAPACITY_KV // max HBM capacity (256MB)
+
+	unsigned int KVSOURCEDRAMSZ_KVS;
+	unsigned int PADDEDKVSOURCEDRAMSZ;
+	unsigned int PADDEDKVSOURCEDRAMSZ_KVS;
+
+	unsigned int VDRAMSZ;
+	unsigned int PADDEDVDRAMSZ;
+	unsigned int PADDEDVDRAMSZ_KVS;
+	
+	unsigned int DRAMPADD;
+	unsigned int DRAMPADD_KVS;
+
+	unsigned int DRAMPADD_VPTRS;
+	unsigned int DRAMPADD_VPTRS_KVS;
+	
+	unsigned int SRCBUFFER_SIZE;
+	unsigned int WORKBUFFER_SIZE;
+	
+	unsigned int EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM;
+} universalparams_t;
+
+typedef struct {
+	globalparams_t globalparamsK;
+	globalparams_t globalparamsE;
+	globalparams_t globalparamsV;
+	globalparams_t globalparamsM;
+} globalparams_TWOt;
+
+typedef struct {
+	unsigned int baseaddr_worksourcekvs_kvs;
+	unsigned int baseaddr_workdestkvs_kvs;
+	unsigned int baseaddr_capsule_kvs;
+	unsigned int baseaddr_stats;
+	unsigned int num_source_partitions;
+	unsigned int nextsourceoffset_partition;
+	unsigned int nextdestoffset_partition;
+	unsigned int nextsourceoffset_kv;
+	unsigned int nextdestoffset_kv;
+	unsigned int sourceskipsize_partition;
+	unsigned int destskipsize_partition;
+	unsigned int sourceskipsize_kv;
+	unsigned int destskipsize_kv;
+	unsigned int destpartitionrange;
+	unsigned int currentLOP;
+	unsigned int upperlimit;
+} clopparams_t;
+
+typedef struct {
+	unsigned int begin_kvs;
+	unsigned int size_kvs;
+	unsigned int step_kvs;
+	unsigned int end_kvs;
+} partitionparams_t;
+
+typedef struct {
+	unsigned int globaloffset;
+	unsigned int localoffset;
+} offset_t;
+
+typedef struct {
+	int nextoffset_kvs;
+	int chunksize_kvs;
+} fetchmessage_t;
+
+typedef struct {
+	unsigned int first;
+	unsigned int last;
+	unsigned int edgebankID;
+	unsigned int v_chunkid;
+	unsigned int stage;
+	unsigned int laststage;
+	unsigned int currentLOP;
+	unsigned int lastLOP;
+	unsigned int source_partition;
+	unsigned int first_source_partition;
+	unsigned int last_source_partition;
+	unsigned int num_source_partitions;
+	unsigned int sourcestatsmarker;
+	unsigned int deststatsmarker;
+	unsigned int num_active_vertices;
+	unsigned int EN_PROCESS; 
+	unsigned int EN_PARTITION; 
+	unsigned int EN_REDUCE;
+	unsigned int EN_PROCESSANDREDUCE;
+	unsigned int EN_PROCESSANDPARTITION;
+} globalposition_t;
+
+typedef struct {
+	bool active;
+	int beginoffset;
+	int endoffset;
+	int s_base;
+	int local_rowoffset;
+} sliceinfo_t;
+
+typedef struct {
+	sliceinfo_t slice[4];
+} sliceinfos_t;
+
+typedef struct {
+	unsigned int incr;
+	unsigned int dstvid;
+} parsededge_t;
+
+typedef struct {
+	unsigned int srcvoffset[NUM_PEs];
+	unsigned int srcvsize[NUM_PEs];
+	unsigned int destvoffset[NUM_PEs];
+	unsigned int actvvsize[NUM_PEs];
+	unsigned int firstvid[NUM_PEs];
+	unsigned int edgeoffset[NUM_PEs];
+	unsigned int edgessize[NUM_PEs];
+	unsigned int batchoffset[NUM_PEs];
+	unsigned int batchsize[NUM_PEs];
+	unsigned int runsize[NUM_PEs]; 
+	unsigned int numedgesretrieved[1];
+	unsigned int totalnumedgesinfile[1];
+	edge_t * vertexptrs[NUM_PEs];
+	edge2_type * edgesbuffer[NUM_PEs];
+	edge_t tempvertexptrs[NUM_PEs][2];
+	edge2_type tempedges[NUM_PEs][2];
+} container_t;
 #endif
 
 

@@ -1,0 +1,45 @@
+unsigned int MERGE{{context['id']}}_actvpstatsoffset(globalparams_t globalparams);
+
+void MERGE{{context['id']}}_RearrangeLayoutV(unsigned int s, unsigned int data[VECTOR2_SIZE], unsigned int data2[VECTOR2_SIZE]);
+
+void MERGE{{context['id']}}_RearrangeLayoutA(unsigned int s, unit1_type data[VECTOR2_SIZE], unit1_type data2[VECTOR2_SIZE]);
+
+void MERGE{{context['id']}}_SavingBufferedPartitions(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, unsigned int instanceid, unsigned int partition, unsigned int voffset_kvs, unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE], unsigned int * partition_offset, globalparams_t globalparamsvA, globalparams_t globalparamsvB, globalparams_t globalparamsvC);
+
+void MERGE{{context['id']}}_collects(
+		unsigned int instanceid,
+		unsigned int voffset_kvs,
+		unsigned int gvoffset_kvs,
+		value_t vdatas[VECTOR2_SIZE],
+		keyvalue_t actvvbuffer[VECTOR2_SIZE][MAX_ACTVVBUFFER_SIZE],
+		unsigned int vpmaskbuffer[BLOCKRAM_CUMMTVPMASK_SIZE],
+		unsigned int loadcount[VECTOR2_SIZE],
+		unsigned int numactvvs[VECTOR2_SIZE],
+		unsigned int local_actvv[VECTOR2_SIZE],
+		unsigned int local_actvv2[VECTOR2_SIZE],
+		unsigned int global_actvvs[VECTOR2_SIZE],
+		uint32_type vpmaskVecSum[VECTOR2_SIZE],
+		unsigned int partition_offset
+		);
+
+void MERGE{{context['id']}}_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram);
+
+void MERGE{{context['id']}}_mergeVs{{n}}(uint512_dt * kvdram, uint512_dt * vdram);
+			
+{%for n in context['T_seq']%}{%if(n>=1)%}
+void MERGE{{context['id']}}_mergeVs{{n}}({%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} uint512_dt * vdram, 
+		{%for i in context['T_seq']%}{%if(i<n)%}keyvalue_t globalstatsbuffer{{i}}[BLOCKRAM_SIZE],{%endif%}{%endfor%}
+			globalparams_t globalparams, globalparams_t globalparamsv);				
+{%endif%}{%endfor%}
+
+void MERGE{{context['id']}}_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram);
+
+void TOP{{context['id']}}_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram);
+
+
+
+
+
+
+
+

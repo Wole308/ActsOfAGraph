@@ -1,0 +1,183 @@
+// primitives
+unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA(keyvalue_vbuffer_t wideword){
+	#pragma HLS INLINE
+	#ifdef CONFIG_BITMASK_NOT_USED
+	return wideword;
+	#else 
+	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA);
+	#endif 
+}
+unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVMASK(keyvalue_vbuffer_t wideword){
+	#pragma HLS INLINE
+	#ifdef CONFIG_BITMASK_NOT_USED
+	return 0;
+	#else 
+	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK);
+	#endif 
+}
+unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVDATA2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata){
+	#pragma HLS INLINE
+	#ifdef CONFIG_BITMASK_NOT_USED
+	return wideword;
+	#else 
+	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, offsetof_vdata, SIZEOF_VDATA);
+	#endif 
+}
+unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vmask){
+	#pragma HLS INLINE
+	#ifdef CONFIG_BITMASK_NOT_USED
+	return 0;
+	#else 
+	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, offsetof_vmask, SIZEOF_VMASK);
+	#endif 
+}
+
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
+	#pragma HLS INLINE
+	#ifdef CONFIG_BITMASK_NOT_USED
+	*wideword = vdata;
+	#else 
+	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA, vdata);
+	#endif 
+	return;
+}
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
+	#pragma HLS INLINE
+	#ifdef CONFIG_BITMASK_NOT_USED
+	// NAp
+	#else 
+	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK, vmask);
+	#endif 
+	return;
+}
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata, unsigned int offsetof_vdata){
+	#pragma HLS INLINE
+	#ifdef CONFIG_BITMASK_NOT_USED
+	*wideword = vdata;
+	#else 
+	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, offsetof_vdata, SIZEOF_VDATA, vdata);
+	#endif 
+	return;
+}
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vmask, unsigned int offsetof_vmask){
+	#pragma HLS INLINE
+	#ifdef CONFIG_BITMASK_NOT_USED
+	// NAp
+	#else 
+	UTIL{{context['id']}}_WRITEBITSTO_UINTV(wideword, offsetof_vmask, SIZEOF_VMASK, vmask);
+	#endif 
+	return;
+}
+
+unsigned int {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READEDIR(unsigned int wideword){
+	#pragma HLS INLINE
+	return UTIL{{context['id']}}_READBITSFROM_UINTV(wideword, OFFSETOF_EDIR, SIZEOF_EDIR);
+}
+
+// non-primitives
+vmdata_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(keyvalue_vbuffer_t bits_vector){
+	#pragma HLS INLINE
+	vmdata_t vmdata;
+	vmdata.vdata = MEMCA{{context['id']}}_READVDATA(bits_vector); 
+	vmdata.vmask = MEMCA{{context['id']}}_READVMASK(bits_vector); 
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
+	if(vmdata.vmask == 1){ cout<<">>> MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK:: ACTIVE VERTEX READ: @ index: "<<index<<endl; }
+	#endif
+	return vmdata;
+}
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){				
+	#pragma HLS INLINE
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK:", index/2, MAX_BLOCKRAM_VDESTDATA_SIZE, index, NAp, NAp);
+	#endif
+
+	MEMCA{{context['id']}}_WRITEVDATA(&bits_vector, vdata);
+	MEMCA{{context['id']}}_WRITEVMASK(&bits_vector, vmask);
+	buffer[bufferoffset_kvs + index] = bits_vector;
+	return;
+}
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETODRAM_VDATAWITHVMASK(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+	#pragma HLS INLINE
+	// {1st 16 is masks}{2nd 16 is vdatas}
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_WRITETODRAM_VDATAWITHVMASK:", index, MAX_TOTALDRAMCAPACITY_KVS, index, NAp, NAp);
+	#endif
+
+	MEMCA{{context['id']}}_WRITEVDATA(&bits_vector, vdata);
+	MEMCA{{context['id']}}_WRITEVMASK(&bits_vector, vmask);
+	UTIL{{context['id']}}_SetData(kvdram, dramoffset_kvs, (index / VDATA_SHRINK_RATIO), bits_vector);
+	return;
+}
+
+vmdata_t {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t bits_vector){
+	#pragma HLS INLINE
+	// {1st 16 is masks}{2nd 16 is vdatas}
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK2(220):", index % VDATA_SHRINK_RATIO, 32, index, NAp, NAp);
+	#endif
+	
+	vmdata_t vmdata;
+	tuple_t tup;
+	unsigned int offsetof_vdata = (index % VDATA_SHRINK_RATIO);
+	
+	#ifdef HWBITACCESSTYPE
+	tup.A = MEMCA{{context['id']}}_READVDATA2(bits_vector, offsetof_vdata); 
+	tup.B = MEMCA{{context['id']}}_READVMASK2(bits_vector, BEGINOFFSETOF_DEST_VMASK + offsetof_vdata); 
+	vmdata.vdata = tup.A;
+	vmdata.vmask = tup.B;
+	#else
+	vmdata.vdata = UTIL{{context['id']}}_SWREADBITSFROM_UINTV(bits_vector, offsetof_vdata, SIZEOF_VDATA);
+	vmdata.vmask = UTIL{{context['id']}}_SWREADBITSFROM_UINTV(bits_vector, BEGINOFFSETOF_DEST_VMASK + offsetof_vdata, SIZEOF_DEST_VMASK);
+	#endif 
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+	if(vmdata.vmask == 1){ cout<<">>> MEMCA{{context['id']}}_VDATAWITHVMASK2(224):: ACTIVE VERTEX READ: @ offsetof_vdata: "<<offsetof_vdata<<", vmdata.vdata: "<<vmdata.vdata<<", vmdata.vmask: "<<vmdata.vmask<<", sub_chunk_height: "<<(index / VDATA_SHRINK_RATIO)<<", index: "<<index<<endl; }						
+	#endif
+	return vmdata;
+}
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+	#pragma HLS INLINE
+	// {1st 16 is masks}{2nd 16 is vdatas}
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_WRITETOBUFFER_VDATAWITHVMASK2:", index/VDATA_SHRINK_RATIO, MAX_BLOCKRAM_VDESTDATA_SIZE, index, NAp, NAp);
+	#endif
+
+	unsigned int offsetof_vdata = (index % VDATA_SHRINK_RATIO);
+	// keyvalue_vbuffer_t bits_vector = buffer[bufferoffset_kvs + (index / VDATA_SHRINK_RATIO)];
+	
+	#ifdef HWBITACCESSTYPE
+	MEMCA{{context['id']}}_WRITEVDATA2(&bits_vector, vdata, offsetof_vdata);
+	MEMCA{{context['id']}}_WRITEVMASK2(&bits_vector, vmdata, BEGINOFFSETOF_DEST_VMASK + offsetof_vdata);
+	#else
+	UTIL{{context['id']}}_SWWRITEBITSTO_UINTV(&bits_vector, offsetof_vdata, SIZEOF_VDATA, vdata);
+	UTIL{{context['id']}}_SWWRITEBITSTO_UINTV(&bits_vector, BEGINOFFSETOF_DEST_VMASK + offsetof_vdata, SIZEOF_DEST_VMASK, vmask);	
+	#endif 
+	
+	buffer[bufferoffset_kvs + (index / VDATA_SHRINK_RATIO)] = bits_vector;
+	return;
+}
+void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRITETODRAM_VDATAWITHVMASK2(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+	#pragma HLS INLINE
+	// {1st 16 is masks}{2nd 16 is vdatas}
+	#ifdef _DEBUGMODE_CHECKS2
+	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_WRITETODRAM_VDATAWITHVMASK2:", index/VDATA_SHRINK_RATIO, MAX_TOTALDRAMCAPACITY_KVS, index, NAp, NAp);
+	#endif
+
+	unsigned int offsetof_vdata = (index % VDATA_SHRINK_RATIO);
+	
+	#ifdef HWBITACCESSTYPE
+	MEMCA{{context['id']}}_WRITEVDATA2(&bits_vector, vdata, offsetof_vdata);
+	MEMCA{{context['id']}}_WRITEVMASK2(&bits_vector, vmask, BEGINOFFSETOF_VMASK + offsetof_vdata);
+	#else
+	UTIL{{context['id']}}_SWWRITEBITSTO_UINTV(&bits_vector, offsetof_vdata, SIZEOF_VDATA, vdata);
+	UTIL{{context['id']}}_SWWRITEBITSTO_UINTV(&bits_vector, BEGINOFFSETOF_VMASK + offsetof_vdata, SIZEOF_VMASK, vmask);	
+	#endif 
+	
+	UTIL{{context['id']}}_SetData(kvdram, dramoffset_kvs, (index / VDATA_SHRINK_RATIO), bits_vector);
+	return;
+}
+
+
+
+
