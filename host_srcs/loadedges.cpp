@@ -342,8 +342,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				#ifdef _DEBUGMODE_HOSTPRINTS
 				cout<<"=== EDGE BLOCK LOOP: loadedges:: i: "<<i<<", v_partition: "<<v_partition<<" (of "<<kvdata_range__div__vptr_shrink_ratio<<")"<<", eid_offset: "<<eid_offset<<" (of "<<(edgecount_vpartition[i][v_partition] + (_ACTS_READEDGEGRANULARITY-1)) / _ACTS_READEDGEGRANULARITY<<"), edgecount_vpartition["<<i<<"]["<<v_partition<<"]: "<<edgecount_vpartition[i][v_partition]<<", tempe_index: "<<tempe_index<<", chunk_size: "<<chunk_size<<endl;
 				// cout<<"=== loadedges:: i: "<<i<<", counts_alledges_for_vpartition["<<i<<"]["<<v_partition<<"]: "<<counts_alledges_for_vpartition[i][v_partition]<<endl;
-				#endif 
-				// exit(EXIT_SUCCESS);/////////////
+				#endif
 				
 				edge2_type firstedgeinblock;
 				unsigned int srcvtxoffsetofblock;
@@ -581,7 +580,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		#endif 
 		
 		for(unsigned int k=0; k<edges2_temp[i].size(); k++){		
-			utilityobj->checkoutofbounds("loadedges::insert.bitmap(20)::", TWOO*baseoffset_edgesdata + k, universalparams.TOTALDRAMCAPACITY_KVS * VECTOR_SIZE, NAp, NAp, NAp);		
+			utilityobj->checkoutofbounds("loadedges::insert.bitmap(20)::", TWOO*baseoffset_edgesdata + k, universalparams.MAXHBMCAPACITY_KVS * VECTOR_SIZE, NAp, NAp, NAp);		
 			edges[i][TWOO*baseoffset_edgesdata + k].dstvid = edges2_temp[i][k].dstvid;		
 		}	
 		if(debug2b==true){ utilityobj->printvalues("loadedges[after]::loadedges: printing edges["+std::to_string(i)+"][~]", (value_t *)&edges[i][TWOO*baseoffset_edgesdata], 8); }

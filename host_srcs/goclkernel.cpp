@@ -129,33 +129,14 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		unsigned int * vpmaskbuffer[MAXNUMGRAPHITERATIONS], unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
-	// #ifdef EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.TOTALDRAMCAPACITY_KVS/2); t++){ kvsourcedram[i][(universalparams.TOTALDRAMCAPACITY_KVS/2) + t] = edges[i][t]; }}
-	}
-	// #endif 
-	
 	#ifdef TESTHWKERNEL
 	unsigned int _NUMCOMPUTEUNITS_SLR0 = 1; 
 	unsigned int _NUMCOMPUTEUNITS_SLR1 = 1; 
 	unsigned int _NUMCOMPUTEUNITS_SLR2 = 1; 
 	#else 
-		// unsigned int _NUMCOMPUTEUNITS_SLR0 = 6; 
-		// unsigned int _NUMCOMPUTEUNITS_SLR1 = 8; 
-		// unsigned int _NUMCOMPUTEUNITS_SLR2 = 8; 
-		#if NUM_PEs<22
-		// unsigned int _NUMCOMPUTEUNITS_SLR0 = 6; 
-		// unsigned int _NUMCOMPUTEUNITS_SLR1 = 8; 
-		// unsigned int _NUMCOMPUTEUNITS_SLR2 = 8; 
-		
-		unsigned int _NUMCOMPUTEUNITS_SLR0 = 6; 
-		unsigned int _NUMCOMPUTEUNITS_SLR1 = 7; 
-		unsigned int _NUMCOMPUTEUNITS_SLR2 = 7; 
-		#else 
-		unsigned int _NUMCOMPUTEUNITS_SLR0 = NUMCOMPUTEUNITS_SLR0; 
-		unsigned int _NUMCOMPUTEUNITS_SLR1 = NUMCOMPUTEUNITS_SLR1; 
-		unsigned int _NUMCOMPUTEUNITS_SLR2 = NUMCOMPUTEUNITS_SLR2; 
-		#endif 
+	unsigned int _NUMCOMPUTEUNITS_SLR0 = NUMCOMPUTEUNITS_SLR0; 
+	unsigned int _NUMCOMPUTEUNITS_SLR1 = NUMCOMPUTEUNITS_SLR1; 
+	unsigned int _NUMCOMPUTEUNITS_SLR2 = NUMCOMPUTEUNITS_SLR2; 
 	#endif 
 	cout<<"--------------------------- goclkernel::runapp:: _NUMCOMPUTEUNITS_SLR0: "<<_NUMCOMPUTEUNITS_SLR0<<", _NUMCOMPUTEUNITS_SLR1: "<<_NUMCOMPUTEUNITS_SLR1<<", _NUMCOMPUTEUNITS_SLR2: "<<_NUMCOMPUTEUNITS_SLR2<<endl;
 	
@@ -163,8 +144,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	unsigned int edgessz_kvs = 0;
 	unsigned int kvdramsz_kvs = 0;
 	unsigned int mdramsz_kvs = 0;
-	edgessz_kvs = universalparams.TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
-	kvdramsz_kvs = universalparams.TOTALDRAMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;
+	edgessz_kvs = universalparams.MAXHBMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
+	kvdramsz_kvs = universalparams.MAXHBMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;
 	// edgessz_kvs = 10000; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
 	// kvdramsz_kvs = 10000; // KVSOURCEDRAMSZ_KVS;
 	#ifdef CONFIG_ACTS_HYBRIDLOGIC_XXXXXXXXXXXX
@@ -189,7 +170,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
 		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){
 			tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpmaskbuffer[iter][t];
-			// tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + (t / BRAM_BIT_WIDTH)].data[iter] = 1;
 		}
 	}	
 	#if defined(_DEBUGMODE_HOSTPRINTS3)
@@ -218,18 +198,21 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUM_PEs: "<<NUM_PEs<<endl;
 	
 	uint512_vec_dt * vdramtemp[3];
-	#ifndef SW_IMPL 
-	#ifdef FPGA_IMPL			
-	vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.TOTALDRAMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	#else
-	vdramtemp[0] = new uint512_vec_dt[universalparams.TOTALDRAMCAPACITY_KVS];
-	vdramtemp[1] = new uint512_vec_dt[universalparams.TOTALDRAMCAPACITY_KVS];
-	vdramtemp[2] = new uint512_vec_dt[universalparams.TOTALDRAMCAPACITY_KVS];
-	#endif
-	#endif 
-	for(unsigned int i=0; i<universalparams.TOTALDRAMCAPACITY_KVS; i++){ vdramtemp[0][i] = vdram[i]; vdramtemp[1][i] = vdram[i]; vdramtemp[2][i] = vdram[i]; }
+	// #ifndef SW_IMPL 
+	// #ifdef FPGA_IMPL			
+	// vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	// vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	// vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	// #else
+	// vdramtemp[0] = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
+	// vdramtemp[1] = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
+	// vdramtemp[2] = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
+	// #endif
+	// #endif 
+	vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	for(unsigned int i=0; i<universalparams.MAXHBMCAPACITY_KVS; i++){ vdramtemp[0][i] = vdram[i]; vdramtemp[1][i] = vdram[i]; vdramtemp[2][i] = vdram[i]; }
 	
 	cl_int err;
     auto devices = xcl::get_xil_devices();

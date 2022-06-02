@@ -55,13 +55,14 @@ void utility::printallparameters(){
 	std::cout<<">> host[baseoffsets]:: universalparams.VDRAMSZ: "<<universalparams.VDRAMSZ<<std::endl;	
 	std::cout<<">> host[baseoffsets]:: universalparams.PADDEDVDRAMSZ: "<<universalparams.PADDEDVDRAMSZ<<std::endl;	
 	std::cout<<">> host[baseoffsets]:: universalparams.PADDEDVDRAMSZ_KVS: "<<universalparams.PADDEDVDRAMSZ_KVS<<std::endl;
-	std::cout<<">> host[bytes]:: universalparams.TOTALDRAMCAPACITY_KVS: "<<universalparams.TOTALDRAMCAPACITY_KVS<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: universalparams.MAXHBMCAPACITY_KVS: "<<universalparams.MAXHBMCAPACITY_KVS<<" key-value set"<<std::endl;
+	std::cout<<">> host[bytes]:: universalparams.MAXHBMCAPACITY: "<<universalparams.MAXHBMCAPACITY_KVS * 16<<" values"<<std::endl;
 	
 	// >>>
 	std::cout<<">> host[bytes]:: MESSAGESDRAMSZ (bytes): "<<MESSAGESDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: universalparams.PADDEDVDRAMSZ (bytes): "<<universalparams.PADDEDVDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	std::cout<<">> host[bytes]:: universalparams.PADDEDKVSOURCEDRAMSZ (bytes): "<<universalparams.PADDEDKVSOURCEDRAMSZ * sizeof(keyvalue_t)<<" bytes"<<std::endl;
-	std::cout<<">> host[bytes]:: universalparams.TOTALDRAMCAPACITY (bytes): "<<universalparams.TOTALDRAMCAPACITY_KVS * VECTOR_SIZE * sizeof(keyvalue_t)<<" bytes"<<std::endl;
+	std::cout<<">> host[bytes]:: universalparams.MAXHBMCAPACITY (bytes): "<<universalparams.MAXHBMCAPACITY_KVS * VECTOR_SIZE * sizeof(keyvalue_t)<<" bytes"<<std::endl;
 	
 	std::cout<<"utility:: universalparams.PROC_SRAMSZ_POW: "<<universalparams.PROC_SRAMSZ_POW<<std::endl;
 	std::cout<<"utility:: universalparams.PROC_SRAMSZ: "<<universalparams.PROC_SRAMSZ<<std::endl;
@@ -877,8 +878,8 @@ unsigned int utility::runsssp_sw(string graphname, unsigned int total_num_vertic
 						// unsigned int depth_kvs2 = s * (universalparams.NUMREDUCEPARTITIONS * universalparams.REDUCEPARTITIONSZ_KVS2);
 						// unsigned int depth_kvs2 = s * ((universalparams.NUMREDUCEPARTITIONS * universalparams.REDUCEPARTITIONSZ_KVS2) / VDATA_SHRINK_RATIO); // NEWCHANGE.
 						unsigned int depth_kvs2 = s * (universalparams.NUMREDUCEPARTITIONS * universalparams.REDUCEPARTITIONSZ_KVS2); // NEWCHANGE.
-						// checkoutofbounds("utility::getglobalpartition", vdram_BASEOFFSETKVS_SRCVERTICESDATA + vdram_SRC4NextIt_BASE_KVS + depth_kvs2 + ((lvid / VECTOR2_SIZE) / VDATA_SHRINK_RATIO), universalparams.TOTALDRAMCAPACITY_KVS, vdram_SRC4NextIt_BASE_KVS, depth_kvs2, s);
-						checkoutofbounds("utility::getglobalpartition", vdram_BASEOFFSETKVS_SRCVERTICESDATA + vdram_SRC4NextIt_BASE_KVS + depth_kvs2 + ((lvid / VECTOR2_SIZE) / VDATA_SHRINK_RATIO), universalparams.TOTALDRAMCAPACITY_KVS, vdram_BASEOFFSETKVS_SRCVERTICESDATA, vdram_SRC4NextIt_BASE_KVS, s);
+						// checkoutofbounds("utility::getglobalpartition", vdram_BASEOFFSETKVS_SRCVERTICESDATA + vdram_SRC4NextIt_BASE_KVS + depth_kvs2 + ((lvid / VECTOR2_SIZE) / VDATA_SHRINK_RATIO), universalparams.MAXHBMCAPACITY_KVS, vdram_SRC4NextIt_BASE_KVS, depth_kvs2, s);
+						checkoutofbounds("utility::getglobalpartition", vdram_BASEOFFSETKVS_SRCVERTICESDATA + vdram_SRC4NextIt_BASE_KVS + depth_kvs2 + ((lvid / VECTOR2_SIZE) / VDATA_SHRINK_RATIO), universalparams.MAXHBMCAPACITY_KVS, vdram_BASEOFFSETKVS_SRCVERTICESDATA, vdram_SRC4NextIt_BASE_KVS, s);
 						#if defined(CONFIG_PRELOADEDVERTICESMASKS) && not defined(ALGORITHMTYPE_REPRESENTVDATASASBITS)
 						
 						// if(READBITSFROM_UINTV(vdram[vdram_BASEOFFSETKVS_SRCVERTICESDATA + vdram_SRC4NextIt_BASE_KVS + depth_kvs2 + ((lvid / VECTOR2_SIZE) / VDATA_SHRINK_RATIO)].data[(lvid % VECTOR2_SIZE)], OFFSETOF_VMASK, SIZEOF_VMASK) == 0){

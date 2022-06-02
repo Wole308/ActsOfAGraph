@@ -28,12 +28,13 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	vmdata_t vmdata; vmdata.vmask = 0;
 	vmdata_t vmdata2; vmdata2.vmask = 0;
 	unsigned int bufferoffset_kvs = 0; 
-	// if(globalparams.ACTSPARAMS_TREEDEPTH == 1){ bufferoffset_kvs = BLOCKRAM_VDATA_SECTION1; } else { bufferoffset_kvs = 0; }
 	keyvalue_vbuffer_t bits_vector = 0;
 	keyvalue_vbuffer_t bits2_vector = 0;
 	
-	// if(en == true){ if(loc == *prevkey){ loc = loc + 1; } *prevkey = loc; } // FIXME.????????
-	if(en == true){ if(loc == *prevkey){ loc = (loc + 1) % 8; } *prevkey = loc; } // FIXME.????????
+	#if defined(CONFIG_USEURAM_FOR_DESTVBUFFER) && defined(CONFIG_USEURAM_PACKBYTWOS)
+	loc = loc / 2; // NEWCHANGE.
+	#endif 
+	if(en == true){ if(loc == *prevkey){ loc = (loc + 1) % 8; } *prevkey = loc; } // CRITICAL FIXME.
 	
 	// read 
 	#ifdef _DEBUGMODE_CHECKS3

@@ -344,23 +344,18 @@ batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_get_num_sour
 globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
 	globalparams_t globalparams;
 	
-	// cout<<"UTIL{{context['id']}}_getglobalparams: SEEN 1: globalparams.DRAM_BASE_KVS("<<globalparams.DRAM_BASE_KVS<<") + MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS("<<MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS<<"): "<<globalparams.DRAM_BASE_KVS + MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS<<", (((1 << 28) / 4) / 16): "<<(((1 << 28) / 4) / 16)<<endl;
-	
 	#ifdef _DEBUGMODE_CHECKS3
-	actsutilityobj->checkoutofbounds("UTIL{{context['id']}}_getglobalparams 23", 0 + MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS, (((1 << 28) / 4) / 16), globalparams.DRAM_BASE_KVS, MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp);
+	actsutilityobj->checkoutofbounds("UTIL{{context['id']}}_getglobalparams 23", 0 + MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS, (((1 << 28) / 4) / 16), globalparams.DRAM_BASE_KVS, MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp);
 	#endif
-	// unsigned int totaldramcapacity_kvs = kvdram[globalparams.DRAM_BASE_KVS + MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS]
-	unsigned int totaldramcapacity_kvs = kvdram[0 + MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS]
+	// unsigned int totaldramcapacity_kvs = kvdram[globalparams.DRAM_BASE_KVS + MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS]
+	unsigned int totaldramcapacity_kvs = kvdram[0 + MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS]
 			#ifdef _WIDEWORD
 				.range(31, 0); 
 					#else 
 						.data[0].key; 	
 							#endif 
-							
-	// cout<<"UTIL{{context['id']}}_getglobalparams: SEEN 2..."<<endl;
-	
+		
 	if(banksection==0){ globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS; }
-	// else if (banksection==1) { globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS + (globalparams.ACTSPARAMS_TOTALDRAMCAPACITY_KVS / 2); }
 	else if (banksection==1) { globalparams.DRAM_BASE_KVS = BASEOFFSET_MESSAGESDATA_KVS + (totaldramcapacity_kvs / 2); }
 	else {
 		#ifdef _DEBUGMODE_CHECKS3
@@ -368,8 +363,6 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 		exit(EXIT_FAILURE);
 		#endif 
 	}
-	
-	// cout<<"UTIL{{context['id']}}_getglobalparams: SEEN 3..."<<endl;
 	
 	unsigned int buffer[BLOCKRAM_SIZE];
 	GETGLOBALPARAMS_LOOP1: for(unsigned int t=0; t<128; t++){
@@ -381,8 +374,6 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 						.data[0].key; 	
 							#endif 
 	}
-	
-	// cout<<"UTIL{{context['id']}}_getglobalparams: SEEN 4..."<<endl;
 	
 	globalparams.ENABLE_RUNKERNELCOMMAND = buffer[MESSAGES_ENABLE_RUNKERNELCOMMAND];
 	globalparams.ENABLE_PROCESSCOMMAND = buffer[MESSAGES_ENABLE_PROCESSCOMMAND];
@@ -480,7 +471,7 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.ACTSPARAMS_POW_PARTITIONS_LOP2 = buffer[MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP2]; 
 	globalparams.ACTSPARAMS_POW_PARTITIONS_LOP3 = buffer[MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP3]; 
 	globalparams.ACTSPARAMS_WORKBUFFER_SIZE = buffer[MESSAGES_ACTSPARAMS_WORKBUFFER_SIZE]; 
-	globalparams.ACTSPARAMS_TOTALDRAMCAPACITY_KVS = buffer[MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS]; 
+	globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS = buffer[MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS]; 
 	globalparams.ACTSPARAMS_VPTR_SHRINK_RATIO = buffer[MESSAGES_ACTSPARAMS_VPTR_SHRINK_RATIO]; 
 	globalparams.ACTSPARAMS_READOFFLINESTATS = buffer[MESSAGES_ACTSPARAMS_READOFFLINESTATS]; 
 	globalparams.ACTSPARAMS_UNUSED4 = buffer[MESSAGES_ACTSPARAMS_UNUSED4]; 
@@ -496,8 +487,6 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	if(GraphAlgo == BFS || GraphAlgo == SSSP){ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_NOTALLVERTEXISACTIVE; }
 	else{ globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS = ALGORITHMCLASS_ALLVERTEXISACTIVE; }
 	
-	// cout<<"UTIL{{context['id']}}_getglobalparams: SEEN 5..."<<endl;
-	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printglobalparameters("acts_util::getglobalparams:: printing global parameters", globalparams);
 	#endif
@@ -510,11 +499,11 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 		cout<<"getglobalparams:: buffer[MESSAGES_ENABLE_APPLYUPDATESCOMMAND("<<MESSAGES_ENABLE_APPLYUPDATESCOMMAND<<")]: "<<buffer[MESSAGES_ENABLE_APPLYUPDATESCOMMAND]<<endl;
 		cout<<"getglobalparams:: buffer[MESSAGES_GPMODE("<<MESSAGES_GPMODE<<")]: "<<buffer[MESSAGES_GPMODE]<<endl;
 		cout<<"getglobalparams:: buffer[MESSAGES_ACTSCONFIG_INSERTSTATSMETADATAINEDGES("<<MESSAGES_ACTSCONFIG_INSERTSTATSMETADATAINEDGES<<")]: "<<buffer[MESSAGES_ACTSCONFIG_INSERTSTATSMETADATAINEDGES]<<endl;
+		cout<<"getglobalparams:: banksection: "<<banksection<<endl;
+		cout<<"getglobalparams:: totaldramcapacity_kvs: "<<totaldramcapacity_kvs<<endl;
 		exit(EXIT_FAILURE);
 		#endif 
 	}
-	
-	// cout<<"UTIL{{context['id']}}_getglobalparams: SEEN 6..."<<endl;
 	
 	globalparams.VARS_WORKBATCH = 0;
 	return globalparams;
@@ -525,10 +514,13 @@ sweepparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getsweepp
 	batch_type sourceskipsize = UTIL{{context['id']}}_getskipsize(currentLOP, SOURCE, globalparams);
 	
 	sweepparams.currentLOP = currentLOP;
-
+	
 	if(globalparams.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC == ON){ 
-		if(currentLOP == 0 || (currentLOP % 2) == 1){ sweepparams.worksourcebaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAM; sweepparams.workdestbaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE; }
-		else { sweepparams.worksourcebaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE; sweepparams.workdestbaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAM; }
+		if(currentLOP == 1){ sweepparams.worksourcebaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAM; sweepparams.workdestbaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAM; }
+		else {
+			if(currentLOP % 2 == 0){ sweepparams.worksourcebaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAM; sweepparams.workdestbaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE; }
+			else { sweepparams.worksourcebaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE; sweepparams.workdestbaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAM; }
+		}
 	} else {
 		if(currentLOP == 0 || currentLOP == 1){ sweepparams.worksourcebaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE; sweepparams.workdestbaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAM; } 
 		else { sweepparams.worksourcebaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE; sweepparams.workdestbaseaddress_kvs = globalparams.BASEOFFSETKVS_KVDRAM; }

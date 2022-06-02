@@ -101,7 +101,7 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_WRITETODRAM_VDATAWITHVMASK:", index, MAX_TOTALDRAMCAPACITY_KVS, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_WRITETODRAM_VDATAWITHVMASK:", index, MAX_MAXHBMCAPACITY_KVS, index, NAp, NAp);
 	#endif
 
 	MEMCA{{context['id']}}_WRITEVDATA(&bits_vector, vdata);
@@ -161,7 +161,7 @@ void {{context['classname__mem_convert_and_access']}}MEMCA{{context['id']}}_WRIT
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_WRITETODRAM_VDATAWITHVMASK2:", index/VDATA_SHRINK_RATIO, MAX_TOTALDRAMCAPACITY_KVS, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCA{{context['id']}}_WRITETODRAM_VDATAWITHVMASK2:", index/VDATA_SHRINK_RATIO, MAX_MAXHBMCAPACITY_KVS, index, NAp, NAp);
 	#endif
 
 	unsigned int offsetof_vdata = (index % VDATA_SHRINK_RATIO);

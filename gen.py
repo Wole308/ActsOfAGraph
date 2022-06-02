@@ -11,10 +11,9 @@ print ('ACTGraph (Courtesy: Jinja 2.0)...')
 
 context['id'] = "P0"
 context['XWARE'] = sys.argv[1]
-context['ALGORITHM'] = sys.argv[2] 
-context['EVALUATION_TYPE'] = sys.argv[3]
-context['NUM_PEs'] = int(sys.argv[4])
-context['TESTKERNEL'] = sys.argv[5]
+context['EVALUATION_TYPE'] = sys.argv[2]
+context['NUM_PEs'] = int(sys.argv[3])
+context['TESTKERNEL'] = sys.argv[4]
 
 if context['NUM_PEs'] == 3: 
     context['NUM_PEs'] = 24
@@ -40,7 +39,6 @@ context['NUMCOMPUTEUNITS'] = context['NUM_PEs']
     
 print ('Generating sources... ')
 print ('XWARE: ' + str(context['XWARE']))
-print ('ALGORITHM: ' + str(context['ALGORITHM']))
 print ('NUM_PEs: ' + str(context['NUM_PEs']))
 print ('EVALUATION_TYPE: ' + str(context['EVALUATION_TYPE']))
 print ('VECTOR_SIZE: ' + str(context['VECTOR_SIZE']))

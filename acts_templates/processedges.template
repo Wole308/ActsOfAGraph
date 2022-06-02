@@ -128,7 +128,7 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_readedgebloc
 	}
 	// #endif 
 	PROCESS{{context['id']}}_calculateoffsets(localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);
-	#ifdef _DEBUGMODE_KERNELPRINTS3 // DEBUGME_PROCESSEDGES2
+	#ifdef _DEBUGMODE_KERNELPRINTS // DEBUGME_PROCESSEDGES2
 	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); 
 	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
 	#endif
@@ -328,7 +328,8 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 	unsigned int maxsz_kvs = 0;
 	for(unsigned int t=0; t<VECTOR_SIZE; t++){ if(loadcount[t] > maxsz_kvs){ maxsz_kvs = loadcount[t]; }}
 	fetchmessage.chunksize_kvs = maxsz_kvs;//chunk_size * 2; // loadcount; // CRITICAL FIXME
-	// cout<<"--- processedges: fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
+	// cout<<"--- processedges: chunk_size: "<<chunk_size<<", fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
+	// exit(EXIT_SUCCESS);
 	return fetchmessage;
 }
 
@@ -610,33 +611,103 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 	return fetchmessage;
 }
 
+fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_DUMMYreadandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], 
+		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+	fetchmessage_t fetchmessage;
+	fetchmessage.chunksize_kvs = -1;
+	fetchmessage.nextoffset_kvs = -1;
+	if(enable == OFF){ return fetchmessage; }
+	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return fetchmessage; }
+	
+	travstate_t mytravstate = travstate;
+	mytravstate.i_kvs = travstate.i_kvs / 2;
+	mytravstate.end_kvs = travstate.end_kvs / 2;
+	
+	loffset_kvs = loffset_kvs / 2; //
+	buffer_type edgessize_kvs = size_kvs / 2;
+	
+	batch_type offset_kvs = goffset_kvs + loffset_kvs;
+	
+	fetchmessage.chunksize_kvs = edgessize_kvs;
+	fetchmessage.nextoffset_kvs = -1;
+
+	buffer_type chunk_size = UTIL{{context['id']}}_getchunksize_kvs(edgessize_kvs, mytravstate, 0);
+	
+	#ifdef DEBUGME_PROCESSEDGES2
+	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<", edgessize_kvs: "<<edgessize_kvs<<", mytravstate.i_kvs: "<<mytravstate.i_kvs<<", mytravstate.end_kvs: "<<mytravstate.end_kvs<<endl;
+	#endif 
+	unsigned int readoffset = 0; if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
+	
+	unsigned int keys[VECTOR_SIZE];
+	keyvalue_t mykeyvalue[VECTOR_SIZE];
+	
+	unsigned int validchunk_size = 0; if(chunk_size >= 1){ validchunk_size = chunk_size-1; } else { validchunk_size = 0; }
+	
+	PROCESSBUFFERPARTITIONS_LOOP1: for(buffer_type i=0; i<validchunk_size; i++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keys[{{v}}] = edges[offset_kvs + readoffset + i].range({{((v + 1) * 32) - 1}}, {{v * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['4_seq']%}
+		keys[{{2*v}}] = edges[offset_kvs + readoffset + i].data[{{v}}].key; 
+		keys[{{2*v+1}}] = edges[offset_kvs + readoffset + i].data[{{v}}].value;	
+		{%endfor%}
+		#endif
+		
+		#ifdef _DEBUGMODE_CHECKS3
+		{%for v in context['VECTOR_SIZE_seq']%}
+		if(keys[{{v}}]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. readoffset: "<<readoffset<<", i: "<<i<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+		{%endfor%}
+		#endif 
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue[{{v}}].key = PROCESS{{context['id']}}_PARSEEDGE(keys[{{v}}]).dstvid; mykeyvalue[{{v}}].value = 0;
+		buffer[{{v}}][i] = UTIL{{context['id']}}_GETKV(mykeyvalue[{{v}}]);
+		{%endfor%}
+	}
+	
+	PROCESSBUFFERPARTITIONS_LOOP2: for(buffer_type i=0; i<validchunk_size; i++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _WIDEWORD
+		{%for v in context['VECTOR_SIZE_seq']%}
+		keys[{{v}}] = edges[offset_kvs + readoffset + i].range({{(((8+v) + 1) * 32) - 1}}, {{(8+v) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['4_seq']%}
+		keys[{{2*v}}] = edges[offset_kvs + readoffset + i].data[{{4+v}}].key; 
+		keys[{{2*v+1}}] = edges[offset_kvs + readoffset + i].data[{{4+v}}].value;	
+		{%endfor%}
+		#endif
+		
+		#ifdef _DEBUGMODE_CHECKS3
+		{%for v in context['VECTOR_SIZE_seq']%}
+		if(keys[{{v}}]==8888888){ cout<<"processedges2: ERROR 66. E2==8888888. readoffset: "<<readoffset<<", i: "<<i<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+		{%endfor%}
+		#endif 
+		
+		{%for v in context['VECTOR_SIZE_seq']%}
+		mykeyvalue[{{v}}].key = PROCESS{{context['id']}}_PARSEEDGE(keys[{{v}}]).dstvid; mykeyvalue[{{v}}].value = 0;
+		buffer[{{v}}][chunk_size + i] = UTIL{{context['id']}}_GETKV(mykeyvalue[{{v}}]);
+		{%endfor%}
+	}
+	
+	// if(chunk_size >= 4){ fetchmessage.chunksize_kvs = (chunk_size-4) * 2; } //chunk_size * 2; // loadcount; // CRITICAL FIXME
+	if(chunk_size >= 4){ fetchmessage.chunksize_kvs = (chunk_size-4) * 2; }
+	else{ fetchmessage.chunksize_kvs = 0; }
+	// cout<<"--- processedges: chunk_size: "<<chunk_size<<", fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
+	// exit(EXIT_SUCCESS);
+	return fetchmessage;
+}
+
 fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
-	
-	return PROCESS{{context['id']}}_ACTSreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
+	// -- processedges: chunk_size: 217, fetchmessage.chunksize_kvs: 414
+	// --- processedges: chunk_size: 217, fetchmessage.chunksize_kvs: 430
+	// return PROCESS{{context['id']}}_ACTSreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
 	// return PROCESS{{context['id']}}_TRADreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-	
-	/** #ifdef CONFIG_ALL_EVALUATIONTYPES_IN_ONE_KERNEL
-	if(globalparams.EVALUATION_ACTS_MEMORYLAYOUT == ON){
-		return PROCESS{{context['id']}}_ACTSreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-	} else {
-		if(globalparams.EVALUATION_ACTS_VERYBARE == ON){
-			return PROCESS{{context['id']}}_TRADreadandprocessandreduce(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-		} else {
-			return PROCESS{{context['id']}}_TRADreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-		}
-	}
-	#else 
-		#ifdef CONFIG_ACTS_MEMORYLAYOUT
-		return PROCESS{{context['id']}}_ACTSreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-		#else 
-			#ifdef CONFIG_ACTS_VERYBARE
-			return PROCESS{{context['id']}}_TRADreadandprocessandreduce(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-			#else
-			return PROCESS{{context['id']}}_TRADreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-			#endif 
-		#endif
-	#endif */
+	return PROCESS{{context['id']}}_DUMMYreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
 }
 
 

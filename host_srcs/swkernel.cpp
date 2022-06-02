@@ -73,9 +73,9 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 	
 	cout<< TIMINGRESULTSCOLOR <<">>> swkernel::runapp: ACTS started. Parameters: NUM_PEs: ["<<NUM_PEs<<"]"<< RESET <<endl;	
 	
-	uint512_vec_dt * vdramA; vdramA = new uint512_vec_dt[universalparams.TOTALDRAMCAPACITY_KVS];
-	uint512_vec_dt * vdramB; vdramB = new uint512_vec_dt[universalparams.TOTALDRAMCAPACITY_KVS];
-	uint512_vec_dt * vdramC; vdramC = new uint512_vec_dt[universalparams.TOTALDRAMCAPACITY_KVS];
+	uint512_vec_dt * vdramA; vdramA = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
+	uint512_vec_dt * vdramB; vdramB = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
+	uint512_vec_dt * vdramC; vdramC = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
 	
 	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
 	cout<<">>> swkernel::runapp: populating active streaming partitions... "<<endl;					
@@ -107,10 +107,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 	#endif
 	
 	cout<<">>> swkernel::runapp: populating vdramA, vdramB and vdramC... "<<endl;
-	for(unsigned int i=0; i<universalparams.TOTALDRAMCAPACITY_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; }
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.TOTALDRAMCAPACITY_KVS / 2); t++){ kvsourcedram[i][(universalparams.TOTALDRAMCAPACITY_KVS/2) + t] = edges[i][t]; }}
-	}
+	for(unsigned int i=0; i<universalparams.MAXHBMCAPACITY_KVS; i++){ vdramA[i] = vdram[i]; vdramB[i] = vdram[i]; vdramC[i] = vdram[i]; }
 	
 	unsigned int mode = 1;
 
@@ -161,7 +158,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 		// if(totalactvvp == 0){ cout<<"swkernel::runapp: no more active vertices to process. exiting... "<<endl; break; }
 		// exit(EXIT_SUCCESS); //
 	}
-	for(unsigned int i=0; i<universalparams.TOTALDRAMCAPACITY_KVS; i++){ vdram[i] = vdramA[i]; }
+	for(unsigned int i=0; i<universalparams.MAXHBMCAPACITY_KVS; i++){ vdram[i] = vdramA[i]; }
 	
 	// cout<<"swkernel: verifying vdramA..."<<endl;
 	// verifyresults(vdramA, 0);

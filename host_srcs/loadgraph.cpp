@@ -57,7 +57,7 @@ globalparams_t loadgraph::loadvertexdata(std::string algo, keyvalue_t * kvbuffer
 	cout<<"loadgraph::loadvertexdata:: loading vertex datas... vbufferoffset: "<<vbufferoffset<<", size: "<<size<<endl;
 	#endif
 	#ifdef _DEBUGMODE_CHECKS3
-	utilityobj->checkoutofbounds("loadvertexdata.BASEOFFSETKVS_DESTVERTICESDATA", globalparams.BASEOFFSETKVS_DESTVERTICESDATA, universalparams.TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);				
+	utilityobj->checkoutofbounds("loadvertexdata.BASEOFFSETKVS_DESTVERTICESDATA", globalparams.BASEOFFSETKVS_DESTVERTICESDATA, universalparams.MAXHBMCAPACITY_KVS, NAp, NAp, NAp);				
 	#endif
 	
 	algorithm * algorithmobj = new algorithm();
@@ -84,7 +84,7 @@ globalparams_TWOt loadgraph::loadactvvertices(vector<vertex_t> &activevertices, 
 	
 	unsigned int baseoffset_activevertices = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES * VECTOR_SIZE;
 	#ifdef _DEBUGMODE_CHECKS3
-	utilityobj->checkoutofbounds("loadactvvertices.BASEOFFSETKVS_ACTIVEVERTICES", globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES, universalparams.TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);				
+	utilityobj->checkoutofbounds("loadactvvertices.BASEOFFSETKVS_ACTIVEVERTICES", globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES, universalparams.MAXHBMCAPACITY_KVS, NAp, NAp, NAp);				
 	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"[globalparams.globalparamsK.BASEOFFSET_ACTIVEVERTICES: "<<globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES * VECTOR_SIZE<<"]"<<endl;
@@ -129,9 +129,10 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[MAXNUMSUBCPUTHR
 	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
 	// NB: Formular: 3V + 2E/N + 2E/N = (256MB/4)
 		unsigned int num_vertices_per_channel = 0;
-		unsigned int Vspace = globalparams.globalparamsK.SIZE_DESTVERTICESDATA + globalparams.globalparamsK.SIZE_VERTEXPTRS;
+		unsigned int Vspace = globalparams.globalparamsK.SIZE_DESTVERTICESDATA + globalparams.globalparamsK.SIZE_VERTEXPTRS; // capacity (uint32_t) for v data
 		unsigned int num_edges_per_channel = globalparams.globalparamsE.SIZE_EDGES;
-		unsigned int A = 4 * num_edges_per_channel; // capacity (uint32_t) for kv datas
+		// unsigned int A = 4 * num_edges_per_channel; // capacity (uint32_t) for kv data
+		unsigned int A; if(universalparams.TREE_DEPTH >= 3){ A = 4 * num_edges_per_channel; } else { A = 2 * num_edges_per_channel; } // capacity (uint32_t) for kv data // TO-FIT NEWCHANGE.
 		unsigned int B = (universalparams.KVDRAMWORKCAPACITY_BYTES / 4) - Vspace;
 		if((universalparams.KVDRAMWORKCAPACITY_BYTES / 4) < Vspace){ cout<<"loadoffsetmarkers::ERROR: (universalparams.KVDRAMWORKCAPACITY_BYTES / 4)("<<(universalparams.KVDRAMWORKCAPACITY_BYTES / 4)<<") < (3 * num_vertices_per_channel)("<<(3 * num_vertices_per_channel)<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 		num_edgechunks_in_a_buffer = (A + (B-1)) / B; // 3V + 2E/N + 2E/N = (256MB/4)
@@ -219,7 +220,6 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[MAXNUMSUBCPUTHR
 		unsigned int num_edges_in_a_chunk = container->edgessize[i] / num_edgechunks_in_a_buffer;
 		for(unsigned int k=0; k<num_edgechunks_in_a_buffer; k++){
 			unsigned int index = k * (container->edgessize[i] / num_edgechunks_in_a_buffer);
-			// for(unsigned int t=0; t<16; t++){ if(edges_temp[i][index+t].status != EDGESTATUS_BITMAP){ srC = edges_temp[i][index+t].srcvid; break; }}
 			bool isfound=false; for(unsigned int t=0; t<64; t++){ if(edges_temp[i][index+t].status == EDGESTATUS_VALIDEDGE){ srC = edges_temp[i][index+t].srcvid; isfound=true; break; }}
 			if(isfound==false){ cout<<"loadoffsetmarkers: ERROR 65. isfound==false. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			srC = (srC / universalparams.PROCESSPARTITIONSZ) * universalparams.PROCESSPARTITIONSZ; // round down
@@ -235,16 +235,17 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[MAXNUMSUBCPUTHR
 		cout<<"loadoffsetmarkers: index: LAST. srC: "<<srC<<", SRC_CHKPT["<<num_edgechunks_in_a_buffer<<"]: "<<SRC_CHKPT[num_edgechunks_in_a_buffer]<<", PARTITION_CHKPT["<<num_edgechunks_in_a_buffer<<"]: "<<PARTITION_CHKPT[num_edgechunks_in_a_buffer]<<", num_edges_in_a_chunk: "<<num_edges_in_a_chunk<<", num_edgechunks_in_a_buffer: "<<num_edgechunks_in_a_buffer<<endl; 					
 		#endif
 		
-		////
-		// if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ 
-			// unsigned int p=0;
-			// for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){ if(src2 >= SRC_CHKPT[u] && src2 < SRC_CHKPT[u+1]){ p = u; } }
-			// tempstats[p][offset + partitionCLOP].value += 1;
-		// } else {
-			// tempstats[0][offset + partitionCLOP].value += 1;	
-		// }
+		/////////////////////////////////////////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
+		// PARTITION_CHKPT[0] = 0;
+		// PARTITION_CHKPT[1] = 16;
+		// PARTITION_CHKPT[2] = 32;
+		
+		// PARTITION_CHKPT[0] = 0;
+		// PARTITION_CHKPT[1] = 4;
+		// PARTITION_CHKPT[2] = 8;
+		///////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		for(unsigned int p=0; p<num_edgechunks_in_a_buffer; p++){ tempstats[p][0].value = num_edges_in_a_chunk; } // container->edgessize[i]; } // NEWCHANGE.
-		////
 		
 		for(unsigned int k=0; k<container->edgessize[i]; k++){
 			#ifdef _DEBUGMODE_HOSTPRINTS
@@ -300,6 +301,7 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[MAXNUMSUBCPUTHR
 				cout<<"loadoffsetmarkers: printing tempstats for u: "<<u<<endl; 
 				utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats[u][----]", tempstats[u], 17); 
 			}
+			// exit(EXIT_SUCCESS);//////////////////
 		}
 		#endif
 		
@@ -325,6 +327,7 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[MAXNUMSUBCPUTHR
 		for(unsigned int k=0; k<universalparams.TREE_DEPTH; k++){ totalnumpb4llop += (unsigned int)pow(universalparams.NUM_PARTITIONS, k); } 
 		for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){
 			if(maxdramsz < (tempstats[u][totalnumpb4llop-1].key + tempstats[u][totalnumpb4llop-1].value)){ maxdramsz = tempstats[u][totalnumpb4llop-1].key + tempstats[u][totalnumpb4llop-1].value; }
+			// maxdramsz = tempstats[0][totalnumpb4llop-1].key + tempstats[0][totalnumpb4llop-1].value; // CRITICAL FIXME.
 		}
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"loadoffsetmarkers:: maxdramsz: "<<maxdramsz<<", totalnumpb4llop: "<<totalnumpb4llop<<", universalparams.TREE_DEPTH: "<<universalparams.TREE_DEPTH<<endl;
@@ -342,12 +345,12 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[MAXNUMSUBCPUTHR
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		if(i==0){ for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){ cout<<"loadoffsetmarkers: u:"<<u<<endl; utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats[u] [after]", tempstats[u], 17); } } // 17, 273
 		#endif
-		// exit(EXIT_SUCCESS); ////
 	}
 	// exit(EXIT_SUCCESS); ////
 	
 	globalparams.globalparamsK.SIZE_KVDRAM = maxdramsz + 64; // CHECKME. FIXME.
-	globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE = globalparams.globalparamsK.SIZE_KVDRAM; // maxdramsz;
+	// globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE = globalparams.globalparamsK.SIZE_KVDRAM; // maxdramsz;
+	if(universalparams.TREE_DEPTH >= 3){ globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE = globalparams.globalparamsK.SIZE_KVDRAM; } else { globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE = 0; } // TO-FIT NEWCHANGE.
 	globalparams.globalparamsK.SIZE_OTHERINFOS = 0; // 64 * VECTOR_SIZE;
 	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ 
 		globalparams.globalparamsE.SIZE_KVDRAM = 0; 
@@ -358,10 +361,12 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[MAXNUMSUBCPUTHR
 	globalparams.globalparamsK.BASEOFFSETKVS_KVDRAM = globalparams.globalparamsK.BASEOFFSETKVS_EDGESSTATSDRAM + globalparams.globalparamsK.SIZE_EDGESSTATSDRAM; 
 	globalparams.globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.globalparamsK.BASEOFFSETKVS_KVDRAM + (globalparams.globalparamsK.SIZE_KVDRAM / VECTOR_SIZE); 
 	globalparams.globalparamsK.BASEOFFSETKVS_OTHERINFOS = globalparams.globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE + (globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE / VECTOR_SIZE); 
+	globalparams.globalparamsK.BASEOFFSETKVS_ENDOFFILE = globalparams.globalparamsK.BASEOFFSETKVS_OTHERINFOS + 256;
 	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ 
 		globalparams.globalparamsE.BASEOFFSETKVS_KVDRAM = globalparams.globalparamsE.BASEOFFSETKVS_EDGESSTATSDRAM + globalparams.globalparamsE.SIZE_EDGESSTATSDRAM; 
 		globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.globalparamsE.BASEOFFSETKVS_KVDRAM + (globalparams.globalparamsE.SIZE_KVDRAM / VECTOR_SIZE);
 		globalparams.globalparamsE.BASEOFFSETKVS_OTHERINFOS = globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE + (globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE / VECTOR_SIZE); 
+		globalparams.globalparamsE.BASEOFFSETKVS_ENDOFFILE = globalparams.globalparamsE.BASEOFFSETKVS_OTHERINFOS + 256;
 	}
 	
 	#ifdef _DEBUGMODE_CHECKS3
@@ -375,6 +380,12 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(edge_type * edges[MAXNUMSUBCPUTHR
 		// utilityobj->printkeyvalues("loadoffsetmarkers: printing stats[i][baseoffset_statsdram]", (keyvalue_t *)&stats[i][baseoffset_statsdram], totalnumpartitions * VECTOR_SIZE, VECTOR_SIZE);
 	}
 	#endif
+	
+	/* /////////////////////////////////////////////////////////////////////////////////////////////////// CRITICAL REMOVEME.
+	PARTITION_CHKPT[0] = 0;
+	PARTITION_CHKPT[1] = 32;
+	PARTITION_CHKPT[2] = 64;
+	/////////////////////////////////////////////////////////////////////////////////////////////////// */
 	// exit(EXIT_SUCCESS); //
 	return globalparams;
 }
@@ -594,7 +605,7 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[sizes]:: valid universalparams.PADDEDKVSOURCEDRAMSZ (keyvalues): "<<((globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE)<<" keyvalues"<< RESET <<std::endl;
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid universalparams.PADDEDKVSOURCEDRAMSZ (bytes): "<<((((unsigned long)globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(unsigned int)(universalparams.KVSOURCEDRAMSZ * 8)<<" bytes)"<< RESET <<std::endl;					
 
-	// if(((((unsigned long)globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + (unsigned long)globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (universalparams.TOTALDRAMCAPACITY_KV * 8)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
+	// if(((((unsigned long)globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + (unsigned long)globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (universalparams.MAXHBMCAPACITY_KV * 8)){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -666,7 +677,6 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt
 	if(globalparams.globalparamsK.SIZE_KVDRAM < 1000){ cout<<"ERROR: globalparams.globalparamsK.SIZE_KVDRAM("<<globalparams.globalparamsK.SIZE_KVDRAM<<") < 1000. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#endif
 	
-	// #if defined(_DEBUGMODE_HOSTPRINTS3) & defined(EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM)
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"[globalparams.globalparamsE.BASEOFFSET_MESSAGESDATA: "<<globalparams.globalparamsE.BASEOFFSETKVS_MESSAGESDATA * VECTOR_SIZE<<"]"<<endl;
 	cout<<"[globalparams.globalparamsE.BASEOFFSETKVS_MESSAGESDATA: "<<globalparams.globalparamsE.BASEOFFSETKVS_MESSAGESDATA<<"]"<<endl;
@@ -734,7 +744,7 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt
 	#endif
 	
 	#ifdef _DEBUGMODE_CHECKS3
-	utilityobj->checkoutofbounds("loadgraph::loadmessages(A)", (globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR_SIZE) + globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE, universalparams.TOTALDRAMCAPACITY_KV, NAp, NAp, NAp);
+	utilityobj->checkoutofbounds("loadgraph::loadmessages(A)", (globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR_SIZE) + globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE, universalparams.MAXHBMCAPACITY_KV, NAp, NAp, NAp);
 	utilityobj->checkoutofbounds("loadgraph::loadmessages(A)", (globalparams.globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR_SIZE) + globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE, universalparams.PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
 	utilityobj->checkoutofbounds("loadgraph::loadmessages(B)", (globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR_SIZE) + globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE, universalparams.PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
 	#endif
@@ -843,7 +853,7 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt
 	cout<<"loadmessages:: _ACTSPARAMS_NUMLOPS: "<<kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_NUMLOPS].data[0].key<<endl; 
 	cout<<"loadmessages:: _ACTSPARAMS_TREEDEPTH: "<<kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_TREEDEPTH].data[0].key<<endl; 
 	#endif
-	// exit(EXIT_SUCCESS);/////////////////////
+	// exit(EXIT_SUCCESS);
 	return globalparams;
 }
 globalparams_t loadgraph::createmessages(
@@ -863,7 +873,7 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key = ON;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key = ON;//ON,OFF // CRITICAL REMOVEME.
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = ON;//ON,OFF  // CRITICAL REMOVEME! 
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = ON;//ON,OFF // CRITICAL REMOVEME! 
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = OFF;//ON,OFF // CRITICAL REMOVEME! 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_GPMODE].data[0].key = 
 		#ifdef CONFIG_ALGORITHMTYPE_RANDOMACTIVEVERTICES
 		PARAM_ACTSONLYMODE;
@@ -950,10 +960,10 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAM].data[0].key = globalparams.SIZE_KVDRAM; // KVDRAMSZ;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key = globalparams.SIZE_KVDRAMWORKSPACE; 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_OTHERINFOS].data[0].key = globalparams.SIZE_OTHERINFOS; 
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].data[0].key = universalparams.PROCESSPARTITIONSZ_KVS2; //
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key = NAp; // OBSOLETE; // REDUCESZ; //
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_PROCESSEDGESPARTITION].data[0].key = universalparams.PROCESSPARTITIONSZ_KVS2; //  / 2; //
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_REDUCE].data[0].key = NAp; // OBSOLETE //
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_REDUCEPARTITION].data[0].key = universalparams.REDUCEPARTITIONSZ_KVS2; //
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].data[0].key = NAp; // OBSOLETE VMASKBUFFERSZ_KVS; //
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZEKVS_VMASKBUFFER].data[0].key = NAp; // OBSOLETE 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_BATCHRANGE].data[0].key = universalparams.BATCH_RANGE; //
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key = runsize; //
 
@@ -997,9 +1007,9 @@ globalparams_t loadgraph::createmessages(
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP2].data[0].key = universalparams.NUM_PARTITIONS_POW; 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_POW_PARTITIONS_LOP3].data[0].key = universalparams.NUM_PARTITIONS_POW; 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_WORKBUFFER_SIZE].data[0].key = universalparams.WORKBUFFER_SIZE; 
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_TOTALDRAMCAPACITY_KVS].data[0].key = universalparams.TOTALDRAMCAPACITY_KVS; 
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS].data[0].key = universalparams.MAXHBMCAPACITY_KVS; 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_VPTR_SHRINK_RATIO].data[0].key = universalparams.VPTR_SHRINK_RATIO; 
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_READOFFLINESTATS].data[0].key = 1; 
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_READOFFLINESTATS].data[0].key = 0;//1; 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_UNUSED4].data[0].key = NAp; 
 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_DUMMYCHKPOINT].data[0].key = 70707070; 

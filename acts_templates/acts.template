@@ -321,15 +321,6 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_commitkeyvalues(bool_ty
 	if(mode == ACTSREDUCEMODE || (globalparams.ACTSPARAMS_TREEDEPTH == 1 && globalparams.ENABLE_APPLYUPDATESCOMMAND == ON)){
 		REDUCE{{context['id']}}_reduceandbuffer(enable, destbuffer, localcapsule, vbuffer, vbuffer2, sweepparams, globalposition, globalparams, collections);
 		if(globalparams.ACTSPARAMS_TREEDEPTH == 1){ for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){ globalcapsule[p].value += localcapsule[p].value; }} // NEWCHANGE.
-	
-	
-		/* ///////////////// REMOVEME.
-		MEMACCESS{{context['id']}}_saveV(ON, kvdram, vbuffer, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, 0, globalparams.BUFFERBASEOFFSETKVS_VDATA1, globalparams.SIZEKVS2_REDUCEPARTITION, globalposition, globalparams); 
-		// exit();
-		//////////////// REMOVEME. */
-	
-	
-	
 	} else {
 		MEMACCESS{{context['id']}}_savekeyvalues(enable, kvdram, destbuffer, globalcapsule, localcapsule, destbaseaddr_kvs, globalposition, globalparams); 
 	}
@@ -388,8 +379,8 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 	#endif 
 	// actsutilityobj->printkeyvalues("actit::globalstatsbuffer 37--", (keyvalue_t *)globalstatsbuffer, NUM_PARTITIONS); 
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
-	cout<<"actit: processing all chunks [begin_kvs: "<<ptravstate.begin_kvs<<"][end_kvs: "<<ptravstate.end_kvs<<"][flushsz: "<<flushsz<<"][size_kvs: "<<ptravstate.begin_kvs - (ptravstate.end_kvs + flushsz)<<"][workbuffer_size: "<<workbuffer_size<<"][num_chunks: "<<(ptravstate.begin_kvs - (ptravstate.end_kvs + flushsz)) / workbuffer_size<<"] ... "<<endl;
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"actit: processing all chunks [begin_kvs: "<<ptravstate.begin_kvs<<"][end_kvs: "<<ptravstate.end_kvs<<"][flushsz: "<<flushsz<<"][size_kvs: "<<(ptravstate.end_kvs + flushsz) - ptravstate.begin_kvs<<"][workbuffer_size: "<<workbuffer_size<<"][num_chunks: "<<((ptravstate.end_kvs + flushsz) - ptravstate.begin_kvs) / workbuffer_size<<"] ... "<<endl;
 	#endif
 		
 	ACTIT_MAINLOOP: for(batch_type offset_kvs=ptravstate.begin_kvs; offset_kvs<ptravstate.end_kvs + flushsz; offset_kvs+=workbuffer_size * NUMPIPELINES_PARTITIONUPDATES){

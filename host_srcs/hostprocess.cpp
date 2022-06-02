@@ -32,7 +32,7 @@ int main(int argc, char** argv){
 	app * appobj = new app();	
 	// void run(std::string algorithm, unsigned int numiterations, unsigned int rootvid, string graph_path, std::string _binaryFile1);
 	appobj->run(argv[1], argv[2], stoi(argv[3]), stoi(argv[4]), argv[5], argv[6]);
-	// appobj->run("nap", "bfs", 8, 1, "/home/oj2zf/dataset/soc-orkut.mtx", "NAp");
+	// appobj->run("nap", "pr", 8, 1, "/home/oj2zf/dataset/com-Orkut.mtx", "NAp");
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	std::cout << "TEST FINISHED" << std::endl; 

@@ -94,7 +94,8 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 	unsigned int F2 = 2;
 	unsigned int num_traversed_edges = 0;
 	
-	for(unsigned int i=0; i<1; i++){
+	for(unsigned int i=0; i<1; i++){ // NUM_PEs
+		if(i%NUMCOMPUTEUNITS_SLR2==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0)==0){} else { continue; } 
 		for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){ 
 			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	
 			unsigned int num_vertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
@@ -118,10 +119,13 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 			num_validedgesprocessed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].value;	
 			num_validvertexupdatesreduced += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].value;
 			
-			num_traversed_edges += num_edgesprocessed;
+			// num_traversed_edges += num_edgesprocessed;
 		}
+		num_traversed_edges += num_edgesprocessed;
 		cout<<">>> acts_helper::[A]["<<message<<"][PE:ALL][Iter: "<<GraphIter<<"]:: num edges processed: "<<num_edgesprocessed<<"("<<num_validedgesprocessed<<"), num vertex updates reduced: "<<num_vertexupdatesreduced<<"("<<num_validvertexupdatesreduced<<")"<<endl;	
 	}
+	// num_traversed_edges = num_edgesprocessed;
+	cout<<">>> acts_helper:: -------(((((((((((((((--------- num_traversed_edges: "<<num_traversed_edges<<", num_edgesprocessed: "<<endl;
 	return num_traversed_edges;
 }
 

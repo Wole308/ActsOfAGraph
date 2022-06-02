@@ -89,22 +89,20 @@ loadgraph.cpp
 
 #define CONFIG_SELECTIVEVERTEXPARTITIONS // OBSOLETE.
 #define CONFIG_PRELOADEDVERTEXPARTITIONMASKS
-// #define CONFIG_PRELOADEDVERTICESMASKS // { utility.cpp classname__top_usrcv_nudstv.cpp, acts_merge.cpp}
 
 #define CONFIG_FORCEDCORRECT_LOADEDGES
 #define CONFIG_FORCEDCORRECT_TRADGP
 
 #define CONFIG_ENABLE_PROFILING
 
-// #define CONFIG_MEASURE_STACK_DISTANCE // NEW
-
 #define CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD (1 << 12)
 #define CONFIG_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION (1 << 6)
 #define CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ (1 << 14)
 
-#define CONFIG_SEPERATESRCVDESTVBUFFER
+// #define CONFIG_SEPERATESRCVDESTVBUFFER
 #define CONFIG_USEURAM_FOR_SRCVBUFFER // CRITICAL REMOVEME!
-#define CONFIG_USEURAM_FOR_DESTVBUFFER
+#define CONFIG_USEURAM_FOR_DESTVBUFFER // { classname__mem_access.cpp, classname__reduceupdates.cpp }
+#define CONFIG_USEURAM_PACKBYTWOS
 
 // #define CONFIG_BITMASK_NOT_USED // { classname__mem_convert_and_access.cpp }
 
@@ -128,6 +126,9 @@ _TRADreadandprocess used (change before synthesize)
 
 CONFIG_USEURAM_FOR_SRCVBUFFER
 PROCESS{{context['id']}}_readedgeblockstats. #ifdef CONFIG_PROCESSEDGES_READOFFLINESTATS
+
+// CRITICAL FIXMEs:
+maxdramsz = tempstats[0][totalnumpb4llop-1].key + tempstats[0][totalnumpb4llop-1].value; // CRITICAL FIXME.
 */
 
 

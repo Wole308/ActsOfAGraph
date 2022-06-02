@@ -272,8 +272,8 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 				MERGE{{context['id']}}_EXCHANGEVS_LOOP1B: for(unsigned int k=0; k<globalparamsvA.SIZEKVS2_REDUCEPARTITION; k++){
 				#pragma HLS PIPELINE II=1
 					#ifdef _DEBUGMODE_CHECKS3
-					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 21", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetA_kvs + k, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 22", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetA_kvs + k, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 21", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetA_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 22", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetA_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
 					#endif
 					
 					// collect active vertices
@@ -329,8 +329,8 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 				MERGE{{context['id']}}_EXCHANGEVS_LOOP2B: for(unsigned int k=0; k<globalparamsvB.SIZEKVS2_REDUCEPARTITION; k++){
 				#pragma HLS PIPELINE II=1
 					#ifdef _DEBUGMODE_CHECKS3
-					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 24", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetB_kvs + k, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 25", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetB_kvs + k, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 24", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetB_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 25", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetB_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
 					#endif
 					
 					// collect active vertices 
@@ -386,8 +386,8 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 				MERGE{{context['id']}}_EXCHANGEVS_LOOP3B: for(unsigned int k=0; k<globalparamsvC.SIZEKVS2_REDUCEPARTITION; k++){
 				#pragma HLS PIPELINE II=1
 					#ifdef _DEBUGMODE_CHECKS3
-					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 27", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + k, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
-					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 28", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + k, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 27", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+					actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 28", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
 					#endif
 					
 					#ifdef ALLVERTEXISACTIVE_ALGORITHM
@@ -431,9 +431,9 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	#endif
 	MERGE{{context['id']}}_EXCHANGEVPMS_LOOP1: for(unsigned int partition=0; partition<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; partition++){ // BLOCKRAM_NEXTPMASK_SIZE, globalparamsvA.NUM_PROCESSEDGESPARTITIONS
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 31", globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 32", globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 33", globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, globalparamsvA.ACTSPARAMS_TOTALDRAMCAPACITY_KVS, NAp, NAp, NAp);
+		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 31", globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 32", globalparamsvB.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+		actsutilityobj->checkoutofbounds("MERGE::EXCHANGE::: ERROR 33", globalparamsvC.BASEOFFSETKVS_VERTICESPARTITIONMASK + partition, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
 		#endif
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3

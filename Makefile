@@ -236,18 +236,17 @@ endif
 actsobj: clean build_acts 
 actsGP_debug: clean build_acts run_nthreads_debug
 
-# build_acts:
-	# g++ $(HOST_TOP) $(HOST_SRCS_ACTS) $(KERNEL_TOP_ALL) $(KERNEL_TOP_DEBUG) $(KERNEL_TOP_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -L$(SORTREDUCE_LIB) -std=c++11 -pthread -march=native -lrt -o actsobj
-	
 STACKD_SOURCE_DIR=/home/oj2zf/Documents/ActsOfAGraph/stack-distance-master/src
 STACKD_COMMON=${STACKD_SOURCE_DIR}/rank-tree.cpp
 STACKD_COMMON+=${STACKD_SOURCE_DIR}/stack-simulator.cpp
 STACKD_HEADERS=${STACKD_SOURCE_DIR}/rank-tree.hpp
 STACKD_HEADERS+=${STACKD_SOURCE_DIR}/stack-simulator.hpp
 
+# build_acts:
+	# g++ $(STACKD_HEADERS) $(STACKD_COMMON) $(HOST_TOP) $(HOST_SRCS_ACTS) $(KERNEL_TOP_ALL) $(KERNEL_TOP_DEBUG) $(KERNEL_TOP_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -I$(STACKD_SOURCE_DIR) -L$(SORTREDUCE_LIB) -std=c++11 -pthread -march=native -lrt -o actsobj
 build_acts:
-	g++ $(STACKD_HEADERS) $(STACKD_COMMON) $(HOST_TOP) $(HOST_SRCS_ACTS) $(KERNEL_TOP_ALL) $(KERNEL_TOP_DEBUG) $(KERNEL_TOP_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -I$(STACKD_SOURCE_DIR) -L$(SORTREDUCE_LIB) -std=c++11 -pthread -march=native -lrt -o actsobj
-	
+	g++ $(STACKD_HEADERS) $(STACKD_COMMON) $(HOST_TOP) $(HOST_SRCS_ACTS) $(KERNEL_TOP_ALL) $(KERNEL_TOP_DEBUG) $(KERNEL_TOP_UTILITY) $(GRAPH_CPP) $(SRFLAGS) -I$(SORTREDUCE_INCLUDE) -I$(GRAPH_SRC) -I$(STACKD_SOURCE_DIR) -L$(SORTREDUCE_LIB) -std=c++11 -pthread -march=native -lrt -o host
+		
 run_nthreads:
 	./actsobj
 
@@ -261,6 +260,7 @@ generatesrcs:
 ############################## Cleaning Rules ##############################
 # Cleaning stuff
 clean:
+	rm -rf host
 	-$(RMDIR) $(EXECUTABLE) $(XCLBIN)/{*sw_emu*,*hw_emu*} 
 	-$(RMDIR) profile_* TempConfig system_estimate.xtxt *.rpt *.csv 
 	-$(RMDIR) src/*.ll *v++* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
