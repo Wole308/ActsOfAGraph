@@ -196,16 +196,14 @@ void loadedges::calculateoffsets(keyvalue_t * buffer, unsigned int size){
 	return;
 }
 
-globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vptr_type * vptrs[MAXNUMSUBCPUTHREADS], edge_type * edges[MAXNUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[MAXNUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams){						
+globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vptr_type * vptrs[MAXNUMSUBCPUTHREADS], keyvalue_t * edges[MAXNUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[MAXNUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams){						
 	cout<<"loadedges::start:: loading edges... "<<endl;
 	
 	unsigned int kvdata_range__div__vptr_shrink_ratio = (universalparams.KVDATA_RANGE + (universalparams.VPTR_SHRINK_RATIO-1)) / universalparams.VPTR_SHRINK_RATIO;
 	globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA = globalparams.globalparamsK.BASEOFFSETKVS_MESSAGESDATA + globalparams.globalparamsK.SIZE_MESSAGESDRAM;
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA = globalparams.globalparamsE.BASEOFFSETKVS_MESSAGESDATA + globalparams.globalparamsE.SIZE_MESSAGESDRAM; } 
+	globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA = globalparams.globalparamsE.BASEOFFSETKVS_MESSAGESDATA + globalparams.globalparamsE.SIZE_MESSAGESDRAM; 
 	
-	unsigned int baseoffset_edgesdata = 0;
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ baseoffset_edgesdata = globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA * VECTOR_SIZE; } 
-	else { baseoffset_edgesdata = globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA * VECTOR_SIZE; }
+	unsigned int baseoffset_edgesdata = globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA * VECTOR_SIZE; 
 
 	vector<edge2_type> edgedatabuffers_temp[MAXNUM_PEs];
 	#ifdef CHECK4_VERIFYOFFSETS
@@ -232,6 +230,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	unsigned int isFirst = 0;
 	unsigned int isLast = 0;
 	unsigned int _ACTS_READEDGEGRANULARITY = (universalparams.WORKBUFFER_SIZE * VECTOR2_SIZE) / 2; // this is the granularity with which edges are retrieved from memory 
+	// unsigned int _ACTS_READEDGEGRANULARITY = universalparams.WORKBUFFER_SIZE * VECTOR2_SIZE;
 	// exit(EXIT_SUCCESS);
 	
 	// calculate counts_validedges_for_channel
@@ -359,6 +358,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				srcvtxoffsetofblock = allignlower(firstedgeinblock.srcvid, universalparams.PROCESSPARTITIONSZ);
 				if(debug2b==true){ cout<<"loadedges:: srcvtxoffsetofblock: "<<srcvtxoffsetofblock<<", firstedgeinblock.srcvid: "<<firstedgeinblock.srcvid<<endl; }
 				
+				// load edges into edgeblock
 				for(unsigned int p=0; p<universalparams.NUM_PARTITIONS; p++){ block_partitions[p].key = 0; block_partitions[p].value = 0; }
 				for(unsigned int yy=0; yy<2; yy++){
 					// if(yy==0){ for(unsigned int p=0; p<universalparams.NUM_PARTITIONS; p++){ block_partitions[p].key = 0; block_partitions[p].value = 0; }}
@@ -401,7 +401,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 					if(yy==0){ for(unsigned int p=0; p<universalparams.NUM_PARTITIONS; p++){ block_partitions[p].value = 0; }}
 				}
 				
-				// insert edges into buffer...
+				// load edges from edgeblock to edges kvdram
 				for(unsigned int t=0; t<chunk_size; t++){
 					edge = edgeblock[t]; 
 					edge2 = edgeblock[t];
@@ -473,15 +473,13 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		cout<<"### edges_temp["<<i<<"].size(): "<<edges_temp[i].size()<<", edges2_temp["<<i<<"].size(): "<<edges2_temp[i].size()<<endl;
 		cout<<"### loadedges::[insert.edges] memory channel "<<i<<": tempe_index: "<<tempe_index<<", index: "<<index<<endl;
 		#endif
-		// exit(EXIT_SUCCESS);
 	} // end of PEs loop
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	utilityobj->printvalues(">>> loadedges:[insert.edges] total number of edges in channels[0-N]", (value_t *)&counts_alldatas[0], NUM_PEs);
 	cout<<">>> loadedges::[insert.edges] total number of edges in all memory channels: counts_alldata: "<<counts_alldata<<", NAp: "<<NAp<<endl;
-	#endif 
 	cout<<"### loadedges::[insert.edges] total number of skipped edges: "<<numskippededges<<endl;
-	#endif 
-	// exit(EXIT_SUCCESS);
+	#endif
+	#endif
 	
 	// calculate local edge dstvids 
 	#ifdef CALCULATELOCALDSTVIDS
@@ -512,66 +510,6 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	cout<<"### loadedges::[insert.local.edge.dstvids] calculating local edge dstvids inserted successfully"<<endl;
 	#endif 
 
-	// insert bitmap 
-	#ifdef INSERTBITMAP
-	cout<<"### loadedges::insert.bitmap:: inserting bitmap..."<<endl;
-	unsigned int num_errors = 0;
-	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
-		#ifdef TESTKERNEL // ignore unused loads when testing
-		if(utilityobj->isbufferused(i) == false){ continue; }
-		#endif 
-		
-		if(debug2b==true){ utilityobj->printtriples("loadedges::insert.bitmap::[before.insert.bitmap]: printing edges2_temp["+std::to_string(i)+"][~]", (triple_t *)&edges2_temp[i][0], 8); }
-		for(unsigned int j=0; j<edges2_temp[i].size(); j+=VECTOR2_SIZE){
-			for(unsigned int v=0; v<VECTOR2_SIZE; v++){
-				if(j+v >= edges2_temp[i].size()){ continue; }
-				if(edges2_temp[i][j+v].status != EDGESTATUS_VALIDEDGE){ continue; }
-				
-				// #ifndef LOADEDGES_ENSUREPERFECTACCURACY
-				if(edges2_temp[i][j+v].srcvid >= (1 << SIZEOF_SRCV_IN_EDGEDSTVDATA)){ num_errors += 1; }
-				if(edges2_temp[i][j+v].dstvid >= (1 << SIZEOF_DSTV_IN_EDGEDSTVDATA)){ num_errors += 1; }
-				// #endif 
-				
-				#ifdef _DEBUGMODE_HOSTCHECKS3
-				if(edges2_temp[i][j+v].srcvid >= (1 << SIZEOF_SRCV_IN_EDGEDSTVDATA)){ cout<<"loadedges.insertbitmap: ERROR 65. i:"<<i<<", j:"<<j<<", v:"<<v<<", edges2_temp["<<i<<"]["<<j+v<<"].srcvid("<<edges2_temp[i][j+v].srcvid<<") >= (1 << SIZEOF_SRCV_IN_EDGEDSTVDATA)("<<(1 << SIZEOF_SRCV_IN_EDGEDSTVDATA)<<"). edges2_temp["<<i<<"]["<<j+v<<"].dstvid: "<<edges2_temp[i][j+v].dstvid<<", edges2_temp["<<i<<"]["<<j+v<<"].status: "<<edges2_temp[i][j+v].status<<", edges2_temp["<<i<<"].size(): "<<edges2_temp[i].size()<<", EXITING..."<<endl; 
-					for(unsigned int t=0; t<8; t++){ cout<<"loadedges.insertbitmap: edges2_temp["<<i<<"]["<<j+t<<"].srcvid: "<<edges2_temp[i][j+t].srcvid<<", edges2_temp["<<i<<"]["<<j+t<<"].dstvid: "<<edges2_temp[i][j+t].dstvid<<", edges2_temp["<<i<<"]["<<j+t<<"].status: "<<edges2_temp[i][j+t].status<<endl; }
-					exit(EXIT_FAILURE); }
-				if(edges2_temp[i][j+v].dstvid >= (1 << SIZEOF_DSTV_IN_EDGEDSTVDATA)){ cout<<"loadedges.insertbitmap: ERROR 66. i:"<<i<<", j:"<<j<<", v:"<<v<<", edges2_temp["<<i<<"]["<<j+v<<"].dstvid("<<edges2_temp[i][j+v].dstvid<<") >= (1 << SIZEOF_DSTV_IN_EDGEDSTVDATA)("<<(1 << SIZEOF_DSTV_IN_EDGEDSTVDATA)<<"). edges2_temp["<<i<<"]["<<j+v<<"].dstvid: "<<edges2_temp[i][j+v].dstvid<<", edges2_temp["<<i<<"]["<<j+v<<"].status: "<<edges2_temp[i][j+v].status<<", edges2_temp["<<i<<"].size(): "<<edges2_temp[i].size()<<", EXITING..."<<endl; 
-					for(unsigned int t=0; t<8; t++){ cout<<"loadedges.insertbitmap: edges2_temp["<<i<<"]["<<j+t<<"].srcvid: "<<edges2_temp[i][j+t].srcvid<<", edges2_temp["<<i<<"]["<<j+t<<"].dstvid: "<<edges2_temp[i][j+t].dstvid<<", edges2_temp["<<i<<"]["<<j+t<<"].status: "<<edges2_temp[i][j+t].status<<endl; }
-					exit(EXIT_FAILURE); }				
-				#endif 
-				
-				unsigned int codededge = 0;
-				WRITETO_UINT(&codededge, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA, edges2_temp[i][j+v].srcvid);
-				WRITETO_UINT(&codededge, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA, edges2_temp[i][j+v].dstvid);
-				
-				// debug
-				#ifdef _DEBUGMODE_CHECKS
-				parsededge_t parsededge;
-				parsededge.incr = READFROM_UINT(codededge, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
-				parsededge.dstvid = READFROM_UINT(codededge, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
-				if(i==2 && parsededge.incr==42 && parsededge.dstvid<50 && j+v <= 3456){ cout<<"################### loadedges.insertbitmap: i:"<<i<<", j:"<<j<<", v:"<<v<<", parsededge.incr("<<parsededge.incr<<")==42. parsededge.dstvid: "<<parsededge.dstvid<<", edges2_temp["<<i<<"]["<<j+v<<"].srcvid: "<<edges2_temp[i][j+v].srcvid<<", edges2_temp["<<i<<"]["<<j+v<<"].dstvid: "<<edges2_temp[i][j+v].dstvid<<", codededge: "<<codededge<<endl; }
-				#endif 
-				
-				edges2_temp[i][j+v].dstvid = codededge;
-				
-				edges2_temp[i][j+v].metadata = edges2_temp[i][j+v].srcvid; 
-			}
-		}
-		#ifdef _DEBUGMODE_HOSTCHECKS
-		cout<<"loadedges::insert.bitmap:: "<<num_errors<<" error seen (instance "<<i<<")"<<endl;
-		if(num_errors > 10000){ cout<<"loadedges.insertbitmap: ERROR 635. EXITING... "<<endl; exit(EXIT_FAILURE); }				
-		#endif 
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		utilityobj->printtriples("loadedges::insert.bitmap::[after.insert.bitmap]: printing edges2_temp["+std::to_string(i)+"][~]", (triple_t *)&edges2_temp[i][0], 8);
-		#endif 
-		// exit(EXIT_SUCCESS);
-	}
-	cout<<"### loadedges::insert.bitmap::[insert.bitmap] bitmap inserted successfully"<<endl;
-	#endif
-	// exit(EXIT_SUCCESS);
-	
-	// load edges
 	#ifdef LOADEDGES
 	cout<<"### loadedges::insert.bitmap:: loading edges..."<<endl;
 	for(unsigned int i=0; i<NUM_PEs; i++){
@@ -580,35 +518,29 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		#endif 
 		
 		for(unsigned int k=0; k<edges2_temp[i].size(); k++){		
-			utilityobj->checkoutofbounds("loadedges::insert.bitmap(20)::", TWOO*baseoffset_edgesdata + k, universalparams.MAXHBMCAPACITY_KVS * VECTOR_SIZE, NAp, NAp, NAp);		
-			edges[i][TWOO*baseoffset_edgesdata + k].dstvid = edges2_temp[i][k].dstvid;		
+			utilityobj->checkoutofbounds("loadedges::insert.bitmap(20)::", baseoffset_edgesdata + k, universalparams.MAXHBMCAPACITY_KVS2 * VECTOR_SIZE, NAp, NAp, NAp);		
+			edges[i][baseoffset_edgesdata + k].key = edges2_temp[i][k].dstvid;		
+			edges[i][baseoffset_edgesdata + k].value = edges2_temp[i][k].srcvid;	
 		}	
-		if(debug2b==true){ utilityobj->printvalues("loadedges[after]::loadedges: printing edges["+std::to_string(i)+"][~]", (value_t *)&edges[i][TWOO*baseoffset_edgesdata], 8); }
+		if(debug2b==true){ utilityobj->printvalues("loadedges[after]::loadedges: printing edges["+std::to_string(i)+"][~]", (value_t *)&edges[i][baseoffset_edgesdata], 8); }
 	}
 	cout<<"### loadedges::insert.bitmap::[insert.bitmap] loading edges completed successfully"<<endl;
-	#endif 
+	#endif
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int vid=0; vid<universalparams.KVDATA_RANGE; vid++){ counts_totalalledges_for_channel[i] += counts_alledges_for_channel[i][vid]; totalcount_alledges_for_all_channels += counts_alledges_for_channel[i][vid]; }}
 	unsigned int max_totalalledges_for_channel=0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max_totalalledges_for_channel < counts_totalalledges_for_channel[i]){ max_totalalledges_for_channel = counts_totalalledges_for_channel[i]; }}
 	cout<<"loadedges::start: max_totalalledges_for_channel: "<<max_totalalledges_for_channel<<endl;
 
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		globalparams.globalparamsK.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA;
-		globalparams.globalparamsK.SIZE_VERTEXPTRS = 0; 
-		globalparams.globalparamsK.SIZE_EDGES = 0; 
-		
-		globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + ((max_totalalledges_for_channel/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + universalparams.DRAMPADD_KVS;
-		globalparams.globalparamsE.SIZE_VERTEXPTRS = (kvdata_range__div__vptr_shrink_ratio) + universalparams.DRAMPADD_VPTRS; 
-		globalparams.globalparamsE.SIZE_EDGES = max_totalalledges_for_channel + 1000; // '1000' is padding 
-	} else {
-		globalparams.globalparamsK.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA + ((max_totalalledges_for_channel/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE) + universalparams.DRAMPADD_KVS;
-		globalparams.globalparamsK.SIZE_VERTEXPTRS = (kvdata_range__div__vptr_shrink_ratio) + universalparams.DRAMPADD_VPTRS;
-		globalparams.globalparamsK.SIZE_EDGES = max_totalalledges_for_channel + 1000;
-	}
-	globalparams_t globalparamsVPTRS;
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ globalparamsVPTRS = globalparams.globalparamsE; } 
-	else { globalparamsVPTRS = globalparams.globalparamsK; }
+	globalparams.globalparamsK.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsK.BASEOFFSETKVS_EDGESDATA;
+	globalparams.globalparamsK.SIZE_VERTEXPTRS = 0; 
+	globalparams.globalparamsK.SIZE_EDGES = 0; 
 	
+	globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + ((max_totalalledges_for_channel / 1) / VECTOR_SIZE) + universalparams.DRAMPADD_KVS;
+	globalparams.globalparamsE.SIZE_VERTEXPTRS = (kvdata_range__div__vptr_shrink_ratio) + universalparams.DRAMPADD_VPTRS; 
+	globalparams.globalparamsE.SIZE_EDGES = max_totalalledges_for_channel + 1000; // '1000' is padding 
+	globalparams_t globalparamsVPTRS;
+	globalparamsVPTRS = globalparams.globalparamsE; 
+
 	// calculate offsets
 	#ifdef CALCULATEOFFSETS
 	unsigned int _baseoffset = TWOO * (globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE);
@@ -621,7 +553,6 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		for(unsigned int vid=1; vid<kvdata_range__div__vptr_shrink_ratio; vid++){
 			vptrs[i][_baseoffset + vid].key = vptrs[i][_baseoffset + vid - 1].key + counts_alledges_for_vpartition[i][vid-1]; 
 			#ifdef _DEBUGMODE_HOSTPRINTS
-			// if(i==0 && vid<0){ cout<<"loadedges:: vptrs[i]["<<_baseoffset + vid<<"].key: "<<vptrs[i][_baseoffset + vid].key<<" (%16="<<vptrs[i][_baseoffset + vid].key % 16<<")"<<endl; }
 			if(i==0){ cout<<"loadedges:: num edges["<<i<<"]["<<vid<<"]: "<<vptrs[i][_baseoffset + vid].key - vptrs[i][_baseoffset + vid - 1].key<<endl; }
 			#endif 
 		}
@@ -678,12 +609,12 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadedges::start: totalcount_validedges_for_all_channels: "<<totalcount_validedges_for_all_channels<<", totalcount_alledges_for_all_channels: "<<totalcount_alledges_for_all_channels<<", *counts_alldata: "<<counts_alldata<<endl;
 	#endif 
-	// exit(EXIT_SUCCESS); //
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ edgedatabuffers_temp[i].clear(); }
 	#ifdef CHECK4_VERIFYOFFSETS
 	for(unsigned int i=0; i<NUM_PEs; i++){ delete tempvptrs[i]; }
 	#endif 
+	// exit(EXIT_SUCCESS); ////////////////
 	return globalparams;
 }
 

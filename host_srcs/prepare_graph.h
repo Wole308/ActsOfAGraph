@@ -32,6 +32,8 @@ public:
 	prepare_graph();
 	~prepare_graph();
 	
+	void create_graph(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup);
+	void create_ligra_graph(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup);
 	void start(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup);	
 	
 private:

@@ -49,7 +49,8 @@ public:
 	
 	void calculateoffsets(keyvalue_t * buffer, unsigned int size);
 	
-	globalparams_TWOt start(unsigned int col, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vptr_type * vptrs[MAXNUMSUBCPUTHREADS], edge_type * edges[MAXNUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[MAXNUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);										
+	// globalparams_TWOt start(unsigned int col, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vptr_type * vptrs[MAXNUMSUBCPUTHREADS], edge_type * edges[MAXNUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[MAXNUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);										
+	globalparams_TWOt start(unsigned int col, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vptr_type * vptrs[MAXNUMSUBCPUTHREADS], keyvalue_t * edges[MAXNUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[MAXNUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);										
 
 private:
 	utility * utilityobj;

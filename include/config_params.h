@@ -49,7 +49,7 @@ loadgraph.cpp
 
 #define CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS // NEW {classname__top_usrcv_nudstv.cpp}
 
-#define CONFIG_INSERTSTATSMETADATAINEDGES // {acts.cpp, loadedges_random.cpp, classname__top_usrcv_nudstv.cpp, processedges2.cpp}
+// #define CONFIG_INSERTSTATSMETADATAINEDGES // {acts.cpp, loadedges_random.cpp, classname__top_usrcv_nudstv.cpp, processedges2.cpp}
 
 #define CONFIG_VDATAIS32BITSWIDE // NEW, FIXME. IMPLEMENT FOR ALL CASES.
 
@@ -105,6 +105,8 @@ loadgraph.cpp
 #define CONFIG_USEURAM_PACKBYTWOS
 
 // #define CONFIG_BITMASK_NOT_USED // { classname__mem_convert_and_access.cpp }
+
+// #define CONFIG_SRCANDDEST_PACKING // 
 
 #endif
 

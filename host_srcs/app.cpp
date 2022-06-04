@@ -10,6 +10,14 @@ using namespace std;
 // workspace area {kvdram, kvdram workspace}
 // end-of-file
 
+/*
+// datasets 
+http://konect.cc/networks/wikipedia_link_en/
+http://konect.cc/categories/Hyperlink/
+http://konect.cc/networks/delicious-ti/ (pr: 500, bfs: 726 MiEdges/s)
+
+*/
+
 #define APP_LOADEDGES
 #define APP_LOADSRCVERTICES
 #define APP_LOADDESTVERTICES
@@ -36,13 +44,8 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	
 	universalparams.NUM_VERTICES = num_vertices; 
 	universalparams.NUM_EDGES = num_edges; 
-	
-	// if(num_edges < 250000000){ universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = 0; } 
-	// else { universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = 1; } // FIXME.
+
 	universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = 1; // NEWCHANGE.
-	
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ universalparams.KVDRAMWORKCAPACITY_BYTES = (1 << 28) / 2; } 
-	else { universalparams.KVDRAMWORKCAPACITY_BYTES = 1 << 28; }
 	
 	universalparams.NUM_PARTITIONS_POW = 4;
 	universalparams.NUM_PARTITIONS = 1 << universalparams.NUM_PARTITIONS_POW;
@@ -91,18 +94,29 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 
 	universalparams.VPTR_SHRINK_RATIO = universalparams.PROCESSPARTITIONSZ;
 
-	universalparams.MAXHBMCAPACITY_V = ((1 << 28) / 4); // (256MB/4=64M)
-	universalparams.MAXHBMCAPACITY_KV = ((1 << 28) / 8); // (256MB/8=32M)
-	universalparams.MAXHBMCAPACITY_VS = (universalparams.MAXHBMCAPACITY_V / VECTOR2_SIZE); // (64M/16=4M)
-	universalparams.MAXHBMCAPACITY_KVS = (universalparams.MAXHBMCAPACITY_KV / VECTOR_SIZE); // (32M/8=4M)
-	// universalparams.KVSOURCEDRAMSZ = (universalparams.MAXHBMCAPACITY_KVS * VECTOR_SIZE); // MAXHBMCAPACITY_KV // max HBM capacity (256MB)
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){ universalparams.KVSOURCEDRAMSZ = (universalparams.MAXHBMCAPACITY_KVS * VECTOR_SIZE) / 2; } 
-	else { universalparams.KVSOURCEDRAMSZ = (universalparams.MAXHBMCAPACITY_KVS * VECTOR_SIZE); }
+	universalparams.MAXHBMCAPACITY_UINT32 = ((1 << 28) / 4); // (256MB/4=64M)
+	universalparams.MAXHBMCAPACITY_KVS2 = universalparams.MAXHBMCAPACITY_UINT32 / VECTOR2_SIZE;
 
+	universalparams.KVSOURCEDRAMSZ = universalparams.MAXHBMCAPACITY_UINT32;
 	universalparams.KVSOURCEDRAMSZ_KVS = (universalparams.KVSOURCEDRAMSZ / VECTOR_SIZE);
 	universalparams.PADDEDKVSOURCEDRAMSZ = universalparams.KVSOURCEDRAMSZ;
 	universalparams.PADDEDKVSOURCEDRAMSZ_KVS = (universalparams.PADDEDKVSOURCEDRAMSZ / VECTOR_SIZE);
-
+	
+	universalparams.HBMWORKCAPACITY_UINT32 = ((1 << 28) / 4) / 2;
+	universalparams.VOLUMESIZEU32_WORKSPACEDATA = universalparams.HBMWORKCAPACITY_UINT32; 
+	universalparams.VOLUMESIZEU32_WORKDATA = universalparams.HBMWORKCAPACITY_UINT32; 
+	unsigned int EDGES_space_u32 = (universalparams.NUM_EDGES * 2) / NUM_PEs;
+	unsigned int VPTR_space_u32 = universalparams.NUM_VERTICES / universalparams.VPTR_SHRINK_RATIO;
+	if(EDGES_space_u32 + VPTR_space_u32 >= universalparams.VOLUMESIZEU32_WORKDATA){ // override
+		cout<<"app: RE-ASSIGN. EDGES space("<<EDGES_space_u32<<") + VPTR space("<<VPTR_space_u32<<")("<<EDGES_space_u32 + VPTR_space_u32<<") >= universalparams.VOLUMESIZEU32_WORKDATA("<<universalparams.VOLUMESIZEU32_WORKDATA<<"). OVERRIDING SET VALUES..."<<endl; 
+		universalparams.VOLUMESIZEU32_WORKDATA += 8000000;
+		universalparams.VOLUMESIZEU32_WORKSPACEDATA -= 8000000;
+		std::cout<<">> app[size]:: universalparams.VOLUMESIZEU32_WORKSPACEDATA: "<<universalparams.VOLUMESIZEU32_WORKSPACEDATA<<std::endl;
+		std::cout<<">> app[size]:: universalparams.VOLUMESIZEU32_WORKDATA: "<<universalparams.VOLUMESIZEU32_WORKDATA<<std::endl;
+	}
+	universalparams.VOLUMEOFFSETKVS_WORKSPACEDATA = 0; 
+	universalparams.VOLUMEOFFSETKVS_WORKDATA = universalparams.VOLUMEOFFSETKVS_WORKSPACEDATA + (universalparams.VOLUMESIZEU32_WORKSPACEDATA / VECTOR2_SIZE); 
+	
 	universalparams.VDRAMSZ = universalparams.KVSOURCEDRAMSZ;
 	universalparams.PADDEDVDRAMSZ = universalparams.VDRAMSZ;
 	universalparams.PADDEDVDRAMSZ_KVS = (universalparams.PADDEDVDRAMSZ / VECTOR_SIZE);
@@ -110,7 +124,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.DRAMPADD = (16 * BLOCKRAM_SIZE * VECTOR_SIZE);
 	universalparams.DRAMPADD_KVS = (universalparams.DRAMPADD / VECTOR_SIZE);
 
-	universalparams.DRAMPADD_VPTRS = 2 * universalparams.VPTR_SHRINK_RATIO * VECTOR2_SIZE; 
+	universalparams.DRAMPADD_VPTRS = 1024; // 2 * universalparams.VPTR_SHRINK_RATIO * VECTOR2_SIZE; 
 	universalparams.DRAMPADD_VPTRS_KVS = universalparams.DRAMPADD_VPTRS / VECTOR2_SIZE; // to avoid any spill-overs 
 	
 	universalparams.SRCBUFFER_SIZE = BLOCKRAM_SIZE - (4 * 4);
@@ -141,6 +155,11 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	string GRAPH_NAME = ""; // "soc-orkut";
 	string GRAPH_PATH = graph_path;
 	
+	// prepare_graph * prepare_graphobjj = new prepare_graph();
+	// prepare_graphobjj->create_graph(GRAPH_PATH, edgedatabuffer, vertexptrbuffer); // REMOVEME.
+	// prepare_graphobjj->create_ligra_graph(GRAPH_PATH, edgedatabuffer, vertexptrbuffer); // REMOVEME.
+	// exit(EXIT_SUCCESS); ////////////////////
+	
 	prepare_graph * prepare_graphobj = new prepare_graph();
 	prepare_graphobj->start(GRAPH_PATH, edgedatabuffer, vertexptrbuffer); // REMOVEME.
 	unsigned int num_edges = edgedatabuffer.size();
@@ -169,29 +188,27 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	unsigned int mdramsz_kvs = (universalparams.NUM_EDGES + universalparams.NUM_VERTICES + (universalparams.NUM_VERTICES*2) + 1000000) / VECTOR2_SIZE;
 	#ifndef SW_IMPL 
 	#ifdef FPGA_IMPL
-	for(unsigned int i=0; i<MAXNUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt))); }				
-	vdram = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
+	for(unsigned int i=0; i<MAXNUMSUBCPUTHREADS; i++){ kvbuffer[i] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS2 * sizeof(uint512_vec_dt))); }				
+	vdram = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS2 * sizeof(uint512_vec_dt)));
 	mdram = (uint512_vec_dt *) aligned_alloc(4096, mdramsz_kvs * sizeof(uint512_vec_dt));
 	#else
-	for(unsigned int i=0; i<MAXNUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS]; }
-	vdram = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
+	for(unsigned int i=0; i<MAXNUMSUBCPUTHREADS; i++){ kvbuffer[i] = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS2]; }
+	vdram = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS2];
 	mdram = new uint512_vec_dt[mdramsz_kvs]; // stores {edges, vptrs, active vertices} all in large DDR memory. '1000000' is padding
 	#endif
 	#endif 
 	
 	for(unsigned int i=0; i<MAXNUMSUBCPUTHREADS; i++){ // REMOVEME.
-		for(unsigned int k=0; k<universalparams.MAXHBMCAPACITY_KVS; k++){ 
+		for(unsigned int k=0; k<universalparams.MAXHBMCAPACITY_KVS2; k++){ 
 			for(unsigned int v=0; v<VECTOR_SIZE; v++){ kvbuffer[i][k].data[v].key = 0; kvbuffer[i][k].data[v].value = 0; }
 		}
 	}
 	
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		#ifdef FPGA_IMPL
-		for(unsigned int j=0; j<MAXNUMSUBCPUTHREADS; j++){ edges[j] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }	// 2 because edge_type consist 4 bytes not 8 bytes			
-		#else
-		for(unsigned int j=0; j<MAXNUMSUBCPUTHREADS; j++){ edges[j] = new uint512_vec_dt[universalparams.PADDEDKVSOURCEDRAMSZ_KVS]; }
-		#endif
-	}
+	#ifdef FPGA_IMPL
+	for(unsigned int j=0; j<MAXNUMSUBCPUTHREADS; j++){ edges[j] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.PADDEDKVSOURCEDRAMSZ_KVS * sizeof(uint512_vec_dt))); }	// 2 because edge_type consist 4 bytes not 8 bytes			
+	#else
+	for(unsigned int j=0; j<MAXNUMSUBCPUTHREADS; j++){ edges[j] = new uint512_vec_dt[universalparams.PADDEDKVSOURCEDRAMSZ_KVS]; }
+	#endif
 	
 	// load workload information
 	globalparams_TWOt globalparams;
@@ -217,29 +234,27 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsK.SIZE_KVDRAM = 0;
 	globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE = 0;
 	
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		globalparams.globalparamsE.BASEOFFSETKVS_MESSAGESDATA = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEVERTICES = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_STATSDRAM = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_KVDRAM = 0;
-		globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE = 0;
-		
-		globalparams.globalparamsE.SIZE_MESSAGESDRAM = MESSAGESDRAMSZ;
-		globalparams.globalparamsE.SIZE_EDGES = 0;
-		globalparams.globalparamsE.SIZE_VERTEXPTRS = 0;
-		globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0;
-		globalparams.globalparamsE.SIZE_DESTVERTICESDATA = 0;
-		globalparams.globalparamsE.SIZE_ACTIVEVERTICES = 0;
-		globalparams.globalparamsE.SIZE_VERTICESDATAMASK = 0;
-		globalparams.globalparamsE.SIZE_KVSTATSDRAM = 0;
-		globalparams.globalparamsE.SIZE_KVDRAM = 0;
-		globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE = 0;
-	}
+	globalparams.globalparamsE.BASEOFFSETKVS_MESSAGESDATA = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEVERTICES = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_STATSDRAM = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_KVDRAM = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE = 0;
+	
+	globalparams.globalparamsE.SIZE_MESSAGESDRAM = MESSAGESDRAMSZ;
+	globalparams.globalparamsE.SIZE_EDGES = 0;
+	globalparams.globalparamsE.SIZE_VERTEXPTRS = 0;
+	globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0;
+	globalparams.globalparamsE.SIZE_DESTVERTICESDATA = 0;
+	globalparams.globalparamsE.SIZE_ACTIVEVERTICES = 0;
+	globalparams.globalparamsE.SIZE_VERTICESDATAMASK = 0;
+	globalparams.globalparamsE.SIZE_KVSTATSDRAM = 0;
+	globalparams.globalparamsE.SIZE_KVDRAM = 0;
+	globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE = 0;
 	
 	globalparams.globalparamsV.BASEOFFSETKVS_MESSAGESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_EDGESDATA = 0;
@@ -288,15 +303,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	unsigned int num_iters = 0;
 	unsigned int total_edges_processed = 0;
 	
-	// exit(EXIT_SUCCESS);
-	
 	// edges
 	#ifdef APP_LOADEDGES
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		globalparams = loadedgesobj->start(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, (edge_type **)edges, edges_temp, &container, globalparams);
-	} else {
-		globalparams = loadedgesobj->start(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)kvbuffer, (edge_type **)kvbuffer, edges_temp, &container, globalparams);
-	}
+	globalparams = loadedgesobj->start(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, (keyvalue_t **)kvbuffer, edges_temp, &container, globalparams);
 	#endif 
 	globalparams.globalparamsV.SIZE_EDGES = 0; 
 	globalparams.globalparamsV.SIZE_VERTEXPTRS = 0;
@@ -362,12 +371,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	// stats info 
 	#ifdef APP_LOADSTATSINFO
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		globalparams = loadgraphobj->loadoffsetmarkers((edge_type **)edges, (keyvalue_t **)edges, edges_temp, &container, globalparams); 
-		loadgraphobj->accumstats(kvbuffer, edges, globalparams); // NEWCHANGE.
-	} else {
-		globalparams = loadgraphobj->loadoffsetmarkers((edge_type **)kvbuffer, (keyvalue_t **)kvbuffer, edges_temp, &container, globalparams); 
-	}
+	globalparams = loadgraphobj->loadoffsetmarkers((keyvalue_t **)edges, edges_temp, &container, globalparams); 
+	loadgraphobj->accumstats(kvbuffer, edges, globalparams); // NEWCHANGE.
 	#endif 
 	// exit(EXIT_SUCCESS); //
 	
@@ -395,9 +400,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	// merge kv and edges dram for extra-large vertices 
 	cout<<">>> swkernel::runapp: populating vdramA, vdramB and vdramC... "<<endl;
-	if(universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM == 1){
-		for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.MAXHBMCAPACITY_KVS / 2); t++){ kvbuffer[i][(universalparams.MAXHBMCAPACITY_KVS / 2) + t] = edges[i][t]; }}
-	}
+	// for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.MAXHBMCAPACITY_KVS2 / 2); t++){ kvbuffer[i][(universalparams.MAXHBMCAPACITY_KVS2 / 2) + t] = edges[i][t]; }}
+	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.VOLUMESIZEU32_WORKDATA / VECTOR2_SIZE); t++){ kvbuffer[i][universalparams.VOLUMEOFFSETKVS_WORKDATA + t] = edges[i][t]; }}
+	if(((universalparams.VOLUMEOFFSETKVS_WORKDATA + (universalparams.VOLUMESIZEU32_WORKDATA / VECTOR2_SIZE)) * sizeof(uint512_vec_dt)) > (universalparams.MAXHBMCAPACITY_UINT32 * sizeof(unsigned int))){ cout<<"app::ERROR: CAN NOT merge. dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	
 	// run_hw
 	#ifdef APP_RUNHWVERSION

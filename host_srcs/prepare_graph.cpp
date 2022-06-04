@@ -4,6 +4,89 @@ using namespace std;
 prepare_graph::prepare_graph(){}
 prepare_graph::~prepare_graph(){}
 
+struct Student {
+	int var1;
+	// int var2;
+};
+
+void prepare_graph::create_graph(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup){
+	cout<<">>> prepare_graph::create_graph: STARTED."<<endl;
+	
+	std::ofstream ofile;
+	// ofile.open("/home/oj2zf/dataset/delicious.mtx", std::ios::app);
+	// ofile.open("/home/oj2zf/dataset/delicious.mtx", std::ios::app);
+
+	// std::ifstream file1_graph("/home/oj2zf/dataset/out.delicious");
+	// ofile.open("/home/oj2zf/dataset/delicious.mtx", std::ofstream::out | std::ofstream::trunc);
+	
+	std::ifstream file1_graph("/home/oj2zf/dataset/out.delicious");
+	ofile.open(graphpath, std::ofstream::out | std::ofstream::trunc);
+	
+	cout<<"prepare_graph::create_graph: creating graph @ "<<graphpath<<"..."<<endl;
+	vertex_t srcv = 0;
+	vertex_t dstv = 0;
+	unsigned int A, B = 0;
+	
+	ofile << 33777768 << " " << 33777768 << " " << 301183605 << std::endl;
+	if (file1_graph.is_open()) {
+		std::string line;
+		unsigned int linecount = 0;
+		while (getline(file1_graph, line)) {
+			if (line.find("%") == 0){ continue; }
+			if (linecount % 10000000 == 0){ cout<<"create_graph::["<<linecount<<"] dstv: "<<dstv<<", srcv: "<<srcv<<endl; }
+			
+			sscanf(line.c_str(), "%i %i", &dstv, &srcv);
+			
+			// cout<<"prepare_graph:: dstv: "<<dstv<<", srcv: "<<srcv<<endl;
+			ofile << dstv << " " << srcv << std::endl;
+			
+			linecount += 1;
+			// if(linecount > 128){ break; }
+		}
+	}
+	file1_graph.close();
+	ofile.close();
+	cout<<">>> prepare_graph::create_graph: FINISHED SUCCESSFULLY."<<endl;
+	exit(EXIT_SUCCESS);
+}
+
+void prepare_graph::create_ligra_graph(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup){
+	cout<<">>> prepare_graph::create_ligra_graph: STARTED."<<endl;
+	
+	prepare_graph::start(graphpath, edgesbuffer_dup, vptr_dup);
+	
+	string graphpath2 = graphpath; graphpath2.append("_ligra");   
+	std::ofstream ofile;
+	// std::ifstream file1_graph("/home/oj2zf/dataset/out.delicious");
+	ofile.open(graphpath2, std::ofstream::out | std::ofstream::trunc);
+	
+	// AdjacencyGraph
+	ofile << "AdjacencyGraph" << "" << std::endl;
+	ofile << vptr_dup.size() << "" << std::endl;
+	ofile << edgesbuffer_dup.size() << "" << std::endl;
+	
+	unsigned int linecount = 0;
+	for(unsigned int n=0; n<vptr_dup.size(); n++){
+		if(vptr_dup[n] == 0 && n > 1000){ vptr_dup[n] = edgesbuffer_dup.size() - 1; } ///////
+		if(n<vptr_dup.size()-1){ if(vptr_dup[n] > vptr_dup[n+1]){ cout<<"create_ligra_graph: ERROR. vptr_dup["<<n<<"]("<<vptr_dup[n]<<") > vptr_dup["<<n+1<<"]("<<vptr_dup[n+1]<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }}
+		ofile << vptr_dup[n] << "" << std::endl;
+		if ((linecount % 100000 == 0) || (vptr_dup.size()-linecount < 8)){ cout<<"create_ligra_graph:: vptr_dup["<<n<<"]: "<<vptr_dup[n]<<endl; }	
+		linecount += 1; 
+	}
+	
+	linecount = 0;
+	for(unsigned int m=0; m<edgesbuffer_dup.size(); m++){
+		// if(edgesbuffer_dup[m].dstvid == 0){ edgesbuffer_dup[m].dstvid = 777; } ///////
+		ofile << edgesbuffer_dup[m].dstvid << "" << std::endl;
+		if ((linecount % 10000000 == 0) || (edgesbuffer_dup.size()-linecount < 8)){ cout<<"create_ligra_graph:: m: "<<m<<", edgesbuffer_dup["<<m<<"].srcvid: "<<edgesbuffer_dup[m].srcvid<<", edgesbuffer_dup["<<m<<"].dstvid: "<<edgesbuffer_dup[m].dstvid<<endl; }	
+		linecount += 1; 
+	}
+	
+	ofile.close();
+	cout<<">>> prepare_graph::create_ligra_graph: FINISHED SUCCESSFULLY. saved @ "<<graphpath2<<endl;
+	exit(EXIT_SUCCESS);
+}
+
 void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup){
 	cout<<"prepare_graph:: preparing graph @ "<<graphpath<<"..."<<endl;
 	vertex_t srcv = 0;

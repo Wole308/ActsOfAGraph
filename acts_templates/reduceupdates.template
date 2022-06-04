@@ -185,8 +185,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_ACTSreducean
 	
 	// buffer_type capsule2_offset=0;
 	REDUCEBUFFERPARTITIONS_LOOP2: for(buffer_type capsule_offset=0; capsule_offset<globalparams.ACTSPARAMS_NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){
-		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
-		// if(globalparams.ALGORITHMINFO_GRAPHALGORITHMID == CF){ capsule2_offset = capsule_offset; } // CUSTOMPROVISION		
+		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];	
 		REDUCEBUFFERPARTITIONS_LOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
 			REDUCEBUFFERPARTITIONS_LOOP2C: for(buffer_type i=0; i<mmaxsz_kvs; i++){ 
 			#pragma HLS PIPELINE II=2

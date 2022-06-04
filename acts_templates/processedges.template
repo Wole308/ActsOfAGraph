@@ -105,32 +105,39 @@ void {{context['classname__processedges']}}PROCESS{{context['id']}}_calculateoff
 	return;
 }
 
-void {{context['classname__processedges']}}PROCESS{{context['id']}}_readedgeblockstats(value_t tempbuffer[VECTOR2_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], buffer_type chunk_size, globalparams_t globalparams){
-	// read edge block stats  
-	// bool statsiscorrect = true;
-	// #ifdef CONFIG_PROCESSEDGES_READOFFLINESTATS
+void {{context['classname__processedges']}}PROCESS{{context['id']}}_readedgeblockstats(keyvalue_t tempbuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], buffer_type chunk_size, globalparams_t globalparams){
+	// cout<<"processedges->_readedgeblockstats:: SEEN 1."<<endl;
 	if(globalparams.ACTSPARAMS_READOFFLINESTATS == 1){
+		// cout<<"processedges->_readedgeblockstats:: SEEN 2."<<endl;
 		unsigned int sum_values = 0;
-		for(unsigned int p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){ localcapsule[p].key = 0; localcapsule[p].value = tempbuffer[p][0]; if(p<globalparams.ACTSPARAMS_NUM_PARTITIONS-1){ sum_values += tempbuffer[p][0]; }}
-		localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value = (chunk_size * VECTOR2_SIZE) - sum_values;
-		if(tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888 || sum_values > chunk_size * VECTOR2_SIZE){
+		for(unsigned int p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){ 
+			// cout<<"processedges->_readedgeblockstats:: SEEN 3."<<endl;
+			localcapsule[p].key = 0; 
+			if(p % 0 == 0){ localcapsule[p].value = tempbuffer[p/2][0].key; } else { localcapsule[p].value = tempbuffer[p/2][0].value; }
+			sum_values += localcapsule[p].value;
+		} sum_values -= 8888888;
+		// cout<<"processedges->_readedgeblockstats:: SEEN 4."<<endl;
+		localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value = (chunk_size * VECTOR_SIZE) - sum_values;
+		// cout<<"processedges->_readedgeblockstats:: SEEN 5."<<endl;
+		if(tempbuffer[7][0].value != 8888888 || sum_values > chunk_size * VECTOR_SIZE){
+			// cout<<"processedges->_readedgeblockstats:: SEEN 6."<<endl;
 			#if defined(_DEBUGMODE_CHECKS) && defined(CONFIG_INSERTSTATSMETADATAINEDGES) // CRITICAL FIXME.
-			if(sum_values > chunk_size * VECTOR2_SIZE && chunk_size > 0){ cout<<"processedges2: ERROR: sum_values("<<sum_values<<") > chunk_size("<<chunk_size<<") * VECTOR2_SIZE. EXITING... "<<endl; actsutilityobj->printkeyvalues("processandbuffer.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); exit(EXIT_FAILURE); } 
-			if(tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888){ cout<<"processedges2: ERROR: tempbuffer[globalparams.ACTSPARAMS_NUM_PARTITIONS-1][0] != 8888888. EXITING... "<<endl; for(unsigned int v=0; v<VECTOR2_SIZE; v++){ cout<<"tempbuffer["<<v<<"][0]: "<<tempbuffer[v][0]<<endl; } exit(EXIT_FAILURE); }
+			if(sum_values > chunk_size * VECTOR_SIZE && chunk_size > 0){ cout<<"processedges2: ERROR: sum_values("<<sum_values<<") > chunk_size("<<chunk_size<<") * VECTOR_SIZE. EXITING... "<<endl; actsutilityobj->printkeyvalues("processandbuffer.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); exit(EXIT_FAILURE); } 
+			if(tempbuffer[7][0].value != 8888888){ cout<<"processedges2: ERROR: tempbuffer[7][0].value != 8888888. EXITING... "<<endl; for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"tempbuffer["<<v<<"][0]: "<<tempbuffer[v][0]<<endl; } exit(EXIT_FAILURE); }
 			#endif 
 			unsigned int modelsz = chunk_size / globalparams.ACTSPARAMS_NUM_PARTITIONS; // mock it
-			for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR2_SIZE; localcapsule[i].value = modelsz * VECTOR2_SIZE; } 
+			for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR_SIZE; localcapsule[i].value = modelsz * VECTOR_SIZE; } 
 		}
-	// #else
+		// cout<<"processedges->_readedgeblockstats:: SEEN 7."<<endl;
 	} else {
 		unsigned int modelsz = chunk_size / globalparams.ACTSPARAMS_NUM_PARTITIONS;
-		for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR2_SIZE; localcapsule[i].value = modelsz * VECTOR2_SIZE; } 
+		for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR_SIZE; localcapsule[i].value = modelsz * VECTOR_SIZE; } 
 	}
-	// #endif 
 	PROCESS{{context['id']}}_calculateoffsets(localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);
+	// cout<<"processedges->_readedgeblockstats:: SEEN 8."<<endl;
 	#ifdef _DEBUGMODE_KERNELPRINTS // DEBUGME_PROCESSEDGES2
 	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); 
-	cout<<"processedges2(15): "<<"chunk_size * VECTOR2_SIZE: "<<chunk_size * VECTOR2_SIZE<<", globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR2_SIZE: "<<(globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR2_SIZE)<<endl;
+	cout<<"processedges2(15): "<<"chunk_size * VECTOR_SIZE: "<<chunk_size * VECTOR_SIZE<<", globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR_SIZE: "<<(globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR_SIZE)<<endl;
 	#endif
 }
 
@@ -142,21 +149,21 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 	if(enable == OFF){ return fetchmessage; }
 	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return fetchmessage; }
 	
-	uint32_type E[VECTOR2_SIZE];
+	keyvalue_t E[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete
-	uint32_type E2[VECTOR2_SIZE];
+	keyvalue_t E2[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E2 complete
 
 	travstate_t mytravstate = travstate;
-	mytravstate.i_kvs = travstate.i_kvs / 2;
-	mytravstate.end_kvs = travstate.end_kvs / 2;
+	mytravstate.i_kvs = travstate.i_kvs / 1;
+	mytravstate.end_kvs = travstate.end_kvs / 1;
 	
-	loffset_kvs = loffset_kvs / 2; //
-	buffer_type edgessize_kvs = size_kvs / 2;
+	loffset_kvs = loffset_kvs / 1; //
+	buffer_type edgessize_kvs = size_kvs / 1;
 	
 	batch_type offset_kvs = goffset_kvs + loffset_kvs;
 	
-	value_t res[VECTOR2_SIZE];
+	value_t res[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=res complete
 	unsigned int loadcount[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=loadcount complete
@@ -177,7 +184,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 	
 	keyvalue_t edata[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=edata complete
-	value_t tempbuffer[VECTOR2_SIZE][MAX_SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
+	keyvalue_t tempbuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
 	#pragma HLS array_partition variable = tempbuffer
 	keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS];
 	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
@@ -203,17 +210,18 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<", edgessize_kvs: "<<edgessize_kvs<<", mytravstate.i_kvs: "<<mytravstate.i_kvs<<", mytravstate.end_kvs: "<<mytravstate.end_kvs<<endl;
 	#endif 
 	PROCESSBUFFERPARTITIONS_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS PIPELINE II=1
+	#pragma HLS PIPELINE II=1	
 		#ifdef _WIDEWORD
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		tempbuffer[{{v}}][i] = edges[offset_kvs + i].range({{((v + 1) * 32) - 1}}, {{v * 32}}); 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		tempbuffer[{{v}}][i].key = edges[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+		tempbuffer[{{v}}][i].value = edges[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		tempbuffer[{{2*v}}][i] = edges[offset_kvs + i].data[{{v}}].key; 
-		tempbuffer[{{2*v+1}}][i] = edges[offset_kvs + i].data[{{v}}].value;	
+		tempbuffer[{{v}}][i].key = edges[offset_kvs + i].data[{{v}}].key; 
+		tempbuffer[{{v}}][i].value = edges[offset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
-		#endif
+		#endif 
 		
 		#ifdef DEBUGME_PROCESSEDGES
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -222,101 +230,76 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 		#endif 
 	}
 	
+	// cout<<"processedges:: SEEN 3."<<endl;
 	// read edge block stats  
 	PROCESS{{context['id']}}_readedgeblockstats(tempbuffer, localcapsule, chunk_size, globalparams);
 	
+	// cout<<"processedges:: SEEN 4."<<endl;
 	// process edge block stats 
 	maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
 	unsigned int _poff = 0;
 	PROCESSBUFFERPARTITIONS_LOOP3: for(unsigned int cid=0; cid<2; cid++){
 		PROCESSBUFFERPARTITIONS_LOOP3B: for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS/2; p++){
 		#pragma HLS PIPELINE II=2
-			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR2_SIZE;
+			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR_SIZE;
 			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
 		}
 		_poff += globalparams.ACTSPARAMS_NUM_PARTITIONS/2;
 	}
-	height_kvs = (localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].key + localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value) / VECTOR2_SIZE;
+	height_kvs = (localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].key + localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value) / VECTOR_SIZE;
 
+	// cout<<"processedges:: SEEN 5."<<endl;
 	for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){
-		localcapsule_kvs[p].key = localcapsule[p].key / VECTOR2_SIZE;
-		localcapsule_kvs[p].value = (localcapsule[p].value + (VECTOR2_SIZE-1)) / VECTOR2_SIZE;
+		localcapsule_kvs[p].key = localcapsule[p].key / VECTOR_SIZE;
+		localcapsule_kvs[p].value = (localcapsule[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE;
 	}
 	
 	// process edge block
 	unsigned int readoffset = 0; if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
 	PROCESSBUFFERPARTITIONS_LOOP4: for(buffer_type capsule_offset=0; capsule_offset<globalparams.ACTSPARAMS_NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
 		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
-		PROCESSBUFFERPARTITIONS_LOOP4B: for(buffer_type block_offset=0; block_offset<VECTOR2_SIZE; block_offset+=VECTOR_SIZE){ // processing next block set 
-			PROCESSBUFFERPARTITIONS_LOOP4C: for(unsigned int r=0; r<VECTOR_SIZE; r++){ // interchanging columns
-				PROCESSBUFFERPARTITIONS_LOOP4D: for(buffer_type i=0; i<mmaxsz_kvs; i++){ // processing a column data
-				#pragma HLS PIPELINE II=1
-					#ifdef _DEBUGMODE_CHECKS2
-					actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
+		PROCESSBUFFERPARTITIONS_LOOP4C: for(unsigned int r=0; r<VECTOR_SIZE; r++){ // interchanging columns
+			PROCESSBUFFERPARTITIONS_LOOP4D: for(buffer_type i=0; i<mmaxsz_kvs; i++){ // processing a column data
+			#pragma HLS PIPELINE II=1
+				#ifdef _DEBUGMODE_CHECKS2
+				actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
+				#endif
+				
+				// get layout
+				PROCESS{{context['id']}}_GetXYLayoutV(r, depths, 0);
+				#ifdef _DEBUGMODE_CHECKS3
+				{%for v in context['VECTOR_SIZE_seq']%}
+				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[{{v}}], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[{{v}}], NAp);
+				{%endfor%} 
+				#endif
+				
+				// calculate enable
+				{%for v in context['VECTOR_SIZE_seq']%}
+				enx[{{v}}] = true;	
+				{%endfor%}
+				
+				// read 
+				{%for v in context['VECTOR_SIZE_seq']%}
+				unsigned int tdepth{{v}} = capsule_offset + depths[{{v}}];	
+				d_kvs[{{v}}] = readoffset + localcapsule_kvs[tdepth{{v}}].key + i; 
+				{%endfor%} 	
+				{%for v in context['VECTOR_SIZE_seq']%} // FIXME.
+				if(d_kvs[{{v}}] < height_kvs && i < localcapsule_kvs[tdepth{{v}}].value){ E[{{v}}] = tempbuffer[{{v}}][d_kvs[{{v}}]]; } else { enx[{{v}}] = false; E[{{v}}].key = INVALIDDATA; }	
+				{%endfor%} 	
+				
+				// process
+				{%for v in context['VECTOR_SIZE_seq']%}
+				PROCESS{{context['id']}}_processvector(enx[{{v}}], {{v}}, E[{{v}}].value, E[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], bufferoffset_kvs, &loadcount[{{v}}], GraphAlgoClass, globalposition, globalparams
+					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
+					,collections[capsule_offset + {{v}}]
 					#endif
-					
-					// get layout
-					PROCESS{{context['id']}}_GetXYLayoutV(r, depths, 0);
-					#ifdef _DEBUGMODE_CHECKS3
-					{%for v in context['VECTOR_SIZE_seq']%}
-					actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[{{v}}], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[{{v}}], NAp);
-					{%endfor%} 
-					#endif
-					
-					// calculate enable
-					{%for v in context['VECTOR_SIZE_seq']%}
-					enx[{{v}}] = true;	
-					{%endfor%}
-					
-					// read 
-					{%for v in context['VECTOR_SIZE_seq']%}
-					unsigned int tdepth{{v}} = capsule_offset + depths[{{v}}];	
-					d_kvs[{{v}}] = readoffset + localcapsule_kvs[tdepth{{v}}].key + i; 
-					{%endfor%} 	
-					{%for v in context['VECTOR_SIZE_seq']%} // FIXME.
-					if(d_kvs[{{v}}] < height_kvs && i < localcapsule_kvs[tdepth{{v}}].value){ E[{{v}}] = tempbuffer[block_offset + {{v}}][d_kvs[{{v}}]]; } else { enx[{{v}}] = false; E[{{v}}] = INVALIDDATA; }	
-					{%endfor%} 	
-					
-					// re-arrange 
-					#ifdef CONFIG_MEMLAYOUT_ENABLE_REARRANGEVPROP
-					PROCESS{{context['id']}}_RearrangeLayoutV(r, E, E2);
-					PROCESS{{context['id']}}_RearrangeLayoutEn(r, enx, enx2); // NEWCHANGE.
-					#else 
-					{%for v in context['VECTOR2_SIZE_seq']%} E2[{{v}}] = E[{{v}}]; {%endfor%}	
-					#endif 
-					{%for v in context['VECTOR_SIZE_seq']%} if(E2[{{v}}]==8888888){ E2[{{v}}] = 0; } enx2[{{v}}] = enx[{{v}}]; {%endfor%}	
-					#ifdef _DEBUGMODE_CHECKS3
-					{%for v in context['VECTOR_SIZE_seq']%}
-					if(E2[{{v}}]==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-					{%endfor%}
-					#endif 
-					
-					// parse
-					{%for v in context['VECTOR_SIZE_seq']%}
-					parsededge_t parsed_edge{{v}} = PROCESS{{context['id']}}_PARSEEDGE(E2[{{v}}]); // FIXME.
-					edata[{{v}}].value = parsed_edge{{v}}.incr; // source info
-					edata[{{v}}].key = parsed_edge{{v}}.dstvid;	
-					{%endfor%}
-					#ifdef _DEBUGMODE_KERNELPRINTS
-					{%for v in context['VECTOR_SIZE_seq']%}
-					if(edata[{{v}}].value==42 && enx[{{v}}] == true){ cout<<"processedges2: edata[{{v}}].value("<<edata[{{v}}].value<<")==42. edata[{{v}}].key: "<<edata[{{v}}].key<<endl; }
-					{%endfor%}
-					#endif 
-					
-					// process
-					{%for v in context['VECTOR_SIZE_seq']%}
-					PROCESS{{context['id']}}_processvector(enx2[{{v}}], {{v}}, edata[{{v}}].value, edata[{{v}}], vbuffer[capsule_offset + {{v}}], buffer[{{v}}], bufferoffset_kvs, &loadcount[{{v}}], GraphAlgoClass, globalposition, globalparams
-						#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-						,collections[capsule_offset + {{v}}]
-						#endif
-						);
-					{%endfor%}	
-					#ifdef _DEBUGMODE_CHECKS2
-					{%for v in context['VECTOR_SIZE_seq']%}
-					actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[{{v}}], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-					{%endfor%} 
-					#endif
-				}
+					);
+				{%endfor%}	
+				#ifdef _DEBUGMODE_CHECKS2
+				{%for v in context['VECTOR_SIZE_seq']%}
+				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[{{v}}], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
+				{%endfor%} 
+				#endif
 			}
 		}
 	}
@@ -345,17 +328,17 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 		#endif 
 		return fetchmessage; } // FIXXXXXXXXMMMMMMMMMMMEEEEEEEEEEEEEEEEEEEEEEE.						
 	
-	uint32_type E[VECTOR2_SIZE];
+	uint32_type E[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete
-	uint32_type E2[VECTOR2_SIZE];
+	uint32_type E2[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E2 complete
 
 	travstate_t mytravstate = travstate;
-	mytravstate.i_kvs = travstate.i_kvs / 2;
-	mytravstate.end_kvs = travstate.end_kvs / 2;
+	mytravstate.i_kvs = travstate.i_kvs / 1;
+	mytravstate.end_kvs = travstate.end_kvs / 1;
 	
-	loffset_kvs = loffset_kvs / 2; //
-	buffer_type edgessize_kvs = size_kvs / 2;
+	loffset_kvs = loffset_kvs / 1; //
+	buffer_type edgessize_kvs = size_kvs / 1;
 	
 	batch_type offset_kvs = goffset_kvs + loffset_kvs;
 	
@@ -367,7 +350,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	unsigned int GraphAlgoClass = globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS;
 	
-	value_t tempbuffer[VECTOR2_SIZE][MAX_SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
+	keyvalue_t tempbuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
 	#pragma HLS array_partition variable = tempbuffer
 	keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS];
 	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
@@ -385,17 +368,18 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<", edgessize_kvs: "<<edgessize_kvs<<", mytravstate.i_kvs: "<<mytravstate.i_kvs<<", mytravstate.end_kvs: "<<mytravstate.end_kvs<<endl;
 	#endif 
 	PROCESSBUFFERPARTITIONS_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS PIPELINE II=1
+	#pragma HLS PIPELINE II=1	
 		#ifdef _WIDEWORD
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		tempbuffer[{{v}}][i] = edges[offset_kvs + i].range({{((v + 1) * 32) - 1}}, {{v * 32}}); 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		tempbuffer[{{v}}][i].key = edges[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+		tempbuffer[{{v}}][i].value = edges[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		tempbuffer[{{2*v}}][i] = edges[offset_kvs + i].data[{{v}}].key; 
-		tempbuffer[{{2*v+1}}][i] = edges[offset_kvs + i].data[{{v}}].value;	
+		tempbuffer[{{v}}][i].key = edges[offset_kvs + i].data[{{v}}].key; 
+		tempbuffer[{{v}}][i].value = edges[offset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
-		#endif
+		#endif 
 		
 		#ifdef DEBUGME_PROCESSEDGES
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -412,23 +396,20 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 		PROCESSBUFFERPARTITIONS_LOOP2B: for(buffer_type i=localcapsule[p].key; i<localcapsule[p].key + localcapsule[p].value; i++){
 		#pragma HLS PIPELINE II=1
 			#ifdef _DEBUGMODE_CHECKS3
-			actsutilityobj->checkoutofbounds("TRADreadandprocess(14)::DEBUG CODE 12::1", readoffset + (i / VECTOR2_SIZE), MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("TRADreadandprocess(14)::DEBUG CODE 12::1", readoffset + (i / VECTOR_SIZE), MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			value_t E = tempbuffer[i % VECTOR2_SIZE][readoffset + (i / VECTOR2_SIZE)];
+			keyvalue_t E = tempbuffer[i % VECTOR_SIZE][readoffset + (i / VECTOR_SIZE)];
+			#ifdef _DEBUGMODE_CHECKS//3
+			if(E.key==8888888 || E.value==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
+			#endif 
 			bool en = true; 
 			
-			#ifdef _DEBUGMODE_CHECKS3
-			if(E==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			parsededge_t parsed_edge = PROCESS{{context['id']}}_PARSEEDGE(E);
-			keyvalue_t edata; edata.value = parsed_edge.incr; edata.key = parsed_edge.dstvid;	
-	
 			// read 
 			vmdata_t vmdata;
-			unsigned int loc = edata.value; //  - sweepparams.upperlimit;
+			unsigned int loc = E.value; //  - sweepparams.upperlimit;
 			if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION){
 				#ifdef _DEBUGMODE_CHECKS
-				if(true){ cout<<"TRADreadandprocess::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+				if(true){ cout<<"TRADreadandprocess::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). E.key: "<<E.key<<", E.value: "<<E.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 				#endif 
 				loc = 0; }
 		
@@ -441,12 +422,12 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 							
 			if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vid: "<<UTIL{{context['id']}}_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
+			if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ loc: "<<loc<<", E.key: "<<E.key<<", E.value(srcvid): "<<E.value<<", vid: "<<UTIL{{context['id']}}_GETREALVID(E.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
 			#endif
 					
 			// process
 			value_t res = PROCESS{{context['id']}}_processfunc(vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-			keyvalue_t mykeyvalue; mykeyvalue.key = edata.key; mykeyvalue.value = res;
+			keyvalue_t mykeyvalue; mykeyvalue.key = E.key; mykeyvalue.value = res;
 			
 			// write
 			#ifdef _DEBUGMODE_CHECKS3
@@ -477,17 +458,17 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 	if(enable == OFF){ return fetchmessage; }
 	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return fetchmessage; }
 	
-	uint32_type E[VECTOR2_SIZE];
+	uint32_type E[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete
-	uint32_type E2[VECTOR2_SIZE];
+	uint32_type E2[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E2 complete
 
 	travstate_t mytravstate = travstate;
-	mytravstate.i_kvs = travstate.i_kvs / 2;
-	mytravstate.end_kvs = travstate.end_kvs / 2;
+	mytravstate.i_kvs = travstate.i_kvs / 1;
+	mytravstate.end_kvs = travstate.end_kvs / 1;
 	
-	loffset_kvs = loffset_kvs / 2; //
-	buffer_type edgessize_kvs = size_kvs / 2;
+	loffset_kvs = loffset_kvs / 1; //
+	buffer_type edgessize_kvs = size_kvs / 1;
 	
 	batch_type offset_kvs = goffset_kvs + loffset_kvs;
 	
@@ -499,7 +480,7 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
 	unsigned int GraphAlgoClass = globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS;
 	
-	value_t tempbuffer[VECTOR2_SIZE][MAX_SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
+	keyvalue_t tempbuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
 	#pragma HLS array_partition variable = tempbuffer
 	keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS];
 	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
@@ -517,17 +498,18 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<", edgessize_kvs: "<<edgessize_kvs<<", mytravstate.i_kvs: "<<mytravstate.i_kvs<<", mytravstate.end_kvs: "<<mytravstate.end_kvs<<endl;
 	#endif 
 	PROCESSBUFFERPARTITIONS_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS PIPELINE II=1
+	#pragma HLS PIPELINE II=1	
 		#ifdef _WIDEWORD
-		{%for v in context['VECTOR2_SIZE_seq']%}
-		tempbuffer[{{v}}][i] = edges[offset_kvs + i].range({{((v + 1) * 32) - 1}}, {{v * 32}}); 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		tempbuffer[{{v}}][i].key = edges[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}});
+		tempbuffer[{{v}}][i].value = edges[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}});
 		{%endfor%}
 		#else 
 		{%for v in context['VECTOR_SIZE_seq']%}
-		tempbuffer[{{2*v}}][i] = edges[offset_kvs + i].data[{{v}}].key; 
-		tempbuffer[{{2*v+1}}][i] = edges[offset_kvs + i].data[{{v}}].value;	
+		tempbuffer[{{v}}][i].key = edges[offset_kvs + i].data[{{v}}].key; 
+		tempbuffer[{{v}}][i].value = edges[offset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
-		#endif
+		#endif 
 		
 		#ifdef DEBUGME_PROCESSEDGES
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -544,23 +526,20 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 		PROCESSBUFFERPARTITIONS_LOOP2B: for(buffer_type i=localcapsule[p].key; i<localcapsule[p].key + localcapsule[p].value; i++){
 		#pragma HLS PIPELINE II=1
 			#ifdef _DEBUGMODE_CHECKS3
-			actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 12::1", readoffset + (i / VECTOR2_SIZE), MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 12::1", readoffset + (i / VECTOR_SIZE), MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			value_t E = tempbuffer[i % VECTOR2_SIZE][readoffset + (i / VECTOR2_SIZE)];
-			bool en = true; 
-			
+			keyvalue_t E = tempbuffer[i % VECTOR_SIZE][readoffset + (i / VECTOR_SIZE)];
 			#ifdef _DEBUGMODE_CHECKS3
-			if(E==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
+			if(E.key==8888888 || E.value==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			#endif 
-			parsededge_t parsed_edge = PROCESS{{context['id']}}_PARSEEDGE(E);
-			keyvalue_t edata; edata.value = parsed_edge.incr; edata.key = parsed_edge.dstvid;	
-	
+			bool en = true;
+			
 			// read 
 			vmdata_t vmdata;
-			unsigned int loc = edata.value; //  - sweepparams.upperlimit;
+			unsigned int loc = E.value; //  - sweepparams.upperlimit;
 			if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION){
 				#ifdef _DEBUGMODE_CHECKS
-				if(true){ cout<<"PROCESS{{context['id']}}_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
+				if(true){ cout<<"PROCESS{{context['id']}}_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). E.key: "<<E.key<<", E.value: "<<E.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 				#endif 
 				loc = 0; }
 		
@@ -573,17 +552,17 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 						
 			if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", vid: "<<UTIL{{context['id']}}_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
+			if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ loc: "<<loc<<", E.key: "<<E.key<<", E.value(srcvid): "<<E.value<<", vid: "<<UTIL{{context['id']}}_GETREALVID(E.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
 			#endif
 					
 			// process
 			value_t res = PROCESS{{context['id']}}_processfunc(vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-			keyvalue_t mykeyvalue; mykeyvalue.key = edata.key; mykeyvalue.value = res;
+			keyvalue_t mykeyvalue; mykeyvalue.key = E.key; mykeyvalue.value = res;
 			
 			// read  
 			vmdata_t vmdata_reduce; vmdata_reduce.vmask = 0;
 			keyvalue_vbuffer_t bits_vector2 = 0; 
-			if(en == true && vmdata.vmask == 1){ bits_vector2 = UTIL{{context['id']}}_GetData(kvdram, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, (edata.key / VDATA_SHRINK_RATIO)); }
+			if(en == true && vmdata.vmask == 1){ bits_vector2 = UTIL{{context['id']}}_GetData(kvdram, globalparams.BASEOFFSETKVS_DESTVERTICESDATA, (E.key / VDATA_SHRINK_RATIO)); }
 			if(en == true && vmdata.vmask == 1){ vmdata_reduce = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(bits_vector2); }
 						
 			// reduce 
@@ -620,11 +599,11 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_DU
 	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return fetchmessage; }
 	
 	travstate_t mytravstate = travstate;
-	mytravstate.i_kvs = travstate.i_kvs / 2;
-	mytravstate.end_kvs = travstate.end_kvs / 2;
+	mytravstate.i_kvs = travstate.i_kvs / 1;
+	mytravstate.end_kvs = travstate.end_kvs / 1;
 	
-	loffset_kvs = loffset_kvs / 2; //
-	buffer_type edgessize_kvs = size_kvs / 2;
+	loffset_kvs = loffset_kvs / 1; //
+	buffer_type edgessize_kvs = size_kvs / 1;
 	
 	batch_type offset_kvs = goffset_kvs + loffset_kvs;
 	
@@ -705,9 +684,9 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_re
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	// -- processedges: chunk_size: 217, fetchmessage.chunksize_kvs: 414
 	// --- processedges: chunk_size: 217, fetchmessage.chunksize_kvs: 430
-	// return PROCESS{{context['id']}}_ACTSreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
+	return PROCESS{{context['id']}}_ACTSreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
 	// return PROCESS{{context['id']}}_TRADreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-	return PROCESS{{context['id']}}_DUMMYreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
+	// return PROCESS{{context['id']}}_DUMMYreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
 }
 
 

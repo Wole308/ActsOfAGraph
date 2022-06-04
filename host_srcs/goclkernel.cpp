@@ -144,15 +144,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	unsigned int edgessz_kvs = 0;
 	unsigned int kvdramsz_kvs = 0;
 	unsigned int mdramsz_kvs = 0;
-	edgessz_kvs = universalparams.MAXHBMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
-	kvdramsz_kvs = universalparams.MAXHBMCAPACITY_KVS; // KVSOURCEDRAMSZ_KVS;
-	// edgessz_kvs = 10000; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
-	// kvdramsz_kvs = 10000; // KVSOURCEDRAMSZ_KVS;
-	#ifdef CONFIG_ACTS_HYBRIDLOGIC_XXXXXXXXXXXX
-	mdramsz_kvs = (universalparams.NUM_EDGES + universalparams.NUM_VERTICES + (universalparams.NUM_VERTICES*2) + 1000000) / VECTOR2_SIZE;
-	#else 
+	edgessz_kvs = universalparams.MAXHBMCAPACITY_KVS2; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
+	kvdramsz_kvs = universalparams.MAXHBMCAPACITY_KVS2; // KVSOURCEDRAMSZ_KVS;
 	mdramsz_kvs = kvdramsz_kvs;
-	#endif 
 	
 	unsigned int C = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	unsigned int D = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
@@ -198,21 +192,10 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUM_PEs: "<<NUM_PEs<<endl;
 	
 	uint512_vec_dt * vdramtemp[3];
-	// #ifndef SW_IMPL 
-	// #ifdef FPGA_IMPL			
-	// vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	// vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	// vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	// #else
-	// vdramtemp[0] = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
-	// vdramtemp[1] = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
-	// vdramtemp[2] = new uint512_vec_dt[universalparams.MAXHBMCAPACITY_KVS];
-	// #endif
-	// #endif 
-	vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS * sizeof(uint512_vec_dt)));
-	for(unsigned int i=0; i<universalparams.MAXHBMCAPACITY_KVS; i++){ vdramtemp[0][i] = vdram[i]; vdramtemp[1][i] = vdram[i]; vdramtemp[2][i] = vdram[i]; }
+	vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS2 * sizeof(uint512_vec_dt)));
+	vdramtemp[1] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS2 * sizeof(uint512_vec_dt)));
+	vdramtemp[2] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS2 * sizeof(uint512_vec_dt)));
+	for(unsigned int i=0; i<universalparams.MAXHBMCAPACITY_KVS2; i++){ vdramtemp[0][i] = vdram[i]; vdramtemp[1][i] = vdram[i]; vdramtemp[2][i] = vdram[i]; }
 	
 	cl_int err;
     auto devices = xcl::get_xil_devices();
