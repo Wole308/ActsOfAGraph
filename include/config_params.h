@@ -39,7 +39,7 @@ loadgraph.cpp
 
 // ********************************************** POWERFUL CONFIGS **********************************************
 #define CONFIG_RELEASE_VERSION1
-// #define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
+#define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
 #define CONFIG_RELEASE_VERSION4 // { (1) exchangeVs fixed. }
 
 #define CONFIG_GOLDENKERNEL // { processedges.cpp, reduceupdates.cpp, algorithm.cpp, classname__top_usrcv_nudstv.cpp, mem_acces.cpp, trad_gp.cpp }

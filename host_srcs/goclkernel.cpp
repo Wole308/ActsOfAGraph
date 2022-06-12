@@ -104,29 +104,8 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-void goclkernel::print_active_vpartitions(unsigned int GraphIter, uint512_vec_dt * vdram){
-	pmask_dt pmask0[universalparams.NUMPROCESSEDGESPARTITIONS];
-	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;		
-	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-	unsigned int offset_kvs = vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
-	for (buffer_type i=0; i<universalparams.NUMPROCESSEDGESPARTITIONS; i++){
-		pmask0[i] = tempvdram[offset_kvs + i].data[GraphIter];
-	}
-	
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<">>> goclkernel::print_active_vpartitions: GraphIter: "<<GraphIter<<endl;
-	unsigned int num_actvps = 0;
-	for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){
-		if(pmask0[t] > 0  && t < 16){ cout<<t<<", "; }
-		if(pmask0[t] > 0){ num_actvps += 1; }
-	}
-	cout<<" ("<<num_actvps<<" active partitions, "<<universalparams.NUMPROCESSEDGESPARTITIONS<<" total partitions)"<<endl;
-	#endif 
-	return;
-}
-
 long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[MAXNUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters, 
-		unsigned int * vpmaskbuffer[MAXNUMGRAPHITERATIONS], unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer){				
+		unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
 	#ifdef TESTHWKERNEL
@@ -155,27 +134,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; 
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; } // reset
-	
-	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
-	cout<<">>> goclkernel::runapp: populating active streaming partitions... "<<endl;					
-	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;		
-	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;	
-	unsigned int vdram_SIZE_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_VERTICESPARTITIONMASK].data[0].key;	
-	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
-		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){
-			tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpmaskbuffer[iter][t];
-		}
-	}	
-	#if defined(_DEBUGMODE_HOSTPRINTS3)
-	pmask_dt pmask0[BLOCKRAM_CURRPMASK_SIZE];
-	unsigned int offset_kvs = vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
-	for(unsigned int GraphIter=0; GraphIter<8; GraphIter++){
-		print_active_vpartitions(GraphIter, vdram);
-
-	}
-	#endif
-	#endif 
-	// exit(EXIT_SUCCESS);
 	
 	#ifdef CONFIG_ACTS_HYBRIDLOGIC
 	cout<<">>> goclkernel::runapp: populating edges, vptrs and active vertices into mdram... "<<endl;
@@ -503,8 +461,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	unsigned int _NUM_KERNELS_LAUNCHED = 3; // 3
 	cout<<"goclkernel:: Processing Graph... "<<numValidIters<<" iterations specified"<<endl;
 	std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
-	for(unsigned int GraphIter=0; GraphIter<numValidIters; GraphIter++){ // numValidIters
-		cout<< TIMINGRESULTSCOLOR <<">>> goclkernel::runapp: iteration: "<<GraphIter<<" (of "<<numValidIters<<" iterations"<< RESET <<endl;
+	for(unsigned int GraphIter=0; GraphIter<universalparams.NUM_ITERATIONS; GraphIter++){ // numValidIters, universalparams.NUM_ITERATIONS
+		cout<< TIMINGRESULTSCOLOR <<">>> goclkernel::runapp: iteration: "<<GraphIter<<" (of "<<numValidIters<<" iterations)"<< RESET <<endl;
 		std::chrono::steady_clock::time_point iter_starttime = std::chrono::steady_clock::now();
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS

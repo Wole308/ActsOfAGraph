@@ -41,7 +41,9 @@ void UTIL{{context['id']}}_SetFirstDatas(uint512_dt * kvdram, unsigned int offse
 unsigned int UTIL{{context['id']}}_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTIL{{context['id']}}_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
 void UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+void UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]);
 void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]);
 
 // functions (actsproc utilities)
 batch_type UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
@@ -59,6 +61,7 @@ void UTIL{{context['id']}}_settravstate(bool_type enable, uint512_dt * kvdram, g
 
 partition_type UTIL{{context['id']}}_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, unsigned int tree_depth);				
 partition_type UTIL{{context['id']}}_getpartition2(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, globalparams_t globalparams);
+
 // functions (resets)
 void UTIL{{context['id']}}_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);
 void UTIL{{context['id']}}_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval);
@@ -71,7 +74,8 @@ void UTIL{{context['id']}}_increment_graphiteration(uint512_dt * kvdram, globalp
 void UTIL{{context['id']}}_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 void UTIL{{context['id']}}_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 
-
+// checks 
+void UTIL{{context['id']}}_check_capsule(keyvalue_t capsule[MAX_NUM_PARTITIONS], unsigned int num_partitions, unsigned int max_value);
 
 
 

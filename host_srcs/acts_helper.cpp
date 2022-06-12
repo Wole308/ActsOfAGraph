@@ -7,9 +7,17 @@ acts_helper::acts_helper(universalparams_t _universalparams){
 }
 acts_helper::~acts_helper(){} 
 
-unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, long double edgesprocessed_totals[128], unsigned int * vpmaskbuffer[MAXNUMGRAPHITERATIONS], unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS]){						
+unsigned int acts_helper::gethash(unsigned int vid){
+	return vid % NUM_PEs;
+}
+unsigned int acts_helper::getlocalvid(unsigned int vid){
+	unsigned int s = gethash(vid);
+	return (vid - s) / NUM_PEs; 
+}
+
+unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, long double edgesprocessed_totals[128], tuple_t * vpmaskstats[MAXNUMGRAPHITERATIONS], tuple_t * vpmaskstats_merge[MAXNUMGRAPHITERATIONS][NUM_PEs], unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS]){						
 	if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){} else {
-		for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ vpmaskbuffer[iter][t] = 10; }}
+		for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ vpmaskstats[iter][t].A = 10; vpmaskstats[iter][t].B = 11; }}
 		edgesprocessed_totals[0] = edgedatabuffer.size(); 
 		num_edges_processed[0] = edgedatabuffer.size(); 
 		return 1; }
@@ -28,10 +36,10 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	cout<<"acts_helper::extract_stats: number of active vertices for iteration 0: "<<actvvs_nextit.size()<<endl;
 	for(unsigned int i=0; i<actvvs.size(); i++){ vdatas[actvvs[i]] = 0; }
 	unsigned int GraphIter=0;
-	vpmaskbuffer[0][0] = 1; 
+	vpmaskstats[0][0].A = 1; 
 	
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ num_edges_processed[iter] = 0; }
-	for(GraphIter=0; GraphIter<64; GraphIter++){
+	for(GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ // 64
 		for(unsigned int i=0; i<actvvs.size(); i++){
 			unsigned int vid = actvvs[i];
 			
@@ -44,6 +52,9 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 			#endif
 			num_edges_processed[GraphIter] += edges_size;
 			
+			vpmaskstats[GraphIter][vid / universalparams.PROCESSPARTITIONSZ].B += edges_size; // 
+			// cout<<"~~~ vpmaskstats["<<GraphIter<<"]["<<vid / universalparams.PROCESSPARTITIONSZ<<"].B: "<<vpmaskstats[GraphIter][vid / universalparams.PROCESSPARTITIONSZ].B<<endl;
+			
 			for(unsigned int k=0; k<edges_size; k++){
 				unsigned int dstvid = edgedatabuffer[vptr_begin + k].dstvid;
 				
@@ -55,7 +66,10 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 					actvvs_nextit.push_back(dstvid);
 					utilityobj->checkoutofbounds("acts_helper::extract_stats:: ERROR 20", dstvid / universalparams.PROCESSPARTITIONSZ, universalparams.NUMPROCESSEDGESPARTITIONS, dstvid, vid, dstvid);
 					
-					if(GraphIter+1 < MAXNUMGRAPHITERATIONS){ vpmaskbuffer[GraphIter+1][dstvid / universalparams.PROCESSPARTITIONSZ] += 1; }			
+					if(GraphIter+1 < MAXNUMGRAPHITERATIONS){
+						vpmaskstats[GraphIter+1][dstvid / universalparams.PROCESSPARTITIONSZ].A += 1;
+						vpmaskstats_merge[GraphIter][gethash(dstvid)][getlocalvid(dstvid) / universalparams.REDUCEPARTITIONSZ].A += 1;
+					}			
 				} 
 			
 				total_edges_processed += 1;
@@ -71,21 +85,33 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 		actvvs_nextit.clear();
 	}
 	
-	cout<<">>> acts_helper::extract_stats: FINISHED. "<<GraphIter<<" iterations required."<<endl;
+	cout<<">>> acts_helper::extract_stats: FINISHED. "<<GraphIter+1<<" iterations required."<<endl;
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ cout<<">>> utility:: edgesprocessed_totals["<<iter<<"] "<<(unsigned int)edgesprocessed_totals[iter]<<endl; }
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<">>> acts_helper::extract_stats: printing pmasks for process-partition-reduce... "<<endl;	
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
-		cout<<">>> acts_helper::extract_stats: iter: "<<iter<<endl;	
 		unsigned int num_actvps = 0;
 		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){
-			if(vpmaskbuffer[iter][t] > 0  && t < 16){ cout<<t<<", "; }
-			if(vpmaskbuffer[iter][t] > 0){ num_actvps += 1; }
+			if(vpmaskstats[iter][t].A > 0  && t < 16){ cout<<t<<", "; }
+			if(vpmaskstats[iter][t].A > 0){ num_actvps += 1; }
 		}
-		cout<<" ("<<num_actvps<<" active partitions, "<<universalparams.NUMPROCESSEDGESPARTITIONS<<" total partitions)"<<endl;	
+		cout<<" (num active partitions: "<<num_actvps<<", total num partitions: "<<universalparams.NUMPROCESSEDGESPARTITIONS<<" iter: "<<iter<<")"<<endl;	
 	}
-	
-	// exit(EXIT_SUCCESS); // --------------
+	cout<<">>> acts_helper::extract_stats: printing pmasks for merge... "<<endl;	
+	for(unsigned int i=0; i<1; i++){ // NUM_PEs
+		for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
+			unsigned int num_actvps = 0;
+			for(unsigned int t=0; t<universalparams.NUMREDUCEPARTITIONS; t++){
+				if(vpmaskstats_merge[iter][i][t].A > 0  && t < 16){ cout<<t<<", "; }
+				if(vpmaskstats_merge[iter][i][t].A > 0){ num_actvps += 1; }
+			}
+			cout<<" (num active partitions (for merge): "<<num_actvps<<", total num partitions: "<<universalparams.NUMREDUCEPARTITIONS<<" iter: "<<iter<<", PE: "<<i<<")"<<endl;
+		}
+	}
+	#endif 
+	// exit(EXIT_SUCCESS); 
 	// delete vdatas;
-	return GraphIter;
+	return GraphIter+1;
 }
 
 unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]){
@@ -94,7 +120,7 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 	unsigned int F2 = 2;
 	unsigned int num_traversed_edges = 0;
 	
-	for(unsigned int i=0; i<1; i++){ // NUM_PEs
+	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
 		if(i%NUMCOMPUTEUNITS_SLR2==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0)==0){} else { continue; } 
 		for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){ 
 			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	

@@ -85,7 +85,6 @@ void utility::printallparameters(){
 	std::cout<<"utility:: universalparams.PROCESSPARTITIONSZ_KVS2: "<<universalparams.PROCESSPARTITIONSZ_KVS2<<std::endl;
 	std::cout<<"utility:: MAX_BLOCKRAM_VSRCDATA_SIZE: "<<MAX_BLOCKRAM_VSRCDATA_SIZE<<std::endl;
 	std::cout<<"utility:: MAX_BLOCKRAM_VDESTDATA_SIZE: "<<MAX_BLOCKRAM_VDESTDATA_SIZE<<std::endl;
-	std::cout<<"utility:: MAX_BLOCKRAM_VDEST2DATA_SIZE: "<<MAX_BLOCKRAM_VDEST2DATA_SIZE<<std::endl;
 	std::cout<<"utility:: universalparams.NUMREDUCEPARTITIONS: "<<universalparams.NUMREDUCEPARTITIONS<<std::endl;
 	std::cout<<"utility:: universalparams.NUMPROCESSEDGESPARTITIONS: "<<universalparams.NUMPROCESSEDGESPARTITIONS<<std::endl;
 	std::cout<<"utility:: universalparams.VPTR_SHRINK_RATIO: "<<universalparams.VPTR_SHRINK_RATIO<<std::endl;
@@ -109,7 +108,6 @@ void utility::printallparameters(){
 	std::cout<<"utility:: MAX_DESTBLOCKRAM_SIZE: "<<MAX_DESTBLOCKRAM_SIZE<<std::endl;
 	std::cout<<"utility:: MAX_BLOCKRAM_VSRCDATA_SIZE: "<<MAX_BLOCKRAM_VSRCDATA_SIZE<<std::endl;
 	std::cout<<"utility:: MAX_BLOCKRAM_VDESTDATA_SIZE: "<<MAX_BLOCKRAM_VDESTDATA_SIZE<<std::endl;
-	std::cout<<"utility:: MAX_BLOCKRAM_VDEST2DATA_SIZE: "<<MAX_BLOCKRAM_VDEST2DATA_SIZE<<std::endl;
 	std::cout<<"utility:: BLOCKRAM_CURRPMASK_SIZE: "<<BLOCKRAM_CURRPMASK_SIZE<<std::endl;
 	std::cout<<"utility:: BLOCKRAM_NEXTPMASK_SIZE: "<<BLOCKRAM_NEXTPMASK_SIZE<<std::endl;
 	std::cout<<"utility:: BLOCKRAM_CUMMTVPMASK_SIZE: "<<BLOCKRAM_CUMMTVPMASK_SIZE<<std::endl;

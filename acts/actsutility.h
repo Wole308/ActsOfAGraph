@@ -131,7 +131,9 @@ public:
 	
 	unsigned int globalstats_getcountvalidkvsprocessed(unsigned int instID);
 	unsigned int globalstats_getcounterrorsinreduce();
+	unsigned int globalstats_getcountkvsreduced(unsigned int instID);
 	unsigned int globalstats_getcountvalidkvsreduced(unsigned int instID);
+	unsigned int globalstats_getcountkvspartitionswritten(unsigned int instID);
 	unsigned int globalstats_getreducevar1();
 	unsigned int globalstats_getcounterrorsinprocessedges();
 	unsigned int globalstats_getcountnumvalidprocessedges(unsigned int instID);

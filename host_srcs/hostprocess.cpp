@@ -30,8 +30,8 @@ int main(int argc, char** argv){
 	#endif
 	
 	app * appobj = new app();	
-	// void run(std::string algorithm, unsigned int numiterations, unsigned int rootvid, string graph_path, std::string _binaryFile1);
-	appobj->run(argv[1], argv[2], stoi(argv[3]), stoi(argv[4]), argv[5], argv[6]);
+	// void run(std::string algorithm, unsigned int numiterations, unsigned int rootvid, string graph_path, string graph_direction, std::string _binaryFile1);
+	appobj->run(argv[1], argv[2], stoi(argv[3]), stoi(argv[4]), argv[5], stoi(argv[6]), argv[7]);
 	// appobj->run("nap", "pr", 8, 1, "/home/oj2zf/dataset/com-Orkut.mtx", "NAp");
 	
 	#ifdef _DEBUGMODE_TIMERS3

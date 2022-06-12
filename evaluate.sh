@@ -1,7 +1,7 @@
 #!/bin/bash
 #!/bin/bash
 
-ROOTDIR="/home/oj2zf/Documents/ActsOfAGraph"
+ROOTDIR="/home/oj2zf/Documents/actsofagraph"
 OUTPUTDIRNAME="outputs"
 DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 
@@ -21,11 +21,9 @@ evaluation_type=EV_PERFORMANCEOFALGORITHM
 #evaluation_type=EV_IMPACTOF__ACTS_PLUS_MEMLAYOUT_PLUS_PARTITIONFUNC_PLUS_REPARTITIONFUNC_PLUS_HYBRIDFUNC
 
 # make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=3 TESTKERNEL=$TESTKERNEL	
-make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=16 TESTKERNEL=$TESTKERNEL	
+# make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=16 TESTKERNEL=$TESTKERNEL	
 # make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=20 TESTKERNEL=$TESTKERNEL	
-# make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=24 TESTKERNEL=$TESTKERNEL										
-
-# faketime -f "-1y" make hw PLATFORM=$DEVICEPATH	
+make generatesrcs XWARE=$XWARE EVALUATION_TYPE=$evaluation_type NUM_PEs=24 TESTKERNEL=$TESTKERNEL										
 
 echo 'finished: successfully finished all processing'
 

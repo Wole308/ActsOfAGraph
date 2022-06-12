@@ -5,7 +5,8 @@ https://iss.oden.utexas.edu/?p=projects/galois/analytics/betweenness_centrality
 
 */
 
-value_t PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t acts_all::PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+	#pragma HLS INLINE // NEWCHANGE.
 	value_t res = 0;
 	#ifdef CONFIG_GOLDENKERNEL
 	// res = udata + edgew;
@@ -58,7 +59,8 @@ value_t PROCESSP0_processfunc(value_t udata, value_t edgew, unsigned int GraphAl
 	return res;
 }
 
-value_t REDUCEP0_reducefunc(value_t vtemp, value_t vdata, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+value_t acts_all::REDUCEP0_reducefunc(value_t vtemp, value_t vdata, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+	#pragma HLS INLINE // NEWCHANGE.
 	value_t temp = 0;
 	#ifdef CONFIG_GOLDENKERNEL
 	// temp = UTILP0_amax(vtemp, 1);

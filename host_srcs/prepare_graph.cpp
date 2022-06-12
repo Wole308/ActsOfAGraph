@@ -4,11 +4,6 @@ using namespace std;
 prepare_graph::prepare_graph(){}
 prepare_graph::~prepare_graph(){}
 
-struct Student {
-	int var1;
-	// int var2;
-};
-
 void prepare_graph::create_graph(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup){
 	cout<<">>> prepare_graph::create_graph: STARTED."<<endl;
 	
@@ -17,9 +12,9 @@ void prepare_graph::create_graph(string graphpath, vector<edge2_type> &edgesbuff
 	// ofile.open("/home/oj2zf/dataset/delicious.mtx", std::ios::app);
 
 	// std::ifstream file1_graph("/home/oj2zf/dataset/out.delicious");
-	// ofile.open("/home/oj2zf/dataset/delicious.mtx", std::ofstream::out | std::ofstream::trunc);
+	// ofile.open(graphpath, std::ofstream::out | std::ofstream::trunc);
 	
-	std::ifstream file1_graph("/home/oj2zf/dataset/out.delicious");
+	std::ifstream file1_graph("/home/oj2zf/dataset/out.dbpedia-link");
 	ofile.open(graphpath, std::ofstream::out | std::ofstream::trunc);
 	
 	cout<<"prepare_graph::create_graph: creating graph @ "<<graphpath<<"..."<<endl;
@@ -27,7 +22,8 @@ void prepare_graph::create_graph(string graphpath, vector<edge2_type> &edgesbuff
 	vertex_t dstv = 0;
 	unsigned int A, B = 0;
 	
-	ofile << 33777768 << " " << 33777768 << " " << 301183605 << std::endl;
+	// ofile << 33777768 << " " << 33777768 << " " << 301183605 << std::endl;
+	ofile << 18268992 << " " << 18268992 << " " << 172308906 << std::endl;
 	if (file1_graph.is_open()) {
 		std::string line;
 		unsigned int linecount = 0;
@@ -50,44 +46,7 @@ void prepare_graph::create_graph(string graphpath, vector<edge2_type> &edgesbuff
 	exit(EXIT_SUCCESS);
 }
 
-void prepare_graph::create_ligra_graph(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup){
-	cout<<">>> prepare_graph::create_ligra_graph: STARTED."<<endl;
-	
-	prepare_graph::start(graphpath, edgesbuffer_dup, vptr_dup);
-	
-	string graphpath2 = graphpath; graphpath2.append("_ligra");   
-	std::ofstream ofile;
-	// std::ifstream file1_graph("/home/oj2zf/dataset/out.delicious");
-	ofile.open(graphpath2, std::ofstream::out | std::ofstream::trunc);
-	
-	// AdjacencyGraph
-	ofile << "AdjacencyGraph" << "" << std::endl;
-	ofile << vptr_dup.size() << "" << std::endl;
-	ofile << edgesbuffer_dup.size() << "" << std::endl;
-	
-	unsigned int linecount = 0;
-	for(unsigned int n=0; n<vptr_dup.size(); n++){
-		if(vptr_dup[n] == 0 && n > 1000){ vptr_dup[n] = edgesbuffer_dup.size() - 1; } ///////
-		if(n<vptr_dup.size()-1){ if(vptr_dup[n] > vptr_dup[n+1]){ cout<<"create_ligra_graph: ERROR. vptr_dup["<<n<<"]("<<vptr_dup[n]<<") > vptr_dup["<<n+1<<"]("<<vptr_dup[n+1]<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }}
-		ofile << vptr_dup[n] << "" << std::endl;
-		if ((linecount % 100000 == 0) || (vptr_dup.size()-linecount < 8)){ cout<<"create_ligra_graph:: vptr_dup["<<n<<"]: "<<vptr_dup[n]<<endl; }	
-		linecount += 1; 
-	}
-	
-	linecount = 0;
-	for(unsigned int m=0; m<edgesbuffer_dup.size(); m++){
-		// if(edgesbuffer_dup[m].dstvid == 0){ edgesbuffer_dup[m].dstvid = 777; } ///////
-		ofile << edgesbuffer_dup[m].dstvid << "" << std::endl;
-		if ((linecount % 10000000 == 0) || (edgesbuffer_dup.size()-linecount < 8)){ cout<<"create_ligra_graph:: m: "<<m<<", edgesbuffer_dup["<<m<<"].srcvid: "<<edgesbuffer_dup[m].srcvid<<", edgesbuffer_dup["<<m<<"].dstvid: "<<edgesbuffer_dup[m].dstvid<<endl; }	
-		linecount += 1; 
-	}
-	
-	ofile.close();
-	cout<<">>> prepare_graph::create_ligra_graph: FINISHED SUCCESSFULLY. saved @ "<<graphpath2<<endl;
-	exit(EXIT_SUCCESS);
-}
-
-void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup){
+void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup, vector<edge_t> &vptr_dup, bool graphisundirected){
 	cout<<"prepare_graph:: preparing graph @ "<<graphpath<<"..."<<endl;
 	vertex_t srcv = 0;
 	vertex_t dstv = 0;
@@ -97,7 +56,7 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 	unsigned int num_edges = 0;
 	unsigned int max_vertex = 0;
 	vector<edge2_type> edgesbuffer;
-	
+
 	std::ifstream file1_graph(graphpath);
 	if (file1_graph.is_open()) {
 		std::string line;
@@ -108,6 +67,7 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 				sscanf(line.c_str(), "%i %i %i", &num_vertices, &num_vertices2, &num_edges);
 				num_vertices += 1000; num_vertices2 += 1000; num_edges += 1000;
 				cout<<"prepare_graph:: dataset header: num_vertices: "<<num_vertices<<", num_vertices2: "<<num_vertices2<<", num_edges: "<<num_edges<<endl;
+				// exit(EXIT_SUCCESS);
 				linecount++; continue; }	
 			// if (linecount % 10000000 == 0){ cout<<"prepare_graph: loading edges "<<linecount<<endl; } 
 			
@@ -127,6 +87,11 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 	cout<<"prepare_graph:: Finished Stage 1: Buffering edges of "<<graphpath<<" (num_vertices: "<<num_vertices<<", num_vertices2: "<<num_vertices2<<", num_edges: "<<num_edges<<")"<<endl;
 	// exit(EXIT_SUCCESS);
 	
+	// decide whether to use directed or graphisundirected (FIXME.)
+	unsigned int mult_factor = 0;
+	if(num_edges > 200000000){ cout<<"************* prepare_graph::[OVERRIDING...] Undirected graph too large to fit in memory. using directed graph instead"<<endl; graphisundirected = false; }
+	if(graphisundirected==true){ mult_factor = 2; } else { mult_factor = 1; }
+	
 	cout<<"prepare_graph: assigning variables..."<<endl;
 	// num_vertices = num_vertices + 1000;
 	// num_edges = num_edges + 1000;
@@ -137,20 +102,20 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 	cout<<"prepare_graph: creting buffers..."<<endl;
 	// edgesbuffer_dup.resize((2 * num_edges));
 	// vptr_dup.resize((num_vertices));
-	edgesbuffer_dup.resize((2 * padded_num_edges));
+	edgesbuffer_dup.resize((mult_factor * padded_num_edges));
 	vptr_dup.resize((padded_num_vertices));
 	
 	cout<<"prepare_graph: creting buffers(2)..."<<endl;
 	unsigned int * outdegree; outdegree = new unsigned int[padded_num_vertices];
 	for(unsigned int i=0; i<padded_num_vertices; i++){ outdegree[i] = 0; vptr_dup[i] = 0; }
-	for(unsigned int i=0; i<(2 * padded_num_edges); i++){ edgesbuffer_dup[i].srcvid = 0; edgesbuffer_dup[i].dstvid = 0; }
+	for(unsigned int i=0; i<(mult_factor * padded_num_edges); i++){ edgesbuffer_dup[i].srcvid = 0; edgesbuffer_dup[i].dstvid = 0; }
 	
 	// populate inout degrees of all vertices 
 	cout<<"prepare_graph: populating inout degrees of all vertices..."<<endl;
 	for(unsigned int i=0; i<edgesbuffer.size(); i++){ // num_edges
 		if(edgesbuffer[i].srcvid >= padded_num_vertices || edgesbuffer[i].dstvid >= padded_num_vertices){ cout<<"prepare_graph::start(21):: edgesbuffer[i].srcvid("<<edgesbuffer[i].srcvid<<") >= padded_num_vertices("<<padded_num_vertices<<") || edgesbuffer[i].dstvid("<<edgesbuffer[i].dstvid<<") >= padded_num_vertices("<<padded_num_vertices<<"). EXITING... "<<endl; exit(EXIT_FAILURE); }	
 		outdegree[edgesbuffer[i].srcvid] += 1;
-		outdegree[edgesbuffer[i].dstvid] += 1;
+		if(graphisundirected==true){ outdegree[edgesbuffer[i].dstvid] += 1; }
 	}
 	
 	// creating vertex pointers...
@@ -162,7 +127,7 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 		if(vptr_dup[k] < vptr_dup[k-1]){ cout<<"creategraphs::writevertexptrstofile:ERROR: non-increasing vertex ptrs: vptr_dup["<<k<<"]: "<<vptr_dup[k]<<", vptr_dup["<<k-1<<"]: "<<vptr_dup[k-1]<<endl; exit(EXIT_FAILURE); }
 	}
 	cout<<"prepare_graph::start:: last: vptr_dup["<<num_vertices-1<<"]: "<<vptr_dup[num_vertices-1]<<endl;
-	// exit(EXIT_SUCCESS);//////////////
+	// exit(EXIT_SUCCESS);
 	
 	// checking new vertex pointers created...
 	cout<<"prepare_graph: checking new vertex pointers created..."<<endl;
@@ -182,18 +147,18 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 		dstv = edgesbuffer[i].dstvid;
 		
 		edge2_type edge1; edge1.srcvid = srcv; edge1.dstvid = dstv;
-		edge2_type edge2; edge2.srcvid = dstv; edge2.dstvid = srcv;
-		
 		if(vptr_dup[edge1.srcvid] + outdegree[edge1.srcvid] >= edgesbuffer_dup.size()){ cout<<"prepare_graph::start(1):: vptr_dup[edge1.srcvid]("<<vptr_dup[edge1.srcvid]<<") + outdegree[edge1.srcvid]("<<outdegree[edge1.srcvid]<<") >= edgesbuffer_dup.size()("<<edgesbuffer_dup.size()<<"). EXITING... "<<endl; exit(EXIT_FAILURE); }							
-		if(vptr_dup[edge2.srcvid] + outdegree[edge2.srcvid] >= edgesbuffer_dup.size()){ cout<<"prepare_graph::start(2):: vptr_dup[edge2.srcvid]("<<vptr_dup[edge2.srcvid]<<") + outdegree[edge2.srcvid]("<<outdegree[edge2.srcvid]<<") >= edgesbuffer_dup.size()("<<edgesbuffer_dup.size()<<"). EXITING... "<<endl; exit(EXIT_FAILURE); }							
-		
 		edgesbuffer_dup[vptr_dup[edge1.srcvid] + outdegree[edge1.srcvid]] = edge1;
 		outdegree[edge1.srcvid] += 1;
 		
-		edgesbuffer_dup[vptr_dup[edge2.srcvid] + outdegree[edge2.srcvid]] = edge2;
-		outdegree[edge2.srcvid] += 1;
+		if(graphisundirected==true){ 
+			edge2_type edge2; edge2.srcvid = dstv; edge2.dstvid = srcv;
+			if(vptr_dup[edge2.srcvid] + outdegree[edge2.srcvid] >= edgesbuffer_dup.size()){ cout<<"prepare_graph::start(2):: vptr_dup[edge2.srcvid]("<<vptr_dup[edge2.srcvid]<<") + outdegree[edge2.srcvid]("<<outdegree[edge2.srcvid]<<") >= edgesbuffer_dup.size()("<<edgesbuffer_dup.size()<<"). EXITING... "<<endl; exit(EXIT_FAILURE); }							
+			edgesbuffer_dup[vptr_dup[edge2.srcvid] + outdegree[edge2.srcvid]] = edge2;
+			outdegree[edge2.srcvid] += 1;
+		}
 		
-		edgesbuffer_dup_size += 2;
+		edgesbuffer_dup_size += mult_factor;
 	}
 	cout<<"prepare_graph:: Finished Stage 3: Buffering duplicate edges of "<<graphpath<<" (num_vertices: "<<num_vertices<<", num_vertices2: "<<num_vertices2<<", num_edges: "<<num_edges<<", edgesbuffer_dup_size: "<<edgesbuffer_dup_size<<", edgesbuffer_dup.size(): "<<edgesbuffer_dup.size()<<")"<<endl;
 	

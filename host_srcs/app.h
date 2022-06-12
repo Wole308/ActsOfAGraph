@@ -34,8 +34,10 @@ public:
 	~app();
 	void finish();
 	
-	universalparams_t get_universalparams(std::string algorithm, unsigned int numiterations, unsigned int rootvid, unsigned int num_vertices, unsigned int num_edges);
-	void run(std::string setup, std::string algorithm, unsigned int numiterations, unsigned int rootvid, string graph_path, std::string _binaryFile1);
+	universalparams_t get_universalparams(std::string algorithm, unsigned int numiterations, unsigned int rootvid, unsigned int num_vertices, unsigned int num_edges, bool graphisundirected);
+	void print_active_partitions(unsigned int GraphIter, uint512_vec_dt * dram, universalparams_t universalparams, unsigned int num_partitions, bool printA, bool printB);
+	
+	void run(std::string setup, std::string algorithm, unsigned int numiterations, unsigned int rootvid, string graph_path, int graphisundirected, std::string _binaryFile1);
 	
 	void verifyresults(string graph_path, uint512_vec_dt * kvdram, globalparams_t globalparams);
 	

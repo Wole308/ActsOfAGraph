@@ -518,14 +518,15 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		#endif 
 		
 		for(unsigned int k=0; k<edges2_temp[i].size(); k++){		
-			utilityobj->checkoutofbounds("loadedges::insert.bitmap(20)::", baseoffset_edgesdata + k, universalparams.MAXHBMCAPACITY_KVS2 * VECTOR_SIZE, NAp, NAp, NAp);		
+			utilityobj->checkoutofbounds("loadedges::insert.bitmap(20)::", baseoffset_edgesdata + k, universalparams.MAXHBMCAPACITY_KVS2 * VECTOR_SIZE, NAp, NAp, NAp);	
 			edges[i][baseoffset_edgesdata + k].key = edges2_temp[i][k].dstvid;		
-			edges[i][baseoffset_edgesdata + k].value = edges2_temp[i][k].srcvid;	
+			edges[i][baseoffset_edgesdata + k].value = edges2_temp[i][k].srcvid;
 		}	
 		if(debug2b==true){ utilityobj->printvalues("loadedges[after]::loadedges: printing edges["+std::to_string(i)+"][~]", (value_t *)&edges[i][baseoffset_edgesdata], 8); }
 	}
 	cout<<"### loadedges::insert.bitmap::[insert.bitmap] loading edges completed successfully"<<endl;
 	#endif
+	// exit(EXIT_SUCCESS);
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int vid=0; vid<universalparams.KVDATA_RANGE; vid++){ counts_totalalledges_for_channel[i] += counts_alledges_for_channel[i][vid]; totalcount_alledges_for_all_channels += counts_alledges_for_channel[i][vid]; }}
 	unsigned int max_totalalledges_for_channel=0; for(unsigned int i=0; i<NUM_PEs; i++){ if(max_totalalledges_for_channel < counts_totalalledges_for_channel[i]){ max_totalalledges_for_channel = counts_totalalledges_for_channel[i]; }}

@@ -1,9 +1,6 @@
-void REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_vbuffer_t vbuffer2[MAX_BLOCKRAM_VDEST2DATA_SIZE], buffer_type destoffset, unsigned int upperlimit, unsigned int * prevkey, sweepparams_t sweepparams, globalparams_t globalparams
-		#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-		,collection_t collections[COLLECTIONS_BUFFERSZ]
-		#endif 
-		){
+void acts_all::REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, unsigned int * memory, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS INLINE
+	// #pragma HLS PIPELINE II=3
 	
 	keyvalue_t mykeyvalue = UTILP0_GETKV(kvdata);
 	vertex_t loc = ((mykeyvalue.key - upperlimit) - col) >> globalparams.ACTSPARAMS_POW_PARTITIONS;
@@ -28,12 +25,13 @@ void REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata,
 	vmdata_t vmdata; vmdata.vmask = 0;
 	vmdata_t vmdata2; vmdata2.vmask = 0;
 	unsigned int bufferoffset_kvs = 0; 
-	// if(globalparams.ACTSPARAMS_TREEDEPTH == 1){ bufferoffset_kvs = BLOCKRAM_VDATA_SECTION1; } else { bufferoffset_kvs = 0; }
 	keyvalue_vbuffer_t bits_vector = 0;
 	keyvalue_vbuffer_t bits2_vector = 0;
 	
-	// if(en == true){ if(loc == *prevkey){ loc = loc + 1; } *prevkey = loc; } // FIXME.????????
-	if(en == true){ if(loc == *prevkey){ loc = (loc + 1) % 8; } *prevkey = loc; } // FIXME.????????
+	#ifdef CONFIG_USEURAM_PACKBYTWOS
+	loc = loc / 2; 
+	#endif 
+	if(en == true){ if(loc == *memory){ loc = (loc + 1) % 8; } *memory = loc; } // CRITICAL FIXME.
 	
 	// read 
 	#ifdef _DEBUGMODE_CHECKS3
@@ -73,10 +71,7 @@ void REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata,
 			#else 
 				if(en == true){ MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(loc, vbuffer, globalparams.BUFFERBASEOFFSETKVS_VDATA1, bits_vector, new_vprop, vmdata.vmask); }
 					#endif
-
-	#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-	// collections[1].data1 += 1;
-	#endif 
+ 
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->globalstats_countkvsreduced(globalparams.ACTSPARAMS_INSTID, 1);
 	if(en == true){ actsutilityobj->globalstats_reduce_countvalidkvsreduced(globalparams.ACTSPARAMS_INSTID, 1); }
@@ -84,7 +79,7 @@ void REDUCEP0_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata,
 	return;
 }
 
-void REDUCEP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+void acts_all::REDUCEP0_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR_SIZE;
 	
  if(s_==0){ 
@@ -170,7 +165,7 @@ else {
 	return;
 }
 
-void REDUCEP0_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
+void acts_all::REDUCEP0_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -255,7 +250,7 @@ else {
 	return;
 }
 
-void REDUCEP0_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
+void acts_all::REDUCEP0_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		en2[0] = en[0]; 
@@ -340,10 +335,9 @@ else {
 	return;
 }
 
-void REDUCEP0_ACTSreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDEST2DATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+void acts_all::REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+	// globalparams.ACTSPARAMS_NUM_PARTITIONS replacedby 16
 	if(enable == OFF){ return; }
-	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return; }
-	// exit(EXIT_SUCCESS);
 	
 	keyvalue_buffer_t kvdata[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=kvdata complete
@@ -359,32 +353,35 @@ void REDUCEP0_ACTSreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VEC
 	#pragma HLS ARRAY_PARTITION variable=d_kvs complete
 	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
 	#pragma HLS ARRAY_PARTITION variable=localcapsule_kvs complete
-	unsigned int prevkey[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=prevkey complete
+	unsigned int memory[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=memory complete
 	
 	keyvalue_t invalid_dataa; invalid_dataa.key = INVALIDDATA; invalid_dataa.value = INVALIDDATA;
 	keyvalue_buffer_t invalid_data = UTILP0_GETKV(invalid_dataa);
-	
+
+	unsigned int chunk_size = 0; for(partition_type p=0; p<16; p++){ chunk_size += localcapsule[p].value / VECTOR_SIZE; } // CRITICAL FIXME.
+	unsigned int modelsz = chunk_size / 16;
+	for(unsigned int p=0; p<16; p++){ localcapsule[p].key = (p * modelsz) * VECTOR_SIZE; localcapsule[p].value = modelsz * VECTOR_SIZE; }
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);
 	#endif
 	
 	buffer_type maxsize_kvs[2]; maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
 	unsigned int _poff = 0;
-	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){ // NB: 'globalparams.ACTSPARAMS_NUM_PARTITIONS is 16, but only 8 can be accessed per time, so we need 2 fetches'
-		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS/2; p++){
+	REDUCEBUFFERPARTITIONS_LOOP1: for(unsigned int cid=0; cid<2; cid++){ // NB: is accessed 8kv per time, so we need 2 fetches'
+		REDUCEBUFFERPARTITIONS_LOOP1B: for(partition_type p=0; p<16/2; p++){ 
 		#pragma HLS PIPELINE II=1
 			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR_SIZE;
 			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
 		}
-		_poff += globalparams.ACTSPARAMS_NUM_PARTITIONS/2;
+		_poff += 16/2;
 	}
-	buffer_type height_kvs = (localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].key + localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value) / VECTOR_SIZE;
+	buffer_type height_kvs = (localcapsule[16-1].key + localcapsule[16-1].value) / VECTOR_SIZE;
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"reduceupdates2: maxsize_kvs[0]: "<<maxsize_kvs[0]<<", maxsize_kvs[1]: "<<maxsize_kvs[1]<<", height_kvs: "<<height_kvs<<endl;
 	#endif
 		
-	for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){
+	for(partition_type p=0; p<16; p++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"reduceupdates2: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
 		#endif
@@ -392,14 +389,12 @@ void REDUCEP0_ACTSreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VEC
 		localcapsule_kvs[p].value = (localcapsule[p].value + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	}
 	
-	// buffer_type capsule2_offset=0;
-	REDUCEBUFFERPARTITIONS_LOOP2: for(buffer_type capsule_offset=0; capsule_offset<globalparams.ACTSPARAMS_NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){
-		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
-		// if(globalparams.ALGORITHMINFO_GRAPHALGORITHMID == CF){ capsule2_offset = capsule_offset; } // CUSTOMPROVISION		
-		REDUCEBUFFERPARTITIONS_LOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
-			REDUCEBUFFERPARTITIONS_LOOP2C: for(buffer_type i=0; i<mmaxsz_kvs; i++){ 
+	REDUCEBUFFERPARTITIONS_MAINLOOP2: for(buffer_type capsule_offset=0; capsule_offset<16; capsule_offset+=VECTOR_SIZE){
+		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];	
+		REDUCEBUFFERPARTITIONS_MAINLOOP2B: for(unsigned int r=0; r<VECTOR_SIZE; r++){
+			REDUCEBUFFERPARTITIONS_MAINLOOP2C: for(buffer_type i=0; i<mmaxsz_kvs; i++){ 
 			#pragma HLS PIPELINE II=2
-			#pragma HLS dependence variable=vbuffer inter false // NEWCHANGE. ///////////////////////////////////////////////////////////////////////////
+			#pragma HLS dependence variable=vbuffer inter false
 				// get layout
 				REDUCEP0_GetXYLayoutV(r, depths, 0);
 			
@@ -449,113 +444,169 @@ void REDUCEP0_ACTSreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VEC
  // FIXME.
 				if(i < localcapsule_kvs[tdepth7].value){ enx[7] = true; kvdata[7] = buffer[7][d_kvs[7]]; } else { enx[7] = false; kvdata[7] = invalid_data; }	
 				
-				// re-arrange 
+				// re-arrange
 				REDUCEP0_RearrangeLayoutV(r, kvdata, kvdata2);
-				REDUCEP0_RearrangeLayoutEn(r, enx, enx2); // NEWCHANGE.
+				REDUCEP0_RearrangeLayoutEn(r, enx, enx2);
 			
 				// reduce 
-				REDUCEP0_reducevector(enx2[0], 0, kvdata2[0], vbuffer[capsule_offset + 0], vbuffer2[capsule_offset + 0], 0, sweepparams.upperlimit, &prevkey[0], sweepparams, globalparams
-					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-					,collections[capsule_offset+0]
-					#endif 
-					);
-				REDUCEP0_reducevector(enx2[1], 1, kvdata2[1], vbuffer[capsule_offset + 1], vbuffer2[capsule_offset + 1], 0, sweepparams.upperlimit, &prevkey[1], sweepparams, globalparams
-					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-					,collections[capsule_offset+1]
-					#endif 
-					);
-				REDUCEP0_reducevector(enx2[2], 2, kvdata2[2], vbuffer[capsule_offset + 2], vbuffer2[capsule_offset + 2], 0, sweepparams.upperlimit, &prevkey[2], sweepparams, globalparams
-					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-					,collections[capsule_offset+2]
-					#endif 
-					);
-				REDUCEP0_reducevector(enx2[3], 3, kvdata2[3], vbuffer[capsule_offset + 3], vbuffer2[capsule_offset + 3], 0, sweepparams.upperlimit, &prevkey[3], sweepparams, globalparams
-					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-					,collections[capsule_offset+3]
-					#endif 
-					);
-				REDUCEP0_reducevector(enx2[4], 4, kvdata2[4], vbuffer[capsule_offset + 4], vbuffer2[capsule_offset + 4], 0, sweepparams.upperlimit, &prevkey[4], sweepparams, globalparams
-					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-					,collections[capsule_offset+4]
-					#endif 
-					);
-				REDUCEP0_reducevector(enx2[5], 5, kvdata2[5], vbuffer[capsule_offset + 5], vbuffer2[capsule_offset + 5], 0, sweepparams.upperlimit, &prevkey[5], sweepparams, globalparams
-					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-					,collections[capsule_offset+5]
-					#endif 
-					);
-				REDUCEP0_reducevector(enx2[6], 6, kvdata2[6], vbuffer[capsule_offset + 6], vbuffer2[capsule_offset + 6], 0, sweepparams.upperlimit, &prevkey[6], sweepparams, globalparams
-					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-					,collections[capsule_offset+6]
-					#endif 
-					);
-				REDUCEP0_reducevector(enx2[7], 7, kvdata2[7], vbuffer[capsule_offset + 7], vbuffer2[capsule_offset + 7], 0, sweepparams.upperlimit, &prevkey[7], sweepparams, globalparams
-					#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-					,collections[capsule_offset+7]
-					#endif 
-					);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+				// REDUCEP0_reducevector(enx2[0], 0, kvdata2[0], vbuffer[capsule_offset + 0], 0, sweepparams.upperlimit, &memory[0], sweepparams, globalparams); // CRITICAL FIXME.		
+				REDUCEP0_reducevector(enx2[0], 0, kvdata2[0], vbuffer[0 + 0], 0, sweepparams.upperlimit, &memory[0], sweepparams, globalparams);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+				// REDUCEP0_reducevector(enx2[1], 1, kvdata2[1], vbuffer[capsule_offset + 1], 0, sweepparams.upperlimit, &memory[1], sweepparams, globalparams); // CRITICAL FIXME.		
+				REDUCEP0_reducevector(enx2[1], 1, kvdata2[1], vbuffer[0 + 1], 0, sweepparams.upperlimit, &memory[1], sweepparams, globalparams);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+				// REDUCEP0_reducevector(enx2[2], 2, kvdata2[2], vbuffer[capsule_offset + 2], 0, sweepparams.upperlimit, &memory[2], sweepparams, globalparams); // CRITICAL FIXME.		
+				REDUCEP0_reducevector(enx2[2], 2, kvdata2[2], vbuffer[0 + 2], 0, sweepparams.upperlimit, &memory[2], sweepparams, globalparams);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+				// REDUCEP0_reducevector(enx2[3], 3, kvdata2[3], vbuffer[capsule_offset + 3], 0, sweepparams.upperlimit, &memory[3], sweepparams, globalparams); // CRITICAL FIXME.		
+				REDUCEP0_reducevector(enx2[3], 3, kvdata2[3], vbuffer[0 + 3], 0, sweepparams.upperlimit, &memory[3], sweepparams, globalparams);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+				// REDUCEP0_reducevector(enx2[4], 4, kvdata2[4], vbuffer[capsule_offset + 4], 0, sweepparams.upperlimit, &memory[4], sweepparams, globalparams); // CRITICAL FIXME.		
+				REDUCEP0_reducevector(enx2[4], 4, kvdata2[4], vbuffer[0 + 4], 0, sweepparams.upperlimit, &memory[4], sweepparams, globalparams);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+				// REDUCEP0_reducevector(enx2[5], 5, kvdata2[5], vbuffer[capsule_offset + 5], 0, sweepparams.upperlimit, &memory[5], sweepparams, globalparams); // CRITICAL FIXME.		
+				REDUCEP0_reducevector(enx2[5], 5, kvdata2[5], vbuffer[0 + 5], 0, sweepparams.upperlimit, &memory[5], sweepparams, globalparams);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+				// REDUCEP0_reducevector(enx2[6], 6, kvdata2[6], vbuffer[capsule_offset + 6], 0, sweepparams.upperlimit, &memory[6], sweepparams, globalparams); // CRITICAL FIXME.		
+				REDUCEP0_reducevector(enx2[6], 6, kvdata2[6], vbuffer[0 + 6], 0, sweepparams.upperlimit, &memory[6], sweepparams, globalparams);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+				// REDUCEP0_reducevector(enx2[7], 7, kvdata2[7], vbuffer[capsule_offset + 7], 0, sweepparams.upperlimit, &memory[7], sweepparams, globalparams); // CRITICAL FIXME.		
+				REDUCEP0_reducevector(enx2[7], 7, kvdata2[7], vbuffer[0 + 7], 0, sweepparams.upperlimit, &memory[7], sweepparams, globalparams);
 			}
 		}
 	}
-	
-	/* ///////////////////////////////////////////////////////////////// REMOVEME.
-	cout<<"============================ MEMACCESSP0_saveV SEEN. globalparams.SIZEKVS2_REDUCEPARTITION: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<endl;
-	keyvalue_vbuffer_t vdata[VECTOR2_SIZE];
-	SAVEVDATA_LOOP1: for(buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
-	#pragma HLS PIPELINE II=1
-	
-		vdata[0] = vbuffer[0][0 + i];
-	
-		vdata[1] = vbuffer[1][0 + i];
-	
-		vdata[2] = vbuffer[2][0 + i];
-	
-		vdata[3] = vbuffer[3][0 + i];
-	
-		vdata[4] = vbuffer[4][0 + i];
-	
-		vdata[5] = vbuffer[5][0 + i];
-	
-		vdata[6] = vbuffer[6][0 + i];
-	
-		vdata[7] = vbuffer[7][0 + i];
-	
-		vdata[8] = vbuffer[8][0 + i];
-	
-		vdata[9] = vbuffer[9][0 + i];
-	
-		vdata[10] = vbuffer[10][0 + i];
-	
-		vdata[11] = vbuffer[11][0 + i];
-	
-		vdata[12] = vbuffer[12][0 + i];
-	
-		vdata[13] = vbuffer[13][0 + i];
-	
-		vdata[14] = vbuffer[14][0 + i];
-	
-		vdata[15] = vbuffer[15][0 + i];
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			unsigned int K = vdata[2*v];
-			unsigned int V = vdata[2*v+1];
-			if(MEMCAP0_READVMASK(K)==1){ cout<<"---------------------------- MEMACCESSP0_saveV:: MASK=1 SEEN. index: "<<i<<endl; }
-			if(MEMCAP0_READVMASK(V)==1){ cout<<"---------------------------- MEMACCESSP0_saveV:: MASK=1 SEEN. index: "<<i<<endl; }	
-		}
-		#endif
-	}
-	// exit();
-	//////////////////////////////////////////////////////////////// REMOVEME.
-	// actsutilityobj->printglobalvars();
-	exit(EXIT_SUCCESS); //// */
+	// exit(EXIT_SUCCESS);
 	return;
 }
 
-void REDUCEP0_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDEST2DATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+void acts_all::REDUCEP0_reduceandbuffer2(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	if(enable == OFF){ return; }
-	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return; }
-	// exit(EXIT_SUCCESS);
+	analysis_type analysis_loopcount = (MAX_DESTBLOCKRAM_SIZE / (MAX_NUM_PARTITIONS / 2));
+
+	keyvalue_buffer_t kvdata0;
+	keyvalue_buffer_t kvdata1;
+	keyvalue_buffer_t kvdata2;
+	keyvalue_buffer_t kvdata3;
+	keyvalue_buffer_t kvdata4;
+	keyvalue_buffer_t kvdata5;
+	keyvalue_buffer_t kvdata6;
+	keyvalue_buffer_t kvdata7;
+	keyvalue_buffer_t kvdata8;
+	keyvalue_buffer_t kvdata9;
+	keyvalue_buffer_t kvdata10;
+	keyvalue_buffer_t kvdata11;
+	keyvalue_buffer_t kvdata12;
+	keyvalue_buffer_t kvdata13;
+	keyvalue_buffer_t kvdata14;
+	keyvalue_buffer_t kvdata15;
+	buffer_type bramoffset_kvs[MAX_NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=bramoffset_kvs complete
+	buffer_type size_kvs[MAX_NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=size_kvs complete
+	unsigned int upperlimits[MAX_NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=upperlimits complete
+	unsigned int memory[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=memory complete
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);
+	#endif
+	
+	REDUCEBUFFERPARTITIONS2_LOOP1: for(unsigned int it=0; it<globalparams.ACTSPARAMS_NUM_PARTITIONS; it+=globalparams.ACTSPARAMS_NUM_PARTITIONS/2){
+		buffer_type maxsize_kvs = 0;
+		REDUCEBUFFERPARTITIONS2_LOOP1B: for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS/2; p++){
+		#pragma HLS PIPELINE II=1
+			bramoffset_kvs[p] = localcapsule[it+p].key / VECTOR_SIZE;
+			size_kvs[p] = localcapsule[it+p].value / VECTOR_SIZE;
+			if(maxsize_kvs < size_kvs[p]){ maxsize_kvs = size_kvs[p]; }
+		}
+		
+		REDUCEBUFFERPARTITIONS2_MAINLOOP1D: for(buffer_type i=0; i<maxsize_kvs; i++){
+		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
+		#pragma HLS PIPELINE II=48 // 16, 32*, 48, FIXME.
+			for(vector_type v=0; v<VECTOR_SIZE; v++){
+				kvdata0 = buffer[v][bramoffset_kvs[0] + i]; 	
+				kvdata1 = buffer[v][bramoffset_kvs[1] + i]; 	
+				kvdata2 = buffer[v][bramoffset_kvs[2] + i]; 	
+				kvdata3 = buffer[v][bramoffset_kvs[3] + i]; 	
+				kvdata4 = buffer[v][bramoffset_kvs[4] + i]; 	
+				kvdata5 = buffer[v][bramoffset_kvs[5] + i]; 	
+				kvdata6 = buffer[v][bramoffset_kvs[6] + i]; 	
+				kvdata7 = buffer[v][bramoffset_kvs[7] + i]; 	
+				
+	
+				// if(i< size_kvs[0]){ REDUCEP0_reducevector(ON, it+0, kvdata0, vbuffer[it+0], 0, sweepparams.upperlimit, sweepparams, globalparams); } // CRITICAL FIXME.
+				if(i< size_kvs[0]){ REDUCEP0_reducevector(ON, 0+0, kvdata0, vbuffer[0+0], 0, sweepparams.upperlimit, &memory[0], sweepparams, globalparams); }
+	
+				// if(i< size_kvs[1]){ REDUCEP0_reducevector(ON, it+1, kvdata1, vbuffer[it+1], 0, sweepparams.upperlimit, sweepparams, globalparams); } // CRITICAL FIXME.
+				if(i< size_kvs[1]){ REDUCEP0_reducevector(ON, 0+1, kvdata1, vbuffer[0+1], 0, sweepparams.upperlimit, &memory[1], sweepparams, globalparams); }
+	
+				// if(i< size_kvs[2]){ REDUCEP0_reducevector(ON, it+2, kvdata2, vbuffer[it+2], 0, sweepparams.upperlimit, sweepparams, globalparams); } // CRITICAL FIXME.
+				if(i< size_kvs[2]){ REDUCEP0_reducevector(ON, 0+2, kvdata2, vbuffer[0+2], 0, sweepparams.upperlimit, &memory[2], sweepparams, globalparams); }
+	
+				// if(i< size_kvs[3]){ REDUCEP0_reducevector(ON, it+3, kvdata3, vbuffer[it+3], 0, sweepparams.upperlimit, sweepparams, globalparams); } // CRITICAL FIXME.
+				if(i< size_kvs[3]){ REDUCEP0_reducevector(ON, 0+3, kvdata3, vbuffer[0+3], 0, sweepparams.upperlimit, &memory[3], sweepparams, globalparams); }
+	
+				// if(i< size_kvs[4]){ REDUCEP0_reducevector(ON, it+4, kvdata4, vbuffer[it+4], 0, sweepparams.upperlimit, sweepparams, globalparams); } // CRITICAL FIXME.
+				if(i< size_kvs[4]){ REDUCEP0_reducevector(ON, 0+4, kvdata4, vbuffer[0+4], 0, sweepparams.upperlimit, &memory[4], sweepparams, globalparams); }
+	
+				// if(i< size_kvs[5]){ REDUCEP0_reducevector(ON, it+5, kvdata5, vbuffer[it+5], 0, sweepparams.upperlimit, sweepparams, globalparams); } // CRITICAL FIXME.
+				if(i< size_kvs[5]){ REDUCEP0_reducevector(ON, 0+5, kvdata5, vbuffer[0+5], 0, sweepparams.upperlimit, &memory[5], sweepparams, globalparams); }
+	
+				// if(i< size_kvs[6]){ REDUCEP0_reducevector(ON, it+6, kvdata6, vbuffer[it+6], 0, sweepparams.upperlimit, sweepparams, globalparams); } // CRITICAL FIXME.
+				if(i< size_kvs[6]){ REDUCEP0_reducevector(ON, 0+6, kvdata6, vbuffer[0+6], 0, sweepparams.upperlimit, &memory[6], sweepparams, globalparams); }
+	
+				// if(i< size_kvs[7]){ REDUCEP0_reducevector(ON, it+7, kvdata7, vbuffer[it+7], 0, sweepparams.upperlimit, sweepparams, globalparams); } // CRITICAL FIXME.
+				if(i< size_kvs[7]){ REDUCEP0_reducevector(ON, 0+7, kvdata7, vbuffer[0+7], 0, sweepparams.upperlimit, &memory[7], sweepparams, globalparams); }
+	
+			}
+		}
+	}
+	return;
+}
+
+void acts_all::REDUCEP0_reduceandbuffer3(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+	if(enable == OFF){ return; }
+	
+	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
+	#pragma HLS ARRAY_PARTITION variable=localcapsule_kvs complete
+	unsigned int totalsum_values_kvs = 0;
+	
+	for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){
+	#pragma HLS PIPELINE II=1
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"ACTSreduceandbuffer3: localcapsule["<<p<<"].key: "<<localcapsule[p].key<<", localcapsule["<<p<<"].value: "<<localcapsule[p].value<<endl;
+		#endif
+		localcapsule_kvs[p].key = localcapsule[p].key / VECTOR_SIZE;
+		localcapsule_kvs[p].value = (localcapsule[p].value + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	}
+	for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){ totalsum_values_kvs += localcapsule_kvs[p].value; }
+	// cout<<"ACTSreduceandbuffer3: totalsum_values_kvs: "<<totalsum_values_kvs<<endl;
+	// exit(EXIT_SUCCESS); //
+	
+	REDUCEBUFFERPARTITIONS3_MAINLOOP2C: for(buffer_type i=0; i<totalsum_values_kvs; i++){
+	#pragma HLS PIPELINE II=2
+		vbuffer[0][i % MAX_BLOCKRAM_VDESTDATA_SIZE] = UTILP0_GETKV(buffer[0][i]).value;
+		vbuffer[1][i % MAX_BLOCKRAM_VDESTDATA_SIZE] = UTILP0_GETKV(buffer[1][i]).value;
+		vbuffer[2][i % MAX_BLOCKRAM_VDESTDATA_SIZE] = UTILP0_GETKV(buffer[2][i]).value;
+		vbuffer[3][i % MAX_BLOCKRAM_VDESTDATA_SIZE] = UTILP0_GETKV(buffer[3][i]).value;
+		vbuffer[4][i % MAX_BLOCKRAM_VDESTDATA_SIZE] = UTILP0_GETKV(buffer[4][i]).value;
+		vbuffer[5][i % MAX_BLOCKRAM_VDESTDATA_SIZE] = UTILP0_GETKV(buffer[5][i]).value;
+		vbuffer[6][i % MAX_BLOCKRAM_VDESTDATA_SIZE] = UTILP0_GETKV(buffer[6][i]).value;
+		vbuffer[7][i % MAX_BLOCKRAM_VDESTDATA_SIZE] = UTILP0_GETKV(buffer[7][i]).value;
+		// cout<<"reduce seen......"<<endl;
+		
+		#ifdef _DEBUGMODE_STATS
+		actsutilityobj->globalstats_countkvsreduced(globalparams.ACTSPARAMS_INSTID, VECTOR_SIZE);
+		actsutilityobj->globalstats_reduce_countvalidkvsreduced(globalparams.ACTSPARAMS_INSTID, VECTOR_SIZE);
+		#endif
+	}
+	return;
+}
+
+void acts_all::REDUCEP0_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+	if(enable == OFF){ return; }
 	
 	keyvalue_buffer_t kvdata[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=kvdata complete
@@ -563,11 +614,8 @@ void REDUCEP0_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VEC
 	#pragma HLS ARRAY_PARTITION variable=kvdata2 complete
 	bool enx[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=enx complete
-	unsigned int prevkey[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=prevkey complete
-	
-	keyvalue_t invalid_dataa; invalid_dataa.key = INVALIDDATA; invalid_dataa.value = INVALIDDATA;
-	keyvalue_buffer_t invalid_data = UTILP0_GETKV(invalid_dataa);
+	unsigned int memory[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=memory complete
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("reduceandbuffer.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);
@@ -583,11 +631,7 @@ void REDUCEP0_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VEC
 			keyvalue_buffer_t kvdata = buffer[i % VECTOR_SIZE][i / VECTOR_SIZE];
 
 			// reduce 
-			REDUCEP0_reducevector(ON, p, kvdata, vbuffer[p], vbuffer2[p], 0, sweepparams.upperlimit, &prevkey[p], sweepparams, globalparams
-				#ifdef CONFIG_COLLECT_DATAS1_DURING_RUN
-				,collections[p]
-				#endif 
-				);
+			REDUCEP0_reducevector(ON, p, kvdata, vbuffer[p], 0, sweepparams.upperlimit, &memory[p], sweepparams, globalparams);
 		}
 	}
 
@@ -596,28 +640,8 @@ void REDUCEP0_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VEC
 	return;
 }
 
-void REDUCEP0_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_vbuffer_t vbuffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDEST2DATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
-	
-	return REDUCEP0_ACTSreduceandbuffer(enable, buffer, localcapsule, vbuffer, vbuffer2, sweepparams, globalposition, globalparams, collections);
-	
-	/** #ifdef CONFIG_ALL_EVALUATIONTYPES_IN_ONE_KERNEL
-	if(globalparams.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC == ON){
-		return REDUCEP0_ACTSreduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
-	} else {
-		if(globalparams.EVALUATION_ACTS_VERYBARE == ON){
-			// NAp
-		} else {
-			return REDUCEP0_TRADreduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
-		}
-	#else 
-		#ifdef CONFIG_ACTS_RECURSIVEPARTITIONINGLOGIC
-		return REDUCEP0_ACTSreduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
-		#else 
-			#ifdef CONFIG_ACTS_VERYBARE
-			// NAp
-			#else 
-			return REDUCEP0_TRADreduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
-			#endif 
-		#endif
-	#endif  */
+void acts_all::REDUCEP0_reduceandbuffer_base(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+	return REDUCEP0_reduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
+	// return REDUCEP0_reduceandbuffer2(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
+	// return REDUCEP0_reduceandbuffer3(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
 }

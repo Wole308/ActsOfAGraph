@@ -1,5 +1,5 @@
 // primitives
-unsigned int MEMCAP0_READVDATA(keyvalue_vbuffer_t wideword){
+unsigned int acts_all::MEMCAP0_READVDATA(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	return wideword;
@@ -7,7 +7,7 @@ unsigned int MEMCAP0_READVDATA(keyvalue_vbuffer_t wideword){
 	return UTILP0_READBITSFROM_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA);
 	#endif 
 }
-unsigned int MEMCAP0_READVMASK(keyvalue_vbuffer_t wideword){
+unsigned int acts_all::MEMCAP0_READVMASK(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	return 0;
@@ -15,7 +15,7 @@ unsigned int MEMCAP0_READVMASK(keyvalue_vbuffer_t wideword){
 	return UTILP0_READBITSFROM_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK);
 	#endif 
 }
-unsigned int MEMCAP0_READVDATA2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata){
+unsigned int acts_all::MEMCAP0_READVDATA2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	return wideword;
@@ -23,7 +23,7 @@ unsigned int MEMCAP0_READVDATA2(keyvalue_vbuffer_t wideword, unsigned int offset
 	return UTILP0_READBITSFROM_UINTV(wideword, offsetof_vdata, SIZEOF_VDATA);
 	#endif 
 }
-unsigned int MEMCAP0_READVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vmask){
+unsigned int acts_all::MEMCAP0_READVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vmask){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	return 0;
@@ -32,7 +32,7 @@ unsigned int MEMCAP0_READVMASK2(keyvalue_vbuffer_t wideword, unsigned int offset
 	#endif 
 }
 
-void MEMCAP0_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
+void acts_all::MEMCAP0_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	*wideword = vdata;
@@ -41,7 +41,7 @@ void MEMCAP0_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
 	#endif 
 	return;
 }
-void MEMCAP0_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
+void acts_all::MEMCAP0_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	// NAp
@@ -50,7 +50,7 @@ void MEMCAP0_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
 	#endif 
 	return;
 }
-void MEMCAP0_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata, unsigned int offsetof_vdata){
+void acts_all::MEMCAP0_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata, unsigned int offsetof_vdata){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	*wideword = vdata;
@@ -59,7 +59,7 @@ void MEMCAP0_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata, unsigned 
 	#endif 
 	return;
 }
-void MEMCAP0_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vmask, unsigned int offsetof_vmask){
+void acts_all::MEMCAP0_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vmask, unsigned int offsetof_vmask){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	// NAp
@@ -69,13 +69,13 @@ void MEMCAP0_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vmask, unsign
 	return;
 }
 
-unsigned int MEMCAP0_READEDIR(unsigned int wideword){
+unsigned int acts_all::MEMCAP0_READEDIR(unsigned int wideword){
 	#pragma HLS INLINE
 	return UTILP0_READBITSFROM_UINTV(wideword, OFFSETOF_EDIR, SIZEOF_EDIR);
 }
 
 // non-primitives
-vmdata_t MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(keyvalue_vbuffer_t bits_vector){
+vmdata_t acts_all::MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(keyvalue_vbuffer_t bits_vector){
 	#pragma HLS INLINE
 	vmdata_t vmdata;
 	vmdata.vdata = MEMCAP0_READVDATA(bits_vector); 
@@ -86,7 +86,7 @@ vmdata_t MEMCAP0_READFROMBUFFER_VDATAWITHVMASK(keyvalue_vbuffer_t bits_vector){
 	#endif
 	return vmdata;
 }
-void MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){				
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){				
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK:", index/2, MAX_BLOCKRAM_VDESTDATA_SIZE, index, NAp, NAp);
@@ -97,11 +97,11 @@ void MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t
 	buffer[bufferoffset_kvs + index] = bits_vector;
 	return;
 }
-void MEMCAP0_WRITETODRAM_VDATAWITHVMASK(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+void acts_all::MEMCAP0_WRITETODRAM_VDATAWITHVMASK(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCAP0_WRITETODRAM_VDATAWITHVMASK:", index, MAX_TOTALDRAMCAPACITY_KVS, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP0_WRITETODRAM_VDATAWITHVMASK:", index, MAX_MAXHBMCAPACITY_KVS, index, NAp, NAp);
 	#endif
 
 	MEMCAP0_WRITEVDATA(&bits_vector, vdata);
@@ -110,7 +110,7 @@ void MEMCAP0_WRITETODRAM_VDATAWITHVMASK(unsigned int index, uint512_dt * kvdram,
 	return;
 }
 
-vmdata_t MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t bits_vector){
+vmdata_t acts_all::MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t bits_vector){
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
@@ -136,7 +136,7 @@ vmdata_t MEMCAP0_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbu
 	#endif
 	return vmdata;
 }
-void MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+void acts_all::MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
@@ -157,11 +157,11 @@ void MEMCAP0_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_
 	buffer[bufferoffset_kvs + (index / VDATA_SHRINK_RATIO)] = bits_vector;
 	return;
 }
-void MEMCAP0_WRITETODRAM_VDATAWITHVMASK2(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+void acts_all::MEMCAP0_WRITETODRAM_VDATAWITHVMASK2(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("MEMCAP0_WRITETODRAM_VDATAWITHVMASK2:", index/VDATA_SHRINK_RATIO, MAX_TOTALDRAMCAPACITY_KVS, index, NAp, NAp);
+	actsutilityobj->checkoutofbounds("MEMCAP0_WRITETODRAM_VDATAWITHVMASK2:", index/VDATA_SHRINK_RATIO, MAX_MAXHBMCAPACITY_KVS, index, NAp, NAp);
 	#endif
 
 	unsigned int offsetof_vdata = (index % VDATA_SHRINK_RATIO);

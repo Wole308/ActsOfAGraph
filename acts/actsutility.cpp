@@ -702,8 +702,14 @@ unsigned int actsutility::globalstats_getcountvalidkvsprocessed(unsigned int ins
 unsigned int actsutility::globalstats_getcounterrorsinreduce(){
 	return globalvar_errorsinreduce;
 }
+unsigned int actsutility::globalstats_getcountkvsreduced(unsigned int instID){
+	return globalstats_totalkvsreduced[instID];
+}
 unsigned int actsutility::globalstats_getcountvalidkvsreduced(unsigned int instID){
 	return globalstats_reduce_validkvsreduced[instID];
+}
+unsigned int actsutility::globalstats_getcountkvspartitionswritten(unsigned int instID){
+	return globalstats_totalkvspartitionswritten[instID];
 }
 unsigned int actsutility::globalstats_getreducevar1(){
 	return globalstats_reduce_var1;

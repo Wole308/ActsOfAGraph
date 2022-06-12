@@ -1,6 +1,6 @@
 # faketime -f "-1y" make all TARGET=sw_emu PLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 # faketime -f "-1y" make run TARGET=sw_emu PLATFORM=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
-# v++ -t sw_emu --platform /opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm --save-temps  -g -c -k topkernelP9 --temp_dir ./_x.sw_emu.xilinx_u280_xdma_201920_3  -I'/home/oj2zf/Documents/ActsOfAGraph/acts/acts' -o'_x.sw_emu.xilinx_u280_xdma_201920_3/vP0.xo' '/home/oj2zf/Documents/ActsOfAGraph/acts/acts/acts_all.cpp'			
+# v++ -t sw_emu --platform /opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm --save-temps  -g -c -k topkernelP9 --temp_dir ./_x.sw_emu.xilinx_u280_xdma_201920_3  -I'/home/oj2zf/Documents/actsofagraph/acts/acts' -o'_x.sw_emu.xilinx_u280_xdma_201920_3/vP0.xo' '/home/oj2zf/Documents/actsofagraph/acts/acts/acts_all.cpp'			
 
 # datasets 
 # https://sparse.tamu.edu/DIMACS10/rgg_n_2_24_s0 (16,777,216 vertices, 265,114,400 edges, undirected)
@@ -236,7 +236,7 @@ endif
 actsobj: clean build_acts 
 actsGP_debug: clean build_acts run_nthreads_debug
 
-STACKD_SOURCE_DIR=/home/oj2zf/Documents/ActsOfAGraph/stack-distance-master/src
+STACKD_SOURCE_DIR=/home/oj2zf/Documents/actsofagraph/stack-distance-master/src
 STACKD_COMMON=${STACKD_SOURCE_DIR}/rank-tree.cpp
 STACKD_COMMON+=${STACKD_SOURCE_DIR}/stack-simulator.cpp
 STACKD_HEADERS=${STACKD_SOURCE_DIR}/rank-tree.hpp

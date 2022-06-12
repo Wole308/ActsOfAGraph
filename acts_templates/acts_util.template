@@ -266,6 +266,21 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512
 	#endif
 	return;
 }
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	datas[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+	datas[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	return;
+}
 void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
@@ -277,6 +292,21 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512
 	{%for v in context['VECTOR_SIZE_seq']%}
 	kvdram[offset_kvs].data[{{v}}].key = datas[{{2*v}}];
 	kvdram[offset_kvs].data[{{v}}].value = datas[{{2*v+1}}]; 
+	{%endfor%}
+	#endif
+	return;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = datas[{{v}}].key; 
+	kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = datas[{{v}}].value; 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	kvdram[offset_kvs].data[{{v}}].key = datas[{{v}}].key;
+	kvdram[offset_kvs].data[{{v}}].value = datas[{{v}}].value; 
 	{%endfor%}
 	#endif
 	return;
@@ -347,13 +377,6 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	#ifdef _DEBUGMODE_CHECKS3
 	actsutilityobj->checkoutofbounds("UTIL{{context['id']}}_getglobalparams 23", 0 + MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS, (((1 << 28) / 4) / 16), globalparams.DRAM_BASE_KVS, MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp);
 	#endif
-	// unsigned int totaldramcapacity_kvs = kvdram[globalparams.DRAM_BASE_KVS + MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS]
-	// unsigned int totaldramcapacity_kvs = kvdram[0 + MESSAGES_ACTSPARAMS_MAXHBMCAPACITY_KVS]
-			// #ifdef _WIDEWORD
-				// .range(31, 0); 
-					// #else 
-						// .data[0].key; 	
-							// #endif 
 	unsigned int edges_data_kvs = kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_VOLUMEOFFSETKVS_WORKDATA]
 			#ifdef _WIDEWORD
 				.range(31, 0); 
@@ -391,6 +414,8 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.ENABLE_PROCESSCOMMAND = buffer[MESSAGES_ENABLE_PROCESSCOMMAND];
 	globalparams.ENABLE_PARTITIONCOMMAND = buffer[MESSAGES_ENABLE_PARTITIONCOMMAND];
 	globalparams.ENABLE_APPLYUPDATESCOMMAND = buffer[MESSAGES_ENABLE_APPLYUPDATESCOMMAND];
+	globalparams.ENABLE_MERGECOMMAND = buffer[MESSAGES_ENABLE_MERGECOMMAND];
+	globalparams.ENABLE_EXCHANGECOMMAND = buffer[MESSAGES_ENABLE_EXCHANGECOMMAND];
 	globalparams.GPMODE = buffer[MESSAGES_GPMODE];
 	globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES = buffer[MESSAGES_ACTSCONFIG_INSERTSTATSMETADATAINEDGES];
 
@@ -773,3 +798,24 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetenvbuffer(key
 	return;
 }
 
+// checks 
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_check_capsule(keyvalue_t capsule[MAX_NUM_PARTITIONS], unsigned int num_partitions, unsigned int max_value){
+	#if defined(ENABLE_PERFECTACCURACY) && defined(_DEBUGMODE_CHECKS2)	
+	for(unsigned int i=0; i<num_partitions-1; i++){ 
+		if(capsule[i].key + capsule[i].value >= capsule[i+1].key && capsule[i].value > 0){ 
+			cout<<"savekeyvalues::capsule 33. ERROR. out of bounds. (capsule["<<i<<"].key("<<capsule[i].key<<") + capsule["<<i<<"].value("<<capsule[i].value<<") >= capsule["<<i+1<<"].key("<<capsule[i+1].key<<")) printing and exiting..."<<endl; 
+			actsutilityobj->printkeyvalues("savekeyvalues::capsule 34", (keyvalue_t *)capsule, num_partitions); 
+			exit(EXIT_FAILURE); 
+		}
+	}
+	if(capsule[num_partitions-1].key + capsule[num_partitions-1].value >= max_value){
+		cout<<"savekeyvalues::capsule 36. ERROR. out of bounds. (capsule["<<num_partitions-1<<"].key("<<capsule[num_partitions-1].key<<") + capsule["<<num_partitions-1<<"].value("<<capsule[num_partitions-1].value<<") >= globalparams.SIZE_KVDRAM("<<globalparams.SIZE_KVDRAM<<")) printing and exiting..."<<endl; 
+		actsutilityobj->printkeyvalues("savekeyvalues::capsule 37", (keyvalue_t *)capsule, num_partitions); 
+		exit(EXIT_FAILURE); 
+	}
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS2
+	actsutilityobj->printkeyvalues("actsutility::savekeyvalues: capsule.", (keyvalue_t *)capsule, num_partitions);
+	#endif
+	return;
+}
