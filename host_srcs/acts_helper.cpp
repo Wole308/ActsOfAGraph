@@ -36,7 +36,7 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	cout<<"acts_helper::extract_stats: number of active vertices for iteration 0: "<<actvvs_nextit.size()<<endl;
 	for(unsigned int i=0; i<actvvs.size(); i++){ vdatas[actvvs[i]] = 0; }
 	unsigned int GraphIter=0;
-	vpmaskstats[0][0].A = 1; 
+	vpmaskstats[0][0].A = 0; 
 	
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ num_edges_processed[iter] = 0; }
 	for(GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ // 64
@@ -52,6 +52,7 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 			#endif
 			num_edges_processed[GraphIter] += edges_size;
 			
+			vpmaskstats[GraphIter][vid / universalparams.PROCESSPARTITIONSZ].A += 1; //////////////////////////// NEW
 			vpmaskstats[GraphIter][vid / universalparams.PROCESSPARTITIONSZ].B += edges_size; // 
 			// cout<<"~~~ vpmaskstats["<<GraphIter<<"]["<<vid / universalparams.PROCESSPARTITIONSZ<<"].B: "<<vpmaskstats[GraphIter][vid / universalparams.PROCESSPARTITIONSZ].B<<endl;
 			
@@ -67,7 +68,7 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 					utilityobj->checkoutofbounds("acts_helper::extract_stats:: ERROR 20", dstvid / universalparams.PROCESSPARTITIONSZ, universalparams.NUMPROCESSEDGESPARTITIONS, dstvid, vid, dstvid);
 					
 					if(GraphIter+1 < MAXNUMGRAPHITERATIONS){
-						vpmaskstats[GraphIter+1][dstvid / universalparams.PROCESSPARTITIONSZ].A += 1;
+						// vpmaskstats[GraphIter+1][dstvid / universalparams.PROCESSPARTITIONSZ].A += 1;
 						vpmaskstats_merge[GraphIter][gethash(dstvid)][getlocalvid(dstvid) / universalparams.REDUCEPARTITIONSZ].A += 1;
 					}			
 				} 
@@ -86,7 +87,7 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	}
 	
 	cout<<">>> acts_helper::extract_stats: FINISHED. "<<GraphIter+1<<" iterations required."<<endl;
-	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ cout<<">>> utility:: edgesprocessed_totals["<<iter<<"] "<<(unsigned int)edgesprocessed_totals[iter]<<endl; }
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ cout<<"acts_helper:: number of edges processed in iteration "<<iter<<": "<<(unsigned int)edgesprocessed_totals[iter]<<endl; }
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<">>> acts_helper::extract_stats: printing pmasks for process-partition-reduce... "<<endl;	
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){

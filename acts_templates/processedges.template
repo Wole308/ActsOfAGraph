@@ -158,7 +158,6 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
 	if(enable == OFF){ return fetchmessage; }
-	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return fetchmessage; }
 	
 	keyvalue_t E[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete
@@ -331,7 +330,6 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_AC
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
 	if(enable == OFF){ return fetchmessage; }
-	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return fetchmessage; }
 	
 	travstate_t mytravstate = travstate;
 	mytravstate.i_kvs = travstate.i_kvs / 1;
@@ -402,11 +400,6 @@ fetchmessage_t {{context['classname__processedges']}}PROCESS{{context['id']}}_TR
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
 	if(enable == OFF){ return fetchmessage; }
-	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ACTS{{context['id']}}_actit: Hybrid Check: num_active_vertices("<<globalposition.num_active_vertices<<") < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION("<<globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION<<"). USING TRADITIONAL GP INSTEAD.... !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl; 
-		#endif 
-		return fetchmessage; } // FIXXXXXXXXMMMMMMMMMMMEEEEEEEEEEEEEEEEEEEEEEE.						
 	
 	uint32_type E[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=E complete

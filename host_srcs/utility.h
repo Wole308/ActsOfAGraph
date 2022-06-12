@@ -140,9 +140,6 @@ public:
 	unsigned int UTIL_GETLOCALVID(unsigned int vid, unsigned int instid);
 	unsigned int UTIL_GETREALVID(unsigned int lvid, unsigned int instid);
 
-	unsigned int runsssp_sw(string graphname, unsigned int total_num_vertices, vector<vertex_t> &srcvids, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, unsigned int NumGraphIters, long double edgesprocessed_totals[128], unsigned int * numValidIters, 
-			unsigned int * vpmaskbuffer[MAXNUMGRAPHITERATIONS], unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], uint512_ivec_dt * mdram, uint512_ivec_dt * vdram, uint512_ivec_dt * kvbuffer[NUM_PEs], bool savemasks, bool printactivepartitios);							
-	
 	void printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]);
 	
 	#ifdef FPGA_IMPL
