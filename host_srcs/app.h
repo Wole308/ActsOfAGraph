@@ -36,10 +36,11 @@ public:
 	
 	universalparams_t get_universalparams(std::string algorithm, unsigned int numiterations, unsigned int rootvid, unsigned int num_vertices, unsigned int num_edges, bool graphisundirected);
 	void print_active_partitions(unsigned int GraphIter, uint512_vec_dt * dram, universalparams_t universalparams, unsigned int num_partitions, bool printA, bool printB);
+	void printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]);
 	
 	void run(std::string setup, std::string algorithm, unsigned int numiterations, unsigned int rootvid, string graph_path, int graphisundirected, std::string _binaryFile1);
 	
-	void verifyresults(string graph_path, uint512_vec_dt * kvdram, globalparams_t globalparams);
+	void summary(string graph_path, uint512_vec_dt * kvdram, globalparams_t globalparams);
 	
 private:
 	utility * utilityobj;
@@ -49,11 +50,11 @@ private:
 	algorithm * algorithmobj;
 	// acts_helper * actshelperobj;
 	
-	uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS];
+	uint512_vec_dt * kvbuffer[MAXNUM_PEs];
 	uint512_vec_dt * vdram;
 	uint512_vec_dt * mdram;
-	edge_t * vptrs[MAXNUMSUBCPUTHREADS];
-	uint512_vec_dt * edges[MAXNUMSUBCPUTHREADS];
+	edge_t * vptrs[MAXNUM_PEs];
+	uint512_vec_dt * edges[MAXNUM_PEs];
 	
 	std::string binaryFile[2];
 	

@@ -92,11 +92,14 @@
 
 ////////////////
 
-#define MAXNUM_PEs 32
 #define NUM_PEs 24
-#define MAXNUMSUBCPUTHREADS 32
+#define MAXNUM_PEs 32
 #define NUMSYNCTHREADS 
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
+#define MAXNUM_VPs 256 // NEWCHANGE. 
+#define MAXNUM_LLPs 256 // NEWCHANGE.
+// #define MAXNUM_VPs 256 // NEWCHANGE. 
+// #define MAXNUM_LLPs 256 // NEWCHANGE.
 
 ////////////////
 #if NUM_PEs==3
@@ -413,11 +416,7 @@ struct _bitData {
 #define ACTSCOMMITMODE 4
 
 // acts-main parameters 
-#ifdef ACTS_PARTITION_AND_REDUCE_STRETEGY
-#define NUMPIPELINES_PARTITIONUPDATES 2//1,2* 
-#else 
 #define NUMPIPELINES_PARTITIONUPDATES 2
-#endif 
 #if NUMPIPELINES_PARTITIONUPDATES==1
 #define PUP0
 #endif 
@@ -475,7 +474,7 @@ struct _bitData {
 // #define BLOCKRAM_VDATA_SECTION1 (MAX_BLOCKRAXMEM_VDATA_SIZE / 2)
 #define BLOCKRAM_VDATA_SECTION1 0 // FIXME.
 
-#define BLOCKRAM_CURRPMASK_SIZE 256 
+#define BLOCKRAM_CURRPMASK_SIZE 512 // 256 // // CRITICAL REMOVEME URGENT.
 #define BLOCKRAM_NEXTPMASK_SIZE BLOCKRAM_CURRPMASK_SIZE 
 #define BLOCKRAM_CUMMTVPMASK_SIZE BLOCKRAM_CURRPMASK_SIZE
 
@@ -657,6 +656,17 @@ typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid;
 } edge2_type;
+
+typedef struct {
+	edge2_type data[VECTOR_SIZE];
+} edge2_vec_dt;
+
+// typedef unsigned int map_t;
+typedef struct {
+	edge2_type head;
+	unsigned int data;
+	unsigned int size;
+} map_t;
 
 typedef struct {
 	keyy_t srcvid;
@@ -1010,6 +1020,7 @@ typedef struct {
 	
 	unsigned int NUM_VERTICES;
 	unsigned int NUM_EDGES;
+	unsigned int AVERAGENUM_WORKEDGES_PER_CHANNEL;
 	
 	bool ISUNDIRECTEDGRAPH;
 	

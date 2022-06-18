@@ -16,7 +16,7 @@ goclkernel::goclkernel(universalparams_t _universalparams){
 }
 goclkernel::~goclkernel(){} 
 
-long double goclkernel::getaveragetimeelapsed(long double kerneltimelapse_ms[MAXNUMSUBCPUTHREADS]){
+long double goclkernel::getaveragetimeelapsed(long double kerneltimelapse_ms[MAXNUM_PEs]){
 	long double av = 0;
 	
 	long double count = NUM_PEs;
@@ -104,7 +104,7 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[MAXNUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters, 
+long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8], unsigned int numValidIters, 
 		unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
@@ -480,8 +480,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		
 		// synchronizing...
 		// std::cout <<">>> goclkernel: synchronizing vertices in iteration "<<GraphIter<<"..."<<endl;
-		// OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
-		// OCL_CHECK(err, err = kernel_events[3].wait());
+		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
+		OCL_CHECK(err, err = kernel_events[3].wait());
 		
 		#ifdef CONFIG_ENABLE_PROFILING
 		long double iter_timeelapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - iter_starttime).count();

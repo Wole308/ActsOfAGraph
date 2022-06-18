@@ -627,7 +627,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readhelperst
 			if(pmask[t] > 0  && t < 16){ cout<<t<<", "; }
 			if(pmask[t] > 0){ num_actvps += 1; }
 		}
-		cout<<" ("<<num_actvps<<" active partitions, "<<globalparams.NUM_PROCESSEDGESPARTITIONS<<" total partitions)"<< RESET << endl;
+		cout<<" ("<<num_actvps<<" active partitions, "<<size_kvs<<" total partitions)"<< RESET << endl;
 	// }
 	#endif 
 	return;

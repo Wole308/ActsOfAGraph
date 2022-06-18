@@ -42,15 +42,15 @@ public:
 	globalparams_TWOt loadactvvertices(vector<vertex_t> &activevertices, keyy_t * kvbuffer, container_t * container, globalparams_TWOt globalparams);
 	
 	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth);
-	globalparams_TWOt loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[MAXNUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams);
-	void accumstats(uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], uint512_vec_dt * stats[MAXNUMSUBCPUTHREADS], globalparams_TWOt globalparams);
+	globalparams_TWOt loadoffsetmarkers(keyvalue_t * stats[MAXNUM_PEs], vector<edge2_vec_dt> (&edges_final)[MAXNUM_PEs], map_t * edgesmap_final[MAXNUM_PEs][MAXNUM_VPs], container_t * container, globalparams_TWOt globalparams);
+	void accumstats(uint512_vec_dt * kvbuffer[MAXNUM_PEs], uint512_vec_dt * stats[MAXNUM_PEs], globalparams_TWOt globalparams);
 	
-	globalparams_TWOt generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], uint512_vec_dt * vdram, globalparams_TWOt globalparams);
+	globalparams_TWOt generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[MAXNUM_PEs], uint512_vec_dt * vdram, globalparams_TWOt globalparams);
 	
 	void savevdata(uint512_vec_dt * kvdram, unsigned int buffer[VDATA_PACKINGSIZE][DOUBLE_BLOCKRAM_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs);
 	void setrootvid(uint512_vec_dt * kvbuffer, vector<vertex_t> &activevertices, globalparams_t globalparams);
 	
-	globalparams_TWOt loadmessages(uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], container_t * container, unsigned int GraphIter, globalparams_TWOt globalparams);				
+	globalparams_TWOt loadmessages(uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvbuffer[MAXNUM_PEs], container_t * container, unsigned int GraphIter, globalparams_TWOt globalparams);				
 	globalparams_t createmessages(
 			unsigned int id,
 			uint512_vec_dt * kvstats,
@@ -66,7 +66,7 @@ public:
 			globalparams_t globalparams,
 			universalparams_t universalparams);	
 
-	void setcustomeval(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], unsigned int evalid);
+	void setcustomeval(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[MAXNUM_PEs], unsigned int evalid);
 	
 	globalparams_t finishglobaparamsV(globalparams_t globalparams);
 	

@@ -782,7 +782,7 @@ void utility::printallfeedback(string message, string graphpath, uint512_vec_dt 
 	unsigned int totalnum_edgesprocessed = 0;
 	
 	for(unsigned int i=0; i<1; i++){
-		for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){ 
+		for(unsigned int GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ 
 			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	
 			unsigned int num_vertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
 			
@@ -793,7 +793,7 @@ void utility::printallfeedback(string message, string graphpath, uint512_vec_dt 
 		}
 	}
 
-	for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){ 
+	for(unsigned int GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ 
 		unsigned int num_edgesprocessed = 0;
 		unsigned int num_vertexupdatesreduced = 0;
 		unsigned int num_validedgesprocessed = 0;
@@ -811,7 +811,7 @@ void utility::printallfeedback(string message, string graphpath, uint512_vec_dt 
 	}
 	
 	#ifndef UTILITY_BRIEFPRINTONLY
-	for(unsigned int GraphIter=0; GraphIter<10; GraphIter++){
+	for(unsigned int GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){
 		unsigned int sum_edgesprocessed = 0;
 		unsigned int sum_vertexupdatesreduced = 0;
 		for(unsigned int i=0; i<NUM_PEs; i++){

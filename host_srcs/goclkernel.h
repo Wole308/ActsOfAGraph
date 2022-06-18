@@ -36,10 +36,10 @@ public:
 	goclkernel(universalparams_t _universalparams);
 	~goclkernel();
 	
-	long double getaveragetimeelapsed(long double kerneltimelapse[MAXNUMSUBCPUTHREADS]);
+	long double getaveragetimeelapsed(long double kerneltimelapse[MAXNUM_PEs]);
 
 	#ifdef FPGA_IMPL
-	long double runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUMSUBCPUTHREADS], uint512_vec_dt * kvsourcedram[MAXNUMSUBCPUTHREADS], long double timeelapsed_totals[128][8], unsigned int numValidIters,
+	long double runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8], unsigned int numValidIters,
 			unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer);					
 	#endif
 	

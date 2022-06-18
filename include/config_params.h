@@ -12,16 +12,11 @@ loadgraph.cpp
 
 */
 
-// #define ENABLE_PERFECTACCURACY //
-// #define ENABLE_VOICEOUTREDUCEERRORS //
-// #define ENABLE_VOICEOUTKERNELERRORS //
-// #define ENABLE_VOICEOUTPROCESSEDGESERRORS //
-
-// #define ENABLE_APPROXIMATEPARTITIONWRITES // CRITICAL FIXME. FPGA hangs if this is disabled // REMOVEME.
+#define CONFIG_SETUP_SUITABLE_FOR_LARGE_GRAPHS // actit2 is used instead of actit
 
 // === parameters for ACTS design (actscommon_h, goclkernel.cpp, app.cpp, actsproc.cpp, common_h, loadgraph) ===
-#define ENABLERECURSIVEPARTITIONING // OBSOLETE.
-#define ACTS_PARTITION_AND_REDUCE_STRETEGY
+// #define ENABLERECURSIVEPARTITIONING // OBSOLETE.
+// #define ACTS_PARTITION_AND_REDUCE_STRETEGY // OBSOLETE.
 
 #define HWIMPLFOR_ACTSPROC
 #define HWIMPLFOR_ACTSSYNC
@@ -32,8 +27,7 @@ loadgraph.cpp
 #define CONFIG_UNIFYSRCV // {app.cpp}
 #define CONFIG_SPLIT_DESTVTXS
 
-// #define CONFIG_READVDATA_SLIDE // access format for source vertices 
-#define CONFIG_READVDATA_SLIDEANDREARRANGE
+// #define CONFIG_READVDATA_SLIDEANDREARRANGE // OBSOLETE.
 
 #define SEQUENTIALIZE_VIDS_IN_A_DRAM_ROW // uses MAX_NUM_UNIQ_EDGES_PER_VEC in {common.h}
 
@@ -41,6 +35,7 @@ loadgraph.cpp
 #define CONFIG_RELEASE_VERSION1
 #define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
 #define CONFIG_RELEASE_VERSION4 // { (1) exchangeVs fixed. }
+// #define CONFIG_RELEASE_VERSION5 // { (1) full kernel run fixed. }
 
 #define CONFIG_GOLDENKERNEL // { processedges.cpp, reduceupdates.cpp, algorithm.cpp, classname__top_usrcv_nudstv.cpp, mem_acces.cpp, trad_gp.cpp }
 // #define CONFIG_ALL_EVALUATIONTYPES_IN_ONE_KERNEL // for evaluation { processedges2.cpp reduceupdates.cpp, acts.cpp, partitionupdates.cpp } // NB: Big Buffers here
@@ -97,6 +92,8 @@ loadgraph.cpp
 
 #define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD (1 << 12)
 #define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION (1 << 6)
+// #define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD (1 << 8) // NEWCHANGE URGENT.
+// #define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION (1 << 6) // NEWCHANGE URGENT.
 #define CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ (1 << 14)
 
 // #define CONFIG_SEPERATESRCVDESTVBUFFER

@@ -34,13 +34,12 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_processit(ui
 	
 	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
 	unsigned int GraphAlgoClass = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS;
+	batch_type voffset_kvs = globalposition.source_partition * UTIL{{context['id']}}_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparamsK);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->print7("### TOP{{context['id']}}_processit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (globalparamsK.ACTSPARAMS_POW_PARTITIONS * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
 
-	batch_type voffset_kvs = globalposition.source_partition * UTIL{{context['id']}}_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparamsK);
-	
 	bool returncmd = false;
 	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
 	if(globalposition.num_active_vertices == 0){ returncmd = true; } // check if vertex partition is active
@@ -50,17 +49,13 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_processit(ui
 		#endif 
 	}
 	#endif 
-	cout<<"?????????????????????????_processit (1): "<<returncmd<<endl;
 	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ returncmd = false; } // for certain algorithms like pagerank
-	cout<<"?????????????????????????_processit (2): "<<returncmd<<endl;
 	if(voffset_kvs >= avtravstate.end_kvs){ returncmd = true; } // check if we are at the end of file
-	cout<<"?????????????????????????_processit (3): "<<returncmd<<endl;
 	
 	if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && globalposition.stage == 0 && globalposition.source_partition == globalposition.first_source_partition){
 		MEMACCESS{{context['id']}}_readV(ON, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, 0, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK); 
 	}
 	
-	cout<<"?????????????????????????_processit (4): "<<returncmd<<endl;
 	if(returncmd == false){
 		sweepparams.source_partition = globalposition.source_partition;
 		avtravstate.i_kvs = voffset_kvs;
@@ -107,13 +102,21 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_processit(ui
 		if(localendvptr < localbeginvptr){ cout<<"TOP{{context['id']}}_processit::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<", voffset_kvs: "<<voffset_kvs<<endl; exit(EXIT_FAILURE); }
 		if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("TOP{{context['id']}}_processit", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
 		#endif
-		#ifdef _DEBUGMODE_KERNELPRINTS//3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"[index: "<<globalposition.source_partition<<"][beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<"][beginvptr: "<<localbeginvptr<<", endvptr: "<<localendvptr<<", edges size: "<<numedges<<"][voffset: "<<voffset_kvs * VECTOR_SIZE<<"]"<<endl;
 		#endif
 		#ifdef _DEBUGMODE_CHECKS3
 		if(localendvptr < localbeginvptr){ cout<<"ERROR: localendvptr < localbeginvptr. EXITING..."<<endl; exit(EXIT_FAILURE); }
 		actsutilityobj->clearallstats();
 		#endif
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		for(unsigned int t=0; t<8; t++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				cout<<"processit:: kvdram["<<globalparamsE.BASEOFFSETKVS_EDGESDATA<<" + "<<localbeginvptr_kvs + t<<"].data["<<v<<"].key: "<<kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA + localbeginvptr_kvs + t].data[v].key<<", kvdram["<<globalparamsE.BASEOFFSETKVS_EDGESDATA<<" + "<<localbeginvptr_kvs + t<<"].data["<<v<<"].value: "<<kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA + localbeginvptr_kvs + t].data[v].value<<endl; 
+			}
+		}
+		#endif 
 		
 		travstate_t etravstate;
 		etravstate.begin_kvs = localbeginvptr_kvs;
@@ -522,6 +525,15 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
 	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
+	
 	{%for i in context['T_seq']%}{%if(i<n)%}
 	keyvalue_vbuffer_t vbuffer_source{{i}}[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source{{i}}
@@ -727,7 +739,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = OFF; // NEWCHANGE
+						bool_type enable_readandreplicatevdata = OFF; 
 						
 						// hyrid heuristics
 						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
@@ -741,7 +753,6 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						// cout<<"&&&&&&& topkernelP:: num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<""<<endl;
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
 							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
 							#ifdef _DEBUGMODE_KERNELPRINTS
@@ -761,14 +772,15 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 							MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer_source{{i}},{%endif%}{%endfor%} vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						{%for i in context['T_seq']%}{%if(i<n and i<1)%}
-						TOP{{context['id']}}_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + {{i}}, {{i}}, enableprocess, enablepartition, enablereduce, kvdram{{i}}, vbuffer_source{{i}}, globalstatsbuffer{{i}}, globalposition, globalparamsV, collections{{i}});		
-						{%endif%}{%endfor%}	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						{%for i in context['T_seq']%}{%if(i<n)%}
 						TOP{{context['id']}}_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + {{i}}, {{i}}, enableprocess, enablepartition, enablereduce, kvdram{{i}}, vbuffer_source{{i}}, globalstatsbuffer{{i}}, globalposition, globalparamsV, collections{{i}});		
 						{%endif%}{%endfor%}	
+						#else 
+						{%for i in context['T_seq']%}{%if(i<n and i<1)%}
+						TOP{{context['id']}}_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + {{i}}, {{i}}, enableprocess, enablepartition, enablereduce, kvdram{{i}}, vbuffer_source{{i}}, globalstatsbuffer{{i}}, globalposition, globalparamsV, collections{{i}});		
+						{%endif%}{%endfor%}		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -794,7 +806,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	UTIL{{context['id']}}_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 		{%for i in context['T_seq']%}{%if(i<n and i<1)%}	
 		globalparams_t globalparamsK{{i}};
 		MERGE{{context['id']}}_mergeVs(kvdram{{i}}, vdram);

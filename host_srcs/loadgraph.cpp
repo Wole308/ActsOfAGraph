@@ -51,6 +51,14 @@ void loadgraph::WRITETO_UINT(unsigned int * data, unsigned int index, unsigned i
 	#endif
 	return; 
 }
+unsigned int loadgraph::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth){
+	unsigned int partition = ((keyvalue.key - upperlimit) >> (universalparams.BATCH_RANGE_POW - (universalparams.NUM_PARTITIONS_POW * treedepth)));
+	
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("loadgraph::getglobalpartition", partition, (1 << (universalparams.NUM_PARTITIONS_POW * treedepth)), keyvalue.key, upperlimit, NAp);
+	#endif
+	return partition;
+}
 
 globalparams_t loadgraph::loadvertexdata(std::string algo, keyvalue_t * kvbuffer, vertex_t vbufferoffset, vertex_t size, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
@@ -93,15 +101,7 @@ globalparams_TWOt loadgraph::loadactvvertices(vector<vertex_t> &activevertices, 
 	return globalparams;
 }
 
-unsigned int loadgraph::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth){
-	unsigned int partition = ((keyvalue.key - upperlimit) >> (universalparams.BATCH_RANGE_POW - (universalparams.NUM_PARTITIONS_POW * treedepth)));
-	
-	#ifdef _DEBUGMODE_CHECKS3
-	utilityobj->checkoutofbounds("loadgraph::getglobalpartition", partition, (1 << (universalparams.NUM_PARTITIONS_POW * treedepth)), keyvalue.key, upperlimit, NAp);
-	#endif
-	return partition;
-}
-globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTHREADS], vector<edge3_type> (&edges_temp)[MAXNUMSUBCPUTHREADS], container_t * container, globalparams_TWOt globalparams){
+globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUM_PEs], vector<edge2_vec_dt> (&edges_final)[MAXNUM_PEs], map_t * edgesmap_final[MAXNUM_PEs][MAXNUM_VPs], container_t * container, globalparams_TWOt globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadgraph::loadoffsetmarkers:: loading offset markers... "<<endl;
 	#endif
@@ -153,6 +153,15 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTH
 	unsigned int baseoffset_edgesstatsdram2 = (BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM) * VECTOR_SIZE; 
 	unsigned int baseoffset_vertexptr = globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR_SIZE;
 	
+	unsigned int num_LLPs = 1 << (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH);
+	unsigned int vsize_LLP = 1 << (universalparams.BATCH_RANGE_POW - (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH));
+	unsigned int num_vPs = universalparams.NUMPROCESSEDGESPARTITIONS;
+	unsigned int vsize_vP = universalparams.PROCESSPARTITIONSZ;
+	
+	unsigned int _MAXNUM_PEs = 1;//MAXNUM_PEs;
+	unsigned int _num_vPs = 1;//num_vPs;
+	unsigned int _num_LLPs = num_LLPs;
+	
 	#ifdef _DEBUGMODE_CHECKS3
 	utilityobj->checkoutofbounds("loadoffsetmarkers.BASEOFFSETKVS_STATSDRAM", globalparams.globalparamsK.BASEOFFSETKVS_STATSDRAM, universalparams.PADDEDKVSOURCEDRAMSZ_KVS, NAp, NAp, NAp);				
 	#endif
@@ -164,10 +173,7 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTH
 	for(unsigned int i = 0; i < NUM_PEs; i++){
 		uint512_vec_dt * statsptrVec = (uint512_vec_dt *)&stats[i][baseoffset_statsdram];
 		for(unsigned int k=0; k<kvstatsdramsz; k++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				statsptrVec[k].data[v].key = 0;
-				statsptrVec[k].data[v].value = 0;
-			}
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){ statsptrVec[k].data[v].key = 0; statsptrVec[k].data[v].value = 0; }
 		}
 	}
 	
@@ -184,15 +190,15 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTH
 		#endif 
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<"loadgraph::loadoffsetmarkers:: edgessize["<<i<<"]: "<<container->edgessize[i]<<endl;
+		cout<< endl << TIMINGRESULTSCOLOR <<"loadgraph::loadoffsetmarkers:: loading stats for PE "<<i<<" [edgessize["<<i<<"]: "<<container->edgessize[i]<<"]"<< RESET << endl;
 		#endif 
 		if(i >= NUM_PEs){ continue; }
 		
 		keyvalue_t * statsptr = (keyvalue_t *)&stats[i][baseoffset_statsdram];
 		for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){ for(unsigned int k=0; k<kvstatsdramsz; k++){ tempstats[u][k].key = 0; tempstats[u][k].value = 0; }}
 		
-		src1 = 0;
-		src2 = 0;
+		unsigned int src1 = 0;
+		unsigned int src2 = 0;
 		
 		unsigned int srC=0;
 		unsigned int SRC_CHKPT[(num_edgechunks_in_a_buffer+1)];
@@ -200,7 +206,7 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTH
 		unsigned int num_edges_in_a_chunk = container->edgessize[i] / num_edgechunks_in_a_buffer;
 		for(unsigned int k=0; k<num_edgechunks_in_a_buffer; k++){
 			unsigned int index = k * (container->edgessize[i] / num_edgechunks_in_a_buffer);
-			bool isfound=false; for(unsigned int t=0; t<64; t++){ if(edges_temp[i][index+t].status == EDGESTATUS_VALIDEDGE){ srC = edges_temp[i][index+t].srcvid; isfound=true; break; }}
+			bool isfound=false; for(unsigned int t=0; t<64; t++){ if(edges_final[i][index+t].data[0].srcvid != INVALIDDATA){ srC = edges_final[i][index+t].data[0].srcvid; isfound=true; break; }}
 			if(isfound==false){ cout<<"loadoffsetmarkers: ERROR 65. isfound==false. EXITING..."<<endl; exit(EXIT_FAILURE); }
 			srC = (srC / universalparams.PROCESSPARTITIONSZ) * universalparams.PROCESSPARTITIONSZ; // round down
 			SRC_CHKPT[k] = srC;
@@ -217,37 +223,36 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTH
 		
 		for(unsigned int p=0; p<num_edgechunks_in_a_buffer; p++){ tempstats[p][0].value = num_edges_in_a_chunk; } // container->edgessize[i]; } // NEWCHANGE.
 		
-		for(unsigned int k=0; k<container->edgessize[i]; k++){
+		for(unsigned int k=0; k<edges_final[i].size(); k++){ // container->edgessize[i]
 			#ifdef _DEBUGMODE_HOSTPRINTS
 			if(k % 1000000 == 0){ cout<<"### loadgraph::loadoffsetmarkers:: k: "<<k<<endl; }
 			#endif
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
 			
-			if(edges_temp[i][k].status != EDGESTATUS_VALIDEDGE){ continue; }
-			
-			keyvalue_t keyvalue; 
-			keyvalue.key = edges_temp[i][k].dstvid;
-			keyvalue.value = 0;
-			
-			src2 = edges_temp[i][k].srcvid;
-			#ifdef _DEBUGMODE_CHECKS
-			if(k % VECTOR2_SIZE == 0){ if(k%1000000 == 0){ cout<<"loadgraph::loadoffsetmarkers: src1: "<<src1<<", src2: "<<src2<<", k: "<<k<<", i: "<<i<<endl; }}
-			#endif 
-			
-			for(unsigned int CLOP=1; CLOP<=universalparams.TREE_DEPTH; CLOP++){
-				unsigned int offset = 0;
-				for(unsigned int k=0; k<CLOP; k++){ offset += (1 << (universalparams.NUM_PARTITIONS_POW * k)); } 
+				keyvalue_t keyvalue; keyvalue.value = 0;
+				keyvalue.key = edges_final[i][k].data[v].dstvid;
+				if(keyvalue.key == INVALIDDATA){ continue;}
+				keyvalue.key = (edges_final[i][k].data[v].dstvid - i) / NUM_PEs; // use hashed destination
+				unsigned int src = edges_final[i][k].data[v].srcvid;
 				
-				unsigned int partitionCLOP = getglobalpartition(keyvalue, 0, universalparams.BATCH_RANGE_POW, CLOP);
-				// cout<<"~~~~~~~~~~~~~~~~~~~~~ loadgraph.cpp: partitionCLOP: "<<partitionCLOP<<endl;
+				#ifdef _DEBUGMODE_CHECKS
+				if(k % VECTOR2_SIZE == 0){ if(k%1000000 == 0){ cout<<"loadgraph::loadoffsetmarkers: src: "<<src<<", k: "<<k<<", i: "<<i<<endl; }}
+				#endif 
 				
-				#ifdef _DEBUGMODE_CHECKS3
-				utilityobj->checkoutofbounds("loadgraph::loadoffsetmarkers.partitionCLOP.1", partitionCLOP, pow(universalparams.NUM_PARTITIONS, universalparams.TREE_DEPTH), edges_temp[i][k].dstvid, edges_temp[i][k].status, container->edgessize[i]);
-				utilityobj->checkoutofbounds("loadgraph::loadoffsetmarkers.partitionCLOP.2", offset + partitionCLOP, kvstatsdramsz, keyvalue.key, container->edgessize[i], NAp);
-				#endif
-				
-				unsigned int p=0;
-				for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){ if(src2 >= SRC_CHKPT[u] && src2 < SRC_CHKPT[u+1]){ p = u; } }
-				tempstats[p][offset + partitionCLOP].value += 1;
+				for(unsigned int CLOP=1; CLOP<=universalparams.TREE_DEPTH; CLOP++){
+					unsigned int offset = 0; 
+					for(unsigned int k=0; k<CLOP; k++){ offset += (1 << (universalparams.NUM_PARTITIONS_POW * k)); } 
+					
+					unsigned int partitionCLOP = getglobalpartition(keyvalue, 0, universalparams.BATCH_RANGE_POW, CLOP);
+					#ifdef _DEBUGMODE_CHECKS3
+					utilityobj->checkoutofbounds("loadgraph::loadoffsetmarkers.partitionCLOP.1", partitionCLOP, pow(universalparams.NUM_PARTITIONS, universalparams.TREE_DEPTH), edges_final[i][k].data[v].dstvid, edges_final[i][k].data[v].srcvid, container->edgessize[i]);
+					utilityobj->checkoutofbounds("loadgraph::loadoffsetmarkers.partitionCLOP.2", offset + partitionCLOP, kvstatsdramsz, keyvalue.key, container->edgessize[i], NAp);
+					#endif
+					
+					unsigned int p=0;
+					for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){ if(src >= SRC_CHKPT[u] && src < SRC_CHKPT[u+1]){ p = u; } }
+					tempstats[p][offset + partitionCLOP].value += 1;
+				}
 			}
 		}
 		cout<<"### loadgraph::loadoffsetmarkers:: Finished collecting stats for PE: "<<i<<endl;
@@ -267,26 +272,21 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTH
 				cout<<"loadoffsetmarkers: printing tempstats for u: "<<u<<endl; 
 				utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats[u][----]", tempstats[u], 17); 
 			}
-			// exit(EXIT_SUCCESS);//////////////////
 		}
 		#endif
 		
 		uint512_vec_dt * statsptrVec = (uint512_vec_dt *)&stats[i][baseoffset_statsdram];
-		for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){
-			for(unsigned int k=0; k<kvstatsdramsz; k++){
-				statsptrVec[k].data[u].key = tempstats[u][k].key;
-				statsptrVec[k].data[u].value = 0;
-				// statsptrVec[k].data[u].value = tempstats[u][k].value; // CRITICAL REMOVEME.
+		for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){ 
+			for(unsigned int k=0; k<kvstatsdramsz; k++){ 
+				statsptrVec[k].data[u].key = tempstats[u][k].key; statsptrVec[k].data[u].value = 0; // tempstats[u][k].value;
 			}
-		}
+		} 
 		
 		uint512_vec_dt * edgesstatsptrVec = (uint512_vec_dt *)&stats[i][baseoffset_edgesstatsdram];
 		uint512_vec_dt * edgesstatsptrVec2 = (uint512_vec_dt *)&stats[i][baseoffset_edgesstatsdram2];
 		for(unsigned int u=0; u<num_edgechunks_in_a_buffer+1; u++){
-			edgesstatsptrVec[u].data[0].key = PARTITION_CHKPT[u];
-			edgesstatsptrVec[u].data[0].value = 0;
-			edgesstatsptrVec2[u].data[0].key = PARTITION_CHKPT[u];
-			edgesstatsptrVec2[u].data[0].value = 0;
+			edgesstatsptrVec[u].data[0].key = PARTITION_CHKPT[u]; edgesstatsptrVec[u].data[0].value = 0;
+			edgesstatsptrVec2[u].data[0].key = PARTITION_CHKPT[u]; edgesstatsptrVec2[u].data[0].value = 0;
 		}
 		
 		unsigned int totalnumpb4llop = 0;
@@ -299,29 +299,19 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTH
 		cout<<"loadoffsetmarkers:: maxdramsz: "<<maxdramsz<<", totalnumpb4llop: "<<totalnumpb4llop<<", universalparams.TREE_DEPTH: "<<universalparams.TREE_DEPTH<<endl;
 		#endif
 		
-		#ifdef _DEBUGMODE_HOSTPRINTS
-		if(i==0){
-			for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){
-				utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats [after]", tempstats[u], totalnumpb4llop);
-				// utilityobj->printkeyvalues("loadoffsetmarkers: printing statsptrVec [after]", (keyvalue_t *)statsptrVec, totalnumpb4llop * VECTOR_SIZE, VECTOR_SIZE);
-				// cout<<"tempstats["<<u<<"]["<<totalnumpb4llop-1<<"].key: "<<tempstats[u][totalnumpb4llop-1].key<<", tempstats["<<u<<"]["<<totalnumpb4llop-1<<"].value: "<<tempstats[u][totalnumpb4llop-1].value<<endl;
-			}
-		}
-		#endif
 		#ifdef _DEBUGMODE_HOSTPRINTS3
 		if(i==0){ for(unsigned int u=0; u<num_edgechunks_in_a_buffer; u++){ cout<<"loadoffsetmarkers: u:"<<u<<endl; utilityobj->printkeyvalues("loadoffsetmarkers: printing tempstats[u] [after]", tempstats[u], 17); } } // 17, 273
 		#endif
 	}
-	// exit(EXIT_SUCCESS); ////
+	// exit(EXIT_SUCCESS);
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"loadoffsetmarkers :::::::::::::::::::::::::::::::::::: maxdramsz: "<<maxdramsz<<", universalparams.TREE_DEPTH: "<<universalparams.TREE_DEPTH<<" ::::::::::::::::::::::::::::::::::::"<<endl;
 	#endif
 	
-	globalparams.globalparamsK.SIZE_KVDRAM = maxdramsz + 64; // CHECKME. FIXME.
-	// globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE = globalparams.globalparamsK.SIZE_KVDRAM; // maxdramsz;
+	globalparams.globalparamsK.SIZE_KVDRAM = maxdramsz + 64; 
 	if(universalparams.TREE_DEPTH >= 3){ globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE = globalparams.globalparamsK.SIZE_KVDRAM; } else { globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE = 0; } // TO-FIT NEWCHANGE.
-	globalparams.globalparamsK.SIZE_OTHERINFOS = 0; // 64 * VECTOR_SIZE;
+	globalparams.globalparamsK.SIZE_OTHERINFOS = 0; 
 	globalparams.globalparamsE.SIZE_KVDRAM = 0; 
 	globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE = 0;
 	globalparams.globalparamsE.SIZE_OTHERINFOS = 0;
@@ -350,13 +340,14 @@ globalparams_TWOt loadgraph::loadoffsetmarkers(keyvalue_t * stats[MAXNUMSUBCPUTH
 	// exit(EXIT_SUCCESS); //
 	return globalparams;
 }
-void loadgraph::accumstats(uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], uint512_vec_dt * stats[MAXNUMSUBCPUTHREADS], globalparams_TWOt globalparams){
+
+void loadgraph::accumstats(uint512_vec_dt * kvbuffer[MAXNUM_PEs], uint512_vec_dt * stats[MAXNUM_PEs], globalparams_TWOt globalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"loadgraph::accumstats:: accumulating stats to base... "<<endl;
 	#endif
 
 	for(unsigned int i=0; i<NUM_PEs; i+=universalparams.NUM_EDGE_BANKS){
-		uint512_vec_dt * basestatsptrVec = (uint512_vec_dt *)&kvbuffer[i/universalparams.NUM_EDGE_BANKS][globalparams.globalparamsK.BASEOFFSETKVS_STATSDRAM];
+		uint512_vec_dt * basestatsptrVec = (uint512_vec_dt *)&kvbuffer[i / universalparams.NUM_EDGE_BANKS][globalparams.globalparamsK.BASEOFFSETKVS_STATSDRAM];
 		for(unsigned int j=0; j<universalparams.NUM_EDGE_BANKS; j++){
 			uint512_vec_dt * statsptrVec = (uint512_vec_dt *)&stats[i + j][globalparams.globalparamsE.BASEOFFSETKVS_STATSDRAM];
 			for(unsigned int k=0; k<globalparams.globalparamsK.SIZE_KVSTATSDRAM; k++){ // globalparams.globalparamsK.SIZE_KVSTATSDRAM // ACTIVE_KVSTATSSZ
@@ -367,7 +358,7 @@ void loadgraph::accumstats(uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], uint5
 	return;
 }
 
-globalparams_TWOt loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], uint512_vec_dt * vdram, globalparams_TWOt globalparams){ 
+globalparams_TWOt loadgraph::generatevmaskdata(vector<vertex_t> &activevertices, uint512_vec_dt * kvbuffer[MAXNUM_PEs], uint512_vec_dt * vdram, globalparams_TWOt globalparams){ 
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"loadgraph::generatevmaskdata:: generating vmask... "<<endl;
 	#endif
@@ -436,7 +427,7 @@ void loadgraph::setrootvid(uint512_vec_dt * vbuffer, vector<vertex_t> &activever
 	return;
 }
 
-globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUMSUBCPUTHREADS], uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], container_t * container, unsigned int GraphIter, globalparams_TWOt globalparams){	
+globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvbuffer[MAXNUM_PEs], container_t * container, unsigned int GraphIter, globalparams_TWOt globalparams){	
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	utilityobj->printcontainer(container); 
 	#endif
@@ -693,8 +684,8 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt
 	
 	#ifdef _DEBUGMODE_CHECKS3
 	utilityobj->checkoutofbounds("loadgraph::loadmessages(A)", (globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR2_SIZE) + globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE, universalparams.MAXHBMCAPACITY_KVS2 * VECTOR2_SIZE, NAp, NAp, NAp);
-	utilityobj->checkoutofbounds("loadgraph::loadmessages(A)", (globalparams.globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR2_SIZE) + globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE, universalparams.PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
-	utilityobj->checkoutofbounds("loadgraph::loadmessages(B)", (globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR2_SIZE) + globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE, universalparams.PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
+	utilityobj->checkoutofbounds("loadgraph::loadmessages(B)", (globalparams.globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR2_SIZE) + globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE, universalparams.PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
+	utilityobj->checkoutofbounds("loadgraph::loadmessages(C)", (globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE * VECTOR2_SIZE) + globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE, universalparams.PADDEDKVSOURCEDRAMSZ, NAp, NAp, NAp);
 	#endif
 	
 	if(universalparams.NUMREDUCEPARTITIONS == 0){ cout<<"loadgraph::loadmessages: ERROR: NUMREDUCEPARTITIONS("<<universalparams.NUMREDUCEPARTITIONS<<") == 0. EXITING..."<<endl; exit(EXIT_FAILURE); }
@@ -798,10 +789,10 @@ globalparams_t loadgraph::createmessages(
 			universalparams_t universalparams){
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key = ON;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key = ON;//ON,OFF // CRITICAL REMOVEME.
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = ON;//ON,OFF  // CRITICAL REMOVEME! 
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = ON;//ON,OFF // CRITICAL REMOVEME! 
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = ON;//ON,OFF  // CRITICAL REMOVEME
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key = ON;//ON,OFF 
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_MERGECOMMAND].data[0].key = ON;
-	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_EXCHANGECOMMAND].data[0].key = OFF; // ON;
+	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_EXCHANGECOMMAND].data[0].key = ON; // ON,OFF
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_GPMODE].data[0].key = 
 		#ifdef CONFIG_ALGORITHMTYPE_RANDOMACTIVEVERTICES
 		PARAM_ACTSONLYMODE;
@@ -950,7 +941,7 @@ globalparams_t loadgraph::createmessages(
 	return globalparams;
 }
 
-void loadgraph::setcustomeval(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[MAXNUMSUBCPUTHREADS], unsigned int evalid){
+void loadgraph::setcustomeval(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[MAXNUM_PEs], unsigned int evalid){
 	evalparamsobj->loadevalparams(evalid, vdram);
 	for(unsigned int i = 0; i < NUM_PEs; i++){ 
 		evalparamsobj->loadevalparams(evalid, kvbuffer[i]);
