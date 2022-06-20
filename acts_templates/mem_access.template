@@ -484,6 +484,32 @@ tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs_
 	return t;
 }
 
+unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
+	keyvalue_t data;
+	
+	uint512_dt V = kvdram[baseoffset_kvs + loc / VECTOR2_SIZE];
+	unsigned int index = (loc % VECTOR2_SIZE) / 2;
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR_SIZE']-1)%}if(index == {{v}}){%endif%}{
+		data.key = V.range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		data.value = V.range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	}
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR_SIZE']-1)%}if(index == {{v}}){%endif%}{
+		data.key = V.data[{{v}}].key; 
+		data.value = V.data[{{v}}].value; 
+	}
+	{%endfor%}
+	#endif
+	
+	if(loc % 2 == 0){ return data.key; }
+	else { return data.value; }
+}
+
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * k)); }

@@ -59,6 +59,9 @@ public:
 	{% include 'acts_merge_mf.template' %}	
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_ACTS
+	{% include 'acts3_mf.template' %}	
+	#endif 	
+	#ifdef CONFIG_ENABLECLASS_ACTS
 	{% include 'acts_mf.template' %}	
 	#endif 		
 	{% include 'top_usrcv_nudstv_mf.template' %}					

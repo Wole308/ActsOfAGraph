@@ -9,7 +9,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	#endif
 	
 	bool en = true;
-	if(mykeyvalue.key == UTIL{{context['id']}}_GETK(INVALIDDATA) || mykeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA) || mykeyvalue.key == MAXVDATA || mykeyvalue.value == MAXVDATA){ en = false; } // REMOVEME?????????????????????????????
+	if(mykeyvalue.key == UTIL{{context['id']}}_GETK(INVALIDDATA) || mykeyvalue.value == UTIL{{context['id']}}_GETV(INVALIDDATA) || mykeyvalue.key == MAXVDATA || mykeyvalue.value == MAXVDATA){ en = false; }
 	if(mykeyvalue.key == 0 && mykeyvalue.value == 0){ en = false; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	if(en == true){ cout<<"$$$ REDUCE VECTOR:: REDUCE SEEN @ instance "<<globalparams.ACTSPARAMS_INSTID<<", col: "<<col<<", loc: "<<loc<<", vid: "<<UTIL{{context['id']}}_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", partition: "<<UTIL{{context['id']}}_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID) / (globalparams.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE)<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<endl; }															
@@ -32,13 +32,11 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	loc = loc / 2; 
 	#endif 
 	if(en == true){ if(loc == *memory){ loc = (loc + 1) % 8; } *memory = loc; } // CRITICAL FIXME.
-	
-	// read 
 	#ifdef _DEBUGMODE_CHECKS3
 	if(en == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 113::1", bufferoffset_kvs + (loc / VDATA_SHRINK_RATIO), MAX_BLOCKRAM_VDESTDATA_SIZE, bufferoffset_kvs, loc, VDATA_SHRINK_RATIO); }
 	#endif
 	
-	// read-special (cf)
+	/** // read-special (cf)
 	if(en == true && globalparams.ALGORITHMINFO_GRAPHALGORITHMID == CF){ bits2_vector = vbuffer[bufferoffset_kvs + globalparams.BUFFERBASEOFFSETKVS_VDATA2 + loc]; } // CUSTOMPROVISION #ifdef CF_ALGORITHM 
 	if(en == true && globalparams.ALGORITHMINFO_GRAPHALGORITHMID == CF){ vmdata2 = MEMCA{{context['id']}}_READFROMBUFFER_VDATAWITHVMASK(bits2_vector); }
 	
@@ -47,7 +45,7 @@ void {{context['classname__reduceupdates']}}REDUCE{{context['id']}}_reducevector
 	if(en == true && globalparams.ALGORITHMINFO_GRAPHALGORITHMID == HITS){ if(src_dest_edge == 0){ loc = loc*2; } else{ loc = loc*2 + 1; }} // CUSTOMPROVISION #ifdef HITS_ALGORITHM 
 	#ifdef _DEBUGMODE_CHECKS3
 	if(en == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 114::1", bufferoffset_kvs + globalparams.BUFFERBASEOFFSETKVS_VDATA1 + (loc / VDATA_SHRINK_RATIO), MAX_BLOCKRAM_VDESTDATA_SIZE, bufferoffset_kvs, loc, VDATA_SHRINK_RATIO); }
-	#endif
+	#endif */
 	
 	// read (general)
 	if(en == true){ bits_vector = vbuffer[bufferoffset_kvs + globalparams.BUFFERBASEOFFSETKVS_VDATA1 + (loc / VDATA_SHRINK_RATIO)]; }

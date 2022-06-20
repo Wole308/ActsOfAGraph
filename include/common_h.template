@@ -698,8 +698,7 @@ typedef struct {
 
 // typedef unsigned int map_t;
 typedef struct {
-	edge2_type head;
-	unsigned int data;
+	unsigned int offset;
 	unsigned int size;
 } map_t;
 

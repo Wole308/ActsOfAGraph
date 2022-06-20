@@ -235,8 +235,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	vector<edge_t> vertexptrbuffer;
 	vector<edge3_type> edges_temp[MAXNUM_PEs];
 	vector<edge2_vec_dt> edges_final[MAXNUM_PEs];
-	// map_t * edgesmap_final[MAXNUM_PEs][MAXNUM_VPs][MAXNUM_LLPs];
-	map_t * edgesmap_final[MAXNUM_PEs][MAXNUM_VPs]; // [MAXNUM_LLPs];
+	map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs]; // [MAXNUM_LLPs];
 	long double edgesprocessed_totals[128];
 	long double timeelapsed_totals[128][8];
 	unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS];
@@ -301,7 +300,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#endif
 	
 	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int k=0; k<universalparams.MAXHBMCAPACITY_KVS2; k++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ kvbuffer[i][k].data[v].key = 0; kvbuffer[i][k].data[v].value = 0; }}} // REMOVEME.
-	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edgesmap_final[i][v_p] = new map_t[MAXNUM_LLPs]; }}
+	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edges_map[i][v_p] = new map_t[MAXNUM_LLPs]; }}
 	
 	// load workload information
 	globalparams_TWOt globalparams;
@@ -399,7 +398,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	// edges
 	#ifdef APP_LOADEDGES
 	// globalparams = loadedgesobj->start_former(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, (keyvalue_t **)edges, edges_temp, &container, globalparams);
-	globalparams = loadedgesobj->start(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, edges, edges_final, edgesmap_final, &container, globalparams);
+	globalparams = loadedgesobj->start(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, edges, edges_final, edges_map, &container, globalparams);
 	#endif 
 	globalparams.globalparamsV.SIZE_EDGES = 0; 
 	globalparams.globalparamsV.SIZE_VERTEXPTRS = 0;
@@ -447,9 +446,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	// active vertices & masks
 	#ifdef APP_LOADMASKS
 	cout<<"app::loadactvvertices:: loading active vertices... "<<endl;
-	for(unsigned int i = 0; i < NUM_PEs; i++){ globalparams = loadgraphobj->loadactvvertices(actvvs, (keyy_t *)&kvbuffer[i], &container, globalparams); }
+	for(unsigned int i = 0; i < NUM_PEs; i++){ globalparams = loadgraphobj->loadactvvertices(actvvs, globalparams); } // (keyy_t *)&kvbuffer[i], &container, 
 	cout<<"app::generatevmaskdata:: generating vmask... "<<endl;
-	globalparams = loadgraphobj->generatevmaskdata(actvvs, kvbuffer, vdram, globalparams);
+	globalparams = loadgraphobj->generatevmaskdata(actvvs, vdram, edges, edges_map, globalparams);
 	#endif 
 	globalparams.globalparamsM.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.globalparamsM.BASEOFFSETKVS_DESTVERTICESDATA + ((globalparams.globalparamsM.SIZE_DESTVERTICESDATA/NUMINTSINKEYVALUETYPE) / VECTOR_SIZE);
 	globalparams.globalparamsM.SIZE_ACTIVEVERTICES = CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ * MAXNUMGRAPHITERATIONS * 2; // (universalparams.NUM_VERTICES * 2); // current and next it active vertices
@@ -465,7 +464,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	// stats info 
 	#ifdef APP_LOADSTATSINFO
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
-	globalparams = loadgraphobj->loadoffsetmarkers((keyvalue_t **)edges, edges_final, edgesmap_final, &container, globalparams); 
+	globalparams = loadgraphobj->loadoffsetmarkers((keyvalue_t **)edges, edges_final, edges_map, &container, globalparams); 
 	loadgraphobj->accumstats(kvbuffer, edges, globalparams); // NEWCHANGE. // OBSOLETE.
 	#endif 
 	// exit(EXIT_SUCCESS); //

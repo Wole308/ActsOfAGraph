@@ -39,10 +39,11 @@ acts_all::~acts_all(){}
 {% include 'acts_merge.template' %}	
 #endif 
 #ifdef CONFIG_ENABLECLASS_ACTS
+{% include 'acts3.template' %}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ACTS
 {% include 'acts.template' %}	
 #endif 			
-#if defined(CONFIG_ACTSONLYMODE) || defined(CONFIG_HYBRIDGPMODE)
 {% include 'top_usrcv_nudstv.template' %}	
-#endif 
 
 

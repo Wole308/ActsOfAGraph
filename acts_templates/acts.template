@@ -150,12 +150,13 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit2(bool_type enable
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_actit_base(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE],				
-		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
+		globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#ifdef CONFIG_SETUP_SUITABLE_FOR_LARGE_GRAPHS
-	ACTS{{context['id']}}_actit2(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparams, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	// ACTS{{context['id']}}_actit2(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	ACTS{{context['id']}}_actit3(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
 	#else 
-	ACTS{{context['id']}}_actit(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparams, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	ACTS{{context['id']}}_actit(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
 	#endif
 }
 

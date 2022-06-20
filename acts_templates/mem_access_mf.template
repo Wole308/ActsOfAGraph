@@ -29,6 +29,8 @@ unsigned int MEMACCESS{{context['id']}}_getvptr(uint512_dt * kvdram, unsigned in
 
 tuple_t MEMACCESS{{context['id']}}_getvptrs_opt(uint512_dt *  kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID, globalparams_t globalparams);
 
+unsigned int MEMACCESS{{context['id']}}_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc);
+
 void MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset);
 
 void MEMACCESS{{context['id']}}_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size);
