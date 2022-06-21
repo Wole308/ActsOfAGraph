@@ -1,5 +1,5 @@
 #define ENABLE_PP1
-fetchmessage_t acts_all::ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE],				 
+fetchmessage_t ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE],				 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams,
 		unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	fetchmessage_t fetchmessage;
@@ -11,7 +11,7 @@ fetchmessage_t acts_all::ACTSP0_fetchkeyvalues(bool_type enable, unsigned int mo
 	return fetchmessage; 
 }
 
-void acts_all::ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],
+void ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],
 		keyvalue_buffer_t destbuffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 			batch_type destbaseaddr_kvs, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	if(mode == ACTSREDUCEMODE || (globalparams.ACTSPARAMS_TREEDEPTH == 1 && globalparams.ENABLE_APPLYUPDATESCOMMAND == ON)){
@@ -23,7 +23,7 @@ void acts_all::ACTSP0_commitkeyvalues(bool_type enable, bool_type enable2, unsig
 	return;
 } 
 
-void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
+void ACTSP0_actit(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE],				
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
@@ -52,8 +52,8 @@ void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -95,15 +95,15 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		ptravstatepp0.i_kvs = offset_kvs;
 		fetchmessagepp0 = ACTSP0_fetchkeyvalues(ON, mode,  kvdram, vbuffer_source, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, workbuffer_size, ptravstatepp0, sweepparams, globalposition, globalparams, edgebankID, collections);				
 		#ifdef PUP1
-		PARTITIONP0_stage2partitioning(pp1runpipelineen, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, globalposition, pp1cutoffs, (itercount-2)+1, globalparams);
+		PARTITIONP0_partitionbase_stage2(pp1runpipelineen, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, globalposition, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 
 		
-		PARTITIONP0_stage1partitioning(ON, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, globalposition, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
+		PARTITIONP0_partitionbase_stage1(ON, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, globalposition, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
 		#ifdef PUP1
 		ACTSP0_commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer_dest, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalposition, globalparams, collections); 
 		#endif 
 		
-		PARTITIONP0_stage2partitioning(ON, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, globalposition, pp0cutoffs, itercount, globalparams);
+		PARTITIONP0_partitionbase_stage2(ON, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, globalposition, pp0cutoffs, itercount, globalparams);
 		#ifdef PUP1
 		ptravstatepp1.i_kvs = offset_kvs + workbuffer_size;
 		fetchmessagepp1 = ACTSP0_fetchkeyvalues(ON, mode,  kvdram, vbuffer_source, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, workbuffer_size, ptravstatepp1, sweepparams, globalposition, globalparams, edgebankID, collections);
@@ -111,7 +111,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		
 		ACTSP0_commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer_dest, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalposition, globalparams, collections); 
 		#ifdef PUP1
-		PARTITIONP0_stage1partitioning(pp1partitionen, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, globalposition, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
+		PARTITIONP0_partitionbase_stage1(pp1partitionen, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, globalposition, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
 		#endif
 		
 		itercount += NUMPIPELINES_PARTITIONUPDATES;
@@ -121,7 +121,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 	return;
 }
 
-void acts_all::ACTSP0_actit2(bool_type enable, unsigned int mode,
+void ACTSP0_actit2(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE],				
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
@@ -148,11 +148,15 @@ void acts_all::ACTSP0_actit2(bool_type enable, unsigned int mode,
 	return;
 }
 
-void acts_all::ACTSP0_actit_base(bool_type enable, unsigned int mode,
+void ACTSP0_actit_base(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE],				
-		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
+		globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
-	// ACTSP0_actit(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparams, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
-	ACTSP0_actit2(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparams, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	#ifdef CONFIG_SETUP_SUITABLE_FOR_LARGE_GRAPHS
+	// ACTSP0_actit2(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	ACTSP0_actit3(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	#else 
+	ACTSP0_actit(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	#endif
 }
 

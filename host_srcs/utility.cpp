@@ -386,6 +386,7 @@ void utility::stopBTIME(string caption, std::chrono::steady_clock::time_point be
 
 bool utility::isbufferused(unsigned int id){
 	if(id==0 || id==NUMCOMPUTEUNITS_SLR2 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; }
+	// if(id==0){ return true; } else { return false; }
 	return true;
 }
 

@@ -10,7 +10,7 @@ typedef struct {
 #define TRADGP_BUFFER_BIGSIZE (DOUBLE_BLOCKRAM_SIZE * VECTOR2_SIZE)
 #define TRADGP_LOADCHUNKSZ 64 // 256 // 1024
 
-void acts_all::TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"TradGP:: running traditional sssp... "<<endl;
 	#endif 

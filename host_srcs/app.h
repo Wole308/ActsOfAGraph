@@ -36,7 +36,7 @@ public:
 	
 	universalparams_t get_universalparams(std::string algorithm, unsigned int numiterations, unsigned int rootvid, unsigned int num_vertices, unsigned int num_edges, bool graphisundirected);
 	void print_active_partitions(unsigned int GraphIter, uint512_vec_dt * dram, universalparams_t universalparams, unsigned int num_partitions, bool printA, bool printB);
-	void printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]);
+	void printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs], universalparams_t universalparams);				
 	
 	void run(std::string setup, std::string algorithm, unsigned int numiterations, unsigned int rootvid, string graph_path, int graphisundirected, std::string _binaryFile1);
 	

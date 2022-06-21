@@ -38,6 +38,8 @@ unsigned int MEMACCESSP0_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kv
 
 tuple_t MEMACCESSP0_getvptrs_opt(uint512_dt *  kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID, globalparams_t globalparams);
 
+unsigned int MEMACCESSP0_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc);
+
 void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset);
 
 void MEMACCESSP0_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size);

@@ -41,9 +41,12 @@ void UTILP0_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs, unsigned
 unsigned int UTILP0_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTILP0_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
 void UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
-void UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]);
+void UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
+uint512_vec_dt UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
-void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]);
+void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
+void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_vec_dt dataset);
+void UTILP0_SetDataset(keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
 
 // functions (actsproc utilities)
 batch_type UTILP0_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);

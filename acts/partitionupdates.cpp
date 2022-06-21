@@ -1,5 +1,5 @@
 // single stage partitioning 
-void acts_all::PARTITIONP0_read_process_partition(bool_type enable, unsigned int mode, unsigned int offset_kvs, unsigned int sourcebaseaddr_kvs, 
+void PARTITIONP0_read_process_partition(bool_type enable, unsigned int mode, unsigned int offset_kvs, unsigned int sourcebaseaddr_kvs, 
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_dest[MAX_NUM_PARTITIONS], 
 			travstate_t ptravstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	// globalparams.ACTSPARAMS_NUM_PARTITIONS replacedby 16
@@ -19,6 +19,8 @@ void acts_all::PARTITIONP0_read_process_partition(bool_type enable, unsigned int
 	
 	unsigned int modelsz = chunk_size / VECTOR_SIZE; // CRITICAL FIXME.
 	for(unsigned int p=0; p<16; p++){ capsule_kvs[p].key = 0; capsule_kvs[p].value = 0; }
+	
+	unsigned int upperlimit = sweepparams.source_partition * globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
 
 	ACTIT2_PP0_READ_PROC_PART_ST_MAINLOOP1: for(buffer_type i=0; i<chunk_size; i++){ 
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
@@ -40,14 +42,14 @@ void acts_all::PARTITIONP0_read_process_partition(bool_type enable, unsigned int
 		else { basecollections_0_2_data1b += VECTOR_SIZE; }
 		
 		// process
-		res[0] = PROCESSP0_processvector(enx, 0, edges_tup[0].value, edges_tup[0], vbuffer_source[0], globalparams);
-		res[1] = PROCESSP0_processvector(enx, 1, edges_tup[1].value, edges_tup[1], vbuffer_source[1], globalparams);
-		res[2] = PROCESSP0_processvector(enx, 2, edges_tup[2].value, edges_tup[2], vbuffer_source[2], globalparams);
-		res[3] = PROCESSP0_processvector(enx, 3, edges_tup[3].value, edges_tup[3], vbuffer_source[3], globalparams);
-		res[4] = PROCESSP0_processvector(enx, 4, edges_tup[4].value, edges_tup[4], vbuffer_source[4], globalparams);
-		res[5] = PROCESSP0_processvector(enx, 5, edges_tup[5].value, edges_tup[5], vbuffer_source[5], globalparams);
-		res[6] = PROCESSP0_processvector(enx, 6, edges_tup[6].value, edges_tup[6], vbuffer_source[6], globalparams);
-		res[7] = PROCESSP0_processvector(enx, 7, edges_tup[7].value, edges_tup[7], vbuffer_source[7], globalparams);
+		res[0] = PROCESSP0_processvector(enx, 0, edges_tup[0].value - upperlimit, upperlimit, edges_tup[0], vbuffer_source[0], globalparams);
+		res[1] = PROCESSP0_processvector(enx, 1, edges_tup[1].value - upperlimit, upperlimit, edges_tup[1], vbuffer_source[1], globalparams);
+		res[2] = PROCESSP0_processvector(enx, 2, edges_tup[2].value - upperlimit, upperlimit, edges_tup[2], vbuffer_source[2], globalparams);
+		res[3] = PROCESSP0_processvector(enx, 3, edges_tup[3].value - upperlimit, upperlimit, edges_tup[3], vbuffer_source[3], globalparams);
+		res[4] = PROCESSP0_processvector(enx, 4, edges_tup[4].value - upperlimit, upperlimit, edges_tup[4], vbuffer_source[4], globalparams);
+		res[5] = PROCESSP0_processvector(enx, 5, edges_tup[5].value - upperlimit, upperlimit, edges_tup[5], vbuffer_source[5], globalparams);
+		res[6] = PROCESSP0_processvector(enx, 6, edges_tup[6].value - upperlimit, upperlimit, edges_tup[6], vbuffer_source[6], globalparams);
+		res[7] = PROCESSP0_processvector(enx, 7, edges_tup[7].value - upperlimit, upperlimit, edges_tup[7], vbuffer_source[7], globalparams);
 	
 		
 		// partition
@@ -88,7 +90,7 @@ void acts_all::PARTITIONP0_read_process_partition(bool_type enable, unsigned int
 }
 
 // stage 1 partitioning
-void acts_all::PARTITIONP0_ACTSstage1partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
+void PARTITIONP0_partition_stage1(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_dummyfiller = MAX_SRCBUFFER_SIZE - globalparams.ACTSPARAMS_WORKBUFFER_SIZE;
 	
@@ -392,7 +394,7 @@ actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[0]", emptysl
 	return;
 }
 
-void acts_all::PARTITIONP0_TRADstage1partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
+void PARTITIONP0_partition_stage1_trad(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_loop1 = globalparams.ACTSPARAMS_WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = MAX_SRCBUFFER_SIZE - globalparams.ACTSPARAMS_WORKBUFFER_SIZE;
@@ -443,15 +445,14 @@ void acts_all::PARTITIONP0_TRADstage1partitioning(bool_type enable1, bool_type e
 	return;
 }
 
-void acts_all::PARTITIONP0_stage1partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
-	PARTITIONP0_ACTSstage1partitioning(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
-	// PARTITIONP0_TRADstage1partitioning(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
-	// PARTITIONP0_ACTS2stage1partitioning(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
+void PARTITIONP0_partitionbase_stage1(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
+	PARTITIONP0_partition_stage1(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
+	// PARTITIONP0_partition_stage1_trad(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
 	return;
 }
 
 // stage 2 partitioning
-void acts_all::PARTITIONP0_ACTSstage2partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void PARTITIONP0_partition_stage2(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	if(enable1 == OFF){ return; }
@@ -496,7 +497,7 @@ void acts_all::PARTITIONP0_ACTSstage2partitioning(bool_type enable1, bool_type e
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	if(maxcutoff % 4 != 0){ maxcutoff = 0; } // 4, CRITICAL FIXME.
 	#endif 
-	// cout<<"------------------- acts_all::ACTSP0_actspipeline: maxcutoff: "<<maxcutoff<<endl;
+	// cout<<"------------------- ACTSP0_actspipeline: maxcutoff: "<<maxcutoff<<endl;
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
@@ -647,7 +648,7 @@ void acts_all::PARTITIONP0_ACTSstage2partitioning(bool_type enable1, bool_type e
 	return;
 }
 
-void acts_all::PARTITIONP0_TRADstage2partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void PARTITIONP0_partition_stage2_trad(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){
 	if(enable1 == OFF && enable2 == OFF){ return; }
@@ -730,11 +731,11 @@ void acts_all::PARTITIONP0_TRADstage2partitioning(bool_type enable1, bool_type e
 	return;
 }
 
-void acts_all::PARTITIONP0_stage2partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void PARTITIONP0_partitionbase_stage2(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){
-	PARTITIONP0_ACTSstage2partitioning(enable1, enable2, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, currentLOP, sweepparams, globalposition, cutoffs, shiftcount, globalparams);		
-	// PARTITIONP0_TRADstage2partitioning(enable1, enable2, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, currentLOP, sweepparams, globalposition, cutoffs, shiftcount, globalparams);
+	PARTITIONP0_partition_stage2(enable1, enable2, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, currentLOP, sweepparams, globalposition, cutoffs, shiftcount, globalparams);		
+	// PARTITIONP0_partition_stage2_trad(enable1, enable2, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, currentLOP, sweepparams, globalposition, cutoffs, shiftcount, globalparams);
 }
 
 

@@ -41,9 +41,12 @@ void UTIL{{context['id']}}_SetFirstDatas(uint512_dt * kvdram, unsigned int offse
 unsigned int UTIL{{context['id']}}_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTIL{{context['id']}}_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
 void UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
-void UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]);
+void UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
+uint512_vec_dt UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
-void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]);
+void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
+void UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_vec_dt dataset);
+void UTIL{{context['id']}}_SetDataset(keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
 
 // functions (actsproc utilities)
 batch_type UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);

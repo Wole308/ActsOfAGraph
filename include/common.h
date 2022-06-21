@@ -1,8 +1,15 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "config_params.h"
-#include <string.h>
+#include <string.h> 
 #include <cmath>
+#include <ap_int.h>
+// #include "ap_fixed.h"	
+#include <vector>
+#include<hls_vector.h>
+#include<hls_stream.h>
+#include <iostream>
+ 
 
 // CUSTOMPROVISION: { classname__top_usrcv_nudstv.cpp, reduceupdates.cpp, }
 
@@ -10,7 +17,7 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define TESTKERNEL
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define PR_ALGORITHM //  // PR_ALGORITHM, CF_ALGORITHM, HITS_ALGORITHM, CC_ALGORITHM, SSSP_ALGORITHM, BFS_ALGORITHM
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -96,7 +103,7 @@
 #define MAXNUM_PEs 32
 #define NUMSYNCTHREADS 
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
-#define MAXNUM_VPs 256 // NEWCHANGE. 
+#define MAXNUM_VPs 512 // 256 // NEWCHANGE. 
 #define MAXNUM_LLPs 256 // NEWCHANGE.
 // #define MAXNUM_VPs 256 // NEWCHANGE. 
 // #define MAXNUM_LLPs 256 // NEWCHANGE.
@@ -1092,7 +1099,7 @@ typedef struct {
 } universalparams_t;
 
 typedef struct {
-	globalparams_t globalparamsK;
+	globalparams_t globalparamsK; 
 	globalparams_t globalparamsE;
 	globalparams_t globalparamsV;
 	globalparams_t globalparamsM;
@@ -1133,6 +1140,12 @@ typedef struct {
 	int nextoffset_kvs;
 	int chunksize_kvs;
 } fetchmessage_t;
+
+typedef struct {
+	unsigned int offset_begin;
+	unsigned int offset_end;
+	unsigned int size;
+} workload_t;
 
 typedef struct {
 	unsigned int first;

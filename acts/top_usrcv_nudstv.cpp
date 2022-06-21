@@ -1,4 +1,4 @@
-void acts_all::TOPP0_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+void TOPP0_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -34,13 +34,12 @@ void acts_all::TOPP0_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	
 	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
 	unsigned int GraphAlgoClass = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS;
+	batch_type voffset_kvs = globalposition.source_partition * UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparamsK);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->print7("### TOPP0_processit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (globalparamsK.ACTSPARAMS_POW_PARTITIONS * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
 
-	batch_type voffset_kvs = globalposition.source_partition * UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparamsK);
-	
 	bool returncmd = false;
 	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
 	if(globalposition.num_active_vertices == 0){ returncmd = true; } // check if vertex partition is active
@@ -103,13 +102,21 @@ void acts_all::TOPP0_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 		if(localendvptr < localbeginvptr){ cout<<"TOPP0_processit::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<", voffset_kvs: "<<voffset_kvs<<endl; exit(EXIT_FAILURE); }
 		if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("TOPP0_processit", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
 		#endif
-		#ifdef _DEBUGMODE_KERNELPRINTS//3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"[index: "<<globalposition.source_partition<<"][beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<"][beginvptr: "<<localbeginvptr<<", endvptr: "<<localendvptr<<", edges size: "<<numedges<<"][voffset: "<<voffset_kvs * VECTOR_SIZE<<"]"<<endl;
 		#endif
 		#ifdef _DEBUGMODE_CHECKS3
 		if(localendvptr < localbeginvptr){ cout<<"ERROR: localendvptr < localbeginvptr. EXITING..."<<endl; exit(EXIT_FAILURE); }
 		actsutilityobj->clearallstats();
 		#endif
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		for(unsigned int t=0; t<8; t++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				cout<<"processit:: kvdram["<<globalparamsE.BASEOFFSETKVS_EDGESDATA<<" + "<<localbeginvptr_kvs + t<<"].data["<<v<<"].key: "<<kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA + localbeginvptr_kvs + t].data[v].key<<", kvdram["<<globalparamsE.BASEOFFSETKVS_EDGESDATA<<" + "<<localbeginvptr_kvs + t<<"].data["<<v<<"].value: "<<kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA + localbeginvptr_kvs + t].data[v].value<<endl; 
+			}
+		}
+		#endif 
 		
 		travstate_t etravstate;
 		etravstate.begin_kvs = localbeginvptr_kvs;
@@ -129,7 +136,7 @@ void acts_all::TOPP0_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 		ACTSP0_actit_base(
 			ON, ACTSPROCESSMODE,
 			kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer,
-			globalparamsK, globalposition, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAM,
+			globalparamsE, globalparamsK, globalposition, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAM,
 			resetenv, flush, edgebankID, collections);
 			
 		#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
@@ -167,16 +174,16 @@ void acts_all::TOPP0_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	return;
 }
 
-void acts_all::TOPP0_partitionit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+void TOPP0_partitionit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
-	if(globalparams.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC != ON){ return; } ///
+	if(globalparamsK.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC != ON){ return; } ///
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	actsutilityobj->printglobalvars();
-	actsutilityobj->printglobalparameters("top_nusrcv_nudstv::UTILP0_getglobalparams:: printing global parameters", globalparams);
+	actsutilityobj->printglobalparameters("top_nusrcv_nudstv::UTILP0_getglobalparams:: printing global parameters", globalparamsK);
 	#endif 
 	#ifdef _DEBUGMODE_STATS_XXX
 	actsutilityobj->clearglobalvars();
@@ -190,12 +197,12 @@ void acts_all::TOPP0_partitionit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffe
 	globalposition_t globalposition; // DUMMY.
 	
 	batch_type sourcestatsmarker = 1;
-	batch_type deststatsmarker = 1 + globalparams.ACTSPARAMS_NUM_PARTITIONS;
+	batch_type deststatsmarker = 1 + globalparamsK.ACTSPARAMS_NUM_PARTITIONS;
 	config_t config;
 	sweepparams_t sweepparams;
 	travstate_t actvvstravstate; actvvstravstate.i=0; actvvstravstate.i_kvs=0;
 	
-	PARTITIONIT_MAINLOOP1: for(step_type currentLOP=globalparams.ACTSPARAMS_BEGINLOP + 1; currentLOP<globalparams.ACTSPARAMS_BEGINLOP + 1 + (globalparams.ACTSPARAMS_NUMLOPS-2); currentLOP++){ // REMOVEME.
+	PARTITIONIT_MAINLOOP1: for(step_type currentLOP=globalparamsK.ACTSPARAMS_BEGINLOP + 1; currentLOP<globalparamsK.ACTSPARAMS_BEGINLOP + 1 + (globalparamsK.ACTSPARAMS_NUMLOPS-2); currentLOP++){ // REMOVEME.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numllops avg=analysis_numllops	
 	
 		batch_type num_source_partitions = UTILP0_get_num_source_partitions(currentLOP);
@@ -205,42 +212,42 @@ void acts_all::TOPP0_partitionit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffe
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions
 			// cout<<"TOPP0_partitionit: source_partition "<<source_partition<<" ... "<<endl;
 
-			UTILP0_resetkeysandvalues(globalstatsbuffer, globalparams.ACTSPARAMS_NUM_PARTITIONS, 0);
+			UTILP0_resetkeysandvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 		
-			sweepparams = UTILP0_getsweepparams(globalparams, currentLOP, source_partition);
-			travstate_t ptravstate = UTILP0_gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);
+			sweepparams = UTILP0_getsweepparams(globalparamsK, currentLOP, source_partition);
+			travstate_t ptravstate = UTILP0_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
 			
 			// collect stats
-			MEMACCESSP0_readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams);
-			UTILP0_resetvalues(globalstatsbuffer, globalparams.ACTSPARAMS_NUM_PARTITIONS, 0);
+			MEMACCESSP0_readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK);
+			UTILP0_resetvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 			
 			// partition
 			if(ptravstate.size_kvs > 0){ config.enablepartition = ON; } 
 			else { ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
 			if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
 			#ifdef _DEBUGMODE_KERNELPRINTS2
-			if((config.enablepartition == ON) && (currentLOP >= 1) && (currentLOP <= globalparams.ACTSPARAMS_TREEDEPTH)){ actsutilityobj->print7("### TOPP0_partitionit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * sweepparams.currentLOP)), sweepparams.currentLOP); }	
+			if((config.enablepartition == ON) && (currentLOP >= 1) && (currentLOP <= globalparamsK.ACTSPARAMS_TREEDEPTH)){ actsutilityobj->print7("### TOPP0_partitionit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (globalparamsK.ACTSPARAMS_POW_PARTITIONS * sweepparams.currentLOP)), sweepparams.currentLOP); }	
 			#endif
-			UTILP0_resetvalues(globalstatsbuffer, globalparams.ACTSPARAMS_NUM_PARTITIONS, 0);
+			UTILP0_resetvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 			bool_type resetenv; if(source_partition==0){ resetenv = ON; } else { resetenv = OFF; }
 			
 			ACTSP0_actit_base(config.enablepartition, ACTSPARTITIONMODE,
 					kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer, // CRITICAL FIXME.
-					globalparams, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
+					globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 					ON, ON, NAp, collections);
 					
-			MEMACCESSP0_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams); 
+			MEMACCESSP0_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK); 
 			
 			if(currentLOP > 0){
 				sourcestatsmarker += 1;
-				deststatsmarker += globalparams.ACTSPARAMS_NUM_PARTITIONS;
+				deststatsmarker += globalparamsK.ACTSPARAMS_NUM_PARTITIONS;
 			}
 			
 			#ifdef _DEBUGMODE_CHECKS
 			if(config.enablereduce == ON){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
 			#endif
 			#ifdef _DEBUGMODE_STATS
-			if(config.enablereduce == ON){ edges_count = actsutilityobj->globalstats_getcountvalidkvsreduced(globalparams.ACTSPARAMS_INSTID); edgesdstv_sum = actsutilityobj->globalstats_getreducevar1(); }
+			if(config.enablereduce == ON){ edges_count = actsutilityobj->globalstats_getcountvalidkvsreduced(globalparamsK.ACTSPARAMS_INSTID); edgesdstv_sum = actsutilityobj->globalstats_getreducevar1(); }
 			#endif
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			actsutilityobj->printglobalvars();
@@ -259,7 +266,7 @@ void acts_all::TOPP0_partitionit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffe
 	return;
 }
 
-void acts_all::TOPP0_reduceit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){	
+void TOPP0_reduceit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -270,11 +277,11 @@ void acts_all::TOPP0_reduceit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	config_t config;
 	sweepparams_t sweepparams;
 	
-	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
+	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
 	
-	sweepparams = UTILP0_getsweepparams(globalparams, currentLOP, source_partition);
-	travstate_t ptravstate = UTILP0_gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);
-	UTILP0_resetkeysandvalues(globalstatsbuffer, globalparams.ACTSPARAMS_NUM_PARTITIONS, 0);
+	sweepparams = UTILP0_getsweepparams(globalparamsK, currentLOP, source_partition);
+	travstate_t ptravstate = UTILP0_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
+	UTILP0_resetkeysandvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 
 	if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablereduce = OFF; }
 	else { config.enablereduce = ON; }
@@ -285,27 +292,27 @@ void acts_all::TOPP0_reduceit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	
 	ACTSP0_actit_base(config.enablereduce, ACTSREDUCEMODE,
 			 kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer, // CRITICAL FIXME.
-			globalparams, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
+			globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp, collections);
 	return;
 }
 
-void acts_all::TOPP0_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE],
+void TOPP0_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#ifdef CONFIG_ENABLEPROCESSMODULE
 	if(en_process == ON){ TOPP0_processit(kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID, collections); } 
 	#endif 
 	#ifdef CONFIG_ENABLEPARTITIONMODULE
-	if(en_partition == ON){ TOPP0_partitionit(kvdram, vbuffer_source, vbuffer_dest, globalparamsK, NAp, collections); } 
+	if(en_partition == ON){ TOPP0_partitionit(kvdram, vbuffer_source, vbuffer_dest, globalparamsE, globalparamsK, NAp, collections); } 
 	#endif 
 	#ifdef CONFIG_ENABLEREDUCEMODULE
-	if(en_reduce == ON){ TOPP0_reduceit(kvdram, vbuffer_source, vbuffer_dest, sourcestatsmarker, source_partition, globalparamsK, NAp, collections); } 
+	if(en_reduce == ON){ TOPP0_reduceit(kvdram, vbuffer_source, vbuffer_dest, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, NAp, collections); } 
 	#endif 
 	return;
 } 
 
-void acts_all::TOPP0_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalparams_t globalparamsV, globalposition_t globalposition,	
+void TOPP0_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalparams_t globalparamsV, globalposition_t globalposition,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#pragma HLS INLINE
 	unsigned int sourcestatsmarker = 0;
@@ -359,7 +366,7 @@ void acts_all::TOPP0_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbu
 	return;
 } 
 
-void acts_all::TOPP0_topkernelproc_embedded(unsigned int GraphIter, unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], globalposition_t globalposition, globalparams_t globalparamsV, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){									
+void TOPP0_topkernelproc_embedded(unsigned int GraphIter, unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], globalposition_t globalposition, globalparams_t globalparamsV, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){									
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -502,12 +509,17 @@ void acts_all::TOPP0_topkernelproc_embedded(unsigned int GraphIter, unsigned int
 }
 
 extern "C" {
-void acts_all::TOPP0_topkernelP1(
+void TOPP0_topkernelP1(
+	
 	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem1
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 	
@@ -522,6 +534,15 @@ void acts_all::TOPP0_topkernelP1(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -643,6 +664,7 @@ void acts_all::TOPP0_topkernelP1(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL1_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL1_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -704,6 +726,9 @@ void acts_all::TOPP0_topkernelP1(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL1_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -734,21 +759,27 @@ void acts_all::TOPP0_topkernelP1(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -761,12 +792,13 @@ void acts_all::TOPP0_topkernelP1(
 							MEMACCESSP0_readANDRVchunks1(ON, vdram, vbuffer_source0, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 	
-						#ifdef NOT_USED
+						#else 
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -792,7 +824,7 @@ void acts_all::TOPP0_topkernelP1(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -816,14 +848,20 @@ void acts_all::TOPP0_topkernelP1(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP2(
+void TOPP0_topkernelP2(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
 	uint512_dt * vdram
 	){
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem2
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -841,6 +879,15 @@ void acts_all::TOPP0_topkernelP2(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -993,6 +1040,7 @@ void acts_all::TOPP0_topkernelP2(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL2_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL2_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -1054,6 +1102,9 @@ void acts_all::TOPP0_topkernelP2(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL2_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -1084,21 +1135,27 @@ void acts_all::TOPP0_topkernelP2(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -1111,13 +1168,14 @@ void acts_all::TOPP0_topkernelP2(
 							MEMACCESSP0_readANDRVchunks2(ON, vdram, vbuffer_source0,vbuffer_source1, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -1143,7 +1201,7 @@ void acts_all::TOPP0_topkernelP2(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -1170,9 +1228,12 @@ void acts_all::TOPP0_topkernelP2(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP3(
+void TOPP0_topkernelP3(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
 	uint512_dt * vdram
 	){
@@ -1180,6 +1241,10 @@ void acts_all::TOPP0_topkernelP3(
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem3
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -1200,6 +1265,15 @@ void acts_all::TOPP0_topkernelP3(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -1383,6 +1457,7 @@ void acts_all::TOPP0_topkernelP3(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL3_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL3_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -1444,6 +1519,9 @@ void acts_all::TOPP0_topkernelP3(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL3_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -1474,21 +1552,27 @@ void acts_all::TOPP0_topkernelP3(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -1501,14 +1585,15 @@ void acts_all::TOPP0_topkernelP3(
 							MEMACCESSP0_readANDRVchunks3(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -1534,7 +1619,7 @@ void acts_all::TOPP0_topkernelP3(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -1564,10 +1649,14 @@ void acts_all::TOPP0_topkernelP3(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP4(
+void TOPP0_topkernelP4(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
 	uint512_dt * vdram
 	){
@@ -1576,6 +1665,10 @@ void acts_all::TOPP0_topkernelP4(
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem4
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -1599,6 +1692,15 @@ void acts_all::TOPP0_topkernelP4(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -1813,6 +1915,7 @@ void acts_all::TOPP0_topkernelP4(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL4_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL4_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -1874,6 +1977,9 @@ void acts_all::TOPP0_topkernelP4(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL4_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -1904,21 +2010,27 @@ void acts_all::TOPP0_topkernelP4(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -1931,15 +2043,16 @@ void acts_all::TOPP0_topkernelP4(
 							MEMACCESSP0_readANDRVchunks4(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 3, 3, enableprocess, enablepartition, enablereduce, kvdram3, vbuffer_source3, globalstatsbuffer3, globalposition, globalparamsV, collections3);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -1965,7 +2078,7 @@ void acts_all::TOPP0_topkernelP4(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -1998,11 +2111,16 @@ void acts_all::TOPP0_topkernelP4(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP5(
+void TOPP0_topkernelP5(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
 	uint512_dt * vdram
 	){
@@ -2012,6 +2130,10 @@ void acts_all::TOPP0_topkernelP5(
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem5
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -2038,6 +2160,15 @@ void acts_all::TOPP0_topkernelP5(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -2283,6 +2414,7 @@ void acts_all::TOPP0_topkernelP5(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL5_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL5_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -2344,6 +2476,9 @@ void acts_all::TOPP0_topkernelP5(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL5_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -2374,21 +2509,27 @@ void acts_all::TOPP0_topkernelP5(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -2401,16 +2542,17 @@ void acts_all::TOPP0_topkernelP5(
 							MEMACCESSP0_readANDRVchunks5(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 3, 3, enableprocess, enablepartition, enablereduce, kvdram3, vbuffer_source3, globalstatsbuffer3, globalposition, globalparamsV, collections3);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 4, 4, enableprocess, enablepartition, enablereduce, kvdram4, vbuffer_source4, globalstatsbuffer4, globalposition, globalparamsV, collections4);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -2436,7 +2578,7 @@ void acts_all::TOPP0_topkernelP5(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -2472,12 +2614,18 @@ void acts_all::TOPP0_topkernelP5(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP6(
+void TOPP0_topkernelP6(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
 	uint512_dt * vdram
 	){
@@ -2488,6 +2636,10 @@ void acts_all::TOPP0_topkernelP6(
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem6
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -2517,6 +2669,15 @@ void acts_all::TOPP0_topkernelP6(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -2793,6 +2954,7 @@ void acts_all::TOPP0_topkernelP6(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL6_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL6_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -2854,6 +3016,9 @@ void acts_all::TOPP0_topkernelP6(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL6_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -2884,21 +3049,27 @@ void acts_all::TOPP0_topkernelP6(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -2911,10 +3082,8 @@ void acts_all::TOPP0_topkernelP6(
 							MEMACCESSP0_readANDRVchunks6(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -2922,6 +3091,9 @@ void acts_all::TOPP0_topkernelP6(
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 4, 4, enableprocess, enablepartition, enablereduce, kvdram4, vbuffer_source4, globalstatsbuffer4, globalposition, globalparamsV, collections4);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 5, 5, enableprocess, enablepartition, enablereduce, kvdram5, vbuffer_source5, globalstatsbuffer5, globalposition, globalparamsV, collections5);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -2947,7 +3119,7 @@ void acts_all::TOPP0_topkernelP6(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -2986,13 +3158,20 @@ void acts_all::TOPP0_topkernelP6(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP7(
+void TOPP0_topkernelP7(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
 	uint512_dt * vdram
 	){
@@ -3004,6 +3183,10 @@ void acts_all::TOPP0_topkernelP7(
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem7
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -3036,6 +3219,15 @@ void acts_all::TOPP0_topkernelP7(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -3343,6 +3535,7 @@ void acts_all::TOPP0_topkernelP7(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL7_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL7_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -3404,6 +3597,9 @@ void acts_all::TOPP0_topkernelP7(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL7_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -3434,21 +3630,27 @@ void acts_all::TOPP0_topkernelP7(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -3461,10 +3663,8 @@ void acts_all::TOPP0_topkernelP7(
 							MEMACCESSP0_readANDRVchunks7(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -3473,6 +3673,9 @@ void acts_all::TOPP0_topkernelP7(
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 5, 5, enableprocess, enablepartition, enablereduce, kvdram5, vbuffer_source5, globalstatsbuffer5, globalposition, globalparamsV, collections5);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 6, 6, enableprocess, enablepartition, enablereduce, kvdram6, vbuffer_source6, globalstatsbuffer6, globalposition, globalparamsV, collections6);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -3498,7 +3701,7 @@ void acts_all::TOPP0_topkernelP7(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -3540,14 +3743,22 @@ void acts_all::TOPP0_topkernelP7(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP8(
+void TOPP0_topkernelP8(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
 	uint512_dt * vdram
 	){
@@ -3560,6 +3771,10 @@ void acts_all::TOPP0_topkernelP8(
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem8
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -3595,6 +3810,15 @@ void acts_all::TOPP0_topkernelP8(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -3933,6 +4157,7 @@ void acts_all::TOPP0_topkernelP8(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL8_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL8_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -3994,6 +4219,9 @@ void acts_all::TOPP0_topkernelP8(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL8_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -4024,21 +4252,27 @@ void acts_all::TOPP0_topkernelP8(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -4051,10 +4285,8 @@ void acts_all::TOPP0_topkernelP8(
 							MEMACCESSP0_readANDRVchunks8(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -4064,6 +4296,9 @@ void acts_all::TOPP0_topkernelP8(
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 6, 6, enableprocess, enablepartition, enablereduce, kvdram6, vbuffer_source6, globalstatsbuffer6, globalposition, globalparamsV, collections6);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 7, 7, enableprocess, enablepartition, enablereduce, kvdram7, vbuffer_source7, globalstatsbuffer7, globalposition, globalparamsV, collections7);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -4089,7 +4324,7 @@ void acts_all::TOPP0_topkernelP8(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -4134,15 +4369,24 @@ void acts_all::TOPP0_topkernelP8(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP9(
+void TOPP0_topkernelP9(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
+	
 	uint512_dt * kvdram8,
 	uint512_dt * vdram
 	){
@@ -4156,6 +4400,10 @@ void acts_all::TOPP0_topkernelP9(
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem9
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -4194,6 +4442,15 @@ void acts_all::TOPP0_topkernelP9(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -4563,6 +4820,7 @@ void acts_all::TOPP0_topkernelP9(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL9_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL9_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -4624,6 +4882,9 @@ void acts_all::TOPP0_topkernelP9(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL9_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -4654,21 +4915,27 @@ void acts_all::TOPP0_topkernelP9(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -4681,10 +4948,8 @@ void acts_all::TOPP0_topkernelP9(
 							MEMACCESSP0_readANDRVchunks9(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7,vbuffer_source8, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -4695,6 +4960,9 @@ void acts_all::TOPP0_topkernelP9(
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 7, 7, enableprocess, enablepartition, enablereduce, kvdram7, vbuffer_source7, globalstatsbuffer7, globalposition, globalparamsV, collections7);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 8, 8, enableprocess, enablepartition, enablereduce, kvdram8, vbuffer_source8, globalstatsbuffer8, globalposition, globalparamsV, collections8);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -4720,7 +4988,7 @@ void acts_all::TOPP0_topkernelP9(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -4768,16 +5036,26 @@ void acts_all::TOPP0_topkernelP9(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP10(
+void TOPP0_topkernelP10(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
+	
 	uint512_dt * kvdram8,
+	
 	uint512_dt * kvdram9,
 	uint512_dt * vdram
 	){
@@ -4792,6 +5070,10 @@ void acts_all::TOPP0_topkernelP10(
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem10
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -4833,6 +5115,15 @@ void acts_all::TOPP0_topkernelP10(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -5233,6 +5524,7 @@ void acts_all::TOPP0_topkernelP10(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL10_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL10_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -5294,6 +5586,9 @@ void acts_all::TOPP0_topkernelP10(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL10_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -5324,21 +5619,27 @@ void acts_all::TOPP0_topkernelP10(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -5351,10 +5652,8 @@ void acts_all::TOPP0_topkernelP10(
 							MEMACCESSP0_readANDRVchunks10(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7,vbuffer_source8,vbuffer_source9, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -5366,6 +5665,9 @@ void acts_all::TOPP0_topkernelP10(
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 8, 8, enableprocess, enablepartition, enablereduce, kvdram8, vbuffer_source8, globalstatsbuffer8, globalposition, globalparamsV, collections8);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 9, 9, enableprocess, enablepartition, enablereduce, kvdram9, vbuffer_source9, globalstatsbuffer9, globalposition, globalparamsV, collections9);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -5391,7 +5693,7 @@ void acts_all::TOPP0_topkernelP10(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -5442,17 +5744,28 @@ void acts_all::TOPP0_topkernelP10(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP11(
+void TOPP0_topkernelP11(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
+	
 	uint512_dt * kvdram8,
+	
 	uint512_dt * kvdram9,
+	
 	uint512_dt * kvdram10,
 	uint512_dt * vdram
 	){
@@ -5468,6 +5781,10 @@ void acts_all::TOPP0_topkernelP11(
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem11
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -5512,6 +5829,15 @@ void acts_all::TOPP0_topkernelP11(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -5943,6 +6269,7 @@ void acts_all::TOPP0_topkernelP11(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL11_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL11_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -6004,6 +6331,9 @@ void acts_all::TOPP0_topkernelP11(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL11_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -6034,21 +6364,27 @@ void acts_all::TOPP0_topkernelP11(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -6061,10 +6397,8 @@ void acts_all::TOPP0_topkernelP11(
 							MEMACCESSP0_readANDRVchunks11(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7,vbuffer_source8,vbuffer_source9,vbuffer_source10, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -6077,6 +6411,9 @@ void acts_all::TOPP0_topkernelP11(
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 9, 9, enableprocess, enablepartition, enablereduce, kvdram9, vbuffer_source9, globalstatsbuffer9, globalposition, globalparamsV, collections9);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 10, 10, enableprocess, enablepartition, enablereduce, kvdram10, vbuffer_source10, globalstatsbuffer10, globalposition, globalparamsV, collections10);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -6102,7 +6439,7 @@ void acts_all::TOPP0_topkernelP11(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -6156,18 +6493,30 @@ void acts_all::TOPP0_topkernelP11(
 }
 }
 extern "C" {
-void acts_all::TOPP0_topkernelP12(
+void TOPP0_topkernelP12(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
+	
 	uint512_dt * kvdram8,
+	
 	uint512_dt * kvdram9,
+	
 	uint512_dt * kvdram10,
+	
 	uint512_dt * kvdram11,
 	uint512_dt * vdram
 	){
@@ -6184,6 +6533,10 @@ void acts_all::TOPP0_topkernelP12(
 #pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
 #pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem12
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -6231,6 +6584,15 @@ void acts_all::TOPP0_topkernelP12(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -6693,6 +7055,7 @@ void acts_all::TOPP0_topkernelP12(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL12_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL12_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -6754,6 +7117,9 @@ void acts_all::TOPP0_topkernelP12(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL12_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP0_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -6784,21 +7150,27 @@ void acts_all::TOPP0_topkernelP12(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -6811,10 +7183,8 @@ void acts_all::TOPP0_topkernelP12(
 							MEMACCESSP0_readANDRVchunks12(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7,vbuffer_source8,vbuffer_source9,vbuffer_source10,vbuffer_source11, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -6828,6 +7198,9 @@ void acts_all::TOPP0_topkernelP12(
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 10, 10, enableprocess, enablepartition, enablereduce, kvdram10, vbuffer_source10, globalstatsbuffer10, globalposition, globalparamsV, collections10);		
 						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 11, 11, enableprocess, enablepartition, enablereduce, kvdram11, vbuffer_source11, globalstatsbuffer11, globalposition, globalparamsV, collections11);		
 	
+						#else 
+						TOPP0_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -6853,7 +7226,7 @@ void acts_all::TOPP0_topkernelP12(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);

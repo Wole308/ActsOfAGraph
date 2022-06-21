@@ -498,7 +498,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelpro
 {%for n in context['T_seq']%}{%if(n>=1)%}
 extern "C" {
 void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{n}}(
-	{%for i in context['T_seq']%}{%if(i<n)%}
+	{%for i in context['T_seq']%}{%if(i<n)%}	
 	uint512_dt * kvdram{{i}},
 	{%endif%}{%endfor%}
 	uint512_dt * vdram
@@ -507,6 +507,10 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 #pragma HLS INTERFACE m_axi port = kvdram{{i}} offset = slave bundle = gmem{{i}}
 {%endif%}{%endfor%}
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem{{n}}
+
+// static hls::stream<uint32_t> kvdram{{i}}("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 {%for i in context['T_seq']%}{%if(i<n)%}
 #pragma HLS INTERFACE s_axilite port = kvdram{{i}} bundle = control

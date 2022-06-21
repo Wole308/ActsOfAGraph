@@ -31,17 +31,12 @@ public:
 	loadgraph();
 	~loadgraph();
 	
-	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
-	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
-	
-	bool isbufferused(unsigned int id);
+	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth);
 	
 	globalparams_t loadvertexdata(std::string algorithm, keyvalue_t * kvbuffer, vertex_t kvbufferoffset_xxx, vertex_t size_xxx, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest);
 	
 	globalparams_TWOt loadactvvertices(vector<vertex_t> &activevertices, globalparams_TWOt globalparams);
 	
-	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth);
 	globalparams_TWOt loadoffsetmarkers(keyvalue_t * stats[MAXNUM_PEs], vector<edge2_vec_dt> (&edges_final)[MAXNUM_PEs], map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs], container_t * container, globalparams_TWOt globalparams);
 	void accumstats(uint512_vec_dt * kvbuffer[MAXNUM_PEs], uint512_vec_dt * stats[MAXNUM_PEs], globalparams_TWOt globalparams);
 	

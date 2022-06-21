@@ -13,65 +13,65 @@ acts_all::~acts_all(){}
 
 #ifdef CONFIG_ENABLECLASS_ACTS_UTIL
 // basic
-unsigned int acts_all::UTILP1_amin(unsigned int val1, unsigned int val2){
+unsigned int UTILP1_amin(unsigned int val1, unsigned int val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
-unsigned int acts_all::UTILP1_amax(unsigned int val1, unsigned int val2){
+unsigned int UTILP1_amax(unsigned int val1, unsigned int val2){
 	if(val1 > val2){ return val1; }
 	else { return val2; }
 }
-unsigned int acts_all::UTILP1_aplus(unsigned int val1, unsigned int val2){
+unsigned int UTILP1_aplus(unsigned int val1, unsigned int val2){
 	return val1 + val2;
 }
-uint32_type acts_all::UTILP1_amin2(uint32_type val1, uint32_type val2){
+uint32_type UTILP1_amin2(uint32_type val1, uint32_type val2){
 	if(val1 < val2){ return val1; }
 	else { return val2; }
 }
 
 // allignment
-batch_type acts_all::UTILP1_allignlower_KV(batch_type val){
+batch_type UTILP1_allignlower_KV(batch_type val){
 	batch_type fac = val / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-batch_type acts_all::UTILP1_allignhigher_KV(batch_type val){
+batch_type UTILP1_allignhigher_KV(batch_type val){
 	batch_type fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
 	return (fac * VECTOR_SIZE);
 }
-batch_type acts_all::UTILP1_allignlower_KV2(batch_type val){
+batch_type UTILP1_allignlower_KV2(batch_type val){
 	batch_type fac = val / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
-batch_type acts_all::UTILP1_allignhigher_KV2(batch_type val){
+batch_type UTILP1_allignhigher_KV2(batch_type val){
 	batch_type fac = (val + (VECTOR2_SIZE - 1)) / VECTOR2_SIZE;
 	return (fac * VECTOR2_SIZE);
 }
-batch_type acts_all::UTILP1_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR){
+batch_type UTILP1_allignhigher_FACTOR(batch_type val, unsigned int _FACTOR){
 	#pragma HLS INLINE
 	batch_type fac = (val + (_FACTOR - 1)) / _FACTOR;
 	return (fac * _FACTOR);
 }
-batch_type acts_all::UTILP1_allignlower_FACTOR(batch_type val, unsigned int _FACTOR){
+batch_type UTILP1_allignlower_FACTOR(batch_type val, unsigned int _FACTOR){
 	batch_type fac = val / _FACTOR;
 	return (fac * _FACTOR);
 }
 
-unsigned int acts_all::UTILP1_GETNUMPARTITIONS_FIRSTSWEEP_NONRECURSIVEMODE(unsigned int tree_depth){
+unsigned int UTILP1_GETNUMPARTITIONS_FIRSTSWEEP_NONRECURSIVEMODE(unsigned int tree_depth){
 	return (1 << (OPT_NUM_PARTITIONS_POW * (tree_depth-1)));
 }
 
 // bit manipulation
-unsigned int acts_all::UTILP1_GETMASK_UINT(uint32_type index, unsigned int size){
+unsigned int UTILP1_GETMASK_UINT(uint32_type index, unsigned int size){
 	unsigned int A = ((1 << (size)) - 1);
 	unsigned int B = A << index;
 	return B;
 }
-unsigned int acts_all::UTILP1_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size){ 
+unsigned int UTILP1_READFROM_UINT(uint32_type data, unsigned int index, unsigned int size){ 
 	unsigned int res = 0;
 	res = (((data) & UTILP1_GETMASK_UINT((index), (size))) >> (index)); 
 	return res;
 }
-void acts_all::UTILP1_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+void UTILP1_WRITETO_UINT(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	unsigned int tempdata = *data;
 	unsigned int A = ((value) << (index));
 	unsigned int B = (~UTILP1_GETMASK_UINT((index), (size)));
@@ -89,7 +89,7 @@ void acts_all::UTILP1_WRITETO_UINT(uint32_type * data, unsigned int index, unsig
 	#endif
 	return; 
 }
-unsigned int acts_all::UTILP1_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+unsigned int UTILP1_READBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
 	#pragma HLS INLINE
 	unsigned int res = 0;
 	#ifdef _WIDEWORD
@@ -99,7 +99,7 @@ unsigned int acts_all::UTILP1_READBITSFROM_UINTV(uint32_type data, unsigned int 
 	#endif
 	return res;
 }
-void acts_all::UTILP1_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+void UTILP1_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	data->range(index + size - 1, index) = value;
@@ -108,20 +108,20 @@ void acts_all::UTILP1_WRITEBITSTO_UINTV(uint32_type * data, unsigned int index, 
 	#endif
 	return; 
 }
-unsigned int acts_all::UTILP1_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
+unsigned int UTILP1_SWREADBITSFROM_UINTV(uint32_type data, unsigned int index, unsigned int size){
 	#pragma HLS INLINE
 	unsigned int res = 0;
 	res = UTILP1_READFROM_UINT(data, index, size);
 	return res;
 }
-void acts_all::UTILP1_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
+void UTILP1_SWWRITEBITSTO_UINTV(uint32_type * data, unsigned int index, unsigned int size, unsigned int value){
 	#pragma HLS INLINE
 	UTILP1_WRITETO_UINT(data, index, size, value);
 	return; 
 }
 
 // converters
-keyvalue_t acts_all::UTILP1_GETKV(keyvalue_buffer_t data){
+keyvalue_t UTILP1_GETKV(keyvalue_buffer_t data){
 	#pragma HLS INLINE
 	keyvalue_t res;
 	#ifdef _WIDEWORD_FOR_KV
@@ -133,7 +133,7 @@ keyvalue_t acts_all::UTILP1_GETKV(keyvalue_buffer_t data){
 	#endif 
 	return res;
 }
-keyvalue_buffer_t acts_all::UTILP1_GETKV(keyvalue_t data){
+keyvalue_buffer_t UTILP1_GETKV(keyvalue_t data){
 	#pragma HLS INLINE
 	keyvalue_buffer_t res;
 	#ifdef _WIDEWORD_FOR_KV
@@ -145,7 +145,7 @@ keyvalue_buffer_t acts_all::UTILP1_GETKV(keyvalue_t data){
 	#endif 
 	return res;
 }
-keyy_t acts_all::UTILP1_GETK(uint32_type data){
+keyy_t UTILP1_GETK(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD_FOR_KV
 	return data.range(SIZEOF_KEY - 1, 0);
@@ -153,7 +153,7 @@ keyy_t acts_all::UTILP1_GETK(uint32_type data){
 	return data;
 	#endif
 }
-value_t acts_all::UTILP1_GETV(uint32_type data){
+value_t UTILP1_GETV(uint32_type data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD_FOR_KV
 	return data.range(SIZEOF_VALUE - 1, 0);
@@ -161,7 +161,7 @@ value_t acts_all::UTILP1_GETV(uint32_type data){
 	return data;
 	#endif
 }
-keyy_t acts_all::UTILP1_GETKEYENTRY(uint512_dt data, unsigned int v){
+keyy_t UTILP1_GETKEYENTRY(uint512_dt data, unsigned int v){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return data.range(32 * ((v * 2) + 1) - 1, (v * 2) * 32);
@@ -169,21 +169,21 @@ keyy_t acts_all::UTILP1_GETKEYENTRY(uint512_dt data, unsigned int v){
 	return data.data[v].key;	
 	#endif
 }		
-unsigned int acts_all::UTILP1_GETLOCALVID(unsigned int vid, unsigned int instid){ 
+unsigned int UTILP1_GETLOCALVID(unsigned int vid, unsigned int instid){ 
 	#pragma HLS INLINE
 	return (vid - instid) / NUM_PEs;
 }
-unsigned int acts_all::UTILP1_GETREALVID(unsigned int lvid, unsigned int instid){ 
+unsigned int UTILP1_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
 	return (lvid * NUM_PEs) + instid;
 }
-unsigned int acts_all::UTILP1_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
+unsigned int UTILP1_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
 	#pragma HLS INLINE
 	return globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
 	// return PROCESSPARTITIONSZ_KVS2;
 }
 
-unsigned int acts_all::UTILP1_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
+unsigned int UTILP1_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
 	#pragma HLS INLINE
 	unsigned int data = 0;
 	#ifdef _WIDEWORD
@@ -245,7 +245,7 @@ else if(col == 15){
 	#endif 
 	return data;
 }
-void acts_all::UTILP1_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
+void UTILP1_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	unsigned int row = index / VECTOR2_SIZE;
@@ -306,7 +306,7 @@ else if(col == 15){
 	#endif 
 	return;
 }
-unsigned int acts_all::UTILP1_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs){
+unsigned int UTILP1_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return kvdram[offset_kvs].range(31, 0);
@@ -314,7 +314,7 @@ unsigned int acts_all::UTILP1_GetFirstData(uint512_dt * kvdram, unsigned int off
 	return kvdram[offset_kvs].data[0].key;
 	#endif 
 }
-void acts_all::UTILP1_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
+void UTILP1_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	kvdram[offset_kvs].range(31, 0) = data;
@@ -323,7 +323,7 @@ void acts_all::UTILP1_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs,
 	#endif 
 	return;
 }
-void acts_all::UTILP1_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int * data, unsigned int size){
+void UTILP1_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int * data, unsigned int size){
 	#pragma HLS INLINE
 	for(unsigned int i=0; i<size; i++){
 		#ifdef _WIDEWORD
@@ -334,7 +334,7 @@ void acts_all::UTILP1_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs
 	}
 	return;
 }
-unsigned int acts_all::UTILP1_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs){
+unsigned int UTILP1_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	return kvdram[offset_kvs].range(63, 32);
@@ -342,7 +342,7 @@ unsigned int acts_all::UTILP1_GetSecondData(uint512_dt * kvdram, unsigned int of
 	return kvdram[offset_kvs].data[0].value;
 	#endif 
 }
-void acts_all::UTILP1_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
+void UTILP1_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
 	kvdram[offset_kvs].range(63, 32) = data;
@@ -351,7 +351,7 @@ void acts_all::UTILP1_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs
 	#endif 
 	return;
 }
-void acts_all::UTILP1_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+void UTILP1_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	datas[0] = kvdram[offset_kvs].range(31, 0); 
@@ -390,7 +390,7 @@ void acts_all::UTILP1_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, v
 	#endif
 	return;
 }
-void acts_all::UTILP1_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]){
+void UTILP1_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	datas[0].key = kvdram[offset_kvs].range(31, 0); 
@@ -429,7 +429,49 @@ void acts_all::UTILP1_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, k
 	#endif
 	return;
 }
-void acts_all::UTILP1_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+uint512_vec_dt UTILP1_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs){
+	#pragma HLS INLINE
+	uint512_vec_dt dataset;
+	
+	#ifdef _WIDEWORD 
+	dataset.data[0].key = kvdram[offset_kvs].range(31, 0); 
+	dataset.data[0].value = kvdram[offset_kvs].range(63, 32); 
+	dataset.data[1].key = kvdram[offset_kvs].range(95, 64); 
+	dataset.data[1].value = kvdram[offset_kvs].range(127, 96); 
+	dataset.data[2].key = kvdram[offset_kvs].range(159, 128); 
+	dataset.data[2].value = kvdram[offset_kvs].range(191, 160); 
+	dataset.data[3].key = kvdram[offset_kvs].range(223, 192); 
+	dataset.data[3].value = kvdram[offset_kvs].range(255, 224); 
+	dataset.data[4].key = kvdram[offset_kvs].range(287, 256); 
+	dataset.data[4].value = kvdram[offset_kvs].range(319, 288); 
+	dataset.data[5].key = kvdram[offset_kvs].range(351, 320); 
+	dataset.data[5].value = kvdram[offset_kvs].range(383, 352); 
+	dataset.data[6].key = kvdram[offset_kvs].range(415, 384); 
+	dataset.data[6].value = kvdram[offset_kvs].range(447, 416); 
+	dataset.data[7].key = kvdram[offset_kvs].range(479, 448); 
+	dataset.data[7].value = kvdram[offset_kvs].range(511, 480); 
+	#else 
+	dataset.data[0].key = kvdram[offset_kvs].data[0].key;
+	dataset.data[0].value = kvdram[offset_kvs].data[0].value; 
+	dataset.data[1].key = kvdram[offset_kvs].data[1].key;
+	dataset.data[1].value = kvdram[offset_kvs].data[1].value; 
+	dataset.data[2].key = kvdram[offset_kvs].data[2].key;
+	dataset.data[2].value = kvdram[offset_kvs].data[2].value; 
+	dataset.data[3].key = kvdram[offset_kvs].data[3].key;
+	dataset.data[3].value = kvdram[offset_kvs].data[3].value; 
+	dataset.data[4].key = kvdram[offset_kvs].data[4].key;
+	dataset.data[4].value = kvdram[offset_kvs].data[4].value; 
+	dataset.data[5].key = kvdram[offset_kvs].data[5].key;
+	dataset.data[5].value = kvdram[offset_kvs].data[5].value; 
+	dataset.data[6].key = kvdram[offset_kvs].data[6].key;
+	dataset.data[6].value = kvdram[offset_kvs].data[6].value; 
+	dataset.data[7].key = kvdram[offset_kvs].data[7].key;
+	dataset.data[7].value = kvdram[offset_kvs].data[7].value; 
+	#endif
+	
+	return dataset;
+}
+void UTILP1_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	kvdram[offset_kvs].range(31, 0) = datas[0]; 
@@ -468,7 +510,7 @@ void acts_all::UTILP1_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, v
 	#endif
 	return;
 }
-void acts_all::UTILP1_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]){
+void UTILP1_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	kvdram[offset_kvs].range(31, 0) = datas[0].key; 
@@ -507,9 +549,68 @@ void acts_all::UTILP1_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, k
 	#endif
 	return;
 }
+void UTILP1_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_vec_dt dataset){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	kvdram[offset_kvs].range(31, 0) = dataset.data[0].key; 
+	kvdram[offset_kvs].range(63, 32) = dataset.data[0].value; 
+	kvdram[offset_kvs].range(95, 64) = dataset.data[1].key; 
+	kvdram[offset_kvs].range(127, 96) = dataset.data[1].value; 
+	kvdram[offset_kvs].range(159, 128) = dataset.data[2].key; 
+	kvdram[offset_kvs].range(191, 160) = dataset.data[2].value; 
+	kvdram[offset_kvs].range(223, 192) = dataset.data[3].key; 
+	kvdram[offset_kvs].range(255, 224) = dataset.data[3].value; 
+	kvdram[offset_kvs].range(287, 256) = dataset.data[4].key; 
+	kvdram[offset_kvs].range(319, 288) = dataset.data[4].value; 
+	kvdram[offset_kvs].range(351, 320) = dataset.data[5].key; 
+	kvdram[offset_kvs].range(383, 352) = dataset.data[5].value; 
+	kvdram[offset_kvs].range(415, 384) = dataset.data[6].key; 
+	kvdram[offset_kvs].range(447, 416) = dataset.data[6].value; 
+	kvdram[offset_kvs].range(479, 448) = dataset.data[7].key; 
+	kvdram[offset_kvs].range(511, 480) = dataset.data[7].value; 
+	#else 
+	kvdram[offset_kvs].data[0].key = dataset.data[0].key;
+	kvdram[offset_kvs].data[0].value = dataset.data[0].value; 
+	kvdram[offset_kvs].data[1].key = dataset.data[1].key;
+	kvdram[offset_kvs].data[1].value = dataset.data[1].value; 
+	kvdram[offset_kvs].data[2].key = dataset.data[2].key;
+	kvdram[offset_kvs].data[2].value = dataset.data[2].value; 
+	kvdram[offset_kvs].data[3].key = dataset.data[3].key;
+	kvdram[offset_kvs].data[3].value = dataset.data[3].value; 
+	kvdram[offset_kvs].data[4].key = dataset.data[4].key;
+	kvdram[offset_kvs].data[4].value = dataset.data[4].value; 
+	kvdram[offset_kvs].data[5].key = dataset.data[5].key;
+	kvdram[offset_kvs].data[5].value = dataset.data[5].value; 
+	kvdram[offset_kvs].data[6].key = dataset.data[6].key;
+	kvdram[offset_kvs].data[6].value = dataset.data[6].value; 
+	kvdram[offset_kvs].data[7].key = dataset.data[7].key;
+	kvdram[offset_kvs].data[7].value = dataset.data[7].value; 
+	#endif
+	return;
+}
+void UTILP1_SetDataset(keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
+	#pragma HLS INLINE
+	buffer[0][offset_kvs].key = datas[0].key;
+	buffer[0][offset_kvs].value = datas[0].value; 
+	buffer[1][offset_kvs].key = datas[1].key;
+	buffer[1][offset_kvs].value = datas[1].value; 
+	buffer[2][offset_kvs].key = datas[2].key;
+	buffer[2][offset_kvs].value = datas[2].value; 
+	buffer[3][offset_kvs].key = datas[3].key;
+	buffer[3][offset_kvs].value = datas[3].value; 
+	buffer[4][offset_kvs].key = datas[4].key;
+	buffer[4][offset_kvs].value = datas[4].value; 
+	buffer[5][offset_kvs].key = datas[5].key;
+	buffer[5][offset_kvs].value = datas[5].value; 
+	buffer[6][offset_kvs].key = datas[6].key;
+	buffer[6][offset_kvs].value = datas[6].value; 
+	buffer[7][offset_kvs].key = datas[7].key;
+	buffer[7][offset_kvs].value = datas[7].value; 
+	return;
+}
 
 // utilities
-batch_type acts_all::UTILP1_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
+batch_type UTILP1_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
 	batch_type result;
 	
 	if(currentLOP == 0){ currentLOP = 1; }
@@ -521,14 +622,14 @@ batch_type acts_all::UTILP1_getskipsize(step_type currentLOP, bool_type sourceOR
 	}
 	return result;
 }
-batch_type acts_all::UTILP1_getrangeforeachllop(globalparams_t globalparams){
+batch_type UTILP1_getrangeforeachllop(globalparams_t globalparams){
 	unsigned int range = globalparams.SIZE_BATCHRANGE;
 	for(unsigned int i=0; i<globalparams.ACTSPARAMS_TREEDEPTH; i++){
 		range = range / OPT_NUM_PARTITIONS;
 	}
 	return range;
 }
-buffer_type acts_all::UTILP1_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
+buffer_type UTILP1_getchunksize_kvs(buffer_type buffer_size, travstate_t travstate, buffer_type localoffset){
 	buffer_type chunk_size = buffer_size;
 	batch_type i = travstate.i_kvs + localoffset;
 	if (i > travstate.end_kvs){ chunk_size = 0; }
@@ -536,12 +637,12 @@ buffer_type acts_all::UTILP1_getchunksize_kvs(buffer_type buffer_size, travstate
 	else {}
 	return chunk_size;
 }
-buffer_type acts_all::UTILP1_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
+buffer_type UTILP1_getpartitionwritesz(buffer_type realsize_kvs, buffer_type bramoffset_kvs){
 	buffer_type size_kvs = 0;
 	size_kvs = realsize_kvs;
 	return size_kvs;
 }
-void acts_all::UTILP1_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size){
+void UTILP1_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type size){
 	unsigned int analysis_size = OPT_NUM_PARTITIONS;
 	for(buffer_type i=1; i<size; i++){ 
 	#pragma HLS PIPELINE II=2
@@ -550,7 +651,7 @@ void acts_all::UTILP1_calculateoffsets(keyvalue_capsule_t * buffer, buffer_type 
 	}
 	return;
 }
-void acts_all::UTILP1_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
+void UTILP1_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[VECTOR_SIZE][MAX_NUM_PARTITIONS], buffer_type size, batch_type base, batch_type skipspacing){
 	for(buffer_type i=1; i<size; i++){ 
 		buffer[0][i].key = buffer[0][i-1].key + buffer[0][i-1].value + skipspacing; 
 		buffer[1][i].key = buffer[1][i-1].key + buffer[1][i-1].value + skipspacing; 
@@ -563,7 +664,7 @@ void acts_all::UTILP1_calculatemanyunallignedoffsets(keyvalue_capsule_t buffer[V
 	}
 	return;
 }
-batch_type acts_all::UTILP1_get_num_source_partitions(step_type currentLOP){
+batch_type UTILP1_get_num_source_partitions(step_type currentLOP){
 	if(currentLOP == 0){ currentLOP = 1; }
 	batch_type pow = 1;
 	for(step_type i=0; i<(currentLOP-1); i++){
@@ -572,7 +673,7 @@ batch_type acts_all::UTILP1_get_num_source_partitions(step_type currentLOP){
 	return pow;
 }
 
-globalparams_t acts_all::UTILP1_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
+globalparams_t UTILP1_getglobalparams(uint512_dt * kvdram, unsigned int banksection){
 	globalparams_t globalparams;
 	
 	#ifdef _DEBUGMODE_CHECKS3
@@ -626,8 +727,8 @@ globalparams_t acts_all::UTILP1_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.EVALUATION_ACTS_HYBRIDLOGIC = buffer[MESSAGES_EVALUATION_ACTS_HYBRIDLOGIC];
 	globalparams.EVALUATION_ACTS_VERYBARE = buffer[MESSAGES_EVALUATION_ACTS_VERYBARE];
 	
-	globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD];
-	globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION];
+	globalparams.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD];
+	globalparams.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION];
 	
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_MESSAGESDATA];
 	globalparams.VOLUMEOFFSETKVS_WORKDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_VOLUMEOFFSETKVS_WORKDATA];
@@ -751,7 +852,7 @@ globalparams_t acts_all::UTILP1_getglobalparams(uint512_dt * kvdram, unsigned in
 	return globalparams;
 }
 
-sweepparams_t acts_all::UTILP1_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition){
+sweepparams_t UTILP1_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition){
 	sweepparams_t sweepparams;
 	batch_type sourceskipsize = UTILP1_getskipsize(currentLOP, SOURCE, globalparams);
 	
@@ -779,7 +880,7 @@ sweepparams_t acts_all::UTILP1_getsweepparams(globalparams_t globalparams, step_
 	sweepparams.source_partition = source_partition;
 	return sweepparams;
 }
-travstate_t acts_all::UTILP1_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
+travstate_t UTILP1_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker){			
 	travstate_t travstate;
 	if(enable == OFF){ return travstate; }
 	keyvalue_t keyvalue;
@@ -853,7 +954,7 @@ else if(globalparams.VARS_WORKBATCH == 4){
 	travstate.i_kvs = travstate.begin_kvs; 
 	return travstate;	
 }
-void acts_all::UTILP1_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value){			
+void UTILP1_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value){			
 	if(enable == OFF){ return; }
 	#ifdef _WIDEWORD
 	kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset].range(31, 0) = value; // 64; 
@@ -865,7 +966,7 @@ void acts_all::UTILP1_settravstate(bool_type enable, uint512_dt * kvdram, global
 	return;	
 }
 
-partition_type acts_all::UTILP1_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, unsigned int tree_depth){
+partition_type UTILP1_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, unsigned int tree_depth){
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTILP1_GETKV(keyvalue);
 
@@ -890,7 +991,7 @@ partition_type acts_all::UTILP1_getpartition(bool_type enable, unsigned int mode
 	}
 	return partition;
 }
-partition_type acts_all::UTILP1_getpartition2(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, globalparams_t globalparams){
+partition_type UTILP1_getpartition2(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, globalparams_t globalparams){
 	partition_type partition;
 	keyvalue_t thiskeyvalue = UTILP1_GETKV(keyvalue);
 	
@@ -921,32 +1022,32 @@ partition_type acts_all::UTILP1_getpartition2(bool_type enable, unsigned int mod
 }
 
 // resets 
-void acts_all::UTILP1_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP1_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i].value = resetval; 
 	}
 }
-void acts_all::UTILP1_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP1_resetvalues(keyvalue_capsule_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i].value = resetval; 
 	}
 }
-void acts_all::UTILP1_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP1_resetvalues(value_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){ 
 	#pragma HLS PIPELINE II=1
 		buffer[i] = resetval; 
 	}
 }
-void acts_all::UTILP1_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
+void UTILP1_resetkeysandvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval){
 	for(buffer_type i=0; i<size; i++){
 		buffer[i].key = resetval; 
 		buffer[i].value = resetval; 
 	}
 	return;
 }
-void acts_all::UTILP1_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
+void UTILP1_resetkvstatvalues(uint512_dt * kvdram, globalparams_t globalparams){
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"..................... UTILP1_resetkvstatvalues: resetting global stats..."<<endl;
 	#endif 
@@ -977,7 +1078,7 @@ void acts_all::UTILP1_resetkvstatvalues(uint512_dt * kvdram, globalparams_t glob
 	}
 	return;
 }
-void acts_all::UTILP1_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
+void UTILP1_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_kvs, globalparams_t globalparams){
 	for(unsigned int k=0; k<size_kvs; k++){
 	#pragma HLS PIPELINE II=1 // CRITICAL NEWCHANGE.
 		#ifdef _WIDEWORD
@@ -1002,7 +1103,7 @@ void acts_all::UTILP1_resetkvstatvalues(uint512_dt * kvdram, unsigned int size_k
 	}
 	return;
 }
-void acts_all::UTILP1_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void UTILP1_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	if(globalparams.ACTSPARAMS_TREEDEPTH > 1){ SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (OPT_NUM_PARTITIONS_POW * k)); }} else { totalnumpartitionsb4last = 1 + OPT_NUM_PARTITIONS; }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -1050,7 +1151,7 @@ else if(globalparams.VARS_WORKBATCH == 4){
 	}
 	return;
 }
-void acts_all::UTILP1_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
+void UTILP1_increment_graphiteration(uint512_dt * kvdram, globalparams_t globalparams){
 	#ifdef _WIDEWORD
 	kvdram[globalparams.DRAM_BASE_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
 	#else
@@ -1058,7 +1159,7 @@ void acts_all::UTILP1_increment_graphiteration(uint512_dt * kvdram, globalparams
 	#endif 
 	return;
 }
-void acts_all::UTILP1_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
+void UTILP1_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	for(partition_type p=0; p<MAX_NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so1[0][p].key = 0;
@@ -1082,7 +1183,7 @@ void acts_all::UTILP1_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR_SIZE
 	}
 	return;
 }
-void acts_all::UTILP1_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
+void UTILP1_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]){
 	for(partition_type p=0; p<OPT_NUM_PARTITIONS; p++){
 	#pragma HLS PIPELINE II=1
 		capsule_so8[p].key = 0;
@@ -1092,7 +1193,7 @@ void acts_all::UTILP1_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PART
 }
 
 // checks 
-void acts_all::UTILP1_check_capsule(keyvalue_t capsule[MAX_NUM_PARTITIONS], unsigned int num_partitions, unsigned int max_value){
+void UTILP1_check_capsule(keyvalue_t capsule[MAX_NUM_PARTITIONS], unsigned int num_partitions, unsigned int max_value){
 	#if defined(ENABLE_PERFECTACCURACY) && defined(_DEBUGMODE_CHECKS2)	
 	for(unsigned int i=0; i<num_partitions-1; i++){ 
 		if(capsule[i].key + capsule[i].value >= capsule[i+1].key && capsule[i].value > 0){ 
@@ -1121,7 +1222,7 @@ https://iss.oden.utexas.edu/?p=projects/galois/analytics/betweenness_centrality
 
 */
 
-value_t acts_all::PROCESSP1_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
+value_t PROCESSP1_processfunc(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	#pragma HLS INLINE // NEWCHANGE.
 	value_t res = 0;
 	#ifdef CONFIG_GOLDENKERNEL
@@ -1175,7 +1276,7 @@ value_t acts_all::PROCESSP1_processfunc(value_t udata, value_t edgew, unsigned i
 	return res;
 }
 
-value_t acts_all::REDUCEP1_reducefunc(value_t vtemp, value_t vdata, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
+value_t REDUCEP1_reducefunc(value_t vtemp, value_t vdata, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	#pragma HLS INLINE // NEWCHANGE.
 	value_t temp = 0;
 	#ifdef CONFIG_GOLDENKERNEL
@@ -1240,7 +1341,7 @@ value_t acts_all::REDUCEP1_reducefunc(value_t vtemp, value_t vdata, value_t res,
 #endif 
 #ifdef CONFIG_ENABLECLASS_MEM_CONVERT_AND_ACCESS
 // primitives
-unsigned int acts_all::MEMCAP1_READVDATA(keyvalue_vbuffer_t wideword){
+unsigned int MEMCAP1_READVDATA(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	return wideword;
@@ -1248,7 +1349,7 @@ unsigned int acts_all::MEMCAP1_READVDATA(keyvalue_vbuffer_t wideword){
 	return UTILP1_READBITSFROM_UINTV(wideword, OFFSETOF_VDATA, SIZEOF_VDATA);
 	#endif 
 }
-unsigned int acts_all::MEMCAP1_READVMASK(keyvalue_vbuffer_t wideword){
+unsigned int MEMCAP1_READVMASK(keyvalue_vbuffer_t wideword){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	return 0;
@@ -1256,7 +1357,7 @@ unsigned int acts_all::MEMCAP1_READVMASK(keyvalue_vbuffer_t wideword){
 	return UTILP1_READBITSFROM_UINTV(wideword, OFFSETOF_VMASK, SIZEOF_VMASK);
 	#endif 
 }
-unsigned int acts_all::MEMCAP1_READVDATA2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata){
+unsigned int MEMCAP1_READVDATA2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vdata){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	return wideword;
@@ -1264,7 +1365,7 @@ unsigned int acts_all::MEMCAP1_READVDATA2(keyvalue_vbuffer_t wideword, unsigned 
 	return UTILP1_READBITSFROM_UINTV(wideword, offsetof_vdata, SIZEOF_VDATA);
 	#endif 
 }
-unsigned int acts_all::MEMCAP1_READVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vmask){
+unsigned int MEMCAP1_READVMASK2(keyvalue_vbuffer_t wideword, unsigned int offsetof_vmask){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	return 0;
@@ -1273,7 +1374,7 @@ unsigned int acts_all::MEMCAP1_READVMASK2(keyvalue_vbuffer_t wideword, unsigned 
 	#endif 
 }
 
-void acts_all::MEMCAP1_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
+void MEMCAP1_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	*wideword = vdata;
@@ -1282,7 +1383,7 @@ void acts_all::MEMCAP1_WRITEVDATA(keyvalue_vbuffer_t * wideword, value_t vdata){
 	#endif 
 	return;
 }
-void acts_all::MEMCAP1_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
+void MEMCAP1_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmask){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	// NAp
@@ -1291,7 +1392,7 @@ void acts_all::MEMCAP1_WRITEVMASK(keyvalue_vbuffer_t * wideword, unit1_type vmas
 	#endif 
 	return;
 }
-void acts_all::MEMCAP1_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata, unsigned int offsetof_vdata){
+void MEMCAP1_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata, unsigned int offsetof_vdata){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	*wideword = vdata;
@@ -1300,7 +1401,7 @@ void acts_all::MEMCAP1_WRITEVDATA2(keyvalue_vbuffer_t * wideword, value_t vdata,
 	#endif 
 	return;
 }
-void acts_all::MEMCAP1_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vmask, unsigned int offsetof_vmask){
+void MEMCAP1_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vmask, unsigned int offsetof_vmask){
 	#pragma HLS INLINE
 	#ifdef CONFIG_BITMASK_NOT_USED
 	// NAp
@@ -1310,13 +1411,13 @@ void acts_all::MEMCAP1_WRITEVMASK2(keyvalue_vbuffer_t * wideword, unit1_type vma
 	return;
 }
 
-unsigned int acts_all::MEMCAP1_READEDIR(unsigned int wideword){
+unsigned int MEMCAP1_READEDIR(unsigned int wideword){
 	#pragma HLS INLINE
 	return UTILP1_READBITSFROM_UINTV(wideword, OFFSETOF_EDIR, SIZEOF_EDIR);
 }
 
 // non-primitives
-vmdata_t acts_all::MEMCAP1_READFROMBUFFER_VDATAWITHVMASK(keyvalue_vbuffer_t bits_vector){
+vmdata_t MEMCAP1_READFROMBUFFER_VDATAWITHVMASK(keyvalue_vbuffer_t bits_vector){
 	#pragma HLS INLINE
 	vmdata_t vmdata;
 	vmdata.vdata = MEMCAP1_READVDATA(bits_vector); 
@@ -1327,7 +1428,7 @@ vmdata_t acts_all::MEMCAP1_READFROMBUFFER_VDATAWITHVMASK(keyvalue_vbuffer_t bits
 	#endif
 	return vmdata;
 }
-void acts_all::MEMCAP1_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){				
+void MEMCAP1_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){				
 	#pragma HLS INLINE
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("MEMCAP1_WRITETOBUFFER_VDATAWITHVMASK:", index/2, MAX_BLOCKRAM_VDESTDATA_SIZE, index, NAp, NAp);
@@ -1338,7 +1439,7 @@ void acts_all::MEMCAP1_WRITETOBUFFER_VDATAWITHVMASK(unsigned int index, keyvalue
 	buffer[bufferoffset_kvs + index] = bits_vector;
 	return;
 }
-void acts_all::MEMCAP1_WRITETODRAM_VDATAWITHVMASK(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+void MEMCAP1_WRITETODRAM_VDATAWITHVMASK(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
@@ -1351,7 +1452,7 @@ void acts_all::MEMCAP1_WRITETODRAM_VDATAWITHVMASK(unsigned int index, uint512_dt
 	return;
 }
 
-vmdata_t acts_all::MEMCAP1_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t bits_vector){
+vmdata_t MEMCAP1_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t bits_vector){
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
@@ -1377,7 +1478,7 @@ vmdata_t acts_all::MEMCAP1_READFROMBUFFER_VDATAWITHVMASK2(unsigned int index, ke
 	#endif
 	return vmdata;
 }
-void acts_all::MEMCAP1_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+void MEMCAP1_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalue_vbuffer_t buffer[MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type bufferoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
@@ -1398,7 +1499,7 @@ void acts_all::MEMCAP1_WRITETOBUFFER_VDATAWITHVMASK2(unsigned int index, keyvalu
 	buffer[bufferoffset_kvs + (index / VDATA_SHRINK_RATIO)] = bits_vector;
 	return;
 }
-void acts_all::MEMCAP1_WRITETODRAM_VDATAWITHVMASK2(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
+void MEMCAP1_WRITETODRAM_VDATAWITHVMASK2(unsigned int index, uint512_dt * kvdram, batch_type dramoffset_kvs, keyvalue_vbuffer_t bits_vector, value_t vdata, unit1_type vmask){
 	#pragma HLS INLINE
 	// {1st 16 is masks}{2nd 16 is vdatas}
 	#ifdef _DEBUGMODE_CHECKS2
@@ -1425,7 +1526,7 @@ void acts_all::MEMCAP1_WRITETODRAM_VDATAWITHVMASK2(unsigned int index, uint512_d
 #endif 
 #ifdef CONFIG_ENABLECLASS_MEM_ACCESS
 // -------------------- key values -------------------- //
-fetchmessage_t acts_all::MEMACCESSP1_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
+fetchmessage_t MEMACCESSP1_readkeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], batch_type offset_kvs, batch_type size_kvs, travstate_t travstate, globalparams_t globalparams){
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
@@ -1505,7 +1606,7 @@ fetchmessage_t acts_all::MEMACCESSP1_readkeyvalues(bool_type enable, uint512_dt 
 	return fetchmessage;
 }
 
-void acts_all::MEMACCESSP1_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t destbuffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_dest[MAX_NUM_PARTITIONS], batch_type destbaseaddr_kvs, globalposition_t globalposition, globalparams_t globalparams){
+void MEMACCESSP1_savekeyvalues(bool_type enable, uint512_dt * kvdram, keyvalue_buffer_t destbuffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t capsule_dest[MAX_NUM_PARTITIONS], batch_type destbaseaddr_kvs, globalposition_t globalposition, globalparams_t globalparams){
 	// globalparams.ACTSPARAMS_NUM_PARTITIONS replacedby 16
 	analysis_type analysis_loopcount1a = 16;
 	analysis_type analysis_loopcount1b = 32;
@@ -1552,7 +1653,7 @@ void acts_all::MEMACCESSP1_savekeyvalues(bool_type enable, uint512_dt * kvdram, 
 }
 
 // -------------------- vdata -------------------- //
-void acts_all::MEMACCESSP1_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
+void MEMACCESSP1_GetXYLayoutV(unsigned int s, vmdata_t vdata[VECTOR2_SIZE], vmdata_t vdata2[VECTOR2_SIZE], unsigned int depths[VECTOR2_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR2_SIZE;
 	unsigned int depths_tmp[VECTOR2_SIZE];
 	
@@ -2136,7 +2237,7 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESSP1_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]){
+void MEMACCESSP1_RearrangeLayoutV(unsigned int s, keyvalue_vbuffer_t vdata[VECTOR2_SIZE], keyvalue_vbuffer_t vdata2[VECTOR2_SIZE]){
 	/// NB: This function must be consistent with loadedges_random.cpp->loadedges_random::twist_getpartition
 	unsigned int s_ = s % VECTOR2_SIZE;	
 	
@@ -2431,7 +2532,7 @@ else {
 	return;
 }
 
-void acts_all::MEMACCESSP1_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams){
+void MEMACCESSP1_readV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t buffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 
 	keyvalue_vbuffer_t vdata[VECTOR2_SIZE];
@@ -2528,7 +2629,7 @@ void acts_all::MEMACCESSP1_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void acts_all::MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams){				
+void MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type baseoffset_kvs, batch_type offset_kvs, batch_type bufferoffset_kvs, buffer_type size_kvs, globalposition_t globalposition, globalparams_t globalparams){				
 	if(enable == OFF){ return; }
 	
 	// cout<<"MEMACCESSP1_saveV SEEN. "<<endl;
@@ -2627,7 +2728,7 @@ void acts_all::MEMACCESSP1_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
 	return;
 }
 
-void acts_all::MEMACCESSP1_copyV(bool_type enable, keyvalue_vbuffer_t buffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_vbuffer_t buffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], buffer_type srcoffset_kvs, buffer_type destoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+void MEMACCESSP1_copyV(bool_type enable, keyvalue_vbuffer_t buffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_vbuffer_t buffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], buffer_type srcoffset_kvs, buffer_type destoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
 	if(enable == OFF){ return; }
 	
 	#if defined(CONFIG_USEURAM_FOR_DESTVBUFFER) && defined(CONFIG_USEURAM_PACKBYTWOS)
@@ -2656,7 +2757,7 @@ void acts_all::MEMACCESSP1_copyV(bool_type enable, keyvalue_vbuffer_t buffer_sou
 	return;
 }
 
-void acts_all::MEMACCESSP1_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks1(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -2802,7 +2903,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks1(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks2(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -2982,7 +3083,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks2(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks3(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -3196,7 +3297,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks3(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks4(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -3444,7 +3545,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks4(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks5(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -3726,7 +3827,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks5(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks6(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -4042,7 +4143,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks6(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks7(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -4392,7 +4493,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks7(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks8(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -4776,7 +4877,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks8(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks9(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -5194,7 +5295,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks9(bool_type enable, uint512_dt * vdram
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks10(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -5646,7 +5747,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks10(bool_type enable, uint512_dt * vdra
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks11(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -6132,7 +6233,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks11(bool_type enable, uint512_dt * vdra
 	}
 	return;
 }
-void acts_all::MEMACCESSP1_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
+void MEMACCESSP1_readANDRVchunks12(bool_type enable, uint512_dt * vdram, keyvalue_vbuffer_t buffer0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer10[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],keyvalue_vbuffer_t buffer11[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	// unsigned int depth = globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
 	unsigned int depth_i = 0;
@@ -6655,7 +6756,7 @@ void acts_all::MEMACCESSP1_readANDRVchunks12(bool_type enable, uint512_dt * vdra
 		
 
 // -------------------- stats -------------------- //
-void acts_all::MEMACCESSP1_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void MEMACCESSP1_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + globalparams.ACTSPARAMS_NUM_PARTITIONS, globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS + 1, NAp, NAp, NAp);
@@ -6714,7 +6815,7 @@ void acts_all::MEMACCESSP1_readglobalstats(bool_type enable, uint512_dt * kvdram
 	return;
 }
 
-void acts_all::MEMACCESSP1_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void MEMACCESSP1_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + globalparams.ACTSPARAMS_NUM_PARTITIONS, globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS, offset_kvs, globalparams.ACTSPARAMS_NUM_PARTITIONS, globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS);
@@ -6812,7 +6913,7 @@ else if(globalparams.VARS_WORKBATCH == 4){
 	return;
 }
 
-tuple_t acts_all::MEMACCESSP1_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
+tuple_t MEMACCESSP1_getvptrs(uint512_dt * kvdram, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID){
 	#pragma HLS INLINE
 	
 	keyy_t beginvptr = 0;
@@ -6830,7 +6931,7 @@ tuple_t acts_all::MEMACCESSP1_getvptrs(uint512_dt * kvdram, unsigned int beginof
 	return t;
 }
 
-unsigned int acts_all::MEMACCESSP1_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
+unsigned int MEMACCESSP1_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (offset / VECTOR2_SIZE)];
@@ -6909,7 +7010,7 @@ else {
 	else { return vptr_kv.value; }
 }
 
-tuple_t acts_all::MEMACCESSP1_getvptrs_opt(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID, globalparams_t globalparams){
+tuple_t MEMACCESSP1_getvptrs_opt(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID, globalparams_t globalparams){
 	#pragma HLS INLINE 
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -6925,7 +7026,85 @@ tuple_t acts_all::MEMACCESSP1_getvptrs_opt(uint512_dt * kvdram, unsigned int bas
 	return t;
 }
 
-void acts_all::MEMACCESSP1_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
+unsigned int MEMACCESSP1_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
+	keyvalue_t data;
+	
+	uint512_dt V = kvdram[baseoffset_kvs + loc / VECTOR2_SIZE];
+	unsigned int index = (loc % VECTOR2_SIZE) / 2;
+	
+	#ifdef _WIDEWORD
+ if(index == 0){
+		data.key = V.range(31, 0); 
+		data.value = V.range(63, 32); 
+	}
+else if(index == 1){
+		data.key = V.range(95, 64); 
+		data.value = V.range(127, 96); 
+	}
+else if(index == 2){
+		data.key = V.range(159, 128); 
+		data.value = V.range(191, 160); 
+	}
+else if(index == 3){
+		data.key = V.range(223, 192); 
+		data.value = V.range(255, 224); 
+	}
+else if(index == 4){
+		data.key = V.range(287, 256); 
+		data.value = V.range(319, 288); 
+	}
+else if(index == 5){
+		data.key = V.range(351, 320); 
+		data.value = V.range(383, 352); 
+	}
+else if(index == 6){
+		data.key = V.range(415, 384); 
+		data.value = V.range(447, 416); 
+	}
+else {
+		data.key = V.range(479, 448); 
+		data.value = V.range(511, 480); 
+	}
+	#else 
+ if(index == 0){
+		data.key = V.data[0].key; 
+		data.value = V.data[0].value; 
+	}
+else if(index == 1){
+		data.key = V.data[1].key; 
+		data.value = V.data[1].value; 
+	}
+else if(index == 2){
+		data.key = V.data[2].key; 
+		data.value = V.data[2].value; 
+	}
+else if(index == 3){
+		data.key = V.data[3].key; 
+		data.value = V.data[3].value; 
+	}
+else if(index == 4){
+		data.key = V.data[4].key; 
+		data.value = V.data[4].value; 
+	}
+else if(index == 5){
+		data.key = V.data[5].key; 
+		data.value = V.data[5].value; 
+	}
+else if(index == 6){
+		data.key = V.data[6].key; 
+		data.value = V.data[6].value; 
+	}
+else {
+		data.key = V.data[7].key; 
+		data.value = V.data[7].value; 
+	}
+	#endif
+	
+	if(loc % 2 == 0){ return data.key; }
+	else { return data.value; }
+}
+
+void MEMACCESSP1_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -6944,7 +7123,7 @@ void acts_all::MEMACCESSP1_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 	return;
 }
 
-void acts_all::MEMACCESSP1_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP1_commitkvstats2(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k]; 
@@ -6955,7 +7134,7 @@ void acts_all::MEMACCESSP1_commitkvstats2(uint512_dt * kvdram, value_t * buffer,
 	return;
 }
 
-void acts_all::MEMACCESSP1_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP1_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 		#ifdef _WIDEWORD
 		kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32) = buffer[k].key; 
@@ -6966,7 +7145,7 @@ void acts_all::MEMACCESSP1_commitkvstats2(uint512_dt * kvdram, keyvalue_t * buff
 	return;
 }
 
-void acts_all::MEMACCESSP1_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP1_retreievekvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -6977,7 +7156,7 @@ void acts_all::MEMACCESSP1_retreievekvstats(uint512_dt * kvdram, value_t * buffe
 	}
 }
 
-void acts_all::MEMACCESSP1_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void MEMACCESSP1_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _WIDEWORD
@@ -6992,7 +7171,7 @@ void acts_all::MEMACCESSP1_retreievekvstats(uint512_dt * kvdram, keyvalue_t * bu
 	}
 }
 
-void acts_all::MEMACCESSP1_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void MEMACCESSP1_accumkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -7041,7 +7220,7 @@ else if(globalparams.VARS_WORKBATCH == 4){
 	return;
 }
 
-void acts_all::MEMACCESSP1_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
+void MEMACCESSP1_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
@@ -7061,7 +7240,7 @@ void acts_all::MEMACCESSP1_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 }
 
 // -------------------- multiple accesses -------------------- //
-void acts_all::MEMACCESSP1_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, unsigned int actsinstance, globalparams_t globalparams){
+void MEMACCESSP1_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, unsigned int actsinstance, globalparams_t globalparams){
 	keyvalue_vbuffer_t vdata[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=vdata complete
 	
@@ -7118,7 +7297,7 @@ void acts_all::MEMACCESSP1_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BL
 			if(pmask[t] > 0  && t < 16){ cout<<t<<", "; }
 			if(pmask[t] > 0){ num_actvps += 1; }
 		}
-		cout<<" ("<<num_actvps<<" active partitions, "<<globalparams.NUM_PROCESSEDGESPARTITIONS<<" total partitions)"<< RESET << endl;
+		cout<<" ("<<num_actvps<<" active partitions, "<<size_kvs<<" total partitions)"<< RESET << endl;
 	// }
 	#endif 
 	return;
@@ -7135,54 +7314,21 @@ void acts_all::MEMACCESSP1_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BL
 	
 #endif 
 #ifdef CONFIG_ENABLECLASS_PROCESSEDGES
-void acts_all::PROCESSP1_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[MAX_SOURCEBLOCKRAM_SIZE], unsigned int bufferoffset_kvs, unsigned int * loadcount, unsigned int GraphAlgoClass, globalposition_t globalposition, globalparams_t globalparams){				
+keyvalue_t PROCESSP1_processvector(bool enx, unsigned int v, unsigned int loc, unsigned int upperlimit, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VSRCDATA_SIZE], globalparams_t globalparams){				
 	#pragma HLS INLINE
+	keyvalue_t vupdate_dummy;
 	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
 
-	if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && en == true){
-		#ifdef _DEBUGMODE_CHECKS
-		if(true){ cout<<"PROCESSP1_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
-		#endif 
-		loc = 0; }
-	
-	// read 
-	vmdata_t vmdata;
-	keyvalue_vbuffer_t bits_vector = vbuffer[bufferoffset_kvs + (loc / VDATA_SHRINK_RATIO)];
-	if(en == true){ vmdata = MEMCAP1_READFROMBUFFER_VDATAWITHVMASK(bits_vector); } else { vmdata.vmask = 0; }
-	if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
-	vmdata.vmask = 1; // FIXME. REMOVEME.
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-	if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ v: "<<v<<", loc: "<<loc<<", edata.key: "<<edata.key<<", edata.value(srcvid): "<<edata.value<<", en: "<<en<<", vid: "<<UTILP1_GETREALVID(edata.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
-	#endif
-			
-	// process
-	value_t res = PROCESSP1_processfunc(vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-	keyvalue_t mykeyvalue; mykeyvalue.key = edata.key; mykeyvalue.value = res;
-	
-	// write
-	if(en == true && vmdata.vmask == 1 && *loadcount < globalparams.ACTSPARAMS_WORKBUFFER_SIZE-2){ buffer[*loadcount] = UTILP1_GETKV(mykeyvalue); }
-	if(en == true && vmdata.vmask == 1 && *loadcount < globalparams.ACTSPARAMS_WORKBUFFER_SIZE-2){ *loadcount += 1; } // CRITICAL FIXME. globalparams.ACTSPARAMS_WORKBUFFER_SIZE
-	
-	#ifdef _DEBUGMODE_STATS
-	actsutilityobj->globalstats_countkvsprocessed(globalparams.ACTSPARAMS_INSTID, 1);
-	if(en == true && vmdata.vmask == 1 && *loadcount < globalparams.ACTSPARAMS_WORKBUFFER_SIZE-2){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(globalparams.ACTSPARAMS_INSTID, 1); } // mask0? FIXME.
-	#endif 
-	#ifdef _DEBUGMODE_CHECKS2
-	actsutilityobj->checkoutofbounds("PROCESSP1_processvector::DEBUG CODE 14::1", *loadcount, MAX_SRCBUFFER_SIZE, MAX_SOURCEBLOCKRAM_SIZE, MAX_SRCBUFFER_SIZE, NAp); // MAX_SOURCEBLOCKRAM_SIZE
-	#endif
-	return;
-}
-
-keyvalue_t acts_all::PROCESSP1_processvector(bool enx, unsigned int v, unsigned int loc, keyvalue_t edata, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VSRCDATA_SIZE], globalparams_t globalparams){				
-	#pragma HLS INLINE
-	bool en = true; if(edata.key == INVALIDDATA || edata.value == INVALIDDATA || enx == false){ en = false; } else { en = true; }
-
-	if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && en == true){
-		#ifdef _DEBUGMODE_CHECKS
-		if(true){ cout<<"PROCESSP1_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
-		#endif 
-		loc = 0; }
-	
+	if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION){
+		if(edata.key == INVALIDDATA){ loc = 0; }
+		else {
+			#ifdef _DEBUGMODE_CHECKS
+			if(true){ cout<<"PROCESSP1_processvector::ERROR SEEN @@ loc("<<loc<<") >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<", INVALIDDATA: "<<INVALIDDATA<<", upperlimit: "<<upperlimit<<". EXITING... "<<endl; return vupdate_dummy; exit(EXIT_FAILURE); }
+			// if(true){ cout<<"PROCESSP1_processvector::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<"). edata.key: "<<edata.key<<", edata.value: "<<edata.value<<", v: "<<v<<". EXITING... "<<endl; return vupdate_dummy; exit(EXIT_FAILURE); }			
+			#endif 
+			loc = 0; }
+	}
+		
 	// read 
 	vmdata_t vmdata;
 	keyvalue_vbuffer_t bits_vector = vbuffer[loc / VDATA_SHRINK_RATIO];
@@ -7199,821 +7345,88 @@ keyvalue_t acts_all::PROCESSP1_processvector(bool enx, unsigned int v, unsigned 
 	return vupdate;
 }
 
-void acts_all::PROCESSP1_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
-	unsigned int s_ = s % VECTOR_SIZE;
-	
- if(s_==0){ 
-		depths[0] = 0; 
-		depths[1] = 1; 
-		depths[2] = 2; 
-		depths[3] = 3; 
-		depths[4] = 4; 
-		depths[5] = 5; 
-		depths[6] = 6; 
-		depths[7] = 7; 
-	}
-else if(s_==1){ 
-		depths[0] = 7; 
-		depths[1] = 0; 
-		depths[2] = 1; 
-		depths[3] = 2; 
-		depths[4] = 3; 
-		depths[5] = 4; 
-		depths[6] = 5; 
-		depths[7] = 6; 
-	}
-else if(s_==2){ 
-		depths[0] = 6; 
-		depths[1] = 7; 
-		depths[2] = 0; 
-		depths[3] = 1; 
-		depths[4] = 2; 
-		depths[5] = 3; 
-		depths[6] = 4; 
-		depths[7] = 5; 
-	}
-else if(s_==3){ 
-		depths[0] = 5; 
-		depths[1] = 6; 
-		depths[2] = 7; 
-		depths[3] = 0; 
-		depths[4] = 1; 
-		depths[5] = 2; 
-		depths[6] = 3; 
-		depths[7] = 4; 
-	}
-else if(s_==4){ 
-		depths[0] = 4; 
-		depths[1] = 5; 
-		depths[2] = 6; 
-		depths[3] = 7; 
-		depths[4] = 0; 
-		depths[5] = 1; 
-		depths[6] = 2; 
-		depths[7] = 3; 
-	}
-else if(s_==5){ 
-		depths[0] = 3; 
-		depths[1] = 4; 
-		depths[2] = 5; 
-		depths[3] = 6; 
-		depths[4] = 7; 
-		depths[5] = 0; 
-		depths[6] = 1; 
-		depths[7] = 2; 
-	}
-else if(s_==6){ 
-		depths[0] = 2; 
-		depths[1] = 3; 
-		depths[2] = 4; 
-		depths[3] = 5; 
-		depths[4] = 6; 
-		depths[5] = 7; 
-		depths[6] = 0; 
-		depths[7] = 1; 
-	}
-else { 
-		depths[0] = 1; 
-		depths[1] = 2; 
-		depths[2] = 3; 
-		depths[3] = 4; 
-		depths[4] = 5; 
-		depths[5] = 6; 
-		depths[6] = 7; 
-		depths[7] = 0; 
-	}
-	return;
-}
-
-void acts_all::PROCESSP1_RearrangeLayoutV(unsigned int s, uint32_type vdata[VECTOR_SIZE], uint32_type vdata2[VECTOR_SIZE]){
-	unsigned int s_ = s;// % VECTOR_SIZE;
- if(s_==0){ 
-		vdata2[0] = vdata[0]; 
-		vdata2[1] = vdata[1]; 
-		vdata2[2] = vdata[2]; 
-		vdata2[3] = vdata[3]; 
-		vdata2[4] = vdata[4]; 
-		vdata2[5] = vdata[5]; 
-		vdata2[6] = vdata[6]; 
-		vdata2[7] = vdata[7]; 
-	}
-else if(s_==1){ 
-		vdata2[7] = vdata[0]; 
-		vdata2[0] = vdata[1]; 
-		vdata2[1] = vdata[2]; 
-		vdata2[2] = vdata[3]; 
-		vdata2[3] = vdata[4]; 
-		vdata2[4] = vdata[5]; 
-		vdata2[5] = vdata[6]; 
-		vdata2[6] = vdata[7]; 
-	}
-else if(s_==2){ 
-		vdata2[6] = vdata[0]; 
-		vdata2[7] = vdata[1]; 
-		vdata2[0] = vdata[2]; 
-		vdata2[1] = vdata[3]; 
-		vdata2[2] = vdata[4]; 
-		vdata2[3] = vdata[5]; 
-		vdata2[4] = vdata[6]; 
-		vdata2[5] = vdata[7]; 
-	}
-else if(s_==3){ 
-		vdata2[5] = vdata[0]; 
-		vdata2[6] = vdata[1]; 
-		vdata2[7] = vdata[2]; 
-		vdata2[0] = vdata[3]; 
-		vdata2[1] = vdata[4]; 
-		vdata2[2] = vdata[5]; 
-		vdata2[3] = vdata[6]; 
-		vdata2[4] = vdata[7]; 
-	}
-else if(s_==4){ 
-		vdata2[4] = vdata[0]; 
-		vdata2[5] = vdata[1]; 
-		vdata2[6] = vdata[2]; 
-		vdata2[7] = vdata[3]; 
-		vdata2[0] = vdata[4]; 
-		vdata2[1] = vdata[5]; 
-		vdata2[2] = vdata[6]; 
-		vdata2[3] = vdata[7]; 
-	}
-else if(s_==5){ 
-		vdata2[3] = vdata[0]; 
-		vdata2[4] = vdata[1]; 
-		vdata2[5] = vdata[2]; 
-		vdata2[6] = vdata[3]; 
-		vdata2[7] = vdata[4]; 
-		vdata2[0] = vdata[5]; 
-		vdata2[1] = vdata[6]; 
-		vdata2[2] = vdata[7]; 
-	}
-else if(s_==6){ 
-		vdata2[2] = vdata[0]; 
-		vdata2[3] = vdata[1]; 
-		vdata2[4] = vdata[2]; 
-		vdata2[5] = vdata[3]; 
-		vdata2[6] = vdata[4]; 
-		vdata2[7] = vdata[5]; 
-		vdata2[0] = vdata[6]; 
-		vdata2[1] = vdata[7]; 
-	}
-else { 
-		vdata2[1] = vdata[0]; 
-		vdata2[2] = vdata[1]; 
-		vdata2[3] = vdata[2]; 
-		vdata2[4] = vdata[3]; 
-		vdata2[5] = vdata[4]; 
-		vdata2[6] = vdata[5]; 
-		vdata2[7] = vdata[6]; 
-		vdata2[0] = vdata[7]; 
-	}
-	return;
-}
-
-void acts_all::PROCESSP1_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
-	unsigned int s_ = s;// % VECTOR_SIZE;
- if(s_==0){ 
-		en2[0] = en[0]; 
-		en2[1] = en[1]; 
-		en2[2] = en[2]; 
-		en2[3] = en[3]; 
-		en2[4] = en[4]; 
-		en2[5] = en[5]; 
-		en2[6] = en[6]; 
-		en2[7] = en[7]; 
-	}
-else if(s_==1){ 
-		en2[7] = en[0]; 
-		en2[0] = en[1]; 
-		en2[1] = en[2]; 
-		en2[2] = en[3]; 
-		en2[3] = en[4]; 
-		en2[4] = en[5]; 
-		en2[5] = en[6]; 
-		en2[6] = en[7]; 
-	}
-else if(s_==2){ 
-		en2[6] = en[0]; 
-		en2[7] = en[1]; 
-		en2[0] = en[2]; 
-		en2[1] = en[3]; 
-		en2[2] = en[4]; 
-		en2[3] = en[5]; 
-		en2[4] = en[6]; 
-		en2[5] = en[7]; 
-	}
-else if(s_==3){ 
-		en2[5] = en[0]; 
-		en2[6] = en[1]; 
-		en2[7] = en[2]; 
-		en2[0] = en[3]; 
-		en2[1] = en[4]; 
-		en2[2] = en[5]; 
-		en2[3] = en[6]; 
-		en2[4] = en[7]; 
-	}
-else if(s_==4){ 
-		en2[4] = en[0]; 
-		en2[5] = en[1]; 
-		en2[6] = en[2]; 
-		en2[7] = en[3]; 
-		en2[0] = en[4]; 
-		en2[1] = en[5]; 
-		en2[2] = en[6]; 
-		en2[3] = en[7]; 
-	}
-else if(s_==5){ 
-		en2[3] = en[0]; 
-		en2[4] = en[1]; 
-		en2[5] = en[2]; 
-		en2[6] = en[3]; 
-		en2[7] = en[4]; 
-		en2[0] = en[5]; 
-		en2[1] = en[6]; 
-		en2[2] = en[7]; 
-	}
-else if(s_==6){ 
-		en2[2] = en[0]; 
-		en2[3] = en[1]; 
-		en2[4] = en[2]; 
-		en2[5] = en[3]; 
-		en2[6] = en[4]; 
-		en2[7] = en[5]; 
-		en2[0] = en[6]; 
-		en2[1] = en[7]; 
-	}
-else { 
-		en2[1] = en[0]; 
-		en2[2] = en[1]; 
-		en2[3] = en[2]; 
-		en2[4] = en[3]; 
-		en2[5] = en[4]; 
-		en2[6] = en[5]; 
-		en2[7] = en[6]; 
-		en2[0] = en[7]; 
-	}
-	return;
-}
-
-parsededge_t acts_all::PROCESSP1_PARSEEDGE(uint32_type data){ 
-	parsededge_t parsededge;
-	parsededge.incr = UTILP1_READFROM_UINT(data, OFFSETOF_SRCV_IN_EDGEDSTVDATA, SIZEOF_SRCV_IN_EDGEDSTVDATA);
-	parsededge.dstvid = UTILP1_READFROM_UINT(data, OFFSETOF_DSTV_IN_EDGEDSTVDATA, SIZEOF_DSTV_IN_EDGEDSTVDATA);
-	return parsededge; 
-}
-
-void acts_all::PROCESSP1_calculateoffsets(keyvalue_capsule_t * buffer, unsigned int size){
-	buffer[0].key = 0;
-	for(buffer_type i=1; i<size; i++){ 
-	#pragma HLS PIPELINE II=2	
-		buffer[i].key = buffer[i-1].key + buffer[i-1].value; 
-	}
-	return;
-}
-
-void acts_all::PROCESSP1_readedgeblockstats(keyvalue_t tempbuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], buffer_type chunk_size, globalparams_t globalparams){
-	if(globalparams.ACTSPARAMS_READOFFLINESTATS == 1){
-		unsigned int sum_values = 0;
-		for(unsigned int p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){ 
-			localcapsule[p].key = 0; 
-			if(p % 2 == 0){ localcapsule[p].value = tempbuffer[p/2][0].key; } else { localcapsule[p].value = tempbuffer[p/2][0].value; }
-			sum_values += localcapsule[p].value;
-		} sum_values -= 8888888;
-		localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value = (chunk_size * VECTOR_SIZE) - sum_values;
-		if(tempbuffer[7][0].value != 8888888 || sum_values > chunk_size * VECTOR_SIZE){
-			#if defined(_DEBUGMODE_CHECKS) && defined(CONFIG_INSERTSTATSMETADATAINEDGES) // CRITICAL FIXME.
-			if(sum_values > chunk_size * VECTOR_SIZE && chunk_size > 0){ cout<<"processedges2: ERROR: sum_values("<<sum_values<<") > chunk_size("<<chunk_size<<") * VECTOR_SIZE. EXITING... "<<endl; actsutilityobj->printkeyvalues("processandbuffer.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); exit(EXIT_FAILURE); } 
-			if(tempbuffer[7][0].value != 8888888){ cout<<"processedges2: ERROR: tempbuffer[7][0].value != 8888888. EXITING... "<<endl; for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"tempbuffer["<<v<<"][0]: "<<tempbuffer[v][0]<<endl; } exit(EXIT_FAILURE); }
-			#endif 
-			unsigned int modelsz = chunk_size / globalparams.ACTSPARAMS_NUM_PARTITIONS; // mock it
-			for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR_SIZE; localcapsule[i].value = modelsz * VECTOR_SIZE; } 
-		}
-	} else {
-		unsigned int modelsz = chunk_size / globalparams.ACTSPARAMS_NUM_PARTITIONS;
-		for(unsigned int i=0; i<globalparams.ACTSPARAMS_NUM_PARTITIONS; i++){ localcapsule[i].key = (i * modelsz) * VECTOR_SIZE; localcapsule[i].value = modelsz * VECTOR_SIZE; } 
-	}
-	PROCESSP1_calculateoffsets(localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS);
-	#ifdef _DEBUGMODE_KERNELPRINTS // DEBUGME_PROCESSEDGES2
-	actsutilityobj->printkeyvalues("processedges2(14).localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); 
-	cout<<"processedges2(15): "<<"chunk_size * VECTOR_SIZE: "<<chunk_size * VECTOR_SIZE<<", globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR_SIZE: "<<(globalparams.ACTSPARAMS_WORKBUFFER_SIZE * VECTOR_SIZE)<<endl;
-	#endif
-}
-
-fetchmessage_t acts_all::PROCESSP1_ACTSreadandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+fetchmessage_t PROCESSP1_read_and_process(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], 
+		batch_type sourcebaseaddr_kvs, batch_type offset_kvs, batch_type size_kvs, travstate_t ptravstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+	// globalparams.ACTSPARAMS_NUM_PARTITIONS replacedby 16
 	fetchmessage_t fetchmessage;
 	fetchmessage.chunksize_kvs = -1;
 	fetchmessage.nextoffset_kvs = -1;
 	if(enable == OFF){ return fetchmessage; }
-	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return fetchmessage; }
 	
-	keyvalue_t E[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=E complete
-	keyvalue_t E2[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=E2 complete
-
-	travstate_t mytravstate = travstate;
-	mytravstate.i_kvs = travstate.i_kvs / 1;
-	mytravstate.end_kvs = travstate.end_kvs / 1;
-	
-	loffset_kvs = loffset_kvs / 1; //
-	buffer_type edgessize_kvs = size_kvs / 1;
-	
-	batch_type offset_kvs = goffset_kvs + loffset_kvs;
-	
-	value_t res[VECTOR_SIZE];
+	keyvalue_t edges_tup[VECTOR_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=edges_tup complete
+	keyvalue_t res[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=res complete
-	unsigned int loadcount[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=loadcount complete
-	unsigned int depths[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=depths complete
-	unsigned int d_kvs[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=d_kvs complete
-	bool enx[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=enx complete
-	bool enx2[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=enx2 complete
-
-	fetchmessage.chunksize_kvs = edgessize_kvs;
+	bool enx;
+	
+	fetchmessage.chunksize_kvs = size_kvs;
 	fetchmessage.nextoffset_kvs = -1;
 	
-	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
-	unsigned int GraphAlgoClass = globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS;
+	ptravstate.i_kvs = offset_kvs;
+	buffer_type chunk_size = UTILP1_getchunksize_kvs(globalparams.ACTSPARAMS_WORKBUFFER_SIZE, ptravstate, 0);
+	unsigned int basecollections_0_2_data1 = collections[0][2].data1;
+	unsigned int basecollections_0_2_data1b = collections[0][2].data1;
 	
-	keyvalue_t edata[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=edata complete
-	keyvalue_t tempbuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
-	#pragma HLS array_partition variable = tempbuffer
-	keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS];
-	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
-	
-	buffer_type chunk_size = UTILP1_getchunksize_kvs(edgessize_kvs, mytravstate, 0);
-	for(unsigned int t=0; t<VECTOR_SIZE; t++){ loadcount[t] = 0; }
-	buffer_type maxsize_kvs[2]; 
-	buffer_type height_kvs = 0;
-	
-	unsigned int MYINVALIDDATA = UTILP1_GETV(INVALIDDATA);
-	unsigned int bufferoffset_kvs = 0;
-	
-	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE
-	for (buffer_type i=0; i<globalparams.SIZEKVS2_REDUCEPARTITION; i++){
-		if(MEMCAP1_READVMASK(vbuffer[0][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 0"<<", vbuffer[0]["<<i<<"]: "<<vbuffer[0][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[1][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 1"<<", vbuffer[1]["<<i<<"]: "<<vbuffer[1][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[2][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 2"<<", vbuffer[2]["<<i<<"]: "<<vbuffer[2][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[3][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 3"<<", vbuffer[3]["<<i<<"]: "<<vbuffer[3][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[4][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 4"<<", vbuffer[4]["<<i<<"]: "<<vbuffer[4][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[5][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 5"<<", vbuffer[5]["<<i<<"]: "<<vbuffer[5][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[6][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 6"<<", vbuffer[6]["<<i<<"]: "<<vbuffer[6][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[7][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 7"<<", vbuffer[7]["<<i<<"]: "<<vbuffer[7][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[8][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 8"<<", vbuffer[8]["<<i<<"]: "<<vbuffer[8][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[9][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 9"<<", vbuffer[9]["<<i<<"]: "<<vbuffer[9][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[10][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 10"<<", vbuffer[10]["<<i<<"]: "<<vbuffer[10][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[11][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 11"<<", vbuffer[11]["<<i<<"]: "<<vbuffer[11][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[12][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 12"<<", vbuffer[12]["<<i<<"]: "<<vbuffer[12][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[13][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 13"<<", vbuffer[13]["<<i<<"]: "<<vbuffer[13][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[14][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 14"<<", vbuffer[14]["<<i<<"]: "<<vbuffer[14][i]<<endl; }
-		if(MEMCAP1_READVMASK(vbuffer[15][i]) == 1){ cout<<"READANDPROCESS: ACTIVE MASK SEEN: @ i: "<<i<<", v: 15"<<", vbuffer[15]["<<i<<"]: "<<vbuffer[15][i]<<endl; }
-	}
-	#endif
-	
-	// read edge block
-	#ifdef DEBUGME_PROCESSEDGES2
-	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<", edgessize_kvs: "<<edgessize_kvs<<", mytravstate.i_kvs: "<<mytravstate.i_kvs<<", mytravstate.end_kvs: "<<mytravstate.end_kvs<<endl;
-	#endif 
-	PROCESSBUFFERPARTITIONS_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS PIPELINE II=1	
-		#ifdef _WIDEWORD
-		tempbuffer[0][i].key = edges[offset_kvs + i].range(31, 0);
-		tempbuffer[0][i].value = edges[offset_kvs + i].range(63, 32);
-		tempbuffer[1][i].key = edges[offset_kvs + i].range(95, 64);
-		tempbuffer[1][i].value = edges[offset_kvs + i].range(127, 96);
-		tempbuffer[2][i].key = edges[offset_kvs + i].range(159, 128);
-		tempbuffer[2][i].value = edges[offset_kvs + i].range(191, 160);
-		tempbuffer[3][i].key = edges[offset_kvs + i].range(223, 192);
-		tempbuffer[3][i].value = edges[offset_kvs + i].range(255, 224);
-		tempbuffer[4][i].key = edges[offset_kvs + i].range(287, 256);
-		tempbuffer[4][i].value = edges[offset_kvs + i].range(319, 288);
-		tempbuffer[5][i].key = edges[offset_kvs + i].range(351, 320);
-		tempbuffer[5][i].value = edges[offset_kvs + i].range(383, 352);
-		tempbuffer[6][i].key = edges[offset_kvs + i].range(415, 384);
-		tempbuffer[6][i].value = edges[offset_kvs + i].range(447, 416);
-		tempbuffer[7][i].key = edges[offset_kvs + i].range(479, 448);
-		tempbuffer[7][i].value = edges[offset_kvs + i].range(511, 480);
-		#else 
-		tempbuffer[0][i].key = edges[offset_kvs + i].data[0].key; 
-		tempbuffer[0][i].value = edges[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = edges[offset_kvs + i].data[1].key; 
-		tempbuffer[1][i].value = edges[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = edges[offset_kvs + i].data[2].key; 
-		tempbuffer[2][i].value = edges[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = edges[offset_kvs + i].data[3].key; 
-		tempbuffer[3][i].value = edges[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = edges[offset_kvs + i].data[4].key; 
-		tempbuffer[4][i].value = edges[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = edges[offset_kvs + i].data[5].key; 
-		tempbuffer[5][i].value = edges[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = edges[offset_kvs + i].data[6].key; 
-		tempbuffer[6][i].value = edges[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = edges[offset_kvs + i].data[7].key; 
-		tempbuffer[7][i].value = edges[offset_kvs + i].data[7].value; 
-		#endif 
-		
-		#ifdef DEBUGME_PROCESSEDGES
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[0].key: "<<edges[offset_kvs + i].data[0].key<<", edges["<<offset_kvs + i<<"].data[0].value: "<<edges[offset_kvs + i].data[0].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[1].key: "<<edges[offset_kvs + i].data[1].key<<", edges["<<offset_kvs + i<<"].data[1].value: "<<edges[offset_kvs + i].data[1].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[2].key: "<<edges[offset_kvs + i].data[2].key<<", edges["<<offset_kvs + i<<"].data[2].value: "<<edges[offset_kvs + i].data[2].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[3].key: "<<edges[offset_kvs + i].data[3].key<<", edges["<<offset_kvs + i<<"].data[3].value: "<<edges[offset_kvs + i].data[3].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[4].key: "<<edges[offset_kvs + i].data[4].key<<", edges["<<offset_kvs + i<<"].data[4].value: "<<edges[offset_kvs + i].data[4].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[5].key: "<<edges[offset_kvs + i].data[5].key<<", edges["<<offset_kvs + i<<"].data[5].value: "<<edges[offset_kvs + i].data[5].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[6].key: "<<edges[offset_kvs + i].data[6].key<<", edges["<<offset_kvs + i<<"].data[6].value: "<<edges[offset_kvs + i].data[6].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[7].key: "<<edges[offset_kvs + i].data[7].key<<", edges["<<offset_kvs + i<<"].data[7].value: "<<edges[offset_kvs + i].data[7].value<<endl; }
-		#endif 
-	}
-	
-	// read edge block stats  
-	PROCESSP1_readedgeblockstats(tempbuffer, localcapsule, chunk_size, globalparams);
-	
-	// process edge block stats 
-	maxsize_kvs[0] = 0; maxsize_kvs[1] = 0;
-	unsigned int _poff = 0;
-	PROCESSBUFFERPARTITIONS_LOOP3: for(unsigned int cid=0; cid<2; cid++){
-		PROCESSBUFFERPARTITIONS_LOOP3B: for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS/2; p++){
-		#pragma HLS PIPELINE II=2
-			unsigned int ssize_kvs = localcapsule[_poff + p].value / VECTOR_SIZE;
-			if(maxsize_kvs[cid] < ssize_kvs){ maxsize_kvs[cid] = ssize_kvs; }
-		}
-		_poff += globalparams.ACTSPARAMS_NUM_PARTITIONS/2;
-	}
-	height_kvs = (localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].key + localcapsule[globalparams.ACTSPARAMS_NUM_PARTITIONS-1].value) / VECTOR_SIZE;
+	unsigned int upperlimit = sweepparams.source_partition * globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
 
-	for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){
-		localcapsule_kvs[p].key = localcapsule[p].key / VECTOR_SIZE;
-		localcapsule_kvs[p].value = (localcapsule[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE;
-	}
-	
-	// process edge block
-	unsigned int readoffset = 0; if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
-	PROCESSBUFFERPARTITIONS_MAINLOOP4: for(buffer_type capsule_offset=0; capsule_offset<globalparams.ACTSPARAMS_NUM_PARTITIONS; capsule_offset+=VECTOR_SIZE){ // processing next capsule set
-		unsigned int mmaxsz_kvs = maxsize_kvs[capsule_offset / VECTOR_SIZE];
-		PROCESSBUFFERPARTITIONS_MAINLOOP4C: for(unsigned int r=0; r<VECTOR_SIZE; r++){ // interchanging columns
-			PROCESSBUFFERPARTITIONS_MAINLOOP4D: for(buffer_type i=0; i<mmaxsz_kvs; i++){ // processing a column data
-			#pragma HLS PIPELINE II=1
-				#ifdef _DEBUGMODE_CHECKS2
-				actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-				#endif
-				
-				// get layout
-				PROCESSP1_GetXYLayoutV(r, depths, 0);
-				#ifdef _DEBUGMODE_CHECKS3
-				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[0], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[0], NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[1], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[1], NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[2], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[2], NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[3], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[3], NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[4], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[4], NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[5], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[5], NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[6], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[6], NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(13)::DEBUG CODE 13::1", capsule_offset + depths[7], globalparams.ACTSPARAMS_NUM_PARTITIONS, capsule_offset, depths[7], NAp);
- 
-				#endif
-				
-				// calculate enable
-				enx[0] = true;	
-				enx[1] = true;	
-				enx[2] = true;	
-				enx[3] = true;	
-				enx[4] = true;	
-				enx[5] = true;	
-				enx[6] = true;	
-				enx[7] = true;	
-				
-				// read 
-				unsigned int tdepth0 = capsule_offset + depths[0];	
-				d_kvs[0] = readoffset + localcapsule_kvs[tdepth0].key + i; 
-				unsigned int tdepth1 = capsule_offset + depths[1];	
-				d_kvs[1] = readoffset + localcapsule_kvs[tdepth1].key + i; 
-				unsigned int tdepth2 = capsule_offset + depths[2];	
-				d_kvs[2] = readoffset + localcapsule_kvs[tdepth2].key + i; 
-				unsigned int tdepth3 = capsule_offset + depths[3];	
-				d_kvs[3] = readoffset + localcapsule_kvs[tdepth3].key + i; 
-				unsigned int tdepth4 = capsule_offset + depths[4];	
-				d_kvs[4] = readoffset + localcapsule_kvs[tdepth4].key + i; 
-				unsigned int tdepth5 = capsule_offset + depths[5];	
-				d_kvs[5] = readoffset + localcapsule_kvs[tdepth5].key + i; 
-				unsigned int tdepth6 = capsule_offset + depths[6];	
-				d_kvs[6] = readoffset + localcapsule_kvs[tdepth6].key + i; 
-				unsigned int tdepth7 = capsule_offset + depths[7];	
-				d_kvs[7] = readoffset + localcapsule_kvs[tdepth7].key + i; 
- 	
- // FIXME.
-				if(d_kvs[0] < height_kvs && i < localcapsule_kvs[tdepth0].value){ E[0] = tempbuffer[0][d_kvs[0]]; } else { enx[0] = false; E[0].key = INVALIDDATA; }	
- // FIXME.
-				if(d_kvs[1] < height_kvs && i < localcapsule_kvs[tdepth1].value){ E[1] = tempbuffer[1][d_kvs[1]]; } else { enx[1] = false; E[1].key = INVALIDDATA; }	
- // FIXME.
-				if(d_kvs[2] < height_kvs && i < localcapsule_kvs[tdepth2].value){ E[2] = tempbuffer[2][d_kvs[2]]; } else { enx[2] = false; E[2].key = INVALIDDATA; }	
- // FIXME.
-				if(d_kvs[3] < height_kvs && i < localcapsule_kvs[tdepth3].value){ E[3] = tempbuffer[3][d_kvs[3]]; } else { enx[3] = false; E[3].key = INVALIDDATA; }	
- // FIXME.
-				if(d_kvs[4] < height_kvs && i < localcapsule_kvs[tdepth4].value){ E[4] = tempbuffer[4][d_kvs[4]]; } else { enx[4] = false; E[4].key = INVALIDDATA; }	
- // FIXME.
-				if(d_kvs[5] < height_kvs && i < localcapsule_kvs[tdepth5].value){ E[5] = tempbuffer[5][d_kvs[5]]; } else { enx[5] = false; E[5].key = INVALIDDATA; }	
- // FIXME.
-				if(d_kvs[6] < height_kvs && i < localcapsule_kvs[tdepth6].value){ E[6] = tempbuffer[6][d_kvs[6]]; } else { enx[6] = false; E[6].key = INVALIDDATA; }	
- // FIXME.
-				if(d_kvs[7] < height_kvs && i < localcapsule_kvs[tdepth7].value){ E[7] = tempbuffer[7][d_kvs[7]]; } else { enx[7] = false; E[7].key = INVALIDDATA; }	
- 	
-				
-				// for BFS implementation
-				collections[0][2].data1 += VECTOR_SIZE;
-				if(globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){  
-					if(collections[0][2].data1 >= globalposition.num_active_edges_in_channel){  enx[0] = false;  enx[1] = false;  enx[2] = false;  enx[3] = false;  enx[4] = false;  enx[5] = false;  enx[6] = false;  enx[7] = false;  }
-				}
-				
-				// process
-				PROCESSP1_processvector(enx[0], 0, E[0].value, E[0], vbuffer[capsule_offset + 0], buffer[0], bufferoffset_kvs, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
-				PROCESSP1_processvector(enx[1], 1, E[1].value, E[1], vbuffer[capsule_offset + 1], buffer[1], bufferoffset_kvs, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
-				PROCESSP1_processvector(enx[2], 2, E[2].value, E[2], vbuffer[capsule_offset + 2], buffer[2], bufferoffset_kvs, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
-				PROCESSP1_processvector(enx[3], 3, E[3].value, E[3], vbuffer[capsule_offset + 3], buffer[3], bufferoffset_kvs, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
-				PROCESSP1_processvector(enx[4], 4, E[4].value, E[4], vbuffer[capsule_offset + 4], buffer[4], bufferoffset_kvs, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
-				PROCESSP1_processvector(enx[5], 5, E[5].value, E[5], vbuffer[capsule_offset + 5], buffer[5], bufferoffset_kvs, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
-				PROCESSP1_processvector(enx[6], 6, E[6].value, E[6], vbuffer[capsule_offset + 6], buffer[6], bufferoffset_kvs, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
-				PROCESSP1_processvector(enx[7], 7, E[7].value, E[7], vbuffer[capsule_offset + 7], buffer[7], bufferoffset_kvs, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
-	
-				#ifdef _DEBUGMODE_CHECKS2
-				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[0], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[1], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[2], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[3], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[4], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[5], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[6], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[7], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
- 
-				#endif
-			}
-		}
-	}
-	
-	// actsutilityobj->printkeyvalues("ACTSreadandprocess.localcapsule", (keyvalue_t *)localcapsule, globalparams.ACTSPARAMS_NUM_PARTITIONS); 
-	// for(unsigned int t=0; t<VECTOR_SIZE; t++){ cout<<"ACTSreadandprocess: loadcount["<<t<<"]: "<<loadcount[t]<<endl; }
-	// for(unsigned int v=0; v<VECTOR_SIZE; v++){ for(unsigned int t=0; t<4; t++){ cout<<"processedges:: buffer["<<v<<"]["<<t<<"].key: "<<UTILP1_GETKV(buffer[v][t]).key<<", buffer["<<v<<"]["<<t<<"].value: "<<UTILP1_GETKV(buffer[v][t]).value<<endl; }}
-	unsigned int maxsz_kvs = 0; for(unsigned int t=0; t<VECTOR_SIZE; t++){ if(loadcount[t] > maxsz_kvs){ maxsz_kvs = loadcount[t]; }}
-	fetchmessage.chunksize_kvs = maxsz_kvs;//chunk_size * 2; // loadcount; // CRITICAL FIXME
-	// cout<<"--- processedges: chunk_size: "<<chunk_size<<", fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
-	// actsutilityobj->printglobalvars();
-	// exit(EXIT_SUCCESS);
-	return fetchmessage;
-}
-
-fetchmessage_t acts_all::PROCESSP1_ACTS2readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
-	fetchmessage_t fetchmessage;
-	fetchmessage.chunksize_kvs = -1;
-	fetchmessage.nextoffset_kvs = -1;
-	if(enable == OFF){ return fetchmessage; }
-	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ return fetchmessage; }
-	
-	travstate_t mytravstate = travstate;
-	mytravstate.i_kvs = travstate.i_kvs / 1;
-	mytravstate.end_kvs = travstate.end_kvs / 1;
-	
-	loffset_kvs = loffset_kvs / 1; //
-	buffer_type edgessize_kvs = size_kvs / 1;
-	
-	batch_type offset_kvs = goffset_kvs + loffset_kvs;
-	
-	unsigned int loadcount[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=loadcount complete
-	bool enx[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=enx complete
-	keyvalue_t edges_reg[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=edges_reg complete
-
-	fetchmessage.chunksize_kvs = edgessize_kvs;
-	fetchmessage.nextoffset_kvs = -1;
-	
-	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
-	unsigned int GraphAlgoClass = globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS;
-	
-	buffer_type chunk_size = UTILP1_getchunksize_kvs(edgessize_kvs, mytravstate, 0);
-	for(unsigned int t=0; t<VECTOR_SIZE; t++){ loadcount[t] = 0; }
-
-	PROCESSBUFFERPARTITIONS_MAINLOOP1: for(buffer_type i=0; i<chunk_size; i++){ // processing a column data
+	ACTIT2_PP0_READ_PROC_ST_MAINLOOP1: for(buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS2
 		actsutilityobj->checkoutofbounds("readandprocess2(12)::DEBUG CODE 12::1", i, MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
 		#endif
 		
 		// decision flag
- enx[0] = true;  enx[1] = true;  enx[2] = true;  enx[3] = true;  enx[4] = true;  enx[5] = true;  enx[6] = true;  enx[7] = true; 		
-		// get dataset
-		UTILP1_GetDataset(edges, offset_kvs + i, edges_reg);
+		enx = true;
 		
-		// for BFS implementation
-		if(globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && collections[0][2].data1 >= globalposition.num_active_edges_in_channel){  enx[0] = false;  enx[1] = false;  enx[2] = false;  enx[3] = false;  enx[4] = false;  enx[5] = false;  enx[6] = false;  enx[7] = false;  }
-		else { collections[0][2].data1 += VECTOR_SIZE; }
+		// get dataset
+		UTILP1_GetDataset(edges, sourcebaseaddr_kvs + offset_kvs + i, edges_tup);
+	
+		
+		// set flag
+		enx = true;
+		if((globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE) && (basecollections_0_2_data1 + VECTOR_SIZE >= globalposition.num_active_edges_in_channel)){ enx = false; } // for BFS implementation
+		else { basecollections_0_2_data1b += VECTOR_SIZE; }
 		
 		// process
-		PROCESSP1_processvector(enx[0], 0, edges_reg[0].value, edges_reg[0], vbuffer[0], buffer[0], 0, &loadcount[0], GraphAlgoClass, globalposition, globalparams);
-		PROCESSP1_processvector(enx[1], 1, edges_reg[1].value, edges_reg[1], vbuffer[1], buffer[1], 0, &loadcount[1], GraphAlgoClass, globalposition, globalparams);
-		PROCESSP1_processvector(enx[2], 2, edges_reg[2].value, edges_reg[2], vbuffer[2], buffer[2], 0, &loadcount[2], GraphAlgoClass, globalposition, globalparams);
-		PROCESSP1_processvector(enx[3], 3, edges_reg[3].value, edges_reg[3], vbuffer[3], buffer[3], 0, &loadcount[3], GraphAlgoClass, globalposition, globalparams);
-		PROCESSP1_processvector(enx[4], 4, edges_reg[4].value, edges_reg[4], vbuffer[4], buffer[4], 0, &loadcount[4], GraphAlgoClass, globalposition, globalparams);
-		PROCESSP1_processvector(enx[5], 5, edges_reg[5].value, edges_reg[5], vbuffer[5], buffer[5], 0, &loadcount[5], GraphAlgoClass, globalposition, globalparams);
-		PROCESSP1_processvector(enx[6], 6, edges_reg[6].value, edges_reg[6], vbuffer[6], buffer[6], 0, &loadcount[6], GraphAlgoClass, globalposition, globalparams);
-		PROCESSP1_processvector(enx[7], 7, edges_reg[7].value, edges_reg[7], vbuffer[7], buffer[7], 0, &loadcount[7], GraphAlgoClass, globalposition, globalparams);
+		res[0] = PROCESSP1_processvector(enx, 0, edges_tup[0].value - upperlimit, upperlimit, edges_tup[0], vbuffer_source[0], globalparams);
+		res[1] = PROCESSP1_processvector(enx, 1, edges_tup[1].value - upperlimit, upperlimit, edges_tup[1], vbuffer_source[1], globalparams);
+		res[2] = PROCESSP1_processvector(enx, 2, edges_tup[2].value - upperlimit, upperlimit, edges_tup[2], vbuffer_source[2], globalparams);
+		res[3] = PROCESSP1_processvector(enx, 3, edges_tup[3].value - upperlimit, upperlimit, edges_tup[3], vbuffer_source[3], globalparams);
+		res[4] = PROCESSP1_processvector(enx, 4, edges_tup[4].value - upperlimit, upperlimit, edges_tup[4], vbuffer_source[4], globalparams);
+		res[5] = PROCESSP1_processvector(enx, 5, edges_tup[5].value - upperlimit, upperlimit, edges_tup[5], vbuffer_source[5], globalparams);
+		res[6] = PROCESSP1_processvector(enx, 6, edges_tup[6].value - upperlimit, upperlimit, edges_tup[6], vbuffer_source[6], globalparams);
+		res[7] = PROCESSP1_processvector(enx, 7, edges_tup[7].value - upperlimit, upperlimit, edges_tup[7], vbuffer_source[7], globalparams);
 	
-		#ifdef _DEBUGMODE_CHECKS2
-		actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[0], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[1], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[2], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[3], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[4], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[5], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[6], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-		actsutilityobj->checkoutofbounds("readandprocess2(14)::DEBUG CODE 14::1", loadcount[7], MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
- 
-		#endif
+		
+		// write to buffer 
+		if(enx == true){
+			destbuffer[0][i] = UTILP1_GETKV(res[0]);
+			destbuffer[1][i] = UTILP1_GETKV(res[1]);
+			destbuffer[2][i] = UTILP1_GETKV(res[2]);
+			destbuffer[3][i] = UTILP1_GETKV(res[3]);
+			destbuffer[4][i] = UTILP1_GETKV(res[4]);
+			destbuffer[5][i] = UTILP1_GETKV(res[5]);
+			destbuffer[6][i] = UTILP1_GETKV(res[6]);
+			destbuffer[7][i] = UTILP1_GETKV(res[7]);
+		}
+		
+		#ifdef _DEBUGMODE_STATS
+		if(enx == true){
+			actsutilityobj->globalstats_countkvsprocessed(globalparams.ACTSPARAMS_INSTID, VECTOR_SIZE);
+			actsutilityobj->globalstats_processedges_countvalidkvsprocessed(globalparams.ACTSPARAMS_INSTID, VECTOR_SIZE); }
+		#endif 
 	}
-	
-	// cout<<"_ACTSreadandprocess_presorted: chunk_size: "<<chunk_size<<", collections[0][2].data1: "<<collections[0][2].data1<<", globalposition.num_active_edges_in_channel: "<<globalposition.num_active_edges_in_channel<<endl;
-	// for(unsigned int t=0; t<VECTOR_SIZE; t++){ cout<<"_ACTSreadandprocess_presorted: loadcount["<<t<<"]: "<<loadcount[t]<<endl; }
-	// for(unsigned int v=0; v<VECTOR_SIZE; v++){ for(unsigned int t=0; t<4; t++){ cout<<"processedges:: buffer["<<v<<"]["<<t<<"].key: "<<UTILP1_GETKV(buffer[v][t]).key<<", buffer["<<v<<"]["<<t<<"].value: "<<UTILP1_GETKV(buffer[v][t]).value<<endl; }}
-	unsigned int maxsz_kvs = 0; for(unsigned int t=0; t<VECTOR_SIZE; t++){ if(loadcount[t] > maxsz_kvs){ maxsz_kvs = loadcount[t]; }}
-	fetchmessage.chunksize_kvs = maxsz_kvs;//chunk_size * 2; // loadcount; // CRITICAL FIXME
-	// cout<<"_ACTSreadandprocess_presorted: chunk_size: "<<chunk_size<<", fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
+	collections[0][2].data1 = basecollections_0_2_data1b;
+	fetchmessage.chunksize_kvs = chunk_size; // loadcount; // CRITICAL FIXME
+	// cout<<"--- processedges: chunk_size: "<<chunk_size<<", fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
 	// actsutilityobj->printglobalvars();
 	// exit(EXIT_SUCCESS);
 	return fetchmessage;
 }
 
-fetchmessage_t acts_all::PROCESSP1_TRADreadandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], 
+fetchmessage_t PROCESSP1_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
-	fetchmessage_t fetchmessage;
-	fetchmessage.chunksize_kvs = -1;
-	fetchmessage.nextoffset_kvs = -1;
-	if(enable == OFF){ return fetchmessage; }
-	if(globalposition.num_active_vertices < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ 
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ACTSP1_actit: Hybrid Check: num_active_vertices("<<globalposition.num_active_vertices<<") < globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION("<<globalparams.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION<<"). USING TRADITIONAL GP INSTEAD.... !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl; 
-		#endif 
-		return fetchmessage; } // FIXXXXXXXXMMMMMMMMMMMEEEEEEEEEEEEEEEEEEEEEEE.						
-	
-	uint32_type E[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=E complete
-	uint32_type E2[VECTOR_SIZE];
-	#pragma HLS ARRAY_PARTITION variable=E2 complete
-
-	travstate_t mytravstate = travstate;
-	mytravstate.i_kvs = travstate.i_kvs / 1;
-	mytravstate.end_kvs = travstate.end_kvs / 1;
-	
-	loffset_kvs = loffset_kvs / 1; //
-	buffer_type edgessize_kvs = size_kvs / 1;
-	
-	batch_type offset_kvs = goffset_kvs + loffset_kvs;
-	
-	unsigned int loadcount;
-
-	fetchmessage.chunksize_kvs = edgessize_kvs;
-	fetchmessage.nextoffset_kvs = -1;
-	
-	unsigned int GraphAlgo = globalparams.ALGORITHMINFO_GRAPHALGORITHMID;
-	unsigned int GraphAlgoClass = globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS;
-	
-	keyvalue_t tempbuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE]; // OPTIMIZEME
-	#pragma HLS array_partition variable = tempbuffer
-	keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS];
-	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
-	
-	buffer_type chunk_size = UTILP1_getchunksize_kvs(edgessize_kvs, mytravstate, 0);
-	loadcount = 0;
-	buffer_type maxsize_kvs[2]; 
-	buffer_type height_kvs = 0;
-	
-	unsigned int MYINVALIDDATA = UTILP1_GETV(INVALIDDATA);
-	unsigned int bufferoffset_kvs = 0;
-	
-	// read edge block
-	#ifdef DEBUGME_PROCESSEDGES2
-	cout<<"processedges2: FIRST: offset_kvs: "<<offset_kvs<<", loffset_kvs: "<<loffset_kvs<<", goffset_kvs: "<<goffset_kvs<<", edgessize_kvs: "<<edgessize_kvs<<", mytravstate.i_kvs: "<<mytravstate.i_kvs<<", mytravstate.end_kvs: "<<mytravstate.end_kvs<<endl;
-	#endif 
-	PROCESSBUFFERPARTITIONS_LOOP1: for(buffer_type i=0; i<chunk_size; i++){
-	#pragma HLS PIPELINE II=1	
-		#ifdef _WIDEWORD
-		tempbuffer[0][i].key = edges[offset_kvs + i].range(31, 0);
-		tempbuffer[0][i].value = edges[offset_kvs + i].range(63, 32);
-		tempbuffer[1][i].key = edges[offset_kvs + i].range(95, 64);
-		tempbuffer[1][i].value = edges[offset_kvs + i].range(127, 96);
-		tempbuffer[2][i].key = edges[offset_kvs + i].range(159, 128);
-		tempbuffer[2][i].value = edges[offset_kvs + i].range(191, 160);
-		tempbuffer[3][i].key = edges[offset_kvs + i].range(223, 192);
-		tempbuffer[3][i].value = edges[offset_kvs + i].range(255, 224);
-		tempbuffer[4][i].key = edges[offset_kvs + i].range(287, 256);
-		tempbuffer[4][i].value = edges[offset_kvs + i].range(319, 288);
-		tempbuffer[5][i].key = edges[offset_kvs + i].range(351, 320);
-		tempbuffer[5][i].value = edges[offset_kvs + i].range(383, 352);
-		tempbuffer[6][i].key = edges[offset_kvs + i].range(415, 384);
-		tempbuffer[6][i].value = edges[offset_kvs + i].range(447, 416);
-		tempbuffer[7][i].key = edges[offset_kvs + i].range(479, 448);
-		tempbuffer[7][i].value = edges[offset_kvs + i].range(511, 480);
-		#else 
-		tempbuffer[0][i].key = edges[offset_kvs + i].data[0].key; 
-		tempbuffer[0][i].value = edges[offset_kvs + i].data[0].value; 
-		tempbuffer[1][i].key = edges[offset_kvs + i].data[1].key; 
-		tempbuffer[1][i].value = edges[offset_kvs + i].data[1].value; 
-		tempbuffer[2][i].key = edges[offset_kvs + i].data[2].key; 
-		tempbuffer[2][i].value = edges[offset_kvs + i].data[2].value; 
-		tempbuffer[3][i].key = edges[offset_kvs + i].data[3].key; 
-		tempbuffer[3][i].value = edges[offset_kvs + i].data[3].value; 
-		tempbuffer[4][i].key = edges[offset_kvs + i].data[4].key; 
-		tempbuffer[4][i].value = edges[offset_kvs + i].data[4].value; 
-		tempbuffer[5][i].key = edges[offset_kvs + i].data[5].key; 
-		tempbuffer[5][i].value = edges[offset_kvs + i].data[5].value; 
-		tempbuffer[6][i].key = edges[offset_kvs + i].data[6].key; 
-		tempbuffer[6][i].value = edges[offset_kvs + i].data[6].value; 
-		tempbuffer[7][i].key = edges[offset_kvs + i].data[7].key; 
-		tempbuffer[7][i].value = edges[offset_kvs + i].data[7].value; 
-		#endif 
-		
-		#ifdef DEBUGME_PROCESSEDGES
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[0].key: "<<edges[offset_kvs + i].data[0].key<<", edges["<<offset_kvs + i<<"].data[0].value: "<<edges[offset_kvs + i].data[0].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[1].key: "<<edges[offset_kvs + i].data[1].key<<", edges["<<offset_kvs + i<<"].data[1].value: "<<edges[offset_kvs + i].data[1].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[2].key: "<<edges[offset_kvs + i].data[2].key<<", edges["<<offset_kvs + i<<"].data[2].value: "<<edges[offset_kvs + i].data[2].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[3].key: "<<edges[offset_kvs + i].data[3].key<<", edges["<<offset_kvs + i<<"].data[3].value: "<<edges[offset_kvs + i].data[3].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[4].key: "<<edges[offset_kvs + i].data[4].key<<", edges["<<offset_kvs + i<<"].data[4].value: "<<edges[offset_kvs + i].data[4].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[5].key: "<<edges[offset_kvs + i].data[5].key<<", edges["<<offset_kvs + i<<"].data[5].value: "<<edges[offset_kvs + i].data[5].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[6].key: "<<edges[offset_kvs + i].data[6].key<<", edges["<<offset_kvs + i<<"].data[6].value: "<<edges[offset_kvs + i].data[6].value<<endl; }
-		if(i<4){ cout<<"processedges2: +++ sample edge: edges["<<offset_kvs + i<<"].data[7].key: "<<edges[offset_kvs + i].data[7].key<<", edges["<<offset_kvs + i<<"].data[7].value: "<<edges[offset_kvs + i].data[7].value<<endl; }
-		#endif 
-	}
-	
-	// read edge block stats  
-	PROCESSP1_readedgeblockstats(tempbuffer, localcapsule, chunk_size, globalparams);
-
-	unsigned int readoffset = 0; if(globalparams.ACTSCONFIG_INSERTSTATSMETADATAINEDGES == 1){ readoffset = 1; }
-	PROCESSBUFFERPARTITIONS_LOOP2A: for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){
-		PROCESSBUFFERPARTITIONS_LOOP2B: for(buffer_type i=localcapsule[p].key; i<localcapsule[p].key + localcapsule[p].value; i++){
-		#pragma HLS PIPELINE II=1
-			#ifdef _DEBUGMODE_CHECKS3
-			actsutilityobj->checkoutofbounds("TRADreadandprocess(14)::DEBUG CODE 12::1", readoffset + (i / VECTOR_SIZE), MAX_SOURCEBLOCKRAM_SIZE, NAp, NAp, NAp);
-			#endif
-			keyvalue_t E = tempbuffer[i % VECTOR_SIZE][readoffset + (i / VECTOR_SIZE)];
-			#ifdef _DEBUGMODE_CHECKS//3
-			if(E.key==8888888 || E.value==8888888){ cout<<"processedges2: ERROR 65. E2==8888888. EXITING..."<<endl; exit(EXIT_FAILURE); }
-			#endif 
-			bool en = true; 
-			
-			// read 
-			vmdata_t vmdata;
-			unsigned int loc = E.value; //  - sweepparams.upperlimit;
-			if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION){
-				#ifdef _DEBUGMODE_CHECKS
-				if(true){ cout<<"TRADreadandprocess::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZE_REDUCE("<<globalparams.SIZE_REDUCE<<"). E.key: "<<E.key<<", E.value: "<<E.value<<", v: "<<v<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
-				#endif 
-				loc = 0; }
-		
-			keyvalue_vbuffer_t bits_vector = 0; 
-			#ifdef _DEBUGMODE_CHECKS3
-			if(en == true){ actsutilityobj->checkoutofbounds("TRADreadandprocess(14)::DEBUG CODE 113::1", bufferoffset_kvs + (loc / VDATA_SHRINK_RATIO), MAX_BLOCKRAM_VSRCDATA_SIZE, bufferoffset_kvs, loc, VDATA_SHRINK_RATIO); }
-			#endif
-			if(en == true){ bits_vector = vbuffer[p][bufferoffset_kvs + (loc / VDATA_SHRINK_RATIO)]; }
-			if(en == true){ vmdata = MEMCAP1_READFROMBUFFER_VDATAWITHVMASK(bits_vector); } else { vmdata.vmask = 0; }
-							
-			if(GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ vmdata.vmask = 1; }
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-			if(vmdata.vmask == 1){ cout<<">>> PROCESS VECTOR:: ACTIVE VERTEX PROCESSED: SEEN: @ loc: "<<loc<<", E.key: "<<E.key<<", E.value(srcvid): "<<E.value<<", vid: "<<UTILP1_GETREALVID(E.key, globalparams.ACTSPARAMS_INSTID)<<endl; }
-			#endif
-					
-			// process
-			value_t res = PROCESSP1_processfunc(vmdata.vdata, 1, globalparams.ALGORITHMINFO_GRAPHALGORITHMID);
-			keyvalue_t mykeyvalue; mykeyvalue.key = E.key; mykeyvalue.value = res;
-			
-			// write
-			#ifdef _DEBUGMODE_CHECKS3
-			actsutilityobj->checkoutofbounds("TRADreadandprocess(14)::DEBUG CODE 14::1", loadcount, MAX_SOURCEBLOCKRAM_SIZE * VECTOR_SIZE, NAp, NAp, NAp);
-			#endif
-			if(en == true && vmdata.vmask == 1 && loadcount < ((globalparams.ACTSPARAMS_WORKBUFFER_SIZE-2) * VECTOR_SIZE)){ buffer[loadcount % VECTOR_SIZE][loadcount / VECTOR_SIZE] = UTILP1_GETKV(mykeyvalue); }
-			if(en == true && vmdata.vmask == 1 && loadcount < ((globalparams.ACTSPARAMS_WORKBUFFER_SIZE-2) * VECTOR_SIZE)){ loadcount += 1; }
-	
-			#ifdef _DEBUGMODE_STATS
-			actsutilityobj->globalstats_countkvsprocessed(globalparams.ACTSPARAMS_INSTID, 1);
-			if(en == true && vmdata.vmask == 1 && loadcount < ((globalparams.ACTSPARAMS_WORKBUFFER_SIZE-2) * VECTOR_SIZE)){ actsutilityobj->globalstats_processedges_countvalidkvsprocessed(globalparams.ACTSPARAMS_INSTID, 1); } // mask0? FIXME.
-			#endif
-		}
-	}
-
-	fetchmessage.chunksize_kvs = (loadcount + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
-	// exit(EXIT_SUCCESS);
-	// cout<<">>> PROCESS VECTOR:: ^^^^^^^^^^ACTIVE VERTEX PROCESSED: SEEN: @ fetchmessage.chunksize_kvs: "<<fetchmessage.chunksize_kvs<<endl;
-	// exit(EXIT_SUCCESS);
-	return fetchmessage;
-}
-
-fetchmessage_t acts_all::PROCESSP1_readandprocess(bool_type enable, uint512_dt * edges, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], 
-		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
-	// return PROCESSP1_ACTSreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-	return PROCESSP1_ACTS2readandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
-	// return PROCESSP1_TRADreadandprocess(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
+	return PROCESSP1_read_and_process(enable, edges, kvdram, vbuffer, buffer, goffset_kvs, loffset_kvs, size_kvs, travstate,  sweepparams, globalposition, globalparams, collections);
 }
 
 
@@ -8026,7 +7439,7 @@ fetchmessage_t acts_all::PROCESSP1_readandprocess(bool_type enable, uint512_dt *
 #endif 
 #ifdef CONFIG_ENABLECLASS_PARTITIONUPDATES
 // single stage partitioning 
-void acts_all::PARTITIONP1_read_process_partition(bool_type enable, unsigned int mode, unsigned int offset_kvs, unsigned int sourcebaseaddr_kvs, 
+void PARTITIONP1_read_process_partition(bool_type enable, unsigned int mode, unsigned int offset_kvs, unsigned int sourcebaseaddr_kvs, 
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_dest[MAX_NUM_PARTITIONS], 
 			travstate_t ptravstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	// globalparams.ACTSPARAMS_NUM_PARTITIONS replacedby 16
@@ -8046,6 +7459,8 @@ void acts_all::PARTITIONP1_read_process_partition(bool_type enable, unsigned int
 	
 	unsigned int modelsz = chunk_size / VECTOR_SIZE; // CRITICAL FIXME.
 	for(unsigned int p=0; p<16; p++){ capsule_kvs[p].key = 0; capsule_kvs[p].value = 0; }
+	
+	unsigned int upperlimit = sweepparams.source_partition * globalparams.SIZEKVS2_PROCESSEDGESPARTITION;
 
 	ACTIT2_PP0_READ_PROC_PART_ST_MAINLOOP1: for(buffer_type i=0; i<chunk_size; i++){ 
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1 avg=analysis_loopcount1
@@ -8067,14 +7482,14 @@ void acts_all::PARTITIONP1_read_process_partition(bool_type enable, unsigned int
 		else { basecollections_0_2_data1b += VECTOR_SIZE; }
 		
 		// process
-		res[0] = PROCESSP1_processvector(enx, 0, edges_tup[0].value, edges_tup[0], vbuffer_source[0], globalparams);
-		res[1] = PROCESSP1_processvector(enx, 1, edges_tup[1].value, edges_tup[1], vbuffer_source[1], globalparams);
-		res[2] = PROCESSP1_processvector(enx, 2, edges_tup[2].value, edges_tup[2], vbuffer_source[2], globalparams);
-		res[3] = PROCESSP1_processvector(enx, 3, edges_tup[3].value, edges_tup[3], vbuffer_source[3], globalparams);
-		res[4] = PROCESSP1_processvector(enx, 4, edges_tup[4].value, edges_tup[4], vbuffer_source[4], globalparams);
-		res[5] = PROCESSP1_processvector(enx, 5, edges_tup[5].value, edges_tup[5], vbuffer_source[5], globalparams);
-		res[6] = PROCESSP1_processvector(enx, 6, edges_tup[6].value, edges_tup[6], vbuffer_source[6], globalparams);
-		res[7] = PROCESSP1_processvector(enx, 7, edges_tup[7].value, edges_tup[7], vbuffer_source[7], globalparams);
+		res[0] = PROCESSP1_processvector(enx, 0, edges_tup[0].value - upperlimit, upperlimit, edges_tup[0], vbuffer_source[0], globalparams);
+		res[1] = PROCESSP1_processvector(enx, 1, edges_tup[1].value - upperlimit, upperlimit, edges_tup[1], vbuffer_source[1], globalparams);
+		res[2] = PROCESSP1_processvector(enx, 2, edges_tup[2].value - upperlimit, upperlimit, edges_tup[2], vbuffer_source[2], globalparams);
+		res[3] = PROCESSP1_processvector(enx, 3, edges_tup[3].value - upperlimit, upperlimit, edges_tup[3], vbuffer_source[3], globalparams);
+		res[4] = PROCESSP1_processvector(enx, 4, edges_tup[4].value - upperlimit, upperlimit, edges_tup[4], vbuffer_source[4], globalparams);
+		res[5] = PROCESSP1_processvector(enx, 5, edges_tup[5].value - upperlimit, upperlimit, edges_tup[5], vbuffer_source[5], globalparams);
+		res[6] = PROCESSP1_processvector(enx, 6, edges_tup[6].value - upperlimit, upperlimit, edges_tup[6], vbuffer_source[6], globalparams);
+		res[7] = PROCESSP1_processvector(enx, 7, edges_tup[7].value - upperlimit, upperlimit, edges_tup[7], vbuffer_source[7], globalparams);
 	
 		
 		// partition
@@ -8115,7 +7530,7 @@ void acts_all::PARTITIONP1_read_process_partition(bool_type enable, unsigned int
 }
 
 // stage 1 partitioning
-void acts_all::PARTITIONP1_ACTSstage1partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
+void PARTITIONP1_partition_stage1(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_dummyfiller = MAX_SRCBUFFER_SIZE - globalparams.ACTSPARAMS_WORKBUFFER_SIZE;
 	
@@ -8419,7 +7834,7 @@ actsutilityobj->checkfordivisibleby(ON, "preparekeyvalues:emptyslot[0]", emptysl
 	return;
 }
 
-void acts_all::PARTITIONP1_TRADstage1partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
+void PARTITIONP1_partition_stage1_trad(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){				
 	if(enable1 == OFF && enable2 == OFF){ return; }
 	analysis_type analysis_loop1 = globalparams.ACTSPARAMS_WORKBUFFER_SIZE;
 	analysis_type analysis_dummyfiller = MAX_SRCBUFFER_SIZE - globalparams.ACTSPARAMS_WORKBUFFER_SIZE;
@@ -8470,15 +7885,14 @@ void acts_all::PARTITIONP1_TRADstage1partitioning(bool_type enable1, bool_type e
 	return;
 }
 
-void acts_all::PARTITIONP1_stage1partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
-	PARTITIONP1_ACTSstage1partitioning(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
-	// PARTITIONP1_TRADstage1partitioning(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
-	// PARTITIONP1_ACTS2stage1partitioning(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
+void PARTITIONP1_partitionbase_stage1(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE], keyvalue_buffer_t destbuffer[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[VECTOR_SIZE][MAX_NUM_PARTITIONS], step_type currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type size_kvs, buffer_type cutoffs[VECTOR_SIZE], globalparams_t globalparams){
+	PARTITIONP1_partition_stage1(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
+	// PARTITIONP1_partition_stage1_trad(enable1, enable2, mode, sourcebuffer, destbuffer, localcapsule, currentLOP, sweepparams, globalposition, size_kvs, cutoffs, globalparams);
 	return;
 }
 
 // stage 2 partitioning
-void acts_all::PARTITIONP1_ACTSstage2partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void PARTITIONP1_partition_stage2(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){		
 	if(enable1 == OFF){ return; }
@@ -8523,7 +7937,7 @@ void acts_all::PARTITIONP1_ACTSstage2partitioning(bool_type enable1, bool_type e
 	#ifdef ALLVERTEXISACTIVE_ALGORITHM
 	if(maxcutoff % 4 != 0){ maxcutoff = 0; } // 4, CRITICAL FIXME.
 	#endif 
-	// cout<<"------------------- acts_all::ACTSP1_actspipeline: maxcutoff: "<<maxcutoff<<endl;
+	// cout<<"------------------- ACTSP1_actspipeline: maxcutoff: "<<maxcutoff<<endl;
 	
 	keyvalue_t mydummykv;
 	mydummykv.key = 0;
@@ -8674,7 +8088,7 @@ void acts_all::PARTITIONP1_ACTSstage2partitioning(bool_type enable1, bool_type e
 	return;
 }
 
-void acts_all::PARTITIONP1_TRADstage2partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void PARTITIONP1_partition_stage2_trad(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){
 	if(enable1 == OFF && enable2 == OFF){ return; }
@@ -8757,18 +8171,18 @@ void acts_all::PARTITIONP1_TRADstage2partitioning(bool_type enable1, bool_type e
 	return;
 }
 
-void acts_all::PARTITIONP1_stage2partitioning(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
+void PARTITIONP1_partitionbase_stage2(bool_type enable1, bool_type enable2, unsigned int mode, keyvalue_buffer_t buffer_setof1[VECTOR_SIZE][BLOCKRAM_SIZE], keyvalue_capsule_t capsule_so1[VECTOR_SIZE][MAX_NUM_PARTITIONS], 
 						keyvalue_buffer_t buffer_setof8[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS],
 							unsigned int currentLOP, sweepparams_t sweepparams, globalposition_t globalposition, buffer_type cutoffs[VECTOR_SIZE], batch_type shiftcount, globalparams_t globalparams){
-	PARTITIONP1_ACTSstage2partitioning(enable1, enable2, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, currentLOP, sweepparams, globalposition, cutoffs, shiftcount, globalparams);		
-	// PARTITIONP1_TRADstage2partitioning(enable1, enable2, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, currentLOP, sweepparams, globalposition, cutoffs, shiftcount, globalparams);
+	PARTITIONP1_partition_stage2(enable1, enable2, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, currentLOP, sweepparams, globalposition, cutoffs, shiftcount, globalparams);		
+	// PARTITIONP1_partition_stage2_trad(enable1, enable2, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, currentLOP, sweepparams, globalposition, cutoffs, shiftcount, globalparams);
 }
 
 
 	
 #endif 
 #ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
-void acts_all::REDUCEP1_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, unsigned int * memory, sweepparams_t sweepparams, globalparams_t globalparams){
+void REDUCEP1_reducevector(bool enx, unsigned int col, keyvalue_buffer_t kvdata, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], buffer_type destoffset, unsigned int upperlimit, unsigned int * memory, sweepparams_t sweepparams, globalparams_t globalparams){
 	#pragma HLS INLINE
 	// #pragma HLS PIPELINE II=3
 	
@@ -8779,7 +8193,7 @@ void acts_all::REDUCEP1_reducevector(bool enx, unsigned int col, keyvalue_buffer
 	#endif
 	
 	bool en = true;
-	if(mykeyvalue.key == UTILP1_GETK(INVALIDDATA) || mykeyvalue.value == UTILP1_GETV(INVALIDDATA) || mykeyvalue.key == MAXVDATA || mykeyvalue.value == MAXVDATA){ en = false; } // REMOVEME?????????????????????????????
+	if(mykeyvalue.key == UTILP1_GETK(INVALIDDATA) || mykeyvalue.value == UTILP1_GETV(INVALIDDATA) || mykeyvalue.key == MAXVDATA || mykeyvalue.value == MAXVDATA){ en = false; }
 	if(mykeyvalue.key == 0 && mykeyvalue.value == 0){ en = false; }
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	if(en == true){ cout<<"$$$ REDUCE VECTOR:: REDUCE SEEN @ instance "<<globalparams.ACTSPARAMS_INSTID<<", col: "<<col<<", loc: "<<loc<<", vid: "<<UTILP1_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID)<<", partition: "<<UTILP1_GETREALVID(mykeyvalue.key, globalparams.ACTSPARAMS_INSTID) / (globalparams.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE)<<", mykeyvalue.key: "<<mykeyvalue.key<<", mykeyvalue.value: "<<mykeyvalue.value<<", upperlimit: "<<upperlimit<<", reduce size: "<<globalparams.SIZEKVS2_REDUCEPARTITION<<endl; }															
@@ -8802,13 +8216,11 @@ void acts_all::REDUCEP1_reducevector(bool enx, unsigned int col, keyvalue_buffer
 	loc = loc / 2; 
 	#endif 
 	if(en == true){ if(loc == *memory){ loc = (loc + 1) % 8; } *memory = loc; } // CRITICAL FIXME.
-	
-	// read 
 	#ifdef _DEBUGMODE_CHECKS3
 	if(en == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 113::1", bufferoffset_kvs + (loc / VDATA_SHRINK_RATIO), MAX_BLOCKRAM_VDESTDATA_SIZE, bufferoffset_kvs, loc, VDATA_SHRINK_RATIO); }
 	#endif
 	
-	// read-special (cf)
+	/** // read-special (cf)
 	if(en == true && globalparams.ALGORITHMINFO_GRAPHALGORITHMID == CF){ bits2_vector = vbuffer[bufferoffset_kvs + globalparams.BUFFERBASEOFFSETKVS_VDATA2 + loc]; } // CUSTOMPROVISION #ifdef CF_ALGORITHM 
 	if(en == true && globalparams.ALGORITHMINFO_GRAPHALGORITHMID == CF){ vmdata2 = MEMCAP1_READFROMBUFFER_VDATAWITHVMASK(bits2_vector); }
 	
@@ -8817,7 +8229,7 @@ void acts_all::REDUCEP1_reducevector(bool enx, unsigned int col, keyvalue_buffer
 	if(en == true && globalparams.ALGORITHMINFO_GRAPHALGORITHMID == HITS){ if(src_dest_edge == 0){ loc = loc*2; } else{ loc = loc*2 + 1; }} // CUSTOMPROVISION #ifdef HITS_ALGORITHM 
 	#ifdef _DEBUGMODE_CHECKS3
 	if(en == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 114::1", bufferoffset_kvs + globalparams.BUFFERBASEOFFSETKVS_VDATA1 + (loc / VDATA_SHRINK_RATIO), MAX_BLOCKRAM_VDESTDATA_SIZE, bufferoffset_kvs, loc, VDATA_SHRINK_RATIO); }
-	#endif
+	#endif */
 	
 	// read (general)
 	if(en == true){ bits_vector = vbuffer[bufferoffset_kvs + globalparams.BUFFERBASEOFFSETKVS_VDATA1 + (loc / VDATA_SHRINK_RATIO)]; }
@@ -8849,7 +8261,7 @@ void acts_all::REDUCEP1_reducevector(bool enx, unsigned int col, keyvalue_buffer
 	return;
 }
 
-void acts_all::REDUCEP1_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
+void REDUCEP1_GetXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE], unsigned int basedepth){
 	unsigned int s_ = s % VECTOR_SIZE;
 	
  if(s_==0){ 
@@ -8935,7 +8347,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP1_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
+void REDUCEP1_RearrangeLayoutV(unsigned int s, keyvalue_buffer_t vdata[VECTOR_SIZE], keyvalue_buffer_t vdata2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		vdata2[0] = vdata[0]; 
@@ -9020,7 +8432,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP1_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
+void REDUCEP1_RearrangeLayoutEn(unsigned int s, bool en[VECTOR_SIZE], bool en2[VECTOR_SIZE]){
 	unsigned int s_ = s;// % VECTOR_SIZE;
  if(s_==0){ 
 		en2[0] = en[0]; 
@@ -9105,7 +8517,7 @@ else {
 	return;
 }
 
-void acts_all::REDUCEP1_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+void REDUCEP1_reduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	// globalparams.ACTSPARAMS_NUM_PARTITIONS replacedby 16
 	if(enable == OFF){ return; }
 	
@@ -9250,7 +8662,7 @@ void acts_all::REDUCEP1_reduceandbuffer(bool_type enable, keyvalue_buffer_t buff
 	return;
 }
 
-void acts_all::REDUCEP1_reduceandbuffer2(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+void REDUCEP1_reduceandbuffer2(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	if(enable == OFF){ return; }
 	analysis_type analysis_loopcount = (MAX_DESTBLOCKRAM_SIZE / (MAX_NUM_PARTITIONS / 2));
 
@@ -9336,7 +8748,7 @@ void acts_all::REDUCEP1_reduceandbuffer2(bool_type enable, keyvalue_buffer_t buf
 	return;
 }
 
-void acts_all::REDUCEP1_reduceandbuffer3(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+void REDUCEP1_reduceandbuffer3(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	if(enable == OFF){ return; }
 	
 	keyvalue_capsule_t localcapsule_kvs[MAX_NUM_PARTITIONS];
@@ -9375,7 +8787,7 @@ void acts_all::REDUCEP1_reduceandbuffer3(bool_type enable, keyvalue_buffer_t buf
 	return;
 }
 
-void acts_all::REDUCEP1_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
+void REDUCEP1_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){				
 	if(enable == OFF){ return; }
 	
 	keyvalue_buffer_t kvdata[VECTOR_SIZE];
@@ -9410,10 +8822,10 @@ void acts_all::REDUCEP1_TRADreduceandbuffer(bool_type enable, keyvalue_buffer_t 
 	return;
 }
 
-void acts_all::REDUCEP1_reduceandbuffer_base(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
-	return REDUCEP1_reduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
+void REDUCEP1_reduceandbuffer_base(bool_type enable, keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+	// return REDUCEP1_reduceandbuffer(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
 	// return REDUCEP1_reduceandbuffer2(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
-	// return REDUCEP1_reduceandbuffer3(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
+	return REDUCEP1_reduceandbuffer3(enable, buffer, localcapsule, vbuffer, sweepparams, globalposition, globalparams, collections);
 }
 	
 #endif 
@@ -9430,7 +8842,7 @@ typedef struct {
 #define TRADGP_BUFFER_BIGSIZE (DOUBLE_BLOCKRAM_SIZE * VECTOR2_SIZE)
 #define TRADGP_LOADCHUNKSZ 64 // 256 // 1024
 
-void acts_all::TradGPP1(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void TradGPP1(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"TradGP:: running traditional sssp... "<<endl;
 	#endif 
@@ -9640,14 +9052,14 @@ void acts_all::TradGPP1(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * v
 #endif
 // #define MERGECONFIG_ACTIVATE_HYBRIDMODE
 
-unsigned int acts_all::MERGEP1_actvpstatsoffset(globalparams_t globalparams){
+unsigned int MERGEP1_actvpstatsoffset(globalparams_t globalparams){
 	// this returns the stats of the last level of partitioning
 	unsigned int _offset = 0;
 	if(globalparams.ACTSPARAMS_TREEDEPTH > 1){ for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH-1; k++){ _offset += (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * k)); }} else { _offset = 1; }
 	return _offset;
 }
 
-void acts_all::MERGEP1_print_active_masks(uint512_dt * vdram, globalparams_t globalparams, unsigned int offset_kvs){
+void MERGEP1_print_active_masks(uint512_dt * vdram, globalparams_t globalparams, unsigned int offset_kvs){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){	
 		unsigned int K = vdram[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs].data[v].key;
@@ -9659,8 +9071,8 @@ void acts_all::MERGEP1_print_active_masks(uint512_dt * vdram, globalparams_t glo
 	return;
 }
 
-void acts_all::MERGEP1_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
-	#if defined(_DEBUGMODE_KERNELPRINTS3)// && defined(ALLVERTEXISACTIVE_ALGORITHM)
+void MERGEP1_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
+	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<< TIMINGRESULTSCOLOR << "mergeVs:: merging vertices (1)..."<< RESET <<endl; 
 	#endif
 	
@@ -9723,7 +9135,7 @@ void acts_all::MERGEP1_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	return;
 }
 
-void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<< TIMINGRESULTSCOLOR << "exchangeVs:: exchanging vertices across different SLRs..." << RESET <<endl; 
 	#endif
@@ -9770,6 +9182,7 @@ void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	unsigned int voffsetC_kvs = (NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1) * globalparamsvC.NUM_REDUCEPARTITIONS * globalparamsvC.SIZEKVS2_REDUCEPARTITION;
 	
 	uint32_type pmaski = 0;
+	unsigned int totalvsynchronized = 0;
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"exchangeVs:: retrieving stats from vdramA, vdramB & vdramC. "<<endl; 
@@ -9820,7 +9233,7 @@ void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 			actsutilityobj->checkoutofbounds("TOPP1_topkernelS: ERROR 20", reduce_partition / BRAM_BIT_WIDTH, BLOCKRAM_GLOBALSTATS_BIGSIZE, globalparamsvA.NUM_REDUCEPARTITIONS, NAp, NAp);
 			#endif
 			if(globalstatsbuffer0[reduce_partition / BRAM_BIT_WIDTH].data[reduce_partition % BRAM_BIT_WIDTH] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
-				#ifdef _DEBUGMODE_KERNELPRINTS
+				#ifdef _DEBUGMODE_KERNELPRINTS3
 				cout<<"exchangeVs vertices ::[A->B,C] [instance "<<i<<", partition "<<partition<<"] is active: [voffset_kvs: "<<voffset_kvs<<", offset: "<<voffsetA_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvA.SIZEKVS2_REDUCEPARTITION<<"] "<<endl;
 				#endif
 				MERGEP1_EXCHANGEVS_LOOP1B: for(unsigned int k=0; k<globalparamsvA.SIZEKVS2_REDUCEPARTITION; k++){
@@ -9828,6 +9241,7 @@ void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 					#ifdef _DEBUGMODE_CHECKS3
 					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 21", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetA_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
 					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 22", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetA_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+					totalvsynchronized += VECTOR2_SIZE;
 					#endif
 					
 					// collect active vertices
@@ -9861,7 +9275,7 @@ void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 			actsutilityobj->checkoutofbounds("TOPP1_topkernelS: ERROR 21", reduce_partition / BRAM_BIT_WIDTH, BLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
 			if(globalstatsbuffer1[reduce_partition / BRAM_BIT_WIDTH].data[reduce_partition % BRAM_BIT_WIDTH] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
-				#ifdef _DEBUGMODE_KERNELPRINTS
+				#ifdef _DEBUGMODE_KERNELPRINTS3
 				cout<<"exchangeVs vertices ::[B->A,C] [instance "<<i<<", partition "<<partition<<"] is active: [voffset_kvs: "<<voffset_kvs<<", offset: "<<voffsetB_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvB.SIZEKVS2_REDUCEPARTITION<<"] "<<endl;
 				#endif
 				MERGEP1_EXCHANGEVS_LOOP2B: for(unsigned int k=0; k<globalparamsvB.SIZEKVS2_REDUCEPARTITION; k++){
@@ -9869,6 +9283,7 @@ void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 					#ifdef _DEBUGMODE_CHECKS3
 					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 24", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetB_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
 					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 25", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetB_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+					totalvsynchronized += VECTOR2_SIZE;
 					#endif
 					
 					// collect active vertices 
@@ -9901,8 +9316,9 @@ void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 			#ifdef _DEBUGMODE_CHECKS2
 			actsutilityobj->checkoutofbounds("TOPP1_topkernelS: ERROR 22", reduce_partition / BRAM_BIT_WIDTH, BLOCKRAM_SIZE, NAp, NAp, NAp);
 			#endif
-			if(globalstatsbuffer2[reduce_partition / BRAM_BIT_WIDTH].data[reduce_partition % BRAM_BIT_WIDTH] > 0 || exchangeall == true){ // CRITICAL REMOVEME. true.
-				#ifdef _DEBUGMODE_KERNELPRINTS
+			bool exchange_partition = true; if((globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + globalparamsvC.SIZEKVS2_REDUCEPARTITION > globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS)){ exchange_partition = false; }
+			if((globalstatsbuffer2[reduce_partition / BRAM_BIT_WIDTH].data[reduce_partition % BRAM_BIT_WIDTH] > 0 || exchangeall == true) & (exchange_partition == true)){ // CRITICAL REMOVEME. true.
+				#ifdef _DEBUGMODE_KERNELPRINTS3
 				cout<<"exchangeVs vertices ::[C->A,B] [instance "<<i<<", partition "<<partition<<"] is active: [voffset_kvs: "<<voffset_kvs<<", offset: "<<voffsetC_kvs*VECTOR2_SIZE<<", size: "<<globalparamsvC.SIZEKVS2_REDUCEPARTITION<<"] "<<endl;
 				#endif
 				MERGEP1_EXCHANGEVS_LOOP3B: for(unsigned int k=0; k<globalparamsvC.SIZEKVS2_REDUCEPARTITION; k++){
@@ -9910,6 +9326,7 @@ void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 					#ifdef _DEBUGMODE_CHECKS3
 					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 27", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
 					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 28", globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + k, globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+					totalvsynchronized += VECTOR2_SIZE;
 					#endif
 					
 					vdramA[globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + k] = vdramC[globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + voffsetC_kvs + k];
@@ -9930,13 +9347,14 @@ void acts_all::MERGEP1_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	cout<<"exchangeVs:: finished transferring vertices from vdramC to vdramA & vdramB. [end offset: "<<voffsetC_kvs<<"]"<<endl; 
 	#endif
 	#ifdef _DEBUGMODE_KERNELPRINTS3
+	cout<<"exchangeVs:: exchange operation finished. "<<totalvsynchronized<<" vertices synchronized."<<endl; 
 	cout<<"exchangeVs:: exchange operation finished."<<endl; 
 	#endif
 	return;
 }
 
 extern "C" {
-void acts_all::TOPP1_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void TOPP1_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
 #pragma HLS INTERFACE m_axi port = vdramA offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = vdramB offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = vdramC offset = slave bundle = gmem2
@@ -9975,8 +9393,213 @@ void acts_all::TOPP1_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint51
 	
 #endif 
 #ifdef CONFIG_ENABLECLASS_ACTS
+// https://github.com/Xilinx/Vitis-HLS-Introductory-Examples/blob/1d19087a2b4aa90fa2d86cf556aa883d3b413247/Vitis/multiple_kernels/vadd_kernel/krnl_vadd.cpp
+// https://github.com/Xilinx/SDAccel_Examples/blob/master/getting_started/dataflow/dataflow_stream_c/src/adder.cpp
+// https://github.com/Xilinx/Vitis-HLS-Introductory-Examples/blob/1d19087a2b4aa90fa2d86cf556aa883d3b413247/Dataflow/Channels/using_fifos/diamond.cpp  *
+
+#ifdef FPGA_IMPL
+void load(uint512_dt *in, hls::stream<uint512_vec_dt >& out, batch_type sourcebaseaddr_kvs, unsigned int offset_kvs, int size){
+	Loop_Ld: for (int i = 0; i < size; i++){
+	#pragma HLS PIPELINE II=1
+		uint512_vec_dt data = UTILP1_GetDataset(in, sourcebaseaddr_kvs + offset_kvs + i);
+		out.write(data);
+	}
+}
+
+void compute_and_store(hls::stream<uint512_vec_dt >& in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],
+					batch_type destbaseaddr_kvs, unsigned int offset_kvs, int size, unsigned int upperlimit, 
+						unsigned int collections_regs[2], globalparams_t globalparamsK, globalposition_t globalposition){
+	uint512_vec_dt res;
+	#pragma HLS ARRAY_PARTITION variable=res complete
+	
+	Loop_A: for (int i = 0; i < size; i++){
+	#pragma HLS PIPELINE II=1
+		uint512_vec_dt data = in.read();
+		
+		// set flag
+		bool enx = true;
+		if((globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE) && (collections_regs[0] + VECTOR_SIZE >= globalposition.num_active_edges_in_channel)){ enx = false; } // for BFS implementation
+		else { collections_regs[1] += VECTOR_SIZE; }
+		
+		// process
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		#pragma HLS UNROLL
+			res.data[v] = PROCESSP1_processvector(enx, v, data.data[v].value - upperlimit, upperlimit, data.data[v], vbuffer_source[v], globalparamsK);
+		}
+		
+		// store
+		UTILP1_SetDataset(out, destbaseaddr_kvs + offset_kvs + i, res);
+	}
+}
+#endif 
+
+void ACTSP1_load_compute_and_store(uint512_dt *in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],
+			batch_type sourcebaseaddr_kvs, unsigned int srcoffset_kvs, batch_type destbaseaddr_kvs, unsigned int destoffset_kvs, int size, unsigned int upperlimit, 
+						unsigned int collections_regs[2], globalparams_t globalparamsK, globalposition_t globalposition){
+	uint512_vec_dt res;
+	for(int i = 0; i < size; i++){
+		// load 
+		uint512_vec_dt data = UTILP1_GetDataset(in, sourcebaseaddr_kvs + srcoffset_kvs + i);
+
+		// set flag
+		bool enx = true;
+		if((globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE) && (collections_regs[0] + VECTOR_SIZE >= globalposition.num_active_edges_in_channel)){ enx = false; } // for BFS implementation
+		else { collections_regs[1] += VECTOR_SIZE; }
+		
+		// process
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+		#pragma HLS UNROLL
+			res.data[v] = PROCESSP1_processvector(enx, v, data.data[v].value - upperlimit, upperlimit, data.data[v], vbuffer_source[v], globalparamsK);
+		}
+		
+		// store
+		UTILP1_SetDataset(out, destbaseaddr_kvs + destoffset_kvs + i, res);
+	}
+}
+
+void ACTSP1_actit3_load_compute_and_store(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],	
+			unsigned int upperlimit, unsigned int sourcebaseaddr_kvs, unsigned int srcoffset_kvs, unsigned int destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int size_kvs,
+				unsigned int collections_regs[2], globalparams_t globalparamsK, globalposition_t globalposition){
+
+	#ifdef FPGA_IMPL
+	hls::stream<uint512_vec_dt> c0; //, c1, c2, c3, c4, c5;
+	#pragma HLS STREAM variable = c0 depth = 512
+
+	#pragma HLS dataflow
+	load(kvdram, c0, sourcebaseaddr_kvs, srcoffset_kvs, size_kvs);
+	compute_and_store(c0, kvdram, vbuffer_source,
+					destbaseaddr_kvs, destoffset_kvs, size_kvs, upperlimit, 
+						collections_regs, globalparamsK, globalposition);
+						
+	#else 
+	ACTSP1_load_compute_and_store(kvdram, kvdram, vbuffer_source,
+		sourcebaseaddr_kvs, srcoffset_kvs, destbaseaddr_kvs, destoffset_kvs, size_kvs, upperlimit, 
+					collections_regs, globalparamsK, globalposition);
+	#endif
+}
+
+void ACTSP1_actit3(bool_type enable, unsigned int mode,
+		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],	
+			keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
+				bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+
+	unsigned int memory[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=memory complete
+	workload_t workloads_kvs[BLOCKRAM_SIZE];
+	
+	unsigned int collections_regs[2];
+	#pragma HLS ARRAY_PARTITION variable=collections_regs complete
+	collections_regs[0] = collections[0][2].data1;
+	collections_regs[1] = collections[0][2].data1;
+	
+	unsigned int num_vPs = globalparamsK.NUM_PROCESSEDGESPARTITIONS;
+	unsigned int num_LLPs = globalparamsK.NUM_REDUCEPARTITIONS * OPT_NUM_PARTITIONS; // 1 << (OPT_NUM_PARTITIONS_POW * globalparamsK.ACTSPARAMS_TREEDEPTH);
+	unsigned int num_LLPset = (num_LLPs + (OPT_NUM_PARTITIONS - 1)) / OPT_NUM_PARTITIONS; // globalparamsK.ACTSPARAMS_NUM_PARTITIONS    NUM_PARTITIONS;
+	unsigned int upperlimit = sweepparams.source_partition * globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION;
+	bool enx = true;
+	unsigned int _EN_PROCESS_PARTITION_SAVE = OFF; 
+	unsigned int _EN_PROCESS_PARTITION_REDUCE = OFF;
+	if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1){ _EN_PROCESS_PARTITION_SAVE = OFF; _EN_PROCESS_PARTITION_REDUCE = ON; }
+	else { if(mode == ACTSPROCESSMODE || mode == ACTSPARTITIONMODE){ _EN_PROCESS_PARTITION_SAVE = ON; } else if(mode == ACTSREDUCEMODE){ _EN_PROCESS_PARTITION_REDUCE = ON; }}
+	
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	cout<<"actit3:: [num_LLPs: "<<num_LLPs<<", num_LLPset: "<<num_LLPset<<", num_vPs: "<<num_vPs<<"] "<<endl;
+	#endif 
+	
+	ACTIT3_LOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
+		workload_t workload_kvs;
+		workload_kvs.offset_begin = MEMACCESSP1_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, (sweepparams.source_partition * num_LLPset) + llp_set) / VECTOR_SIZE;
+		workload_kvs.offset_end = MEMACCESSP1_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, (sweepparams.source_partition * num_LLPset) + llp_set + 1) / VECTOR_SIZE;
+		workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin;
+		if(workload_kvs.offset_end < workload_kvs.offset_begin){ workload_kvs.size = 0; }
+		#ifdef _DEBUGMODE_CHECKS3
+		if(workload_kvs.offset_end < workload_kvs.offset_begin){ cout<<"actit3(process): ERROR 23: workload_kvs.offset_end("<<workload_kvs.offset_end<<") < workload_kvs.offset_begin("<<workload_kvs.offset_begin<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+		#endif		
+		
+		workloads_kvs[llp_set] = workload_kvs;
+	}
+	
+	if(_EN_PROCESS_PARTITION_SAVE == ON && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
+		ACTIT3_MAINLOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
+			workload_t workload_kvs = workloads_kvs[llp_set];
+			batch_type destoffset_kvs = (globalcapsule[llp_set].key + globalcapsule[llp_set].value) / VECTOR_SIZE;
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			unsigned int num_chunks = workload_kvs.size / BLOCKRAM_SIZE;
+			cout<<"actit3(process): processing all chunks [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<nextoffset_kvs<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * VECTOR_SIZE<<"][workbuffer_size: "<<globalparamsK.ACTSPARAMS_WORKBUFFER_SIZE<<"][num_chunks: "<<num_chunks<<"] ... "<<endl;					
+			#endif
+			
+			ACTSP1_actit3_load_compute_and_store(kvdram, vbuffer_source, vbuffer_dest,	
+				upperlimit, sourcebaseaddr_kvs, workload_kvs.offset_begin, destbaseaddr_kvs, destoffset_kvs, workload_kvs.size,
+					collections_regs, globalparamsK, globalposition);
+			
+			globalcapsule[llp_set].value += workload_kvs.size * VECTOR_SIZE; // CRITICAL FIXME. let globalcapsule load all partitions of LLOP-1
+			#ifdef _DEBUGMODE_STATS
+			if(mode==ACTSPROCESSMODE && enx == true){
+				actsutilityobj->globalstats_countkvsprocessed(globalparamsK.ACTSPARAMS_INSTID, workload_kvs.size * VECTOR_SIZE);
+				actsutilityobj->globalstats_processedges_countvalidkvsprocessed(globalparamsK.ACTSPARAMS_INSTID, workload_kvs.size * VECTOR_SIZE); }
+			#endif 
+		}
+		collections[0][2].data1 = collections_regs[1];
+	}
+	
+	if(_EN_PROCESS_PARTITION_REDUCE == ON && globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){
+		unsigned int curroffsetkvs = 0, nextoffsetkvs = 0;
+		if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1){
+			curroffsetkvs = MEMACCESSP1_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, sweepparams.source_partition) / VECTOR_SIZE;
+			nextoffsetkvs = MEMACCESSP1_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, sweepparams.source_partition + 1) / VECTOR_SIZE;
+		} else { curroffsetkvs = ptravstate.begin_kvs; nextoffsetkvs = ptravstate.end_kvs; }
+		unsigned int size_kvs = nextoffsetkvs - curroffsetkvs;
+		#ifdef _DEBUGMODE_CHECKS3
+		if(nextoffsetkvs < curroffsetkvs){ cout<<"actit3(reduce): ERROR 23: nextoffsetkvs("<<nextoffsetkvs<<") < curroffsetkvs("<<curroffsetkvs<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+		#endif
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"actit3(reduce): processing all chunks [begin_kvs: "<<curroffsetkvs<<"][end_kvs: "<<nextoffsetkvs<<"][size_kvs: "<<size_kvs<<"][size: "<<size_kvs * VECTOR_SIZE<<"][workbuffer_size: "<<globalparamsK.ACTSPARAMS_WORKBUFFER_SIZE<<"][num_chunks: "<<(nextoffsetkvs - curroffsetkvs) / globalparamsK.ACTSPARAMS_WORKBUFFER_SIZE<<"] ... "<<endl;					
+		#endif
+		// exit(EXIT_SUCCESS);
+		ACTIT3_MAINLOOP2A: for(batch_type offset_kvs=curroffsetkvs; offset_kvs<curroffsetkvs + size_kvs; offset_kvs++){
+		#pragma HLS PIPELINE II=1
+		#pragma HLS dependence variable=vbuffer_dest inter false
+			#ifdef _DEBUGMODE_KERNELPRINTS
+			cout<<"actit3(reduce): processing chunk [offset_kvs: "<<offset_kvs<<"]: [curroffsetkvs: "<<curroffsetkvs<<"]: [nextoffsetkvs: "<<nextoffsetkvs<<"] ... "<<endl;
+			#endif
+			
+			// get dataset
+			uint512_vec_dt data = UTILP1_GetDataset(kvdram, sourcebaseaddr_kvs + offset_kvs);
+			
+			// reduce 
+			bool enx = true;
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP1_reducevector(enx, 0, UTILP1_GETKV(data.data[0]), vbuffer_dest[0 + 0], 0, sweepparams.upperlimit, &memory[0], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP1_reducevector(enx, 1, UTILP1_GETKV(data.data[1]), vbuffer_dest[0 + 1], 0, sweepparams.upperlimit, &memory[1], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP1_reducevector(enx, 2, UTILP1_GETKV(data.data[2]), vbuffer_dest[0 + 2], 0, sweepparams.upperlimit, &memory[2], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP1_reducevector(enx, 3, UTILP1_GETKV(data.data[3]), vbuffer_dest[0 + 3], 0, sweepparams.upperlimit, &memory[3], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP1_reducevector(enx, 4, UTILP1_GETKV(data.data[4]), vbuffer_dest[0 + 4], 0, sweepparams.upperlimit, &memory[4], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP1_reducevector(enx, 5, UTILP1_GETKV(data.data[5]), vbuffer_dest[0 + 5], 0, sweepparams.upperlimit, &memory[5], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP1_reducevector(enx, 6, UTILP1_GETKV(data.data[6]), vbuffer_dest[0 + 6], 0, sweepparams.upperlimit, &memory[6], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP1_reducevector(enx, 7, UTILP1_GETKV(data.data[7]), vbuffer_dest[0 + 7], 0, sweepparams.upperlimit, &memory[7], sweepparams, globalparamsK);
+			
+			
+			#ifdef _DEBUGMODE_STATS
+			if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && mode==ACTSPROCESSMODE && enx == true){
+				actsutilityobj->globalstats_countkvsprocessed(globalparamsK.ACTSPARAMS_INSTID, VECTOR_SIZE);
+				actsutilityobj->globalstats_processedges_countvalidkvsprocessed(globalparamsK.ACTSPARAMS_INSTID, VECTOR_SIZE); }
+			#endif 
+		}
+	}
+}	
+#endif 
+#ifdef CONFIG_ENABLECLASS_ACTS
 #define ENABLE_PP1
-fetchmessage_t acts_all::ACTSP1_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE],				 
+fetchmessage_t ACTSP1_fetchkeyvalues(bool_type enable, unsigned int mode,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_buffer_t buffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE],				 
 		batch_type goffset_kvs, batch_type loffset_kvs, batch_type size_kvs, travstate_t travstate, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams,
 		unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	fetchmessage_t fetchmessage;
@@ -9988,7 +9611,7 @@ fetchmessage_t acts_all::ACTSP1_fetchkeyvalues(bool_type enable, unsigned int mo
 	return fetchmessage; 
 }
 
-void acts_all::ACTSP1_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],
+void ACTSP1_commitkeyvalues(bool_type enable, bool_type enable2, unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],
 		keyvalue_buffer_t destbuffer[VECTOR_SIZE][MAX_DESTBLOCKRAM_SIZE], keyvalue_t globalcapsule[MAX_NUM_PARTITIONS], keyvalue_capsule_t localcapsule[MAX_NUM_PARTITIONS], 
 			batch_type destbaseaddr_kvs, sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparams, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	if(mode == ACTSREDUCEMODE || (globalparams.ACTSPARAMS_TREEDEPTH == 1 && globalparams.ENABLE_APPLYUPDATESCOMMAND == ON)){
@@ -10000,7 +9623,7 @@ void acts_all::ACTSP1_commitkeyvalues(bool_type enable, bool_type enable2, unsig
 	return;
 } 
 
-void acts_all::ACTSP1_actit(bool_type enable, unsigned int mode,
+void ACTSP1_actit(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE],				
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
@@ -10029,8 +9652,8 @@ void acts_all::ACTSP1_actit(bool_type enable, unsigned int mode,
 	bool_type pp1partitionen = ON;
 	bool_type pp0writeen = ON;
 	bool_type pp1writeen = ON;
-static buffer_type pp0cutoffs[VECTOR_SIZE];
-static buffer_type pp1cutoffs[VECTOR_SIZE];
+buffer_type pp0cutoffs[VECTOR_SIZE];
+buffer_type pp1cutoffs[VECTOR_SIZE];
 	batch_type itercount = 0;
 	batch_type flushsz = 0;
 	
@@ -10072,15 +9695,15 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		ptravstatepp0.i_kvs = offset_kvs;
 		fetchmessagepp0 = ACTSP1_fetchkeyvalues(ON, mode,  kvdram, vbuffer_source, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp0.i_kvs, workbuffer_size, ptravstatepp0, sweepparams, globalposition, globalparams, edgebankID, collections);				
 		#ifdef PUP1
-		PARTITIONP1_stage2partitioning(pp1runpipelineen, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, globalposition, pp1cutoffs, (itercount-2)+1, globalparams);
+		PARTITIONP1_partitionbase_stage2(pp1runpipelineen, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, globalposition, pp1cutoffs, (itercount-2)+1, globalparams);
 		#endif 
 		
-		PARTITIONP1_stage1partitioning(ON, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, globalposition, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
+		PARTITIONP1_partitionbase_stage1(ON, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, globalposition, fetchmessagepp0.chunksize_kvs, pp0cutoffs, globalparams);
 		#ifdef PUP1
 		ACTSP1_commitkeyvalues(pp1writeen, ON, mode, kvdram, vbuffer_dest, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalposition, globalparams, collections); 
 		#endif 
 		
-		PARTITIONP1_stage2partitioning(ON, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, globalposition, pp0cutoffs, itercount, globalparams);
+		PARTITIONP1_partitionbase_stage2(ON, ON, mode, buffer_setof1, capsule_so1, buffer_setof8, capsule_so8, sweepparams.currentLOP, sweepparams, globalposition, pp0cutoffs, itercount, globalparams);
 		#ifdef PUP1
 		ptravstatepp1.i_kvs = offset_kvs + workbuffer_size;
 		fetchmessagepp1 = ACTSP1_fetchkeyvalues(ON, mode,  kvdram, vbuffer_source, sourcebuffer, sourcebaseaddr_kvs, ptravstatepp1.i_kvs, workbuffer_size, ptravstatepp1, sweepparams, globalposition, globalparams, edgebankID, collections);
@@ -10088,7 +9711,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 		
 		ACTSP1_commitkeyvalues(pp0writeen, ON, mode, kvdram, vbuffer_dest, buffer_setof8, globalstatsbuffer, capsule_so8, destbaseaddr_kvs, sweepparams, globalposition, globalparams, collections); 
 		#ifdef PUP1
-		PARTITIONP1_stage1partitioning(pp1partitionen, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, globalposition, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
+		PARTITIONP1_partitionbase_stage1(pp1partitionen, ON, mode, sourcebuffer, buffer_setof1, capsule_so1, sweepparams.currentLOP, sweepparams, globalposition, fetchmessagepp1.chunksize_kvs, pp1cutoffs, globalparams);
 		#endif
 		
 		itercount += NUMPIPELINES_PARTITIONUPDATES;
@@ -10098,7 +9721,7 @@ static buffer_type pp1cutoffs[VECTOR_SIZE];
 	return;
 }
 
-void acts_all::ACTSP1_actit2(bool_type enable, unsigned int mode,
+void ACTSP1_actit2(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE],				
 		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
@@ -10125,18 +9748,21 @@ void acts_all::ACTSP1_actit2(bool_type enable, unsigned int mode,
 	return;
 }
 
-void acts_all::ACTSP1_actit_base(bool_type enable, unsigned int mode,
+void ACTSP1_actit_base(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE],				
-		globalparams_t globalparams, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
+		globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 		bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
-	// ACTSP1_actit(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparams, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
-	ACTSP1_actit2(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparams, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	#ifdef CONFIG_SETUP_SUITABLE_FOR_LARGE_GRAPHS
+	// ACTSP1_actit2(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	ACTSP1_actit3(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	#else 
+	ACTSP1_actit(enable, mode, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, globalparamsK, globalposition, sweepparams, ptravstate, sourcebaseaddr_kvs, destbaseaddr_kvs, resetenv, flush, edgebankID, collections);
+	#endif
 }
 
 	
 #endif 			
-#if defined(CONFIG_ACTSONLYMODE) || defined(CONFIG_HYBRIDGPMODE)
-void acts_all::TOPP1_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
+void TOPP1_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,							
 			unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#pragma HLS INLINE 
 	analysis_type analysis_loop1 = 1;
@@ -10172,13 +9798,12 @@ void acts_all::TOPP1_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	
 	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
 	unsigned int GraphAlgoClass = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS;
+	batch_type voffset_kvs = globalposition.source_partition * UTILP1_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparamsK);
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->print7("### TOPP1_processit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, avtravstate.begin_kvs * VECTOR_SIZE, avtravstate.end_kvs * VECTOR_SIZE, (avtravstate.end_kvs - avtravstate.begin_kvs) * VECTOR_SIZE, BATCH_RANGE / (1 << (globalparamsK.ACTSPARAMS_POW_PARTITIONS * sweepparams.currentLOP)), sweepparams.currentLOP); 							
 	#endif
 
-	batch_type voffset_kvs = globalposition.source_partition * UTILP1_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparamsK);
-	
 	bool returncmd = false;
 	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
 	if(globalposition.num_active_vertices == 0){ returncmd = true; } // check if vertex partition is active
@@ -10241,13 +9866,21 @@ void acts_all::TOPP1_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 		if(localendvptr < localbeginvptr){ cout<<"TOPP1_processit::ERROR: localendvptr < localbeginvptr. localbeginvptr: "<<localbeginvptr<<", localendvptr: "<<localendvptr<<", voffset_kvs: "<<voffset_kvs<<endl; exit(EXIT_FAILURE); }
 		if(localendvptr < globalparamsE.SIZE_EDGES){ actsutilityobj->checkptr("TOPP1_processit", beginsrcvid, endsrcvid, localbeginvptr, localendvptr, (keyvalue_t *)&kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA]); }
 		#endif
-		#ifdef _DEBUGMODE_KERNELPRINTS//3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"[index: "<<globalposition.source_partition<<"][beginsrcvid: "<<beginsrcvid<<", endsrcvid: "<<endsrcvid<<"][beginvptr: "<<localbeginvptr<<", endvptr: "<<localendvptr<<", edges size: "<<numedges<<"][voffset: "<<voffset_kvs * VECTOR_SIZE<<"]"<<endl;
 		#endif
 		#ifdef _DEBUGMODE_CHECKS3
 		if(localendvptr < localbeginvptr){ cout<<"ERROR: localendvptr < localbeginvptr. EXITING..."<<endl; exit(EXIT_FAILURE); }
 		actsutilityobj->clearallstats();
 		#endif
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		for(unsigned int t=0; t<8; t++){
+			for(unsigned int v=0; v<VECTOR_SIZE; v++){
+				cout<<"processit:: kvdram["<<globalparamsE.BASEOFFSETKVS_EDGESDATA<<" + "<<localbeginvptr_kvs + t<<"].data["<<v<<"].key: "<<kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA + localbeginvptr_kvs + t].data[v].key<<", kvdram["<<globalparamsE.BASEOFFSETKVS_EDGESDATA<<" + "<<localbeginvptr_kvs + t<<"].data["<<v<<"].value: "<<kvdram[globalparamsE.BASEOFFSETKVS_EDGESDATA + localbeginvptr_kvs + t].data[v].value<<endl; 
+			}
+		}
+		#endif 
 		
 		travstate_t etravstate;
 		etravstate.begin_kvs = localbeginvptr_kvs;
@@ -10267,7 +9900,7 @@ void acts_all::TOPP1_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 		ACTSP1_actit_base(
 			ON, ACTSPROCESSMODE,
 			kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer,
-			globalparamsK, globalposition, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAM,
+			globalparamsE, globalparamsK, globalposition, sweepparams, etravstate, globalparamsE.BASEOFFSETKVS_EDGESDATA, globalparamsK.BASEOFFSETKVS_KVDRAM,
 			resetenv, flush, edgebankID, collections);
 			
 		#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
@@ -10305,16 +9938,16 @@ void acts_all::TOPP1_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	return;
 }
 
-void acts_all::TOPP1_partitionit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparams, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
+void TOPP1_partitionit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
-	if(globalparams.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC != ON){ return; } ///
+	if(globalparamsK.EVALUATION_ACTS_RECURSIVEPARTITIONINGLOGIC != ON){ return; } ///
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
 	actsutilityobj->printglobalvars();
-	actsutilityobj->printglobalparameters("top_nusrcv_nudstv::UTILP1_getglobalparams:: printing global parameters", globalparams);
+	actsutilityobj->printglobalparameters("top_nusrcv_nudstv::UTILP1_getglobalparams:: printing global parameters", globalparamsK);
 	#endif 
 	#ifdef _DEBUGMODE_STATS_XXX
 	actsutilityobj->clearglobalvars();
@@ -10328,12 +9961,12 @@ void acts_all::TOPP1_partitionit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffe
 	globalposition_t globalposition; // DUMMY.
 	
 	batch_type sourcestatsmarker = 1;
-	batch_type deststatsmarker = 1 + globalparams.ACTSPARAMS_NUM_PARTITIONS;
+	batch_type deststatsmarker = 1 + globalparamsK.ACTSPARAMS_NUM_PARTITIONS;
 	config_t config;
 	sweepparams_t sweepparams;
 	travstate_t actvvstravstate; actvvstravstate.i=0; actvvstravstate.i_kvs=0;
 	
-	PARTITIONIT_MAINLOOP1: for(step_type currentLOP=globalparams.ACTSPARAMS_BEGINLOP + 1; currentLOP<globalparams.ACTSPARAMS_BEGINLOP + 1 + (globalparams.ACTSPARAMS_NUMLOPS-2); currentLOP++){ // REMOVEME.
+	PARTITIONIT_MAINLOOP1: for(step_type currentLOP=globalparamsK.ACTSPARAMS_BEGINLOP + 1; currentLOP<globalparamsK.ACTSPARAMS_BEGINLOP + 1 + (globalparamsK.ACTSPARAMS_NUMLOPS-2); currentLOP++){ // REMOVEME.
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numllops avg=analysis_numllops	
 	
 		batch_type num_source_partitions = UTILP1_get_num_source_partitions(currentLOP);
@@ -10343,42 +9976,42 @@ void acts_all::TOPP1_partitionit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffe
 		#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_numsourcepartitions avg=analysis_numsourcepartitions
 			// cout<<"TOPP1_partitionit: source_partition "<<source_partition<<" ... "<<endl;
 
-			UTILP1_resetkeysandvalues(globalstatsbuffer, globalparams.ACTSPARAMS_NUM_PARTITIONS, 0);
+			UTILP1_resetkeysandvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 		
-			sweepparams = UTILP1_getsweepparams(globalparams, currentLOP, source_partition);
-			travstate_t ptravstate = UTILP1_gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);
+			sweepparams = UTILP1_getsweepparams(globalparamsK, currentLOP, source_partition);
+			travstate_t ptravstate = UTILP1_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
 			
 			// collect stats
-			MEMACCESSP1_readglobalstats(ON, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams);
-			UTILP1_resetvalues(globalstatsbuffer, globalparams.ACTSPARAMS_NUM_PARTITIONS, 0);
+			MEMACCESSP1_readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK);
+			UTILP1_resetvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 			
 			// partition
 			if(ptravstate.size_kvs > 0){ config.enablepartition = ON; } 
 			else { ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
 			if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
 			#ifdef _DEBUGMODE_KERNELPRINTS2
-			if((config.enablepartition == ON) && (currentLOP >= 1) && (currentLOP <= globalparams.ACTSPARAMS_TREEDEPTH)){ actsutilityobj->print7("### TOPP1_partitionit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * sweepparams.currentLOP)), sweepparams.currentLOP); }	
+			if((config.enablepartition == ON) && (currentLOP >= 1) && (currentLOP <= globalparamsK.ACTSPARAMS_TREEDEPTH)){ actsutilityobj->print7("### TOPP1_partitionit:: source_p", "upperlimit", "begin", "end", "size", "dest range", "currentLOP", sweepparams.source_partition, sweepparams.upperlimit, ptravstate.begin_kvs * VECTOR_SIZE, ptravstate.end_kvs * VECTOR_SIZE, ptravstate.size_kvs * VECTOR_SIZE, BATCH_RANGE / (1 << (globalparamsK.ACTSPARAMS_POW_PARTITIONS * sweepparams.currentLOP)), sweepparams.currentLOP); }	
 			#endif
-			UTILP1_resetvalues(globalstatsbuffer, globalparams.ACTSPARAMS_NUM_PARTITIONS, 0);
+			UTILP1_resetvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 			bool_type resetenv; if(source_partition==0){ resetenv = ON; } else { resetenv = OFF; }
 			
 			ACTSP1_actit_base(config.enablepartition, ACTSPARTITIONMODE,
 					kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer, // CRITICAL FIXME.
-					globalparams, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
+					globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 					ON, ON, NAp, collections);
 					
-			MEMACCESSP1_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparams.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparams); 
+			MEMACCESSP1_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK); 
 			
 			if(currentLOP > 0){
 				sourcestatsmarker += 1;
-				deststatsmarker += globalparams.ACTSPARAMS_NUM_PARTITIONS;
+				deststatsmarker += globalparamsK.ACTSPARAMS_NUM_PARTITIONS;
 			}
 			
 			#ifdef _DEBUGMODE_CHECKS
 			if(config.enablereduce == ON){ actsutilityobj->printpartitionresult2(ON, kvdram, globalstatsbuffer, sweepparams); }
 			#endif
 			#ifdef _DEBUGMODE_STATS
-			if(config.enablereduce == ON){ edges_count = actsutilityobj->globalstats_getcountvalidkvsreduced(globalparams.ACTSPARAMS_INSTID); edgesdstv_sum = actsutilityobj->globalstats_getreducevar1(); }
+			if(config.enablereduce == ON){ edges_count = actsutilityobj->globalstats_getcountvalidkvsreduced(globalparamsK.ACTSPARAMS_INSTID); edgesdstv_sum = actsutilityobj->globalstats_getreducevar1(); }
 			#endif
 			#ifdef _DEBUGMODE_KERNELPRINTS
 			actsutilityobj->printglobalvars();
@@ -10397,7 +10030,7 @@ void acts_all::TOPP1_partitionit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffe
 	return;
 }
 
-void acts_all::TOPP1_reduceit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparams, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){	
+void TOPP1_reduceit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){	
 	#pragma HLS INLINE
 	analysis_type analysis_numllops = 1;
 	analysis_type analysis_numsourcepartitions = 1;
@@ -10408,11 +10041,11 @@ void acts_all::TOPP1_reduceit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	config_t config;
 	sweepparams_t sweepparams;
 	
-	step_type currentLOP = globalparams.ACTSPARAMS_TREEDEPTH;
+	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
 	
-	sweepparams = UTILP1_getsweepparams(globalparams, currentLOP, source_partition);
-	travstate_t ptravstate = UTILP1_gettravstate(ON, kvdram, globalparams, currentLOP, sourcestatsmarker);
-	UTILP1_resetkeysandvalues(globalstatsbuffer, globalparams.ACTSPARAMS_NUM_PARTITIONS, 0);
+	sweepparams = UTILP1_getsweepparams(globalparamsK, currentLOP, source_partition);
+	travstate_t ptravstate = UTILP1_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
+	UTILP1_resetkeysandvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 
 	if(ptravstate.size_kvs == 0){ ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablereduce = OFF; }
 	else { config.enablereduce = ON; }
@@ -10423,27 +10056,27 @@ void acts_all::TOPP1_reduceit( uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	
 	ACTSP1_actit_base(config.enablereduce, ACTSREDUCEMODE,
 			 kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer, // CRITICAL FIXME.
-			globalparams, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
+			globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 			ON, ON, NAp, collections);
 	return;
 }
 
-void acts_all::TOPP1_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE],
+void TOPP1_dispatch(bool_type en_process, bool_type en_partition, bool_type en_reduce,  uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE],
 			batch_type sourcestatsmarker, batch_type source_partition, globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition,
 				unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#ifdef CONFIG_ENABLEPROCESSMODULE
 	if(en_process == ON){ TOPP1_processit(kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, edgebankID, collections); } 
 	#endif 
 	#ifdef CONFIG_ENABLEPARTITIONMODULE
-	if(en_partition == ON){ TOPP1_partitionit(kvdram, vbuffer_source, vbuffer_dest, globalparamsK, NAp, collections); } 
+	if(en_partition == ON){ TOPP1_partitionit(kvdram, vbuffer_source, vbuffer_dest, globalparamsE, globalparamsK, NAp, collections); } 
 	#endif 
 	#ifdef CONFIG_ENABLEREDUCEMODULE
-	if(en_reduce == ON){ TOPP1_reduceit(kvdram, vbuffer_source, vbuffer_dest, sourcestatsmarker, source_partition, globalparamsK, NAp, collections); } 
+	if(en_reduce == ON){ TOPP1_reduceit(kvdram, vbuffer_source, vbuffer_dest, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, NAp, collections); } 
 	#endif 
 	return;
 } 
 
-void acts_all::TOPP1_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalparams_t globalparamsV, globalposition_t globalposition,	
+void TOPP1_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalparams_t globalparamsV, globalposition_t globalposition,	
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
 	#pragma HLS INLINE
 	unsigned int sourcestatsmarker = 0;
@@ -10497,7 +10130,7 @@ void acts_all::TOPP1_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbu
 	return;
 } 
 
-void acts_all::TOPP1_topkernelproc_embedded(unsigned int GraphIter, unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], globalposition_t globalposition, globalparams_t globalparamsV, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){									
+void TOPP1_topkernelproc_embedded(unsigned int GraphIter, unsigned int globalid, unsigned int localid, unsigned int en_process, unsigned int en_partition, unsigned int en_reduce, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], globalposition_t globalposition, globalparams_t globalparamsV, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){									
 
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printparameters();
@@ -10640,12 +10273,17 @@ void acts_all::TOPP1_topkernelproc_embedded(unsigned int GraphIter, unsigned int
 }
 
 extern "C" {
-void acts_all::TOPP1_topkernelP1(
+void TOPP1_topkernelP1(
+	
 	uint512_dt * kvdram0,
 	uint512_dt * vdram
 	){
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem1
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 	
@@ -10660,6 +10298,15 @@ void acts_all::TOPP1_topkernelP1(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -10781,6 +10428,7 @@ void acts_all::TOPP1_topkernelP1(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL1_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL1_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -10842,6 +10490,9 @@ void acts_all::TOPP1_topkernelP1(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL1_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -10872,21 +10523,27 @@ void acts_all::TOPP1_topkernelP1(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -10899,12 +10556,13 @@ void acts_all::TOPP1_topkernelP1(
 							MEMACCESSP1_readANDRVchunks1(ON, vdram, vbuffer_source0, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 	
-						#ifdef NOT_USED
+						#else 
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -10930,7 +10588,7 @@ void acts_all::TOPP1_topkernelP1(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -10954,14 +10612,20 @@ void acts_all::TOPP1_topkernelP1(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP2(
+void TOPP1_topkernelP2(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
 	uint512_dt * vdram
 	){
 #pragma HLS INTERFACE m_axi port = kvdram0 offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem2
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -10979,6 +10643,15 @@ void acts_all::TOPP1_topkernelP2(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -11131,6 +10804,7 @@ void acts_all::TOPP1_topkernelP2(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL2_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL2_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -11192,6 +10866,9 @@ void acts_all::TOPP1_topkernelP2(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL2_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -11222,21 +10899,27 @@ void acts_all::TOPP1_topkernelP2(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -11249,13 +10932,14 @@ void acts_all::TOPP1_topkernelP2(
 							MEMACCESSP1_readANDRVchunks2(ON, vdram, vbuffer_source0,vbuffer_source1, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -11281,7 +10965,7 @@ void acts_all::TOPP1_topkernelP2(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -11308,9 +10992,12 @@ void acts_all::TOPP1_topkernelP2(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP3(
+void TOPP1_topkernelP3(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
 	uint512_dt * vdram
 	){
@@ -11318,6 +11005,10 @@ void acts_all::TOPP1_topkernelP3(
 #pragma HLS INTERFACE m_axi port = kvdram1 offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem3
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -11338,6 +11029,15 @@ void acts_all::TOPP1_topkernelP3(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -11521,6 +11221,7 @@ void acts_all::TOPP1_topkernelP3(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL3_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL3_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -11582,6 +11283,9 @@ void acts_all::TOPP1_topkernelP3(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL3_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -11612,21 +11316,27 @@ void acts_all::TOPP1_topkernelP3(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -11639,14 +11349,15 @@ void acts_all::TOPP1_topkernelP3(
 							MEMACCESSP1_readANDRVchunks3(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -11672,7 +11383,7 @@ void acts_all::TOPP1_topkernelP3(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -11702,10 +11413,14 @@ void acts_all::TOPP1_topkernelP3(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP4(
+void TOPP1_topkernelP4(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
 	uint512_dt * vdram
 	){
@@ -11714,6 +11429,10 @@ void acts_all::TOPP1_topkernelP4(
 #pragma HLS INTERFACE m_axi port = kvdram2 offset = slave bundle = gmem2
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem4
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -11737,6 +11456,15 @@ void acts_all::TOPP1_topkernelP4(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -11951,6 +11679,7 @@ void acts_all::TOPP1_topkernelP4(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL4_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL4_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -12012,6 +11741,9 @@ void acts_all::TOPP1_topkernelP4(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL4_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -12042,21 +11774,27 @@ void acts_all::TOPP1_topkernelP4(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -12069,15 +11807,16 @@ void acts_all::TOPP1_topkernelP4(
 							MEMACCESSP1_readANDRVchunks4(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 3, 3, enableprocess, enablepartition, enablereduce, kvdram3, vbuffer_source3, globalstatsbuffer3, globalposition, globalparamsV, collections3);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -12103,7 +11842,7 @@ void acts_all::TOPP1_topkernelP4(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -12136,11 +11875,16 @@ void acts_all::TOPP1_topkernelP4(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP5(
+void TOPP1_topkernelP5(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
 	uint512_dt * vdram
 	){
@@ -12150,6 +11894,10 @@ void acts_all::TOPP1_topkernelP5(
 #pragma HLS INTERFACE m_axi port = kvdram3 offset = slave bundle = gmem3
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem5
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -12176,6 +11924,15 @@ void acts_all::TOPP1_topkernelP5(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -12421,6 +12178,7 @@ void acts_all::TOPP1_topkernelP5(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL5_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL5_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -12482,6 +12240,9 @@ void acts_all::TOPP1_topkernelP5(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL5_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -12512,21 +12273,27 @@ void acts_all::TOPP1_topkernelP5(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -12539,16 +12306,17 @@ void acts_all::TOPP1_topkernelP5(
 							MEMACCESSP1_readANDRVchunks5(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 3, 3, enableprocess, enablepartition, enablereduce, kvdram3, vbuffer_source3, globalstatsbuffer3, globalposition, globalparamsV, collections3);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 4, 4, enableprocess, enablepartition, enablereduce, kvdram4, vbuffer_source4, globalstatsbuffer4, globalposition, globalparamsV, collections4);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -12574,7 +12342,7 @@ void acts_all::TOPP1_topkernelP5(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -12610,12 +12378,18 @@ void acts_all::TOPP1_topkernelP5(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP6(
+void TOPP1_topkernelP6(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
 	uint512_dt * vdram
 	){
@@ -12626,6 +12400,10 @@ void acts_all::TOPP1_topkernelP6(
 #pragma HLS INTERFACE m_axi port = kvdram4 offset = slave bundle = gmem4
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem6
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -12655,6 +12433,15 @@ void acts_all::TOPP1_topkernelP6(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -12931,6 +12718,7 @@ void acts_all::TOPP1_topkernelP6(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL6_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL6_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -12992,6 +12780,9 @@ void acts_all::TOPP1_topkernelP6(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL6_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -13022,21 +12813,27 @@ void acts_all::TOPP1_topkernelP6(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -13049,10 +12846,8 @@ void acts_all::TOPP1_topkernelP6(
 							MEMACCESSP1_readANDRVchunks6(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -13060,6 +12855,9 @@ void acts_all::TOPP1_topkernelP6(
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 4, 4, enableprocess, enablepartition, enablereduce, kvdram4, vbuffer_source4, globalstatsbuffer4, globalposition, globalparamsV, collections4);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 5, 5, enableprocess, enablepartition, enablereduce, kvdram5, vbuffer_source5, globalstatsbuffer5, globalposition, globalparamsV, collections5);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -13085,7 +12883,7 @@ void acts_all::TOPP1_topkernelP6(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -13124,13 +12922,20 @@ void acts_all::TOPP1_topkernelP6(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP7(
+void TOPP1_topkernelP7(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
 	uint512_dt * vdram
 	){
@@ -13142,6 +12947,10 @@ void acts_all::TOPP1_topkernelP7(
 #pragma HLS INTERFACE m_axi port = kvdram5 offset = slave bundle = gmem5
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem7
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -13174,6 +12983,15 @@ void acts_all::TOPP1_topkernelP7(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -13481,6 +13299,7 @@ void acts_all::TOPP1_topkernelP7(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL7_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL7_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -13542,6 +13361,9 @@ void acts_all::TOPP1_topkernelP7(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL7_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -13572,21 +13394,27 @@ void acts_all::TOPP1_topkernelP7(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -13599,10 +13427,8 @@ void acts_all::TOPP1_topkernelP7(
 							MEMACCESSP1_readANDRVchunks7(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -13611,6 +13437,9 @@ void acts_all::TOPP1_topkernelP7(
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 5, 5, enableprocess, enablepartition, enablereduce, kvdram5, vbuffer_source5, globalstatsbuffer5, globalposition, globalparamsV, collections5);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 6, 6, enableprocess, enablepartition, enablereduce, kvdram6, vbuffer_source6, globalstatsbuffer6, globalposition, globalparamsV, collections6);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -13636,7 +13465,7 @@ void acts_all::TOPP1_topkernelP7(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -13678,14 +13507,22 @@ void acts_all::TOPP1_topkernelP7(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP8(
+void TOPP1_topkernelP8(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
 	uint512_dt * vdram
 	){
@@ -13698,6 +13535,10 @@ void acts_all::TOPP1_topkernelP8(
 #pragma HLS INTERFACE m_axi port = kvdram6 offset = slave bundle = gmem6
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem8
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -13733,6 +13574,15 @@ void acts_all::TOPP1_topkernelP8(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -14071,6 +13921,7 @@ void acts_all::TOPP1_topkernelP8(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL8_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL8_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -14132,6 +13983,9 @@ void acts_all::TOPP1_topkernelP8(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL8_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -14162,21 +14016,27 @@ void acts_all::TOPP1_topkernelP8(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -14189,10 +14049,8 @@ void acts_all::TOPP1_topkernelP8(
 							MEMACCESSP1_readANDRVchunks8(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -14202,6 +14060,9 @@ void acts_all::TOPP1_topkernelP8(
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 6, 6, enableprocess, enablepartition, enablereduce, kvdram6, vbuffer_source6, globalstatsbuffer6, globalposition, globalparamsV, collections6);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 7, 7, enableprocess, enablepartition, enablereduce, kvdram7, vbuffer_source7, globalstatsbuffer7, globalposition, globalparamsV, collections7);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -14227,7 +14088,7 @@ void acts_all::TOPP1_topkernelP8(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -14272,15 +14133,24 @@ void acts_all::TOPP1_topkernelP8(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP9(
+void TOPP1_topkernelP9(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
+	
 	uint512_dt * kvdram8,
 	uint512_dt * vdram
 	){
@@ -14294,6 +14164,10 @@ void acts_all::TOPP1_topkernelP9(
 #pragma HLS INTERFACE m_axi port = kvdram7 offset = slave bundle = gmem7
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem9
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -14332,6 +14206,15 @@ void acts_all::TOPP1_topkernelP9(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -14701,6 +14584,7 @@ void acts_all::TOPP1_topkernelP9(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL9_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL9_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -14762,6 +14646,9 @@ void acts_all::TOPP1_topkernelP9(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL9_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -14792,21 +14679,27 @@ void acts_all::TOPP1_topkernelP9(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -14819,10 +14712,8 @@ void acts_all::TOPP1_topkernelP9(
 							MEMACCESSP1_readANDRVchunks9(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7,vbuffer_source8, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -14833,6 +14724,9 @@ void acts_all::TOPP1_topkernelP9(
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 7, 7, enableprocess, enablepartition, enablereduce, kvdram7, vbuffer_source7, globalstatsbuffer7, globalposition, globalparamsV, collections7);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 8, 8, enableprocess, enablepartition, enablereduce, kvdram8, vbuffer_source8, globalstatsbuffer8, globalposition, globalparamsV, collections8);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -14858,7 +14752,7 @@ void acts_all::TOPP1_topkernelP9(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -14906,16 +14800,26 @@ void acts_all::TOPP1_topkernelP9(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP10(
+void TOPP1_topkernelP10(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
+	
 	uint512_dt * kvdram8,
+	
 	uint512_dt * kvdram9,
 	uint512_dt * vdram
 	){
@@ -14930,6 +14834,10 @@ void acts_all::TOPP1_topkernelP10(
 #pragma HLS INTERFACE m_axi port = kvdram8 offset = slave bundle = gmem8
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem10
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -14971,6 +14879,15 @@ void acts_all::TOPP1_topkernelP10(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -15371,6 +15288,7 @@ void acts_all::TOPP1_topkernelP10(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL10_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL10_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -15432,6 +15350,9 @@ void acts_all::TOPP1_topkernelP10(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL10_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -15462,21 +15383,27 @@ void acts_all::TOPP1_topkernelP10(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -15489,10 +15416,8 @@ void acts_all::TOPP1_topkernelP10(
 							MEMACCESSP1_readANDRVchunks10(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7,vbuffer_source8,vbuffer_source9, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -15504,6 +15429,9 @@ void acts_all::TOPP1_topkernelP10(
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 8, 8, enableprocess, enablepartition, enablereduce, kvdram8, vbuffer_source8, globalstatsbuffer8, globalposition, globalparamsV, collections8);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 9, 9, enableprocess, enablepartition, enablereduce, kvdram9, vbuffer_source9, globalstatsbuffer9, globalposition, globalparamsV, collections9);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -15529,7 +15457,7 @@ void acts_all::TOPP1_topkernelP10(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -15580,17 +15508,28 @@ void acts_all::TOPP1_topkernelP10(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP11(
+void TOPP1_topkernelP11(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
+	
 	uint512_dt * kvdram8,
+	
 	uint512_dt * kvdram9,
+	
 	uint512_dt * kvdram10,
 	uint512_dt * vdram
 	){
@@ -15606,6 +15545,10 @@ void acts_all::TOPP1_topkernelP11(
 #pragma HLS INTERFACE m_axi port = kvdram9 offset = slave bundle = gmem9
 #pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem11
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -15650,6 +15593,15 @@ void acts_all::TOPP1_topkernelP11(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -16081,6 +16033,7 @@ void acts_all::TOPP1_topkernelP11(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL11_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL11_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -16142,6 +16095,9 @@ void acts_all::TOPP1_topkernelP11(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL11_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -16172,21 +16128,27 @@ void acts_all::TOPP1_topkernelP11(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -16199,10 +16161,8 @@ void acts_all::TOPP1_topkernelP11(
 							MEMACCESSP1_readANDRVchunks11(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7,vbuffer_source8,vbuffer_source9,vbuffer_source10, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -16215,6 +16175,9 @@ void acts_all::TOPP1_topkernelP11(
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 9, 9, enableprocess, enablepartition, enablereduce, kvdram9, vbuffer_source9, globalstatsbuffer9, globalposition, globalparamsV, collections9);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 10, 10, enableprocess, enablepartition, enablereduce, kvdram10, vbuffer_source10, globalstatsbuffer10, globalposition, globalparamsV, collections10);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -16240,7 +16203,7 @@ void acts_all::TOPP1_topkernelP11(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -16294,18 +16257,30 @@ void acts_all::TOPP1_topkernelP11(
 }
 }
 extern "C" {
-void acts_all::TOPP1_topkernelP12(
+void TOPP1_topkernelP12(
+	
 	uint512_dt * kvdram0,
+	
 	uint512_dt * kvdram1,
+	
 	uint512_dt * kvdram2,
+	
 	uint512_dt * kvdram3,
+	
 	uint512_dt * kvdram4,
+	
 	uint512_dt * kvdram5,
+	
 	uint512_dt * kvdram6,
+	
 	uint512_dt * kvdram7,
+	
 	uint512_dt * kvdram8,
+	
 	uint512_dt * kvdram9,
+	
 	uint512_dt * kvdram10,
+	
 	uint512_dt * kvdram11,
 	uint512_dt * vdram
 	){
@@ -16322,6 +16297,10 @@ void acts_all::TOPP1_topkernelP12(
 #pragma HLS INTERFACE m_axi port = kvdram10 offset = slave bundle = gmem10
 #pragma HLS INTERFACE m_axi port = kvdram11 offset = slave bundle = gmem11
 #pragma HLS INTERFACE m_axi port = vdram offset = slave bundle = gmem12
+
+// static hls::stream<uint32_t> kvdram("input_stream_1");
+// static hls::stream<uint32_t> inStream2("input_stream_2");
+// static hls::stream<uint32_t> outStream("output_stream");
 
 #pragma HLS INTERFACE s_axilite port = kvdram0 bundle = control
 #pragma HLS INTERFACE s_axilite port = kvdram1 bundle = control
@@ -16369,6 +16348,15 @@ void acts_all::TOPP1_topkernelP12(
 	#if defined(_DEBUGMODE_KERNELPRINTS3) & defined(ALLVERTEXISACTIVE_ALGORITHM)
 	cout<<">>> ====================== Light weight ACTS (PR & SYNC) Launched... ====================== "<<endl; 
 	#endif
+	
+	/* ///////////////////////////////
+	for(unsigned int iter=0; iter<1; iter++){
+		for(unsigned int t=0; t<16; t++){ // universalparams.NUMPROCESSEDGESPARTITIONS
+			unsigned int voffset = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+			cout<<"~~~[topkernelP-0] vdram["<<voffset + t<<"].data["<<iter<<"].key: "<<vdram[voffset + t].data[iter].key<<", vdram["<<voffset + t<<"].data["<<iter<<"].value: "<<vdram[voffset + t].data[iter].value<<endl;
+		}
+	}
+	/////////////////////////////////////////////////// */
 	
 	keyvalue_vbuffer_t vbuffer_source0[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source0
@@ -16831,6 +16819,7 @@ void acts_all::TOPP1_topkernelP12(
 			#endif
 			globalposition.v_chunkid = v_chunkid;
 			globalparamsK.VARS_WORKBATCH = globalposition.v_chunkid; // SHIFT.
+			unsigned int total_num_active_vertices_in_vchunk = 0;
 			TOPKERNEL12_BASELOOP1C: for(step_type stage=0; stage<num_stages; stage++){
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				actsutilityobj->print3("### TOPKERNEL12_BASELOOP1C:: stage", "stage", "num_stages", stage, stage, num_stages); 							
@@ -16892,6 +16881,9 @@ void acts_all::TOPP1_topkernelP12(
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						actsutilityobj->print5("### TOPKERNEL12_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
 						#endif
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
+						#endif
 						#ifdef CONFIG_COLLECT_DATAS2_DURING_RUN
 						if(stage == 0 && source_partition == 0){ UTILP1_SetFirstData(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP, LASTSOURCEPARTITIONS); }
 						#endif 
@@ -16922,21 +16914,27 @@ void acts_all::TOPP1_topkernelP12(
 						bool_type enableprocess = OFF;
 						if(globalposition.EN_PROCESS == ON){ enableprocess = ON; } else { enableprocess = OFF; }
 						
-						bool_type enable_readandreplicatevdata = ON;
-						unsigned int num_active_vertices_in_partition, num_active_edges_in_channel = 0;
-						enable_readandreplicatevdata = OFF; // NEWCHANGE
-						num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						bool_type enable_readandreplicatevdata = OFF; 
+						
+						// hyrid heuristics
+						if(globalposition.EN_PROCESS == ON && source_partition == FIRSTSOURCEPARTITION){ for(unsigned int p=0; p<LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION; p++){ total_num_active_vertices_in_vchunk += pmask_curr[p]; }}
+						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<")...."<<endl; } 
 						#endif 
-						if(globalposition.EN_PROCESS == ON){ 
-							if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; } // NEW CHANGE.	
-						} else { enable_readandreplicatevdata = OFF; }
+						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
+						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;
-						if(GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE && globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD_PER_VPARTITION){ globalposition.num_active_vertices = 0; globalposition.num_active_edges_in_channel = 0; enable_readandreplicatevdata = OFF; } // force a no-activity
+						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
+							#ifdef _DEBUGMODE_KERNELPRINTS
+							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
+							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
+							#endif 
+						}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -16949,10 +16947,8 @@ void acts_all::TOPP1_topkernelP12(
 							MEMACCESSP1_readANDRVchunks12(ON, vdram, vbuffer_source0,vbuffer_source1,vbuffer_source2,vbuffer_source3,vbuffer_source4,vbuffer_source5,vbuffer_source6,vbuffer_source7,vbuffer_source8,vbuffer_source9,vbuffer_source10,vbuffer_source11, vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
 						}
 						
-						// acts 
-						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
-	
-						#ifdef NOT_USED
+						// acts
+						#ifdef CONFIG_RELEASE_VERSION5
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 1, 1, enableprocess, enablepartition, enablereduce, kvdram1, vbuffer_source1, globalstatsbuffer1, globalposition, globalparamsV, collections1);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 2, 2, enableprocess, enablepartition, enablereduce, kvdram2, vbuffer_source2, globalstatsbuffer2, globalposition, globalparamsV, collections2);		
@@ -16966,6 +16962,9 @@ void acts_all::TOPP1_topkernelP12(
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 10, 10, enableprocess, enablepartition, enablereduce, kvdram10, vbuffer_source10, globalstatsbuffer10, globalposition, globalparamsV, collections10);		
 						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 11, 11, enableprocess, enablepartition, enablereduce, kvdram11, vbuffer_source11, globalstatsbuffer11, globalposition, globalparamsV, collections11);		
 	
+						#else 
+						TOPP1_topkernelproc_embedded(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID + 0, 0, enableprocess, enablepartition, enablereduce, kvdram0, vbuffer_source0, globalstatsbuffer0, globalposition, globalparamsV, collections0);		
+		
 						#endif 
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
@@ -16991,7 +16990,7 @@ void acts_all::TOPP1_topkernelP12(
 	UTILP1_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXVTHRESHOLD){
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){
 	
 		globalparams_t globalparamsK0;
 		MERGEP1_mergeVs(kvdram0, vdram);
@@ -17049,5 +17048,4 @@ void acts_all::TOPP1_topkernelP12(
 }
 	
 	
-#endif 
 

@@ -121,7 +121,7 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 	unsigned int num_traversed_edges = 0;
 	
 	unsigned int num_iters_toprint = MAXNUMGRAPHITERATIONS;
-	if(universalparams.ALGORITHM == BFS){ num_iters_toprint = 1; }
+	if(universalparams.ALGORITHM != BFS){ num_iters_toprint = 1; }
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
 		if(i%NUMCOMPUTEUNITS_SLR2==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0)==0){} else { continue; } 
@@ -154,7 +154,7 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 		cout<<">>> acts_helper::[A]["<<message<<"][PE:ALL][Iter: "<<GraphIter<<"]:: num edges processed: "<<num_edgesprocessed<<"("<<num_validedgesprocessed<<"), num vertex updates reduced: "<<num_vertexupdatesreduced<<"("<<num_validvertexupdatesreduced<<")"<<endl;	
 	}
 	// num_traversed_edges = num_edgesprocessed;
-	cout<<">>> acts_helper:: -------(((((((((((((((--------- num_traversed_edges: "<<num_traversed_edges<<", num_edgesprocessed: "<<endl;
+	cout<<">>> acts_helper:: num_traversed_edges: "<<num_traversed_edges<<", num_edgesprocessed: "<<endl;
 	return num_traversed_edges;
 }
 

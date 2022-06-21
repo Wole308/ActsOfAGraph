@@ -266,7 +266,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512
 	#endif
 	return;
 }
-void {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]){
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	{%for v in context['VECTOR_SIZE_seq']%}
@@ -280,6 +280,24 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512
 	{%endfor%}
 	#endif
 	return;
+}
+uint512_vec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs){
+	#pragma HLS INLINE
+	uint512_vec_dt dataset;
+	
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	dataset.data[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	dataset.data[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	dataset.data[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+	dataset.data[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	
+	return dataset;
 }
 void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
@@ -296,7 +314,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512
 	#endif
 	return;
 }
-void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR2_SIZE]){
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	{%for v in context['VECTOR_SIZE_seq']%}
@@ -309,6 +327,29 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512
 	kvdram[offset_kvs].data[{{v}}].value = datas[{{v}}].value; 
 	{%endfor%}
 	#endif
+	return;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_vec_dt dataset){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = dataset.data[{{v}}].key; 
+	kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = dataset.data[{{v}}].value; 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	kvdram[offset_kvs].data[{{v}}].key = dataset.data[{{v}}].key;
+	kvdram[offset_kvs].data[{{v}}].value = dataset.data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	return;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
+	#pragma HLS INLINE
+	{%for v in context['VECTOR_SIZE_seq']%}
+	buffer[{{v}}][offset_kvs].key = datas[{{v}}].key;
+	buffer[{{v}}][offset_kvs].value = datas[{{v}}].value; 
+	{%endfor%}
 	return;
 }
 

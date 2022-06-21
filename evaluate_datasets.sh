@@ -25,7 +25,7 @@ make cleanall
 make actsobj
 
 DATSETS=(
-		com-Orkut.mtx
+		# com-Orkut.mtx
 		# soc-LiveJournal1.mtx
 		# sx-stackoverflow.mtx
 		# ljournal-2008.mtx
@@ -39,7 +39,7 @@ DATSETS=(
 		# delicious.mtx
 		# rmat_16m_256m.mtx
 		# rmat_32m_512m.mtx
-		# rmat_64m_512m.mtx
+		rmat_64m_512m.mtx
 		
 		# rmat_12m_128m.mtx 
 		# rmat_16m_128m.mtx 
@@ -48,29 +48,33 @@ DATSETS=(
 		# rmat_28m_128m.mtx 
 		)
 		
+# DIRECTIONS=(
+		# 1
+		# 1
+		# 1
+		# 1
+		# 1
+		# 1
+		# 1
+		# 1
+		# 1
+		
+		# 1
+		# 0
+		# 0
+		# 0
+		# 0
+		
+		# 0
+		# 0
+		# 0
+		# 0
+		# 0
+		# )		
+		
 DIRECTIONS=(
-		1
-		1
-		1
-		1
-		1
-		1
-		1
-		1
-		1
-		
-		1
 		0
-		0
-		0
-		0
-		
-		0
-		0
-		0
-		0
-		0
-		)		
+		)
 	
 # for algo in $PR $CF $HITS $SPMV $BFS	
 # for algo in $PR $CF $HITS $BFS 

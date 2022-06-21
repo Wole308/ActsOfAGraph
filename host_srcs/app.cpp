@@ -61,9 +61,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.AVERAGENUM_WORKEDGES_PER_CHANNEL = num_edges / NUM_PEs;
 	
 	universalparams.ISUNDIRECTEDGRAPH = graphisundirected;
-	// if(graphisundirected == 1){ universalparams.ISUNDIRECTEDGRAPH = true; } else { universalparams.ISUNDIRECTEDGRAPH = false; }
-	// if(universalparams.NUM_EDGES > 200000000){ universalparams.ISUNDIRECTEDGRAPH = false; } // AUTOMATEME.
-
+	
 	universalparams.EDGES_IN_SEPERATE_BUFFER_FROM_KVDRAM = 1; // NEWCHANGE.
 	
 	universalparams.NUM_PARTITIONS_POW = 4;
@@ -86,10 +84,22 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.KVDATA_RANGE_POW = ceil(log2((double)(universalparams.NUM_VERTICES)));
 	universalparams.KVDATA_RANGE = universalparams.NUM_VERTICES;
 
-	universalparams.BATCH_RANGE_POW = ceil(log2((double)(universalparams.NUM_VERTICES / NUM_PEs))); 
-	// universalparams.BATCH_RANGE_POW = 22; // CRITICAL REMOVEME.
+	unsigned int ceilnum_reduce_partitions = 0;
+	unsigned int num_reduce_partitions = (universalparams.NUM_VERTICES / NUM_PEs) / (universalparams.PROC_SRAMSZ * VDATA_PACKINGSIZE); 
+	if(num_reduce_partitions == 0){ ceilnum_reduce_partitions = 1; }
+		else if(num_reduce_partitions >= 1 && num_reduce_partitions < 16){ ceilnum_reduce_partitions = 16; }
+			else if(num_reduce_partitions >= 16 && num_reduce_partitions < 256){ ceilnum_reduce_partitions = 256; }
+				else { ceilnum_reduce_partitions = 4096; }
+	universalparams.BATCH_RANGE_POW = ceil(log2((double)(ceilnum_reduce_partitions))) + ceil(log2((double)((universalparams.PROC_SRAMSZ * VDATA_PACKINGSIZE))));
+	// universalparams.BATCH_RANGE_POW = ceil(log2((double)(universalparams.NUM_VERTICES / NUM_PEs))); // CRITICAL NEWCHANGE. 
 	universalparams.BATCH_RANGE = universalparams.NUM_VERTICES / NUM_PEs;
 	universalparams.BATCH_RANGE_KVS = universalparams.BATCH_RANGE / VECTOR_SIZE;
+	// cout<<"app: ~~~ num_reduce_partitions: "<<num_reduce_partitions<<endl;
+	// cout<<"app: ~~~ ceilnum_reduce_partitions: "<<ceilnum_reduce_partitions<<endl;
+	// cout<<"app: ~~~ universalparams.BATCH_RANGE_POW: "<<universalparams.BATCH_RANGE_POW<<endl;
+	// cout<<"app: ~~~ universalparams.BATCH_RANGE: "<<universalparams.BATCH_RANGE<<endl;
+	// cout<<"app: ~~~ universalparams.BATCH_RANGE_KVS: "<<universalparams.BATCH_RANGE_KVS<<endl;
+	// exit(EXIT_SUCCESS);
 
 	if(universalparams.ALGORITHM == BFS){ universalparams.TREE_DEPTH = 1; } 
 	else { universalparams.TREE_DEPTH = ((universalparams.BATCH_RANGE_POW - universalparams.RED_SRAMSZ_POW) + (universalparams.NUM_PARTITIONS_POW - 1)) / universalparams.NUM_PARTITIONS_POW; }
@@ -152,49 +162,56 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	return universalparams;
 }
 void app::print_active_partitions(unsigned int GraphIter, uint512_vec_dt * dram, universalparams_t universalparams, unsigned int num_partitions, bool printA, bool printB){
-	cout<< endl << TIMINGRESULTSCOLOR << ">>> app::print_active_vpartitions: printing active vertex partitions...: "<< RESET <<endl;
-	
-	pmask_dt * pmask0; pmask0 = new pmask_dt[num_partitions];
-	unsigned int * emask0; emask0 = new pmask_dt[num_partitions];
-	uint512_ivec_dt * tempdram = (uint512_ivec_dt *)dram;		
-	unsigned int dram_BASEOFFSETKVS_VERTICESPARTITIONMASK = dram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-	unsigned int dram_BASEOFFSETKVS_ACTIVEVERTICES = dram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
-	unsigned int offset_kvs = dram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
-	unsigned int offset2_kvs = dram_BASEOFFSETKVS_ACTIVEVERTICES;
-	for (buffer_type i=0; i<num_partitions; i++){
-		pmask0[i] = tempdram[offset_kvs + i].data[GraphIter];
-		emask0[i] = tempdram[offset2_kvs + i].data[GraphIter];
-	}
-	
-	#if defined(_DEBUGMODE_HOSTPRINTS3)
-	if(printA==true){
-		unsigned int num_actvps = 0;
-		for(unsigned int t=0; t<num_partitions; t++){
-			if(pmask0[t] > 0  && t < 16){ cout<<t<<", "; }
-			if(pmask0[t] > 0){ num_actvps += 1; }
+	if(universalparams.ALGORITHM == BFS){ 
+		cout<< endl << TIMINGRESULTSCOLOR << ">>> app::print_active_vpartitions: printing active vertex partitions...: "<< RESET <<endl;
+		
+		pmask_dt * pmask0; pmask0 = new pmask_dt[num_partitions];
+		unsigned int * emask0; emask0 = new pmask_dt[num_partitions];
+		uint512_ivec_dt * tempdram = (uint512_ivec_dt *)dram;		
+		unsigned int dram_BASEOFFSETKVS_VERTICESPARTITIONMASK = dram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
+		unsigned int dram_BASEOFFSETKVS_ACTIVEVERTICES = dram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
+		unsigned int offset_kvs = dram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
+		unsigned int offset2_kvs = dram_BASEOFFSETKVS_ACTIVEVERTICES;
+		for (buffer_type i=0; i<num_partitions; i++){
+			pmask0[i] = tempdram[offset_kvs + i].data[GraphIter];
+			emask0[i] = tempdram[offset2_kvs + i].data[GraphIter];
 		}
-		cout<<" (num active partitions (varA): "<<num_actvps<<", total num partitions: "<<num_partitions<<" GraphIter: "<<GraphIter<<")"<<endl;
-	}
-	if(printB==true){
-		unsigned int num_actvedges = 0;
-		unsigned int num_actv_edges = 0;
-		for(unsigned int t=0; t<num_partitions; t++){
-			// if(emask0[t] > 0  && t < 16){ cout<<emask0[t]<<", "; }
-			// if(emask0[t] > 0){ num_actvedges += emask0[t]; num_actvps += 1; }
-			num_actv_edges += emask0[t];
+		
+		#if defined(_DEBUGMODE_HOSTPRINTS3)
+		if(universalparams.ALGORITHM == BFS){ 
+			if(printA==true){
+				unsigned int num_actvps = 0;
+				for(unsigned int t=0; t<num_partitions; t++){
+					if(pmask0[t] > 0  && t < 16){ cout<<t<<", "; }
+					if(pmask0[t] > 0){ num_actvps += 1; }
+				}
+				cout<<" (num active partitions (varA): "<<num_actvps<<", total num partitions: "<<num_partitions<<" GraphIter: "<<GraphIter<<")"<<endl;
+			}
+			if(printB==true){
+				unsigned int num_actvedges = 0;
+				unsigned int num_actv_edges = 0;
+				for(unsigned int t=0; t<num_partitions; t++){
+					// if(emask0[t] > 0  && t < 16){ cout<<emask0[t]<<", "; }
+					// if(emask0[t] > 0){ num_actvedges += emask0[t]; num_actvps += 1; }
+					num_actv_edges += emask0[t];
+				}
+				cout<<"^^^ total number of active edges in HBM channel (varB): "<<num_actv_edges<<" iter: "<<GraphIter<<") ^^^"<<endl;
+			}
 		}
-		cout<<"^^^ total number of active edges in HBM channel (varB): "<<num_actv_edges<<" iter: "<<GraphIter<<") ^^^"<<endl;
+		#endif 
 	}
-	#endif 
 }
-void app::printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]){
+void app::printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs], universalparams_t universalparams){
 	unsigned int F0 = 0;
 	unsigned int F1 = 1;
 	unsigned int F2 = 2;
 	unsigned int totalnum_edgesprocessed = 0;
 	
+	unsigned int num_iters_toprint = MAXNUMGRAPHITERATIONS;
+	if(universalparams.ALGORITHM != BFS){ num_iters_toprint = 1; }
+	
 	for(unsigned int i=0; i<1; i++){
-		for(unsigned int GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ 
+		for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
 			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	
 			unsigned int num_vertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
 			
@@ -205,7 +222,7 @@ void app::printallfeedback(string message, string graphpath, uint512_vec_dt * vd
 		}
 	}
 
-	for(unsigned int GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ 
+	for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
 		unsigned int num_edgesprocessed = 0;
 		unsigned int num_vertexupdatesreduced = 0;
 		unsigned int num_validedgesprocessed = 0;
@@ -397,8 +414,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	// edges
 	#ifdef APP_LOADEDGES
-	// globalparams = loadedgesobj->start_former(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, (keyvalue_t **)edges, edges_temp, &container, globalparams);
 	globalparams = loadedgesobj->start(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, edges, edges_final, edges_map, &container, globalparams);
+	// exit(EXIT_SUCCESS);
 	#endif 
 	globalparams.globalparamsV.SIZE_EDGES = 0; 
 	globalparams.globalparamsV.SIZE_VERTEXPTRS = 0;
@@ -565,15 +582,12 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<<">>> app::run_hw: num_traversed_edges: "<<num_traversed_edges<<" edges ("<<num_traversed_edges/1000000<<" million edges)"<<endl;
 	cout<<">>> app::run_hw: total_time_elapsed: "<<total_time_elapsed<<" ms ("<<total_time_elapsed/1000<<" s)"<<endl;
 	
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" edges/sec ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" million edges/sec)"<< RESET <<endl;			
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: ("<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUM_PEs)<<" million edges/sec)"<< RESET <<endl;
-	
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput (MPEPS): "<<((total_edges_processed / total_time_elapsed) * (1000))<<" PEPS ("<<((total_edges_processed / total_time_elapsed) / (1000))<<" MPEPS) ("<<((total_edges_processed / total_time_elapsed) / (1000000))<<" BPEPS)"<< RESET <<endl;			
-	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput (MTEPS): "<<((num_traversed_edges / total_time_elapsed) * (1000))<<" TEPS ("<<((num_traversed_edges / total_time_elapsed) / (1000))<<" MTEPS) ("<<((num_traversed_edges / total_time_elapsed) / (1000000))<<" BTEPS)"<< RESET <<endl;			
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput: "<<((total_edges_processed / total_time_elapsed) * (1000))<<" Edges / sec, "<<((total_edges_processed / total_time_elapsed) / (1000))<<" Million edges / sec, "<<((total_edges_processed / total_time_elapsed) / (1000000))<<" Billion edges / sec"<< RESET <<endl;	
+	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: "<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUM_PEs)<<" Million edges / sec"<< RESET <<endl;
 	
 	actshelperobj->extract_stats(actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpmaskstats, vpmaskstats_merge, num_edges_processed);
 	#ifndef FPGA_IMPL
-	printallfeedback("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer);
+	printallfeedback("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer, universalparams);
 	#endif 
 	summary(GRAPH_PATH, vdram, globalparams.globalparamsV);
 	

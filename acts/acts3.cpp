@@ -6,7 +6,7 @@
 void load(uint512_dt *in, hls::stream<uint512_vec_dt >& out, batch_type sourcebaseaddr_kvs, unsigned int offset_kvs, int size){
 	Loop_Ld: for (int i = 0; i < size; i++){
 	#pragma HLS PIPELINE II=1
-		uint512_vec_dt data = UTIL{{context['id']}}_GetDataset(in, sourcebaseaddr_kvs + offset_kvs + i);
+		uint512_vec_dt data = UTILP0_GetDataset(in, sourcebaseaddr_kvs + offset_kvs + i);
 		out.write(data);
 	}
 }
@@ -29,22 +29,22 @@ void compute_and_store(hls::stream<uint512_vec_dt >& in, uint512_dt *out, keyval
 		// process
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
 		#pragma HLS UNROLL
-			res.data[v] = PROCESS{{context['id']}}_processvector(enx, v, data.data[v].value - upperlimit, upperlimit, data.data[v], vbuffer_source[v], globalparamsK);
+			res.data[v] = PROCESSP0_processvector(enx, v, data.data[v].value - upperlimit, upperlimit, data.data[v], vbuffer_source[v], globalparamsK);
 		}
 		
 		// store
-		UTIL{{context['id']}}_SetDataset(out, destbaseaddr_kvs + offset_kvs + i, res);
+		UTILP0_SetDataset(out, destbaseaddr_kvs + offset_kvs + i, res);
 	}
 }
 #endif 
 
-void {{context['classname__acts']}}ACTS{{context['id']}}_load_compute_and_store(uint512_dt *in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],
+void ACTSP0_load_compute_and_store(uint512_dt *in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],
 			batch_type sourcebaseaddr_kvs, unsigned int srcoffset_kvs, batch_type destbaseaddr_kvs, unsigned int destoffset_kvs, int size, unsigned int upperlimit, 
 						unsigned int collections_regs[2], globalparams_t globalparamsK, globalposition_t globalposition){
 	uint512_vec_dt res;
 	for(int i = 0; i < size; i++){
 		// load 
-		uint512_vec_dt data = UTIL{{context['id']}}_GetDataset(in, sourcebaseaddr_kvs + srcoffset_kvs + i);
+		uint512_vec_dt data = UTILP0_GetDataset(in, sourcebaseaddr_kvs + srcoffset_kvs + i);
 
 		// set flag
 		bool enx = true;
@@ -54,15 +54,15 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_load_compute_and_store(
 		// process
 		for(unsigned int v=0; v<VECTOR_SIZE; v++){
 		#pragma HLS UNROLL
-			res.data[v] = PROCESS{{context['id']}}_processvector(enx, v, data.data[v].value - upperlimit, upperlimit, data.data[v], vbuffer_source[v], globalparamsK);
+			res.data[v] = PROCESSP0_processvector(enx, v, data.data[v].value - upperlimit, upperlimit, data.data[v], vbuffer_source[v], globalparamsK);
 		}
 		
 		// store
-		UTIL{{context['id']}}_SetDataset(out, destbaseaddr_kvs + destoffset_kvs + i, res);
+		UTILP0_SetDataset(out, destbaseaddr_kvs + destoffset_kvs + i, res);
 	}
 }
 
-void {{context['classname__acts']}}ACTS{{context['id']}}_actit3_load_compute_and_store(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],	
+void ACTSP0_actit3_load_compute_and_store(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],	
 			unsigned int upperlimit, unsigned int sourcebaseaddr_kvs, unsigned int srcoffset_kvs, unsigned int destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int size_kvs,
 				unsigned int collections_regs[2], globalparams_t globalparamsK, globalposition_t globalposition){
 
@@ -77,13 +77,13 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit3_load_compute_and
 						collections_regs, globalparamsK, globalposition);
 						
 	#else 
-	ACTS{{context['id']}}_load_compute_and_store(kvdram, kvdram, vbuffer_source,
+	ACTSP0_load_compute_and_store(kvdram, kvdram, vbuffer_source,
 		sourcebaseaddr_kvs, srcoffset_kvs, destbaseaddr_kvs, destoffset_kvs, size_kvs, upperlimit, 
 					collections_regs, globalparamsK, globalposition);
 	#endif
 }
 
-void {{context['classname__acts']}}ACTS{{context['id']}}_actit3(bool_type enable, unsigned int mode,
+void ACTSP0_actit3(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],	
 			keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 				bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[NUM_COLLECTIONS][COLLECTIONS_BUFFERSZ]){
@@ -113,8 +113,8 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit3(bool_type enable
 	
 	ACTIT3_LOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
 		workload_t workload_kvs;
-		workload_kvs.offset_begin = MEMACCESS{{context['id']}}_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, (sweepparams.source_partition * num_LLPset) + llp_set) / VECTOR_SIZE;
-		workload_kvs.offset_end = MEMACCESS{{context['id']}}_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, (sweepparams.source_partition * num_LLPset) + llp_set + 1) / VECTOR_SIZE;
+		workload_kvs.offset_begin = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, (sweepparams.source_partition * num_LLPset) + llp_set) / VECTOR_SIZE;
+		workload_kvs.offset_end = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, (sweepparams.source_partition * num_LLPset) + llp_set + 1) / VECTOR_SIZE;
 		workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin;
 		if(workload_kvs.offset_end < workload_kvs.offset_begin){ workload_kvs.size = 0; }
 		#ifdef _DEBUGMODE_CHECKS3
@@ -134,7 +134,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit3(bool_type enable
 			cout<<"actit3(process): processing all chunks [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<nextoffset_kvs<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * VECTOR_SIZE<<"][workbuffer_size: "<<globalparamsK.ACTSPARAMS_WORKBUFFER_SIZE<<"][num_chunks: "<<num_chunks<<"] ... "<<endl;					
 			#endif
 			
-			ACTS{{context['id']}}_actit3_load_compute_and_store(kvdram, vbuffer_source, vbuffer_dest,	
+			ACTSP0_actit3_load_compute_and_store(kvdram, vbuffer_source, vbuffer_dest,	
 				upperlimit, sourcebaseaddr_kvs, workload_kvs.offset_begin, destbaseaddr_kvs, destoffset_kvs, workload_kvs.size,
 					collections_regs, globalparamsK, globalposition);
 			
@@ -151,8 +151,8 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit3(bool_type enable
 	if(_EN_PROCESS_PARTITION_REDUCE == ON && globalparamsK.ENABLE_APPLYUPDATESCOMMAND == ON){
 		unsigned int curroffsetkvs = 0, nextoffsetkvs = 0;
 		if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1){
-			curroffsetkvs = MEMACCESS{{context['id']}}_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, sweepparams.source_partition) / VECTOR_SIZE;
-			nextoffsetkvs = MEMACCESS{{context['id']}}_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, sweepparams.source_partition + 1) / VECTOR_SIZE;
+			curroffsetkvs = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, sweepparams.source_partition) / VECTOR_SIZE;
+			nextoffsetkvs = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_VERTICESDATAMASK, sweepparams.source_partition + 1) / VECTOR_SIZE;
 		} else { curroffsetkvs = ptravstate.begin_kvs; nextoffsetkvs = ptravstate.end_kvs; }
 		unsigned int size_kvs = nextoffsetkvs - curroffsetkvs;
 		#ifdef _DEBUGMODE_CHECKS3
@@ -171,13 +171,27 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit3(bool_type enable
 			#endif
 			
 			// get dataset
-			uint512_vec_dt data = UTIL{{context['id']}}_GetDataset(kvdram, sourcebaseaddr_kvs + offset_kvs);
+			uint512_vec_dt data = UTILP0_GetDataset(kvdram, sourcebaseaddr_kvs + offset_kvs);
 			
 			// reduce 
 			bool enx = true;
-			{%for v in context['VECTOR_SIZE_seq']%} // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
-			REDUCE{{context['id']}}_reducevector(enx, {{v}}, UTIL{{context['id']}}_GETKV(data.data[{{v}}]), vbuffer_dest[0 + {{v}}], 0, sweepparams.upperlimit, &memory[{{v}}], sweepparams, globalparamsK);
-			{%endfor%}			
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP0_reducevector(enx, 0, UTILP0_GETKV(data.data[0]), vbuffer_dest[0 + 0], 0, sweepparams.upperlimit, &memory[0], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP0_reducevector(enx, 1, UTILP0_GETKV(data.data[1]), vbuffer_dest[0 + 1], 0, sweepparams.upperlimit, &memory[1], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP0_reducevector(enx, 2, UTILP0_GETKV(data.data[2]), vbuffer_dest[0 + 2], 0, sweepparams.upperlimit, &memory[2], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP0_reducevector(enx, 3, UTILP0_GETKV(data.data[3]), vbuffer_dest[0 + 3], 0, sweepparams.upperlimit, &memory[3], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP0_reducevector(enx, 4, UTILP0_GETKV(data.data[4]), vbuffer_dest[0 + 4], 0, sweepparams.upperlimit, &memory[4], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP0_reducevector(enx, 5, UTILP0_GETKV(data.data[5]), vbuffer_dest[0 + 5], 0, sweepparams.upperlimit, &memory[5], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP0_reducevector(enx, 6, UTILP0_GETKV(data.data[6]), vbuffer_dest[0 + 6], 0, sweepparams.upperlimit, &memory[6], sweepparams, globalparamsK);
+ // VECTOR_SIZE_seq // 1_seq // CRITICAL FIXME.
+			REDUCEP0_reducevector(enx, 7, UTILP0_GETKV(data.data[7]), vbuffer_dest[0 + 7], 0, sweepparams.upperlimit, &memory[7], sweepparams, globalparamsK);
+			
 			
 			#ifdef _DEBUGMODE_STATS
 			if(globalparamsK.ACTSPARAMS_TREEDEPTH == 1 && mode==ACTSPROCESSMODE && enx == true){

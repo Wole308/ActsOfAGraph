@@ -269,17 +269,18 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	
 	unsigned int num_vPs = universalparams.NUMPROCESSEDGESPARTITIONS;
 	unsigned int vsize_vP = universalparams.PROCESSPARTITIONSZ;
-	unsigned int num_LLPs = 1 << (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH);
+	unsigned int num_LLPs = universalparams.NUMREDUCEPARTITIONS * universalparams.NUM_PARTITIONS; // 1 << (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH);
 	unsigned int vsize_LLP = 1 << (universalparams.BATCH_RANGE_POW - (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH));
+	unsigned int num_LLPset = (num_LLPs + (universalparams.NUM_PARTITIONS - 1)) / universalparams.NUM_PARTITIONS;
 	
 	unsigned int _NUM_PEs = NUM_PEs;
 	unsigned int _num_vPs = num_vPs; // CRIICAL FIXME.
 	unsigned int _num_LLPs = num_LLPs;
+	unsigned int _num_LLPset = num_LLPset;
 	
 	vector<edge2_type> edges_in_channel[MAXNUM_PEs];
 	vector<edge2_type> edgesin_srcvp[MAXNUM_VPs];
 	vector<edge2_type> edgesin_srcvp_lldstvp[num_LLPs];
-	// vector<edge2_type> edgesin_srcvp_lldstvp_srcv2p[num_LLPs][universalparams.NUM_PARTITIONS];
 	vector<edge2_type> edgesin_srcvp_lldstvp_srcv2p[num_LLPs][VECTOR_SIZE];
 	unsigned int edge_count_in_vpartition[MAXNUM_PEs][MAXNUM_VPs];
 	
@@ -287,13 +288,13 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	for(unsigned int i=0; i<_NUM_PEs; i++){ for(unsigned int v_p=0; v_p<_num_vPs; v_p++){ for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ edges_map[i][v_p][ll_p].offset = 0; edges_map[i][v_p][ll_p].size = 0; }}}
 	for(unsigned int i=0; i<_NUM_PEs; i++){ for(unsigned int v_p=0; v_p<_num_vPs; v_p++){ edge_count_in_vpartition[i][v_p] = 0; }}
 		
-	cout<<"loadedges:: [num_LLPs: "<<num_LLPs<<", vsize_LLP: "<<vsize_LLP<<", num_vPs: "<<num_vPs<<", vsize_vP: "<<vsize_vP<<", INVALIDDATA: "<<INVALIDDATA<<"] "<<endl;
+	cout<<"loadedges:: [num_LLPs: "<<num_LLPs<<", num_LLPset: "<<num_LLPset<<", vsize_LLP: "<<vsize_LLP<<", num_vPs: "<<num_vPs<<", vsize_vP: "<<vsize_vP<<", INVALIDDATA: "<<INVALIDDATA<<"] "<<endl;
 	
 	// partiition into HBM channels 
 	cout<<"STAGE 0: partiition into HBM channels "<<endl;
 	for(unsigned int vid=0; vid<utilityobj->hmin(universalparams.NUM_VERTICES, universalparams.KVDATA_RANGE)-1; vid++){
 		#ifdef _DEBUGMODE_HOSTCHECKS3
-		if(vid % 1000000 == 0){ cout<<"### loadedges::start:: vid: "<<vid<<" (of "<<universalparams.NUM_VERTICES<<" vertices), vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
+		if(vid % 10000000 == 0){ cout<<"### loadedges::start:: vid: "<<vid<<" (of "<<universalparams.NUM_VERTICES<<" vertices), vptr_begin: "<<vertexptrbuffer[vid]<<endl; }
 		utilityobj->checkoutofbounds("loadedges::calculate counts_validedges_for_channel(19)::", vid, universalparams.KVDATA_RANGE, NAp, NAp, NAp);
 		utilityobj->checkoutofbounds("loadedges::calculate counts_validedges_for_channel(19b)::", vid+1, universalparams.KVDATA_RANGE, NAp, NAp, NAp);
 		#endif 
@@ -315,7 +316,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		}
 	}
 	
-	bool debug = true; // true; // false;
+	bool debug = false; // true, false;
 	bool debug_detail = false;
 	cout<<"STAGE 1: preparing edges..."<<endl;
 	for(unsigned int i=0; i<_NUM_PEs; i++){
@@ -334,7 +335,6 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			#ifdef _DEBUGMODE_HOSTCHECKS3
 			utilityobj->checkoutofbounds("loadedges::ERROR 22::", vP, num_vPs, edge.srcvid, edge.srcvid, vsize_vP);
 			#endif 
-		
 			edgesin_srcvp[vP].push_back(edge);
 		}
 		
@@ -343,116 +343,101 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ for(unsigned int p=0; p<universalparams.NUM_PARTITIONS; p++){ edgesin_srcvp_lldstvp_srcv2p[ll_p][p].clear(); }} // clear
 		
 			// within a v-partition, partition into last-level-partitions (LLPs)
-			/* //////////////////////////////////////////////////////////////////
 			if(debug){ cout<<"STAGE 2: within a v-partition, partition into last-level-partitions (LLPs)"<<endl; }
+			// [[0,16,...][1,17...][2,18,...]...[15,31,...]]...[[0,16,...][1,17,...][2,18,...]...[15,31,...]]. distributed by modulo(%) function
 			for(unsigned int t=0; t<edgesin_srcvp[v_p].size(); t++){
 				edge2_type edge = edgesin_srcvp[v_p][t];
-				unsigned int ll_p = (edge.dstvid / vsize_LLP);
-				#ifdef _DEBUGMODE_HOSTCHECKS3
-				utilityobj->checkoutofbounds("loadedges::ERROR 23::", ll_p, num_LLPs, edge.dstvid, edge.dstvid, vsize_LLP);
-				#endif 
-			
-				edgesin_srcvp_lldstvp[ll_p].push_back(edge);
-			}
-			////////////////////////////////////////////////////////////////// */
-			// edgesin_srcvp_lldstvp
-			if(debug){ cout<<"STAGE 2: within a v-partition, partition into last-level-partitions (LLPs)"<<endl; }
-			// [[0,16,...][1,17...][2,18,...]...[15,31,...]]...[[0,16,...][1,17,...][2,18,...]...[15,31,...]]
-			for(unsigned int t=0; t<edgesin_srcvp[v_p].size(); t++){
-				edge2_type edge = edgesin_srcvp[v_p][t];
-				// edge.dstvid = 294913; // CRIICAL REMOVEME.
-				// unsigned int ll_p = (edge.dstvid / 16384); // CRIICAL REMOVEME.
-				
 				unsigned int ll_p = (edge.dstvid / vsize_LLP);
 				unsigned int newll_p = ((ll_p / universalparams.NUM_PARTITIONS) * universalparams.NUM_PARTITIONS) + (edge.dstvid % universalparams.NUM_PARTITIONS);
 				#ifdef _DEBUGMODE_HOSTCHECKS3
 				utilityobj->checkoutofbounds("loadedges::ERROR 23::", newll_p, num_LLPs, edge.dstvid, edge.dstvid, vsize_LLP);
 				#endif 
 				
-				// cout<<"--- edge.dstvid: "<<edge.dstvid<<", vsize_LLP: "<<vsize_LLP<<", ll_p: "<<ll_p<<", newll_p: "<<newll_p<<", universalparams.NUM_PARTITIONS: "<<universalparams.NUM_PARTITIONS<<endl;
 				edgesin_srcvp_lldstvp[newll_p].push_back(edge);
-				// exit(EXIT_SUCCESS); ////
 			}
-			if(true){ cout<<"loadedges[STAGE 2 check]:: {srcvid, dstvid}"<<endl;
-			for(unsigned int ll_p=0; ll_p<num_LLPs; ll_p++){ cout<<"["<<edgesin_srcvp_lldstvp[ll_p][7].srcvid<<", "<<edgesin_srcvp_lldstvp[ll_p][7].dstvid<<"("<<(edgesin_srcvp_lldstvp[ll_p][7].dstvid % universalparams.NUM_PARTITIONS)<<")], "; } cout<<endl; }
-			// exit(EXIT_SUCCESS);
-			//////////////////////////////////////////////////////////////////
+			if(false){ cout<<"loadedges[STAGE 2 check]:: {srcvid, dstvid}"<<endl; }
 			
 			// witihin a LLP, re-arrange by hash of srcvids 
-			/* if(debug){ cout<<"STAGE 3: witihin a LLP, re-arrange by srcvids "<<endl; }
-			for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){
-				for(unsigned int t=0; t<edgesin_srcvp_lldstvp[ll_p].size(); t++){
-					edge2_type edge = edgesin_srcvp_lldstvp[ll_p][t];
-					edgesin_srcvp_lldstvp_srcv2p[ll_p][edge.srcvid % universalparams.NUM_PARTITIONS].push_back(edge);	
-				}
-			} */
 			if(debug){ cout<<"STAGE 3: witihin a LLP, re-arrange by srcvids "<<endl; }
 			for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){
 				for(unsigned int t=0; t<edgesin_srcvp_lldstvp[ll_p].size(); t++){
 					edge2_type edge = edgesin_srcvp_lldstvp[ll_p][t];
+					#ifdef _DEBUGMODE_HOSTCHECKS3
+					unsigned int u_l = ((ll_p+1) + (OPT_NUM_PARTITIONS-1)) / OPT_NUM_PARTITIONS;
+					if(edge.dstvid != INVALIDDATA && ((edge.srcvid - (v_p * vsize_vP) >= vsize_vP) || (edge.dstvid >= u_l * (vsize_LLP * VDATA_PACKINGSIZE)))){ cout<<"loadedges:: ERROR 234. edge_vec data is out of bounds. edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<", v_p: "<<v_p<<", ll_p: "<<ll_p<<", vsize_vP: "<<vsize_vP<<", vsize_LLP: "<<vsize_LLP<<", u_l: "<<u_l<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
+					#endif 
 					edgesin_srcvp_lldstvp_srcv2p[ll_p][edge.srcvid % VECTOR_SIZE].push_back(edge);	
-				}
-			}
-			
-			// witihin a LLP, re-arrange by srcvids 
-			// finally, place edges in dram
-			// vector<edge2_type> edgesin_srcvp_lldstvp_srcv2p[num_LLPs][VECTOR_SIZE];
-			if(debug){ cout<<"STAGE 4: preparing edges and loading into dram..."<<endl; }
-			edge2_type dummy_edge; dummy_edge.srcvid = INVALIDDATA; dummy_edge.dstvid = INVALIDDATA; 
-			unsigned int depths[VECTOR_SIZE];
-			for(unsigned int llp_set=0; llp_set<universalparams.NUM_PARTITIONS / VECTOR_SIZE; llp_set++){ // ll_p set 
-				unsigned int llp_offset = llp_set * VECTOR_SIZE;
-				for(unsigned int llp_id=0; llp_id<VECTOR_SIZE; llp_id++){ // ll_p
-					// get layout
-					getXYLayoutV(llp_id, depths);
-					unsigned int max_kvs = 0; for(unsigned int v=0; v<VECTOR_SIZE; v++){ if(edgesin_srcvp_lldstvp_srcv2p[llp_offset + v][depths[v]].size() > max_kvs){ max_kvs = edgesin_srcvp_lldstvp_srcv2p[llp_offset + v][depths[v]].size(); }}
-					// for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"loadedges:: max_kvs: "<<max_kvs<<" depths["<<v<<"]: "<<depths[v]<<endl; }
-					
-					for(buffer_type t=0; t<max_kvs; t++){
-						
-						edge2_vec_dt edge_vec;
-						for(unsigned int v=0; v<VECTOR_SIZE; v++){
-							if(t < edgesin_srcvp_lldstvp_srcv2p[llp_offset + v][depths[v]].size()){ edge_vec.data[v] = edgesin_srcvp_lldstvp_srcv2p[llp_offset + v][depths[v]][t]; } else { edge_vec.data[v] = dummy_edge; }
-						}
-						
-						// for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"^["<<edge_vec.data[v].srcvid<<", "<<edge_vec.data[v].dstvid<<"("<<(edge_vec.data[v].dstvid % VECTOR_SIZE)<<")], "; } cout<<endl; 
-						
-						// re-arrange
-						edge2_vec_dt edge_vec2 = rearrangeLayoutV(llp_offset + llp_id, edge_vec);
-						
-						// cout<<"loadedges:: ~~~~~~~~~~~~~~~~ llp_id: "<<llp_id<<endl;
-						// if(i==0 && llp_id==0 && t< 16){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"#["<<edge_vec2.data[v].srcvid<<", "<<edge_vec2.data[v].dstvid<<"("<<(edge_vec2.data[v].dstvid % VECTOR_SIZE)<<")], "; } cout<<endl; }
-						// exit(EXIT_SUCCESS);
-						
-						edge2_vec_dt edge_vec3 = edge_vec2;
-						for(unsigned int v=0; v<VECTOR_SIZE; v++){ if(edge_vec2.data[v].dstvid != INVALIDDATA){ edge_vec3.data[v].srcvid = (edge_vec2.data[v].srcvid - v) / universalparams.NUM_PARTITIONS; }}
-						 
-						for(unsigned int v=0; v<VECTOR_SIZE; v++){
-							utilityobj->checkoutofbounds("loadedges::ERROR 56::", globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index, universalparams.MAXHBMCAPACITY_KVS2 * VECTOR_SIZE, globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA, t, NAp);	
-							edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v].key = edge_vec3.data[v].dstvid; 
-							edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v].value = edge_vec3.data[v].srcvid;
-						}
-						index+=1;
-						edges_final[i].push_back(edge_vec2); 
-						
-						edges_map[i][v_p][0].size += 2 * VECTOR_SIZE;
-						edge_count_in_vpartition[i][v_p] += 2 * VECTOR_SIZE;
-					}
 				}
 			}
 			// exit(EXIT_SUCCESS);
 			
-			if(debug_detail){ cout<<"loadedges:: edges_final[0].size(): "<<edges_final[0].size()<<", edge_count_in_vpartition["<<i<<"]["<<v_p<<"]: "<<edge_count_in_vpartition[i][v_p]<<endl; }
+			// witihin a LLP, re-arrange by srcvids, also place edges in dram
+			if(debug){ cout<<"STAGE 4: preparing edges and loading into dram..."<<endl; }
+			edge2_type dummy_edge; dummy_edge.srcvid = INVALIDDATA; dummy_edge.dstvid = INVALIDDATA; 
+			unsigned int depths[VECTOR_SIZE];
+			for(unsigned int llp_set=0; llp_set<_num_LLPset; llp_set++){ // ll_p set 
+				unsigned int offset_llpset = llp_set * universalparams.NUM_PARTITIONS;
+				for(unsigned int llp_subset=0; llp_subset<universalparams.NUM_PARTITIONS / VECTOR_SIZE; llp_subset++){ // ll_p set 
+					unsigned int offset_llpsubset = llp_subset * VECTOR_SIZE;
+					for(unsigned int llp_id=0; llp_id<VECTOR_SIZE; llp_id++){ // ll_p
+						if(false){ cout<<"loadedges:: [llp_set: "<<llp_set<<", llp_subset: "<<llp_subset<<", llp_id: "<<llp_id<<"]"<<endl; }
+					
+						// get layout
+						getXYLayoutV(llp_id, depths);
+						unsigned int max_kvs = 0; 
+						for(unsigned int v=0; v<VECTOR_SIZE; v++){ if(edgesin_srcvp_lldstvp_srcv2p[offset_llpset + offset_llpsubset + v][depths[v]].size() > max_kvs){ max_kvs = edgesin_srcvp_lldstvp_srcv2p[offset_llpsubset + v][depths[v]].size(); }
+							else if(edgesin_srcvp_lldstvp_srcv2p[offset_llpset + offset_llpsubset + v][depths[v]].size() == 0){ if(debug_detail){ cout<<"!!!!!!!!!!!!!!!!! loadedges:: EMPTY PARTITION SEEN @ p: "<<offset_llpset + offset_llpsubset + v<<", v: "<<v<<", llp_set: "<<llp_set<<", llp_subset: "<<llp_subset<<", llp_id: "<<llp_id<<", max_kvs: "<<max_kvs<<endl; }}}
+					
+						for(buffer_type t=0; t<max_kvs; t++){
+							edge2_vec_dt edge_vec;
+							for(unsigned int v=0; v<VECTOR_SIZE; v++){ if(t < edgesin_srcvp_lldstvp_srcv2p[offset_llpset + offset_llpsubset + v][depths[v]].size()){ edge_vec.data[v] = edgesin_srcvp_lldstvp_srcv2p[offset_llpset + offset_llpsubset + v][depths[v]][t]; } else { edge_vec.data[v] = dummy_edge; }}
+							
+							// re-arrange
+							edge2_vec_dt edge_vec2 = rearrangeLayoutV(offset_llpset + offset_llpsubset + llp_id, edge_vec);
+							
+							#ifdef _DEBUGMODE_HOSTCHECKS3
+							unsigned int u_l = llp_set + 1;
+							for(unsigned int v=0; v<VECTOR_SIZE; v++){ 
+								unsigned int first_limit = edge_vec2.data[v].srcvid - (v_p * vsize_vP);
+								unsigned int second_limit = u_l * (vsize_LLP * VDATA_PACKINGSIZE);
+								if(edge_vec2.data[v].dstvid != INVALIDDATA && ((edge_vec2.data[v].srcvid - (v_p * vsize_vP) >= vsize_vP) || (edge_vec2.data[v].dstvid >= u_l * (vsize_LLP * VDATA_PACKINGSIZE)))){ 
+									cout<<"loadedges:: ERROR 237. edge_vec2 data is out of bounds. t: "<<t<<", edge_vec2.data["<<v<<"].srcvid: "<<edge_vec2.data[v].srcvid<<", edge_vec2.data["<<v<<"].dstvid: ";
+									cout<<edge_vec2.data[v].dstvid<<", first_limit: "<<first_limit<<", second_limit: "<<second_limit<<", v_p: "<<v_p<<", vsize_vP: "<<vsize_vP<<", vsize_LLP: ";
+									cout<<vsize_LLP<<", llp_set: "<<llp_set<<", offset_llpset: "<<offset_llpset<<", offset_llpsubset: "<<offset_llpsubset<<", u_l: "<<u_l<<". EXITING..."<<endl; exit(EXIT_FAILURE); 
+								}
+							}
+							#endif 
+							
+							edge2_vec_dt edge_vec3 = edge_vec2;
+							for(unsigned int v=0; v<VECTOR_SIZE; v++){ if(edge_vec2.data[v].dstvid != INVALIDDATA){ edge_vec3.data[v].srcvid = (edge_vec2.data[v].srcvid - v) / universalparams.NUM_PARTITIONS; }}
+							 
+							for(unsigned int v=0; v<VECTOR_SIZE; v++){
+								utilityobj->checkoutofbounds("loadedges::ERROR 56::", globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index, universalparams.MAXHBMCAPACITY_KVS2 * VECTOR_SIZE, globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA, t, NAp);	
+								edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v].key = edge_vec3.data[v].dstvid; 
+								edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v].value = edge_vec3.data[v].srcvid;
+							}
+							index+=1;
+							edges_final[i].push_back(edge_vec2); 
+							
+							edges_map[i][v_p][llp_set].size += VECTOR_SIZE; 
+							edge_count_in_vpartition[i][v_p] += VECTOR_SIZE;
+						}
+					}
+				}
+			}
+			
+			if(false){ cout<<"loadedges:: edges_final[0].size(): "<<edges_final[0].size()<<", edge_count_in_vpartition["<<i<<"]["<<v_p<<"]: "<<edge_count_in_vpartition[i][v_p]<<endl; }
 		}
+		if(true){ cout<<"+++ loadedges:: edges_final["<<i<<"].size(): "<<edges_final[i].size() * VECTOR_SIZE<<endl; }
+		// exit(EXIT_SUCCESS);
 		
-		///////////////////////////////////////////////////////
-		for(unsigned int t=0; t<16; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"[^"<<(edges_final[i][t].data[v].srcvid / vsize_vP)<<", $"<<(edges_final[i][t].data[v].dstvid / vsize_LLP)<<"], "; } cout<<endl; }
-		for(unsigned int t=0; t<16; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"[&"<<(edges_final[i][t].data[v].srcvid % VECTOR_SIZE)<<", $"<<(edges_final[i][t].data[v].dstvid % universalparams.NUM_PARTITIONS)<<"], "; } cout<<endl; }
-		for(unsigned int t=0; t<16; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"[#"<<edges_final[i][t].data[v].srcvid<<", $"<<edges_final[i][t].data[v].dstvid<<"], "; } cout<<endl; }
-		// for(unsigned int t=0; t<16; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"[#"<<edges_final[i][t].data[v].srcvid<<"("<<(edges_final[i][t].data[v].srcvid % VECTOR_SIZE)<<")("<<(edges_final[i][t].data[v].srcvid / vsize_vP)<<"), $"<<edges_final[i][t].data[v].dstvid<<"("<<(edges_final[i][t].data[v].dstvid % universalparams.NUM_PARTITIONS)<<")("<<(edges_final[i][t].data[v].dstvid / vsize_LLP)<<")], "; } cout<<endl; }
+		#ifdef _DEBUGMODE_KERNELPRINTS3
+		for(unsigned int t=0; t<4; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"[^"<<(edges_final[i][t].data[v].srcvid / vsize_vP)<<", $"<<(edges_final[i][t].data[v].dstvid / vsize_LLP)<<"], "; } cout<<endl; }
+		for(unsigned int t=0; t<4; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"[&"<<(edges_final[i][t].data[v].srcvid % VECTOR_SIZE)<<", $"<<(edges_final[i][t].data[v].dstvid % universalparams.NUM_PARTITIONS)<<"], "; } cout<<endl; }
+		for(unsigned int t=0; t<4; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"[#"<<edges_final[i][t].data[v].srcvid<<", $"<<edges_final[i][t].data[v].dstvid<<"], "; } cout<<endl; }
+		for(unsigned int t=0; t<0; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"[#"<<edges_final[i][t].data[v].srcvid<<"("<<(edges_final[i][t].data[v].srcvid % VECTOR_SIZE)<<")("<<(edges_final[i][t].data[v].srcvid / vsize_vP)<<"), $"<<edges_final[i][t].data[v].dstvid<<"("<<(edges_final[i][t].data[v].dstvid % universalparams.NUM_PARTITIONS)<<")("<<(edges_final[i][t].data[v].dstvid / vsize_LLP)<<")], "; } cout<<endl; }
 		cout<<"=== Edge content in dram "<<i<<": "<<edges_final[i].size() * VECTOR_SIZE<<endl; 
-		////////////////////////////////////////////////////
-		exit(EXIT_SUCCESS);
+		#endif 
 	}
 	// exit(EXIT_SUCCESS);
 	
@@ -473,10 +458,10 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		if(utilityobj->isbufferused(i) == false){ continue; }
 		#endif 
 		vptrs[i][vptr_baseoffset + 0].key = 0;
-		cout<<"loadedges:: vptrs["<<i<<"][vptr_baseoffset + 0].key: "<<vptrs[i][vptr_baseoffset + 0].key<<", count[0]: "<<0<<endl;
+		if(i==0){ cout<<"loadedges:: vptrs["<<i<<"][~ + 0].key: "<<vptrs[i][vptr_baseoffset + 0].key<<", count[0]: "<<0<<endl; }
 		for(unsigned int v_p=1; v_p<_num_vPs; v_p++){
 			vptrs[i][vptr_baseoffset + v_p].key = vptrs[i][vptr_baseoffset + v_p - 1].key + edge_count_in_vpartition[i][v_p - 1]; // NEWCHANGE.
-			if(i==0){ cout<<"loadedges:: vptrs["<<i<<"][vptr_baseoffset + "<<v_p<<"].key: "<<vptrs[i][vptr_baseoffset + v_p].key<<", vptrs["<<i<<"][vptr_baseoffset + "<<v_p<<"].key_kvs: "<<vptrs[i][vptr_baseoffset + v_p].key / VECTOR_SIZE<<", edge_count_in_vpartition["<<i<<"]["<<v_p<<"]: "<<edge_count_in_vpartition[i][v_p]<<endl; }
+			if(i==0 && v_p<8){ cout<<"loadedges:: vptrs["<<i<<"][~ + "<<v_p<<"].key: "<<vptrs[i][vptr_baseoffset + v_p].key<<", vptrs["<<i<<"][~ + "<<v_p<<"].key_kvs: "<<vptrs[i][vptr_baseoffset + v_p].key / VECTOR2_SIZE<<", num edges["<<i<<"]["<<v_p<<"]: "<<edge_count_in_vpartition[i][v_p-1]<<endl; }
 		}
 		for(unsigned int v_p=_num_vPs; v_p<_num_vPs + universalparams.DRAMPADD_VPTRS; v_p++){ // dummy filling...
 			vptrs[i][vptr_baseoffset + v_p].key = vptrs[i][vptr_baseoffset + _num_vPs - 1].key; 
@@ -489,72 +474,22 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		}
 	}
 	
-	/* #ifdef _DEBUGMODE_KERNELPRINTS
-	for(unsigned int v_p=0; v_p<4; v_p++){
-		cout<<"STAGE X: v_p: "<<v_p<<endl;
-		for(unsigned int t=0; t<4; t++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				cout<<"~~~ loadedges:: edges[0]["<<globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA<<" + "<<(vptrs[0][vptr_baseoffset + v_p].key / VECTOR_SIZE) + t<<"].data["<<v<<"].key: "<<edges[0][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + (vptrs[0][vptr_baseoffset + v_p].key / VECTOR_SIZE) + t].data[v].key<<", edges[0]["<<globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA<<" + "<<(vptrs[0][vptr_baseoffset + v_p].key / VECTOR_SIZE) + t<<"].data["<<v<<"].value: "<<edges[0][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + (vptrs[0][vptr_baseoffset + v_p].key / VECTOR_SIZE) + t].data[v].value<<endl;								 	
-			}
-		}			
-	}
-	#endif  */
-	
-	/* // load container
-	cout<<"STAGE 4: loading container..."<<endl;
-	for(unsigned int i=0; i<NUM_PEs; i++){
-		container->srcvoffset[i] = 0;
-		container->srcvsize[i] = utilityobj->allignhigherto16_KV(universalparams.NUM_VERTICES);
-		container->edgessize[i] = edges_final[0].size() * VECTOR_SIZE;
-		container->runsize[i] = edges_final[0].size() * VECTOR_SIZE;
-		container->destvoffset[i] = 0;
-		container->actvvsize[i] = 0;
-	} */
-	
-	/* // checking...
-	cout<<"STAGE 5: checking final stats..."<<endl;
-	unsigned int total_edge_count = 0;
-	for(unsigned int i=0; i<_NUM_PEs; i++){ 
-		#ifdef TESTKERNEL 
-		if(utilityobj->isbufferused(i) == false){ continue; }
-		#endif 
-		for(unsigned int v_p=0; v_p<_num_vPs; v_p++){ 
-			for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){
-				total_edge_count += edges_map[i][v_p][ll_p].size; 
-				if(i==0 && v_p==0){ cout<<"loadedges:: [PE: "<<i<<", v_p: "<<v_p<<", ll_p: "<<ll_p<<"]: edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].size: "<<edges_map[i][v_p][ll_p].size<<endl; }
-			}
-		}
-	} */
-	
-	/* // map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs]
-	unsigned int offset = 0;
-	for(unsigned int i=0; i<_NUM_PEs; i++){ 
-		#ifdef TESTKERNEL 
-		if(utilityobj->isbufferused(i) == false){ continue; }
-		#endif 
-		for(unsigned int v_p=0; v_p<_num_vPs; v_p++){
-			cout<<"loadedges:: [PE: "<<i<<", v_p: "<<v_p<<"]"<<endl;
-			for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ // MAXNUM_LLPs
-				edges_map[i][v_p][ll_p].offset = offset;
-				cout<<"Edge statistics in dram "<<i<<": edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].offset: "<<edges_map[i][v_p][ll_p].offset<<", edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].size: "<<edges_map[i][v_p][ll_p].size<<endl;
-				offset += edges_map[i][v_p][ll_p].size;
-			}
-		}
-	} */
-	
 	cout<<"STAGE 4: calculating edge-map offsets..."<<endl;
-	unsigned int offset = 0;
 	for(unsigned int i=0; i<_NUM_PEs; i++){
 		#ifdef TESTKERNEL 
 		if(utilityobj->isbufferused(i) == false){ continue; }
 		#endif 
-		for(unsigned int t=0; t<16; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"{"<<edges_final[i][t].data[v].srcvid<<", "<<edges_final[i][t].data[v].dstvid<<"}, "; } cout<<endl;}
+		if(debug_detail){ for(unsigned int t=0; t<16; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ cout<<"{"<<edges_final[i][t].data[v].srcvid<<", "<<edges_final[i][t].data[v].dstvid<<"}, "; } cout<<endl;}}
+		unsigned int offset = 0;
 		for(unsigned int v_p=0; v_p<_num_vPs; v_p++){
 			if(debug_detail){ cout<<"loadedges:: [PE: "<<i<<", v_p: "<<v_p<<"]"<<endl; }
-			for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ // MAXNUM_LLPs
+			for(unsigned int ll_p=0; ll_p<_num_LLPset; ll_p++){ // MAXNUM_LLPs
 				edges_map[i][v_p][ll_p].offset = offset;
-				if(debug_detail){ cout<<"Edge statistics in dram "<<i<<": edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].offset: "<<edges_map[i][v_p][ll_p].offset<<", edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].size: "<<edges_map[i][v_p][ll_p].size<<endl; }
 				offset += edges_map[i][v_p][ll_p].size;
+				if(i==0 && v_p==0 && ll_p < 4){ 
+				// if(i==0 && ll_p < 4){ 
+				// if(ll_p < 4){ 
+				cout<<"Edge statistics in dram "<<i<<": edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].offset: "<<edges_map[i][v_p][ll_p].offset<<", edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].size: "<<edges_map[i][v_p][ll_p].size<<endl; }
 			}
 		}
 	}
@@ -570,13 +505,17 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		container->actvvsize[i] = 0;
 	}
 	
-	
 	unsigned int total_edge_count2 = 0; for(unsigned int i=0; i<_NUM_PEs; i++){ cout<<"Edge content in dram "<<i<<": "<<edges_final[i].size() * VECTOR_SIZE<<endl;  }
 	cout<<"total edge count: "<<total_edge_count2<<endl;
 	#ifdef TESTKERNEL
-	cout<<"projected total edge count for all drams: "<<edges_final[0].size() * VECTOR_SIZE * NUM_PEs<<endl;
-	#endif 
-	exit(EXIT_SUCCESS);
+	cout<<"projected total edge count for all drams: "<<edges_final[0].size() * VECTOR_SIZE * NUM_PEs<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<" ["<<(((edges_final[0].size() * VECTOR_SIZE * NUM_PEs) - universalparams.NUM_EDGES) * 100) / universalparams.NUM_EDGES<<"% increase]"<<endl;
+	#endif
+	
+	// clear unused vectors and return
+	for(unsigned int v_p=0; v_p<_num_vPs; v_p++){ edgesin_srcvp[v_p].clear(); } // clear 
+	for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ edgesin_srcvp_lldstvp[ll_p].clear(); } // clear
+	for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ for(unsigned int p=0; p<universalparams.NUM_PARTITIONS; p++){ edgesin_srcvp_lldstvp_srcv2p[ll_p][p].clear(); }} 
+	// exit(EXIT_SUCCESS);
 	return globalparams;
 }
 
