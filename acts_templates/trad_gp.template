@@ -141,7 +141,7 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 			#endif 
 			
 			// reduce 
-			value_t new_vprop = REDUCE{{context['id']}}_reducefunc(vmdata.vdata, NAp, NAp, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA.ALGORITHMINFO_GRAPHALGORITHMID);
+			value_t new_vprop = reduce_func(vmdata.vdata, NAp, NAp, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA.ALGORITHMINFO_GRAPHALGORITHMID);
 			if(new_vprop != vmdata.vdata){ vmdata.vmask = 1; } else { vmdata.vmask = 0; } // NEWCHANGE.
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			if(new_vprop != vmdata.vdata){ cout<<">>> TRADGP::REDUCE VECTOR(1):: ACTIVE REDUCE SEEN @ srcvid: "<<srcvid<<", dstvid: "<<dstvid<<endl; }

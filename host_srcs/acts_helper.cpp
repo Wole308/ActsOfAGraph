@@ -87,16 +87,29 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	
 	cout<<">>> acts_helper: FINISHED. "<<GraphIter+1<<" iterations required."<<endl;
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ cout<<"acts_helper:: number of edges processed in iteration "<<iter<<": "<<(unsigned int)edgesprocessed_totals[iter]<<endl; }
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<">>> acts_helper: printing pmasks for process-partition-reduce... "<<endl;	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<">>> acts_helper: printing pmasks for process-partition-reduce... "<<endl;
+	// unsigned int total_num_actvvs = 0;	
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
 		unsigned int num_actvps = 0;
+		unsigned int total_num_actvvs = 0;	
 		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){
 			if(vpmaskstats[iter][t].A > 0  && t < 16){ cout<<t<<", "; }
 			if(vpmaskstats[iter][t].A > 0){ num_actvps += 1; }
+			total_num_actvvs += vpmaskstats[iter][t].A;
 		}
 		cout<<" (num active partitions: "<<num_actvps<<", total num partitions: "<<universalparams.NUMPROCESSEDGESPARTITIONS<<" iter: "<<iter<<")"<<endl;	
+		cout<<"+++ total number of active vertices in all HBM channels (varA): "<<total_num_actvvs<<" ("<<num_actvps<<" active partitions +++"<<endl;
 	}
+	
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
+		unsigned int num_actv_edges = 0;
+		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){
+			num_actv_edges += vpmaskstats[iter][t].B;
+		}
+		cout<<"^^^ iter "<<iter<<": total number of active edges in all HBM channel (varB): "<<num_actv_edges<<" ^^^"<<endl;
+	}
+	
 	cout<<">>> acts_helper: printing pmasks for merge... "<<endl;	
 	for(unsigned int i=0; i<1; i++){ // NUM_PEs
 		for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
@@ -126,32 +139,25 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
 		if(i%NUMCOMPUTEUNITS_SLR2==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0)==0){} else { continue; } 
 		for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
-			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	
-			unsigned int num_vertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
+			unsigned int num_edgestraversed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
+			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].value;	
+			unsigned int num_updatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[1].key;	
 			
-			unsigned int num_validedgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].value;	
-			unsigned int num_validvertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].value;	
-			
-			cout<<">>> acts_helper::[A]["<<message<<"][PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges processed: "<<num_edgesprocessed<<"("<<num_validedgesprocessed<<"), num vertex updates reduced: "<<num_vertexupdatesreduced<<"("<<num_validvertexupdatesreduced<<")"<<endl;	
+			cout<<">>> acts_helper::[A]["<<message<<"][PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges traversed: "<<num_edgestraversed<<", num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_updatesreduced<<""<<endl;	
 		}
 	}
 
 	for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
+		unsigned int num_edgestraversed = 0;
 		unsigned int num_edgesprocessed = 0;
-		unsigned int num_vertexupdatesreduced = 0;
-		unsigned int num_validedgesprocessed = 0;
-		unsigned int num_validvertexupdatesreduced = 0;
+		unsigned int num_updatesreduced = 0;
 		for(unsigned int i=0; i<NUM_PEs; i++){
-			num_edgesprocessed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].key;	
-			num_vertexupdatesreduced += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
-			
-			num_validedgesprocessed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED + GraphIter].data[0].value;	
-			num_validvertexupdatesreduced += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].value;
-			
-			// num_traversed_edges += num_edgesprocessed;
+			num_edgestraversed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
+			num_edgesprocessed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].value;	
+			num_updatesreduced += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[1].key;	
 		}
 		num_traversed_edges += num_edgesprocessed;
-		cout<<">>> acts_helper::[A]["<<message<<"][PE:ALL][Iter: "<<GraphIter<<"]:: num edges processed: "<<num_edgesprocessed<<"("<<num_validedgesprocessed<<"), num vertex updates reduced: "<<num_vertexupdatesreduced<<"("<<num_validvertexupdatesreduced<<")"<<endl;	
+		cout<<">>> acts_helper::[A]["<<message<<"][PE:ALL][Iter: "<<GraphIter<<"]:: num edges traversed: "<<num_edgestraversed<<", num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_updatesreduced<<""<<endl;	
 	}
 	// num_traversed_edges = num_edgesprocessed;
 	cout<<">>> acts_helper:: num_traversed_edges: "<<num_traversed_edges<<", num_edgesprocessed: "<<endl;

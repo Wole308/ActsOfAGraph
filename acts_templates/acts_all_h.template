@@ -43,24 +43,12 @@ public:
 	#ifdef CONFIG_ENABLECLASS_MEM_ACCESS
 	{% include 'mem_access_mf.template' %}	
 	#endif
-	#ifdef CONFIG_ENABLECLASS_PROCESSEDGES
-	{% include 'processedges_mf.template' %}	
-	#endif
-	#ifdef CONFIG_ENABLECLASS_PARTITIONUPDATES
-	{% include 'partitionupdates_mf.template' %}	
-	#endif 
-	#ifdef CONFIG_ENABLECLASS_REDUCEUPDATES
-	{% include 'reduceupdates_mf.template' %}	
-	#endif
 	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
 	{% include 'trad_gp_mf.template' %}	
 	#endif 
 	#ifdef CONFIG_ENABLECLASS_ACTS_MERGE
 	{% include 'acts_merge_mf.template' %}	
 	#endif 
-	#ifdef CONFIG_ENABLECLASS_ACTS
-	{% include 'acts3_mf.template' %}	
-	#endif 	
 	#ifdef CONFIG_ENABLECLASS_ACTS
 	{% include 'acts_mf.template' %}	
 	#endif 		

@@ -30,21 +30,16 @@ public:
 	loadedges(universalparams_t _universalparams);
 	~loadedges();
 	
-	unsigned int GETMASK_UINT(unsigned int index, unsigned int size);
-	unsigned int READFROM_UINT(unsigned int data, unsigned int index, unsigned int size);
-	void WRITETO_UINT(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
-	
-	unsigned int allignlower(unsigned int val, unsigned int V_SIZE);
-	unsigned int allignhigher(unsigned int val, unsigned int V_SIZE);
-	
 	unsigned int gethash(unsigned int vid);
 	unsigned int getlocalvid(unsigned int vid);
 
-	bool isbufferused(unsigned int id);
+	void getXYLayoutVx8(unsigned int s, unsigned int depths[EDGEDATA_PACKINGSIZE]);
+	edge2_vec_dt rearrangeLayoutVx8(unsigned int s, edge2_vec_dt edge_vec);
 	
-	unsigned int getpartition(unsigned int data, vertex_t upperlimit);
-	void calculateoffsets(keyvalue_t * buffer, unsigned int size);
-	void getXYLayoutV(unsigned int s, unsigned int depths[VECTOR_SIZE]);
+	void getXYLayoutVx16(unsigned int s, unsigned int depths[EDGEDATA_PACKINGSIZE]);
+	edge2_vec_dt rearrangeLayoutVx16(unsigned int s, edge2_vec_dt edge_vec);
+	
+	void getXYLayoutV(unsigned int s, unsigned int depths[EDGEDATA_PACKINGSIZE]);
 	edge2_vec_dt rearrangeLayoutV(unsigned int s, edge2_vec_dt edge_vec);
 	
 	globalparams_TWOt start(unsigned int col, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vptr_type * vptrs[MAXNUM_PEs], uint512_vec_dt * edges[MAXNUM_PEs], vector<edge2_vec_dt> (&edges_final)[MAXNUM_PEs], map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs], container_t * container, globalparams_TWOt globalparams);

@@ -8,8 +8,8 @@ DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_2019
 # TESTKERNEL="RK"
 TESTKERNEL="TESTKERNEL"
 
-XWARE="HW"
-# XWARE="SW" 
+# XWARE="HW"
+XWARE="SW" 
 
 #evaluation_type=EV_CREATENDGRAPH
 evaluation_type=EV_PERFORMANCEOFALGORITHM
