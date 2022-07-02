@@ -66,15 +66,15 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 		unsigned int actvvids[VECTOR2_SIZE];
 		TRADGP_LOOP2: for(unsigned int i=0; i<chunk_size; i++){
 		#pragma HLS PIPELINE
-			actvvids[i] = UTIL{{context['id']}}_GetData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + actvvs_currentit_basekvs, i); 
+			actvvids[i] = UTIL{{context['id']}}_ReadData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + actvvs_currentit_basekvs, i); 
 		}
 		
 		// read & buffer (vertex ptrs)
 		TRADGP_LOOP3: for(unsigned int t=0; t<chunk_size; t++){
 		// #pragma HLS PIPELINE
 			unsigned int srcvid = actvvids[t];
-			edge_t vptr_begin = UTIL{{context['id']}}_GetData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid); 
-			edge_t vptr_end = UTIL{{context['id']}}_GetData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid + 1); 
+			edge_t vptr_begin = UTIL{{context['id']}}_ReadData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid); 
+			edge_t vptr_end = UTIL{{context['id']}}_ReadData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid + 1); 
 			#ifdef _DEBUGMODE_CHECKS3
 			actsutilityobj->checkoutofbounds("MERGE(2): ERROR 20", t, TRADGP_BUFFER_SIZE, vptr_begin, vptr_end, NAp);
 			#endif
@@ -94,7 +94,7 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 			TRADGP_LOOP4B: for(unsigned int t=tempbuffer_vptr[i].key; t<tempbuffer_vptr[i].value; t++){
 			#pragma HLS PIPELINE
 				unsigned int srcvid = actvvids[i];
-				unsigned int dstvid = UTIL{{context['id']}}_GetData(mdram, globalparamsm.BASEOFFSETKVS_EDGESDATA, t);
+				unsigned int dstvid = UTIL{{context['id']}}_ReadData(mdram, globalparamsm.BASEOFFSETKVS_EDGESDATA, t);
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 				cout<<"TradGP:: EDGE: srcvid: "<<srcvid<<", dstvid: "<<dstvid<<endl;
 				#endif 
@@ -107,7 +107,7 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 21", index, TRADGP_BUFFER_BIGSIZE, dstvid, tempbuffer_vptr[i].key, tempbuffer_vptr[i].value);
 				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 22", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + (ldstvid / VDATA_SHRINK_RATIO), globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, index, dstvid, offset_kvs);
 				#endif
-				independent_edge[index].dstp = UTIL{{context['id']}}_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO));
+				independent_edge[index].dstp = UTIL{{context['id']}}_ReadData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO));
 				independent_edge[index].srcvid = actvvids[i];
 				independent_edge[index].dstvid = dstvid;
 				independent_edge[index].status = 0;
@@ -178,9 +178,9 @@ void {{context['classname__acts_merge']}}TradGP{{context['id']}}(uint512_dt * vd
 				#ifdef _DEBUGMODE_CHECKS3
 				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 28", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + (ldstvid / VDATA_SHRINK_RATIO), globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, index, dstvid, offset_kvs);
 				#endif
-				UTIL{{context['id']}}_SetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
-				UTIL{{context['id']}}_SetData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
-				UTIL{{context['id']}}_SetData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				UTIL{{context['id']}}_WriteData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				UTIL{{context['id']}}_WriteData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				UTIL{{context['id']}}_WriteData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
 				
 				// set active vertices mask in vdramA, vdramB and vdramC
 				// vpmaskbuffer[independent_edge[edge].dstvid / (1 << globalparamsvA.SIZEKVS2_PROCESSEDGESPARTITION)PROCESSPARTITIONSZ] = 1;

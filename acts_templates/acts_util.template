@@ -169,43 +169,6 @@ unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GET_PROCES
 	// return PROCESSPARTITIONSZ_KVS2;
 }
 
-unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
-	#pragma HLS INLINE
-	unsigned int data = 0;
-	#ifdef _WIDEWORD
-	unsigned int row = index / VECTOR2_SIZE;
-	unsigned int col = index % VECTOR2_SIZE;
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	{%if(v>0)%}else{%endif%} if(col == {{v}}){
-		data = kvdram[offset_kvs + row].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}); 
-	}
-	{%endfor%}
-	else {} 
-	#else 
-	unsigned int loc = index / 2;
-	if(index % 2 == 0){ data = kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key; } 
-	else { data = kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value; }	
-	#endif 
-	return data;
-}
-void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD
-	unsigned int row = index / VECTOR2_SIZE;
-	unsigned int col = index % VECTOR2_SIZE;
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	{%if(v>0)%}else{%endif%} if(col == {{v}}){
-		kvdram[offset_kvs + row].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}) = data; 
-	}
-	{%endfor%}
-	else {} 
-	#else 
-	unsigned int loc = index / 2;
-	if(index % 2 == 0){ kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key = data; } 
-	else { kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value = data; }	
-	#endif 
-	return;
-}
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD
@@ -269,7 +232,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetThirdData(uint5
 	return;
 }
 	
-uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_GetEdges(uint512_dt * kvdram, unsigned int offset_kvs){  // *** FIXME: adjust for EDGEDATA_PACKINGSIZE & UPDATEDATA_PACKINGSIZE
+uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  // *** FIXME: adjust for EDGEDATA_PACKINGSIZE & UPDATEDATA_PACKINGSIZE
 	#pragma HLS INLINE
 	uint512_evec_dt dataset;
 	
@@ -305,7 +268,23 @@ uint512_uvec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_GetUpda
 	
 	return dataset;
 }
-void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
+
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{2*v}}] = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	datas[{{2*v+1}}] = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{2*v}}] = kvdram[offset_kvs].data[{{v}}].key;
+	datas[{{2*v+1}}] = kvdram[offset_kvs].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	return;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_WriteDatas(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	{%for v in context['VECTOR_SIZE_seq']%}
@@ -320,7 +299,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetDataset(uint512
 	#endif
 	return;
 }
-void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetUpdates(uint512_dt * kvdram, unsigned int offset_kvs, uint512_uvec_dt dataset){ // *** FIXME: adjust for EDGEDATA_PACKINGSIZE & UPDATEDATA_PACKINGSIZE
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_WriteDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_uvec_dt dataset){ // *** FIXME: adjust for EDGEDATA_PACKINGSIZE & UPDATEDATA_PACKINGSIZE
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	{%for v in context['VECTOR_SIZE_seq']%}
@@ -335,6 +314,59 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetUpdates(uint512
 	#endif
 	return;
 }	
+unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
+	#pragma HLS INLINE
+	unsigned int data = 0;
+	#ifdef _WIDEWORD
+	unsigned int row = index / VECTOR2_SIZE;
+	unsigned int col = index % VECTOR2_SIZE;
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} if(col == {{v}}){
+		data = kvdram[offset_kvs + row].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}); 
+	}
+	{%endfor%}
+	else {} 
+	#else 
+	unsigned int loc = index / 2;
+	if(index % 2 == 0){ data = kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key; } 
+	else { data = kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value; }	
+	#endif 
+	return data;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_WriteData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD
+	unsigned int row = index / VECTOR2_SIZE;
+	unsigned int col = index % VECTOR2_SIZE;
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} if(col == {{v}}){
+		kvdram[offset_kvs + row].range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}) = data; 
+	}
+	{%endfor%}
+	else {} 
+	#else 
+	unsigned int loc = index / 2;
+	if(index % 2 == 0){ kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key = data; } 
+	else { kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value = data; }	
+	#endif 
+	return;
+}
+
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadKeyvalues(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	datas[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+	datas[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	return;
+}
 
 // utilities
 batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
@@ -459,7 +491,8 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA];
 	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA];
 	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES];
-	globalparams.BASEOFFSETKVS_VERTICESDATAMASK = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTICESDATAMASK];
+	globalparams.BASEOFFSETKVS_EDGESMAP = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESMAP];
+	globalparams.BASEOFFSETKVS_ACTIVEEDGESMAP = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEEDGESMAP];
 	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK];
 	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_STATSDRAM];
 	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM]; //
@@ -481,7 +514,8 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.SIZE_SRCVERTICESDATA = buffer[MESSAGES_SIZE_SRCVERTICESDATA];
 	globalparams.SIZE_DESTVERTICESDATA = buffer[MESSAGES_SIZE_DESTVERTICESDATA];
 	globalparams.SIZE_ACTIVEVERTICES = buffer[MESSAGES_SIZE_ACTIVEVERTICES];
-	globalparams.SIZE_VERTICESDATAMASK = buffer[MESSAGES_SIZE_VERTICESDATAMASK];
+	globalparams.SIZE_EDGESMAP = buffer[MESSAGES_SIZE_EDGESMAP];
+	globalparams.SIZE_ACTIVEEDGESMAP = buffer[MESSAGES_SIZE_ACTIVEEDGESMAP];
 	globalparams.SIZE_VERTICESPARTITIONMASK = buffer[MESSAGES_SIZE_VERTICESPARTITIONMASK];
 	globalparams.SIZE_KVSTATSDRAM = buffer[MESSAGES_SIZE_KVSTATSDRAM];
 	globalparams.SIZE_EDGESSTATSDRAM = buffer[MESSAGES_SIZE_EDGESSTATSDRAM];
@@ -612,7 +646,7 @@ travstate_t {{context['classname__acts_util']}}UTIL{{context['id']}}_gettravstat
 	if(currentLOP == 0){ keyvalue.key = 0; }
 	else if(currentLOP == 1){ keyvalue.key = 0; }
 	else {
-		{%for v in context['5_seq']%}
+		{%for v in context['8_seq']%}
 		{%if(v>0)%}else{%endif%} if(globalparams.VARS_WORKBATCH == {{v}}){
 			#ifdef _WIDEWORD
 			keyvalue.key = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + sourcestatsmarker].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
@@ -782,7 +816,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_accumkvstats(uint5
 	unsigned int totalnumpartitionsb4last = 0;
 	if(globalparams.ACTSPARAMS_TREEDEPTH > 1){ SAVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (OPT_NUM_PARTITIONS_POW * k)); }} else { totalnumpartitionsb4last = 1 + OPT_NUM_PARTITIONS; }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
-		{%for v in context['5_seq']%}
+		{%for v in context['8_seq']%}
 		{%if(v>0)%}else{%endif%} if(globalparams.VARS_WORKBATCH == {{v}}){
 			#ifdef _WIDEWORD
 			buffer[k] += kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + k].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
@@ -793,7 +827,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_accumkvstats(uint5
 		{%endfor%}
 		else {
 			#ifdef _DEBUGMODE_CHECKS3
-			cout<<"UTIL{{context['id']}}_gettravstate: NOT IMPLEMENTED. (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<") EXITING..."<<endl;
+			cout<<"UTIL{{context['id']}}_accumkvstats: NOT IMPLEMENTED. (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<") EXITING..."<<endl;
 			exit(EXIT_FAILURE);
 			#endif 
 		}

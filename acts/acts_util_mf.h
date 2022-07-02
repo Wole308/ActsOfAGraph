@@ -33,20 +33,23 @@ unsigned int UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid);
 unsigned int UTILP0_GETREALVID(unsigned int lvid, unsigned int instid);
 unsigned int UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams);
 
-unsigned int UTILP0_GetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
-void UTILP0_SetData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
 unsigned int UTILP0_GetFirstData(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTILP0_SetFirstData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
 void UTILP0_SetFirstDatas(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int * data, unsigned int size);
 unsigned int UTILP0_GetSecondData(uint512_dt * kvdram, unsigned int offset_kvs);
 void UTILP0_SetSecondData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
-void UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
-void UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
-uint512_vec_dt UTILP0_GetDataset(uint512_dt * kvdram, unsigned int offset_kvs);
-void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
-void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
-void UTILP0_SetDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_vec_dt dataset);
-void UTILP0_SetDataset(keyvalue_t buffer[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
+unsigned int UTILP0_GetThirdData(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTILP0_SetThirdData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
+
+uint512_evec_dt UTILP0_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs);
+uint512_uvec_dt UTILP0_GetUpdates(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTILP0_WriteDatas(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
+void UTILP0_WriteDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_uvec_dt dataset);
+void UTILP0_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+unsigned int UTILP0_ReadData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
+void UTILP0_WriteData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
+
+void UTILP0_ReadKeyvalues(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
 
 // functions (actsproc utilities)
 batch_type UTILP0_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
@@ -64,6 +67,7 @@ void UTILP0_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t g
 
 partition_type UTILP0_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, unsigned int tree_depth);				
 partition_type UTILP0_getpartition2(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, globalparams_t globalparams);
+unsigned int UTILP0_getstatsoffset(unsigned int LOP, globalparams_t globalparams);
 
 // functions (resets)
 void UTILP0_resetvalues(keyvalue_t * buffer, buffer_type size, unsigned int resetval);

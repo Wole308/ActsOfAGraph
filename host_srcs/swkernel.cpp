@@ -8,7 +8,7 @@ swkernel::swkernel(universalparams_t _universalparams){
 	#ifndef FPGA_IMPL
 	utilityobj = new utility(_universalparams);
 	mydebugobj = new mydebug();
-	universalparams = _universalparams;
+	myuniversalparams = _universalparams;
 	
 	for(unsigned int i=0; i<1; i++){ kernelobjs_process[i] = new acts_all(mydebugobj); }
 	#endif 
@@ -38,14 +38,13 @@ void swkernel::verifyresults(uint512_vec_dt * vdram, unsigned int id){
 	utilityobj->printvalues("swkernel::verifyresults:: verifying results (vdatas)", vdatas, 16);
 }
 
-long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8], unsigned int numValidIters, 
-		unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer){
+long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8], 
+		unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, universalparams_t universalparams){
 	#ifdef _DEBUGMODE_TIMERS3
 	std::chrono::steady_clock::time_point begintime = std::chrono::steady_clock::now();
 	#endif
 	
 	unsigned int beginIter = 0;
-	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = beginIter; 
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = beginIter; 
 	for(unsigned int i=0; i<NUM_PEs; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = beginIter; } // reset
@@ -75,8 +74,8 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, 
 	
 	unsigned int mode = 1;
 
-	for(unsigned int GraphIter=beginIter; GraphIter<universalparams.NUM_ITERATIONS; GraphIter++){ // numIters universalparams.NUM_ITERATIONS
-		cout<< endl << TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<numIters<<" iterations)"<< RESET <<endl;
+	for(unsigned int GraphIter=beginIter; GraphIter<universalparams.NUM_ITERATIONS; GraphIter++){ 
+		cout<< endl << TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<universalparams.NUM_ITERATIONS<<" iterations)"<< RESET <<endl;
 		std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
 		
 		#ifdef TESTKERNEL

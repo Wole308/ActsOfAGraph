@@ -10,7 +10,7 @@ typedef struct {
 #define TRADGP_BUFFER_BIGSIZE (DOUBLE_BLOCKRAM_SIZE * VECTOR2_SIZE)
 #define TRADGP_LOADCHUNKSZ 64 // 256 // 1024
 
-void TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void acts_all::TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<"TradGP:: running traditional sssp... "<<endl;
 	#endif 
@@ -66,15 +66,15 @@ void TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uin
 		unsigned int actvvids[VECTOR2_SIZE];
 		TRADGP_LOOP2: for(unsigned int i=0; i<chunk_size; i++){
 		#pragma HLS PIPELINE
-			actvvids[i] = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + actvvs_currentit_basekvs, i); 
+			actvvids[i] = UTILP0_ReadData(mdram, globalparamsm.BASEOFFSETKVS_ACTIVEVERTICES + actvvs_currentit_basekvs, i); 
 		}
 		
 		// read & buffer (vertex ptrs)
 		TRADGP_LOOP3: for(unsigned int t=0; t<chunk_size; t++){
 		// #pragma HLS PIPELINE
 			unsigned int srcvid = actvvids[t];
-			edge_t vptr_begin = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid); 
-			edge_t vptr_end = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid + 1); 
+			edge_t vptr_begin = UTILP0_ReadData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid); 
+			edge_t vptr_end = UTILP0_ReadData(mdram, globalparamsm.BASEOFFSETKVS_VERTEXPTR, srcvid + 1); 
 			#ifdef _DEBUGMODE_CHECKS3
 			actsutilityobj->checkoutofbounds("MERGE(2): ERROR 20", t, TRADGP_BUFFER_SIZE, vptr_begin, vptr_end, NAp);
 			#endif
@@ -94,7 +94,7 @@ void TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uin
 			TRADGP_LOOP4B: for(unsigned int t=tempbuffer_vptr[i].key; t<tempbuffer_vptr[i].value; t++){
 			#pragma HLS PIPELINE
 				unsigned int srcvid = actvvids[i];
-				unsigned int dstvid = UTILP0_GetData(mdram, globalparamsm.BASEOFFSETKVS_EDGESDATA, t);
+				unsigned int dstvid = UTILP0_ReadData(mdram, globalparamsm.BASEOFFSETKVS_EDGESDATA, t);
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 				cout<<"TradGP:: EDGE: srcvid: "<<srcvid<<", dstvid: "<<dstvid<<endl;
 				#endif 
@@ -107,7 +107,7 @@ void TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uin
 				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 21", index, TRADGP_BUFFER_BIGSIZE, dstvid, tempbuffer_vptr[i].key, tempbuffer_vptr[i].value);
 				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 22", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + (ldstvid / VDATA_SHRINK_RATIO), globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, index, dstvid, offset_kvs);
 				#endif
-				independent_edge[index].dstp = UTILP0_GetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO));
+				independent_edge[index].dstp = UTILP0_ReadData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO));
 				independent_edge[index].srcvid = actvvids[i];
 				independent_edge[index].dstvid = dstvid;
 				independent_edge[index].status = 0;
@@ -141,7 +141,7 @@ void TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uin
 			#endif 
 			
 			// reduce 
-			value_t new_vprop = REDUCEP0_reducefunc(vmdata.vdata, NAp, NAp, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA.ALGORITHMINFO_GRAPHALGORITHMID);
+			value_t new_vprop = reduce_func(vmdata.vdata, NAp, NAp, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA.ALGORITHMINFO_GRAPHALGORITHMID);
 			if(new_vprop != vmdata.vdata){ vmdata.vmask = 1; } else { vmdata.vmask = 0; } // NEWCHANGE.
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			if(new_vprop != vmdata.vdata){ cout<<">>> TRADGP::REDUCE VECTOR(1):: ACTIVE REDUCE SEEN @ srcvid: "<<srcvid<<", dstvid: "<<dstvid<<endl; }
@@ -178,9 +178,9 @@ void TradGPP0(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uin
 				#ifdef _DEBUGMODE_CHECKS3
 				actsutilityobj->checkoutofbounds("MERGE(2): ERROR 28", globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs + (ldstvid / VDATA_SHRINK_RATIO), globalparamsvA.ACTSPARAMS_MAXHBMCAPACITY_KVS, index, dstvid, offset_kvs);
 				#endif
-				UTILP0_SetData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
-				UTILP0_SetData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
-				UTILP0_SetData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				UTILP0_WriteData(vdramA, globalparamsvA.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				UTILP0_WriteData(vdramB, globalparamsvB.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
+				UTILP0_WriteData(vdramC, globalparamsvC.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, (ldstvid / VDATA_SHRINK_RATIO), independent_edge[edge].dstp);
 				
 				// set active vertices mask in vdramA, vdramB and vdramC
 				// vpmaskbuffer[independent_edge[edge].dstvid / (1 << globalparamsvA.SIZEKVS2_PROCESSEDGESPARTITION)PROCESSPARTITIONSZ] = 1;

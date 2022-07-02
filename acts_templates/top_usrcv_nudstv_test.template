@@ -26,7 +26,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_processit(ui
 	avtravstate.begin_kvs = 0;
 	avtravstate.end_kvs = avtravstate.begin_kvs + (globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE); avtravstate.size_kvs = globalparamsK.ACTSPARAMS_SRCVSIZE / VECTOR2_SIZE;
 	
-	if(globalposition.source_partition == globalposition.first_source_partition){ MEMACCESS{{context['id']}}_readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); } // CRITICAL NEWCHANGE.
+	if(globalposition.source_partition == globalposition.first_source_partition){ MEMACCESS{{context['id']}}_readglobalstats(ON, kvdram, vbuffer_source[0], globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); } // CRITICAL NEWCHANGE.
 	if(globalposition.source_partition == globalposition.first_source_partition){ UTIL{{context['id']}}_resetvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0); } // CRITICAL NEWCHANGE.
 	
 	// actsutilityobj->printkeyvalues("$$$$$$$$$$$$$$$$$$$$ processit. 37", (keyvalue_t *)globalstatsbuffer, globalparamsK.NUM_REDUCEPARTITIONS); 
@@ -75,7 +75,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_processit(ui
 			
 		unsigned int SKIP_KVS = UTIL{{context['id']}}_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparamsK);
 		
-		tuple_t tup = MEMACCESS{{context['id']}}_getvptrs_opt(kvdram, vptrbaseoffset_kvs, voffset_kvs * VECTOR2_SIZE, (voffset_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID, globalparamsK);
+		tuple_t tup = MEMACCESS{{context['id']}}_getvptrs_opt(kvdram, vbuffer_source[0], vptrbaseoffset_kvs, voffset_kvs * VECTOR2_SIZE, (voffset_kvs + SKIP_KVS) * VECTOR2_SIZE, edgebankID, globalparamsK);
 		keyy_t beginvptr = tup.A;
 		keyy_t endvptr = tup.B; 
 		
@@ -136,7 +136,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_processit(ui
 	bool endofrun = false;
 	if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ endofrun = true; }
 	
-	if(endofrun == true){ MEMACCESS{{context['id']}}_saveglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); } // CRITICAL OPTIMIZEME. should be called only once
+	if(endofrun == true){ MEMACCESS{{context['id']}}_saveglobalstats(ON, kvdram, vbuffer_source[0], globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + globalposition.deststatsmarker, globalparamsK); } // CRITICAL OPTIMIZEME. should be called only once
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	if(globalposition.source_partition==globalposition.last_source_partition){ actsutilityobj->printkeyvalues("--- TOP{{context['id']}}_processit", globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS); }
 	#endif	
@@ -196,7 +196,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_partitionit(
 			travstate_t ptravstate = UTIL{{context['id']}}_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
 			
 			// collect stats
-			MEMACCESS{{context['id']}}_readglobalstats(ON, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK);
+			MEMACCESS{{context['id']}}_readglobalstats(ON, kvdram, vbuffer_source[0], globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK);
 			UTIL{{context['id']}}_resetvalues(globalstatsbuffer, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
 			
 			// partition
@@ -214,7 +214,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_partitionit(
 					globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 					ON, ON, NAp, collections);
 					
-			MEMACCESS{{context['id']}}_saveglobalstats(config.enablepartition, kvdram, globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK); 
+			MEMACCESS{{context['id']}}_saveglobalstats(config.enablepartition, kvdram, vbuffer_source[0], globalstatsbuffer, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK); 
 			
 			if(currentLOP > 0){
 				sourcestatsmarker += 1;
@@ -319,13 +319,13 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 		globalstatsbuffer[source_partition].key = NAp; globalstatsbuffer[source_partition].value = rtravstate.size_kvs;
 		// collections[REDUCEUPDATES_COLLECTIONID].data1 += rtravstate.size_kvs * VECTOR_SIZE;
 		
-		// read vertices 
+		// read vertices // CRITICAL REMOVEME URGENT.
 		MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
 		
 		// reduce
 		TOP{{context['id']}}_dispatch(OFF, OFF, enablereduce, kvdram, vbuffer_source, vbuffer_dest, globalstatsbuffer, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp, collections);
 		
-		// writeback vertices 
+		// writeback vertices // CRITICAL REMOVEME URGENT.
 		MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
 		
 		sourcestatsmarker += 1;
@@ -414,7 +414,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelpro
 	#endif
 	
 	// partition
-	/* #ifdef CONFIG_ENABLEPARTITIONMODULE  // CRITICAL REMOVEME URGENT.
+	#ifdef CONFIG_ENABLEPARTITIONMODULE  // CRITICAL REMOVEME URGENT.
 	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON && en_partition == ON){
 		#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 		if(printheader1 == ON){ cout<<"TOP{{context['id']}}_topkernelproc_embedded: partitioning instance "<<globalid<<" ... "<<endl; }
@@ -427,7 +427,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelpro
 						#endif 
 							globalstatsbuffer, NAp, NAp, _globalparamsE, globalparamsK, globalposition, PARTITION{{context['id']}}_CHKPT, globalposition.v_chunkid, NAp, collections);
 	}
-	#endif */
+	#endif
 	
 	// reduce & partition
 	#ifdef CONFIG_ENABLEREDUCEMODULE
@@ -450,7 +450,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelpro
 	else { if(globalposition.v_chunkid==globalparamsK.ACTSPARAMS_NUMEDGECHUNKSINABUFFER-1 && globalposition.stage==globalposition.laststage && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition==globalposition.last_source_partition){ endofrun = true; }}	
 	if(endofrun == true){
 		unsigned int _offset = UTIL{{context['id']}}_getstatsoffset(globalparamsK.ACTSPARAMS_TREEDEPTH-1, globalparamsK);
-		MEMACCESS{{context['id']}}_retreievekvstats(kvdram, globalstatsbuffer, globalparamsK, _offset, globalparamsK.NUM_REDUCEPARTITIONS);
+		MEMACCESS{{context['id']}}_retreievekvstats(kvdram, vbuffer_source[0], globalstatsbuffer, globalparamsK, _offset, globalparamsK.NUM_REDUCEPARTITIONS);
 		UTIL{{context['id']}}_increment_graphiteration(kvdram, globalparamsK); } // NB: this should come last.
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
@@ -719,10 +719,6 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
 						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
-						#ifdef _DEBUGMODE_KERNELPRINTS3
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
 						#ifdef NOTUSED_____________________________
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
 							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 

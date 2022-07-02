@@ -183,6 +183,7 @@ void utility::print5(string messagea, string messageb, string messagec, string m
 void utility::print6(string messagea, string messageb, string messagec, string messaged, string messagee, string messagef, unsigned int dataa, unsigned int datab, unsigned int datac, unsigned int datad, unsigned int datae, unsigned int datef){
 	cout<<messagea<<": "<<dataa<<", "<<messageb<<": "<<datab<<", "<<messagec<<": "<<datac<<", "<<messaged<<": "<<datad<<", "<<messagee<<": "<<datae<<", "<<messagef<<": "<<datef<<endl;
 }
+
 void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned int size){
 	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
 	unsigned int totalkeys = 0;
@@ -198,58 +199,6 @@ void utility::printkeyvalues(string message, keyvalue_t * keyvalues, unsigned in
 	for(unsigned int p=0; p<size; p+=skipsize){ cout<<"keyvalues["<<p<<"].key: "<<keyvalues[p].key<<", keyvalues["<<p<<"].value: "<<keyvalues[p].value<<endl; totalkeys+=keyvalues[p].key; totalvalues+=keyvalues[p].value; }
 	cout<<"total keys: "<<totalkeys<<", totalvalues: "<<totalvalues<<endl;
 }
-void utility::printkeyvalues(string message, keyvalue_t * keyvalues[VECTOR_SIZE], unsigned int size){
-	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
-	unsigned int totalkeys = 0;
-	unsigned int totalvalues = 0;
-	for(unsigned int v=0; v<VECTOR_SIZE; v++){
-		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; totalkeys+=keyvalues[v][i].key; totalvalues+=keyvalues[v][i].value; }				
-		cout<<".."<<endl;
-	}
-	cout<<"total keys: "<<totalkeys<<", totalvalues: "<<totalvalues<<endl;
-}
-void utility::printkeyvalues(string message, keyvalue_t keyvalues[VECTOR_SIZE][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
-	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
-	for(unsigned int v=0; v<numcols; v++){
-		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
-		cout<<".."<<endl;
-	}
-}
-void utility::printkeyvalues(string message, keyvalue_vec_bittype keyvalues[MAX_NUM_PARTITIONS][BLOCKRAM_SIZE], unsigned int numcols, unsigned int size){
-	cout<<endl<<"utility::printkeyvalues:"<<message<<endl;
-	for(unsigned int v=0; v<numcols; v++){
-		for(unsigned int i=0; i<size; i++){ cout<<"keyvalues["<<v<<"]["<<i<<"].key: "<<keyvalues[v][i].key<<", keyvalues["<<v<<"]["<<i<<"].value: "<<keyvalues[v][i].value<<endl; }
-		cout<<".."<<endl;
-	}
-}
-void utility::printtriples(string message, triple_t * triples, unsigned int size){
-	cout<<"utility::printtriples:"<<message<<endl;
-	unsigned int totalAs = 0;
-	unsigned int totalBs = 0;
-	unsigned int totalCs = 0;
-	unsigned int totalDs = 0;
-	for(unsigned int i=0; i<size; i++){ cout<<"triples["<<i<<"].A: "<<triples[i].A<<", triples["<<i<<"].B: "<<triples[i].B<<", triples["<<i<<"].C: "<<triples[i].C<<", triples["<<i<<"].D: "<<triples[i].D<<endl; totalAs+=triples[i].A; totalBs+=triples[i].B; totalCs+=triples[i].C; totalDs+=triples[i].D; }					
-	cout<<"total As: "<<totalAs<<", total Bs: "<<totalBs<<", total Cs: "<<totalCs<<", total Ds: "<<totalDs<<endl;
-}
-void utility::printedges(string message, edge2_type * edges, unsigned int size){
-	cout<<endl<<"utility::printedges:"<<message<<endl;
-	for(unsigned int i=0; i<size; i++){ cout<<"edges["<<i<<"].srcvid: "<<edges[i].srcvid<<", edges["<<i<<"].dstvid: "<<edges[i].dstvid<<endl; }
-}
-void utility::printmessages(string message, uint512_vec_dt * keyvalues){
-	cout<<"utility::printmessages::"<<message<<":: printing messages (after kernel launch) "<<endl;
-	cout<<"MESSAGES_ENABLE_RUNKERNELCOMMAND: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key<<endl;
-	cout<<"MESSAGES_ENABLE_PROCESSCOMMAND: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key<<endl;
-	cout<<"MESSAGES_ENABLE_PARTITIONCOMMAND: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key<<endl;
-	cout<<"MESSAGES_ENABLE_APPLYUPDATESCOMMAND: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key<<endl;
-	cout<<"MESSAGES_ACTSPARAMS_SRCVOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVOFFSET].data[0].key<<endl;
-	cout<<"MESSAGES_ACTSPARAMS_SRCVSIZE: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVSIZE].data[0].key<<endl;
-	cout<<"MESSAGES_ACTSPARAMS_DESTVOFFSET: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_DESTVOFFSET].data[0].key<<endl;
-	cout<<"MESSAGES_ACTSPARAMS_TREEDEPTH: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_TREEDEPTH].data[0].key<<endl;
-	cout<<"MESSAGES_ACTSPARAMS_FINALNUMPARTITIONS: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_FINALNUMPARTITIONS].data[0].key<<endl;
-	cout<<"MESSAGES_ALGORITHMINFO_GRAPHITERATIONID: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key<<endl;
-	cout<<"MESSAGES_SIZE_RUN: "<<keyvalues[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl;
-	return;
-}
 void utility::printvalues(string message, unsigned int * values, unsigned int size){
 	cout<<"utility::printvalues::"<<message<<":: printing first "<<size<< " values" <<endl;
 	unsigned int count = 0;
@@ -260,106 +209,6 @@ void utility::printvalues(string message, unsigned int * values, unsigned int si
 	}
 	cout<<"printvalues:: total values: totalvalues: "<<totalvalues<<endl;
 }
-void utility::printvalues(string message, vector<value_t> & values, unsigned int size){
-	cout<<"utility::printvalues::"<<message<<":: printing first "<<size<< " values" <<endl;
-	unsigned int count = 0;
-	unsigned int totalvalues = 0;
-	for(unsigned int i=0; i<size; i++){
-		cout<<"values["<<i<<"]: "<<values[i]<<endl;
-		totalvalues += values[i];
-	}
-	cout<<"printvalues:: total values: totalvalues: "<<totalvalues<<endl;
-}
-void utility::printvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
-	unsigned int count = 0;
-	unsigned int totalsize = 0;
-	int firstindex = -1;
-	int lastindex = -1;
-	for(unsigned int i=0; i<size; i++){
-		if(values[i] >= threshold){
-			if(firstindex == -1){ firstindex = i; }
-			lastindex = i;
-			
-			count += 1; 
-			totalsize += values[i];
-			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
-		}
-	}
-	cout<<"utility::printvaluesgreaterthan::"<<message<<":: datas with value greater than "<<threshold<<": "<<count<<", (<threshold: "<<(size - count)<<") total size: "<<totalsize<<endl<<endl;
-	cout<<"utility::printvaluesgreaterthan::"<<message<<":: first and last indexes: (firstindex: "<<firstindex<<", lastindex: "<<lastindex<<")"<<endl;
-}
-void utility::printvalueslessthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
-	unsigned int count = 0;
-	for(unsigned int i=0; i<size; i++){
-		if(values[i] < threshold){ 
-			count += 1; 
-			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
-		}
-	}
-	cout<<"utility::printvalueslessthan::"<<message<<":: datas with value less than "<<threshold<<": "<<count<<endl<<endl;
-}
-void utility::printstructuresbeforekernelrun(string message, uint512_vec_dt * kvsourcedram[NUM_PEs], unsigned int size){
-	cout<<"utility::printstructuresbeforekernelrun:: printing structures (before kernel launch). "<<message<<endl;
-	for(unsigned int i=0; i<size; i++){
-		cout<<"utility::printstructuresbeforekernelrun:: printing messages (before kernel launch) for subthread: "<<i<<endl;
-		
-		uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[i];
-		cout<<"utility::printstructuresbeforekernelrun:: printing messages (before kernel launch) for subthread: "<<i<<endl;
-		cout<<"MESSAGES_ENABLE_RUNKERNELCOMMAND: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key<<endl;
-		cout<<"MESSAGES_ENABLE_PROCESSCOMMAND: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key<<endl;
-		cout<<"MESSAGES_ENABLE_PARTITIONCOMMAND: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key<<endl;
-		cout<<"MESSAGES_ENABLE_APPLYUPDATESCOMMAND: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_SRCVOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVOFFSET].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_SRCVSIZE: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVSIZE].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_DESTVOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_DESTVOFFSET].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_TREEDEPTH: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_TREEDEPTH].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_FINALNUMPARTITIONS: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_FINALNUMPARTITIONS].data[0].key<<endl;
-		cout<<"MESSAGES_ALGORITHMINFO_GRAPHITERATIONID: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key<<endl;
-		cout<<"MESSAGES_SIZE_RUN: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl;
-		
-		// printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS]), 16);
-		// printkeyvalues("utility::printstructuresbeforekernelrun:: kvdram workspace", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		// printkeyvalues("utility::printstructuresbeforekernelrun:: edges", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_EDGESDATA_KVS]), 16);
-		// printkeyvalues("utility::printstructuresbeforekernelrun:: vertex ptrs", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_VERTEXPTR_KVS]), 16);
-		// printkeyvalues("utility::printstructuresbeforekernelrun:: vertex datas", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_VERTICESDATA_KVS]), 16);
-		// printkeyvalues("utility::printstructuresbeforekernelrun:: kvstatsdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
-	}
-}
-void utility::printstructuresafterkernelrun(string message, uint512_vec_dt * kvsourcedram[NUM_PEs], unsigned int size){
-	cout<<"utility::printstructuresafterkernelrun:: printing structures (after kernel launch). "<<message<<endl;
-	for(unsigned int i=0; i<size; i++){
-		uint512_vec_dt * UVEC = (uint512_vec_dt *)kvsourcedram[i];
-		cout<<"utility::printstructuresafterkernelrun:: printing messages (after kernel launch) for subthread: "<<i<<endl;
-		cout<<"MESSAGES_ENABLE_RUNKERNELCOMMAND: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key<<endl;
-		cout<<"MESSAGES_ENABLE_PROCESSCOMMAND: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key<<endl;
-		cout<<"MESSAGES_ENABLE_PARTITIONCOMMAND: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key<<endl;
-		cout<<"MESSAGES_ENABLE_APPLYUPDATESCOMMAND: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_APPLYUPDATESCOMMAND].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_SRCVOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVOFFSET].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_SRCVSIZE: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_SRCVSIZE].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_DESTVOFFSET: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_DESTVOFFSET].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_TREEDEPTH: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_TREEDEPTH].data[0].key<<endl;
-		cout<<"MESSAGES_ACTSPARAMS_FINALNUMPARTITIONS: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ACTSPARAMS_FINALNUMPARTITIONS].data[0].key<<endl;
-		cout<<"MESSAGES_ALGORITHMINFO_GRAPHITERATIONID: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key<<endl;
-		cout<<"MESSAGES_SIZE_RUN: "<<UVEC[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN].data[0].key<<endl;
-		
-		// printkeyvalues("utility::printstructuresafterkernelrun:: kvdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAM_KVS]), 16);
-		// printkeyvalues("utility::printstructuresafterkernelrun:: kvdram workspace", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_KVDRAMWORKSPACE_KVS]), 16);
-		// printkeyvalues("utility::printstructuresafterkernelrun:: edges", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_EDGESDATA_KVS]), 16);
-		// printkeyvalues("utility::printstructuresafterkernelrun:: vertex ptrs", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_VERTEXPTR_KVS]), 16);
-		// printkeyvalues("utility::printstructuresafterkernelrun:: vertex datas", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_VERTICESDATA_KVS]), 16);
-		// printkeyvalues("utility::printstructuresafterkernelrun:: kvstatsdram", (keyvalue_t *)(&kvsourcedram[i][BASEOFFSET_STATSDRAM_KVS]), 16*8, 8);
-	}
-}
-void utility::printcontainer(container_t * container){
-	for(unsigned int i=0; i<NUM_PEs; i++){
-		cout<<"utility::printcontainer:: container->edgessize["<<i<<"]: "<<container->edgessize[i]<<endl;
-		cout<<"utility::printcontainer:: container->edgeoffset["<<i<<"]: "<<container->edgeoffset[i]<<endl;
-		cout<<"utility::printcontainer:: container->srcvoffset["<<i<<"]: "<<container->srcvoffset[i]<<endl;
-		cout<<"utility::printcontainer:: container->srcvsize["<<i<<"]: "<<container->srcvsize[i]<<endl;
-		cout<<"utility::printcontainer:: container->destvoffset["<<i<<"]: "<<container->destvoffset[i]<<endl;
-		cout<<"utility::printcontainer:: container->firstvid["<<i<<"]: "<<container->firstvid[i]<<endl;
-	}
-}
 
 void utility::checkoutofbounds(string message, unsigned int data, unsigned int upper_bound, unsigned int msgdata1, unsigned int msgdata2, unsigned int msgdata3){
 	if(data >= upper_bound){ std::cout<<"utility::checkoutofbounds: ERROR. out of bounds. message: "<<message<<", data: "<<data<<", upper_bound: "<<upper_bound<<", msgdata1: "<<msgdata1<<", msgdata2: "<<msgdata2<<", msgdata3: "<<msgdata3<<std::endl; exit(EXIT_FAILURE); }			
@@ -369,15 +218,6 @@ void utility::checkforlessthanthan(string message, unsigned int data1, unsigned 
 }
 
 void utility::stopTIME(string caption, std::chrono::steady_clock::time_point begintime, unsigned int iteration_idx){
-	std::chrono::steady_clock::time_point endtime = std::chrono::steady_clock::now();		
-	std::cout << ">>> "<<caption<<": Time Elapsed = " << std::chrono::duration_cast<std::chrono::nanoseconds> (endtime - begintime).count() << "[nanao seconds]" << "(Iteration "<<iteration_idx<<")"<< std::endl;			
-	std::cout << ">>> "<<caption<<": Time Elapsed = " << std::chrono::duration_cast<std::chrono::microseconds> (endtime - begintime).count() << "[micro seconds]" << "(Iteration "<<iteration_idx<<")"<< std::endl;
-	std::cout << ">>> "<<caption<<": Time Elapsed = " << std::chrono::duration_cast<std::chrono::milliseconds> (endtime - begintime).count() << "[milli seconds]" << "(Iteration "<<iteration_idx<<")"<< std::endl;
-	std::cout << ">>> "<<caption<<": Time Elapsed = " << std::chrono::duration_cast<std::chrono::seconds> (endtime - begintime).count() << "[seconds]" << "(Iteration "<<iteration_idx<<")"<< std::endl;
-	std::cout << std::endl;
-	return;
-}
-void utility::stopBTIME(string caption, std::chrono::steady_clock::time_point begintime, unsigned int iteration_idx){
 	std::chrono::steady_clock::time_point endtime = std::chrono::steady_clock::now();		
 	std::cout << TIMINGRESULTSCOLOR << ">>> "<<caption<<": Time Elapsed = " << std::chrono::duration_cast<std::chrono::nanoseconds> (endtime - begintime).count() << "[nanao seconds]" << "(Iteration "<<iteration_idx<<")"<< RESET << std::endl;			
 	std::cout << TIMINGRESULTSCOLOR << ">>> "<<caption<<": Time Elapsed = " << std::chrono::duration_cast<std::chrono::microseconds> (endtime - begintime).count() << "[micro seconds]" << "(Iteration "<<iteration_idx<<")"<< RESET << std::endl;
@@ -434,135 +274,24 @@ void utility::resetkeyvalues(string message, keyvalue_t * keyvalues, unsigned in
 void utility::resetkeyvalues(keyvalue_t * keyvalues, unsigned int size){
 	for(unsigned int i=0; i<size; i++){ keyvalues[i].key = 0; keyvalues[i].value = 0; }
 }
-void utility::allignandappendinvalids(keyvalue_t * buffer, unsigned int size){
-	// append INVALID values (edge conditions)
-	keyvalue_t NApKV; NApKV.key = INVALIDDATA; NApKV.value = INVALIDDATA;
-	
-	unsigned int ovsize = allignhigher_KV(size) - size;
-	for(unsigned int v=size; v<size + ovsize; v++){
-		buffer[v] = NApKV;
-	}
-	return;
-}
-unsigned int utility::allignhigher_KV(unsigned int val){
-	unsigned int fac = (val + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
-	return (fac * VECTOR_SIZE);
-}
-unsigned int utility::allignlower_KV(unsigned int val){
-	unsigned int fac = val / VECTOR_SIZE;
-	return (fac * VECTOR_SIZE);
-}
-unsigned int utility::allignhigherto16_KV(unsigned int val){
-	unsigned int fac = (val + (16 - 1)) / 16;
-	return (fac * 16);
-}
-unsigned int utility::allignlowerto16_KV(unsigned int val){
-	unsigned int fac = val / 16;
-	return (fac * 16);
+
+unsigned int utility::allignlower_FACTOR(unsigned int val, unsigned int _FACTOR){
+	unsigned int fac = val / _FACTOR;
+	return (fac * _FACTOR);
 }
 unsigned int utility::allignhigher_FACTOR(unsigned int val, unsigned int _FACTOR){
 	unsigned int fac = (val + (_FACTOR - 1)) / _FACTOR;
 	return (fac * _FACTOR);
 }
-void utility::setarray(unsigned int array[NUM_PEs], unsigned int size, unsigned int value){
-	for(unsigned int i = 0; i < size; i++){ array[i] = value; }
-}
-void utility::copy(unsigned int * array1, unsigned int * array2, unsigned int size){
-	for(unsigned int i=0; i<size; i++){ array1[i] = array2[i]; }
-	return;
-}
-void utility::countkeyvalueswithvalueequalto(string message, keyvalue_t * keyvalues, unsigned int size, unsigned int value){
-	unsigned int count = 0;
-	for(unsigned int i=0; i<size; i++){ if(keyvalues[i].value == value){ count += 1; } }
-	cout<<"utility::countkeyvalueswithvalueequalto::"<<message<<":: keyvalues with value equal to "<<value<<": "<<count<<endl;
-}
-unsigned int utility::countvalues(string message, keyvalue_t * keyvalue, unsigned int size){
-	unsigned int totalcount = 0;
-	for(unsigned int i=0; i<size; i++){ totalcount += keyvalue[i].value; }
-	cout<<"utility::countvalues::"<<message<<":: total values counted: "<<totalcount<<endl<<endl;
-	return totalcount;
-}
-unsigned int utility::countvaluesgreaterthan(string message, unsigned int * values, unsigned int size, unsigned int threshold){
-	unsigned int count = 0;
-	unsigned int totalsize = 0;
-	for(unsigned int i=0; i<size; i++){
-		if(values[i] >= threshold){ 
-			count += 1; 
-			totalsize += values[i];
-			if(count < 16){ cout<<count<<" found:: values["<<i<<"]: "<<values[i]<<endl; }
-		}
-	}
-	cout<<"utility::printvaluesgreaterthan::"<<message<<":: datas with value greater than "<<threshold<<": "<<count<<", (> threshold: "<<(size - count)<<") total size: "<<totalsize<<endl<<endl;
-	return count;
-}
-void utility::scankeyvalues(string message, keyvalue_t * keyvalues, keyvalue_t * stats, unsigned int numberofpartitions, unsigned int rangeperpartition, unsigned int upperlimit){
-	cout<<"utility::scankeyvalues::"<<message<<" numberofpartitions: "<<numberofpartitions<<", rangeperpartition: "<<rangeperpartition<<endl;
-	for(unsigned int i=0; i<numberofpartitions; i++){
-		unsigned int lowerrangeindex = upperlimit + (i * rangeperpartition);
-		unsigned int upperrangeindex = upperlimit + ((i+1) * rangeperpartition);
-		unsigned int begin = stats[i].key;
-		unsigned int end = stats[i].key + stats[i].value;
-		unsigned int numerrorkeys = geterrorkeyvalues(keyvalues, begin, end, lowerrangeindex, upperrangeindex);
-		cout<<"utility::scankeyvalues:: "<<numerrorkeys<<" errors seen for partition "<<i<<". ["<<lowerrangeindex<<" -> "<<upperrangeindex<<"]("<<begin<<" -> "<<end<<")("<<(end-begin)<<" values)"<<endl<<endl;
-	}
-	return;
-}
-unsigned int utility::geterrorkeyvalues(keyvalue_t * keyvalues, unsigned int begin, unsigned int end, unsigned int lowerrangeindex, unsigned int upperrangeindex){
-	unsigned int numerrorkeys = 0;
-	for(unsigned int i=begin; i<end; i++){
-		if(keyvalues[i].key != INVALIDDATA){
-			if(keyvalues[i].key < lowerrangeindex || keyvalues[i].key >= upperrangeindex){
-				if(numerrorkeys < 8){ cout<<"utility::geterrorkeyvalues::ERROR KEYVALUE keyvalues["<<i<<"].key: "<<keyvalues[i].key<<", keyvalues["<<i<<"].value: "<<keyvalues[i].value<<endl; }
-				numerrorkeys += 1;
-			}
-		}
-	}
-	return numerrorkeys;
-}
-void utility::createdirectory(const char* directory){
-	if (mkdir(directory, 0777) == -1) {
-		cout << "Directory already exists."; 
-        // cerr << "Error :  " << strerror(errno) << endl;
-	} else{
-        cout << "Directory created"; 
-	}
-	return;
-}
-void utility::countvalueslessthan(string message, value_t * values, unsigned int size, unsigned int data){
-	unsigned int totalcount = 0;
-	for(unsigned int i=0; i<size; i++){ if(values[i] < data){ totalcount += 1; }}
-	cout<<"utility::"<<message<<"::countvalueslessthan ("<<data<<"):: total values counted: "<<totalcount<<endl;
-	return;
-}
-void utility::paddkeyvalues(keyvalue_t * keyvalues, unsigned int size, unsigned int padddata){
-	unsigned int num = VECTOR_SIZE - (size % VECTOR_SIZE);
-	for(unsigned v=size; v<(size + num); v++){ keyvalues[v].key = padddata; keyvalues[v].value = padddata; }
-	return;
-}
-void utility::clearkeyvalues(uint512_vec_dt * kvbuffer[NUM_PEs]){
-	for(unsigned int j=0; j<NUM_PEs; j++){
-		for(unsigned int k=0; k<universalparams.PADDEDKVSOURCEDRAMSZ_KVS; k++){
-			for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				kvbuffer[j][k].data[v].key = 0;
-				kvbuffer[j][k].data[v].value = 0;
-			}
-		}
-	}
-	return;
-}
-unsigned int utility::getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth){
-	// unsigned int partition = (keyvalue.key - upperlimit) / (BATCH_RANGE / pow(universalparams.NUM_PARTITIONS, treedepth));
-	unsigned int partition = ((keyvalue.key - upperlimit) >> (universalparams.BATCH_RANGE_POW - (universalparams.NUM_PARTITIONS_POW * treedepth)));
-	
-	#ifdef _DEBUGMODE_CHECKS2
-	checkoutofbounds("loadgraph::getglobalpartition", partition, (1 << (universalparams.NUM_PARTITIONS_POW * treedepth)), keyvalue.key, upperlimit, NAp);
-	#endif
-	return partition;
-}
 
 void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing){
 	buffer[0].key += base;
-	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignhigher_KV(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1]); }
+	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignlower_FACTOR(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1], VECTOR_SIZE); }
+	return;
+}
+void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int allign_factor){
+	buffer[0].key = base;
+	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignhigher_FACTOR((buffer[i-1].key + buffer[i-1].value), allign_factor); }
 	return;
 }
 void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){

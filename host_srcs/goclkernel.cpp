@@ -12,7 +12,7 @@ using namespace std;
 
 goclkernel::goclkernel(universalparams_t _universalparams){
 	utilityobj = new utility(_universalparams);
-	universalparams = _universalparams;
+	myuniversalparams = _universalparams;
 }
 goclkernel::~goclkernel(){} 
 
@@ -104,8 +104,8 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8], unsigned int numValidIters, 
-		unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer){				
+long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8], 
+		unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, universalparams_t universalparams){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
 	#ifdef TESTHWKERNEL
@@ -459,10 +459,10 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	// exit(EXIT_SUCCESS); ////
 	
 	unsigned int _NUM_KERNELS_LAUNCHED = 3; // 3
-	cout<<"goclkernel:: Processing Graph... "<<numValidIters<<" iterations specified"<<endl;
+	cout<<"goclkernel:: Processing Graph... "<<universalparams.NUM_ITERATIONS<<" iterations specified"<<endl;
 	std::chrono::steady_clock::time_point beginkerneltime1 = std::chrono::steady_clock::now();	
-	for(unsigned int GraphIter=0; GraphIter<universalparams.NUM_ITERATIONS; GraphIter++){ // numValidIters, universalparams.NUM_ITERATIONS
-		cout<< TIMINGRESULTSCOLOR <<">>> goclkernel::runapp: iteration: "<<GraphIter<<" (of "<<numValidIters<<" iterations)"<< RESET <<endl;
+	for(unsigned int GraphIter=0; GraphIter<universalparams.NUM_ITERATIONS; GraphIter++){
+		cout<< TIMINGRESULTSCOLOR <<">>> goclkernel::runapp: iteration: "<<GraphIter<<" (of "<<universalparams.NUM_ITERATIONS<<" iterations)"<< RESET <<endl;
 		std::chrono::steady_clock::time_point iter_starttime = std::chrono::steady_clock::now();
 		
 		#ifdef _DEBUGMODE_HOSTPRINTS
@@ -479,7 +479,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		for (unsigned int s = 0; s < _NUM_KERNELS_LAUNCHED; s++){ OCL_CHECK(err, err = kernel_events[s].wait()); }
 		
 		// synchronizing...
-		// std::cout <<">>> goclkernel: synchronizing vertices in iteration "<<GraphIter<<"..."<<endl;
+		std::cout <<">>> goclkernel: synchronizing vertices in iteration "<<GraphIter<<"..."<<endl;
 		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
 		OCL_CHECK(err, err = kernel_events[3].wait());
 		
@@ -573,20 +573,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 }
 #endif
 
-unsigned int goclkernel::ExitCheck(uint512_vec_dt * kvsourcedram, unsigned int GraphIter){
-	unsigned int _BASEOFFSETKVS_VERTICESPARTITIONMASK = kvsourcedram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-	unsigned int BLOP = pow(universalparams.NUM_PARTITIONS, (universalparams.TREE_DEPTH-1));
-	unsigned int totalactvvp = 0;
-	cout<<endl<<"active partitions for iteration "<<GraphIter+1<<": ";
-	for(unsigned int i=0; i<256; i++){
-		unsigned int gmask = kvsourcedram[_BASEOFFSETKVS_VERTICESPARTITIONMASK + i].data[0].key;
-		totalactvvp += gmask;
-		if(gmask > 0){ cout<<i<<", "; }
-	}
-	cout<<""<<endl;
-	if(totalactvvp == 0){ return 1; } 
-	else { return 0; }
-}
+
 
 
 

@@ -11,7 +11,7 @@ fetchmessage_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_re
 	fetchmessage.chunksize_kvs = chunk_size;
 	fetchmessage.nextoffset_kvs = NAp;
 	
-	READKEYVALUES1_LOOP: for (buffer_type i=0; i<chunk_size; i++){
+	/* READKEYVALUES1_LOOP: for (buffer_type i=0; i<chunk_size; i++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount avg=analysis_loopcount
 	#pragma HLS PIPELINE II=1
 		{%for v in context['VECTOR_SIZE_seq']%}
@@ -37,7 +37,7 @@ fetchmessage_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_re
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvsread(VECTOR_SIZE);
 		#endif
-	}
+	} */
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"readkeyvalues:: keyvalues read: offset_kvs: "<<offset_kvs<<", size_kvs: "<<size_kvs<<", chunk_size: "<<chunk_size<<endl;
@@ -56,7 +56,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_savekeyvalue
 	UTIL{{context['id']}}_check_capsule((keyvalue_t*)capsule_dest, globalparams.ACTSPARAMS_NUM_PARTITIONS, MAX_DESTBLOCKRAM_SIZE);
 	#endif
 	
-	ACTIT2_PP0_COMMIT_MAINLOOP1: for(partition_type p=0; p<16; p++){
+	/* ACTIT2_PP0_COMMIT_MAINLOOP1: for(partition_type p=0; p<16; p++){
 	#pragma HLS LOOP_TRIPCOUNT min=0 max=analysis_loopcount1a avg=analysis_loopcount1a
 		batch_type dramoffset_kvs = (globalcapsule[p].key + globalcapsule[p].value) / VECTOR_SIZE;
 		buffer_type bramoffset_kvs = capsule_dest[p].key / VECTOR2_SIZE;
@@ -77,7 +77,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_savekeyvalue
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalstats_countkvspartitionswritten(globalparams.ACTSPARAMS_INSTID, size_kvs * VECTOR_SIZE);
 		#endif
-	}
+	} */
 	ACTIT2_PP0_COMMIT_MAINLOOP2: for(partition_type p=0; p<globalparams.ACTSPARAMS_NUM_PARTITIONS; p++){ if(globalcapsule[p].key + globalcapsule[p].value + (capsule_dest[p].value) < globalparams.SIZE_KVDRAM){ globalcapsule[p].value += capsule_dest[p].value; }}
 	
 	#ifdef _DEBUGMODE_CHECKS2
@@ -222,6 +222,22 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 	return;
 }
 
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_copyV(bool_type enable, keyvalue_vbuffer_t buffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], keyvalue_vbuffer_t buffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], buffer_type srcoffset_kvs, buffer_type destoffset_kvs, buffer_type size_kvs, globalparams_t globalparams){
+	if(enable == OFF){ return; }
+	
+	#if defined(CONFIG_USEURAM_FOR_DESTVBUFFER) && defined(CONFIG_USEURAM_PACKBYTWOS)
+	size_kvs = size_kvs / 2; // NEWCHANGE.
+	#endif 
+
+	COPYVDATA_LOOP1: for (buffer_type i=0; i<size_kvs; i++){
+	#pragma HLS PIPELINE II=1
+		{%for v in context['VECTOR2_SIZE_seq']%}
+		buffer_dest[{{v}}][destoffset_kvs + i] = buffer_source[{{v}}][srcoffset_kvs + i]; 
+		{%endfor%}
+	}
+	return;
+}
+
 {%for n in context['T_seq']%}{%if(n>=1)%}
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(bool_type enable, uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}keyvalue_vbuffer_t buffer{{i}}[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],{%endif%}{%endfor%} batch_type vbaseoffset_kvs, batch_type voffset_kvs, batch_type vsz_kvs, globalposition_t globalposition, globalparams_t globalparamsV){			
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; // NEWCHANGE.
@@ -247,7 +263,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readANDRVchu
 	
 	unsigned int bdepth = vsz_kvs;
 	unsigned int bdepth_skip = globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / VDATA_SHRINK_RATIO;
-	READANDRVCHUNKS_LOOP2: for(unsigned int s=0; s<NUM_PEs; s++){
+	/* READANDRVCHUNKS_LOOP2: for(unsigned int s=0; s<NUM_PEs; s++){
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"MEMACCESS{{context['id']}}_readANDRVchunks:: size loaded @ s("<<s<<"): offset_kvs2: "<<(s * vsz_kvs)<<", sz_kvs2: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
@@ -284,13 +300,13 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readANDRVchu
 		}
 		depth_i += depth;
 		bdepth_i += bdepth;
-	}
+	} */
 	return;
 }
 {%endif%}{%endfor%}
 
 // -------------------- stats -------------------- //
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t FATHER_BUFFER[MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + globalparams.ACTSPARAMS_NUM_PARTITIONS, globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS + 1, NAp, NAp, NAp);
@@ -305,17 +321,17 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readglobalst
 	READGLOBALSTATS_LOOP: for (buffer_type i=0; i<_NUM_PARTITIONS; i++){
 	#pragma HLS PIPELINE II=1
 		uint512_vec_dt vec;
-		#ifdef _WIDEWORD
+		// #ifdef _WIDEWORD	
 		{%for v in context['8_seq']%}
-		vec.data[{{v}}].key = kvdram[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-		vec.data[{{v}}].value = kvdram[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		vec.data[{{v}}].key = FATHER_BUFFER[{{32 * ((v * 2) + 1) - 1}}]; // kvdram[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		vec.data[{{v}}].value = FATHER_BUFFER[{{32 * (((v * 2) + 1) + 1) - 1}}]; // kvdram[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
 		{%endfor%}
-		#else 
-		{%for v in context['8_seq']%}
-		vec.data[{{v}}].key = kvdram[offset_kvs + i].data[{{v}}].key; 
-		vec.data[{{v}}].value = kvdram[offset_kvs + i].data[{{v}}].value; 
-		{%endfor%}
-		#endif 
+		// #else 
+		// {%for v in context['8_seq']%}
+		// vec.data[{{v}}].key = kvdram[offset_kvs + i].data[{{v}}].key; 
+		// vec.data[{{v}}].value = kvdram[offset_kvs + i].data[{{v}}].value; 
+		// {%endfor%}
+		// #endif 
 		globalstatsbuffer[i] = vec.data[globalparams.VARS_WORKBATCH];
 	}
 	
@@ -338,7 +354,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readglobalst
 	return;
 }
 
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveglobalstats(bool_type enable, uint512_dt * kvdram, keyvalue_vbuffer_t FATHER_BUFFER[MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_t globalstatsbuffer[BLOCKRAM_GLOBALSTATS_SIZE], batch_type offset_kvs, globalparams_t globalparams){ 
 	if(enable == OFF){ return; }
 	#ifdef _DEBUGMODE_CHECKS2
 	actsutilityobj->checkoutofbounds("saveglobalstats", offset_kvs + globalparams.ACTSPARAMS_NUM_PARTITIONS, globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS, offset_kvs, globalparams.ACTSPARAMS_NUM_PARTITIONS, globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS);
@@ -353,27 +369,8 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveglobalst
 	#endif 
 	
 	SAVEGLOBALSTATS_LOOP: for (buffer_type i=0; i<_NUM_PARTITIONS; i++){
-		{%for v in context['8_seq']%}
-		{%if(v>0)%}else{%endif%} if(globalparams.VARS_WORKBATCH == {{v}}){
-			#ifdef _WIDEWORD
-			kvdram[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}) = globalstatsbuffer[i].key; 
-			kvdram[offset_kvs + i].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}) = globalstatsbuffer[i].value; 
-			#else 
-			kvdram[offset_kvs + i].data[{{v}}].key = globalstatsbuffer[i].key; 
-			kvdram[offset_kvs + i].data[{{v}}].value = globalstatsbuffer[i].value; 
-			#endif 
-			
-			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE // _DEBUGMODE_KERNELPRINTS_TRACE3
-			if(globalstatsbuffer[i].value>0){ cout<<"MEMACCESS{{context['id']}}_saveglobalstats:: active partition saved @ partition "<<globalstatsbuffer[i].value<<", offset_kvs: "<<offset_kvs + i<<"."<<endl; }	
-			#endif
-		}
-		{%endfor%}
-		else {
-			#ifdef _DEBUGMODE_CHECKS3
-			cout<<"MEMACCESS{{context['id']}}_saveglobalstats: NOT IMPLEMENTED (globalparams.VARS_WORKBATCH: "<<globalparams.VARS_WORKBATCH<<"). EXITING..."<<endl;
-			exit(EXIT_FAILURE);
-			#endif 
-		}
+		FATHER_BUFFER[offset_kvs + i] = globalstatsbuffer[i].key;
+		FATHER_BUFFER[offset_kvs + i + 1] = globalstatsbuffer[i].value;
 
 		#ifdef _DEBUGMODE_STATS
 		actsutilityobj->globalvar_savestats_counttotalstatswritten(VECTOR_SIZE);
@@ -393,13 +390,13 @@ tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs(
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
 
-	#ifdef _WIDEWORD
+	/* #ifdef _WIDEWORD
 	beginvptr = kvdram[beginoffset].range(31, 0);
 	endvptr = kvdram[endoffset].range(31, 0); 
 	#else 
 	beginvptr = kvdram[beginoffset].data[0].key;
 	endvptr = kvdram[endoffset].data[0].key;
-	#endif 
+	#endif  */
 
 	tuple_t t; t.A = beginvptr; t.B = endvptr;
 	return t;
@@ -408,7 +405,7 @@ tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs(
 unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
 	keyvalue_t vptr_kv;
 	
-	uint512_dt V = kvdram[baseoffset_kvs + (offset / VECTOR2_SIZE)];
+	/* uint512_dt V = kvdram[baseoffset_kvs + (offset / VECTOR2_SIZE)];
 	unsigned int M = (offset % VECTOR2_SIZE) / 2;
 	// cout<<"-----------+++++++++++++++++++---MEMACCESS{{context['id']}}_getvptr: baseoffset_kvs: "<<baseoffset_kvs<<", offset: "<<offset<<", baseoffset_kvs + (offset / VECTOR2_SIZE): "<<baseoffset_kvs + (offset / VECTOR2_SIZE)<<endl;
 	
@@ -426,13 +423,13 @@ unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getv
 		vptr_kv.value = V.data[{{v}}].value; 
 	}
 	{%endfor%}
-	#endif
+	#endif */
 	
 	if(offset % 2 == 0){ return vptr_kv.key; }
 	else { return vptr_kv.value; }
 }
 
-tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs_opt(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID, globalparams_t globalparams){
+tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs_opt(uint512_dt * kvdram, keyvalue_vbuffer_t FATHER_BUFFER[MAX_BLOCKRAM_VSRCDATA_SIZE], unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID, globalparams_t globalparams){
 	#pragma HLS INLINE 
 	keyy_t beginvptr = 0;
 	keyy_t endvptr = 0;
@@ -441,15 +438,22 @@ tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs_
 	endoffset = endoffset / globalparams.ACTSPARAMS_VPTR_SHRINK_RATIO;
 	// cout<<"-----------+++++++++++++++++++---MEMACCESS{{context['id']}}_getvptrs_opt: baseoffset_kvs: "<<baseoffset_kvs<<", beginoffset: "<<beginoffset<<", endoffset: "<<endoffset<<", VPTR_SHRINK_RATIO: "<<NAp<<endl;
 	
-	beginvptr = MEMACCESS{{context['id']}}_getvptr(kvdram, baseoffset_kvs, beginoffset);
-	endvptr = MEMACCESS{{context['id']}}_getvptr(kvdram, baseoffset_kvs, endoffset);
+	beginvptr = FATHER_BUFFER[baseoffset_kvs + beginoffset]; // MEMACCESS{{context['id']}}_getvptr(kvdram, baseoffset_kvs, beginoffset);
+	endvptr = FATHER_BUFFER[baseoffset_kvs + beginoffset + 1]; // MEMACCESS{{context['id']}}_getvptr(kvdram, baseoffset_kvs, endoffset);
 
 	tuple_t t; t.A = beginvptr; t.B = endvptr;
 	return t;
 }
 
-unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
+unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getdata(uint512_dt * kvdram, keyvalue_vbuffer_t FATHER_BUFFER[MAX_BLOCKRAM_VSRCDATA_SIZE], unsigned int baseoffset_kvs, unsigned int loc){
+	
+	
 	keyvalue_t data;
+	data.key = FATHER_BUFFER[baseoffset_kvs + loc]; 
+	data.value = FATHER_BUFFER[baseoffset_kvs + loc + 1]; 
+	return data.key + data.value;
+	
+	/* keyvalue_t data;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + loc / VECTOR2_SIZE];
 	unsigned int index = (loc % VECTOR2_SIZE) / 2;
@@ -471,17 +475,17 @@ unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getd
 	#endif
 	
 	if(loc % 2 == 0){ return data.key; }
-	else { return data.value; }
+	else { return data.value; } */
 }
 
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_retreievekvstats(uint512_dt * kvdram, keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_retreievekvstats(uint512_dt * kvdram, keyvalue_vbuffer_t FATHER_BUFFER[MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_t * buffer, globalparams_t globalparams, unsigned int offset, unsigned int size){
 	for(unsigned int k=0; k<size; k++){
 	#pragma HLS PIPELINE II=1
-		#ifdef _WIDEWORD
-		buffer[k].value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].range(63, 32); 
-		#else
-		buffer[k].value = kvdram[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].data[0].value; 
-		#endif
+		// #ifdef _WIDEWORD
+		buffer[k].value = FATHER_BUFFER[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k]; // .range(63, 32); 
+		// #else
+		// buffer[k].value = FATHER_BUFFER[globalparams.BASEOFFSETKVS_STATSDRAM + offset + k].data[0].value; 
+		// #endif
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		if(buffer[k].value>0){ cout<<"MEMACCESS{{context['id']}}_saveglobalstats:: active partition retreieved @ partition "<<k<<", offset: "<<offset + k<<"."<<endl; }	
@@ -490,7 +494,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_retreievekvs
 }
 
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
-	unsigned int totalnumpartitionsb4last = 0;
+	/* unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * k)); }
 	for(unsigned int k=0; k<totalnumpartitionsb4last; k++){
 		#ifdef _WIDEWORD
@@ -504,7 +508,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstat
 	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].range(31, 0) = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1; // CRITICAL NOTEME: Graph Iteration is incremented here
 	#else
 	kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = globalparams.ALGORITHMINFO_GRAPHITERATIONID + 1;
-	#endif 
+	#endif  */
 	return;
 }
 

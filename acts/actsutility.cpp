@@ -286,7 +286,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_SRCVERTICESDATA: "<<globalparams.BASEOFFSETKVS_SRCVERTICESDATA<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_DESTVERTICESDATA: "<<globalparams.BASEOFFSETKVS_DESTVERTICESDATA<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_ACTIVEVERTICES: "<<globalparams.BASEOFFSETKVS_ACTIVEVERTICES<<endl;
-	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_VERTICESDATAMASK: "<<globalparams.BASEOFFSETKVS_VERTICESDATAMASK<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_EDGESMAP: "<<globalparams.BASEOFFSETKVS_EDGESMAP<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_STATSDRAM: "<<globalparams.BASEOFFSETKVS_STATSDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_KVDRAM: "<<globalparams.BASEOFFSETKVS_KVDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE: "<<globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE<<endl;
@@ -297,7 +297,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.SIZE_SRCVERTICESDATA: "<<globalparams.SIZE_SRCVERTICESDATA<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_DESTVERTICESDATA: "<<globalparams.SIZE_DESTVERTICESDATA<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_ACTIVEVERTICES: "<<globalparams.SIZE_ACTIVEVERTICES<<endl;
-	std::cout<<"Kernel Started: globalparams.SIZE_VERTICESDATAMASK: "<<globalparams.SIZE_VERTICESDATAMASK<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_EDGESMAP: "<<globalparams.SIZE_EDGESMAP<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_KVSTATSDRAM: "<<globalparams.SIZE_KVSTATSDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_KVDRAM: "<<globalparams.SIZE_KVDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_KVDRAMWORKSPACE: "<<globalparams.SIZE_KVDRAMWORKSPACE<<endl;

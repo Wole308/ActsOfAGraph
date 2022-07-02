@@ -23,23 +23,24 @@ loadgraph.cpp
 #define CONFIG_SPLIT_DESTVTXS
 
 // #define CONFIG_UPDATEPACKINGx16
-
-#define CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
+// #define CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
 
 #define SEQUENTIALIZE_VIDS_IN_A_DRAM_ROW // uses MAX_NUM_UNIQ_EDGES_PER_VEC in {common.h}
 
 // ********************************************** POWERFUL CONFIGS **********************************************
 #define CONFIG_RELEASE_VERSION1
-#define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
+// #define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
+// #define CONFIG_RELEASE_VERSION3 // { readANDRVchunks fixed. }
 #define CONFIG_RELEASE_VERSION4 // { (1) exchangeVs fixed. }
 // #define CONFIG_RELEASE_VERSION5 // { (1) full kernel run fixed. }
+// #define CONFIG_RELEASE_VERSION6
 
 #define CONFIG_GOLDENKERNEL // { processedges.cpp, reduceupdates.cpp, algorithm.cpp, classname__top_usrcv_nudstv.cpp, mem_acces.cpp, trad_gp.cpp }
 
 #define CONFIG_PREPROCESS_LOADEDGES_RANDOMSRCVIDS // NEW {classname__top_usrcv_nudstv.cpp}
 
 #define CONFIG_ENABLEPROCESSMODULE
-#define CONFIG_ENABLEPARTITIONMODULE
+// #define CONFIG_ENABLEPARTITIONMODULE
 #define CONFIG_ENABLEREDUCEMODULE //
 #define CONFIG_ENABLESYNCHRONIZEMODULE //
 
@@ -69,8 +70,9 @@ loadgraph.cpp
 
 #define CONFIG_ENABLE_PROFILING
 
-#define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD 128
-#define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION 0
+// #define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD 128
+#define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD 1024
+#define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION 1024 // 64 // 0
 #define CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ (1 << 14)
 
 // #define CONFIG_SEPERATESRCVDESTVBUFFER

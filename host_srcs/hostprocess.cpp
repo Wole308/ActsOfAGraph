@@ -36,7 +36,7 @@ int main(int argc, char** argv){
 	
 	#ifdef _DEBUGMODE_TIMERS3
 	std::cout << "TEST FINISHED" << std::endl; 
-	utilityobj->stopBTIME("HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: ", begintime_overallexecution, NAp);
+	utilityobj->stopTIME("HOSTPROCESS:: TIMING SUMMARY: TOTAL TIME ELAPSED: ", begintime_overallexecution, NAp);
 	#endif
 	return EXIT_SUCCESS;
 }
