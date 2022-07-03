@@ -427,7 +427,7 @@ void acts_all::TOPP0_topkernelproc_embedded(unsigned int GraphIter, unsigned int
 	#endif
 	
 	// partition
-	/* #ifdef CONFIG_ENABLEPARTITIONMODULE  // CRITICAL REMOVEME URGENT.
+	/** #ifdef CONFIG_ENABLEPARTITIONMODULE  // CRITICAL REMOVEME URGENT.
 	if(globalparamsK.ENABLE_PARTITIONCOMMAND == ON && en_partition == ON){
 		#if defined(_DEBUGMODE_KERNELPRINTS3) && defined(ALLVERTEXISACTIVE_ALGORITHM)
 		if(printheader1 == ON){ cout<<"TOPP0_topkernelproc_embedded: partitioning instance "<<globalid<<" ... "<<endl; }
@@ -527,27 +527,6 @@ void acts_all::TOPP0_topkernelP1(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  }
 	
@@ -725,17 +704,15 @@ void acts_all::TOPP0_topkernelP1(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -775,7 +752,7 @@ void acts_all::TOPP0_topkernelP1(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -864,27 +841,6 @@ void acts_all::TOPP0_topkernelP2(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  }
 	
@@ -1062,17 +1018,15 @@ void acts_all::TOPP0_topkernelP2(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -1113,7 +1067,7 @@ void acts_all::TOPP0_topkernelP2(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -1224,27 +1178,6 @@ void acts_all::TOPP0_topkernelP3(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  }
 	
@@ -1422,17 +1355,15 @@ void acts_all::TOPP0_topkernelP3(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -1474,7 +1405,7 @@ void acts_all::TOPP0_topkernelP3(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -1607,27 +1538,6 @@ void acts_all::TOPP0_topkernelP4(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  }
 	
@@ -1805,17 +1715,15 @@ void acts_all::TOPP0_topkernelP4(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -1858,7 +1766,7 @@ void acts_all::TOPP0_topkernelP4(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -2013,27 +1921,6 @@ void acts_all::TOPP0_topkernelP5(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  collections4[t].data1 = 0;  }
 	
@@ -2211,17 +2098,15 @@ void acts_all::TOPP0_topkernelP5(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -2265,7 +2150,7 @@ void acts_all::TOPP0_topkernelP5(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -2442,27 +2327,6 @@ void acts_all::TOPP0_topkernelP6(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  collections4[t].data1 = 0;  collections5[t].data1 = 0;  }
 	
@@ -2640,17 +2504,15 @@ void acts_all::TOPP0_topkernelP6(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -2695,7 +2557,7 @@ void acts_all::TOPP0_topkernelP6(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -2894,27 +2756,6 @@ void acts_all::TOPP0_topkernelP7(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  collections4[t].data1 = 0;  collections5[t].data1 = 0;  collections6[t].data1 = 0;  }
 	
@@ -3092,17 +2933,15 @@ void acts_all::TOPP0_topkernelP7(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -3148,7 +2987,7 @@ void acts_all::TOPP0_topkernelP7(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -3369,27 +3208,6 @@ void acts_all::TOPP0_topkernelP8(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  collections4[t].data1 = 0;  collections5[t].data1 = 0;  collections6[t].data1 = 0;  collections7[t].data1 = 0;  }
 	
@@ -3567,17 +3385,15 @@ void acts_all::TOPP0_topkernelP8(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -3624,7 +3440,7 @@ void acts_all::TOPP0_topkernelP8(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -3867,27 +3683,6 @@ void acts_all::TOPP0_topkernelP9(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  collections4[t].data1 = 0;  collections5[t].data1 = 0;  collections6[t].data1 = 0;  collections7[t].data1 = 0;  collections8[t].data1 = 0;  }
 	
@@ -4065,17 +3860,15 @@ void acts_all::TOPP0_topkernelP9(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -4123,7 +3916,7 @@ void acts_all::TOPP0_topkernelP9(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -4388,27 +4181,6 @@ void acts_all::TOPP0_topkernelP10(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  collections4[t].data1 = 0;  collections5[t].data1 = 0;  collections6[t].data1 = 0;  collections7[t].data1 = 0;  collections8[t].data1 = 0;  collections9[t].data1 = 0;  }
 	
@@ -4586,17 +4358,15 @@ void acts_all::TOPP0_topkernelP10(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -4645,7 +4415,7 @@ void acts_all::TOPP0_topkernelP10(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -4932,27 +4702,6 @@ void acts_all::TOPP0_topkernelP11(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  collections4[t].data1 = 0;  collections5[t].data1 = 0;  collections6[t].data1 = 0;  collections7[t].data1 = 0;  collections8[t].data1 = 0;  collections9[t].data1 = 0;  collections10[t].data1 = 0;  }
 	
@@ -5130,17 +4879,15 @@ void acts_all::TOPP0_topkernelP11(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -5190,7 +4937,7 @@ void acts_all::TOPP0_topkernelP11(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);
@@ -5499,27 +5246,6 @@ void acts_all::TOPP0_topkernelP12(
 	for(unsigned int e=0; e<globalparamsK.ACTSPARAMS_NUM_EDGE_BANKS; e++){ globalparamsEs[e] = UTILP0_getglobalparams(kvdram0, e+1); }
 	globalparams_t globalparamsV = UTILP0_getglobalparams(vdram, 0);
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
-
-	// hybrid mode functionality
-	#ifdef NOTUSED_____________________________
-	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-		unsigned int total_num_active_vertices_in_all_vpartitions = 0, total_num_active_edges_in_all_vpartitions = 0;
-		MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + 0, BLOCKRAM_CURRPMASK_SIZE, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_vertices_in_all_vpartitions += pmask_curr[t]; }
-		for(unsigned int t=0; t<BLOCKRAM_CURRPMASK_SIZE; t++){ total_num_active_edges_in_all_vpartitions += emask_curr[t]; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<">>> topkernelP:: iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<": total_num_active_vertices_in_all_vpartitions: "<<total_num_active_vertices_in_all_vpartitions<<", total_num_active_edges_in_all_vpartitions: "<<total_num_active_edges_in_all_vpartitions<<endl;
-		#endif 
-		// UTILP0_increment_graphiteration(vdram, globalparamsV); 
-		// return; // REMOVEME.	
-		if(total_num_active_vertices_in_all_vpartitions < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ 
-			#ifdef _DEBUGMODE_KERNELPRINTS3
-			cout<<"topkernelP:: Switch: Using trad GP for iteration "<<globalparamsV.ALGORITHMINFO_GRAPHITERATIONID<<" ..."<<endl;
-			#endif 
-			UTILP0_increment_graphiteration(vdram, globalparamsV); return; }
-	}
-	#endif 
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){  collections0[t].data1 = 0;  collections1[t].data1 = 0;  collections2[t].data1 = 0;  collections3[t].data1 = 0;  collections4[t].data1 = 0;  collections5[t].data1 = 0;  collections6[t].data1 = 0;  collections7[t].data1 = 0;  collections8[t].data1 = 0;  collections9[t].data1 = 0;  collections10[t].data1 = 0;  collections11[t].data1 = 0;  }
 	
@@ -5697,17 +5423,15 @@ void acts_all::TOPP0_topkernelP12(
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS3
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							cout<<">>> --------------------------------- topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<""<<endl; }
-						#endif 
-						#ifdef NOTUSED_____________________________
-						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ globalposition.num_active_vertices = 0; enable_readandreplicatevdata = OFF; }// force a no-activity // globalposition.num_active_edges_in_channel = 0; 
-							#ifdef _DEBUGMODE_KERNELPRINTS
-							if(globalposition.num_active_vertices < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION || total_num_active_vertices_in_vchunk < globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD){ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED OFF (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; } 
-							else{ cout<<"topkernelP:: iteration: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<", partition: "<<source_partition<<":: is SWITCHED ON (num_active_vertices_in_partition: "<<num_active_vertices_in_partition<<")"<<endl; }
-							#endif 
+							if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){ cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<". Hybrid Feature switched ON."<<endl; }
+							else { cout<<">>> topkernelP:: number of active vertices in partition: "<<source_partition<<": "<<num_active_vertices_in_partition<<" Hybrid Feature OFF."<<endl; }
 						}
 						#endif
+						
+						// bool endofrun = false;
+						if(globalposition.num_active_vertices == 0){
+							if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ enableprocess = ON; } 
+							else { enableprocess = OFF; }}
 						
 						bool_type enablepartition = OFF;
 						if(globalposition.EN_PARTITION == ON){ enablepartition = ON; } else { enablepartition = OFF; }
@@ -5758,7 +5482,7 @@ void acts_all::TOPP0_topkernelP12(
 	UTILP0_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && (GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE || total_num_active_vertices_in_iteration > globalparamsV.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD)){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
 	
 		globalparams_t globalparamsK0;
 		MERGEP0_mergeVs(kvdram0, vdram);

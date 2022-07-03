@@ -25,6 +25,18 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	cout<<endl<<"acts_helper:: running traditional sssp... "<<endl;
 	#endif 
 	
+	// tuple_t * vpmaskstats[MAXNUMGRAPHITERATIONS][][]; 
+	
+	unsigned int * actve_map[MAXNUMGRAPHITERATIONS][MAXNUM_VPs];
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
+		for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ 
+			actve_map[iter][v_p] = new unsigned int[MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION]; 
+			for(unsigned int t=0; t<MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION; t++){ actve_map[iter][v_p][t] = 0; }
+		}
+	}
+	
+	// for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ vpmaskstats[i] = new tuple_t[universalparams.NUMPROCESSEDGESPARTITIONS]; }
+	
 	vector<value_t> actvvs;
 	vector<value_t> actvvs_nextit;
 	unsigned int * vdatas = new unsigned int[myuniversalparams.KVDATA_RANGE];
@@ -52,7 +64,13 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 			#endif
 			num_edges_processed[GraphIter] += edges_size;
 			
-			vpmaskstats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; 
+			unsigned int v_p = vid / myuniversalparams.PROCESSPARTITIONSZ;
+			unsigned int lvid = vid - (v_p * myuniversalparams.PROCESSPARTITIONSZ);
+			if(vid < (v_p * myuniversalparams.PROCESSPARTITIONSZ)){ cout<<"acts_helper::extract_stats:: ERROR 20. vid("<<vid<<") < (v_p("<<v_p<<") * myuniversalparams.PROCESSPARTITIONSZ("<<myuniversalparams.PROCESSPARTITIONSZ<<")=("<<(v_p * myuniversalparams.PROCESSPARTITIONSZ)<<")). EXITING... "<<endl; exit(EXIT_FAILURE); }	
+			utilityobj->checkoutofbounds("acts_helper:: ERROR 21", lvid, myuniversalparams.PROCESSPARTITIONSZ, lvid, vid, NAp);
+					
+			if(actve_map[GraphIter][v_p][lvid / MAXVSIZE_ACTVEDGEBLOCK] == 0){ actve_map[GraphIter][v_p][lvid / MAXVSIZE_ACTVEDGEBLOCK] = 1; vpmaskstats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; }
+			// vpmaskstats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; 
 			vpmaskstats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].B += edges_size; // 
 			// cout<<"~~~ vpmaskstats["<<GraphIter<<"]["<<vid / myuniversalparams.PROCESSPARTITIONSZ<<"].B: "<<vpmaskstats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].B<<endl;
 			
@@ -112,6 +130,13 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 		cout<<"^^^ iter "<<iter<<": total number of active edges in all HBM channel (varB): "<<num_actv_edges<<" ^^^"<<endl;
 	}
 	
+	for(unsigned int iter=0; iter<GraphIter+1; iter++){
+		unsigned int tot = 0;
+		for(unsigned int t=0; t<myuniversalparams.NUMPROCESSEDGESPARTITIONS; t++){ tot += vpmaskstats[iter][t].A; }
+		cout<<"+++ acts_helper: number of active vertices for iteration "<<iter<<": "<<tot<<""<<endl;
+	}
+	// exit(EXIT_SUCCESS); 
+	
 	cout<<">>> acts_helper: printing pmasks for merge... "<<endl;	
 	for(unsigned int i=0; i<1; i++){ // NUM_PEs
 		for(unsigned int iter=0; iter<GraphIter+1; iter++){
@@ -125,7 +150,14 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	}
 	#endif 
 	// exit(EXIT_SUCCESS); 
-	// delete vdatas;
+	
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
+		for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ 
+			// cout<<">>> acts_helper: deleting actve_map["<<iter<<"]["<<v_p<<"]... "<<endl;	
+			delete [] actve_map[iter][v_p];
+		}
+	}
+	// delete [] actve_map; 
 	return GraphIter+1;
 }
 

@@ -330,7 +330,8 @@ globalparams_TWOt loadgraph::loadmaps(vector<vertex_t> &activevertices, uint512_
 	globalparams.globalparamsE.SIZE_EDGESMAP = utilityobj->allignlower_FACTOR((universalparams.NUMPROCESSEDGESPARTITIONS * (1 << (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH))), 16); // num_vPs * num_LLPs
 	
 	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEEDGESMAP = globalparams.globalparamsE.BASEOFFSETKVS_EDGESMAP + (globalparams.globalparamsE.SIZE_EDGESMAP / VECTOR2_SIZE);
-	globalparams.globalparamsE.SIZE_ACTIVEEDGESMAP = universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION * 2; // utilityobj->allignlower_FACTOR((universalparams.NUMPROCESSEDGESPARTITIONS * (1 << (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH))), 16); // num_vPs * num_LLPs
+	// globalparams.globalparamsE.SIZE_ACTIVEEDGESMAP = universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION * 2; // utilityobj->allignlower_FACTOR((universalparams.NUMPROCESSEDGESPARTITIONS * (1 << (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH))), 16); // num_vPs * num_LLPs
+	globalparams.globalparamsE.SIZE_ACTIVEEDGESMAP = universalparams.NUMPROCESSEDGESPARTITIONS * (universalparams.NUMPROCESSEDGESPARTITIONS / MAXVSIZE_ACTVEDGEBLOCK) * 2; // utilityobj->allignlower_FACTOR((universalparams.NUMPROCESSEDGESPARTITIONS * (1 << (OPT_NUM_PARTITIONS_POW * universalparams.TREE_DEPTH))), 16); // num_vPs * num_LLPs
 		
 	globalparams.globalparamsE.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEEDGESMAP + (globalparams.globalparamsE.SIZE_ACTIVEEDGESMAP / VECTOR2_SIZE);
 	globalparams.globalparamsE.SIZE_VERTICESPARTITIONMASK = 0;
@@ -364,7 +365,7 @@ globalparams_TWOt loadgraph::loadmaps(vector<vertex_t> &activevertices, uint512_
 		value_t * edges_u32 = (unsigned int *)&edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESMAP];
 		for(unsigned int v_p=0; v_p<num_vPs; v_p++){
 			for(unsigned int ll_p=0; ll_p<num_LLPset; ll_p++){
-				edges_u32[index] = edges_map[i][v_p][ll_p].offset;
+				edges_u32[index] = edges_map[i][v_p][ll_p].offset; // / EDGEDATA_PACKINGSIZE;
 				if(false){ cout<<"loadgraph::loadmaps:: edges_u32["<<index<<"]: "<<edges_u32[index]<<", edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].offset: "<<edges_map[i][v_p][ll_p].offset<<endl; }
 				index += 1;
 			}
