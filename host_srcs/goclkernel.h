@@ -39,7 +39,7 @@ public:
 	long double getaveragetimeelapsed(long double kerneltimelapse[MAXNUM_PEs]);
 
 	#ifdef FPGA_IMPL
-	long double runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8],
+	long double runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8],
 			unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, universalparams_t _universalparams);					
 	#endif
 	

@@ -104,7 +104,7 @@ void set_callback2(cl::Event event, const char *queue_name){
                   event.setCallback(CL_COMPLETE, event_cb2, (void *)queue_name));
 }
 
-long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8], 
+long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs], long double timeelapsed_totals[128][8], 
 		unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS], vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, universalparams_t universalparams){				
 	cout<<">>> goclkernel::runapp:: runapp started."<<endl;
 	
@@ -122,31 +122,16 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	unsigned int index_count = 0;
 	unsigned int edgessz_kvs = 0;
 	unsigned int kvdramsz_kvs = 0;
-	unsigned int mdramsz_kvs = 0;
 	edgessz_kvs = universalparams.MAXHBMCAPACITY_KVS2; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
 	kvdramsz_kvs = universalparams.MAXHBMCAPACITY_KVS2; // KVSOURCEDRAMSZ_KVS;
-	mdramsz_kvs = kvdramsz_kvs;
 	
 	unsigned int C = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	unsigned int D = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
 	unsigned int numIters = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key;
 	
-	mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; 
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; } // reset
 	
-	#ifdef CONFIG_ACTS_HYBRIDLOGIC
-	cout<<">>> goclkernel::runapp: populating edges, vptrs and active vertices into mdram... "<<endl;
-	unsigned int mdram_BASEOFFSETKVS_EDGESDATA = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_EDGESDATA].data[0].key;
-	unsigned int mdram_BASEOFFSETKVS_VERTEXPTR = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
-	unsigned int mdram_BASEOFFSETKVS_ACTIVEVERTICES = mdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
-	unsigned int * temp = (unsigned int *)mdram; 
-	for(unsigned int t=0; t<universalparams.NUM_EDGES; t++){ temp[(mdram_BASEOFFSETKVS_EDGESDATA * VECTOR2_SIZE) + t] = edgedatabuffer[t].dstvid; }
-	unsigned int index=0; for(unsigned int index=0; index<universalparams.NUM_VERTICES; index++){ temp[(mdram_BASEOFFSETKVS_VERTEXPTR * VECTOR2_SIZE) + index] = vertexptrbuffer[index]; }
-	mdram[mdram_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key = 1;
-	#endif
-	std::vector<int, aligned_allocator<int> > mdram_vec(mdramsz_kvs * sizeof(uint512_vec_dt));
-    memcpy(mdram_vec.data(), mdram, mdramsz_kvs * sizeof(uint512_vec_dt));
 	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUM_PEs: "<<NUM_PEs<<endl;
 	
 	uint512_vec_dt * vdramtemp[3];
@@ -187,7 +172,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	cl_mem_ext_ptr_t inoutBufExt_vdram[4];
 	std::vector<cl::Buffer> buffer_kvdram[3]; for(unsigned int i=0; i<3; i++){ buffer_kvdram[i] = std::vector<cl::Buffer>(32); }
 	std::vector<cl::Buffer> buffer_edgesdram[3]; for(unsigned int i=0; i<3; i++){ buffer_edgesdram[i] = std::vector<cl::Buffer>(32); }
-	cl::Buffer buffer_vdram[4];
+	cl::Buffer buffer_vdram[3];
 	std::vector<cl::Kernel> krnls_proc(3);
 	cl::Kernel krnls_sync;
 	std::vector<cl::Event> kernel_events(48);
@@ -230,7 +215,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		hbmindex += 1;
 	}
 	
-	inoutBufExt_vdram[3].obj = vdram; // mdram_vec.data(); // mdram; // vdram;
+	inoutBufExt_vdram[3].obj = vdram;
 	inoutBufExt_vdram[3].param = 0;
 	inoutBufExt_vdram[3].flags = bank[hbmindex];
 	cout<<"attaching inoutBufExt_vdram[3] to vdram to HBM["<<hbmindex<<"]: "<<endl;
@@ -286,18 +271,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 							 &err));
 		cout<<"+++ goclkernel: created buffer_vdram["<<s<<"] "<<endl;
 	}
-	OCL_CHECK(err,
-			  buffer_vdram[3] =
-				  cl::Buffer(context,
-							 // CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
-							 CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX |
-									 CL_MEM_USE_HOST_PTR,
-							 // sizeof(uint512_vec_dt) * mdramsz_kvs, // kvdramsz_kvs,
-							 sizeof(uint512_vec_dt) * kvdramsz_kvs,
-							 // mdram_vec.data(),
-							 &inoutBufExt_vdram[3], 
-							 &err));
-		cout<<"+++ goclkernel: created buffer_vdram[3] "<<endl;
 	
 	#ifdef GOCLKERNEL_DEBUGMODE_HOSTPRINTS3
 	printf("INFO: loading vmul kernel\n");
@@ -380,8 +353,6 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 		OCL_CHECK(err, err = krnls_sync.setArg(i, buffer_vdram[i]));
 		cout<<"setting argument krnls_sync.setArg("<<i<<", buffer_vdram["<<i<<"])"<<endl;
 	}
-	OCL_CHECK(err, err = krnls_sync.setArg(3, buffer_vdram[3]));
-	cout<<"setting argument krnls_sync.setArg(3, buffer_vdram["<<3<<"])"<<endl;
 	OCL_CHECK(err, err = q.finish());
 	// exit(EXIT_SUCCESS);
 	
@@ -390,64 +361,54 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	#ifdef TESTHWKERNEL
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
 													buffer_kvdram[1][0], buffer_vdram[1],
-													buffer_kvdram[2][0], buffer_vdram[2],
-													buffer_vdram[3]}, 
+													buffer_kvdram[2][0], buffer_vdram[2]}, 
 													0, NULL, &write_events[0]));
 	#else 
 		#ifdef CONFIG_IMPACT_OF_SCALING_NUMPEs
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 		#else 
 			#if NUM_PEs==12
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 			#elif NUM_PEs==14
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 			#elif NUM_PEs==16
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 			#elif NUM_PEs==18
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 			#elif NUM_PEs==20
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 			#elif NUM_PEs==22
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 			#elif NUM_PEs==24
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_kvdram[0][8], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_kvdram[1][8], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 			#elif NUM_PEs==25
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_kvdram[0][8], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_kvdram[1][8], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_kvdram[2][6], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_kvdram[2][6], buffer_vdram[2]}, 
 															0, NULL, &write_events[0]));
 			#else 
 			// NOT IMPLEMENTED
@@ -496,64 +457,54 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	#ifdef TESTHWKERNEL
 		OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_vdram[0],
 														buffer_kvdram[1][0], buffer_vdram[1],
-														buffer_kvdram[2][0], buffer_vdram[2],
-														buffer_vdram[3]}, 
+														buffer_kvdram[2][0], buffer_vdram[2]}, 
 														CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 	#else 
 		#ifdef CONFIG_IMPACT_OF_SCALING_NUMPEs
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 		#else 
 			#if NUM_PEs==12
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 			#elif NUM_PEs==14
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 			#elif NUM_PEs==16
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 			#elif NUM_PEs==18
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 			#elif NUM_PEs==20
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 			#elif NUM_PEs==22
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 			#elif NUM_PEs==24
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_kvdram[0][8], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_kvdram[1][8], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 			#elif NUM_PEs==25
 			OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_kvdram[0][0], buffer_kvdram[0][1], buffer_kvdram[0][2], buffer_kvdram[0][3], buffer_kvdram[0][4], buffer_kvdram[0][5], buffer_kvdram[0][6], buffer_kvdram[0][7], buffer_kvdram[0][8], buffer_vdram[0],
 															buffer_kvdram[1][0], buffer_kvdram[1][1], buffer_kvdram[1][2], buffer_kvdram[1][3], buffer_kvdram[1][4], buffer_kvdram[1][5], buffer_kvdram[1][6], buffer_kvdram[1][7], buffer_kvdram[1][8], buffer_vdram[1],
-															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_kvdram[2][6], buffer_vdram[2],
-															buffer_vdram[3]}, 
+															buffer_kvdram[2][0], buffer_kvdram[2][1], buffer_kvdram[2][2], buffer_kvdram[2][3], buffer_kvdram[2][4], buffer_kvdram[2][5], buffer_kvdram[2][6], buffer_vdram[2]}, 
 															CL_MIGRATE_MEM_OBJECT_HOST, NULL, &read_events[0]));
 			#else 
 			// NOT IMPLEMENTED
@@ -564,7 +515,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * mdram
 	OCL_CHECK(err, err = q.finish());
 	
 	// verifying results
-	utilityobj->printallfeedback("goclkernel", "", vdram, vdramtemp[0], vdramtemp[1], vdramtemp[2], kvsourcedram);
+	// utilityobj->printallfeedback("goclkernel", "", vdram, vdramtemp[0], vdramtemp[1], vdramtemp[2], kvsourcedram);
 	// utilityobj->printallfeedback("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer);
 
 	OCL_CHECK(err, err = read_events[0].wait());

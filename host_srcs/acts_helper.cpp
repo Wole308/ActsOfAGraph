@@ -25,8 +25,6 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	cout<<endl<<"acts_helper:: running traditional sssp... "<<endl;
 	#endif 
 	
-	// tuple_t * vpmaskstats[MAXNUMGRAPHITERATIONS][][]; 
-	
 	unsigned int * actve_map[MAXNUMGRAPHITERATIONS][MAXNUM_VPs];
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
 		for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ 
@@ -34,8 +32,6 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 			for(unsigned int t=0; t<MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION; t++){ actve_map[iter][v_p][t] = 0; }
 		}
 	}
-	
-	// for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ vpmaskstats[i] = new tuple_t[universalparams.NUMPROCESSEDGESPARTITIONS]; }
 	
 	vector<value_t> actvvs;
 	vector<value_t> actvvs_nextit;
@@ -45,7 +41,9 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	unsigned int total_edges_processed = 0;
 	for(unsigned int i=0; i<128; i++){ edgesprocessed_totals[i] = 0; }
 	for(unsigned int i=0; i<srcvids.size(); i++){ actvvs.push_back(srcvids[i]); }
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"acts_helper: number of active vertices for iteration 0: 1"<<endl;
+	#endif 
 	for(unsigned int i=0; i<actvvs.size(); i++){ vdatas[actvvs[i]] = 0; }
 	unsigned int GraphIter=0;
 	vpmaskstats[0][0].A = 0; 
@@ -95,16 +93,32 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 			}
 		}
 		
+		#ifdef _DEBUGMODE_HOSTPRINTS3
 		cout<<"acts_helper: number of active vertices for iteration "<<GraphIter + 1<<": "<<actvvs_nextit.size()<<""<<endl;
-		if(actvvs_nextit.size() == 0 || GraphIter >= 14){ cout<<"no more activer vertices to process. breaking out... "<<endl; break; }
+		#endif 
+		if(actvvs_nextit.size() == 0 || GraphIter >= 14){ 
+			#ifdef _DEBUGMODE_HOSTPRINTS3
+			cout<<"no more activer vertices to process. breaking out... "<<endl; 
+			#endif 
+			break; 
+		}
 	
 		actvvs.clear();
 		for(unsigned int i=0; i<actvvs_nextit.size(); i++){ actvvs.push_back(actvvs_nextit[i]); }
 		actvvs_nextit.clear();
 	}
 	
-	cout<<">>> acts_helper: FINISHED. "<<GraphIter+1<<" iterations required."<<endl;
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	for(unsigned int iter=0; iter<GraphIter+1; iter++){
+		unsigned int tot = 0;
+		for(unsigned int t=0; t<myuniversalparams.NUMPROCESSEDGESPARTITIONS; t++){ tot += vpmaskstats[iter][t].A; }
+		cout<<"acts_helper: number of active vertices in iteration "<<iter<<": "<<tot<<""<<endl;
+	}
 	for(unsigned int iter=0; iter<GraphIter+1; iter++){ cout<<"acts_helper:: number of edges processed in iteration "<<iter<<": "<<(unsigned int)edgesprocessed_totals[iter]<<endl; }
+	#endif 
+	#ifdef _DEBUGMODE_HOSTPRINTS
+	cout<<">>> acts_helper: FINISHED. "<<GraphIter+1<<" iterations required."<<endl;
+	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<">>> acts_helper: printing pmasks for process-partition-reduce... "<<endl;
 	// unsigned int total_num_actvvs = 0;	
@@ -171,13 +185,16 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 	if(universalparams.ALGORITHM != BFS){ num_iters_toprint = 1; }
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
-		if(i%NUMCOMPUTEUNITS_SLR2==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0)==0){} else { continue; } 
+		// if(i%NUMCOMPUTEUNITS_SLR2==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0)==0){} else { continue; } 
+		if(i%NUMCOMPUTEUNITS_SLR2==0){} else { continue; } 
 		for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
 			unsigned int num_edgestraversed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
 			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].value;	
 			unsigned int num_updatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[1].key;	
 			
-			cout<<">>> acts_helper::[A]["<<message<<"][PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges traversed: "<<num_edgestraversed<<", num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_updatesreduced<<""<<endl;	
+			#ifdef _DEBUGMODE_HOSTPRINTS4
+			cout<<"[PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges traversed: "<<num_edgestraversed<<", num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_updatesreduced<<""<<endl;	
+			#endif 
 		}
 	}
 
@@ -191,10 +208,14 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 			num_updatesreduced += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[1].key;	
 		}
 		num_traversed_edges += num_edgesprocessed;
-		cout<<">>> acts_helper::[A]["<<message<<"][PE:ALL][Iter: "<<GraphIter<<"]:: num edges traversed: "<<num_edgestraversed<<", num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_updatesreduced<<""<<endl;	
+		#ifdef _DEBUGMODE_HOSTPRINTS4
+		cout<<"[PE:ALL][Iter: "<<GraphIter<<"]:: num edges traversed: "<<num_edgestraversed<<", num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_updatesreduced<<""<<endl;	
+		#endif 
 	}
 	// num_traversed_edges = num_edgesprocessed;
+	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<">>> acts_helper:: num_traversed_edges: "<<num_traversed_edges<<", num_edgesprocessed: "<<endl;
+	#endif 
 	return num_traversed_edges;
 }
 

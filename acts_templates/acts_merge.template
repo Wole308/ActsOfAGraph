@@ -84,7 +84,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(uin
 	return total_sync;
 }
 
-void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<< TIMINGRESULTSCOLOR << ">>> exchangeVs:: exchanging vertices across different SLRs..." << RESET <<endl; 
 	#endif
@@ -111,23 +111,20 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 }
 
 extern "C" {
-void {{context['classname__acts_merge']}}TOP{{context['id']}}_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC, uint512_dt * mdram){
+void {{context['classname__acts_merge']}}TOP{{context['id']}}_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC){
 #pragma HLS INTERFACE m_axi port = vdramA offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = vdramB offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = vdramC offset = slave bundle = gmem2
-#pragma HLS INTERFACE m_axi port = mdram offset = slave bundle = gmem3
 
 #pragma HLS INTERFACE s_axilite port = vdramA bundle = control
 #pragma HLS INTERFACE s_axilite port = vdramB bundle = control
 #pragma HLS INTERFACE s_axilite port = vdramC bundle = control
-#pragma HLS INTERFACE s_axilite port = mdram bundle = control
 
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
 #pragma HLS DATA_PACK variable = vdramA
 #pragma HLS DATA_PACK variable = vdramB
 #pragma HLS DATA_PACK variable = vdramC
-#pragma HLS DATA_PACK variable = mdram
 
 	// return;
 	globalparams_t globalparamsvA = UTIL{{context['id']}}_getglobalparams(vdramA, 0);
@@ -138,7 +135,7 @@ void {{context['classname__acts_merge']}}TOP{{context['id']}}_topkernelS(uint512
 	
 	#ifdef CONFIG_RELEASE_VERSION4
 	if(globalparamsvA.ENABLE_EXCHANGECOMMAND == ON){
-		MERGE{{context['id']}}_exchange(vdramA, vdramB, vdramC, mdram);
+		MERGE{{context['id']}}_exchange(vdramA, vdramB, vdramC);
 	}
 	#endif 
 	return;

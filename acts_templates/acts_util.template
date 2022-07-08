@@ -232,25 +232,99 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_SetThirdData(uint5
 	return;
 }
 	
-uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  // *** FIXME: adjust for EDGEDATA_PACKINGSIZE & UPDATEDATA_PACKINGSIZE
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[EDGEDATA_PACKINGSIZE]){  // *** FIXME: adjust for EDGEDATA_PACKINGSIZE & UPDATEDATA_PACKINGSIZE
+	#pragma HLS INLINE
+	// uint512_evec_dt dataset;
+	
+	#ifdef CONFIG_UPDATEPACKINGx16
+		#ifdef _WIDEWORD 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		datas[{{2*v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		datas[{{2*v+1}}].key = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		datas[{{2*v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+		datas[{{2*v+1}}].key = kvdram[offset_kvs].data[{{v}}].value; 
+		{%endfor%}
+		#endif
+	#else 
+		#ifdef _WIDEWORD 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		datas[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		datas[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		datas[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+		datas[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
+		{%endfor%}
+		#endif
+	#endif 
+	return;
+}
+uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  
 	#pragma HLS INLINE
 	uint512_evec_dt dataset;
 	
-	#ifdef _WIDEWORD 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	dataset.data[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-	dataset.data[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
-	{%endfor%}
+	#ifdef CONFIG_UPDATEPACKINGx16
+		#ifdef _WIDEWORD 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		dataset.data[{{2*v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		dataset.data[{{2*v+1}}].key = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		dataset.data[{{2*v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+		dataset.data[{{2*v+1}}].key = kvdram[offset_kvs].data[{{v}}].value; 
+		{%endfor%}
+		#endif
 	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	dataset.data[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
-	dataset.data[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
-	{%endfor%}
-	#endif
-	
+		#ifdef _WIDEWORD 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		dataset.data[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		dataset.data[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		dataset.data[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+		dataset.data[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
+		{%endfor%}
+		#endif
+	#endif 
 	return dataset;
 }	
-uint512_uvec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_GetUpdates(uint512_dt * kvdram, unsigned int offset_kvs){ // FIXME....
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadUpdates(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[UPDATEDATA_PACKINGSIZE]){
+	#pragma HLS INLINE
+	
+	#ifdef CONFIG_UPDATEPACKINGx16
+		#ifdef _WIDEWORD 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		datas[{{2*v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		datas[{{2*v+1}}].key = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		datas[{{2*v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+		datas[{{2*v+1}}].key = kvdram[offset_kvs].data[{{v}}].value; 
+		{%endfor%}
+		#endif
+	#else 
+		#ifdef _WIDEWORD 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		datas[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		datas[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+		{%endfor%}
+		#else 
+		{%for v in context['VECTOR_SIZE_seq']%}
+		datas[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+		datas[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
+		{%endfor%}
+		#endif
+	#endif 
+	return;
+}
+/* uint512_uvec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_GetUpdates(uint512_dt * kvdram, unsigned int offset_kvs){ // FIXME....
 	#pragma HLS INLINE
 	uint512_uvec_dt dataset;
 
@@ -268,6 +342,7 @@ uint512_uvec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_GetUpda
 	
 	return dataset;
 }
+ */
 
 void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
@@ -352,7 +427,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_WriteData(uint512_
 	return;
 }
 
-void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadKeyvalues(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
+/* void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadKeyvalues(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
 	#pragma HLS INLINE
 	#ifdef _WIDEWORD 
 	{%for v in context['VECTOR_SIZE_seq']%}
@@ -366,7 +441,7 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadKeyvalues(uint
 	{%endfor%}
 	#endif
 	return;
-}
+} */
 
 // utilities
 batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
@@ -669,8 +744,8 @@ travstate_t {{context['classname__acts_util']}}UTIL{{context['id']}}_gettravstat
 	else if(currentLOP == 1){ nextkeyvalue.key = globalparams.SIZE_RUN; }
 	else { nextkeyvalue.key = keyvalue.key + keyvalue.value; }
 		
-	travstate.begin_kvs = keyvalue.key / VECTOR_SIZE; 
-	travstate.end_kvs = (nextkeyvalue.key + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	travstate.begin_kvs = keyvalue.key / UPDATEDATA_PACKINGSIZE; 
+	travstate.end_kvs = (nextkeyvalue.key + (UPDATEDATA_PACKINGSIZE - 1)) / UPDATEDATA_PACKINGSIZE; // UPDATEDATA_PACKINGSIZE, VECTOR_SIZE
 	
 	travstate.size_kvs = travstate.end_kvs - travstate.begin_kvs;
 	travstate.skip_kvs = MAX_SRCBUFFER_SIZE;

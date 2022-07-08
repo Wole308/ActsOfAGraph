@@ -22,18 +22,18 @@ loadgraph.cpp
 #define CONFIG_UNIFYSRCV // {app.cpp}
 #define CONFIG_SPLIT_DESTVTXS
 
-// #define CONFIG_UPDATEPACKINGx16
+#define CONFIG_UPDATEPACKINGx16
 // #define CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
 
 #define SEQUENTIALIZE_VIDS_IN_A_DRAM_ROW // uses MAX_NUM_UNIQ_EDGES_PER_VEC in {common.h}
 
 // ********************************************** POWERFUL CONFIGS **********************************************
 #define CONFIG_RELEASE_VERSION1
-// #define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
-// #define CONFIG_RELEASE_VERSION3 // { readANDRVchunks fixed. }
+#define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
+#define CONFIG_RELEASE_VERSION3 // { readANDRVchunks fixed. }
 #define CONFIG_RELEASE_VERSION4 // { (1) exchangeVs fixed. }
 // #define CONFIG_RELEASE_VERSION5 // { (1) full kernel run fixed. }
-// #define CONFIG_RELEASE_VERSION6
+#define CONFIG_RELEASE_VERSION6 // readV, saveV
 
 #define CONFIG_GOLDENKERNEL // { processedges.cpp, reduceupdates.cpp, algorithm.cpp, classname__top_usrcv_nudstv.cpp, mem_acces.cpp, trad_gp.cpp }
 
@@ -70,22 +70,20 @@ loadgraph.cpp
 
 #define CONFIG_ENABLE_PROFILING
 
-// #define CONFIG_PACKACTVEDGEBLOCK_TYPEA
-#define CONFIG_PACKACTVEDGEBLOCK_TYPEB
+// #define CONFIG_PACKACTVEDGEBLOCK_SMALLERBLOCKS_MOREPADDING
+#define CONFIG_PACKACTVEDGEBLOCK_LARGERBLOCKS_LESSPADDING
 
 #define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD 0 // 1024 // NOT USED.
-#define CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ (1 << 14)
+#define CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ (1 << 14) // NOT USED.
 
-#ifdef CONFIG_PACKACTVEDGEBLOCK_TYPEA
-	#define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION 128
-#else 
-	#define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION 16
-#endif 
+#define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION 16 // 64 // 16
 
 // #define CONFIG_SEPERATESRCVDESTVBUFFER
 #define CONFIG_USEURAM_FOR_SRCVBUFFER // CRITICAL REMOVEME!
 #define CONFIG_USEURAM_FOR_DESTVBUFFER // { classname__mem_access.cpp, classname__reduceupdates.cpp }
-#define CONFIG_USEURAM_PACKBYTWOS
+
+// #define CONFIG_EDGEHASHSCHEME1
+#define CONFIG_EDGEHASHSCHEME2
 
 #endif
 

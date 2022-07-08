@@ -228,7 +228,11 @@ void utility::stopTIME(string caption, std::chrono::steady_clock::time_point beg
 }
 
 bool utility::isbufferused(unsigned int id){
+	#ifdef TESTKERNEL 
 	if(id==0 || id==NUMCOMPUTEUNITS_SLR2 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; }
+	#else 
+	return true;
+	#endif 
 	// if(id==0){ return true; } else { return false; }
 	return true;
 }
@@ -284,9 +288,10 @@ unsigned int utility::allignhigher_FACTOR(unsigned int val, unsigned int _FACTOR
 	return (fac * _FACTOR);
 }
 
-void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing){
+void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing, unsigned int allign_factor){
 	buffer[0].key += base;
-	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignlower_FACTOR(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1], VECTOR_SIZE); }
+	// for(unsigned int i=1; i<size; i++){ buffer[i].key = allignlower_FACTOR(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1], VECTOR_SIZE); }
+	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignhigher_FACTOR(buffer[i-1].key + buffer[i-1].value + skipspacing[i-1], allign_factor); }
 	return;
 }
 void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int allign_factor){
@@ -294,45 +299,10 @@ void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned 
 	for(unsigned int i=1; i<size; i++){ buffer[i].key = allignhigher_FACTOR((buffer[i-1].key + buffer[i-1].value), allign_factor); }
 	return;
 }
-void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size){
+void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size, unsigned int allign_factor){
 	unsigned int * skipspacing = new unsigned int[size];
-	for(unsigned int p=0; p<size; p++){ 
-		
-		unsigned int A = (stats[p].value + (VECTOR_SIZE-1)) / VECTOR_SIZE; // FIXME. 
-		unsigned int B = (A + (MAX_SRCBUFFER_SIZE-1)) / MAX_SRCBUFFER_SIZE; 
-		if(B < 80){ B = B * 2; }
-		unsigned int C = ((4 * 4 * 2) * universalparams.NUM_PARTITIONS) + VECTOR_SIZE; 
-		skipspacing[p] = (B * C) + 128; 
-		
-		// #ifdef CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS
-		// skipspacing[p] = skipspacing[p] * 2;
-		// #else 
-		// skipspacing[p] = 0;	
-		// #endif 
-		
-		// skipspacing[p] = skipspacing[p] * 2;
-		skipspacing[p] = 0;	
-			
-			
-		/* #ifdef TESTKERNEL
-			skipspacing[p] = skipspacing[p] * 2;
-		#else 
-			#ifdef CONFIG_PREPROCESS_LOADEDGES_SEQUENTIALSRCVIDS
-			skipspacing[p] = skipspacing[p] * 2;
-			#else 
-			skipspacing[p] = 0;	
-			#endif 
-			
-			// #ifdef ALLVERTEXISACTIVE_ALGORITHM
-			// skipspacing[p] = skipspacing[p] * 2; // FIXME.
-			// #else 
-			// skipspacing[p] = 0; // CRITICAL FIXME
-			// #endif 
-		#endif  */
-		
-		// cout<<"--- skipspacing["<<p<<"]: "<<skipspacing[p]<<endl;
-	}			
-	calculateoffsets(stats, size, 0, skipspacing);
+	for(unsigned int p=0; p<size; p++){ skipspacing[p] = 0;	}
+	calculateoffsets(stats, size, 0, skipspacing, allign_factor);
 	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}	
 }
 

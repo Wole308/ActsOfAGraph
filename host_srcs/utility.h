@@ -91,9 +91,9 @@ public:
 	unsigned int allignlower_FACTOR(unsigned int val, unsigned int _FACTOR);
 	unsigned int allignhigher_FACTOR(unsigned int val, unsigned int _FACTOR);
 
-	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing);
+	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int * skipspacing, unsigned int allign_factor);
 	void calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned int base, unsigned int allign_factor);
-	void getmarkerpositions(keyvalue_t * stats, unsigned int size);
+	void getmarkerpositions(keyvalue_t * stats, unsigned int size, unsigned int allign_factor);
 	
 	void calculateunallignedoffsets(keyvalue_t * keyvalues, unsigned int size);
 	
