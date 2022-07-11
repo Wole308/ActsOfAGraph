@@ -23,7 +23,7 @@ loadgraph.cpp
 #define CONFIG_SPLIT_DESTVTXS
 
 #define CONFIG_UPDATEPACKINGx16
-// #define CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
+#define CONFIG_SEND_LOCAL_VERTEXIDS_ONLY
 
 #define SEQUENTIALIZE_VIDS_IN_A_DRAM_ROW // uses MAX_NUM_UNIQ_EDGES_PER_VEC in {common.h}
 
@@ -34,6 +34,7 @@ loadgraph.cpp
 #define CONFIG_RELEASE_VERSION4 // { (1) exchangeVs fixed. }
 // #define CONFIG_RELEASE_VERSION5 // { (1) full kernel run fixed. }
 #define CONFIG_RELEASE_VERSION6 // readV, saveV
+#define CONFIG_RELEASE_VERSION7 // mask included
 
 #define CONFIG_GOLDENKERNEL // { processedges.cpp, reduceupdates.cpp, algorithm.cpp, classname__top_usrcv_nudstv.cpp, mem_acces.cpp, trad_gp.cpp }
 
@@ -82,8 +83,8 @@ loadgraph.cpp
 #define CONFIG_USEURAM_FOR_SRCVBUFFER // CRITICAL REMOVEME!
 #define CONFIG_USEURAM_FOR_DESTVBUFFER // { classname__mem_access.cpp, classname__reduceupdates.cpp }
 
-// #define CONFIG_EDGEHASHSCHEME1
-#define CONFIG_EDGEHASHSCHEME2
+// #define CONFIG_EDGEHASHSCHEME_SINGLEVID
+#define CONFIG_EDGEHASHSCHEME_SETVIDS // { acts_util.cpp, load_edges.cpp }
 
 #endif
 

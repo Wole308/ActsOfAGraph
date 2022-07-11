@@ -42,17 +42,16 @@ unsigned int UTIL{{context['id']}}_GetThirdData(uint512_dt * kvdram, unsigned in
 void UTIL{{context['id']}}_SetThirdData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int data);
 
 void UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[EDGEDATA_PACKINGSIZE]);
+void UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
 uint512_evec_dt UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs);
-void UTIL{{context['id']}}_ReadUpdates(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[UPDATEDATA_PACKINGSIZE]);
+// void UTIL{{context['id']}}_ReadUpdates(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[UPDATEDATA_PACKINGSIZE]);
 
-// uint512_uvec_dt UTIL{{context['id']}}_GetUpdates(uint512_dt * kvdram, unsigned int offset_kvs);
+void UTIL{{context['id']}}_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+void UTIL{{context['id']}}_WriteDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
 void UTIL{{context['id']}}_WriteDatas(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
 void UTIL{{context['id']}}_WriteDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_uvec_dt dataset);
-void UTIL{{context['id']}}_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
 unsigned int UTIL{{context['id']}}_ReadData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
 void UTIL{{context['id']}}_WriteData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
-
-// void UTIL{{context['id']}}_ReadKeyvalues(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
 
 // functions (actsproc utilities)
 batch_type UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);

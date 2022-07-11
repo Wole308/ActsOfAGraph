@@ -1,3 +1,5 @@
+// https://iss.oden.utexas.edu/?p=projects/galois/analytics/triangle_counting 
+
 value_t process_func_pr(value_t udata, value_t edgew){
 	#pragma HLS INLINE 
 	value_t res = udata + edgew;
@@ -43,6 +45,16 @@ value_t reduce_func_bfs(value_t vtemp, value_t vdata, value_t res, unsigned int 
 	return temp;
 }
 
+value_t process_func_sssp(value_t udata, value_t edgew){
+	#pragma HLS INLINE 
+	value_t res = udata + edgew;
+	return res;
+}
+value_t reduce_func_sssp(value_t vtemp, value_t vdata, value_t res, unsigned int GraphIter){
+	#pragma HLS INLINE 
+	if(res < vtemp){ return res; } else { return vtemp; }
+}
+
 value_t process_func(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	#pragma HLS INLINE 
 	if(GraphAlgo == PAGERANK){
@@ -51,6 +63,8 @@ value_t process_func(value_t udata, value_t edgew, unsigned int GraphAlgo){
 		return process_func_cf(udata, edgew);
 	} else if(GraphAlgo == HITS){
 		return process_func_hits(udata, edgew);
+	} else if(GraphAlgo == SSSP){
+		return process_func_sssp(udata, edgew);
 	} else if(GraphAlgo == BFS){
 		return process_func_bfs(udata, edgew);
 	} else {
@@ -66,6 +80,8 @@ value_t reduce_func(value_t vtemp, value_t vdata, value_t res, unsigned int Grap
 		return reduce_func_cf(vtemp, vdata, res, GraphIter);
 	} else if(GraphAlgo == HITS){
 		return reduce_func_hits(vtemp, vdata, res, GraphIter);
+	} else if(GraphAlgo == SSSP){
+		return reduce_func_sssp(vtemp, vdata, res, GraphIter);
 	} else if(GraphAlgo == BFS){
 		return reduce_func_bfs(vtemp, vdata, res, GraphIter);
 	} else {

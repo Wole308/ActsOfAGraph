@@ -17,6 +17,10 @@
 #define FPGA_IMPL
 #endif 
 
+// #define RANKING_ALGORITHM
+#define TRAVERSAL_ALGORITHM
+// #define BIT_TRAVERSAL_ALGORITHM ////////////////// NEWCHANGE.
+
 #if defined(BFS_ALGORITHM) || defined(SSSP_ALGORITHM)
 #define CONFIG_ALGORITHMTYPE_RANDOMACTIVEVERTICES // { utility.cpp }
 #endif
@@ -57,7 +61,7 @@
 #endif 
 
 #define _DEBUGMODE_HEADER //
-#if defined (FPGA_IMPL) // && defined (HW) // REMOVEME.
+#if defined (FPGA_IMPL) // && defined (HW) // REMOVEME. 
 #else
 #define _DEBUGMODE_STATS // CRITICAL ADDME
 // #define _DEBUGMODE_CHECKS
@@ -68,7 +72,7 @@
 // #define _DEBUGMODE_KERNELPRINTS2 //
 #define _DEBUGMODE_KERNELPRINTS3 //
 #define _DEBUGMODE_KERNELPRINTS4 //
-// #define _DEBUGMODE_RUNKERNELPRINTS //
+// #define _DEBUGMODE_RUNKERNELPRINTS // 
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
 #endif
 // #define _DEBUGMODE_HOSTCHECKS
@@ -397,7 +401,8 @@ struct _bitData {
 #define INFINITI ((1 << 30) - 1)
 
 #define NAp 666
-#define INVALIDDATA 0x0FFFFFFF 
+// #define INVALIDDATA 0x0FFFFFFF 
+#define INVALIDDATA 0xFFFFFFFF 
 #define UNUSEDDATA 987654321
 
 #define ONE 1
@@ -422,7 +427,7 @@ struct _bitData {
 // #define _DEBUGMODE_KERNELPRINTS_TRACE
 // #ifndef ALLVERTEXISACTIVE_ALGORITHM
 #ifndef FPGA_IMPL
-// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 #endif 
 // #endif
 // #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
@@ -544,19 +549,12 @@ struct _bitData {
 #define SIZEOF_KEY 22
 #define SIZEOF_VALUE 10
 
-#define BEGINOFFSETOF_VDATA 0
-#define OFFSETOF_VDATA 0
+#define BEGINOFFSETOF_VDATA 1
+#define OFFSETOF_VDATA 1
 #define SIZEOF_VDATA 31
-#define BEGINOFFSETOF_VMASK 31
-#define OFFSETOF_VMASK 31
+#define BEGINOFFSETOF_VMASK 0
+#define OFFSETOF_VMASK 0
 #define SIZEOF_VMASK 1
-
-#define BEGINOFFSETOF_DEST_VDATA 0
-#define OFFSETOF_DEST_VDATA 0
-#define SIZEOF_DEST_VDATA 1
-#define BEGINOFFSETOF_DEST_VMASK 16
-#define OFFSETOF_DEST_VMASK 0
-#define SIZEOF_DEST_VMASK 1
 
 #define OFFSETOF_EDIR 31
 #define SIZEOF_EDIR 1
@@ -573,6 +571,11 @@ struct _bitData {
 #define PROCESSEDGES_COLLECTIONID 1
 #define REDUCEUPDATES_COLLECTIONID 2 
 #define ACTIVEEDGESPROCESSED_COLLECTIONID 3
+
+#define MASK_DSTVID 0b00000000000000111111111111111111
+#define MASK_SRCVID 0b00000000000000000011111111111111 
+#define DSTVID_BITSZ 18
+#define SRCVID_BITSZ 14
 
 typedef unsigned int vertex_t;
 typedef unsigned int edge_t;
@@ -680,10 +683,18 @@ typedef struct {
 typedef struct {
 	keyy_t srcvid;
 	keyy_t dstvid;
+	bool valid;
 } edge2_type; 
+
+// typedef struct {
+	// keyy_t srcvid;
+	// keyy_t dstvid;
+	// bool valid;
+// } edge3_type;
 
 typedef struct {
 	edge2_type data[EDGEDATA_PACKINGSIZE];
+	// edge3_type data[EDGEDATA_PACKINGSIZE];
 } edge2_vec_dt;
 
 // typedef unsigned int map_t;
@@ -692,12 +703,12 @@ typedef struct {
 	unsigned int size;
 } map_t;
 
-typedef struct {
-	keyy_t srcvid;
-	keyy_t dstvid;
-	keyy_t status;
-	keyy_t metadata;
-} edge3_type;
+// typedef struct {
+	// keyy_t srcvid;
+	// keyy_t dstvid;
+	// keyy_t status;
+	// keyy_t metadata;
+// } edge3_type;
 
 typedef struct {
 	keyy_t key;
@@ -864,16 +875,38 @@ typedef struct {
 } keyvalue_buffer_t;
 #endif
 
-typedef struct {
-	unsigned int vmask;
-	unsigned int vdata;
-} vmdata_t;
+// typedef struct {
+	// unsigned int vmask;
+	// unsigned int vdata;
+// } vmdata_t;
 
-#ifdef _WIDEWORD
-typedef ap_uint<VDATA_BITWIDTH> keyvalue_vbuffer_t;
-#else
-typedef unsigned int keyvalue_vbuffer_t;
-#endif 
+// #ifdef _WIDEWORD
+// typedef ap_uint<VDATA_BITWIDTH> keyvalue_vbuffer_t;
+// #else
+// typedef unsigned int keyvalue_vbuffer_t;
+// #endif 
+
+// typedef struct {
+	// unsigned int data;
+	// unsigned int mask;
+// } vdata_t;
+typedef unsigned int vdata_t;
+
+// typedef struct {
+	// #ifdef BIT_TRAVERSAL_ALGORITHM
+	// vdata_t data[16];
+	// #else 
+	// vdata_t data;
+	// int mask;
+	// #endif 
+// } keyvalue_vbuffer_t;
+
+typedef struct {
+	vdata_t data;
+	// #ifdef CONFIG_RELEASE_VERSION7
+	// int mask;
+	// #endif 
+} keyvalue_vbuffer_t;
 
 #ifdef _WIDEWORD
 typedef ap_uint<32> vtxbuffer_type;

@@ -99,13 +99,13 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 	unsigned int padded_num_vertices = num_vertices + 1000;
 	unsigned int padded_num_edges = num_edges + 1000;
 	
-	cout<<"prepare_graph: creting buffers..."<<endl;
+	cout<<"prepare_graph: creating buffers..."<<endl;
 	// edgesbuffer_dup.resize((2 * num_edges));
 	// vptr_dup.resize((num_vertices));
 	edgesbuffer_dup.resize((mult_factor * padded_num_edges));
 	vptr_dup.resize((padded_num_vertices));
 	
-	cout<<"prepare_graph: creting buffers(2)..."<<endl;
+	cout<<"prepare_graph: creating buffers(2)..."<<endl;
 	unsigned int * outdegree; outdegree = new unsigned int[padded_num_vertices];
 	for(unsigned int i=0; i<padded_num_vertices; i++){ outdegree[i] = 0; vptr_dup[i] = 0; }
 	for(unsigned int i=0; i<(mult_factor * padded_num_edges); i++){ edgesbuffer_dup[i].srcvid = 0; edgesbuffer_dup[i].dstvid = 0; }

@@ -161,7 +161,14 @@ unsigned int acts_all::UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid)
 }
 unsigned int acts_all::UTILP0_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
+	
+	#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
+	return ((lvid / EDGEDATA_PACKINGSIZE) * (EDGEDATA_PACKINGSIZE * NUM_PEs)) + (instid * EDGEDATA_PACKINGSIZE) + lvid;
+	#endif 
+	
+	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
 	return (lvid * NUM_PEs) + instid;
+	#endif 
 }
 unsigned int acts_all::UTILP0_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
 	#pragma HLS INLINE
@@ -232,7 +239,87 @@ void acts_all::UTILP0_SetThirdData(uint512_dt * kvdram, unsigned int offset_kvs,
 	return;
 }
 	
-uint512_evec_dt acts_all::UTILP0_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  // *** FIXME: adjust for EDGEDATA_PACKINGSIZE & UPDATEDATA_PACKINGSIZE
+void acts_all::UTILP0_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[EDGEDATA_PACKINGSIZE]){  
+	#pragma HLS INLINE
+
+	#ifdef _WIDEWORD 
+	datas[0].key = kvdram[offset_kvs].range(31, 0); 
+	datas[0].value = kvdram[offset_kvs].range(63, 32); 
+	datas[1].key = kvdram[offset_kvs].range(95, 64); 
+	datas[1].value = kvdram[offset_kvs].range(127, 96); 
+	datas[2].key = kvdram[offset_kvs].range(159, 128); 
+	datas[2].value = kvdram[offset_kvs].range(191, 160); 
+	datas[3].key = kvdram[offset_kvs].range(223, 192); 
+	datas[3].value = kvdram[offset_kvs].range(255, 224); 
+	datas[4].key = kvdram[offset_kvs].range(287, 256); 
+	datas[4].value = kvdram[offset_kvs].range(319, 288); 
+	datas[5].key = kvdram[offset_kvs].range(351, 320); 
+	datas[5].value = kvdram[offset_kvs].range(383, 352); 
+	datas[6].key = kvdram[offset_kvs].range(415, 384); 
+	datas[6].value = kvdram[offset_kvs].range(447, 416); 
+	datas[7].key = kvdram[offset_kvs].range(479, 448); 
+	datas[7].value = kvdram[offset_kvs].range(511, 480); 
+	#else 
+	datas[0].key = kvdram[offset_kvs].data[0].key;
+	datas[0].value = kvdram[offset_kvs].data[0].value; 
+	datas[1].key = kvdram[offset_kvs].data[1].key;
+	datas[1].value = kvdram[offset_kvs].data[1].value; 
+	datas[2].key = kvdram[offset_kvs].data[2].key;
+	datas[2].value = kvdram[offset_kvs].data[2].value; 
+	datas[3].key = kvdram[offset_kvs].data[3].key;
+	datas[3].value = kvdram[offset_kvs].data[3].value; 
+	datas[4].key = kvdram[offset_kvs].data[4].key;
+	datas[4].value = kvdram[offset_kvs].data[4].value; 
+	datas[5].key = kvdram[offset_kvs].data[5].key;
+	datas[5].value = kvdram[offset_kvs].data[5].value; 
+	datas[6].key = kvdram[offset_kvs].data[6].key;
+	datas[6].value = kvdram[offset_kvs].data[6].value; 
+	datas[7].key = kvdram[offset_kvs].data[7].key;
+	datas[7].value = kvdram[offset_kvs].data[7].value; 
+	#endif
+	return;
+}
+void acts_all::UTILP0_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){  
+	#pragma HLS INLINE
+
+	#ifdef _WIDEWORD 
+	datas[0] = kvdram[offset_kvs].range(31, 0); 
+	datas[1] = kvdram[offset_kvs].range(63, 32); 
+	datas[2] = kvdram[offset_kvs].range(95, 64); 
+	datas[3] = kvdram[offset_kvs].range(127, 96); 
+	datas[4] = kvdram[offset_kvs].range(159, 128); 
+	datas[5] = kvdram[offset_kvs].range(191, 160); 
+	datas[6] = kvdram[offset_kvs].range(223, 192); 
+	datas[7] = kvdram[offset_kvs].range(255, 224); 
+	datas[8] = kvdram[offset_kvs].range(287, 256); 
+	datas[9] = kvdram[offset_kvs].range(319, 288); 
+	datas[10] = kvdram[offset_kvs].range(351, 320); 
+	datas[11] = kvdram[offset_kvs].range(383, 352); 
+	datas[12] = kvdram[offset_kvs].range(415, 384); 
+	datas[13] = kvdram[offset_kvs].range(447, 416); 
+	datas[14] = kvdram[offset_kvs].range(479, 448); 
+	datas[15] = kvdram[offset_kvs].range(511, 480); 
+	#else 
+	datas[0] = kvdram[offset_kvs].data[0].key;
+	datas[1] = kvdram[offset_kvs].data[0].value; 
+	datas[2] = kvdram[offset_kvs].data[1].key;
+	datas[3] = kvdram[offset_kvs].data[1].value; 
+	datas[4] = kvdram[offset_kvs].data[2].key;
+	datas[5] = kvdram[offset_kvs].data[2].value; 
+	datas[6] = kvdram[offset_kvs].data[3].key;
+	datas[7] = kvdram[offset_kvs].data[3].value; 
+	datas[8] = kvdram[offset_kvs].data[4].key;
+	datas[9] = kvdram[offset_kvs].data[4].value; 
+	datas[10] = kvdram[offset_kvs].data[5].key;
+	datas[11] = kvdram[offset_kvs].data[5].value; 
+	datas[12] = kvdram[offset_kvs].data[6].key;
+	datas[13] = kvdram[offset_kvs].data[6].value; 
+	datas[14] = kvdram[offset_kvs].data[7].key;
+	datas[15] = kvdram[offset_kvs].data[7].value; 
+	#endif
+	return;
+}
+uint512_evec_dt acts_all::UTILP0_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  
 	#pragma HLS INLINE
 	uint512_evec_dt dataset;
 	
@@ -271,51 +358,8 @@ uint512_evec_dt acts_all::UTILP0_ReadEdges(uint512_dt * kvdram, unsigned int off
 	dataset.data[7].key = kvdram[offset_kvs].data[7].key;
 	dataset.data[7].value = kvdram[offset_kvs].data[7].value; 
 	#endif
-	
 	return dataset;
 }	
-uint512_uvec_dt acts_all::UTILP0_GetUpdates(uint512_dt * kvdram, unsigned int offset_kvs){ // FIXME....
-	#pragma HLS INLINE
-	uint512_uvec_dt dataset;
-
-	#ifdef _WIDEWORD 
-	dataset.data[0].key = kvdram[offset_kvs].range(31, 0); 
-	dataset.data[0].value = kvdram[offset_kvs].range(63, 32); 
-	dataset.data[1].key = kvdram[offset_kvs].range(95, 64); 
-	dataset.data[1].value = kvdram[offset_kvs].range(127, 96); 
-	dataset.data[2].key = kvdram[offset_kvs].range(159, 128); 
-	dataset.data[2].value = kvdram[offset_kvs].range(191, 160); 
-	dataset.data[3].key = kvdram[offset_kvs].range(223, 192); 
-	dataset.data[3].value = kvdram[offset_kvs].range(255, 224); 
-	dataset.data[4].key = kvdram[offset_kvs].range(287, 256); 
-	dataset.data[4].value = kvdram[offset_kvs].range(319, 288); 
-	dataset.data[5].key = kvdram[offset_kvs].range(351, 320); 
-	dataset.data[5].value = kvdram[offset_kvs].range(383, 352); 
-	dataset.data[6].key = kvdram[offset_kvs].range(415, 384); 
-	dataset.data[6].value = kvdram[offset_kvs].range(447, 416); 
-	dataset.data[7].key = kvdram[offset_kvs].range(479, 448); 
-	dataset.data[7].value = kvdram[offset_kvs].range(511, 480); 
-	#else 
-	dataset.data[0].key = kvdram[offset_kvs].data[0].key;
-	dataset.data[0].value = kvdram[offset_kvs].data[0].value; 
-	dataset.data[1].key = kvdram[offset_kvs].data[1].key;
-	dataset.data[1].value = kvdram[offset_kvs].data[1].value; 
-	dataset.data[2].key = kvdram[offset_kvs].data[2].key;
-	dataset.data[2].value = kvdram[offset_kvs].data[2].value; 
-	dataset.data[3].key = kvdram[offset_kvs].data[3].key;
-	dataset.data[3].value = kvdram[offset_kvs].data[3].value; 
-	dataset.data[4].key = kvdram[offset_kvs].data[4].key;
-	dataset.data[4].value = kvdram[offset_kvs].data[4].value; 
-	dataset.data[5].key = kvdram[offset_kvs].data[5].key;
-	dataset.data[5].value = kvdram[offset_kvs].data[5].value; 
-	dataset.data[6].key = kvdram[offset_kvs].data[6].key;
-	dataset.data[6].value = kvdram[offset_kvs].data[6].value; 
-	dataset.data[7].key = kvdram[offset_kvs].data[7].key;
-	dataset.data[7].value = kvdram[offset_kvs].data[7].value; 
-	#endif
-	
-	return dataset;
-}
 
 void acts_all::UTILP0_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
 	#pragma HLS INLINE
@@ -353,6 +397,45 @@ void acts_all::UTILP0_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, va
 	datas[13] = kvdram[offset_kvs].data[6].value; 
 	datas[14] = kvdram[offset_kvs].data[7].key;
 	datas[15] = kvdram[offset_kvs].data[7].value; 
+	#endif
+	return;
+}
+void acts_all::UTILP0_WriteDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	kvdram[offset_kvs].range(31, 0) = datas[0]; 
+	kvdram[offset_kvs].range(63, 32) = datas[1]; 
+	kvdram[offset_kvs].range(95, 64) = datas[2]; 
+	kvdram[offset_kvs].range(127, 96) = datas[3]; 
+	kvdram[offset_kvs].range(159, 128) = datas[4]; 
+	kvdram[offset_kvs].range(191, 160) = datas[5]; 
+	kvdram[offset_kvs].range(223, 192) = datas[6]; 
+	kvdram[offset_kvs].range(255, 224) = datas[7]; 
+	kvdram[offset_kvs].range(287, 256) = datas[8]; 
+	kvdram[offset_kvs].range(319, 288) = datas[9]; 
+	kvdram[offset_kvs].range(351, 320) = datas[10]; 
+	kvdram[offset_kvs].range(383, 352) = datas[11]; 
+	kvdram[offset_kvs].range(415, 384) = datas[12]; 
+	kvdram[offset_kvs].range(447, 416) = datas[13]; 
+	kvdram[offset_kvs].range(479, 448) = datas[14]; 
+	kvdram[offset_kvs].range(511, 480) = datas[15]; 
+	#else 
+	kvdram[offset_kvs].data[0].key = datas[0];
+	kvdram[offset_kvs].data[0].value = datas[1]; 
+	kvdram[offset_kvs].data[1].key = datas[2];
+	kvdram[offset_kvs].data[1].value = datas[3]; 
+	kvdram[offset_kvs].data[2].key = datas[4];
+	kvdram[offset_kvs].data[2].value = datas[5]; 
+	kvdram[offset_kvs].data[3].key = datas[6];
+	kvdram[offset_kvs].data[3].value = datas[7]; 
+	kvdram[offset_kvs].data[4].key = datas[8];
+	kvdram[offset_kvs].data[4].value = datas[9]; 
+	kvdram[offset_kvs].data[5].key = datas[10];
+	kvdram[offset_kvs].data[5].value = datas[11]; 
+	kvdram[offset_kvs].data[6].key = datas[12];
+	kvdram[offset_kvs].data[6].value = datas[13]; 
+	kvdram[offset_kvs].data[7].key = datas[14];
+	kvdram[offset_kvs].data[7].value = datas[15]; 
 	#endif
 	return;
 }
@@ -555,46 +638,6 @@ else if(col == 15){
 	if(index % 2 == 0){ kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key = data; } 
 	else { kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value = data; }	
 	#endif 
-	return;
-}
-
-void acts_all::UTILP0_ReadKeyvalues(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
-	#pragma HLS INLINE
-	#ifdef _WIDEWORD 
-	datas[0].key = kvdram[offset_kvs].range(31, 0); 
-	datas[0].value = kvdram[offset_kvs].range(63, 32); 
-	datas[1].key = kvdram[offset_kvs].range(95, 64); 
-	datas[1].value = kvdram[offset_kvs].range(127, 96); 
-	datas[2].key = kvdram[offset_kvs].range(159, 128); 
-	datas[2].value = kvdram[offset_kvs].range(191, 160); 
-	datas[3].key = kvdram[offset_kvs].range(223, 192); 
-	datas[3].value = kvdram[offset_kvs].range(255, 224); 
-	datas[4].key = kvdram[offset_kvs].range(287, 256); 
-	datas[4].value = kvdram[offset_kvs].range(319, 288); 
-	datas[5].key = kvdram[offset_kvs].range(351, 320); 
-	datas[5].value = kvdram[offset_kvs].range(383, 352); 
-	datas[6].key = kvdram[offset_kvs].range(415, 384); 
-	datas[6].value = kvdram[offset_kvs].range(447, 416); 
-	datas[7].key = kvdram[offset_kvs].range(479, 448); 
-	datas[7].value = kvdram[offset_kvs].range(511, 480); 
-	#else 
-	datas[0].key = kvdram[offset_kvs].data[0].key;
-	datas[0].value = kvdram[offset_kvs].data[0].value; 
-	datas[1].key = kvdram[offset_kvs].data[1].key;
-	datas[1].value = kvdram[offset_kvs].data[1].value; 
-	datas[2].key = kvdram[offset_kvs].data[2].key;
-	datas[2].value = kvdram[offset_kvs].data[2].value; 
-	datas[3].key = kvdram[offset_kvs].data[3].key;
-	datas[3].value = kvdram[offset_kvs].data[3].value; 
-	datas[4].key = kvdram[offset_kvs].data[4].key;
-	datas[4].value = kvdram[offset_kvs].data[4].value; 
-	datas[5].key = kvdram[offset_kvs].data[5].key;
-	datas[5].value = kvdram[offset_kvs].data[5].value; 
-	datas[6].key = kvdram[offset_kvs].data[6].key;
-	datas[6].value = kvdram[offset_kvs].data[6].value; 
-	datas[7].key = kvdram[offset_kvs].data[7].key;
-	datas[7].value = kvdram[offset_kvs].data[7].value; 
-	#endif
 	return;
 }
 
@@ -965,8 +1008,8 @@ else if(globalparams.VARS_WORKBATCH == 7){
 	else if(currentLOP == 1){ nextkeyvalue.key = globalparams.SIZE_RUN; }
 	else { nextkeyvalue.key = keyvalue.key + keyvalue.value; }
 		
-	travstate.begin_kvs = keyvalue.key / VECTOR_SIZE; 
-	travstate.end_kvs = (nextkeyvalue.key + (VECTOR_SIZE - 1)) / VECTOR_SIZE;
+	travstate.begin_kvs = keyvalue.key / UPDATEDATA_PACKINGSIZE; 
+	travstate.end_kvs = (nextkeyvalue.key + (UPDATEDATA_PACKINGSIZE - 1)) / UPDATEDATA_PACKINGSIZE; // UPDATEDATA_PACKINGSIZE, VECTOR_SIZE
 	
 	travstate.size_kvs = travstate.end_kvs - travstate.begin_kvs;
 	travstate.skip_kvs = MAX_SRCBUFFER_SIZE;

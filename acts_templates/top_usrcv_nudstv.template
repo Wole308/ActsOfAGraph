@@ -186,10 +186,6 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_partitionit(
 			sweepparams = UTIL{{context['id']}}_getsweepparams(globalparamsK, currentLOP, source_partition);
 			travstate_t ptravstate = UTIL{{context['id']}}_gettravstate(ON, kvdram, globalparamsK, currentLOP, sourcestatsmarker);
 			
-			// collect stats
-			MEMACCESS{{context['id']}}_readglobalstats(ON, kvdram, globalcapsule, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK);
-			UTIL{{context['id']}}_resetvalues(globalcapsule, globalparamsK.ACTSPARAMS_NUM_PARTITIONS, 0);
-			
 			// partition
 			if(ptravstate.size_kvs > 0){ config.enablepartition = ON; } 
 			else { ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; config.enablepartition = OFF; }
@@ -205,7 +201,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_partitionit(
 					globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
 					ON, ON, NAp, collections);
 					
-			MEMACCESS{{context['id']}}_saveglobalstats(config.enablepartition, kvdram, globalcapsule, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK); 
+			// MEMACCESS{{context['id']}}_saveglobalstats(config.enablepartition, kvdram, globalcapsule, globalparamsK.BASEOFFSETKVS_STATSDRAM + deststatsmarker, globalparamsK); 
 			
 			if(currentLOP > 0){
 				sourcestatsmarker += 1;
@@ -627,11 +623,6 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 							#endif
 							MEMACCESS{{context['id']}}_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
 							MEMACCESS{{context['id']}}_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							
-							// for(unsigned int t=0; t<512; t++){
-								// cout<<"~~~~~~~~~~~~~~~~~~~ pmask_curr["<<t<<"]: "<<pmask_curr[t]<<endl;
-							// }
-							// exit(EXIT_SUCCESS);
 						}
 						#endif
 						
@@ -716,10 +707,9 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	UTIL{{context['id']}}_increment_graphiteration(vdram, globalparamsV); // NB: this should come last.	
 	
 	#ifdef CONFIG_RELEASE_VERSION2
-	if(globalparamsV.ENABLE_MERGECOMMAND == ON && GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){	
+	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
 		{%for i in context['T_seq']%}{%if(i<n)%}	
-		globalparams_t globalparamsK{{i}};
-		MERGE{{context['id']}}_mergeVs(kvdram{{i}}, vdram);
+		MERGE{{context['id']}}_mergeVs(kvdram{{i}}, vdram); 
 		{%endif%}{%endfor%}
 	}
 	#endif

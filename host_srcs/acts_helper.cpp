@@ -182,7 +182,7 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 	unsigned int num_traversed_edges = 0;
 	
 	unsigned int num_iters_toprint = universalparams.NUM_ITERATIONS; // MAXNUMGRAPHITERATIONS;
-	if(universalparams.ALGORITHM != BFS){ num_iters_toprint = 1; }
+	if(universalparams.ALGORITHM != BFS && universalparams.ALGORITHM != SSSP){ num_iters_toprint = 1; }
 	
 	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
 		// if(i%NUMCOMPUTEUNITS_SLR2==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1)==0 || i%(NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1 + NUMCOMPUTEUNITS_SLR0)==0){} else { continue; } 
@@ -218,6 +218,53 @@ unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_
 	#endif 
 	return num_traversed_edges;
 }
+
+void acts_helper::verifyresults(uint512_vec_dt * vbuffer, globalparams_t globalparams, universalparams_t universalparams){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
+	cout<<endl<<"acts_helper::verifyresults: verifying results... "<<endl;
+	#endif
+	
+	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; }
+	for(unsigned int i=0; i<NUM_PEs; i++){
+		for(unsigned int partition=0; partition<universalparams.NUMREDUCEPARTITIONS; partition++){
+			for(unsigned int k=0; k<universalparams.REDUCEPARTITIONSZ_KVS2; k++){
+				for(unsigned int v=0; v<VECTOR_SIZE; v++){
+					unsigned int combo1 = vbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + (partition * universalparams.REDUCEPARTITIONSZ_KVS2) + (k * VECTOR_SIZE) + v].data[v].key;
+					unsigned int combo2 = vbuffer[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + (partition * universalparams.REDUCEPARTITIONSZ_KVS2) + (k * VECTOR_SIZE) + v].data[v].value;
+					
+					value_t vdata1 = combo1; 
+					value_t vdata2 = combo2; 
+					
+					// value_t vdata1 = combo1 >> 1; value_t mask1 = combo1 & 0x1; 
+					// value_t vdata2 = combo2 >> 1; value_t mask2 = combo2 & 0x1; 
+	
+					unsigned int lvid1 = (partition * universalparams.REDUCEPARTITIONSZ_KVS2 * VDATA_PACKINGSIZE) + v;
+					unsigned int lvid2 = lvid1 + 1;
+					unsigned int vid1 = utilityobj->UTIL_GETREALVID(lvid1, i);
+					unsigned int vid2 = utilityobj->UTIL_GETREALVID(lvid2, i);
+					
+					if(vdata1 < 64){
+						#ifdef _DEBUGMODE_HOSTPRINTS3
+						cout<<"acts_helper::verifyresults: vid1: "<<vid1<<", vdata1: "<<vdata1<<", partition: "<<partition<<", k: "<<k<<", v: "<<v<<endl;
+						#endif
+						vdatas[vdata1] += 1; 
+					}
+					if(vdata2 < 64){
+						#ifdef _DEBUGMODE_HOSTPRINTS3
+						cout<<"acts_helper::verifyresults: vid2: "<<vid2<<", vdata2: "<<vdata2<<", partition: "<<partition<<", k: "<<k<<", v: "<<v<<endl;
+						#endif
+						vdatas[vdata2] += 1; 
+					}
+				}
+			}
+		}
+	}
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	utilityobj->printvalues("acts_helper::verifyresults: results after kernel run", vdatas, 16);
+	#endif 
+	return;
+}
+
 
 
 

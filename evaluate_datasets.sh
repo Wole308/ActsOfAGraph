@@ -6,13 +6,14 @@ CF="cf"
 HITS="hits"
 SPMV="spmv"
 BFS="bfs"
+SSSP="sssp"
 
 XCLBIN_DIR="/home/oj2zf/Documents/actsofagraph/outputs/xclbins"
 # XCLBIN_FILE="goldenTEST3_170mhz.xclbin"
 # XCLBIN_FILE="goldenTEST3_250mhz.xclbin"
 # XCLBIN_FILE="goldenRK16.xclbin"
-# XCLBIN_FILE="golden_x3.xclbin"
-XCLBIN_FILE="golden_x24.xclbin"
+XCLBIN_FILE="golden_x3.xclbin"
+# XCLBIN_FILE="golden_x24.xclbin"
 # XCLBIN_FILE="golden_realreduce.xclbin"
 # XCLBIN_FILE="golden_dummyreduce.xclbin"
 DATASET_DIR=/home/oj2zf/dataset
@@ -76,16 +77,21 @@ DIRECTIONS=(
 	
 # for algo in $PR $CF $HITS $SPMV $BFS	
 # for algo in $PR $CF $HITS $BFS 
+
 # for algo in $PR 
-for algo in $BFS 
+for algo in $SSSP 
+# for algo in $BFS 
+
+# for algo in $PR 
 # for algo in $CF
 # for algo in $HITS 
 # for algo in $SPMV 
-# for algo in $PR $BFS
+# for algo in $SSSP 
+# for algo in $BFS 
 do
 	for ((i = 0; i < ${#DATSETS[@]}; i++)) do
 		echo ${BUILD_DIR}/${algo} ${DATSETS[i]}
-		./host "nap" "${algo}" 16 4 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
+		./host "nap" "${algo}" 1 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
 		# gdb ./host
 		# exit 0
 	done

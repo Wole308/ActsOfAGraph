@@ -9,15 +9,10 @@ unsigned algorithm::vertex_initdata(std::string Algo){
 	else if(Algo == "cf"){ return 1; } 
 	else if(Algo == "hits"){ return 1; } 
 	else if(Algo == "spmv"){ return 1; } 
-	else if(Algo == "bfs"){ 
-		// return 0b0; 
-			#ifdef ALGORITHMTYPE_REPRESENTVDATASASBITS
-			return 0b0; 
-			#else 
-			return MAXVDATA; // return MAXVDATA; } 0b01111111111111111111111111111111
-			#endif 
-		}
-	else if(Algo == "sssp"){ return MAXVDATA; } 
+	else if(Algo == "bfs"){ return 0b0; }
+	// else if(Algo == "sssp"){ return MAXVDATA; } 
+	else if(Algo == "sssp"){ return 0xFFFFFFFE; } 
+	// else if(Algo == "sssp"){ return 0xFFFFFFFE; } 
 	else { return 0; }
 	return 0;
 }

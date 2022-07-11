@@ -70,31 +70,31 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.RED_SRAMSZ = 1 << universalparams.RED_SRAMSZ_POW;
 	
 	universalparams.PROC_SRAMSZ_POW = MAX_PROC_SRAMSZ_POW;
-	universalparams.PROC_SRAMSZ = 1 << universalparams.PROC_SRAMSZ_POW;
+	// universalparams.PROC_SRAMSZ = 1 << universalparams.PROC_SRAMSZ_POW;
+	universalparams.PROC_SRAMSZ = ((1 << universalparams.PROC_SRAMSZ_POW) / NUM_PEs) * NUM_PEs;
 	
 	universalparams.KVDATA_RANGE_POW = ceil(log2((double)(universalparams.NUM_VERTICES)));
 	universalparams.KVDATA_RANGE = universalparams.NUM_VERTICES;
 
 	unsigned int ceilnum_reduce_partitions = 0;
-	unsigned int num_reduce_partitions = (universalparams.NUM_VERTICES / NUM_PEs) / (universalparams.PROC_SRAMSZ * VDATA_PACKINGSIZE); 
+	unsigned int num_reduce_partitions = (universalparams.NUM_VERTICES / NUM_PEs) / (universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE); // PROC_SRAMSZ
 	if(num_reduce_partitions == 0){ ceilnum_reduce_partitions = 1; }
 		else if(num_reduce_partitions >= 1 && num_reduce_partitions < 16){ ceilnum_reduce_partitions = 16; }
 			else if(num_reduce_partitions >= 16 && num_reduce_partitions < 256){ ceilnum_reduce_partitions = 256; }
 				else { ceilnum_reduce_partitions = 4096; }
 	cout<<"---+++++++++++++++--------------- num_reduce_partitions: "<<num_reduce_partitions<<", ceilnum_reduce_partitions: "<<ceilnum_reduce_partitions<<endl;
-	universalparams.BATCH_RANGE_POW = ceil(log2((double)(ceilnum_reduce_partitions))) + ceil(log2((double)((universalparams.PROC_SRAMSZ * VDATA_PACKINGSIZE))));
+	universalparams.BATCH_RANGE_POW = ceil(log2((double)(ceilnum_reduce_partitions))) + ceil(log2((double)((universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE)))); // PROC_SRAMSZ
 	universalparams.BATCH_RANGE = universalparams.NUM_VERTICES / NUM_PEs;
 	universalparams.BATCH_RANGE_KVS = universalparams.BATCH_RANGE / VECTOR_SIZE;
 
 	if(universalparams.ALGORITHM == BFS){ universalparams.TREE_DEPTH = 1; } 
 	else { universalparams.TREE_DEPTH = 2; }
-	// else { universalparams.TREE_DEPTH = ((universalparams.BATCH_RANGE_POW - universalparams.RED_SRAMSZ_POW) + (universalparams.NUM_PARTITIONS_POW - 1)) / universalparams.NUM_PARTITIONS_POW; }
-	// if(universalparams.TREE_DEPTH > 2){ universalparams.TREE_DEPTH = 2; } // NEWCHANGE.
 	
 	universalparams.REDUCESZ_POW = universalparams.RED_SRAMSZ_POW; // NEWCHANGE
 	universalparams.REDUCESZ = (1 << universalparams.REDUCESZ_POW); 
 	
 	universalparams.REDUCEPARTITIONSZ = universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE; // NEWCHANGE
+	if(universalparams.REDUCEPARTITIONSZ > universalparams.BATCH_RANGE){ universalparams.REDUCEPARTITIONSZ = universalparams.BATCH_RANGE; } ///// NEWCHANGE.
 	universalparams.REDUCEPARTITIONSZ_KVS2 = universalparams.REDUCEPARTITIONSZ / VECTOR2_SIZE;
 	if(universalparams.ALGORITHM == BFS){ universalparams.NUMREDUCEPARTITIONS = 1; }
 	else { universalparams.NUMREDUCEPARTITIONS = ((universalparams.KVDATA_RANGE / NUM_PEs) + (universalparams.REDUCEPARTITIONSZ - 1)) / universalparams.REDUCEPARTITIONSZ; }
@@ -199,7 +199,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	vector<edge2_type> edgedatabuffer;
 	vector<edge_t> vertexptrbuffer;
-	vector<edge3_type> edges_temp[MAXNUM_PEs];
 	vector<edge2_vec_dt> edges_final[MAXNUM_PEs];
 	map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs]; // [MAXNUM_LLPs];
 	keyvalue_t * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]; // FIXME.  triple_t * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]
@@ -477,7 +476,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"app::loadoffsetmarkers:: loading offset markers... "<<endl;
 	#endif 
-	globalparams = loadgraphobj->loadoffsetmarkers((keyvalue_t **)edges, edges_final, edges_map, &container, globalparams, universalparams); 
+	globalparams = loadgraphobj->loadoffsetmarkers((keyvalue_t **)edges, edges_final, &container, globalparams, universalparams); 
 	loadgraphobj->accumstats(kvbuffer, edges, globalparams, universalparams); // NEWCHANGE. // OBSOLETE.
 	#endif 
 	// exit(EXIT_SUCCESS); //
@@ -561,6 +560,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	// output
 	unsigned int num_traversed_edges = actshelperobj->getfeedback("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer, universalparams);
+	actshelperobj->verifyresults(vdram, globalparams.globalparamsV, universalparams);
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<endl<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
 	cout<<">>> app::run_hw: num_traversed_edges: "<<num_traversed_edges<<" edges ("<<num_traversed_edges/1000000<<" million edges)"<<endl;
@@ -572,6 +572,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	actshelperobj->extract_stats(actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpmaskstats, vpmaskstats_merge, num_edges_processed);
 	summary(GRAPH_PATH, vdram, globalparams.globalparamsV);
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<endl;
 	cout<<"app::printdataset: printing dataset parameters..."<<endl;
 	cout<<">>> app:: algo: "<<universalparams.ALGORITHM<<endl;
@@ -587,6 +588,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<<">>> app:: GRAPH_PATH: "<<GRAPH_PATH<<endl;
 	cout<<">>> app:: NUM_VERTICES: "<<universalparams.NUM_VERTICES<<endl; 
 	cout<<">>> app:: NUM_EDGES: "<<universalparams.NUM_EDGES<<endl;
+	#endif 
 	
 	#ifdef TESTKERNEL
 	cout<< TIMINGRESULTSCOLOR <<"================================================================== APP: THIS WAS A TEST RUN ==================================================================" << RESET << endl;

@@ -58,6 +58,8 @@ public:
 
 	unsigned int getfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs], universalparams_t universalparams);
 	
+	void verifyresults(uint512_vec_dt * vbuffer, globalparams_t globalparams, universalparams_t universalparams);
+	
 private:
 	utility * utilityobj;
 	universalparams_t myuniversalparams;

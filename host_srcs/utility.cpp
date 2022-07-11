@@ -301,7 +301,8 @@ void utility::calculateoffsets(keyvalue_t * buffer, unsigned int size, unsigned 
 }
 void utility::getmarkerpositions(keyvalue_t * stats, unsigned int size, unsigned int allign_factor){
 	unsigned int * skipspacing = new unsigned int[size];
-	for(unsigned int p=0; p<size; p++){ skipspacing[p] = 0;	}
+	// for(unsigned int p=0; p<size; p++){ skipspacing[p] = 0;	}
+	for(unsigned int p=0; p<size; p++){ skipspacing[p] = 16 * EDGEDATA_PACKINGSIZE;	}
 	calculateoffsets(stats, size, 0, skipspacing, allign_factor);
 	for(unsigned int i=0; i<size-1; i++){ if(stats[i].key + stats[i].value > stats[i+1].key){ cout<<"utility::getmarkerpositions: ERROR: stats["<<i<<"].key("<<stats[i].key<<") + stats["<<i<<"].value("<<stats[i].value<<") >= stats["<<i+1<<"].key("<<stats[i+1].key<<"). exiting..."<<endl; exit(EXIT_FAILURE); }}	
 }

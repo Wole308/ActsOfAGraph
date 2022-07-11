@@ -3,8 +3,8 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_print_active_mas
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){	
 		unsigned int K = vdram[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs].data[v].key;
 		unsigned int V = vdram[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs].data[v].value;
-		if(MEMCA{{context['id']}}_READVMASK(K)==1){ cout<<"$$$ EXCHANGE(2):: MASK=1 SEEN. index: "<<globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs<<endl; }
-		if(MEMCA{{context['id']}}_READVMASK(V)==1){ cout<<"$$$ EXCHANGE(2):: MASK=1 SEEN. index: "<<globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs<<endl; }	
+		// if(MEMCA{{context['id']}}_READVMASK(K)==1){ cout<<"$$$ EXCHANGE(2):: MASK=1 SEEN. index: "<<globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs<<endl; }
+		// if(MEMCA{{context['id']}}_READVMASK(V)==1){ cout<<"$$$ EXCHANGE(2):: MASK=1 SEEN. index: "<<globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs<<endl; }	
 	}
 	#endif 
 	return;
@@ -32,7 +32,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 	unsigned int voffseti_kvs2 = 0;
 	MERGE{{context['id']}}_MERGEVSLOOP2: for(unsigned int reduce_partition=0; reduce_partition<globalparams.NUM_REDUCEPARTITIONS; reduce_partition++){
 		if(globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + slrvoffset_kvs2 + voffset_kvs2 + globalparams.SIZEKVS2_REDUCEPARTITION < globalparamsv.ACTSPARAMS_MAXHBMCAPACITY_KVS){
-		MERGE{{context['id']}}_MERGEVSLOOP2B: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){
+		MERGE{{context['id']}}_MERGEVSLOOP2B: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){ // globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE, globalparams.SIZEKVS2_REDUCEPARTITION
 		#pragma HLS PIPELINE II=1
 			#ifdef _DEBUGMODE_CHECKS3
 			actsutilityobj->checkoutofbounds("mergeVs: ERROR 21", slrvoffset_kvs2 + voffset_kvs2 + k, ((1 << 28) / 4) / VECTOR2_SIZE, slrvoffset_kvs2, voffset_kvs2, globalparamsv.SIZE_SRCVERTICESDATA);
@@ -40,6 +40,15 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 			#endif
 			vdram[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + slrvoffset_kvs2 + voffset_kvs2 + k] = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 			
+			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+				for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
+				value_t combo; if(v%2==0){ combo = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k].data[v/2].key; } else { combo = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k].data[v/2].key; }
+				value_t mask; if(globalparamsv.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { mask = combo & 0x1; }
+				value_t vdata = combo >> 1; 
+				if(mask == 1 && (reduce_partition * globalparams.SIZEKVS2_REDUCEPARTITION + k) < (globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE)){ cout<<">>> MERGE:: MERGE VERTICES SEEN @ reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", srcvid: "<<NAp<<", dstvid*: "<<NAp<<", combo: "<<combo<<", globalparams.SIZE_DESTVERTICESDATA: "<<globalparams.SIZE_DESTVERTICESDATA<<endl; }
+			}
+			#endif
+				
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			MERGE{{context['id']}}_print_active_masks(vdram, globalparamsv, slrvoffset_kvs2 + voffset_kvs2 + k);	
 			#endif
@@ -74,9 +83,22 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(uin
 				vdramDST2[globalparamsDST2.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + k] = vdramSRC[globalparamsSRC.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + k];
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+					for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
+					value_t combo; if(v%2==0){ combo = vdramSRC[globalparamsSRC.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + k].data[v/2].key; } else { combo = vdramSRC[globalparamsSRC.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + k].data[v/2].key; }
+					value_t mask; if(globalparamsDST1.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { mask = combo & 0x1; }
+					value_t vdata = combo >> 1; 
+					// if(mask == 1){ cout<<">>> EXCHANGE:: EXCHANGE VERTICES SEEN @ i: "<<i<<", reduce_partition: "<<reduce_partition<", k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", srcvid: "<<UTIL{{context['id']}}_GETREALVID((edge_data.value * EDGEDATA_PACKINGSIZE) + v, globalparams.ACTSPARAMS_INSTID)<<", dstvid*: "<<edge_data.key<<endl; }
+					if(mask == 1){ cout<<">>> EXCHANGE:: EXCHANGE VERTICES SEEN @ i: "<<i<<", reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", srcvid: "<<NAp<<", dstvid*: "<<NAp<<endl; }
+					// if(mask == 1 && (reduce_partition * globalparamsDST1.SIZEKVS2_REDUCEPARTITION + k) < (globalparamsDST1.SIZE_DESTVERTICESDATA / VECTOR2_SIZE)){ cout<<">>> EXCHANGE:: EXCHANGE VERTICES SEEN @ i: "<<i<<", reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", srcvid: "<<NAp<<", dstvid*: "<<NAp<<endl; }
+					// if(k<4){cout<<">>> ------ EXCHANGE:: EXCHANGE VERTICES SEEN @ i: "<<i<<", reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", srcvid: "<<NAp<<", dstvid*: "<<NAp<<", 0xFFFFFFFE: "<<0xFFFFFFFE<<endl;}
+				}
+				#endif
+	
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 				MERGE{{context['id']}}_print_active_masks(vdramSRC, globalparamsSRC, voffset_kvs);
 				#endif
 			}
+			// exit(EXIT_SUCCESS);
 			}
 			voffset_kvs += globalparamsSRC.SIZEKVS2_REDUCEPARTITION;
 		}
