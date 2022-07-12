@@ -10,7 +10,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define TESTKERNEL
+#define RK
 #define SW // SWEMU, HW, SW
 #define PR_ALGORITHM //  // PR_ALGORITHM, CF_ALGORITHM, HITS_ALGORITHM, CC_ALGORITHM, SSSP_ALGORITHM, BFS_ALGORITHM
 #if (defined(SWEMU) || defined(HW))
@@ -39,6 +39,10 @@
 #define PARAM_ACTSONLYMODE 1
 #define PARAM_TRADGPONLYMODE 2
 #define PARAM_HYBRIDGPMODE 3
+
+#ifndef FPGA_IMPL
+// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+#endif 
 
 #define ACTS
 #define CONFIG_ACTS_PERFORMANCEOFALGORITHM // { mem_access.cpp, acts.cpp }
@@ -423,15 +427,6 @@ struct _bitData {
 #define EDGESTATUS_DUMMYEDGE 9
 
 #define BRAM_BIT_WIDTH 32
-
-// #define _DEBUGMODE_KERNELPRINTS_TRACE
-// #ifndef ALLVERTEXISACTIVE_ALGORITHM
-#ifndef FPGA_IMPL
-#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
-#endif 
-// #endif
-// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
-// #define _DEBUGMODE_SUBPMASKING_TRACE
 
 #define ACTSPROCESSMODE 0
 #define ACTSPARTITIONMODE 1

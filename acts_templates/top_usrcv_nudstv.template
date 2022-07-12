@@ -38,7 +38,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_processit(ui
 	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
 	if(globalposition.num_active_vertices == 0){ returncmd = true; } // check if vertex partition is active
 	else{
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"processit: source_partition: "<<globalposition.source_partition<<" is active (Instance "<<globalparamsK.ACTSPARAMS_INSTID<<")"<<endl; 
 		#endif 
 	}
@@ -271,8 +271,6 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 	#pragma HLS INLINE
 	unsigned int sourcestatsmarker = 1;
 	unsigned int vreadoffset_kvs2 = 0;
-	unsigned int vmask_offset_kvs = 0;
-	unsigned int vmaskp_offset_kvs = 0;
 	
 	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
 	batch_type num_source_partitions = globalparamsK.NUM_REDUCEPARTITIONS;
@@ -283,7 +281,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 	
 	bool_type enablereduce = ON;
 	DISPATCHREDUCE{{context['id']}}_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		actsutilityobj->print4("### TOP{{context['id']}}_dispatch_reduce:: source_partition", "currentLOP", "num_source_partitions", "vreadoffset_kvs2", source_partition, currentLOP, num_source_partitions, vreadoffset_kvs2); 							
 		#endif
 		
@@ -302,8 +300,6 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
-		vmask_offset_kvs += globalparamsK.SIZEKVS_VMASKBUFFER;
-		vmaskp_offset_kvs += NUM_PEs;
 	}
 	
 	UTIL{{context['id']}}_SetThirdData(kvdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, collections[REDUCEUPDATES_COLLECTIONID].data1);

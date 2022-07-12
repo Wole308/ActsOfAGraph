@@ -363,7 +363,7 @@ globalparams_TWOt loadgraph::loadmaps(vector<vertex_t> &activevertices, uint512_
 	// load edges map
 	unsigned int num_vPs = universalparams.NUMPROCESSEDGESPARTITIONS;
 	unsigned int num_LLPs = universalparams.NUMREDUCEPARTITIONS * universalparams.NUM_PARTITIONS; 
-	unsigned int vsize_LLP; if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){ vsize_LLP = 262144; } else { vsize_LLP = universalparams.REDUCEPARTITIONSZ_KVS2; }
+	// unsigned int vsize_LLP; if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){ vsize_LLP = 262144; } else { vsize_LLP = universalparams.REDUCEPARTITIONSZ_KVS2; }
 	unsigned int num_LLPset = (num_LLPs + (universalparams.NUM_PARTITIONS - 1)) / universalparams.NUM_PARTITIONS;
 	
 	// load edge map 

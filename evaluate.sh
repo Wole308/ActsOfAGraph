@@ -5,8 +5,8 @@ ROOTDIR="/home/oj2zf/Documents/actsofagraph"
 OUTPUTDIRNAME="outputs"
 DEVICEPATH=/opt/xilinx/platforms/xilinx_u280_xdma_201920_3/xilinx_u280_xdma_201920_3.xpfm
 
-# TESTKERNEL="RK"
-TESTKERNEL="TESTKERNEL"
+TESTKERNEL="RK"
+# TESTKERNEL="TESTKERNEL"
 
 # XWARE="HW"
 XWARE="SW" 

@@ -37,7 +37,9 @@ public:
 	edge2_vec_dt rearrangeLayoutVx8(unsigned int s, edge2_vec_dt edge_vec);
 	
 	void getXYLayoutVx16(unsigned int s, unsigned int depths[EDGEDATA_PACKINGSIZE]);
-	edge2_vec_dt rearrangeLayoutVx16(unsigned int s, edge2_vec_dt edge_vec);
+	edge2_vec_dt rearrangeLayoutVx16F(unsigned int s, edge2_vec_dt edge_vec);
+	
+	edge2_vec_dt rearrangeLayoutVx16B(unsigned int s, edge2_vec_dt edge_vec);
 	
 	void getXYLayoutV(unsigned int s, unsigned int depths[EDGEDATA_PACKINGSIZE]);
 	edge2_vec_dt rearrangeLayoutV(unsigned int s, edge2_vec_dt edge_vec);

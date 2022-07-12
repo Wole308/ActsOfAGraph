@@ -32,7 +32,7 @@ loadgraph.cpp
 #define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
 #define CONFIG_RELEASE_VERSION3 // { readANDRVchunks fixed. }
 #define CONFIG_RELEASE_VERSION4 // { (1) exchangeVs fixed. }
-// #define CONFIG_RELEASE_VERSION5 // { (1) full kernel run fixed. }
+#define CONFIG_RELEASE_VERSION5 // { (1) full kernel run fixed. }
 #define CONFIG_RELEASE_VERSION6 // readV, saveV
 #define CONFIG_RELEASE_VERSION7 // mask included
 
@@ -84,7 +84,7 @@ loadgraph.cpp
 #define CONFIG_USEURAM_FOR_DESTVBUFFER // { classname__mem_access.cpp, classname__reduceupdates.cpp }
 
 // #define CONFIG_EDGEHASHSCHEME_SINGLEVID
-#define CONFIG_EDGEHASHSCHEME_SETVIDS // { acts_util.cpp, load_edges.cpp }
+#define CONFIG_EDGEHASHSCHEME_SETVIDS // { acts_util.cpp, load_edges.cpp, utility.cpp }
 
 #endif
 

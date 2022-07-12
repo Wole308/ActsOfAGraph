@@ -2,7 +2,10 @@
 // https://github.com/Xilinx/SDAccel_Examples/blob/master/getting_started/dataflow/dataflow_stream_c/src/adder.cpp
 // https://github.com/Xilinx/Vitis-HLS-Introductory-Examples/blob/1d19087a2b4aa90fa2d86cf556aa883d3b413247/Dataflow/Channels/using_fifos/diamond.cpp  *
 
-void {{context['classname__acts']}}rearrangeLayoutVx16(unsigned int s, keyvalue_t in[EDGEDATA_PACKINGSIZE], keyvalue_t out[EDGEDATA_PACKINGSIZE]){
+void {{context['classname__acts']}}rearrangeLayoutVx16F(unsigned int s, keyvalue_t in[EDGEDATA_PACKINGSIZE], keyvalue_t out[EDGEDATA_PACKINGSIZE]){
+	#ifdef _DEBUGMODE_CHECKS3
+	actsutilityobj->checkoutofbounds("rearrangeLayoutVx16F(1)", s, UPDATEDATA_PACKINGSIZE, NAp, NAp, NAp);
+	#endif
 	unsigned int s_ = s;
 	if(s_==0){ 
 		out[0] = in[0]; 
@@ -280,6 +283,37 @@ void {{context['classname__acts']}}rearrangeLayoutVx16(unsigned int s, keyvalue_
 	return;
 }	
 	
+void {{context['classname__acts']}}rearrangeLayoutVx16B(unsigned int s, keyvalue_t in[EDGEDATA_PACKINGSIZE], keyvalue_t out[EDGEDATA_PACKINGSIZE]){
+	unsigned int s_ = s;
+	#ifdef _DEBUGMODE_CHECKS3
+	actsutilityobj->checkoutofbounds("rearrangeLayoutVx16B(1)", s, UPDATEDATA_PACKINGSIZE, NAp, NAp, NAp);
+	#endif
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR2_SIZE']-1)%}if(s_=={{v}}){%endif%}{ 
+		{%for v2 in context['VECTOR2_SIZE_seq']%}
+		out[{{    (v+v2) %  (context['VECTOR2_SIZE'])  }}] = in[{{v2}}]; 
+		{%endfor%}
+	}
+	{%endfor%}
+	return;
+}
+
+void {{context['classname__acts']}}check_if_contiguous(keyvalue_t keyvalue[EDGEDATA_PACKINGSIZE], keyvalue_t msg1[EDGEDATA_PACKINGSIZE], keyvalue_t msg2[EDGEDATA_PACKINGSIZE], unsigned int msg1_str, unsigned int msg2_str, unsigned int msg3_str){
+	#ifdef _DEBUGMODE_CHECKS3
+	for(int v = 0; v < UPDATEDATA_PACKINGSIZE; v++){ 
+		if(keyvalue[v].key != INVALIDDATA){ 
+			if(keyvalue[v].key % UPDATEDATA_PACKINGSIZE != v){ 
+				cout<<"check_if_contiguous(1). ERROR 34. v["<<v<<"].key("<<keyvalue[v].key<<") % UPDATEDATA_PACKINGSIZE("<<UPDATEDATA_PACKINGSIZE<<")(="<<keyvalue[v].key % UPDATEDATA_PACKINGSIZE<<") != v("<<v<<"). [msg1_str: "<<msg1_str<<", msg2_str: "<<msg2_str<<", msg3_str: "<<msg3_str<<"] EXITING..."<<endl; 
+				for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ keyvalue["<<v<<"].key: "<<keyvalue[v].key<<"("<<keyvalue[v].key%EDGEDATA_PACKINGSIZE<<"), keyvalue["<<v<<"].value: "<<keyvalue[v].value<<"("<<keyvalue[v].value%EDGEDATA_PACKINGSIZE<<")"<<endl; }
+				for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ msg1["<<v<<"].key: "<<msg1[v].key<<"("<<msg1[v].key%EDGEDATA_PACKINGSIZE<<"), msg1["<<v<<"].value: "<<msg1[v].value<<"("<<msg1[v].value%EDGEDATA_PACKINGSIZE<<")"<<endl; }
+				for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ msg2["<<v<<"].key: "<<msg2[v].key<<"("<<msg2[v].key%EDGEDATA_PACKINGSIZE<<"), msg2["<<v<<"].value: "<<msg2[v].value<<"("<<msg2[v].value%EDGEDATA_PACKINGSIZE<<")"<<endl; }
+				exit(EXIT_FAILURE); 
+			}
+		}
+	}
+	#endif
+}
+
 keyvalue_t {{context['classname__acts']}}process_edge(bool enx, unsigned int v, unsigned int loc, keyvalue_t edge_data, keyvalue_vbuffer_t * vbuffer, globalparams_t globalparams){				
 	#pragma HLS INLINE
 	
@@ -297,6 +331,7 @@ keyvalue_t {{context['classname__acts']}}process_edge(bool enx, unsigned int v, 
 	combo = vbuffer[loc].data;	
 	#endif 
 	value_t mask; if(globalparams.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ mask = 1; } else { mask = combo & 0x1; }
+	// mask = 1; // REMOVEME.
 	value_t udata = combo >> 1; 
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	if(mask == 1){ cout<<">>> PROCESS VECTOR:: PROCESS EDGE SEEN @ v: "<<v<<", loc: "<<loc<<", edge_data.key: "<<edge_data.key<<", edge_data.value: "<<edge_data.value<<", udata: "<<udata<<", mask: "<<mask<<", srcvid: "<<UTIL{{context['id']}}_GETREALVID((edge_data.value * EDGEDATA_PACKINGSIZE) + v, globalparams.ACTSPARAMS_INSTID)<<", dstvid*: "<<edge_data.key<<endl; }
@@ -316,10 +351,11 @@ void {{context['classname__acts']}}reduce_update(bool enx, unsigned int v, unsig
 	bool en = true;
 
 	// check loc
+	// if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){ loc = 0; } // REMOVEME.
 	#ifdef _DEBUGMODE_CHECKS3
 	if(true && loc >= (globalparams.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE)){ cout<<"reduce_update::ERROR SEEN @ loc("<<loc<<") >= globalparams.SIZEKVS2_REDUCEPARTITION("<<globalparams.SIZEKVS2_REDUCEPARTITION<<"). update_data.key: "<<update_data.key<<", update_data.key: "<<update_data.key<<". EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#endif 
-	// if(loc >= (globalparams.SIZEKVS2_REDUCEPARTITION / 2) && en == true){ loc = 0; } // loc = loc / 2; // urams pack in 2s
+	// if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){ loc = 0; } 
 	
 	// if(en == true){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // CRITICAL FIXME.
 	#ifdef _DEBUGMODE_CHECKS3
@@ -344,7 +380,7 @@ void {{context['classname__acts']}}reduce_update(bool enx, unsigned int v, unsig
 	// write-back
 	if(en == true && new_vprop != vdata_tmp){
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		cout<<">>> REDUCE VECTOR:: REDUCE UPDATE SEEN @: v: "<<v<<", loc: "<<loc<<", vdata_tmp: "<<vdata_tmp<<", mask: "<<mask<<", update_data.value: "<<update_data.value<<", new_vprop: "<<new_vprop<<", new combo: "<<((new_vprop << 1) | 0x1)<<", dstvid: "<<UTIL{{context['id']}}_GETREALVID(update_data.key, globalparams.ACTSPARAMS_INSTID)<<endl; 
+		cout<<">>> REDUCE VECTOR:: REDUCE UPDATE SEEN @: v: "<<v<<", loc: "<<loc<<", vdata_tmp: "<<vdata_tmp<<", mask: "<<mask<<", update_data.key: "<<update_data.key<<", update_data.value: "<<update_data.value<<", new_vprop: "<<new_vprop<<", new combo: "<<((new_vprop << 1) | 0x1)<<", dstvid: "<<UTIL{{context['id']}}_GETREALVID(update_data.key, globalparams.ACTSPARAMS_INSTID)<<endl; 
 		#endif
 		
 		#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -424,6 +460,12 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read_process_partition_
 	keyvalue_t edges[EDGEDATA_PACKINGSIZE];
 	#pragma HLS ARRAY_PARTITION variable = edges complete
 	
+	keyvalue_t updates_out[EDGEDATA_PACKINGSIZE]; // REMOVEME.
+	#pragma HLS ARRAY_PARTITION variable = updates_out complete
+	
+	keyvalue_t res_out[EDGEDATA_PACKINGSIZE]; // REMOVEME.
+	#pragma HLS ARRAY_PARTITION variable = res_out complete
+	
 	for(int i = 0; i < size; i++){
 		// read 
 		UTIL{{context['id']}}_ReadEdges(in, sourcebaseaddr_kvs + srcoffset_kvs + i, datas);
@@ -434,7 +476,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read_process_partition_
 			if(datas[v] != INVALIDDATA){ edges[v].key = datas[v] & MASK_DSTVID; edges[v].value = (datas[v] >> DSTVID_BITSZ) & MASK_SRCVID; } // srcvid is upper, dstvid is lower 
 			else { edges[v].key = INVALIDDATA; edges[v].value = INVALIDDATA; }
 		}
-	
+		
 		// set flag
 		bool enx = true;
 		collections[TRAVERSEDEDGES_COLLECTIONID].data1 += UPDATEDATA_PACKINGSIZE;
@@ -442,19 +484,54 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read_process_partition_
 		
 		// process
 		for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){
-			#pragma HLS UNROLL
-			// if(i<4){ cout<<"---- i; "<<i<<", acts:: edges["<<v<<"].key: "<<edges[v].key<<", edges["<<v<<"].value: "<<edges[v].value<<", i: "<<i<<", upperlimit: "<<upperlimit<<", INVALIDDATA: "<<INVALIDDATA<<endl; }
+		#pragma HLS UNROLL
 			if(datas[v] != INVALIDDATA){ res[v] = process_edge(enx, v, edges[v].value, edges[v], vbuffer_source[v], globalparamsK); }	
 			else { res[v].key = INVALIDDATA; res[v].value = INVALIDDATA; }
 		}	
-
+		
+		// shift >>>
+		unsigned int sample_key = INVALIDDATA; unsigned int sample_u = 0; for(unsigned int v=0; v<UPDATEDATA_PACKINGSIZE; v++){ if(edges[v].key != INVALIDDATA){ sample_key = edges[v].key % UPDATEDATA_PACKINGSIZE; sample_u = v; }} ///////// CRITICAL FIXME.
+		unsigned int shift = 0; if(sample_key != INVALIDDATA){ shift = sample_key - sample_u; }
+		bool shift_forward = true; if(sample_key != INVALIDDATA){ if(sample_key > sample_u){ shift = sample_key - sample_u; shift_forward = false; } else { shift = sample_u - sample_key; shift_forward = true; }} else { shift = 0; }
+		if(shift_forward == false){ rearrangeLayoutVx16B(shift, res, res_out); } else{ rearrangeLayoutVx16F(shift, res, res_out); }
+			
+		#ifdef _DEBUGMODE_CHECKS3
+		check_if_contiguous(res_out, edges, res, sample_key, sample_u, shift);
+		#endif 
+		
+		/* #ifdef _DEBUGMODE_CHECKS3
+		for(int v = 0; v < UPDATEDATA_PACKINGSIZE; v++){ 
+			if(res_out[v].key != INVALIDDATA){ 
+				if(res_out[v].key % UPDATEDATA_PACKINGSIZE != v){ 
+					cout<<"read_process_partition_and_write(1). ERROR 34. res_out["<<v<<"].key("<<res_out[v].key<<") % UPDATEDATA_PACKINGSIZE("<<UPDATEDATA_PACKINGSIZE<<")(="<<res_out[v].key % UPDATEDATA_PACKINGSIZE<<") != v("<<v<<"). EXITING..."<<endl; 
+					cout<<"--- read_process_partition_and_write. shift: "<<shift<<", sample_key: "<<sample_key<<", sample_u: "<<sample_u<<", shift_forward: "<<shift_forward<<endl;
+					for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ i; "<<i<<", size: "<<size<<", acts:: edges["<<v<<"].key: "<<edges[v].key<<"("<<edges[v].key%EDGEDATA_PACKINGSIZE<<"), edges["<<v<<"].value: "<<edges[v].value<<"("<<edges[v].value%EDGEDATA_PACKINGSIZE<<")"<<endl; }
+					for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ i; "<<i<<", size: "<<size<<", acts:: res["<<v<<"].key: "<<res[v].key<<", res["<<v<<"].value: "<<res[v].value<<endl; }
+					for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ i; "<<i<<", size: "<<size<<", acts:: res_out["<<v<<"].key: "<<res_out[v].key<<", res_out["<<v<<"].value: "<<res_out[v].value<<endl; }
+					exit(EXIT_FAILURE); 
+				}
+			}
+		}
+		#endif
+		#ifdef _DEBUGMODE_CHECKS3
+		for(int v = 0; v < UPDATEDATA_PACKINGSIZE; v++){ 
+			if(res_out[v].key>131072 && res_out[v].key != INVALIDDATA){ 
+				cout<<"&&&&######::_read_process_partition_and_write(2):: i: "<<i<<", size: "<<size<<", v; "<<v<<", res_out["<<v<<"].key: "<<res_out[v].key<<", res_out["<<v<<"].value: "<<res_out[v].value<<endl; 
+				for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ edges["<<v<<"].key: "<<edges[v].key<<"("<<edges[v].key%EDGEDATA_PACKINGSIZE<<"), edges["<<v<<"].value: "<<edges[v].value<<"("<<edges[v].value%EDGEDATA_PACKINGSIZE<<")"<<endl; }
+				for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ res["<<v<<"].key: "<<res[v].key<<", res["<<v<<"].value: "<<res[v].value<<endl; }
+				for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ res_out["<<v<<"].key: "<<res_out[v].key<<", res_out["<<v<<"].value: "<<res_out[v].value<<endl; }
+				for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ datas["<<v<<"]: "<<datas[v]<<endl; }
+				exit(EXIT_FAILURE); 
+			}
+		}
+		#endif  */
+		
 		// encode
 		for(int v = 0; v < VECTOR2_SIZE; v++){
 		#pragma HLS UNROLL
-			if(res[v].key != INVALIDDATA){ datas2[v] = (res[v].value << DSTVID_BITSZ) | res[v].key; } else { datas2[v] = INVALIDDATA; }
-			// datas2[v] = INVALIDDATA; // 0xFFFFFFFE;
+			if(res_out[v].key != INVALIDDATA){ datas2[v] = (res_out[v].value << DSTVID_BITSZ) | res_out[v].key; } else { datas2[v] = INVALIDDATA; }
 		}
-		
+
 		// store
 		UTIL{{context['id']}}_WriteDatas(out, destbaseaddr_kvs + destoffset_kvs + i, datas2);
 		
@@ -464,7 +541,6 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read_process_partition_
 			actsutilityobj->globalstats_processedges_countvalidkvsprocessed(globalparamsK.ACTSPARAMS_INSTID, EDGEDATA_PACKINGSIZE); }
 		#endif 
 	}
-	// exit(EXIT_SUCCESS);
 }
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_read_process_partition_and_write_base(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],	
@@ -498,12 +574,16 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read_and_reduce(unsigne
 	#pragma HLS ARRAY_PARTITION variable = datas complete
 	keyvalue_t updates_in[EDGEDATA_PACKINGSIZE];
 	#pragma HLS ARRAY_PARTITION variable = updates_in complete
+	keyvalue_t updates_inter[EDGEDATA_PACKINGSIZE];
+	#pragma HLS ARRAY_PARTITION variable = updates_inter complete
 	keyvalue_t updates_out[EDGEDATA_PACKINGSIZE];
 	#pragma HLS ARRAY_PARTITION variable = updates_out complete
 	
 	unsigned int tmp = collections[ACTIVEEDGESPROCESSED_COLLECTIONID].data1;
+	for(int v = 0; v < VECTOR2_SIZE; v++){ updates_in[v].key = INVALIDDATA; updates_in[v].value = INVALIDDATA; }
+	unsigned int zerocount = 0;
 	
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	cout<<"actit3(reduce): processing all chunks [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<workload_kvs.offset_end<<"][workload_kvs.size: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * UPDATEDATA_PACKINGSIZE<<"][workbuffer_size: "<<globalparamsK.ACTSPARAMS_WORKBUFFER_SIZE<<"][num_chunks: "<<(workload_kvs.offset_end - workload_kvs.offset_begin) / globalparamsK.ACTSPARAMS_WORKBUFFER_SIZE<<"] ... "<<endl;					
 	#endif
 	ACTIT3_MAINLOOP2A: for(batch_type offset_kvs=workload_kvs.offset_begin; offset_kvs<workload_kvs.offset_begin + workload_kvs.size; offset_kvs++){
@@ -531,21 +611,16 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read_and_reduce(unsigne
 			if(tmp + ((offset_kvs - workload_kvs.offset_begin) * UPDATEDATA_PACKINGSIZE) >= globalposition.num_active_edges_in_channel){ enx = false; } 
 			else { enx = true; collections[ACTIVEEDGESPROCESSED_COLLECTIONID].data1 += UPDATEDATA_PACKINGSIZE; }
 		}
-		
-		// shift 
-		unsigned int sample_key = 0; for(unsigned int v=0; v<UPDATEDATA_PACKINGSIZE; v++){ if(updates_in[v].key != INVALIDDATA){ sample_key = updates_in[v].key; }} ///////// CRITICAL FIXME.
-		rearrangeLayoutVx16(sample_key % UPDATEDATA_PACKINGSIZE, updates_in, updates_out);
-		
+
 		// reduce	
-		for(int v = 0; v < UPDATEDATA_PACKINGSIZE; v++){
-			#pragma HLS UNROLL
-			// if(updates_out[v].key<64){ cout<<"&&&&::reduce:: v; "<<v<<", updates_out["<<v<<"].key: "<<updates_out[v].key<<", updates_out["<<v<<"].value: "<<updates_out[v].value<<", offset_kvs: "<<offset_kvs<<", INVALIDDATA: "<<INVALIDDATA<<", sample_key: "<<sample_key<<endl; }	
-			if(updates_out[v].key != INVALIDDATA){ reduce_update(enx, v, updates_out[v].key / UPDATEDATA_PACKINGSIZE, updates_out[v], vbuffer_dest[v], memory[v], globalparamsK); }	
+		for(int v = 0; v < UPDATEDATA_PACKINGSIZE; v++){ 
+		#pragma HLS UNROLL 
+			if(updates_in[v].key != INVALIDDATA){ reduce_update(enx, v, updates_in[v].key / UPDATEDATA_PACKINGSIZE, updates_in[v], vbuffer_dest[v], memory[v], globalparamsK); }
 		}
 		
 		if(enx == true){ collections[REDUCEUPDATES_COLLECTIONID].data1 += UPDATEDATA_PACKINGSIZE; }
-		// exit(EXIT_SUCCESS);
 	}
+	// exit(EXIT_SUCCESS);
 }
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_read_process_and_reduce(uint512_dt *in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_sourcebits[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE],
@@ -636,7 +711,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 	unsigned int memory[VECTOR2_SIZE][1];
 	#pragma HLS ARRAY_PARTITION variable = memory // complete
 	workload_t workloads_kvs[BLOCKRAM_SIZE];
-	keyvalue_vbuffer_t vbuffer_sourcebits[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; /////////////////////
+	keyvalue_vbuffer_t vbuffer_sourcebits[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_sourcebits
 	
 	collection_t collections_tmp[COLLECTIONS_BUFFERSZ];
@@ -684,10 +759,12 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 		
 			ACTIT3_MAINLOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
 				workload_t workload_kvs = workloads_kvs[llp_set];
-				batch_type destoffset_kvs = (globalcapsule[1 + llp_set].key + globalcapsule[llp_set].value) / EDGEDATA_PACKINGSIZE;
+				// batch_type destoffset_kvs = (globalcapsule[1 + llp_set].key + globalcapsule[llp_set].value) / EDGEDATA_PACKINGSIZE;
+				batch_type destoffset_kvs = (globalcapsule[1 + llp_set].key + globalcapsule[1 + llp_set].value) / EDGEDATA_PACKINGSIZE;
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS
 				cout<<"actit3(process): processing all chunks in llp_set "<<llp_set<<": [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<workload_kvs.offset_end<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * UPDATEDATA_PACKINGSIZE<<"], sweepparams.source_partition: "<<sweepparams.source_partition<<" ... "<<endl;					
+				// cout<<"actit3(process): processing all chunks in llp_set "<<llp_set<<", source_partition "<<sweepparams.source_partition<<", instID: "<<globalparamsK.ACTSPARAMS_INSTID<<": [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<workload_kvs.offset_end<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * UPDATEDATA_PACKINGSIZE<<"], sweepparams.source_partition: "<<sweepparams.source_partition<<" ... "<<endl;					
 				#endif
 				
 				ACTS{{context['id']}}_read_process_partition_and_write_base(kvdram, vbuffer_source,	

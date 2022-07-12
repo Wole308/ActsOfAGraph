@@ -475,7 +475,7 @@ void loadedges::getXYLayoutVx16(unsigned int s, unsigned int depths[EDGEDATA_PAC
 		depths[15] = 0; 
 	}
 }
-edge2_vec_dt loadedges::rearrangeLayoutVx16(unsigned int s, edge2_vec_dt edge_vec){
+edge2_vec_dt loadedges::rearrangeLayoutVx16F(unsigned int s, edge2_vec_dt edge_vec){
 	edge2_vec_dt edge_vec2;
 	unsigned int s_ = s;
 	if(s_==0){ 
@@ -754,6 +754,303 @@ edge2_vec_dt loadedges::rearrangeLayoutVx16(unsigned int s, edge2_vec_dt edge_ve
 	return edge_vec2;
 }
 
+edge2_vec_dt loadedges::rearrangeLayoutVx16B(unsigned int s, edge2_vec_dt edge_vec){
+	edge2_vec_dt edge_vec2;
+	unsigned int s_ = s;
+	#ifdef _DEBUGMODE_CHECKS3
+	utilityobj->checkoutofbounds("rearrangeLayoutVx16B(1)", s, EDGEDATA_PACKINGSIZE, NAp, NAp, NAp);
+	#endif
+ if(s_==0){ 
+		edge_vec2.data[0] = edge_vec.data[0]; 
+		edge_vec2.data[1] = edge_vec.data[1]; 
+		edge_vec2.data[2] = edge_vec.data[2]; 
+		edge_vec2.data[3] = edge_vec.data[3]; 
+		edge_vec2.data[4] = edge_vec.data[4]; 
+		edge_vec2.data[5] = edge_vec.data[5]; 
+		edge_vec2.data[6] = edge_vec.data[6]; 
+		edge_vec2.data[7] = edge_vec.data[7]; 
+		edge_vec2.data[8] = edge_vec.data[8]; 
+		edge_vec2.data[9] = edge_vec.data[9]; 
+		edge_vec2.data[10] = edge_vec.data[10]; 
+		edge_vec2.data[11] = edge_vec.data[11]; 
+		edge_vec2.data[12] = edge_vec.data[12]; 
+		edge_vec2.data[13] = edge_vec.data[13]; 
+		edge_vec2.data[14] = edge_vec.data[14]; 
+		edge_vec2.data[15] = edge_vec.data[15]; 
+	}
+else if(s_==1){ 
+		edge_vec2.data[1] = edge_vec.data[0]; 
+		edge_vec2.data[2] = edge_vec.data[1]; 
+		edge_vec2.data[3] = edge_vec.data[2]; 
+		edge_vec2.data[4] = edge_vec.data[3]; 
+		edge_vec2.data[5] = edge_vec.data[4]; 
+		edge_vec2.data[6] = edge_vec.data[5]; 
+		edge_vec2.data[7] = edge_vec.data[6]; 
+		edge_vec2.data[8] = edge_vec.data[7]; 
+		edge_vec2.data[9] = edge_vec.data[8]; 
+		edge_vec2.data[10] = edge_vec.data[9]; 
+		edge_vec2.data[11] = edge_vec.data[10]; 
+		edge_vec2.data[12] = edge_vec.data[11]; 
+		edge_vec2.data[13] = edge_vec.data[12]; 
+		edge_vec2.data[14] = edge_vec.data[13]; 
+		edge_vec2.data[15] = edge_vec.data[14]; 
+		edge_vec2.data[0] = edge_vec.data[15]; 
+	}
+else if(s_==2){ 
+		edge_vec2.data[2] = edge_vec.data[0]; 
+		edge_vec2.data[3] = edge_vec.data[1]; 
+		edge_vec2.data[4] = edge_vec.data[2]; 
+		edge_vec2.data[5] = edge_vec.data[3]; 
+		edge_vec2.data[6] = edge_vec.data[4]; 
+		edge_vec2.data[7] = edge_vec.data[5]; 
+		edge_vec2.data[8] = edge_vec.data[6]; 
+		edge_vec2.data[9] = edge_vec.data[7]; 
+		edge_vec2.data[10] = edge_vec.data[8]; 
+		edge_vec2.data[11] = edge_vec.data[9]; 
+		edge_vec2.data[12] = edge_vec.data[10]; 
+		edge_vec2.data[13] = edge_vec.data[11]; 
+		edge_vec2.data[14] = edge_vec.data[12]; 
+		edge_vec2.data[15] = edge_vec.data[13]; 
+		edge_vec2.data[0] = edge_vec.data[14]; 
+		edge_vec2.data[1] = edge_vec.data[15]; 
+	}
+else if(s_==3){ 
+		edge_vec2.data[3] = edge_vec.data[0]; 
+		edge_vec2.data[4] = edge_vec.data[1]; 
+		edge_vec2.data[5] = edge_vec.data[2]; 
+		edge_vec2.data[6] = edge_vec.data[3]; 
+		edge_vec2.data[7] = edge_vec.data[4]; 
+		edge_vec2.data[8] = edge_vec.data[5]; 
+		edge_vec2.data[9] = edge_vec.data[6]; 
+		edge_vec2.data[10] = edge_vec.data[7]; 
+		edge_vec2.data[11] = edge_vec.data[8]; 
+		edge_vec2.data[12] = edge_vec.data[9]; 
+		edge_vec2.data[13] = edge_vec.data[10]; 
+		edge_vec2.data[14] = edge_vec.data[11]; 
+		edge_vec2.data[15] = edge_vec.data[12]; 
+		edge_vec2.data[0] = edge_vec.data[13]; 
+		edge_vec2.data[1] = edge_vec.data[14]; 
+		edge_vec2.data[2] = edge_vec.data[15]; 
+	}
+else if(s_==4){ 
+		edge_vec2.data[4] = edge_vec.data[0]; 
+		edge_vec2.data[5] = edge_vec.data[1]; 
+		edge_vec2.data[6] = edge_vec.data[2]; 
+		edge_vec2.data[7] = edge_vec.data[3]; 
+		edge_vec2.data[8] = edge_vec.data[4]; 
+		edge_vec2.data[9] = edge_vec.data[5]; 
+		edge_vec2.data[10] = edge_vec.data[6]; 
+		edge_vec2.data[11] = edge_vec.data[7]; 
+		edge_vec2.data[12] = edge_vec.data[8]; 
+		edge_vec2.data[13] = edge_vec.data[9]; 
+		edge_vec2.data[14] = edge_vec.data[10]; 
+		edge_vec2.data[15] = edge_vec.data[11]; 
+		edge_vec2.data[0] = edge_vec.data[12]; 
+		edge_vec2.data[1] = edge_vec.data[13]; 
+		edge_vec2.data[2] = edge_vec.data[14]; 
+		edge_vec2.data[3] = edge_vec.data[15]; 
+	}
+else if(s_==5){ 
+		edge_vec2.data[5] = edge_vec.data[0]; 
+		edge_vec2.data[6] = edge_vec.data[1]; 
+		edge_vec2.data[7] = edge_vec.data[2]; 
+		edge_vec2.data[8] = edge_vec.data[3]; 
+		edge_vec2.data[9] = edge_vec.data[4]; 
+		edge_vec2.data[10] = edge_vec.data[5]; 
+		edge_vec2.data[11] = edge_vec.data[6]; 
+		edge_vec2.data[12] = edge_vec.data[7]; 
+		edge_vec2.data[13] = edge_vec.data[8]; 
+		edge_vec2.data[14] = edge_vec.data[9]; 
+		edge_vec2.data[15] = edge_vec.data[10]; 
+		edge_vec2.data[0] = edge_vec.data[11]; 
+		edge_vec2.data[1] = edge_vec.data[12]; 
+		edge_vec2.data[2] = edge_vec.data[13]; 
+		edge_vec2.data[3] = edge_vec.data[14]; 
+		edge_vec2.data[4] = edge_vec.data[15]; 
+	}
+else if(s_==6){ 
+		edge_vec2.data[6] = edge_vec.data[0]; 
+		edge_vec2.data[7] = edge_vec.data[1]; 
+		edge_vec2.data[8] = edge_vec.data[2]; 
+		edge_vec2.data[9] = edge_vec.data[3]; 
+		edge_vec2.data[10] = edge_vec.data[4]; 
+		edge_vec2.data[11] = edge_vec.data[5]; 
+		edge_vec2.data[12] = edge_vec.data[6]; 
+		edge_vec2.data[13] = edge_vec.data[7]; 
+		edge_vec2.data[14] = edge_vec.data[8]; 
+		edge_vec2.data[15] = edge_vec.data[9]; 
+		edge_vec2.data[0] = edge_vec.data[10]; 
+		edge_vec2.data[1] = edge_vec.data[11]; 
+		edge_vec2.data[2] = edge_vec.data[12]; 
+		edge_vec2.data[3] = edge_vec.data[13]; 
+		edge_vec2.data[4] = edge_vec.data[14]; 
+		edge_vec2.data[5] = edge_vec.data[15]; 
+	}
+else if(s_==7){ 
+		edge_vec2.data[7] = edge_vec.data[0]; 
+		edge_vec2.data[8] = edge_vec.data[1]; 
+		edge_vec2.data[9] = edge_vec.data[2]; 
+		edge_vec2.data[10] = edge_vec.data[3]; 
+		edge_vec2.data[11] = edge_vec.data[4]; 
+		edge_vec2.data[12] = edge_vec.data[5]; 
+		edge_vec2.data[13] = edge_vec.data[6]; 
+		edge_vec2.data[14] = edge_vec.data[7]; 
+		edge_vec2.data[15] = edge_vec.data[8]; 
+		edge_vec2.data[0] = edge_vec.data[9]; 
+		edge_vec2.data[1] = edge_vec.data[10]; 
+		edge_vec2.data[2] = edge_vec.data[11]; 
+		edge_vec2.data[3] = edge_vec.data[12]; 
+		edge_vec2.data[4] = edge_vec.data[13]; 
+		edge_vec2.data[5] = edge_vec.data[14]; 
+		edge_vec2.data[6] = edge_vec.data[15]; 
+	}
+else if(s_==8){ 
+		edge_vec2.data[8] = edge_vec.data[0]; 
+		edge_vec2.data[9] = edge_vec.data[1]; 
+		edge_vec2.data[10] = edge_vec.data[2]; 
+		edge_vec2.data[11] = edge_vec.data[3]; 
+		edge_vec2.data[12] = edge_vec.data[4]; 
+		edge_vec2.data[13] = edge_vec.data[5]; 
+		edge_vec2.data[14] = edge_vec.data[6]; 
+		edge_vec2.data[15] = edge_vec.data[7]; 
+		edge_vec2.data[0] = edge_vec.data[8]; 
+		edge_vec2.data[1] = edge_vec.data[9]; 
+		edge_vec2.data[2] = edge_vec.data[10]; 
+		edge_vec2.data[3] = edge_vec.data[11]; 
+		edge_vec2.data[4] = edge_vec.data[12]; 
+		edge_vec2.data[5] = edge_vec.data[13]; 
+		edge_vec2.data[6] = edge_vec.data[14]; 
+		edge_vec2.data[7] = edge_vec.data[15]; 
+	}
+else if(s_==9){ 
+		edge_vec2.data[9] = edge_vec.data[0]; 
+		edge_vec2.data[10] = edge_vec.data[1]; 
+		edge_vec2.data[11] = edge_vec.data[2]; 
+		edge_vec2.data[12] = edge_vec.data[3]; 
+		edge_vec2.data[13] = edge_vec.data[4]; 
+		edge_vec2.data[14] = edge_vec.data[5]; 
+		edge_vec2.data[15] = edge_vec.data[6]; 
+		edge_vec2.data[0] = edge_vec.data[7]; 
+		edge_vec2.data[1] = edge_vec.data[8]; 
+		edge_vec2.data[2] = edge_vec.data[9]; 
+		edge_vec2.data[3] = edge_vec.data[10]; 
+		edge_vec2.data[4] = edge_vec.data[11]; 
+		edge_vec2.data[5] = edge_vec.data[12]; 
+		edge_vec2.data[6] = edge_vec.data[13]; 
+		edge_vec2.data[7] = edge_vec.data[14]; 
+		edge_vec2.data[8] = edge_vec.data[15]; 
+	}
+else if(s_==10){ 
+		edge_vec2.data[10] = edge_vec.data[0]; 
+		edge_vec2.data[11] = edge_vec.data[1]; 
+		edge_vec2.data[12] = edge_vec.data[2]; 
+		edge_vec2.data[13] = edge_vec.data[3]; 
+		edge_vec2.data[14] = edge_vec.data[4]; 
+		edge_vec2.data[15] = edge_vec.data[5]; 
+		edge_vec2.data[0] = edge_vec.data[6]; 
+		edge_vec2.data[1] = edge_vec.data[7]; 
+		edge_vec2.data[2] = edge_vec.data[8]; 
+		edge_vec2.data[3] = edge_vec.data[9]; 
+		edge_vec2.data[4] = edge_vec.data[10]; 
+		edge_vec2.data[5] = edge_vec.data[11]; 
+		edge_vec2.data[6] = edge_vec.data[12]; 
+		edge_vec2.data[7] = edge_vec.data[13]; 
+		edge_vec2.data[8] = edge_vec.data[14]; 
+		edge_vec2.data[9] = edge_vec.data[15]; 
+	}
+else if(s_==11){ 
+		edge_vec2.data[11] = edge_vec.data[0]; 
+		edge_vec2.data[12] = edge_vec.data[1]; 
+		edge_vec2.data[13] = edge_vec.data[2]; 
+		edge_vec2.data[14] = edge_vec.data[3]; 
+		edge_vec2.data[15] = edge_vec.data[4]; 
+		edge_vec2.data[0] = edge_vec.data[5]; 
+		edge_vec2.data[1] = edge_vec.data[6]; 
+		edge_vec2.data[2] = edge_vec.data[7]; 
+		edge_vec2.data[3] = edge_vec.data[8]; 
+		edge_vec2.data[4] = edge_vec.data[9]; 
+		edge_vec2.data[5] = edge_vec.data[10]; 
+		edge_vec2.data[6] = edge_vec.data[11]; 
+		edge_vec2.data[7] = edge_vec.data[12]; 
+		edge_vec2.data[8] = edge_vec.data[13]; 
+		edge_vec2.data[9] = edge_vec.data[14]; 
+		edge_vec2.data[10] = edge_vec.data[15]; 
+	}
+else if(s_==12){ 
+		edge_vec2.data[12] = edge_vec.data[0]; 
+		edge_vec2.data[13] = edge_vec.data[1]; 
+		edge_vec2.data[14] = edge_vec.data[2]; 
+		edge_vec2.data[15] = edge_vec.data[3]; 
+		edge_vec2.data[0] = edge_vec.data[4]; 
+		edge_vec2.data[1] = edge_vec.data[5]; 
+		edge_vec2.data[2] = edge_vec.data[6]; 
+		edge_vec2.data[3] = edge_vec.data[7]; 
+		edge_vec2.data[4] = edge_vec.data[8]; 
+		edge_vec2.data[5] = edge_vec.data[9]; 
+		edge_vec2.data[6] = edge_vec.data[10]; 
+		edge_vec2.data[7] = edge_vec.data[11]; 
+		edge_vec2.data[8] = edge_vec.data[12]; 
+		edge_vec2.data[9] = edge_vec.data[13]; 
+		edge_vec2.data[10] = edge_vec.data[14]; 
+		edge_vec2.data[11] = edge_vec.data[15]; 
+	}
+else if(s_==13){ 
+		edge_vec2.data[13] = edge_vec.data[0]; 
+		edge_vec2.data[14] = edge_vec.data[1]; 
+		edge_vec2.data[15] = edge_vec.data[2]; 
+		edge_vec2.data[0] = edge_vec.data[3]; 
+		edge_vec2.data[1] = edge_vec.data[4]; 
+		edge_vec2.data[2] = edge_vec.data[5]; 
+		edge_vec2.data[3] = edge_vec.data[6]; 
+		edge_vec2.data[4] = edge_vec.data[7]; 
+		edge_vec2.data[5] = edge_vec.data[8]; 
+		edge_vec2.data[6] = edge_vec.data[9]; 
+		edge_vec2.data[7] = edge_vec.data[10]; 
+		edge_vec2.data[8] = edge_vec.data[11]; 
+		edge_vec2.data[9] = edge_vec.data[12]; 
+		edge_vec2.data[10] = edge_vec.data[13]; 
+		edge_vec2.data[11] = edge_vec.data[14]; 
+		edge_vec2.data[12] = edge_vec.data[15]; 
+	}
+else if(s_==14){ 
+		edge_vec2.data[14] = edge_vec.data[0]; 
+		edge_vec2.data[15] = edge_vec.data[1]; 
+		edge_vec2.data[0] = edge_vec.data[2]; 
+		edge_vec2.data[1] = edge_vec.data[3]; 
+		edge_vec2.data[2] = edge_vec.data[4]; 
+		edge_vec2.data[3] = edge_vec.data[5]; 
+		edge_vec2.data[4] = edge_vec.data[6]; 
+		edge_vec2.data[5] = edge_vec.data[7]; 
+		edge_vec2.data[6] = edge_vec.data[8]; 
+		edge_vec2.data[7] = edge_vec.data[9]; 
+		edge_vec2.data[8] = edge_vec.data[10]; 
+		edge_vec2.data[9] = edge_vec.data[11]; 
+		edge_vec2.data[10] = edge_vec.data[12]; 
+		edge_vec2.data[11] = edge_vec.data[13]; 
+		edge_vec2.data[12] = edge_vec.data[14]; 
+		edge_vec2.data[13] = edge_vec.data[15]; 
+	}
+else { 
+		edge_vec2.data[15] = edge_vec.data[0]; 
+		edge_vec2.data[0] = edge_vec.data[1]; 
+		edge_vec2.data[1] = edge_vec.data[2]; 
+		edge_vec2.data[2] = edge_vec.data[3]; 
+		edge_vec2.data[3] = edge_vec.data[4]; 
+		edge_vec2.data[4] = edge_vec.data[5]; 
+		edge_vec2.data[5] = edge_vec.data[6]; 
+		edge_vec2.data[6] = edge_vec.data[7]; 
+		edge_vec2.data[7] = edge_vec.data[8]; 
+		edge_vec2.data[8] = edge_vec.data[9]; 
+		edge_vec2.data[9] = edge_vec.data[10]; 
+		edge_vec2.data[10] = edge_vec.data[11]; 
+		edge_vec2.data[11] = edge_vec.data[12]; 
+		edge_vec2.data[12] = edge_vec.data[13]; 
+		edge_vec2.data[13] = edge_vec.data[14]; 
+		edge_vec2.data[14] = edge_vec.data[15]; 
+	}
+	return edge_vec2;
+}
+
 void loadedges::getXYLayoutV(unsigned int s, unsigned int depths[EDGEDATA_PACKINGSIZE]){
 	#ifdef CONFIG_UPDATEPACKINGx16
 	return getXYLayoutVx16(s, depths);
@@ -763,7 +1060,7 @@ void loadedges::getXYLayoutV(unsigned int s, unsigned int depths[EDGEDATA_PACKIN
 }
 edge2_vec_dt loadedges::rearrangeLayoutV(unsigned int s, edge2_vec_dt edge_vec){
 	#ifdef CONFIG_UPDATEPACKINGx16
-	return rearrangeLayoutVx16(s, edge_vec);
+	return rearrangeLayoutVx16F(s, edge_vec);
 	#else 
 	return rearrangeLayoutVx8(s, edge_vec);
 	#endif 
@@ -782,7 +1079,13 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	unsigned int vsize_vP = universalparams.PROCESSPARTITIONSZ;
 	unsigned int num_LLPs = universalparams.NUMREDUCEPARTITIONS * universalparams.NUM_PARTITIONS; 
 	unsigned int vsize_LLP; 
-	if(universalparams.ALGORITHM == BFS){ vsize_LLP = 262144; } //  || universalparams.ALGORITHM == SSSP
+	if(universalparams.ALGORITHM == BFS){ 
+		#ifdef BIT_TRAVERSAL_ALGORITHM
+		vsize_LLP = 262144; 
+		#else 
+		vsize_LLP = universalparams.REDUCEPARTITIONSZ_KVS2;
+		#endif
+	} //  || universalparams.ALGORITHM == SSSP
 	else { vsize_LLP = universalparams.REDUCEPARTITIONSZ_KVS2; } //
 	unsigned int num_LLPset = (num_LLPs + (universalparams.NUM_PARTITIONS - 1)) / universalparams.NUM_PARTITIONS;
 	
@@ -992,10 +1295,31 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ edge_vec2_local.data[v].srcvid = (edge_vec2.data[v].srcvid - (v_p * vsize_vP)) / EDGEDATA_PACKINGSIZE; edge_vec2_local.data[v].dstvid = edge_vec2.data[v].dstvid - (llp_set * vsize_LLP * EDGEDATA_PACKINGSIZE); }
 						#endif 
 						
+						#ifdef _DEBUGMODE_CHECKS3
+						edge2_vec_dt edge_vec2_local_test;
+						unsigned int sample_key = INVALIDDATA; unsigned int sample_u = 0; for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ if(edge_vec2_local.data[v].dstvid != INVALIDDATA){ sample_key = edge_vec2_local.data[v].dstvid % EDGEDATA_PACKINGSIZE; sample_u = v; }} ///////// CRITICAL FIXME.
+						unsigned int shift = 0; if(sample_key != INVALIDDATA){ shift = sample_key - sample_u; }
+						bool shift_forward = true; if(sample_key != INVALIDDATA){ if(sample_key > sample_u){ shift = sample_key - sample_u; shift_forward = false; } else { shift = sample_u - sample_key; shift_forward = true; }} else { shift = 0; }
+						if(shift_forward == false){ edge_vec2_local_test = rearrangeLayoutVx16B(shift, edge_vec2_local); } else{ edge_vec2_local_test = rearrangeLayoutVx16F(shift, edge_vec2_local); }
+						for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ // edge2_vec_dt loadedges::rearrangeLayoutVx16B(unsigned int s, edge2_vec_dt edge_vec)
+							if(edge_vec2_local_test.data[v].dstvid != INVALIDDATA){ 
+								if(edge_vec2_local_test.data[v].dstvid % EDGEDATA_PACKINGSIZE != v){ 
+									cout<<"loadedges. ERROR 34. edge_vec2_local_test.data["<<v<<"].dstvid("<<edge_vec2_local_test.data[v].dstvid<<") % EDGEDATA_PACKINGSIZE("<<EDGEDATA_PACKINGSIZE<<")(="<<edge_vec2_local_test.data[v].dstvid % EDGEDATA_PACKINGSIZE<<") != v("<<v<<"). EXITING..."<<endl; 
+									for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ cout<<"+++ i; "<<i<<", acts:: edge_vec2_local_test.data["<<v<<"].dstvid: "<<edge_vec2_local_test.data[v].dstvid<<"("<<edge_vec2_local_test.data[v].dstvid % EDGEDATA_PACKINGSIZE<<"), edge_vec2_local_test.data["<<v<<"].srcvid: "<<edge_vec2_local_test.data[v].srcvid<<"("<<edge_vec2_local_test.data[v].srcvid % EDGEDATA_PACKINGSIZE<<")"<<endl; }
+									exit(EXIT_FAILURE); 
+								}
+							}
+						}
+						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 552::", edge_vec2_local.data[v].srcvid, vsize_vP / EDGEDATA_PACKINGSIZE, EDGEDATA_PACKINGSIZE, v_p, vsize_vP); }
+						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 553::", edge_vec2_local.data[v].dstvid, vsize_LLP * VDATA_PACKINGSIZE, EDGEDATA_PACKINGSIZE, v_p, vsize_vP); }
+						#endif
+						
 						// update edges_temp & edgeblock_temp
 						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ edges_temp[v].push_back(edge_vec2.data[v]); }
 						#ifdef _DEBUGMODE_HOSTCHECKS3
 						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 561::", (edges_temp[v][t].srcvid - (v_p * vsize_vP)) / MAXVSIZE_ACTVEDGEBLOCK, MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION, edges_temp[v][t].srcvid, v_p, vsize_vP);	}
+						// for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 562::", edge_vec2_local.data[v].srcvid, vsize_vP / EDGEDATA_PACKINGSIZE, EDGEDATA_PACKINGSIZE, v_p, vsize_vP); }
+						// for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 563::", edge_vec2_local.data[v].dstvid, vsize_LLP * VDATA_PACKINGSIZE, EDGEDATA_PACKINGSIZE, v_p, vsize_vP); }
 						#endif 
 						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ edgeblock_temp[v][(edges_temp[v][t].srcvid - (v_p * vsize_vP)) / MAXVSIZE_ACTVEDGEBLOCK].push_back(edges_temp[v][t]); }
 						
@@ -1038,10 +1362,10 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				} // iteration end: llp_id:EDGEDATA_PACKINGSIZE
 				// exit(EXIT_SUCCESS);
 				
-				for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ sort(edges_temp[v].begin(), edges_temp[v].end(), myfunction); } // CRIICAL FIXME.
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				cout << "\nArray edges_temp is sorted by srcvids: "<<endl; for (int t = 0; t < 8; t++){ for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ cout << "{"<< edges_temp[v][t].srcvid << ", "<<edges_temp[v][t].dstvid<<"} "; } cout<<endl; }
-				#endif 
+				/// for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ sort(edges_temp[v].begin(), edges_temp[v].end(), myfunction); } // CRIICAL FIXME.
+				/// #ifdef _DEBUGMODE_KERNELPRINTS
+				/// cout << "\nArray edges_temp is sorted by srcvids: "<<endl; for (int t = 0; t < 8; t++){ for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ cout << "{"<< edges_temp[v][t].srcvid << ", "<<edges_temp[v][t].dstvid<<"} "; } cout<<endl; }
+				/// #endif 
 				
 				if(false){ cout<<"loadedges:: load edgeblock maps"<<endl; }
 				unsigned int totalsz = 0;
@@ -1085,7 +1409,12 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	globalparams.globalparamsK.SIZE_VERTEXPTRS = 0; 
 	globalparams.globalparamsK.SIZE_EDGES = 0; 
 	
-	globalparams.globalparamsE.SIZE_EDGES = (edges_final[0].size() * EDGEDATA_PACKINGSIZE) + 1000; 
+	// globalparams.globalparamsE.SIZE_EDGES = (edges_final[0].size() * EDGEDATA_PACKINGSIZE) + 1000; 
+	unsigned int max=0; for(unsigned int i=0; i<_NUM_PEs; i++){ if(max < edges_final[i].size() && utilityobj->isbufferused(i) == true){ max = edges_final[i].size(); }}
+	unsigned int min=0xFFFFFFFF; for(unsigned int i=0; i<_NUM_PEs; i++){ if(min > edges_final[i].size() && utilityobj->isbufferused(i) == true){ min = edges_final[i].size(); }}
+	if(max - min > (2000000/EDGEDATA_PACKINGSIZE)){ cout<<"loadedges. ERROR 34. max("<<max<<") - min("<<min<<")(="<<max-min<<") > (2000000/EDGEDATA_PACKINGSIZE)(="<<(2000000/EDGEDATA_PACKINGSIZE)<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	globalparams.globalparamsE.SIZE_EDGES = (max * EDGEDATA_PACKINGSIZE) + 1024; // REMOVEME. 
+	// globalparams.globalparamsE.SIZE_EDGES = (edges_final[0].size() * EDGEDATA_PACKINGSIZE) + 1000; // CRIICAL REMOVEME.
 	globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + (globalparams.globalparamsE.SIZE_EDGES / EDGEDATA_PACKINGSIZE) + universalparams.DRAMPADD_KVS;
 	globalparams.globalparamsE.SIZE_VERTEXPTRS = (kvdata_range__div__vptr_shrink_ratio) + universalparams.DRAMPADD_VPTRS; 
 	globalparams_t globalparamsVPTRS; globalparamsVPTRS = globalparams.globalparamsE; 

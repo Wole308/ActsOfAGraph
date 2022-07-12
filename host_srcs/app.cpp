@@ -29,6 +29,8 @@ FDGLib: A Communication Library for Efficient Large-Scale Graph Processing in FP
 
 graphalytics.org/datasets (*)
 github.com/GRAND-Lab/graph_datasets
+
+# lightweight graph re-ordering: https://github.com/faldupriyank/dbg 
 */
 
 #define APP_LOADEDGES
@@ -87,7 +89,13 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.BATCH_RANGE = universalparams.NUM_VERTICES / NUM_PEs;
 	universalparams.BATCH_RANGE_KVS = universalparams.BATCH_RANGE / VECTOR_SIZE;
 
-	if(universalparams.ALGORITHM == BFS){ universalparams.TREE_DEPTH = 1; } 
+	if(universalparams.ALGORITHM == BFS){ 
+		#ifdef BIT_TRAVERSAL_ALGORITHM
+		universalparams.TREE_DEPTH = 1;
+		#else 
+		universalparams.TREE_DEPTH = 2;
+		#endif
+		universalparams.TREE_DEPTH = 1; } 
 	else { universalparams.TREE_DEPTH = 2; }
 	
 	universalparams.REDUCESZ_POW = universalparams.RED_SRAMSZ_POW; // NEWCHANGE
@@ -96,7 +104,13 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.REDUCEPARTITIONSZ = universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE; // NEWCHANGE
 	if(universalparams.REDUCEPARTITIONSZ > universalparams.BATCH_RANGE){ universalparams.REDUCEPARTITIONSZ = universalparams.BATCH_RANGE; } ///// NEWCHANGE.
 	universalparams.REDUCEPARTITIONSZ_KVS2 = universalparams.REDUCEPARTITIONSZ / VECTOR2_SIZE;
-	if(universalparams.ALGORITHM == BFS){ universalparams.NUMREDUCEPARTITIONS = 1; }
+	if(universalparams.ALGORITHM == BFS){ 
+		#ifdef BIT_TRAVERSAL_ALGORITHM
+		universalparams.NUMREDUCEPARTITIONS = 1;
+		#else 
+		universalparams.NUMREDUCEPARTITIONS = ((universalparams.KVDATA_RANGE / NUM_PEs) + (universalparams.REDUCEPARTITIONSZ - 1)) / universalparams.REDUCEPARTITIONSZ;
+		#endif 
+	}
 	else { universalparams.NUMREDUCEPARTITIONS = ((universalparams.KVDATA_RANGE / NUM_PEs) + (universalparams.REDUCEPARTITIONSZ - 1)) / universalparams.REDUCEPARTITIONSZ; }
 	
 	universalparams.PROCESSPARTITIONSZ = universalparams.PROC_SRAMSZ * VDATA_PACKINGSIZE; // CRITICAL FIXME.
@@ -149,7 +163,7 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	return universalparams;
 }
 void app::print_active_partitions(unsigned int GraphIter, uint512_vec_dt * dram, universalparams_t universalparams, unsigned int num_partitions, bool printA, bool printB){
-	if(universalparams.ALGORITHM == BFS){ 
+	if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){ 
 		cout<< endl << TIMINGRESULTSCOLOR << ">>> app::print_active_vpartitions: printing active vertex partitions...: "<< RESET <<endl;
 		
 		pmask_dt * pmask0; pmask0 = new pmask_dt[512];
@@ -166,26 +180,24 @@ void app::print_active_partitions(unsigned int GraphIter, uint512_vec_dt * dram,
 		
 		unsigned int total_num_actvvs = 0;
 		#if defined(_DEBUGMODE_HOSTPRINTS3)
-		if(universalparams.ALGORITHM == BFS){ 
-			if(printA==true){
-				unsigned int num_actvps = 0;
-				for(unsigned int t=0; t<num_partitions; t++){
-					// if(pmask0[t] > 0  && t < 16){ cout<<t<<", "; }
-					if(pmask0[t] > 0){ num_actvps += 1; }
-					total_num_actvvs += pmask0[t];
-				}
-				cout<<"+++ iter "<<GraphIter<<": total number of active vertices in all HBM channels (varA): "<<total_num_actvvs<<" ("<<num_actvps<<" active partitions +++"<<endl;
+		if(printA==true){
+			unsigned int num_actvps = 0;
+			for(unsigned int t=0; t<num_partitions; t++){
+				// if(pmask0[t] > 0  && t < 16){ cout<<t<<", "; }
+				if(pmask0[t] > 0){ num_actvps += 1; }
+				total_num_actvvs += pmask0[t];
 			}
-			if(printB==true){
-				unsigned int num_actvedges = 0;
-				unsigned int num_actv_edges = 0;
-				for(unsigned int t=0; t<num_partitions; t++){
-					// if(emask0[t] > 0  && t < 16){ cout<<emask0[t]<<", "; }
-					// if(emask0[t] > 0){ num_actvedges += emask0[t]; num_actvps += 1; }
-					num_actv_edges += emask0[t];
-				}
-				cout<<"^^^ iter "<<GraphIter<<": average number of active edges per HBM channel (varB): "<<num_actv_edges<<" ^^^"<<endl;
+			cout<<"+++ iter "<<GraphIter<<": total number of active vertices in all HBM channels (varA): "<<total_num_actvvs<<" ("<<num_actvps<<" active partitions +++"<<endl;
+		}
+		if(printB==true){
+			unsigned int num_actvedges = 0;
+			unsigned int num_actv_edges = 0;
+			for(unsigned int t=0; t<num_partitions; t++){
+				// if(emask0[t] > 0  && t < 16){ cout<<emask0[t]<<", "; }
+				// if(emask0[t] > 0){ num_actvedges += emask0[t]; num_actvps += 1; }
+				num_actv_edges += emask0[t];
 			}
+			cout<<"^^^ iter "<<GraphIter<<": average number of active edges per HBM channel (varB): "<<num_actv_edges<<" ^^^"<<endl;
 		}
 		#endif 
 	}

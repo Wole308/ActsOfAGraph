@@ -230,6 +230,9 @@ void utility::stopTIME(string caption, std::chrono::steady_clock::time_point beg
 bool utility::isbufferused(unsigned int id){
 	#ifdef TESTKERNEL 
 	if(id==0 || id==NUMCOMPUTEUNITS_SLR2 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; }
+	// if(id==8){ return true; } else { return false; }
+	// if(id==0 || id==8 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; }
+	// if(id==0 || id==11 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; }
 	#else 
 	return true;
 	#endif 
@@ -414,7 +417,14 @@ unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
 }
 unsigned int utility::UTIL_GETREALVID(unsigned int lvid, unsigned int instid){
 	#pragma HLS INLINE
+
+	#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
+	return ((lvid / EDGEDATA_PACKINGSIZE) * (EDGEDATA_PACKINGSIZE * NUM_PEs)) + (instid * EDGEDATA_PACKINGSIZE) + lvid;
+	#endif 
+	
+	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
 	return (lvid * NUM_PEs) + instid;
+	#endif 
 }
 
 #ifdef FPGA_IMPL
