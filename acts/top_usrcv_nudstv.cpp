@@ -38,7 +38,7 @@ void acts_all::TOPP0_processit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_s
 	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
 	if(globalposition.num_active_vertices == 0){ returncmd = true; } // check if vertex partition is active
 	else{
-		#ifdef _DEBUGMODE_KERNELPRINTS3
+		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"processit: source_partition: "<<globalposition.source_partition<<" is active (Instance "<<globalparamsK.ACTSPARAMS_INSTID<<")"<<endl; 
 		#endif 
 	}
@@ -244,6 +244,9 @@ void acts_all::TOPP0_reduceit(uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_so
 	travstate_t ptravstate; ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; // DUMMY
 	config.enablereduce = ON;
 	
+	// unsigned int mode = ACTSREDUCEMODE;
+	// if(sweepparams.source_partition == 0){  }
+	
 	ACTSP0_actit_base(config.enablereduce, ACTSREDUCEMODE,
 			 kvdram, vbuffer_source, vbuffer_dest, globalcapsule, // CRITICAL FIXME.
 			globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
@@ -271,8 +274,6 @@ void acts_all::TOPP0_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbu
 	#pragma HLS INLINE
 	unsigned int sourcestatsmarker = 1;
 	unsigned int vreadoffset_kvs2 = 0;
-	unsigned int vmask_offset_kvs = 0;
-	unsigned int vmaskp_offset_kvs = 0;
 	
 	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
 	batch_type num_source_partitions = globalparamsK.NUM_REDUCEPARTITIONS;
@@ -283,7 +284,7 @@ void acts_all::TOPP0_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbu
 	
 	bool_type enablereduce = ON;
 	DISPATCHREDUCEP0_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
-		#ifdef _DEBUGMODE_KERNELPRINTS
+		#ifdef _DEBUGMODE_KERNELPRINTS3
 		actsutilityobj->print4("### TOPP0_dispatch_reduce:: source_partition", "currentLOP", "num_source_partitions", "vreadoffset_kvs2", source_partition, currentLOP, num_source_partitions, vreadoffset_kvs2); 							
 		#endif
 		
@@ -302,8 +303,6 @@ void acts_all::TOPP0_dispatch_reduce(uint512_dt * kvdram, keyvalue_vbuffer_t vbu
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
-		vmask_offset_kvs += globalparamsK.SIZEKVS_VMASKBUFFER;
-		vmaskp_offset_kvs += NUM_PEs;
 	}
 	
 	UTILP0_SetThirdData(kvdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, collections[REDUCEUPDATES_COLLECTIONID].data1);
@@ -322,8 +321,12 @@ void acts_all::TOPP0_topkernelproc_embedded(unsigned int GraphIter, unsigned int
 	if(false && globalposition.source_partition==globalposition.last_source_partition){ printheader2 = ON; } else { printheader2 = OFF; }
 	// printheader1=ON;
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<">>> ====================== ACTS Launched... size: "<<UTILP0_GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<" ====================== "<<endl;
+	cout<<">>> ====================== ACTS Launched @ instance: "<<globalid<<" ====================== "<<endl;
 	#endif
+	
+	// #ifdef TESTKERNEL 
+	// if(globalid==22){} else { return; }
+	// #endif 
 	
 	keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer
@@ -458,7 +461,7 @@ void acts_all::TOPP0_topkernelP1(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -612,8 +615,8 @@ void acts_all::TOPP0_topkernelP1(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL1_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -697,7 +700,7 @@ void acts_all::TOPP0_topkernelP1(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
 	}
 	#endif
@@ -753,7 +756,7 @@ void acts_all::TOPP0_topkernelP2(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -766,7 +769,7 @@ void acts_all::TOPP0_topkernelP2(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -920,8 +923,8 @@ void acts_all::TOPP0_topkernelP2(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL2_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -1006,9 +1009,9 @@ void acts_all::TOPP0_topkernelP2(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
 	}
 	#endif
@@ -1070,7 +1073,7 @@ void acts_all::TOPP0_topkernelP3(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -1083,7 +1086,7 @@ void acts_all::TOPP0_topkernelP3(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -1096,7 +1099,7 @@ void acts_all::TOPP0_topkernelP3(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -1250,8 +1253,8 @@ void acts_all::TOPP0_topkernelP3(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL3_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -1337,11 +1340,11 @@ void acts_all::TOPP0_topkernelP3(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
 	}
 	#endif
@@ -1409,7 +1412,7 @@ void acts_all::TOPP0_topkernelP4(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -1422,7 +1425,7 @@ void acts_all::TOPP0_topkernelP4(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -1435,7 +1438,7 @@ void acts_all::TOPP0_topkernelP4(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -1448,7 +1451,7 @@ void acts_all::TOPP0_topkernelP4(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -1602,8 +1605,8 @@ void acts_all::TOPP0_topkernelP4(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL4_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -1690,13 +1693,13 @@ void acts_all::TOPP0_topkernelP4(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
 	}
 	#endif
@@ -1770,7 +1773,7 @@ void acts_all::TOPP0_topkernelP5(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -1783,7 +1786,7 @@ void acts_all::TOPP0_topkernelP5(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -1796,7 +1799,7 @@ void acts_all::TOPP0_topkernelP5(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -1809,7 +1812,7 @@ void acts_all::TOPP0_topkernelP5(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source4
@@ -1822,7 +1825,7 @@ void acts_all::TOPP0_topkernelP5(
 		// #pragma HLS bind_storage variable=vbuffer_source4 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -1976,8 +1979,8 @@ void acts_all::TOPP0_topkernelP5(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL5_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -2065,15 +2068,15 @@ void acts_all::TOPP0_topkernelP5(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram4, vdram); 
 	}
 	#endif
@@ -2153,7 +2156,7 @@ void acts_all::TOPP0_topkernelP6(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -2166,7 +2169,7 @@ void acts_all::TOPP0_topkernelP6(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -2179,7 +2182,7 @@ void acts_all::TOPP0_topkernelP6(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -2192,7 +2195,7 @@ void acts_all::TOPP0_topkernelP6(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source4
@@ -2205,7 +2208,7 @@ void acts_all::TOPP0_topkernelP6(
 		// #pragma HLS bind_storage variable=vbuffer_source4 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source5
@@ -2218,7 +2221,7 @@ void acts_all::TOPP0_topkernelP6(
 		// #pragma HLS bind_storage variable=vbuffer_source5 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -2372,8 +2375,8 @@ void acts_all::TOPP0_topkernelP6(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL6_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -2462,17 +2465,17 @@ void acts_all::TOPP0_topkernelP6(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram4, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram5, vdram); 
 	}
 	#endif
@@ -2558,7 +2561,7 @@ void acts_all::TOPP0_topkernelP7(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -2571,7 +2574,7 @@ void acts_all::TOPP0_topkernelP7(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -2584,7 +2587,7 @@ void acts_all::TOPP0_topkernelP7(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -2597,7 +2600,7 @@ void acts_all::TOPP0_topkernelP7(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source4
@@ -2610,7 +2613,7 @@ void acts_all::TOPP0_topkernelP7(
 		// #pragma HLS bind_storage variable=vbuffer_source4 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source5
@@ -2623,7 +2626,7 @@ void acts_all::TOPP0_topkernelP7(
 		// #pragma HLS bind_storage variable=vbuffer_source5 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source6
@@ -2636,7 +2639,7 @@ void acts_all::TOPP0_topkernelP7(
 		// #pragma HLS bind_storage variable=vbuffer_source6 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -2790,8 +2793,8 @@ void acts_all::TOPP0_topkernelP7(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL7_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -2881,19 +2884,19 @@ void acts_all::TOPP0_topkernelP7(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram4, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram5, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram6, vdram); 
 	}
 	#endif
@@ -2985,7 +2988,7 @@ void acts_all::TOPP0_topkernelP8(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -2998,7 +3001,7 @@ void acts_all::TOPP0_topkernelP8(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -3011,7 +3014,7 @@ void acts_all::TOPP0_topkernelP8(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -3024,7 +3027,7 @@ void acts_all::TOPP0_topkernelP8(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source4
@@ -3037,7 +3040,7 @@ void acts_all::TOPP0_topkernelP8(
 		// #pragma HLS bind_storage variable=vbuffer_source4 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source5
@@ -3050,7 +3053,7 @@ void acts_all::TOPP0_topkernelP8(
 		// #pragma HLS bind_storage variable=vbuffer_source5 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source6
@@ -3063,7 +3066,7 @@ void acts_all::TOPP0_topkernelP8(
 		// #pragma HLS bind_storage variable=vbuffer_source6 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source7
@@ -3076,7 +3079,7 @@ void acts_all::TOPP0_topkernelP8(
 		// #pragma HLS bind_storage variable=vbuffer_source7 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -3230,8 +3233,8 @@ void acts_all::TOPP0_topkernelP8(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL8_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -3322,21 +3325,21 @@ void acts_all::TOPP0_topkernelP8(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram4, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram5, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram6, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram7, vdram); 
 	}
 	#endif
@@ -3434,7 +3437,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -3447,7 +3450,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -3460,7 +3463,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -3473,7 +3476,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source4
@@ -3486,7 +3489,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source4 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source5
@@ -3499,7 +3502,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source5 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source6
@@ -3512,7 +3515,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source6 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source7
@@ -3525,7 +3528,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source7 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source8
@@ -3538,7 +3541,7 @@ void acts_all::TOPP0_topkernelP9(
 		// #pragma HLS bind_storage variable=vbuffer_source8 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];
 	collection_t collections8[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -3692,8 +3695,8 @@ void acts_all::TOPP0_topkernelP9(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL9_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -3785,23 +3788,23 @@ void acts_all::TOPP0_topkernelP9(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram4, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram5, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram6, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram7, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram8, vdram); 
 	}
 	#endif
@@ -3905,7 +3908,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -3918,7 +3921,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -3931,7 +3934,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -3944,7 +3947,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source4
@@ -3957,7 +3960,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source4 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source5
@@ -3970,7 +3973,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source5 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source6
@@ -3983,7 +3986,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source6 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source7
@@ -3996,7 +3999,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source7 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source8
@@ -4009,7 +4012,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source8 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];
 	collection_t collections8[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source9
@@ -4022,7 +4025,7 @@ void acts_all::TOPP0_topkernelP10(
 		// #pragma HLS bind_storage variable=vbuffer_source9 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];
 	collection_t collections9[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -4176,8 +4179,8 @@ void acts_all::TOPP0_topkernelP10(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL10_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -4270,25 +4273,25 @@ void acts_all::TOPP0_topkernelP10(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram4, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram5, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram6, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram7, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram8, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram9, vdram); 
 	}
 	#endif
@@ -4398,7 +4401,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -4411,7 +4414,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -4424,7 +4427,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -4437,7 +4440,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source4
@@ -4450,7 +4453,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source4 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source5
@@ -4463,7 +4466,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source5 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source6
@@ -4476,7 +4479,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source6 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source7
@@ -4489,7 +4492,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source7 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source8
@@ -4502,7 +4505,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source8 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];
 	collection_t collections8[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source9
@@ -4515,7 +4518,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source9 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];
 	collection_t collections9[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source10[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source10
@@ -4528,7 +4531,7 @@ void acts_all::TOPP0_topkernelP11(
 		// #pragma HLS bind_storage variable=vbuffer_source10 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule10[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule10[BLOCKRAM_SIZE];
 	collection_t collections10[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -4682,8 +4685,8 @@ void acts_all::TOPP0_topkernelP11(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL11_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -4777,27 +4780,27 @@ void acts_all::TOPP0_topkernelP11(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram4, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram5, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram6, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram7, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram8, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram9, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram10, vdram); 
 	}
 	#endif
@@ -4913,7 +4916,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source0 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule0[BLOCKRAM_SIZE];
 	collection_t collections0[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source1[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source1
@@ -4926,7 +4929,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source1 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule1[BLOCKRAM_SIZE];
 	collection_t collections1[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source2[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source2
@@ -4939,7 +4942,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source2 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule2[BLOCKRAM_SIZE];
 	collection_t collections2[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source3[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source3
@@ -4952,7 +4955,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source3 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule3[BLOCKRAM_SIZE];
 	collection_t collections3[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source4[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source4
@@ -4965,7 +4968,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source4 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule4[BLOCKRAM_SIZE];
 	collection_t collections4[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source5[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source5
@@ -4978,7 +4981,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source5 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule5[BLOCKRAM_SIZE];
 	collection_t collections5[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source6[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source6
@@ -4991,7 +4994,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source6 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule6[BLOCKRAM_SIZE];
 	collection_t collections6[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source7[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source7
@@ -5004,7 +5007,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source7 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule7[BLOCKRAM_SIZE];
 	collection_t collections7[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source8[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source8
@@ -5017,7 +5020,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source8 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule8[BLOCKRAM_SIZE];
 	collection_t collections8[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source9[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source9
@@ -5030,7 +5033,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source9 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule9[BLOCKRAM_SIZE];
 	collection_t collections9[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source10[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source10
@@ -5043,7 +5046,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source10 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule10[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule10[BLOCKRAM_SIZE];
 	collection_t collections10[COLLECTIONS_BUFFERSZ];
 	keyvalue_vbuffer_t vbuffer_source11[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_source11
@@ -5056,7 +5059,7 @@ void acts_all::TOPP0_topkernelP12(
 		// #pragma HLS bind_storage variable=vbuffer_source11 type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule11[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule11[BLOCKRAM_SIZE];
 	collection_t collections11[COLLECTIONS_BUFFERSZ];
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
 	pmask_dt emask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -5210,8 +5213,8 @@ void acts_all::TOPP0_topkernelP12(
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL12_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESSP0_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -5306,29 +5309,29 @@ void acts_all::TOPP0_topkernelP12(
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-	
+		
 		MERGEP0_mergeVs(kvdram0, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram1, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram2, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram3, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram4, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram5, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram6, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram7, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram8, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram9, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram10, vdram); 
-	
+		
 		MERGEP0_mergeVs(kvdram11, vdram); 
 	}
 	#endif

@@ -22,6 +22,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readV(bool_t
 		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
 		#pragma HLS UNROLL
 			datas2[v] = datas[v] & 0xFFFFFFFE; 
+			// datas2[v] = datas[v]; // CRITICAL REMOVEME.
 		}
 		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas2[v] = datas[v]; }
 		
@@ -211,7 +212,7 @@ tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs_
 unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
 	keyvalue_t data;
 	
-	uint512_dt V = kvdram[baseoffset_kvs + loc / VECTOR2_SIZE];
+	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
 	unsigned int index = (loc % VECTOR2_SIZE) / 2;
 	
 	#ifdef _WIDEWORD
@@ -234,6 +235,21 @@ unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getd
 	else { return data.value; }
 }
 
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_setdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc, unsigned int data){
+	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
+	unsigned int index = (loc % VECTOR2_SIZE);
+	
+	#ifdef _WIDEWORD
+	{%for v in context['VECTOR2_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR2_SIZE']-1)%}if(index == {{v}}){%endif%}{
+		V.range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}) = data; 
+	}
+	{%endfor%}
+	#else 
+	if(index % 2 == 0){ V.data[index/2].key = data; } else { V.data[index/2].value = data; }
+	#endif
+}
+
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * k)); }
@@ -254,7 +270,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstat
 }
 
 // -------------------- multiple accesses -------------------- //
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, unsigned int actsinstance, globalparams_t globalparams){
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, globalparams_t globalparams){
 	
 	value_t datas[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=datas complete

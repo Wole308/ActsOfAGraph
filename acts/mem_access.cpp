@@ -5,15 +5,31 @@ void acts_all::MEMACCESSP0_readV(bool_type enable, uint512_dt * kvdram, keyvalue
 	#pragma HLS ARRAY_PARTITION variable=vdata complete
 	value_t datas[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=datas complete
+	value_t datas2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=datas2 complete
 	
 	READVDATA_LOOP1: for (buffer_type i=0; i<size_kvs; i++){
 	#pragma HLS PIPELINE II=1
 		UTILP0_ReadDatas(kvdram, baseoffset_kvs + offset_kvs + i, datas);
+	
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
+			value_t vdata = datas[v] >> 1; value_t mask = datas[v] & 0x1;
+			if(vdata < 1000){ cout<<"readV: ACTIVE VDATA SEEN: @ i: "<<i<<" v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<endl; }}
+		#endif
+		
+		// clear masks
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
+		#pragma HLS UNROLL
+			datas2[v] = datas[v] & 0xFFFFFFFE; 
+			// datas2[v] = datas[v]; // CRITICAL REMOVEME.
+		}
+		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas2[v] = datas[v]; }
 		
 		#ifdef BIT_TRAVERSAL_ALGORITHM
-  vdata[0].data[0] = datas[0];  vdata[0].data[1] = datas[0];  vdata[0].data[2] = datas[0];  vdata[0].data[3] = datas[0];  vdata[0].data[4] = datas[0];  vdata[0].data[5] = datas[0];  vdata[0].data[6] = datas[0];  vdata[0].data[7] = datas[0];  vdata[0].data[8] = datas[0];  vdata[0].data[9] = datas[0];  vdata[0].data[10] = datas[0];  vdata[0].data[11] = datas[0];  vdata[0].data[12] = datas[0];  vdata[0].data[13] = datas[0];  vdata[0].data[14] = datas[0];  vdata[0].data[15] = datas[0];    vdata[1].data[0] = datas[1];  vdata[1].data[1] = datas[1];  vdata[1].data[2] = datas[1];  vdata[1].data[3] = datas[1];  vdata[1].data[4] = datas[1];  vdata[1].data[5] = datas[1];  vdata[1].data[6] = datas[1];  vdata[1].data[7] = datas[1];  vdata[1].data[8] = datas[1];  vdata[1].data[9] = datas[1];  vdata[1].data[10] = datas[1];  vdata[1].data[11] = datas[1];  vdata[1].data[12] = datas[1];  vdata[1].data[13] = datas[1];  vdata[1].data[14] = datas[1];  vdata[1].data[15] = datas[1];    vdata[2].data[0] = datas[2];  vdata[2].data[1] = datas[2];  vdata[2].data[2] = datas[2];  vdata[2].data[3] = datas[2];  vdata[2].data[4] = datas[2];  vdata[2].data[5] = datas[2];  vdata[2].data[6] = datas[2];  vdata[2].data[7] = datas[2];  vdata[2].data[8] = datas[2];  vdata[2].data[9] = datas[2];  vdata[2].data[10] = datas[2];  vdata[2].data[11] = datas[2];  vdata[2].data[12] = datas[2];  vdata[2].data[13] = datas[2];  vdata[2].data[14] = datas[2];  vdata[2].data[15] = datas[2];    vdata[3].data[0] = datas[3];  vdata[3].data[1] = datas[3];  vdata[3].data[2] = datas[3];  vdata[3].data[3] = datas[3];  vdata[3].data[4] = datas[3];  vdata[3].data[5] = datas[3];  vdata[3].data[6] = datas[3];  vdata[3].data[7] = datas[3];  vdata[3].data[8] = datas[3];  vdata[3].data[9] = datas[3];  vdata[3].data[10] = datas[3];  vdata[3].data[11] = datas[3];  vdata[3].data[12] = datas[3];  vdata[3].data[13] = datas[3];  vdata[3].data[14] = datas[3];  vdata[3].data[15] = datas[3];    vdata[4].data[0] = datas[4];  vdata[4].data[1] = datas[4];  vdata[4].data[2] = datas[4];  vdata[4].data[3] = datas[4];  vdata[4].data[4] = datas[4];  vdata[4].data[5] = datas[4];  vdata[4].data[6] = datas[4];  vdata[4].data[7] = datas[4];  vdata[4].data[8] = datas[4];  vdata[4].data[9] = datas[4];  vdata[4].data[10] = datas[4];  vdata[4].data[11] = datas[4];  vdata[4].data[12] = datas[4];  vdata[4].data[13] = datas[4];  vdata[4].data[14] = datas[4];  vdata[4].data[15] = datas[4];    vdata[5].data[0] = datas[5];  vdata[5].data[1] = datas[5];  vdata[5].data[2] = datas[5];  vdata[5].data[3] = datas[5];  vdata[5].data[4] = datas[5];  vdata[5].data[5] = datas[5];  vdata[5].data[6] = datas[5];  vdata[5].data[7] = datas[5];  vdata[5].data[8] = datas[5];  vdata[5].data[9] = datas[5];  vdata[5].data[10] = datas[5];  vdata[5].data[11] = datas[5];  vdata[5].data[12] = datas[5];  vdata[5].data[13] = datas[5];  vdata[5].data[14] = datas[5];  vdata[5].data[15] = datas[5];    vdata[6].data[0] = datas[6];  vdata[6].data[1] = datas[6];  vdata[6].data[2] = datas[6];  vdata[6].data[3] = datas[6];  vdata[6].data[4] = datas[6];  vdata[6].data[5] = datas[6];  vdata[6].data[6] = datas[6];  vdata[6].data[7] = datas[6];  vdata[6].data[8] = datas[6];  vdata[6].data[9] = datas[6];  vdata[6].data[10] = datas[6];  vdata[6].data[11] = datas[6];  vdata[6].data[12] = datas[6];  vdata[6].data[13] = datas[6];  vdata[6].data[14] = datas[6];  vdata[6].data[15] = datas[6];    vdata[7].data[0] = datas[7];  vdata[7].data[1] = datas[7];  vdata[7].data[2] = datas[7];  vdata[7].data[3] = datas[7];  vdata[7].data[4] = datas[7];  vdata[7].data[5] = datas[7];  vdata[7].data[6] = datas[7];  vdata[7].data[7] = datas[7];  vdata[7].data[8] = datas[7];  vdata[7].data[9] = datas[7];  vdata[7].data[10] = datas[7];  vdata[7].data[11] = datas[7];  vdata[7].data[12] = datas[7];  vdata[7].data[13] = datas[7];  vdata[7].data[14] = datas[7];  vdata[7].data[15] = datas[7];    vdata[8].data[0] = datas[8];  vdata[8].data[1] = datas[8];  vdata[8].data[2] = datas[8];  vdata[8].data[3] = datas[8];  vdata[8].data[4] = datas[8];  vdata[8].data[5] = datas[8];  vdata[8].data[6] = datas[8];  vdata[8].data[7] = datas[8];  vdata[8].data[8] = datas[8];  vdata[8].data[9] = datas[8];  vdata[8].data[10] = datas[8];  vdata[8].data[11] = datas[8];  vdata[8].data[12] = datas[8];  vdata[8].data[13] = datas[8];  vdata[8].data[14] = datas[8];  vdata[8].data[15] = datas[8];    vdata[9].data[0] = datas[9];  vdata[9].data[1] = datas[9];  vdata[9].data[2] = datas[9];  vdata[9].data[3] = datas[9];  vdata[9].data[4] = datas[9];  vdata[9].data[5] = datas[9];  vdata[9].data[6] = datas[9];  vdata[9].data[7] = datas[9];  vdata[9].data[8] = datas[9];  vdata[9].data[9] = datas[9];  vdata[9].data[10] = datas[9];  vdata[9].data[11] = datas[9];  vdata[9].data[12] = datas[9];  vdata[9].data[13] = datas[9];  vdata[9].data[14] = datas[9];  vdata[9].data[15] = datas[9];    vdata[10].data[0] = datas[10];  vdata[10].data[1] = datas[10];  vdata[10].data[2] = datas[10];  vdata[10].data[3] = datas[10];  vdata[10].data[4] = datas[10];  vdata[10].data[5] = datas[10];  vdata[10].data[6] = datas[10];  vdata[10].data[7] = datas[10];  vdata[10].data[8] = datas[10];  vdata[10].data[9] = datas[10];  vdata[10].data[10] = datas[10];  vdata[10].data[11] = datas[10];  vdata[10].data[12] = datas[10];  vdata[10].data[13] = datas[10];  vdata[10].data[14] = datas[10];  vdata[10].data[15] = datas[10];    vdata[11].data[0] = datas[11];  vdata[11].data[1] = datas[11];  vdata[11].data[2] = datas[11];  vdata[11].data[3] = datas[11];  vdata[11].data[4] = datas[11];  vdata[11].data[5] = datas[11];  vdata[11].data[6] = datas[11];  vdata[11].data[7] = datas[11];  vdata[11].data[8] = datas[11];  vdata[11].data[9] = datas[11];  vdata[11].data[10] = datas[11];  vdata[11].data[11] = datas[11];  vdata[11].data[12] = datas[11];  vdata[11].data[13] = datas[11];  vdata[11].data[14] = datas[11];  vdata[11].data[15] = datas[11];    vdata[12].data[0] = datas[12];  vdata[12].data[1] = datas[12];  vdata[12].data[2] = datas[12];  vdata[12].data[3] = datas[12];  vdata[12].data[4] = datas[12];  vdata[12].data[5] = datas[12];  vdata[12].data[6] = datas[12];  vdata[12].data[7] = datas[12];  vdata[12].data[8] = datas[12];  vdata[12].data[9] = datas[12];  vdata[12].data[10] = datas[12];  vdata[12].data[11] = datas[12];  vdata[12].data[12] = datas[12];  vdata[12].data[13] = datas[12];  vdata[12].data[14] = datas[12];  vdata[12].data[15] = datas[12];    vdata[13].data[0] = datas[13];  vdata[13].data[1] = datas[13];  vdata[13].data[2] = datas[13];  vdata[13].data[3] = datas[13];  vdata[13].data[4] = datas[13];  vdata[13].data[5] = datas[13];  vdata[13].data[6] = datas[13];  vdata[13].data[7] = datas[13];  vdata[13].data[8] = datas[13];  vdata[13].data[9] = datas[13];  vdata[13].data[10] = datas[13];  vdata[13].data[11] = datas[13];  vdata[13].data[12] = datas[13];  vdata[13].data[13] = datas[13];  vdata[13].data[14] = datas[13];  vdata[13].data[15] = datas[13];    vdata[14].data[0] = datas[14];  vdata[14].data[1] = datas[14];  vdata[14].data[2] = datas[14];  vdata[14].data[3] = datas[14];  vdata[14].data[4] = datas[14];  vdata[14].data[5] = datas[14];  vdata[14].data[6] = datas[14];  vdata[14].data[7] = datas[14];  vdata[14].data[8] = datas[14];  vdata[14].data[9] = datas[14];  vdata[14].data[10] = datas[14];  vdata[14].data[11] = datas[14];  vdata[14].data[12] = datas[14];  vdata[14].data[13] = datas[14];  vdata[14].data[14] = datas[14];  vdata[14].data[15] = datas[14];    vdata[15].data[0] = datas[15];  vdata[15].data[1] = datas[15];  vdata[15].data[2] = datas[15];  vdata[15].data[3] = datas[15];  vdata[15].data[4] = datas[15];  vdata[15].data[5] = datas[15];  vdata[15].data[6] = datas[15];  vdata[15].data[7] = datas[15];  vdata[15].data[8] = datas[15];  vdata[15].data[9] = datas[15];  vdata[15].data[10] = datas[15];  vdata[15].data[11] = datas[15];  vdata[15].data[12] = datas[15];  vdata[15].data[13] = datas[15];  vdata[15].data[14] = datas[15];  vdata[15].data[15] = datas[15];   // FIXME.
+  vdata[0].data[0] = datas2[0];  vdata[0].data[1] = datas2[0];  vdata[0].data[2] = datas2[0];  vdata[0].data[3] = datas2[0];  vdata[0].data[4] = datas2[0];  vdata[0].data[5] = datas2[0];  vdata[0].data[6] = datas2[0];  vdata[0].data[7] = datas2[0];  vdata[0].data[8] = datas2[0];  vdata[0].data[9] = datas2[0];  vdata[0].data[10] = datas2[0];  vdata[0].data[11] = datas2[0];  vdata[0].data[12] = datas2[0];  vdata[0].data[13] = datas2[0];  vdata[0].data[14] = datas2[0];  vdata[0].data[15] = datas2[0];    vdata[1].data[0] = datas2[1];  vdata[1].data[1] = datas2[1];  vdata[1].data[2] = datas2[1];  vdata[1].data[3] = datas2[1];  vdata[1].data[4] = datas2[1];  vdata[1].data[5] = datas2[1];  vdata[1].data[6] = datas2[1];  vdata[1].data[7] = datas2[1];  vdata[1].data[8] = datas2[1];  vdata[1].data[9] = datas2[1];  vdata[1].data[10] = datas2[1];  vdata[1].data[11] = datas2[1];  vdata[1].data[12] = datas2[1];  vdata[1].data[13] = datas2[1];  vdata[1].data[14] = datas2[1];  vdata[1].data[15] = datas2[1];    vdata[2].data[0] = datas2[2];  vdata[2].data[1] = datas2[2];  vdata[2].data[2] = datas2[2];  vdata[2].data[3] = datas2[2];  vdata[2].data[4] = datas2[2];  vdata[2].data[5] = datas2[2];  vdata[2].data[6] = datas2[2];  vdata[2].data[7] = datas2[2];  vdata[2].data[8] = datas2[2];  vdata[2].data[9] = datas2[2];  vdata[2].data[10] = datas2[2];  vdata[2].data[11] = datas2[2];  vdata[2].data[12] = datas2[2];  vdata[2].data[13] = datas2[2];  vdata[2].data[14] = datas2[2];  vdata[2].data[15] = datas2[2];    vdata[3].data[0] = datas2[3];  vdata[3].data[1] = datas2[3];  vdata[3].data[2] = datas2[3];  vdata[3].data[3] = datas2[3];  vdata[3].data[4] = datas2[3];  vdata[3].data[5] = datas2[3];  vdata[3].data[6] = datas2[3];  vdata[3].data[7] = datas2[3];  vdata[3].data[8] = datas2[3];  vdata[3].data[9] = datas2[3];  vdata[3].data[10] = datas2[3];  vdata[3].data[11] = datas2[3];  vdata[3].data[12] = datas2[3];  vdata[3].data[13] = datas2[3];  vdata[3].data[14] = datas2[3];  vdata[3].data[15] = datas2[3];    vdata[4].data[0] = datas2[4];  vdata[4].data[1] = datas2[4];  vdata[4].data[2] = datas2[4];  vdata[4].data[3] = datas2[4];  vdata[4].data[4] = datas2[4];  vdata[4].data[5] = datas2[4];  vdata[4].data[6] = datas2[4];  vdata[4].data[7] = datas2[4];  vdata[4].data[8] = datas2[4];  vdata[4].data[9] = datas2[4];  vdata[4].data[10] = datas2[4];  vdata[4].data[11] = datas2[4];  vdata[4].data[12] = datas2[4];  vdata[4].data[13] = datas2[4];  vdata[4].data[14] = datas2[4];  vdata[4].data[15] = datas2[4];    vdata[5].data[0] = datas2[5];  vdata[5].data[1] = datas2[5];  vdata[5].data[2] = datas2[5];  vdata[5].data[3] = datas2[5];  vdata[5].data[4] = datas2[5];  vdata[5].data[5] = datas2[5];  vdata[5].data[6] = datas2[5];  vdata[5].data[7] = datas2[5];  vdata[5].data[8] = datas2[5];  vdata[5].data[9] = datas2[5];  vdata[5].data[10] = datas2[5];  vdata[5].data[11] = datas2[5];  vdata[5].data[12] = datas2[5];  vdata[5].data[13] = datas2[5];  vdata[5].data[14] = datas2[5];  vdata[5].data[15] = datas2[5];    vdata[6].data[0] = datas2[6];  vdata[6].data[1] = datas2[6];  vdata[6].data[2] = datas2[6];  vdata[6].data[3] = datas2[6];  vdata[6].data[4] = datas2[6];  vdata[6].data[5] = datas2[6];  vdata[6].data[6] = datas2[6];  vdata[6].data[7] = datas2[6];  vdata[6].data[8] = datas2[6];  vdata[6].data[9] = datas2[6];  vdata[6].data[10] = datas2[6];  vdata[6].data[11] = datas2[6];  vdata[6].data[12] = datas2[6];  vdata[6].data[13] = datas2[6];  vdata[6].data[14] = datas2[6];  vdata[6].data[15] = datas2[6];    vdata[7].data[0] = datas2[7];  vdata[7].data[1] = datas2[7];  vdata[7].data[2] = datas2[7];  vdata[7].data[3] = datas2[7];  vdata[7].data[4] = datas2[7];  vdata[7].data[5] = datas2[7];  vdata[7].data[6] = datas2[7];  vdata[7].data[7] = datas2[7];  vdata[7].data[8] = datas2[7];  vdata[7].data[9] = datas2[7];  vdata[7].data[10] = datas2[7];  vdata[7].data[11] = datas2[7];  vdata[7].data[12] = datas2[7];  vdata[7].data[13] = datas2[7];  vdata[7].data[14] = datas2[7];  vdata[7].data[15] = datas2[7];    vdata[8].data[0] = datas2[8];  vdata[8].data[1] = datas2[8];  vdata[8].data[2] = datas2[8];  vdata[8].data[3] = datas2[8];  vdata[8].data[4] = datas2[8];  vdata[8].data[5] = datas2[8];  vdata[8].data[6] = datas2[8];  vdata[8].data[7] = datas2[8];  vdata[8].data[8] = datas2[8];  vdata[8].data[9] = datas2[8];  vdata[8].data[10] = datas2[8];  vdata[8].data[11] = datas2[8];  vdata[8].data[12] = datas2[8];  vdata[8].data[13] = datas2[8];  vdata[8].data[14] = datas2[8];  vdata[8].data[15] = datas2[8];    vdata[9].data[0] = datas2[9];  vdata[9].data[1] = datas2[9];  vdata[9].data[2] = datas2[9];  vdata[9].data[3] = datas2[9];  vdata[9].data[4] = datas2[9];  vdata[9].data[5] = datas2[9];  vdata[9].data[6] = datas2[9];  vdata[9].data[7] = datas2[9];  vdata[9].data[8] = datas2[9];  vdata[9].data[9] = datas2[9];  vdata[9].data[10] = datas2[9];  vdata[9].data[11] = datas2[9];  vdata[9].data[12] = datas2[9];  vdata[9].data[13] = datas2[9];  vdata[9].data[14] = datas2[9];  vdata[9].data[15] = datas2[9];    vdata[10].data[0] = datas2[10];  vdata[10].data[1] = datas2[10];  vdata[10].data[2] = datas2[10];  vdata[10].data[3] = datas2[10];  vdata[10].data[4] = datas2[10];  vdata[10].data[5] = datas2[10];  vdata[10].data[6] = datas2[10];  vdata[10].data[7] = datas2[10];  vdata[10].data[8] = datas2[10];  vdata[10].data[9] = datas2[10];  vdata[10].data[10] = datas2[10];  vdata[10].data[11] = datas2[10];  vdata[10].data[12] = datas2[10];  vdata[10].data[13] = datas2[10];  vdata[10].data[14] = datas2[10];  vdata[10].data[15] = datas2[10];    vdata[11].data[0] = datas2[11];  vdata[11].data[1] = datas2[11];  vdata[11].data[2] = datas2[11];  vdata[11].data[3] = datas2[11];  vdata[11].data[4] = datas2[11];  vdata[11].data[5] = datas2[11];  vdata[11].data[6] = datas2[11];  vdata[11].data[7] = datas2[11];  vdata[11].data[8] = datas2[11];  vdata[11].data[9] = datas2[11];  vdata[11].data[10] = datas2[11];  vdata[11].data[11] = datas2[11];  vdata[11].data[12] = datas2[11];  vdata[11].data[13] = datas2[11];  vdata[11].data[14] = datas2[11];  vdata[11].data[15] = datas2[11];    vdata[12].data[0] = datas2[12];  vdata[12].data[1] = datas2[12];  vdata[12].data[2] = datas2[12];  vdata[12].data[3] = datas2[12];  vdata[12].data[4] = datas2[12];  vdata[12].data[5] = datas2[12];  vdata[12].data[6] = datas2[12];  vdata[12].data[7] = datas2[12];  vdata[12].data[8] = datas2[12];  vdata[12].data[9] = datas2[12];  vdata[12].data[10] = datas2[12];  vdata[12].data[11] = datas2[12];  vdata[12].data[12] = datas2[12];  vdata[12].data[13] = datas2[12];  vdata[12].data[14] = datas2[12];  vdata[12].data[15] = datas2[12];    vdata[13].data[0] = datas2[13];  vdata[13].data[1] = datas2[13];  vdata[13].data[2] = datas2[13];  vdata[13].data[3] = datas2[13];  vdata[13].data[4] = datas2[13];  vdata[13].data[5] = datas2[13];  vdata[13].data[6] = datas2[13];  vdata[13].data[7] = datas2[13];  vdata[13].data[8] = datas2[13];  vdata[13].data[9] = datas2[13];  vdata[13].data[10] = datas2[13];  vdata[13].data[11] = datas2[13];  vdata[13].data[12] = datas2[13];  vdata[13].data[13] = datas2[13];  vdata[13].data[14] = datas2[13];  vdata[13].data[15] = datas2[13];    vdata[14].data[0] = datas2[14];  vdata[14].data[1] = datas2[14];  vdata[14].data[2] = datas2[14];  vdata[14].data[3] = datas2[14];  vdata[14].data[4] = datas2[14];  vdata[14].data[5] = datas2[14];  vdata[14].data[6] = datas2[14];  vdata[14].data[7] = datas2[14];  vdata[14].data[8] = datas2[14];  vdata[14].data[9] = datas2[14];  vdata[14].data[10] = datas2[14];  vdata[14].data[11] = datas2[14];  vdata[14].data[12] = datas2[14];  vdata[14].data[13] = datas2[14];  vdata[14].data[14] = datas2[14];  vdata[14].data[15] = datas2[14];    vdata[15].data[0] = datas2[15];  vdata[15].data[1] = datas2[15];  vdata[15].data[2] = datas2[15];  vdata[15].data[3] = datas2[15];  vdata[15].data[4] = datas2[15];  vdata[15].data[5] = datas2[15];  vdata[15].data[6] = datas2[15];  vdata[15].data[7] = datas2[15];  vdata[15].data[8] = datas2[15];  vdata[15].data[9] = datas2[15];  vdata[15].data[10] = datas2[15];  vdata[15].data[11] = datas2[15];  vdata[15].data[12] = datas2[15];  vdata[15].data[13] = datas2[15];  vdata[15].data[14] = datas2[15];  vdata[15].data[15] = datas2[15];   // FIXME.
 		#else 
- vdata[0].data = datas[0];  vdata[1].data = datas[1];  vdata[2].data = datas[2];  vdata[3].data = datas[3];  vdata[4].data = datas[4];  vdata[5].data = datas[5];  vdata[6].data = datas[6];  vdata[7].data = datas[7];  vdata[8].data = datas[8];  vdata[9].data = datas[9];  vdata[10].data = datas[10];  vdata[11].data = datas[11];  vdata[12].data = datas[12];  vdata[13].data = datas[13];  vdata[14].data = datas[14];  vdata[15].data = datas[15]; 	
+ vdata[0].data = datas2[0];  vdata[1].data = datas2[1];  vdata[2].data = datas2[2];  vdata[3].data = datas2[3];  vdata[4].data = datas2[4];  vdata[5].data = datas2[5];  vdata[6].data = datas2[6];  vdata[7].data = datas2[7];  vdata[8].data = datas2[8];  vdata[9].data = datas2[9];  vdata[10].data = datas2[10];  vdata[11].data = datas2[11];  vdata[12].data = datas2[12];  vdata[13].data = datas2[13];  vdata[14].data = datas2[14];  vdata[15].data = datas2[15]; 	
 		#endif 
 		
 		#ifdef _DEBUGMODE_CHECKS3
@@ -86,7 +102,13 @@ void acts_all::MEMACCESSP0_saveV(bool_type enable, uint512_dt * kvdram, keyvalue
   datas[0] = vdata[0].data[0];  datas[0] = vdata[0].data[1];  datas[0] = vdata[0].data[2];  datas[0] = vdata[0].data[3];  datas[0] = vdata[0].data[4];  datas[0] = vdata[0].data[5];  datas[0] = vdata[0].data[6];  datas[0] = vdata[0].data[7];  datas[0] = vdata[0].data[8];  datas[0] = vdata[0].data[9];  datas[0] = vdata[0].data[10];  datas[0] = vdata[0].data[11];  datas[0] = vdata[0].data[12];  datas[0] = vdata[0].data[13];  datas[0] = vdata[0].data[14];  datas[0] = vdata[0].data[15];    datas[1] = vdata[1].data[0];  datas[1] = vdata[1].data[1];  datas[1] = vdata[1].data[2];  datas[1] = vdata[1].data[3];  datas[1] = vdata[1].data[4];  datas[1] = vdata[1].data[5];  datas[1] = vdata[1].data[6];  datas[1] = vdata[1].data[7];  datas[1] = vdata[1].data[8];  datas[1] = vdata[1].data[9];  datas[1] = vdata[1].data[10];  datas[1] = vdata[1].data[11];  datas[1] = vdata[1].data[12];  datas[1] = vdata[1].data[13];  datas[1] = vdata[1].data[14];  datas[1] = vdata[1].data[15];    datas[2] = vdata[2].data[0];  datas[2] = vdata[2].data[1];  datas[2] = vdata[2].data[2];  datas[2] = vdata[2].data[3];  datas[2] = vdata[2].data[4];  datas[2] = vdata[2].data[5];  datas[2] = vdata[2].data[6];  datas[2] = vdata[2].data[7];  datas[2] = vdata[2].data[8];  datas[2] = vdata[2].data[9];  datas[2] = vdata[2].data[10];  datas[2] = vdata[2].data[11];  datas[2] = vdata[2].data[12];  datas[2] = vdata[2].data[13];  datas[2] = vdata[2].data[14];  datas[2] = vdata[2].data[15];    datas[3] = vdata[3].data[0];  datas[3] = vdata[3].data[1];  datas[3] = vdata[3].data[2];  datas[3] = vdata[3].data[3];  datas[3] = vdata[3].data[4];  datas[3] = vdata[3].data[5];  datas[3] = vdata[3].data[6];  datas[3] = vdata[3].data[7];  datas[3] = vdata[3].data[8];  datas[3] = vdata[3].data[9];  datas[3] = vdata[3].data[10];  datas[3] = vdata[3].data[11];  datas[3] = vdata[3].data[12];  datas[3] = vdata[3].data[13];  datas[3] = vdata[3].data[14];  datas[3] = vdata[3].data[15];    datas[4] = vdata[4].data[0];  datas[4] = vdata[4].data[1];  datas[4] = vdata[4].data[2];  datas[4] = vdata[4].data[3];  datas[4] = vdata[4].data[4];  datas[4] = vdata[4].data[5];  datas[4] = vdata[4].data[6];  datas[4] = vdata[4].data[7];  datas[4] = vdata[4].data[8];  datas[4] = vdata[4].data[9];  datas[4] = vdata[4].data[10];  datas[4] = vdata[4].data[11];  datas[4] = vdata[4].data[12];  datas[4] = vdata[4].data[13];  datas[4] = vdata[4].data[14];  datas[4] = vdata[4].data[15];    datas[5] = vdata[5].data[0];  datas[5] = vdata[5].data[1];  datas[5] = vdata[5].data[2];  datas[5] = vdata[5].data[3];  datas[5] = vdata[5].data[4];  datas[5] = vdata[5].data[5];  datas[5] = vdata[5].data[6];  datas[5] = vdata[5].data[7];  datas[5] = vdata[5].data[8];  datas[5] = vdata[5].data[9];  datas[5] = vdata[5].data[10];  datas[5] = vdata[5].data[11];  datas[5] = vdata[5].data[12];  datas[5] = vdata[5].data[13];  datas[5] = vdata[5].data[14];  datas[5] = vdata[5].data[15];    datas[6] = vdata[6].data[0];  datas[6] = vdata[6].data[1];  datas[6] = vdata[6].data[2];  datas[6] = vdata[6].data[3];  datas[6] = vdata[6].data[4];  datas[6] = vdata[6].data[5];  datas[6] = vdata[6].data[6];  datas[6] = vdata[6].data[7];  datas[6] = vdata[6].data[8];  datas[6] = vdata[6].data[9];  datas[6] = vdata[6].data[10];  datas[6] = vdata[6].data[11];  datas[6] = vdata[6].data[12];  datas[6] = vdata[6].data[13];  datas[6] = vdata[6].data[14];  datas[6] = vdata[6].data[15];    datas[7] = vdata[7].data[0];  datas[7] = vdata[7].data[1];  datas[7] = vdata[7].data[2];  datas[7] = vdata[7].data[3];  datas[7] = vdata[7].data[4];  datas[7] = vdata[7].data[5];  datas[7] = vdata[7].data[6];  datas[7] = vdata[7].data[7];  datas[7] = vdata[7].data[8];  datas[7] = vdata[7].data[9];  datas[7] = vdata[7].data[10];  datas[7] = vdata[7].data[11];  datas[7] = vdata[7].data[12];  datas[7] = vdata[7].data[13];  datas[7] = vdata[7].data[14];  datas[7] = vdata[7].data[15];    datas[8] = vdata[8].data[0];  datas[8] = vdata[8].data[1];  datas[8] = vdata[8].data[2];  datas[8] = vdata[8].data[3];  datas[8] = vdata[8].data[4];  datas[8] = vdata[8].data[5];  datas[8] = vdata[8].data[6];  datas[8] = vdata[8].data[7];  datas[8] = vdata[8].data[8];  datas[8] = vdata[8].data[9];  datas[8] = vdata[8].data[10];  datas[8] = vdata[8].data[11];  datas[8] = vdata[8].data[12];  datas[8] = vdata[8].data[13];  datas[8] = vdata[8].data[14];  datas[8] = vdata[8].data[15];    datas[9] = vdata[9].data[0];  datas[9] = vdata[9].data[1];  datas[9] = vdata[9].data[2];  datas[9] = vdata[9].data[3];  datas[9] = vdata[9].data[4];  datas[9] = vdata[9].data[5];  datas[9] = vdata[9].data[6];  datas[9] = vdata[9].data[7];  datas[9] = vdata[9].data[8];  datas[9] = vdata[9].data[9];  datas[9] = vdata[9].data[10];  datas[9] = vdata[9].data[11];  datas[9] = vdata[9].data[12];  datas[9] = vdata[9].data[13];  datas[9] = vdata[9].data[14];  datas[9] = vdata[9].data[15];    datas[10] = vdata[10].data[0];  datas[10] = vdata[10].data[1];  datas[10] = vdata[10].data[2];  datas[10] = vdata[10].data[3];  datas[10] = vdata[10].data[4];  datas[10] = vdata[10].data[5];  datas[10] = vdata[10].data[6];  datas[10] = vdata[10].data[7];  datas[10] = vdata[10].data[8];  datas[10] = vdata[10].data[9];  datas[10] = vdata[10].data[10];  datas[10] = vdata[10].data[11];  datas[10] = vdata[10].data[12];  datas[10] = vdata[10].data[13];  datas[10] = vdata[10].data[14];  datas[10] = vdata[10].data[15];    datas[11] = vdata[11].data[0];  datas[11] = vdata[11].data[1];  datas[11] = vdata[11].data[2];  datas[11] = vdata[11].data[3];  datas[11] = vdata[11].data[4];  datas[11] = vdata[11].data[5];  datas[11] = vdata[11].data[6];  datas[11] = vdata[11].data[7];  datas[11] = vdata[11].data[8];  datas[11] = vdata[11].data[9];  datas[11] = vdata[11].data[10];  datas[11] = vdata[11].data[11];  datas[11] = vdata[11].data[12];  datas[11] = vdata[11].data[13];  datas[11] = vdata[11].data[14];  datas[11] = vdata[11].data[15];    datas[12] = vdata[12].data[0];  datas[12] = vdata[12].data[1];  datas[12] = vdata[12].data[2];  datas[12] = vdata[12].data[3];  datas[12] = vdata[12].data[4];  datas[12] = vdata[12].data[5];  datas[12] = vdata[12].data[6];  datas[12] = vdata[12].data[7];  datas[12] = vdata[12].data[8];  datas[12] = vdata[12].data[9];  datas[12] = vdata[12].data[10];  datas[12] = vdata[12].data[11];  datas[12] = vdata[12].data[12];  datas[12] = vdata[12].data[13];  datas[12] = vdata[12].data[14];  datas[12] = vdata[12].data[15];    datas[13] = vdata[13].data[0];  datas[13] = vdata[13].data[1];  datas[13] = vdata[13].data[2];  datas[13] = vdata[13].data[3];  datas[13] = vdata[13].data[4];  datas[13] = vdata[13].data[5];  datas[13] = vdata[13].data[6];  datas[13] = vdata[13].data[7];  datas[13] = vdata[13].data[8];  datas[13] = vdata[13].data[9];  datas[13] = vdata[13].data[10];  datas[13] = vdata[13].data[11];  datas[13] = vdata[13].data[12];  datas[13] = vdata[13].data[13];  datas[13] = vdata[13].data[14];  datas[13] = vdata[13].data[15];    datas[14] = vdata[14].data[0];  datas[14] = vdata[14].data[1];  datas[14] = vdata[14].data[2];  datas[14] = vdata[14].data[3];  datas[14] = vdata[14].data[4];  datas[14] = vdata[14].data[5];  datas[14] = vdata[14].data[6];  datas[14] = vdata[14].data[7];  datas[14] = vdata[14].data[8];  datas[14] = vdata[14].data[9];  datas[14] = vdata[14].data[10];  datas[14] = vdata[14].data[11];  datas[14] = vdata[14].data[12];  datas[14] = vdata[14].data[13];  datas[14] = vdata[14].data[14];  datas[14] = vdata[14].data[15];    datas[15] = vdata[15].data[0];  datas[15] = vdata[15].data[1];  datas[15] = vdata[15].data[2];  datas[15] = vdata[15].data[3];  datas[15] = vdata[15].data[4];  datas[15] = vdata[15].data[5];  datas[15] = vdata[15].data[6];  datas[15] = vdata[15].data[7];  datas[15] = vdata[15].data[8];  datas[15] = vdata[15].data[9];  datas[15] = vdata[15].data[10];  datas[15] = vdata[15].data[11];  datas[15] = vdata[15].data[12];  datas[15] = vdata[15].data[13];  datas[15] = vdata[15].data[14];  datas[15] = vdata[15].data[15];   // FIXME.
 		#else 
  datas[0] = vdata[0].data;  datas[1] = vdata[1].data;  datas[2] = vdata[2].data;  datas[3] = vdata[3].data;  datas[4] = vdata[4].data;  datas[5] = vdata[5].data;  datas[6] = vdata[6].data;  datas[7] = vdata[7].data;  datas[8] = vdata[8].data;  datas[9] = vdata[9].data;  datas[10] = vdata[10].data;  datas[11] = vdata[11].data;  datas[12] = vdata[12].data;  datas[13] = vdata[13].data;  datas[14] = vdata[14].data;  datas[15] = vdata[15].data; 	
-		#endif 
+		#endif
+		
+		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
+			value_t vdata = datas[v] >> 1; value_t mask = datas[v] & 0x1;
+			if(vdata < 1000){ cout<<"saveV: ACTIVE VDATA SEEN: @ i: "<<i<<" v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<endl; }}
+		#endif
 		
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MEMACCESSP0_saveV 23", baseoffset_kvs + offset_kvs + i, globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
@@ -112,10 +134,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks1(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -174,10 +198,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks2(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -252,10 +278,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks3(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -346,10 +374,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks4(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -456,10 +486,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks5(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -582,10 +614,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks6(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -724,10 +758,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks7(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -882,10 +918,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks8(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -1056,10 +1094,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks9(bool_type enable, uint512_dt * vdram
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -1246,10 +1286,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks10(bool_type enable, uint512_dt * vdra
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -1452,10 +1494,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks11(bool_type enable, uint512_dt * vdra
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -1674,10 +1718,12 @@ void acts_all::MEMACCESSP0_readANDRVchunks12(bool_type enable, uint512_dt * vdra
 		cout<<"MEMACCESSP0_readANDRVchunks:: size loaded @ s("<<s<<"): vsz_kvs: "<<vsz_kvs<<", voffset_kvs: "<<voffset_kvs<<", depth: "<<depth<<", depth_i: "<<depth_i<<endl;
 		#endif
 		unsigned int index = 0;
+		// unsigned int index = s;
 		READANDRVCHUNKS_LOOP2B: for (buffer_type i=0; i<vsz_kvs; i++){
 		#pragma HLS PIPELINE II=1
 		
-			unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			// unsigned int offset_kvs; if(voffset_kvs + depth_i + i >= limit){ offset_kvs = 0; } else { offset_kvs = voffset_kvs + depth_i + i; } // CRITICAL FIXME. 
+			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTILP0_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
 			#ifdef BIT_TRAVERSAL_ALGORITHM
@@ -1948,7 +1994,7 @@ void acts_all::MEMACCESSP0_readglobalstats(bool_type enable, uint512_dt * kvdram
 	#ifdef _DEBUGMODE_CHECKS3
 	for (buffer_type i=0; i<globalparams.NUM_REDUCEPARTITIONS; i++){ actsutilityobj->checkoutofbounds("saveglobalstats", globalstatsbuffer[i].key + globalstatsbuffer[i].value, globalparams.SIZE_KVDRAM, NAp, NAp, NAp); }
 	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS3
+	#ifdef _DEBUGMODE_KERNELPRINTS
 	actsutilityobj->printkeyvalues("mem_access:: readglobalstats.globalstatsbuffer", globalstatsbuffer, 1 + globalparams.NUM_REDUCEPARTITIONS); 
 	#endif
 	// exit(EXIT_SUCCESS); 
@@ -2055,7 +2101,7 @@ tuple_t acts_all::MEMACCESSP0_getvptrs_opt(uint512_dt * kvdram, unsigned int bas
 unsigned int acts_all::MEMACCESSP0_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
 	keyvalue_t data;
 	
-	uint512_dt V = kvdram[baseoffset_kvs + loc / VECTOR2_SIZE];
+	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
 	unsigned int index = (loc % VECTOR2_SIZE) / 2;
 	
 	#ifdef _WIDEWORD
@@ -2130,6 +2176,64 @@ else {
 	else { return data.value; }
 }
 
+void acts_all::MEMACCESSP0_setdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc, unsigned int data){
+	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
+	unsigned int index = (loc % VECTOR2_SIZE);
+	
+	#ifdef _WIDEWORD
+ if(index == 0){
+		V.range(31, 0) = data; 
+	}
+else if(index == 1){
+		V.range(63, 32) = data; 
+	}
+else if(index == 2){
+		V.range(95, 64) = data; 
+	}
+else if(index == 3){
+		V.range(127, 96) = data; 
+	}
+else if(index == 4){
+		V.range(159, 128) = data; 
+	}
+else if(index == 5){
+		V.range(191, 160) = data; 
+	}
+else if(index == 6){
+		V.range(223, 192) = data; 
+	}
+else if(index == 7){
+		V.range(255, 224) = data; 
+	}
+else if(index == 8){
+		V.range(287, 256) = data; 
+	}
+else if(index == 9){
+		V.range(319, 288) = data; 
+	}
+else if(index == 10){
+		V.range(351, 320) = data; 
+	}
+else if(index == 11){
+		V.range(383, 352) = data; 
+	}
+else if(index == 12){
+		V.range(415, 384) = data; 
+	}
+else if(index == 13){
+		V.range(447, 416) = data; 
+	}
+else if(index == 14){
+		V.range(479, 448) = data; 
+	}
+else {
+		V.range(511, 480) = data; 
+	}
+	#else 
+	if(index % 2 == 0){ V.data[index/2].key = data; } else { V.data[index/2].value = data; }
+	#endif
+}
+
 void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
 	RETRIEVEKVSTATS_LOOP1: for(unsigned int k=0; k<globalparams.ACTSPARAMS_TREEDEPTH; k++){ totalnumpartitionsb4last += (1 << (globalparams.ACTSPARAMS_POW_PARTITIONS * k)); }
@@ -2150,7 +2254,7 @@ void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, 
 }
 
 // -------------------- multiple accesses -------------------- //
-void acts_all::MEMACCESSP0_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, unsigned int actsinstance, globalparams_t globalparams){
+void acts_all::MEMACCESSP0_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, globalparams_t globalparams){
 	
 	value_t datas[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable=datas complete

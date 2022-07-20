@@ -1100,11 +1100,11 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	vector<edge2_type> edgesin_srcvp_lldstvp_srcv2p[num_LLPs][OPT_NUM_PARTITIONS]; // EDGEDATA_PACKINGSIZE
 	unsigned int edge_count_in_vpartition[MAXNUM_PEs][MAXNUM_VPs];
 	std::vector<edge2_type> edges_temp[EDGEDATA_PACKINGSIZE];
-	vector<edge2_type> edgeblock_temp[EDGEDATA_PACKINGSIZE][MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION]; 
+	vector<edge2_type> edgeblock_temp[EDGEDATA_PACKINGSIZE][MAXNUM_EDGEBLOCKS_PER_VPARTITION]; 
 	
-	for(unsigned int k=0; k<EDGEDATA_PACKINGSIZE; k++){ for(unsigned int t=0; t<MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION; t++){ edgeblock_temp[k][t].clear(); }}
-	keyvalue_t * temp_stats[EDGEDATA_PACKINGSIZE];  for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ temp_stats[v] = new keyvalue_t[MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION]; }
-	for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ for(unsigned int t=0; t<MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION; t++){ temp_stats[v][t].key = 0; temp_stats[v][t].value = 0; }}
+	for(unsigned int k=0; k<EDGEDATA_PACKINGSIZE; k++){ for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ edgeblock_temp[k][t].clear(); }}
+	keyvalue_t * temp_stats[EDGEDATA_PACKINGSIZE];  for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ temp_stats[v] = new keyvalue_t[MAXNUM_EDGEBLOCKS_PER_VPARTITION]; }
+	for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ temp_stats[v][t].key = 0; temp_stats[v][t].value = 0; }}
 		
 	for(unsigned int i=0; i<_NUM_PEs; i++){ edges_final[i].clear(); }
 	for(unsigned int i=0; i<_NUM_PEs; i++){ for(unsigned int v_p=0; v_p<_num_vPs; v_p++){ for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ edges_map[i][v_p][ll_p].offset = 0; edges_map[i][v_p][ll_p].size = 0; }}}
@@ -1141,7 +1141,15 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			
 			#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
 			unsigned int H = (edge.dstvid % (EDGEDATA_PACKINGSIZE * NUM_PEs)) / EDGEDATA_PACKINGSIZE;
-			edge.dstvid = ((edge.dstvid / (EDGEDATA_PACKINGSIZE * NUM_PEs)) * EDGEDATA_PACKINGSIZE) + (edge.dstvid % EDGEDATA_PACKINGSIZE); 
+			if(edge.srcvid >= 0 && edge.srcvid <= 13 && H == 23){ // 23
+				cout<<"loadedges:: ######## edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<" #############"<<endl;
+			}
+			unsigned int lvid = utilityobj->UTIL_GETLOCALVID(edge.dstvid, H);
+			unsigned int vid = utilityobj->UTIL_GETREALVID(lvid, H);
+			edge.dstvid = lvid;
+			if(edge.srcvid >= 0 && edge.srcvid <= 13 && H == 23){ // 23
+				cout<<"loadedges:: ^^^^^^^^ edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<" #############"<<endl;
+			}
 			#endif 
 			
 			#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
@@ -1228,7 +1236,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				unsigned int offset_llpset = llp_set * EDGEDATA_PACKINGSIZE; // universalparams.NUM_PARTITIONS;
 				
 				for(unsigned int t=0; t<EDGEDATA_PACKINGSIZE; t++){ edges_temp[t].clear(); } // clear
-				for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ for(unsigned int t=0; t<MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION; t++){ edgeblock_temp[v][t].clear(); }}
+				for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ edgeblock_temp[v][t].clear(); }}
 				edge2_type last_edge[EDGEDATA_PACKINGSIZE]; for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ last_edge[v].srcvid = 0; last_edge[v].dstvid = 0; }
 				
 				for(unsigned int llp_id=0; llp_id<EDGEDATA_PACKINGSIZE; llp_id++){ 
@@ -1317,7 +1325,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 						// update edges_temp & edgeblock_temp
 						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ edges_temp[v].push_back(edge_vec2.data[v]); }
 						#ifdef _DEBUGMODE_HOSTCHECKS3
-						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 561::", (edges_temp[v][t].srcvid - (v_p * vsize_vP)) / MAXVSIZE_ACTVEDGEBLOCK, MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION, edges_temp[v][t].srcvid, v_p, vsize_vP);	}
+						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 561::", (edges_temp[v][t].srcvid - (v_p * vsize_vP)) / MAXVSIZE_ACTVEDGEBLOCK, MAXNUM_EDGEBLOCKS_PER_VPARTITION, edges_temp[v][t].srcvid, v_p, vsize_vP);	}
 						// for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 562::", edge_vec2_local.data[v].srcvid, vsize_vP / EDGEDATA_PACKINGSIZE, EDGEDATA_PACKINGSIZE, v_p, vsize_vP); }
 						// for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 563::", edge_vec2_local.data[v].dstvid, vsize_LLP * VDATA_PACKINGSIZE, EDGEDATA_PACKINGSIZE, v_p, vsize_vP); }
 						#endif 
@@ -1333,6 +1341,14 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 							utilityobj->checkoutofbounds("loadedges::ERROR 58::", edge_vec2_local.data[v+1].dstvid, (1 << DSTVID_BITSZ), globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA, t, v);	
 							if(edge_vec2.data[v].valid == true){ edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v/2].key = (edge_vec2_local.data[v].srcvid << DSTVID_BITSZ) | edge_vec2_local.data[v].dstvid; } else { edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v/2].key = INVALIDDATA; }
 							if(edge_vec2.data[v+1].valid == true){ edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v/2].value = (edge_vec2_local.data[v+1].srcvid << DSTVID_BITSZ) | edge_vec2_local.data[v+1].dstvid; } else { edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v/2].value = INVALIDDATA; }	
+							
+							// if(edge_vec2_local.data[v].srcvid >= 0 && i == 23){ // 23
+								// cout<<"loadedges:: %%%%%%%% edge_vec2_local.data["<<v<<"].srcvid: "<<edge_vec2_local.data[v].srcvid<<", edge_vec2_local.data["<<v<<"].dstvid: "<<edge_vec2_local.data[v].dstvid<<" #############"<<endl;
+							// }
+							// if(edge_vec2_local.data[v+1].srcvid >= 0 && i == 23){ // 23
+								// cout<<"loadedges:: %%%%%%%%# edge_vec2_local.data["<<v+1<<"].srcvid: "<<edge_vec2_local.data[v+1].srcvid<<", edge_vec2_local.data["<<v+1<<"].dstvid: "<<edge_vec2_local.data[v+1].dstvid<<" #############"<<endl;
+							// }
+			
 							#else 
 							utilityobj->checkoutofbounds("loadedges::ERROR 56::", globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index, universalparams.MAXHBMCAPACITY_KVS2 * VECTOR_SIZE, globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA, t, NAp);	
 							if(edge_vec2.data[v].valid == true){ edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v].key = edge_vec2.data[v].dstvid; } else { edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v].key = INVALIDDATA; }
@@ -1369,9 +1385,9 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				
 				if(false){ cout<<"loadedges:: load edgeblock maps"<<endl; }
 				unsigned int totalsz = 0;
-				for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ for(unsigned int t=0; t<MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION; t++){ temp_stats[v][t].key = 0; temp_stats[v][t].value = edgeblock_temp[v][t].size(); }}
-				for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->calculateoffsets(temp_stats[v], MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION, 0, VECTOR_SIZE); }
-				for (int t = 0; t < MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION; t++){
+				for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ temp_stats[v][t].key = 0; temp_stats[v][t].value = edgeblock_temp[v][t].size(); }}
+				for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->calculateoffsets(temp_stats[v], MAXNUM_EDGEBLOCKS_PER_VPARTITION, 0, VECTOR_SIZE); }
+				for (int t = 0; t < MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){
 					// load edgeblock_map
 					unsigned int min = (1 << 31); unsigned int max = 0;
 					for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ if(min > temp_stats[v][t].key){ min = temp_stats[v][t].key; }}
@@ -1485,7 +1501,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			for(unsigned int ll_p=0; ll_p<16; ll_p++){ // MAXNUM_LLPs, _num_LLPset
 				cout<<"Edge Map in dram "<<i<<": edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].offset: "<<edges_map[i][v_p][ll_p].offset<<", edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].size: "<<edges_map[i][v_p][ll_p].size<<endl; 
 			}
-			for(unsigned int t=0; t<16; t++){ // MAXNUM_ACTVEDGEBLOCKS_PER_VPARTITION
+			for(unsigned int t=0; t<16; t++){ // MAXNUM_EDGEBLOCKS_PER_VPARTITION
 				cout<<"Edgeblock Map in dram "<<i<<": edgeblock_map["<<i<<"]["<<v_p<<"]["<<t<<"].key: "<<edgeblock_map[i][v_p][t].key<<", edgeblock_map["<<i<<"]["<<v_p<<"]["<<t<<"].value: "<<edgeblock_map[i][v_p][t].value<<endl; 
 			}
 		}

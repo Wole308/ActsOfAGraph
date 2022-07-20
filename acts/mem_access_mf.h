@@ -26,10 +26,12 @@ tuple_t MEMACCESSP0_getvptrs_opt(uint512_dt *  kvdram, unsigned int baseoffset_k
 
 unsigned int MEMACCESSP0_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc);
 
+void MEMACCESSP0_setdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc, unsigned int data);
+
 void MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams);
 
 // -------------------- multiple accesses -------------------- //
-void MEMACCESSP0_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, unsigned int actsinstance, globalparams_t globalparams);
+void MEMACCESSP0_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, globalparams_t globalparams);
 
 
 

@@ -157,13 +157,28 @@ keyy_t acts_all::UTILP0_GETKEYENTRY(uint512_dt data, unsigned int v){
 }		
 unsigned int acts_all::UTILP0_GETLOCALVID(unsigned int vid, unsigned int instid){ 
 	#pragma HLS INLINE
+	
+	#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
+	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
+	unsigned int y = vid / W; 
+	unsigned int x = vid % EDGEDATA_PACKINGSIZE;
+	unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
+	return lvid;
+	#endif 
+	
+	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
 	return (vid - instid) / NUM_PEs;
+	#endif 
 }
 unsigned int acts_all::UTILP0_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
 	
 	#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
-	return ((lvid / EDGEDATA_PACKINGSIZE) * (EDGEDATA_PACKINGSIZE * NUM_PEs)) + (instid * EDGEDATA_PACKINGSIZE) + lvid;
+	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
+	unsigned int y2 = lvid / EDGEDATA_PACKINGSIZE;
+	unsigned int x2 = lvid % EDGEDATA_PACKINGSIZE;		
+	unsigned int vid = (y2 * W) + (instid * EDGEDATA_PACKINGSIZE) + x2;
+	return vid;
 	#endif 
 	
 	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
@@ -770,7 +785,7 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA];
 	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES];
 	globalparams.BASEOFFSETKVS_EDGESMAP = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESMAP];
-	globalparams.BASEOFFSETKVS_ACTIVEEDGESMAP = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEEDGESMAP];
+	globalparams.BASEOFFSETKVS_EDGEBLOCKMAP = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGEBLOCKMAP];
 	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK];
 	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_STATSDRAM];
 	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM]; //
@@ -793,7 +808,7 @@ globalparams_t acts_all::UTILP0_getglobalparams(uint512_dt * kvdram, unsigned in
 	globalparams.SIZE_DESTVERTICESDATA = buffer[MESSAGES_SIZE_DESTVERTICESDATA];
 	globalparams.SIZE_ACTIVEVERTICES = buffer[MESSAGES_SIZE_ACTIVEVERTICES];
 	globalparams.SIZE_EDGESMAP = buffer[MESSAGES_SIZE_EDGESMAP];
-	globalparams.SIZE_ACTIVEEDGESMAP = buffer[MESSAGES_SIZE_ACTIVEEDGESMAP];
+	globalparams.SIZE_EDGEBLOCKMAP = buffer[MESSAGES_SIZE_EDGEBLOCKMAP];
 	globalparams.SIZE_VERTICESPARTITIONMASK = buffer[MESSAGES_SIZE_VERTICESPARTITIONMASK];
 	globalparams.SIZE_KVSTATSDRAM = buffer[MESSAGES_SIZE_KVSTATSDRAM];
 	globalparams.SIZE_EDGESSTATSDRAM = buffer[MESSAGES_SIZE_EDGESSTATSDRAM];

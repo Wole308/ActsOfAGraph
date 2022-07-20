@@ -244,6 +244,9 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_reduceit(uin
 	travstate_t ptravstate; ptravstate.begin_kvs = 0; ptravstate.end_kvs = 0; // DUMMY
 	config.enablereduce = ON;
 	
+	// unsigned int mode = ACTSREDUCEMODE;
+	// if(sweepparams.source_partition == 0){  }
+	
 	ACTS{{context['id']}}_actit_base(config.enablereduce, ACTSREDUCEMODE,
 			 kvdram, vbuffer_source, vbuffer_dest, globalcapsule, // CRITICAL FIXME.
 			globalparamsE, globalparamsK, globalposition, sweepparams, ptravstate, sweepparams.worksourcebaseaddress_kvs, sweepparams.workdestbaseaddress_kvs,
@@ -318,8 +321,12 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelpro
 	if(false && globalposition.source_partition==globalposition.last_source_partition){ printheader2 = ON; } else { printheader2 = OFF; }
 	// printheader1=ON;
 	#ifdef _DEBUGMODE_KERNELPRINTS
-	cout<<">>> ====================== ACTS Launched... size: "<<UTIL{{context['id']}}_GETKEYENTRY(kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_RUN], 0)<<" ====================== "<<endl;
+	cout<<">>> ====================== ACTS Launched @ instance: "<<globalid<<" ====================== "<<endl;
 	#endif
+	
+	// #ifdef TESTKERNEL 
+	// if(globalid==22){} else { return; }
+	// #endif 
 	
 	keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer
@@ -462,7 +469,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 		// #pragma HLS bind_storage variable=vbuffer_source{{i}} type=RAM_S2P impl=uram
 	#endif
 	
-	keyvalue_t globalcapsule{{i}}[BLOCKRAM_SIZE];	
+	keyvalue_t globalcapsule{{i}}[BLOCKRAM_SIZE];
 	collection_t collections{{i}}[COLLECTIONS_BUFFERSZ];
 	{%endif%}{%endfor%}
 	pmask_dt pmask_curr[BLOCKRAM_CURRPMASK_SIZE];
@@ -617,8 +624,8 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 							#ifdef _DEBUGMODE_KERNELPRINTS3
 							cout<<"### TOPKERNEL{{n}}_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
-							MEMACCESS{{context['id']}}_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
-							MEMACCESS{{context['id']}}_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsK.ACTSPARAMS_INSTID, globalparamsV);
+							MEMACCESS{{context['id']}}_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							MEMACCESS{{context['id']}}_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -704,7 +711,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	
 	#ifdef CONFIG_RELEASE_VERSION2
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-		{%for i in context['T_seq']%}{%if(i<n)%}	
+		{%for i in context['T_seq']%}{%if(i<n)%}		
 		MERGE{{context['id']}}_mergeVs(kvdram{{i}}, vdram); 
 		{%endif%}{%endfor%}
 	}
