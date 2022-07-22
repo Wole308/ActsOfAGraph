@@ -769,24 +769,24 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 		cout<<"actit(reduce): processing all chunks [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<workload_kvs.offset_end<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * UPDATEDATA_PACKINGSIZE<<"] ... "<<endl;					
 		#endif
 	
-		// workload_t workload1_kvs;
-		// workload1_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
-		// workload1_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
-		// ACTS{{context['id']}}_read_and_reduce(READVERTEXPROPMODE, kvdram, vbuffer_dest,	// used as read-from-kvdram-to-vbuffer
-			// sweepparams, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, workload1_kvs,
-				// collections_tmp, globalparamsK, globalposition);	
+		workload_t workload1_kvs;
+		workload1_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
+		workload1_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
+		ACTS{{context['id']}}_read_and_reduce(READVERTEXPROPMODE, kvdram, vbuffer_dest,	// used as read-from-kvdram-to-vbuffer
+			sweepparams, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, workload1_kvs,
+				collections_tmp, globalparamsK, globalposition);	
 	
 		ACTS{{context['id']}}_read_and_reduce(mode, kvdram, vbuffer_dest,	
 				sweepparams, sourcebaseaddr_kvs, workload_kvs,
 					collections_tmp, globalparamsK, globalposition);
 	
-		// workload_t workload2_kvs;
-		// workload2_kvs.offset_begin = 0; // NAp // sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
-		// workload2_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
-		// unsigned int destoffset_kvs = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION;
-		// ACTS{{context['id']}}_read_process_partition_and_write_base(SAVEVERTEXPROPMODE, kvdram, vbuffer_dest, // used as write-from-vbuffer-to-kvdram
-					// upperlimit, sourcebaseaddr_kvs, workload2_kvs, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, destoffset_kvs, 0,
-						// collections_tmp, globalparamsK, globalposition);	
+		workload_t workload2_kvs;
+		workload2_kvs.offset_begin = 0; // NAp // sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
+		workload2_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
+		unsigned int destoffset_kvs = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION;
+		ACTS{{context['id']}}_read_process_partition_and_write_base(SAVEVERTEXPROPMODE, kvdram, vbuffer_dest, // used as write-from-vbuffer-to-kvdram
+					upperlimit, sourcebaseaddr_kvs, workload2_kvs, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, destoffset_kvs, 0,
+						collections_tmp, globalparamsK, globalposition);	
 	}
 	
 	collections[TRAVERSEDEDGES_COLLECTIONID] = collections_tmp[TRAVERSEDEDGES_COLLECTIONID];

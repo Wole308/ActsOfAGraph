@@ -289,17 +289,17 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 		#endif
 		
 		// read vertices 
-		#ifdef CONFIG_RELEASE_VERSION6
-		MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
-		#endif 
+		// #ifdef CONFIG_RELEASE_VERSION6
+		// MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
+		// #endif 
 		
 		// reduce
 		TOP{{context['id']}}_dispatch(OFF, OFF, enablereduce, kvdram, vbuffer_source, vbuffer_dest, globalcapsule, sourcestatsmarker, source_partition, globalparamsE, globalparamsK, globalposition, v_chunkids, v_chunkid, NAp, collections);
 		
 		// writeback vertices 
-		#ifdef CONFIG_RELEASE_VERSION6
-		MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
-		#endif 
+		// #ifdef CONFIG_RELEASE_VERSION6
+		// MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
+		// #endif 
 		
 		sourcestatsmarker += 1;
 		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
