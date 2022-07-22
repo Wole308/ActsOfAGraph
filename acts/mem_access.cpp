@@ -2098,7 +2098,7 @@ tuple_t acts_all::MEMACCESSP0_getvptrs_opt(uint512_dt * kvdram, unsigned int bas
 }
 #endif 
 
-unsigned int acts_all::MEMACCESSP0_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
+/* unsigned int acts_all::MEMACCESSP0_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
 	keyvalue_t data;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
@@ -2174,9 +2174,9 @@ else {
 	
 	if(loc % 2 == 0){ return data.key; }
 	else { return data.value; }
-}
+} */
 
-void acts_all::MEMACCESSP0_setdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc, unsigned int data){
+/* void acts_all::MEMACCESSP0_setdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc, unsigned int data){
 	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
 	unsigned int index = (loc % VECTOR2_SIZE);
 	
@@ -2232,7 +2232,7 @@ else {
 	#else 
 	if(index % 2 == 0){ V.data[index/2].key = data; } else { V.data[index/2].value = data; }
 	#endif
-}
+} */
 
 void acts_all::MEMACCESSP0_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
@@ -2279,6 +2279,23 @@ void acts_all::MEMACCESSP0_readhelperstats(uint512_dt * vdram, pmask_dt pmask[BL
 	}
 	cout<<" ("<<num_actvps<<" active partitions, "<<size_kvs<<" total partitions)"<< RESET << endl;
 	#endif 
+	return;
+}
+
+void acts_all::MEMACCESSP0_savehelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, globalparams_t globalparams){
+	
+	value_t datas[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=datas complete
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		datas[GraphIter] = pmask[i];
+		UTILP0_WriteDatas(vdram, offset_kvs + i, datas);
+		
+		#ifdef _DEBUGMODE_CHECKS3
+		actsutilityobj->checkoutofbounds("readhelperstats. ERROR.", GraphIter, MAXNUMGRAPHITERATIONS, NAp, NAp, NAp);
+		#endif
+	}
 	return;
 }
 

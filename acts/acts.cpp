@@ -893,6 +893,8 @@ void acts_all::ACTSP0_read_and_reduce(unsigned int mode, uint512_dt * kvdram, ke
 	#pragma HLS ARRAY_PARTITION variable = memory 
 	value_t datas[VECTOR2_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = datas complete
+	value_t datas2[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=datas2 complete
 	keyvalue_t updates_in[EDGEDATA_PACKINGSIZE];
 	#pragma HLS ARRAY_PARTITION variable = updates_in complete
 	keyvalue_t updates_inter[EDGEDATA_PACKINGSIZE];
@@ -905,6 +907,7 @@ void acts_all::ACTSP0_read_and_reduce(unsigned int mode, uint512_dt * kvdram, ke
 	#pragma HLS ARRAY_PARTITION variable = index complete
 	bool en[EDGEDATA_PACKINGSIZE];
 	#pragma HLS ARRAY_PARTITION variable = en complete
+	
 	
 	for(int v = 0; v < VECTOR2_SIZE; v++){ updates_in[v].key = INVALIDDATA; updates_in[v].value = INVALIDDATA; }
 	if(mode == READVERTEXPROPMODE){ for(int v = 0; v < VECTOR2_SIZE; v++){ updates_in[v].key = 0; updates_in[v].value = 0; }}
@@ -930,6 +933,11 @@ void acts_all::ACTSP0_read_and_reduce(unsigned int mode, uint512_dt * kvdram, ke
 				if(datas[v] != INVALIDDATA){ updates_in[v].key = datas[v] & MASK_DSTVID; updates_in[v].value = (datas[v] >> DSTVID_BITSZ) & MASK_SRCVID; } // 16, 18, srcvid is upper, dstvid is lower 
 				else { updates_in[v].key = INVALIDDATA; updates_in[v].value = INVALIDDATA; }
 			}
+		} else {
+			for(int v = 0; v < VECTOR2_SIZE; v++){
+			#pragma HLS UNROLL 
+				datas2[v] = datas[v] & 0xFFFFFFFE; 
+			}
 		}
 		
 		// prepare inputs
@@ -941,7 +949,7 @@ void acts_all::ACTSP0_read_and_reduce(unsigned int mode, uint512_dt * kvdram, ke
 		} else {
 			for(int v = 0; v < VECTOR2_SIZE; v++){ 
 			#pragma HLS UNROLL 
-				index[v] = offset_kvs; data[v].value = datas[v]; en[v] = true;
+				index[v] = offset_kvs; data[v].value = datas2[v]; en[v] = true;
 			}
 		}
 		
@@ -1009,13 +1017,17 @@ void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
 				if(globalposition.num_active_vertices < globalparamsK.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){
 					unsigned int loc = n;//n + 5; // REMOVEME. // actvvs[n]
 					unsigned int index = (sweepparams.source_partition * MAXNUM_EDGEBLOCKS_PER_VPARTITION) + (2 * loc);
-					workload_kvs.offset_begin = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP, index);
-					workload_kvs.size = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP, index + 1);
+					// workload_kvs.offset_begin = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP, index);
+					// workload_kvs.size = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP, index + 1);
+					workload_kvs.offset_begin = UTILP0_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP, index);
+					workload_kvs.size = UTILP0_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP, index + 1);
 					workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
 				} else {
 					unsigned int index = (sweepparams.source_partition * num_LLPset) + llp_set;
-					workload_kvs.offset_begin = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index) / EDGEDATA_PACKINGSIZE;
-					workload_kvs.offset_end = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index + 1) / EDGEDATA_PACKINGSIZE;
+					// workload_kvs.offset_begin = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index) / EDGEDATA_PACKINGSIZE;
+					// workload_kvs.offset_end = MEMACCESSP0_getdata(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index + 1) / EDGEDATA_PACKINGSIZE;
+					workload_kvs.offset_begin = UTILP0_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index) / EDGEDATA_PACKINGSIZE;
+					workload_kvs.offset_end = UTILP0_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index + 1) / EDGEDATA_PACKINGSIZE;
 					workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin;
 				}
 			
@@ -1050,24 +1062,24 @@ void acts_all::ACTSP0_actit(bool_type enable, unsigned int mode,
 		cout<<"actit(reduce): processing all chunks [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<workload_kvs.offset_end<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * UPDATEDATA_PACKINGSIZE<<"] ... "<<endl;					
 		#endif
 	
-		// workload_t workload1_kvs;
-		// workload1_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
-		// workload1_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
-		// ACTSP0_read_and_reduce(READVERTEXPROPMODE, kvdram, vbuffer_dest,	// used as read-from-kvdram-to-vbuffer
-			// sweepparams, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, workload1_kvs,
-				// collections_tmp, globalparamsK, globalposition);	
+		workload_t workload1_kvs;
+		workload1_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
+		workload1_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
+		ACTSP0_read_and_reduce(READVERTEXPROPMODE, kvdram, vbuffer_dest,	// used as read-from-kvdram-to-vbuffer
+			sweepparams, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, workload1_kvs,
+				collections_tmp, globalparamsK, globalposition);	
 	
 		ACTSP0_read_and_reduce(mode, kvdram, vbuffer_dest,	
 				sweepparams, sourcebaseaddr_kvs, workload_kvs,
 					collections_tmp, globalparamsK, globalposition);
 	
-		// workload_t workload2_kvs;
-		// workload2_kvs.offset_begin = 0; // NAp // sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
-		// workload2_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
-		// unsigned int destoffset_kvs = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION;
-		// ACTSP0_read_process_partition_and_write_base(SAVEVERTEXPROPMODE, kvdram, vbuffer_dest, // used as write-from-vbuffer-to-kvdram
-					// upperlimit, sourcebaseaddr_kvs, workload2_kvs, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, destoffset_kvs, 0,
-						// collections_tmp, globalparamsK, globalposition);	
+		workload_t workload2_kvs;
+		workload2_kvs.offset_begin = 0; // NAp // sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
+		workload2_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
+		unsigned int destoffset_kvs = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION;
+		ACTSP0_read_process_partition_and_write_base(SAVEVERTEXPROPMODE, kvdram, vbuffer_dest, // used as write-from-vbuffer-to-kvdram
+					upperlimit, sourcebaseaddr_kvs, workload2_kvs, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, destoffset_kvs, 0,
+						collections_tmp, globalparamsK, globalposition);	
 	}
 	
 	collections[TRAVERSEDEDGES_COLLECTIONID] = collections_tmp[TRAVERSEDEDGES_COLLECTIONID];

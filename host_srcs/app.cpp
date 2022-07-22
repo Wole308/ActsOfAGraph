@@ -220,7 +220,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ num_edges_processed[iter] = 0; }
 	container_t container;
 	vector<value_t> actvvs; actvvs.push_back(rootvid);
-	tuple_t * iteration_stats[MAXNUMGRAPHITERATIONS]; 
+	tuple_t * vpartition_stats[MAXNUMGRAPHITERATIONS]; 
 	tuple_t * vpmaskstats_merge[MAXNUMGRAPHITERATIONS][NUM_PEs]; 
 	long double totaltime_ms = 0;
 	binaryFile[0] = _binaryFile1;
@@ -239,9 +239,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	// universalparams_t universalparams;
 	universalparams_t universalparams = get_universalparams(algo, numiterations, rootvid, num_vertices, num_edges, graphisundirected_bool);
-	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ iteration_stats[i] = new tuple_t[universalparams.NUMPROCESSEDGESPARTITIONS]; }
+	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ vpartition_stats[i] = new tuple_t[universalparams.NUMPROCESSEDGESPARTITIONS]; }
 	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ for(unsigned int j=0; j<NUM_PEs; j++){ vpmaskstats_merge[i][j] = new tuple_t[universalparams.NUMREDUCEPARTITIONS]; }}
-	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ iteration_stats[iter][t].A = 0; iteration_stats[iter][t].B = 0; }}
+	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ vpartition_stats[iter][t].A = 0; vpartition_stats[iter][t].B = 0; }}
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int j=0; j<NUM_PEs; j++){ for(unsigned int t=0; t<universalparams.NUMREDUCEPARTITIONS; t++){ vpmaskstats_merge[iter][j][t].A = 0; vpmaskstats_merge[iter][j][t].B = 0; }}}
 	utility * utilityobj = new utility(universalparams);
 	utilityobj->printallparameters();
@@ -514,7 +514,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	// acts helper
 	#ifdef APP_RUNSWVERSION
-	universalparams.NUM_ITERATIONS = actshelperobj->extract_stats(actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, iteration_stats, vpmaskstats_merge, num_edges_processed);
+	universalparams.NUM_ITERATIONS = actshelperobj->extract_stats(actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpartition_stats, vpmaskstats_merge, num_edges_processed);
 	if(numiterations < universalparams.NUM_ITERATIONS){ universalparams.NUM_ITERATIONS = numiterations; }
 	cout<<"app:: extract_stats finsished successfully. "<<universalparams.NUM_ITERATIONS<<" iterations run."<<endl;
 	if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){ for(unsigned int t=0; t<MAXNUMGRAPHITERATIONS; t++){ total_edges_processed += edgesprocessed_totals[t]; }} else { total_edges_processed = universalparams.NUM_EDGES; }
@@ -543,9 +543,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;		
 	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 	unsigned int vdram_BASEOFFSETKVS_ACTIVEVERTICES = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
-	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
-		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = iteration_stats[iter][t].A; }
-		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_ACTIVEVERTICES + t].data[iter] = iteration_stats[iter][t].B / NUM_PEs; }
+	for(unsigned int iter=0; iter<1; iter++){ // MAXNUMGRAPHITERATIONS
+		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpartition_stats[iter][t].A; }
+		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_ACTIVEVERTICES + t].data[iter] = vpartition_stats[iter][t].B / NUM_PEs; }
 		
 		for(unsigned int i=0; i<NUM_PEs; i++){ 
 			uint512_ivec_dt * tempkvdram = (uint512_ivec_dt *)kvbuffer[i];	
@@ -581,7 +581,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: "<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUM_PEs)<<" Million edges / sec"<< RESET <<endl;
 	#endif 
 	
-	actshelperobj->extract_stats(actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, iteration_stats, vpmaskstats_merge, num_edges_processed);
+	actshelperobj->extract_stats(actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpartition_stats, vpmaskstats_merge, num_edges_processed);
 	summary(GRAPH_PATH, vdram, globalparams.globalparamsV);
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS4

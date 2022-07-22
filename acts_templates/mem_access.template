@@ -209,7 +209,7 @@ tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs_
 }
 #endif 
 
-unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
+/* unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
 	keyvalue_t data;
 	
 	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
@@ -233,9 +233,9 @@ unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getd
 	
 	if(loc % 2 == 0){ return data.key; }
 	else { return data.value; }
-}
+} */
 
-void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_setdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc, unsigned int data){
+/* void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_setdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc, unsigned int data){
 	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
 	unsigned int index = (loc % VECTOR2_SIZE);
 	
@@ -248,7 +248,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_setdata(uint
 	#else 
 	if(index % 2 == 0){ V.data[index/2].key = data; } else { V.data[index/2].value = data; }
 	#endif
-}
+} */
 
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;
@@ -295,6 +295,23 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readhelperst
 	}
 	cout<<" ("<<num_actvps<<" active partitions, "<<size_kvs<<" total partitions)"<< RESET << endl;
 	#endif 
+	return;
+}
+
+void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_savehelperstats(uint512_dt * vdram, pmask_dt pmask[BLOCKRAM_CURRPMASK_SIZE], batch_type offset_kvs, batch_type size_kvs, unsigned int GraphIter, globalparams_t globalparams){
+	
+	value_t datas[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=datas complete
+	
+	READMANYPMASKS_LOOP1: for (buffer_type i=0; i<size_kvs; i++){	
+	#pragma HLS PIPELINE II=1
+		datas[GraphIter] = pmask[i];
+		UTIL{{context['id']}}_WriteDatas(vdram, offset_kvs + i, datas);
+		
+		#ifdef _DEBUGMODE_CHECKS3
+		actsutilityobj->checkoutofbounds("readhelperstats. ERROR.", GraphIter, MAXNUMGRAPHITERATIONS, NAp, NAp, NAp);
+		#endif
+	}
 	return;
 }
 

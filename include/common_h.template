@@ -501,8 +501,10 @@ struct _bitData {
 // #define MAX_PROC_SRAMSZ_POW 10
 #define MAX_PROC_SRAMSZ_POW 9
 #endif
-#define MAXVSIZE_ACTVEDGEBLOCK 128
-#define MAXNUM_EDGEBLOCKS_PER_VPARTITION (((1 << MAX_PROC_SRAMSZ_POW) * VDATA_PACKINGSIZE) / MAXVSIZE_ACTVEDGEBLOCK) // 1024
+// #define MAXVSIZE_ACTVEDGEBLOCK 128 // 128
+// #define MAXNUM_EDGEBLOCKS_PER_VPARTITION (((1 << MAX_PROC_SRAMSZ_POW) * VDATA_PACKINGSIZE) / MAXVSIZE_ACTVEDGEBLOCK) // 1024
+#define MAXVSIZE_ACTVEDGEBLOCK 384 // 128
+#define MAXNUM_EDGEBLOCKS_PER_VPARTITION (((1 << MAX_PROC_SRAMSZ_POW) * VDATA_PACKINGSIZE) / MAXVSIZE_ACTVEDGEBLOCK) // 341
 // #define MAXNUM_ACTVVS_PER_VPARTITION 
 
 #ifdef CONFIG_USEURAM_FOR_DESTVBUFFER
@@ -511,6 +513,7 @@ struct _bitData {
 // #define MAX_RED_SRAMSZ_POW 10
 #define MAX_RED_SRAMSZ_POW 9
 #endif
+#define MAX_RED_SRAMSZ (1 << MAX_RED_SRAMSZ_POW)
 
 #define MAX_BLOCKRAM_VSRCDATA_SIZE (1 << MAX_PROC_SRAMSZ_POW)
 #ifdef CONFIG_SEPERATESRCVDESTVBUFFER
@@ -909,37 +912,10 @@ typedef struct {
 } keyvalue_buffer_t;
 #endif
 
-// typedef struct {
-	// unsigned int vmask;
-	// unsigned int vdata;
-// } vmdata_t;
-
-// #ifdef _WIDEWORD
-// typedef ap_uint<VDATA_BITWIDTH> keyvalue_vbuffer_t;
-// #else
-// typedef unsigned int keyvalue_vbuffer_t;
-// #endif 
-
-// typedef struct {
-	// unsigned int data;
-	// unsigned int mask;
-// } vdata_t;
 typedef unsigned int vdata_t;
-
-// typedef struct {
-	// #ifdef BIT_TRAVERSAL_ALGORITHM
-	// vdata_t data[16];
-	// #else 
-	// vdata_t data;
-	// int mask;
-	// #endif 
-// } keyvalue_vbuffer_t;
 
 typedef struct {
 	vdata_t data;
-	// #ifdef CONFIG_RELEASE_VERSION7
-	// int mask;
-	// #endif 
 } keyvalue_vbuffer_t;
 
 #ifdef _WIDEWORD
@@ -947,6 +923,10 @@ typedef ap_uint<32> vtxbuffer_type;
 #else
 typedef unsigned int vtxbuffer_type;
 #endif 
+
+typedef struct {
+	unsigned int data[3];
+} wide_word_bits_3t; 
 
 typedef struct {
 	unsigned int data1;
