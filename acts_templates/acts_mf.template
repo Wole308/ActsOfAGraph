@@ -17,7 +17,7 @@ void ACTS{{context['id']}}_read_process_partition_and_write_base(unsigned int mo
 				collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalposition_t globalposition);
 			
 void ACTS{{context['id']}}_read_and_reduce(unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],	
-			sweepparams_t sweepparams, unsigned int sourcebaseaddr_kvs, workload_t workload_kvs, 
+			sweepparams_t sweepparams, unsigned int sourcebaseaddr_kvs, workload_t workload_kvs, unsigned int s,
 				collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalposition_t globalposition);
 
 void ACTS{{context['id']}}_actit(bool_type enable, unsigned int mode,

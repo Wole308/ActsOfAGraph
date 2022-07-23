@@ -427,7 +427,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<<"app::loadvertexdata:: loading source vertex datas... "<<endl;
 	#endif 
 	globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsK.BASEOFFSETKVS_VERTEXPTR + (globalparams.globalparamsK.SIZE_VERTEXPTRS / VALUEDATA_PACKINGSIZE) + universalparams.DRAMPADD_KVS;
-	globalparams.globalparamsK.SIZE_SRCVERTICESDATA = 0;
+	// globalparams.globalparamsK.SIZE_SRCVERTICESDATA = 0;
+	globalparams.globalparamsK.SIZE_SRCVERTICESDATA = MAX_BLOCKRAM_VSRCDATA_SIZE * VDATA_PACKINGSIZE;
 	globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR + (globalparams.globalparamsE.SIZE_VERTEXPTRS / VALUEDATA_PACKINGSIZE) + universalparams.DRAMPADD_KVS;
 	globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.globalparamsV.BASEOFFSETKVS_VERTEXPTR + (globalparams.globalparamsV.SIZE_VERTEXPTRS / VALUEDATA_PACKINGSIZE) + universalparams.DRAMPADD_KVS;

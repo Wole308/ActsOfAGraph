@@ -1306,9 +1306,9 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 						#ifdef _DEBUGMODE_CHECKS3
 						edge2_vec_dt edge_vec2_local_test;
 						unsigned int sample_key = INVALIDDATA; unsigned int sample_u = 0; for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ if(edge_vec2_local.data[v].dstvid != INVALIDDATA){ sample_key = edge_vec2_local.data[v].dstvid % EDGEDATA_PACKINGSIZE; sample_u = v; }} ///////// CRITICAL FIXME.
-						unsigned int shift = 0; if(sample_key != INVALIDDATA){ shift = sample_key - sample_u; }
-						bool shift_forward = true; if(sample_key != INVALIDDATA){ if(sample_key > sample_u){ shift = sample_key - sample_u; shift_forward = false; } else { shift = sample_u - sample_key; shift_forward = true; }} else { shift = 0; }
-						if(shift_forward == false){ edge_vec2_local_test = rearrangeLayoutVx16B(shift, edge_vec2_local); } else{ edge_vec2_local_test = rearrangeLayoutVx16F(shift, edge_vec2_local); }
+						unsigned int rotateby = 0; if(sample_key != INVALIDDATA){ rotateby = sample_key - sample_u; }
+						bool rotate_forward = true; if(sample_key != INVALIDDATA){ if(sample_key > sample_u){ rotateby = sample_key - sample_u; rotate_forward = false; } else { rotateby = sample_u - sample_key; rotate_forward = true; }} else { rotateby = 0; }
+						if(rotate_forward == false){ edge_vec2_local_test = rearrangeLayoutVx16B(rotateby, edge_vec2_local); } else{ edge_vec2_local_test = rearrangeLayoutVx16F(rotateby, edge_vec2_local); }
 						for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){ // edge2_vec_dt loadedges::rearrangeLayoutVx16B(unsigned int s, edge2_vec_dt edge_vec)
 							if(edge_vec2_local_test.data[v].dstvid != INVALIDDATA){ 
 								if(edge_vec2_local_test.data[v].dstvid % EDGEDATA_PACKINGSIZE != v){ 
@@ -1341,14 +1341,14 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 							utilityobj->checkoutofbounds("loadedges::ERROR 58::", edge_vec2_local.data[v+1].dstvid, (1 << DSTVID_BITSZ), globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA, t, v);	
 							if(edge_vec2.data[v].valid == true){ edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v/2].key = (edge_vec2_local.data[v].srcvid << DSTVID_BITSZ) | edge_vec2_local.data[v].dstvid; } else { edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v/2].key = INVALIDDATA; }
 							if(edge_vec2.data[v+1].valid == true){ edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v/2].value = (edge_vec2_local.data[v+1].srcvid << DSTVID_BITSZ) | edge_vec2_local.data[v+1].dstvid; } else { edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v/2].value = INVALIDDATA; }	
-							
-							// if(edge_vec2_local.data[v].srcvid >= 0 && i == 23){ // 23
-								// cout<<"loadedges:: %%%%%%%% edge_vec2_local.data["<<v<<"].srcvid: "<<edge_vec2_local.data[v].srcvid<<", edge_vec2_local.data["<<v<<"].dstvid: "<<edge_vec2_local.data[v].dstvid<<" #############"<<endl;
-							// }
-							// if(edge_vec2_local.data[v+1].srcvid >= 0 && i == 23){ // 23
-								// cout<<"loadedges:: %%%%%%%%# edge_vec2_local.data["<<v+1<<"].srcvid: "<<edge_vec2_local.data[v+1].srcvid<<", edge_vec2_local.data["<<v+1<<"].dstvid: "<<edge_vec2_local.data[v+1].dstvid<<" #############"<<endl;
-							// }
-			
+							// encode rotateby information in header
+							unsigned int sample_key = INVALIDDATA; unsigned int sample_u = 0; for(unsigned int v=0; v<UPDATEDATA_PACKINGSIZE; v++){ if(edge_vec2.data[v].valid == true){ sample_key = edge_vec2.data[v].dstvid % UPDATEDATA_PACKINGSIZE; sample_u = v; }} ///////// CRITICAL FIXME.
+							unsigned int rotate_forward = 1, rotateby = 0; if(sample_key > sample_u){ rotateby = sample_key - sample_u; rotate_forward = 0; } else { rotateby = sample_u - sample_key; rotate_forward = 1; }
+							utilityobj->checkoutofbounds("loadedges::ERROR 59. rotateby::", rotateby, EDGEDATA_PACKINGSIZE, sample_key, sample_u, NAp);	
+							if(v==0 && edge_vec2.data[0].valid != true){ 
+								edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[0].key = 0;
+								edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[0].key = (16383 << DSTVID_BITSZ) | ((rotateby << 1) | rotate_forward); 
+							}
 							#else 
 							utilityobj->checkoutofbounds("loadedges::ERROR 56::", globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index, universalparams.MAXHBMCAPACITY_KVS2 * VECTOR_SIZE, globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA, t, NAp);	
 							if(edge_vec2.data[v].valid == true){ edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v].key = edge_vec2.data[v].dstvid; } else { edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + index].data[v].key = INVALIDDATA; }

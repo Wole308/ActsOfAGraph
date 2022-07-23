@@ -52,7 +52,32 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 	return;
 }
 
-unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy2(unsigned int idx, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramSTATS, unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
+void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs){
+	MERGE{{context['id']}}_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){
+	#pragma HLS PIPELINE II=1
+		kvdram[offset2_kvs + k] = vdram[offset1_kvs + k];
+	}
+	return;
+}
+
+{%for n in context['T_seq']%}{%if(n>=1)%}
+void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs){
+	value_t datas[VECTOR2_SIZE]; 
+	#pragma HLS ARRAY_PARTITION variable=datas complete
+	
+	MERGE{{context['id']}}_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){
+	#pragma HLS PIPELINE II=1
+		
+		UTIL{{context['id']}}_ReadDatas(vdram, offset1_kvs + k, datas);	
+		{%for i in context['T_seq']%}{%if(i<n)%}
+		UTIL{{context['id']}}_WriteDatas(kvdram{{i}}, offset2_kvs + k, datas);
+		{%endif%}{%endfor%}
+	}
+	return;
+}
+{%endif%}{%endfor%}
+
+unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(unsigned int idx, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramSTATS, unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
 		pmask_dt vpartition_stats___[BLOCKRAM_CURRPMASK_SIZE], wide_word_bits_3t edgeblock_stats___[MAX_RED_SRAMSZ], unsigned int totalnum_actvedgeblocks[1],
 		globalparams_t globalparamsSRC, globalparams_t globalparamsDST1, globalparams_t globalparamsDST2){
 	unsigned int total_sync = 0;
@@ -99,7 +124,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy2(un
 					unsigned int lvid = lvid_first + (k * VDATA_PACKINGSIZE) + v; vid[0] = UTIL{{context['id']}}_GETREALVID(lvid, firstinstance_id + i); // FIXME. MAKE SIMPLER.
 					#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 					if(mask[v] == 1){ if(actvvs_size[v].A < BLOCKRAM_SIZE){ actvvs[v][actvvs_size[v].A] = vid[0]; actvvs_size[v].A += 1; } else { actvvs_size[v].B += 1; }}
-					if(mask[v] == 1 && actvvs_size[v].A < BLOCKRAM_SIZE){ cout<<">>> EXCHANGE-COPY:: ACTIVE VERTEX SEEN @ [i: "<<i<<", reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<"] vdata: "<<vdata<<", lvid: "<<lvid<<", vid: "<<vid<<endl; }
+					if(mask[v] == 1 && actvvs_size[v].A < BLOCKRAM_SIZE){ cout<<">>> EXCHANGE-COPY:: ACTIVE VERTEX SEEN @ [i: "<<i<<", reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<"] vdata: "<<vdata<<", lvid: "<<lvid<<", vid[0]: "<<vid[0]<<endl; }
 					#endif 
 				}	
 				
@@ -129,6 +154,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy2(un
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		cout<<">>> exchange:: printing actvvs_size... "<<endl; // VDATA_PACKINGSIZE
+		unsigned int sum=0; bool debug1 = true;
 		for(unsigned int v=0; v<0; v++){ for(unsigned int t=0; t<actvvs_size[v].A; t++){ sum += actvvs_size[v].A; if(debug1==true){ cout<<"$$$ EXCHANGE:: ACTIVE VERTEX SEEN @ actvvs["<<v<<"]["<<t<<"]: "<<actvvs[v][t]<<endl; }}} // VDATA_PACKINGSIZE
 		#endif 
 		
@@ -160,9 +186,9 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	unsigned int voffsetB_kvs = globalparamsvA.ACTSPARAMS_NUMCOMPUTEUNITS_SLR2 * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffsetC_kvs = (globalparamsvA.ACTSPARAMS_NUMCOMPUTEUNITS_SLR2 + globalparamsvA.ACTSPARAMS_NUMCOMPUTEUNITS_SLR1) * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 	
-	total_sync[0] = MERGE{{context['id']}}_copy2(0, vdramA, vdramB, vdramC, vdramA, voffsetA_kvs, 0, NUMCOMPUTEUNITS_SLR2, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvA, globalparamsvB, globalparamsvC);
-	total_sync[1] = MERGE{{context['id']}}_copy2(1, vdramB, vdramA, vdramC, vdramA, voffsetB_kvs, NUMCOMPUTEUNITS_SLR2, NUMCOMPUTEUNITS_SLR1, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvB, globalparamsvA, globalparamsvC);
-	total_sync[2] = MERGE{{context['id']}}_copy2(2, vdramC, vdramA, vdramB, vdramA, voffsetC_kvs, NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1, NUMCOMPUTEUNITS_SLR0, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvC, globalparamsvA, globalparamsvB);
+	total_sync[0] = MERGE{{context['id']}}_copy(0, vdramA, vdramB, vdramC, vdramA, voffsetA_kvs, 0, NUMCOMPUTEUNITS_SLR2, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvA, globalparamsvB, globalparamsvC);
+	total_sync[1] = MERGE{{context['id']}}_copy(1, vdramB, vdramA, vdramC, vdramA, voffsetB_kvs, NUMCOMPUTEUNITS_SLR2, NUMCOMPUTEUNITS_SLR1, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvB, globalparamsvA, globalparamsvC);
+	total_sync[2] = MERGE{{context['id']}}_copy(2, vdramC, vdramA, vdramB, vdramA, voffsetC_kvs, NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1, NUMCOMPUTEUNITS_SLR0, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvC, globalparamsvA, globalparamsvB);
 	
 	MEMACCESS{{context['id']}}_savehelperstats(vdramA, vpartition_stats___, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
 	MEMACCESS{{context['id']}}_savehelperstats(vdramB, vpartition_stats___, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
@@ -171,7 +197,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	#ifdef _DEBUGMODE_KERNELPRINTS4		
 	unsigned int sum=0, sum1=0, sum2=0, sum3=0, sum4 = 0; 
 	// bool debug = true; bool debug1 = true;
-	bool debug = false; bool debug1 = false;
+	bool debug = true; bool debug1 = false;
 	
 	if(debug==true){ cout<<">>> exchange-copy:: printing vpartition_stats... "<<endl; }
 	for(unsigned int v_p=0; v_p<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; v_p++){ sum4 += vpartition_stats___[v_p]; if(debug1==true){ cout<<"--- vpartition_stats___["<<v_p<<"]: "<<vpartition_stats___[v_p]<<endl; }}
@@ -182,7 +208,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	MEMACCESS{{context['id']}}_readhelperstats(vdramA, pmask_curr, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
 	for(unsigned int t=0; t<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; t++){ sum3 += pmask_curr[t]; if(debug1==true){ cout<<"~~~ pmask_curr["<<t<<"]: "<<pmask_curr[t]<<endl; }}
 	if(debug==true){ cout<<"~~~::: sum3: "<<sum3<<endl; }
-	cout<<"exchange-copy: sum3,2,3: sum1: "<<sum1<<", sum2: "<<sum2<<", sum3: "<<sum3<<"..."<<endl;
+	cout<<"exchange-copy: sum3,2,3,4: sum1: "<<sum1<<", sum2: "<<sum2<<", sum3: "<<sum3<<", sum4: "<<sum4<<"..."<<endl;
 	
 	if(debug==true){ cout<<">>> exchange-copy:: printing active edge-blocks (total number of active edge-blocks: "<<totalnum_actvedgeblocks[0]<<")... "<<endl; }
 	for(unsigned int t=0; t<totalnum_actvedgeblocks[0]; t++){ 

@@ -26,11 +26,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readV(bool_t
 		}
 		// for(unsigned int v=0; v<VECTOR2_SIZE; v++){ datas2[v] = datas[v]; }
 		
-		#ifdef BIT_TRAVERSAL_ALGORITHM
-		{%for v in context['VECTOR2_SIZE_seq']%} {%for v2 in context['16_seq']%} vdata[{{v}}].data[{{v2}}] = datas2[{{v}}]; {%endfor%} {%endfor%} // FIXME.
-		#else 
 		{%for v in context['VECTOR2_SIZE_seq']%} vdata[{{v}}].data = datas2[{{v}}]; {%endfor%}	
-		#endif 
 		
 		#ifdef _DEBUGMODE_CHECKS3
 		actsutilityobj->checkoutofbounds("MEMACCESSRRR{{context['id']}}_readV 21", bufferoffset_kvs + i, MAX_BLOCKRAM_VDESTDATA_SIZE, size_kvs, bufferoffset_kvs, i);
@@ -56,11 +52,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_saveV(bool_t
 		vdata[{{v}}] = vbuffer[{{v}}][bufferoffset_kvs + i];
 		{%endfor%}
 		
-		#ifdef BIT_TRAVERSAL_ALGORITHM
-		{%for v in context['VECTOR2_SIZE_seq']%} {%for v2 in context['16_seq']%} datas[{{v}}] = vdata[{{v}}].data[{{v2}}]; {%endfor%} {%endfor%} // FIXME.
-		#else 
 		{%for v in context['VECTOR2_SIZE_seq']%} datas[{{v}}] = vdata[{{v}}].data; {%endfor%}	
-		#endif
 		
 		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 		for(unsigned int v=0; v<VECTOR2_SIZE; v++){ 
@@ -101,11 +93,7 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readANDRVchu
 			unsigned int offset_kvs = voffset_kvs + depth_i + i;
 			UTIL{{context['id']}}_ReadDatas(vdram, vbaseoffset_kvs + offset_kvs, datas);	
 			
-			#ifdef BIT_TRAVERSAL_ALGORITHM
-			{%for v in context['VECTOR2_SIZE_seq']%} {%for v2 in context['16_seq']%} vdata[{{v}}].data[{{v2}}] = datas[{{v}}]; {%endfor%} {%endfor%} // FIXME.
-			#else 
 			{%for v in context['VECTOR2_SIZE_seq']%} vdata[{{v}}].data = datas[{{v}}]; {%endfor%}	
-			#endif
 			
 			#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 			for(unsigned int v=0; v<VECTOR2_SIZE; v++){ if(datas[v] == 1 || datas[v] < 1000){ cout<<"readANDRVchunks: ACTIVE MASK SEEN: @ s: "<<s<<", i: "<<i<<" v: "<<v<<", voffset_kvs: "<<voffset_kvs<<", index + s: "<<index + s<<", datas["<<v<<"]: "<<datas[v]<<endl; }}
@@ -208,47 +196,6 @@ tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs_
 	return t;
 }
 #endif 
-
-/* unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc){
-	keyvalue_t data;
-	
-	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
-	unsigned int index = (loc % VECTOR2_SIZE) / 2;
-	
-	#ifdef _WIDEWORD
-	{%for v in context['VECTOR_SIZE_seq']%}
-	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR_SIZE']-1)%}if(index == {{v}}){%endif%}{
-		data.key = V.range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-		data.value = V.range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
-	}
-	{%endfor%}
-	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR_SIZE']-1)%}if(index == {{v}}){%endif%}{
-		data.key = V.data[{{v}}].key; 
-		data.value = V.data[{{v}}].value; 
-	}
-	{%endfor%}
-	#endif
-	
-	if(loc % 2 == 0){ return data.key; }
-	else { return data.value; }
-} */
-
-/* void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_setdata(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int loc, unsigned int data){
-	uint512_dt V = kvdram[baseoffset_kvs + (loc / VECTOR2_SIZE)];
-	unsigned int index = (loc % VECTOR2_SIZE);
-	
-	#ifdef _WIDEWORD
-	{%for v in context['VECTOR2_SIZE_seq']%}
-	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR2_SIZE']-1)%}if(index == {{v}}){%endif%}{
-		V.range({{32 * ((v * 1) + 1) - 1}}, {{(v * 1) * 32}}) = data; 
-	}
-	{%endfor%}
-	#else 
-	if(index % 2 == 0){ V.data[index/2].key = data; } else { V.data[index/2].value = data; }
-	#endif
-} */
 
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;

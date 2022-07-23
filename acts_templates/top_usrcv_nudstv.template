@@ -273,7 +273,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 					unsigned int v_chunkids[EDGESSTATSDRAMSZ], unsigned int v_chunkid, unsigned int edgebankID, collection_t collections[COLLECTIONS_BUFFERSZ]){
 	#pragma HLS INLINE
 	unsigned int sourcestatsmarker = 1;
-	unsigned int vreadoffset_kvs2 = 0;
+	unsigned int voffset_kvs = 0;
 	
 	step_type currentLOP = globalparamsK.ACTSPARAMS_TREEDEPTH;
 	batch_type num_source_partitions = globalparamsK.NUM_REDUCEPARTITIONS;
@@ -285,12 +285,12 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 	bool_type enablereduce = ON;
 	DISPATCHREDUCE{{context['id']}}_MAINLOOP: for(batch_type source_partition=0; source_partition<num_source_partitions; source_partition+=1){
 		#ifdef _DEBUGMODE_KERNELPRINTS3
-		actsutilityobj->print4("### TOP{{context['id']}}_dispatch_reduce:: source_partition", "currentLOP", "num_source_partitions", "vreadoffset_kvs2", source_partition, currentLOP, num_source_partitions, vreadoffset_kvs2); 							
+		actsutilityobj->print4("### TOP{{context['id']}}_dispatch_reduce:: source_partition", "currentLOP", "num_source_partitions", "voffset_kvs", source_partition, currentLOP, num_source_partitions, voffset_kvs); 							
 		#endif
 		
 		// read vertices 
 		// #ifdef CONFIG_RELEASE_VERSION6
-		// MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
+		// MEMACCESS{{context['id']}}_readV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, voffset_kvs, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
 		// #endif 
 		
 		// reduce
@@ -298,11 +298,11 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_dispatch_red
 		
 		// writeback vertices 
 		// #ifdef CONFIG_RELEASE_VERSION6
-		// MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, vreadoffset_kvs2, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
+		// MEMACCESS{{context['id']}}_saveV(enablereduce, kvdram, vbuffer_dest, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, voffset_kvs, globalparamsK.BUFFERBASEOFFSETKVS_VDATA1, globalparamsK.SIZEKVS2_REDUCEPARTITION, globalposition, globalparamsK);
 		// #endif 
 		
 		sourcestatsmarker += 1;
-		vreadoffset_kvs2 += globalparamsK.SIZEKVS2_REDUCEPARTITION;
+		voffset_kvs += globalparamsK.SIZEKVS2_REDUCEPARTITION;
 	}
 	
 	UTIL{{context['id']}}_SetThirdData(kvdram, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, collections[REDUCEUPDATES_COLLECTIONID].data1);
@@ -504,7 +504,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){ cout<<">>> topkernelP: PARTITION{{context['id']}}_CHKPT["<<u<<"]: "<<PARTITION{{context['id']}}_CHKPT[u]<<endl; }
 	#endif
 	
-	unsigned int vreadoffset_kvs2 = 0;
+	unsigned int voffset_kvs = 0;
 	unsigned int GraphAlgo = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMID;
 	unsigned int GraphAlgoClass = globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS;
 	for(unsigned int k=0; k<globalparamsK.ACTSPARAMS_TREEDEPTH-1; k++){
@@ -538,7 +538,8 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	if(globalparamsV.ENABLE_PARTITIONCOMMAND == ON){ num_stages = 2; }
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
-	vreadoffset_kvs2 = 0;
+	voffset_kvs = 0;
+	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->clearglobalvars();
@@ -583,7 +584,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 					else{ FIRSTLOP = globalparamsK.ACTSPARAMS_TREEDEPTH; NUMLOPs = 1; }
 				}
 				
-				unsigned int vreadskipsz_kvs2 = globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs;
+				unsigned int vsz_kvs = globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs; // 341
 				
 				TOPKERNEL{{n}}_BASELOOP1D: for(step_type currentLOP=FIRSTLOP; currentLOP<(FIRSTLOP + NUMLOPs); currentLOP+=1){
 					#ifdef _DEBUGMODE_KERNELPRINTS
@@ -608,11 +609,12 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 					actsutilityobj->print5("### TOPKERNEL{{n}}_BASELOOP1E:: stage", "currentLOP", "NAp", "FIRSTSOURCEPARTITION", "LASTSOURCEPARTITIONS", stage, currentLOP, NAp, FIRSTSOURCEPARTITION, LASTSOURCEPARTITIONS); 
 					#endif
 				
-					batch_type vdatabaseoffset_kvs = globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + (globalparamsV.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE.
+					// batch_type vdatabaseoffset_kvs = globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + (globalparamsV.ACTSPARAMS_SRCVOFFSET / VECTOR_SIZE); // NEWCHANGE.
+					// cout<<"@@@@@@@@@@@@@ globalparamsV.ACTSPARAMS_SRCVOFFSET-------------: "<<globalparamsV.ACTSPARAMS_SRCVOFFSET<<endl; exit(EXIT_SUCCESS);
 					
 					TOPKERNEL{{n}}_BASELOOP1E: for(batch_type source_partition=FIRSTSOURCEPARTITION; source_partition<LASTSOURCEPARTITIONS; source_partition+=1){
 						#ifdef _DEBUGMODE_KERNELPRINTS
-						actsutilityobj->print5("### TOPKERNEL{{n}}_BASELOOP1E:: stage", "source_partition", "currentLOP", "vreadoffset_kvs2", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, vreadoffset_kvs2, LASTSOURCEPARTITIONS); 
+						actsutilityobj->print5("### TOPKERNEL{{n}}_BASELOOP1E:: stage", "source_partition", "currentLOP", "voffset_kvs", "LASTSOURCEPARTITIONS", stage, source_partition, currentLOP, voffset_kvs, LASTSOURCEPARTITIONS); 
 						#endif
 						#ifdef _DEBUGMODE_CHECKS3
 						actsutilityobj->checkoutofbounds("topkernelP. ERROR 34.", LASTSOURCEPARTITIONS - FIRSTSOURCEPARTITION, 16384, LASTSOURCEPARTITIONS, FIRSTSOURCEPARTITION, NAp);
@@ -677,11 +679,23 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks // NEWCHANGE. // CRITICAL REMOVEME URGENT.
-						#ifdef CONFIG_RELEASE_VERSION3
+						#ifdef CONFIG_RELEASE_VERSION3	
 						if(enable_readandreplicatevdata == ON){
-							MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer_source{{i}},{%endif%}{%endfor%} vdatabaseoffset_kvs, vreadoffset_kvs2, vreadskipsz_kvs2, globalposition, globalparamsV);	
+							MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer_source{{i}},{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA, voffset_kvs, vsz_kvs, globalposition, globalparamsV);	
 						}
-						#endif 
+						#endif
+						#ifdef CONFIG_RELEASE_VERSION3b	
+						unsigned int depth_i = 0, index = 0;
+						for(unsigned int s=0; s<NUM_PEs; s++){	
+							unsigned int offset_kvs = voffset_kvs + depth_i;
+							// {%for i in context['T_seq']%}{%if(i<n)%}	
+							// MERGE{{context['id']}}_broadcastVs(vdram, kvdram{{i}}, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs);		
+							// {%endif%}{%endfor%}		
+							MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs);		
+							depth_i += depth;
+							index += vsz_kvs;
+						}
+						#endif
 						
 						// acts
 						#ifdef CONFIG_RELEASE_VERSION5
@@ -696,10 +710,10 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						
 						if(globalposition.EN_PARTITION == ON){ sourcestatsmarker += 1; } // NEWCHANGE
 						if(globalposition.EN_PARTITION == ON){ deststatsmarker += globalparamsK.ACTSPARAMS_NUM_PARTITIONS; }
-						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ vreadoffset_kvs2 += vreadskipsz_kvs2; }
+						if(globalposition.EN_PROCESS == ON && (source_partition % VDATA_SHRINK_RATIO == 0)){ voffset_kvs += vsz_kvs; }
 						
 						#ifdef _DEBUGMODE_CHECKS3
-						actsutilityobj->checkoutofbounds("topkernelP 23", vreadoffset_kvs2, globalparamsV.SIZE_SRCVERTICESDATA, vreadskipsz_kvs2, 0, NAp);
+						actsutilityobj->checkoutofbounds("topkernelP 23", voffset_kvs, globalparamsV.SIZE_SRCVERTICESDATA, vsz_kvs, 0, NAp);
 						#endif
 					} // source_partition
 				} // currentLOP
