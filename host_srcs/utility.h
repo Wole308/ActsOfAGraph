@@ -113,6 +113,8 @@ public:
 	void WRITEBITSTO_UINTV(unsigned int * data, unsigned int index, unsigned int size, unsigned int value);
 	unsigned int UTIL_GETLOCALVID(unsigned int vid, unsigned int instid);
 	unsigned int UTIL_GETREALVID(unsigned int lvid, unsigned int instid);
+	
+	void writedata(uint512_vec_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
 
 	void printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]);
 	

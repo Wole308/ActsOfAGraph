@@ -84,6 +84,7 @@ void UTIL{{context['id']}}_resetenvbuffers(keyvalue_capsule_t capsule_so1[VECTOR
 void UTIL{{context['id']}}_resetenvbuffer(keyvalue_capsule_t capsule_so8[MAX_NUM_PARTITIONS]);
 
 // checks 
+bool UTIL{{context['id']}}_isbufferused(unsigned int id);
 void UTIL{{context['id']}}_check_capsule(keyvalue_t capsule[MAX_NUM_PARTITIONS], unsigned int num_partitions, unsigned int max_value);
 
 

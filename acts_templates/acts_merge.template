@@ -61,7 +61,10 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs(uint
 }
 
 {%for n in context['T_seq']%}{%if(n>=1)%}
-void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs){
+void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} 
+		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
+			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
+				unsigned int cmd){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
@@ -73,12 +76,23 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}
 		UTIL{{context['id']}}_WriteDatas(kvdram{{i}}, offset2_kvs + k, datas);
 		{%endif%}{%endfor%}
 	}
+	
+	if(cmd == 1){
+		MERGE{{context['id']}}_BROADCASTVS_LOOP2: for(unsigned int k=0; k<sizeb_kvs; k++){
+		#pragma HLS PIPELINE II=1
+			
+			UTIL{{context['id']}}_ReadDatas(vdram, offset1b_kvs + k, datas);	
+			{%for i in context['T_seq']%}{%if(i<n)%}
+			UTIL{{context['id']}}_WriteDatas(kvdram{{i}}, offset2b_kvs + k, datas);
+			{%endif%}{%endfor%}
+		}
+	}
 	return;
 }
 {%endif%}{%endfor%}
 
-unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(unsigned int idx, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramSTATS, unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
-		pmask_dt vpartition_stats___[BLOCKRAM_CURRPMASK_SIZE], wide_word_bits_3t edgeblock_stats___[MAX_RED_SRAMSZ], unsigned int totalnum_actvedgeblocks[1],
+unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(unsigned int idx, unsigned int reduce_partition, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramSTATS, unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
+		pmask_dt vpartition_stats[BLOCKRAM_CURRPMASK_SIZE], wide_word_bits_3t edgeblock_stats[MAX_RED_SRAMSZ],
 		globalparams_t globalparamsSRC, globalparams_t globalparamsDST1, globalparams_t globalparamsDST2){
 	unsigned int total_sync = 0;
 	value_t datas[VECTOR2_SIZE];
@@ -87,78 +101,52 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(uns
 	#pragma HLS ARRAY_PARTITION variable=mask complete
 	unsigned int vid[VDATA_PACKINGSIZE];
 	#pragma HLS ARRAY_PARTITION variable=mask complete
-	unsigned int _SUB_CHUNK_HEIGHT = 341; // FIXME. ((universalparams.PROC_SRAMSZ / NUM_PEs) / VDATA_SHRINK_RATIO);
-	unsigned int actvvs[VECTOR2_SIZE][BLOCKRAM_SIZE];
-	#pragma HLS ARRAY_PARTITION variable = actvvs
-	tuple_t actvvs_size[VECTOR2_SIZE];
+		
+	unsigned int v2offset_kvs = reduce_partition * globalparamsSRC.SIZEKVS2_REDUCEPARTITION;
+	for(unsigned int t=0; t<globalparamsSRC.SIZEKVS2_REDUCEPARTITION; t++){ edgeblock_stats[t].data[idx] = 0; } // FIXME. TOO EXPENSIVE.?
+	unsigned int lvid_first = reduce_partition * globalparamsSRC.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE; // (((reduce_partition * globalparamsDST1.SIZEKVS2_REDUCEPARTITION) + k) * VDATA_PACKINGSIZE) + v;
+	unsigned int vbegin = reduce_partition * globalparamsSRC.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE * NUM_PEs;
+	
+	EXCHANGE{{context['id']}}_COPY_LOOP1: for(unsigned int i=0; i<num_compute_units; i++){
+		EXCHANGE{{context['id']}}_COPY_LOOP1B: for(unsigned int k=0; k<globalparamsSRC.SIZEKVS2_REDUCEPARTITION; k++){
+		#pragma HLS PIPELINE II=1
+			#ifdef _DEBUGMODE_CHECKS3
+			actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 21", globalparamsDST1.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k, globalparamsSRC.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+			actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 22", globalparamsDST2.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k, globalparamsSRC.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
+			total_sync += VECTOR2_SIZE;
+			#endif
 			
-	for(unsigned int reduce_partition=0; reduce_partition<globalparamsSRC.NUM_REDUCEPARTITIONS; reduce_partition++){
-		
-		unsigned int v2offset_kvs = reduce_partition * globalparamsSRC.SIZEKVS2_REDUCEPARTITION;
-		for(unsigned int t=0; t<globalparamsSRC.SIZEKVS2_REDUCEPARTITION; t++){ edgeblock_stats___[t].data[idx] = 0; } // FIXME. TOO EXPENSIVE.?
-		unsigned int lvid_first = reduce_partition * globalparamsSRC.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE; // (((reduce_partition * globalparamsDST1.SIZEKVS2_REDUCEPARTITION) + k) * VDATA_PACKINGSIZE) + v;
-		for(int v = 0; v < VECTOR2_SIZE; v++){ actvvs_size[v].A = 0; actvvs_size[v].B = 0; }
-		
-		for(unsigned int i=0; i<num_compute_units; i++){
-			EXCHANGE{{context['id']}}_COPY_LOOP1B: for(unsigned int k=0; k<globalparamsSRC.SIZEKVS2_REDUCEPARTITION; k++){
-			#pragma HLS PIPELINE II=1
+			UTIL{{context['id']}}_ReadDatas(vdramSRC, globalparamsSRC.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k, datas);
+			UTIL{{context['id']}}_WriteDatas(vdramDST1, globalparamsDST1.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k, datas); // NEWCHANGE.
+			UTIL{{context['id']}}_WriteDatas(vdramDST2, globalparamsDST2.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k, datas);
+			
+			for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
+			#pragma HLS UNROLL 
+				value_t vdata = datas[v] >> 1; mask[v] = datas[v] & 0x1;
+				unsigned int lvid = lvid_first + (k * VDATA_PACKINGSIZE) + v; vid[0] = UTIL{{context['id']}}_GETREALVID(lvid, firstinstance_id + i); // FIXME. MAKE SIMPLER.
+				// vid[0] = vbegin + (i * VDATA_PACKINGSIZE) + k;
 				#ifdef _DEBUGMODE_CHECKS3
-				actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 21", globalparamsDST1.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k, globalparamsSRC.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
-				actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 22", globalparamsDST2.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k, globalparamsSRC.ACTSPARAMS_MAXHBMCAPACITY_KVS, NAp, NAp, NAp);
-				total_sync += VECTOR2_SIZE;
-				#endif
-				
-				UTIL{{context['id']}}_ReadDatas(vdramSRC, globalparamsSRC.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k, datas);
-				for(unsigned int v=0; v<VECTOR_SIZE; v++){
-				#pragma HLS UNROLL 
-					vdramDST1[globalparamsDST1.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k].data[v].key = datas[2*v];
-					vdramDST1[globalparamsDST1.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k].data[v].value = datas[2*v+1];
-					
-					vdramDST2[globalparamsDST2.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k].data[v].key = datas[2*v];
-					vdramDST2[globalparamsDST2.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs + v2offset_kvs + k].data[v].value = datas[2*v+1];
-				}
-				
-				for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
-				#pragma HLS UNROLL 
-					value_t vdata = datas[v] >> 1; mask[v] = datas[v] & 0x1;
-					unsigned int lvid = lvid_first + (k * VDATA_PACKINGSIZE) + v; vid[0] = UTIL{{context['id']}}_GETREALVID(lvid, firstinstance_id + i); // FIXME. MAKE SIMPLER.
-					#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-					if(mask[v] == 1){ if(actvvs_size[v].A < BLOCKRAM_SIZE){ actvvs[v][actvvs_size[v].A] = vid[0]; actvvs_size[v].A += 1; } else { actvvs_size[v].B += 1; }}
-					if(mask[v] == 1 && actvvs_size[v].A < BLOCKRAM_SIZE){ cout<<">>> EXCHANGE-COPY:: ACTIVE VERTEX SEEN @ [i: "<<i<<", reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<"] vdata: "<<vdata<<", lvid: "<<lvid<<", vid[0]: "<<vid[0]<<endl; }
-					#endif 
-				}	
-				
-				if(mask[0]==1 || mask[1]==1 || mask[2]==1 || mask[3]==1 || mask[4]==1 || mask[5]==1 || mask[6]==1 || mask[7]==1 || mask[8]==1 || mask[9]==1 || mask[10]==1 || mask[11]==1 || mask[12]==1 || mask[13]==1 || mask[14]==1 || mask[15]==1){
-					if(edgeblock_stats___[k].data[0] == 0 && edgeblock_stats___[k].data[1] == 0 && edgeblock_stats___[k].data[2] == 0){ 
-						edgeblock_stats___[k].data[idx] = 1; 
-						unsigned int v_p = vid[0] / (globalparamsSRC.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE);
-						vpartition_stats___[v_p] += 1;
-						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-						cout<<"+++ EXCHANGE-COPY:: ACTIVE EDGE-BLOCK SEEN @ edgeblock_stats___["<<firstinstance_id + i<<"]["<<v_p<<"]["<<k<<"]. "<<endl; 
-						#endif 
-					}
-				}
-			} // end-of-k
-			v2offset_kvs += globalparamsSRC.NUM_REDUCEPARTITIONS * globalparamsSRC.SIZEKVS2_REDUCEPARTITION;
-		} // end-of-num_compute_units
-		
-		for(unsigned int t=0; t<globalparamsSRC.SIZEKVS2_REDUCEPARTITION; t++){ 
-			if(edgeblock_stats___[t].data[idx] > 0){
-				UTIL{{context['id']}}_WriteData(vdramSTATS, globalparamsDST1.BASEOFFSETKVS_ACTIVEVERTICES, totalnum_actvedgeblocks[0], t);
-				totalnum_actvedgeblocks[0] += 1; // edgeblock_stats___[t] = 0;
+				unsigned int check_lvid = lvid_first + (k * VDATA_PACKINGSIZE) + v; unsigned int check_v0 = UTIL{{context['id']}}_GETREALVID(check_lvid, firstinstance_id + i); // FIXME. MAKE SIMPLER.
+				if(vid[0] != check_v0){ cout<<"exchange. seperate calculations of vid[0] don't match. vid[0]("<<vid[0]<<") != check_v0("<<check_v0<<"). EXIITING..."<<endl; exit(EXIT_FAILURE); }
+				#endif 
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-				cout<<"+++ EXCHANGE-COPY2:: ACTIVE EDGE-BLOCK SEEN @ ["<<t<<"] "<<endl; 
-				#endif
+				if(mask[v] == 1){ cout<<">>> EXCHANGE-COPY:: ACTIVE VERTEX SEEN @ [i: "<<i<<", reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<"] vdata: "<<vdata<<", lvid: "<<lvid<<", vid[0]: "<<vid[0]<<endl; }
+				#endif 
+			}	
+			
+			if(mask[0]==1 || mask[1]==1 || mask[2]==1 || mask[3]==1 || mask[4]==1 || mask[5]==1 || mask[6]==1 || mask[7]==1 || mask[8]==1 || mask[9]==1 || mask[10]==1 || mask[11]==1 || mask[12]==1 || mask[13]==1 || mask[14]==1 || mask[15]==1){
+				if(edgeblock_stats[k].data[0] == 0 && edgeblock_stats[k].data[1] == 0 && edgeblock_stats[k].data[2] == 0){ 
+					edgeblock_stats[k].data[idx] = 1; 
+					unsigned int v_p = vid[0] / (globalparamsSRC.SIZEKVS2_PROCESSEDGESPARTITION * VECTOR2_SIZE);
+					vpartition_stats[v_p] += 1;
+					#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+					cout<<"+++ EXCHANGE-COPY:: ACTIVE EDGE-BLOCK SEEN @ edgeblock_stats["<<firstinstance_id + i<<"]["<<v_p<<"]["<<k<<"]. "<<endl; 
+					#endif 
+				}
 			}
-		}
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-		cout<<">>> exchange:: printing actvvs_size... "<<endl; // VDATA_PACKINGSIZE
-		unsigned int sum=0; bool debug1 = true;
-		for(unsigned int v=0; v<0; v++){ for(unsigned int t=0; t<actvvs_size[v].A; t++){ sum += actvvs_size[v].A; if(debug1==true){ cout<<"$$$ EXCHANGE:: ACTIVE VERTEX SEEN @ actvvs["<<v<<"]["<<t<<"]: "<<actvvs[v][t]<<endl; }}} // VDATA_PACKINGSIZE
-		#endif 
-		
-	} // end-of-reduce_partition	
+		} // end-of-k
+		v2offset_kvs += globalparamsSRC.NUM_REDUCEPARTITIONS * globalparamsSRC.SIZEKVS2_REDUCEPARTITION;
+	} // end-of-num_compute_units
 	return total_sync;
 }
 
@@ -169,38 +157,65 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 
 	unsigned int total_sync[3]; total_sync[0]=0; total_sync[1]=0; total_sync[2]=0; 
 	#pragma HLS ARRAY_PARTITION variable=total_sync complete
+	value_t datas[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
-	wide_word_bits_3t edgeblock_stats___[MAX_RED_SRAMSZ];
-	pmask_dt vpartition_stats___[BLOCKRAM_CURRPMASK_SIZE];
-	unsigned int totalnum_actvedgeblocks[1];
-	
+	wide_word_bits_3t edgeblock_stats[MAX_RED_SRAMSZ];
+	#pragma HLS DATA_PACK variable = edgeblock_stats
+	pmask_dt vpartition_stats[BLOCKRAM_CURRPMASK_SIZE];
+
 	globalparams_t globalparamsvA = UTIL{{context['id']}}_getglobalparams(vdramA, 0);
 	globalparams_t globalparamsvB = UTIL{{context['id']}}_getglobalparams(vdramB, 0);
 	globalparams_t globalparamsvC = UTIL{{context['id']}}_getglobalparams(vdramC, 0);
 	
-	for(unsigned int t=0; t<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; t++){ vpartition_stats___[t] = 0; }
-	for(unsigned int t=0; t<globalparamsvA.SIZEKVS2_REDUCEPARTITION; t++){ edgeblock_stats___[t].data[0] = 0; edgeblock_stats___[t].data[1] = 0; edgeblock_stats___[t].data[2] = 0; }
-	totalnum_actvedgeblocks[0] = 0;
+	for(unsigned int t=0; t<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; t++){ vpartition_stats[t] = 0; }
+	for(unsigned int t=0; t<globalparamsvA.SIZEKVS2_REDUCEPARTITION; t++){ edgeblock_stats[t].data[0] = 0; edgeblock_stats[t].data[1] = 0; edgeblock_stats[t].data[2] = 0; }
 	
 	unsigned int voffsetA_kvs = 0;
 	unsigned int voffsetB_kvs = globalparamsvA.ACTSPARAMS_NUMCOMPUTEUNITS_SLR2 * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffsetC_kvs = (globalparamsvA.ACTSPARAMS_NUMCOMPUTEUNITS_SLR2 + globalparamsvA.ACTSPARAMS_NUMCOMPUTEUNITS_SLR1) * globalparamsvA.NUM_REDUCEPARTITIONS * globalparamsvA.SIZEKVS2_REDUCEPARTITION;
 	
-	total_sync[0] = MERGE{{context['id']}}_copy(0, vdramA, vdramB, vdramC, vdramA, voffsetA_kvs, 0, NUMCOMPUTEUNITS_SLR2, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvA, globalparamsvB, globalparamsvC);
-	total_sync[1] = MERGE{{context['id']}}_copy(1, vdramB, vdramA, vdramC, vdramA, voffsetB_kvs, NUMCOMPUTEUNITS_SLR2, NUMCOMPUTEUNITS_SLR1, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvB, globalparamsvA, globalparamsvC);
-	total_sync[2] = MERGE{{context['id']}}_copy(2, vdramC, vdramA, vdramB, vdramA, voffsetC_kvs, NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1, NUMCOMPUTEUNITS_SLR0, vpartition_stats___, edgeblock_stats___, totalnum_actvedgeblocks, globalparamsvC, globalparamsvA, globalparamsvB);
+	// unsigned int reduce_partition = 0;
+	EXCHANGE{{context['id']}}_LOOP1: for(unsigned int reduce_partition=0; reduce_partition<globalparamsvA.NUM_REDUCEPARTITIONS; reduce_partition++){
+		total_sync[0] = MERGE{{context['id']}}_copy(0, reduce_partition, vdramA, vdramB, vdramC, vdramA, voffsetA_kvs, 0, NUMCOMPUTEUNITS_SLR2, vpartition_stats, edgeblock_stats, globalparamsvA, globalparamsvB, globalparamsvC);
+		total_sync[1] = MERGE{{context['id']}}_copy(1, reduce_partition, vdramB, vdramA, vdramC, vdramA, voffsetB_kvs, NUMCOMPUTEUNITS_SLR2, NUMCOMPUTEUNITS_SLR1, vpartition_stats, edgeblock_stats, globalparamsvB, globalparamsvA, globalparamsvC);
+		total_sync[2] = MERGE{{context['id']}}_copy(2, reduce_partition, vdramC, vdramA, vdramB, vdramA, voffsetC_kvs, NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1, NUMCOMPUTEUNITS_SLR0, vpartition_stats, edgeblock_stats, globalparamsvC, globalparamsvA, globalparamsvB);
 	
-	MEMACCESS{{context['id']}}_savehelperstats(vdramA, vpartition_stats___, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
-	MEMACCESS{{context['id']}}_savehelperstats(vdramB, vpartition_stats___, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
-	MEMACCESS{{context['id']}}_savehelperstats(vdramC, vpartition_stats___, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
-	
+		EXCHANGE{{context['id']}}_LOOP1B: for(unsigned int v_p=0; v_p<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; v_p++){ 
+			if(vpartition_stats[v_p] < globalparamsvA.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){
+				unsigned int offset_vs = (v_p * globalparamsvA.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION) / VDATA_PACKINGSIZE;
+				unsigned int begin = v_p * MAXNUM_EDGEBLOCKS_PER_VPARTITION; unsigned int sz = MAXNUM_EDGEBLOCKS_PER_VPARTITION; // unsigned int end = begin + sz;
+				if(begin + sz >= globalparamsvA.SIZEKVS2_REDUCEPARTITION){ sz = globalparamsvA.SIZEKVS2_REDUCEPARTITION - begin; }
+				unsigned int index = 1; // 0;
+				// cout<<"+++ exchangeVs:: begin: "<<begin<<", sz: "<<sz<<", offset_vs: "<<offset_vs<<endl;
+				for(unsigned int t=begin; t<begin + sz; t++){ 
+					// cout<<"+++ exchangeVs:: begin: "<<begin<<", sz: "<<sz<<", offset_vs: "<<offset_vs<<", t: "<<t<<endl;
+					#ifdef _DEBUGMODE_CHECKS3
+					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 24", t, globalparamsvA.SIZEKVS2_REDUCEPARTITION, begin, begin + sz, sz);
+					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 25", t, MAX_RED_SRAMSZ, begin, begin + sz, sz);
+					#endif
+					if(edgeblock_stats[t].data[0] > 0 || edgeblock_stats[t].data[1] > 0 || edgeblock_stats[t].data[2] > 0){
+						UTIL{{context['id']}}_WriteData(vdramA, globalparamsvA.BASEOFFSETKVS_ACTIVEVERTICES + offset_vs, index, t-begin);
+						UTIL{{context['id']}}_WriteData(vdramB, globalparamsvB.BASEOFFSETKVS_ACTIVEVERTICES + offset_vs, index, t-begin);
+						UTIL{{context['id']}}_WriteData(vdramC, globalparamsvC.BASEOFFSETKVS_ACTIVEVERTICES + offset_vs, index, t-begin);
+						index += 1; // edgeblock_stats[t] = 0;
+						// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+						cout<<"+++ EXCHANGE:: ACTIVE EDGE-BLOCK SEEN @ ["<<v_p<<"]["<<t<<"] "<<endl; 
+						// #endif
+					}
+				}
+				UTIL{{context['id']}}_WriteData(vdramA, globalparamsvA.BASEOFFSETKVS_ACTIVEVERTICES + offset_vs, 0, index-1);
+			}
+		}	
+	}
+				
 	#ifdef _DEBUGMODE_KERNELPRINTS4		
 	unsigned int sum=0, sum1=0, sum2=0, sum3=0, sum4 = 0; 
-	// bool debug = true; bool debug1 = true;
-	bool debug = true; bool debug1 = false;
+	bool debug = true; bool debug1 = true;
+	// bool debug = true; bool debug1 = false;
 	
 	if(debug==true){ cout<<">>> exchange-copy:: printing vpartition_stats... "<<endl; }
-	for(unsigned int v_p=0; v_p<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; v_p++){ sum4 += vpartition_stats___[v_p]; if(debug1==true){ cout<<"--- vpartition_stats___["<<v_p<<"]: "<<vpartition_stats___[v_p]<<endl; }}
+	for(unsigned int v_p=0; v_p<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; v_p++){ sum4 += vpartition_stats[v_p]; if(debug1==true){ cout<<"--- vpartition_stats["<<v_p<<"]: "<<vpartition_stats[v_p]<<endl; }}
 	if(debug==true){ cout<<"+++::: sum4: "<<sum4<<endl; }
 	
 	if(debug==true){ cout<<">>> exchange-copy:: printing pmask_curr... "<<endl; }
@@ -209,19 +224,12 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 	for(unsigned int t=0; t<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; t++){ sum3 += pmask_curr[t]; if(debug1==true){ cout<<"~~~ pmask_curr["<<t<<"]: "<<pmask_curr[t]<<endl; }}
 	if(debug==true){ cout<<"~~~::: sum3: "<<sum3<<endl; }
 	cout<<"exchange-copy: sum3,2,3,4: sum1: "<<sum1<<", sum2: "<<sum2<<", sum3: "<<sum3<<", sum4: "<<sum4<<"..."<<endl;
-	
-	if(debug==true){ cout<<">>> exchange-copy:: printing active edge-blocks (total number of active edge-blocks: "<<totalnum_actvedgeblocks[0]<<")... "<<endl; }
-	for(unsigned int t=0; t<totalnum_actvedgeblocks[0]; t++){ 
-		unsigned int data = UTIL{{context['id']}}_ReadData(vdramA, globalparamsvA.BASEOFFSETKVS_ACTIVEVERTICES, t);
-		if(debug1==true){ cout<<"~~~ edge-block["<<t<<"]: "<<data<<endl; }
-	}
 	#endif	
 	
-	// MEMACCESS{{context['id']}}_savehelperstats(vdramA, vpartition_stats___, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
-	// MEMACCESS{{context['id']}}_savehelperstats(vdramB, vpartition_stats___, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
-	// MEMACCESS{{context['id']}}_savehelperstats(vdramC, vpartition_stats___, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
+	MEMACCESS{{context['id']}}_savehelperstats(vdramA, vpartition_stats, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
+	MEMACCESS{{context['id']}}_savehelperstats(vdramB, vpartition_stats, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
+	MEMACCESS{{context['id']}}_savehelperstats(vdramC, vpartition_stats, globalparamsvA.BASEOFFSETKVS_VERTICESPARTITIONMASK, BLOCKRAM_CURRPMASK_SIZE, globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID, globalparamsvA);
 		
-	cout<<"finished. globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID: "<<globalparamsvA.ALGORITHMINFO_GRAPHITERATIONID<<"."<<endl; 
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"finished. "<<total_sync[0] + total_sync[1] + total_sync[2]<<" vertices synchronized"<<endl; 
 	#endif

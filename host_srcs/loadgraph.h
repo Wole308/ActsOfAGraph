@@ -34,7 +34,7 @@ public:
 	
 	globalparams_t loadvertexdata(std::string algorithm, keyvalue_t * kvbuffer, vertex_t kvbufferoffset_xxx, vertex_t size_xxx, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest, universalparams_t universalparams);
 	
-	globalparams_TWOt loadactvvertices(vector<vertex_t> &activevertices, globalparams_TWOt globalparams, universalparams_t universalparams);
+	globalparams_TWOt loadactvvertices(uint512_vec_dt * vdram, vector<vertex_t> &activevertices, globalparams_TWOt globalparams, universalparams_t universalparams);
 	
 	globalparams_TWOt loadoffsetmarkers(keyvalue_t * stats[MAXNUM_PEs], vector<edge2_vec_dt> (&edges_final)[MAXNUM_PEs], container_t * container, globalparams_TWOt globalparams, universalparams_t universalparams);
 	void accumstats(uint512_vec_dt * kvbuffer[MAXNUM_PEs], uint512_vec_dt * stats[MAXNUM_PEs], globalparams_TWOt globalparams, universalparams_t universalparams);

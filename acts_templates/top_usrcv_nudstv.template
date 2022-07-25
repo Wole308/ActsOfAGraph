@@ -326,7 +326,10 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelpro
 	
 	// #ifdef TESTKERNEL 
 	// if(globalid==22){} else { return; }
-	// #endif 
+	// #endif	
+	#ifdef TESTKERNEL 
+	if(UTIL{{context['id']}}_isbufferused(globalid) == false){ return; }
+	#endif 
 	
 	keyvalue_buffer_t sourcebuffer[VECTOR_SIZE][MAX_SOURCEBLOCKRAM_SIZE];
 	#pragma HLS array_partition variable = sourcebuffer
@@ -364,7 +367,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelpro
 	
 	if(globalposition.stage == 0 && globalposition.source_partition == globalposition.first_source_partition){ MEMACCESS{{context['id']}}_readglobalstats(ON, kvdram, globalcapsule, globalparamsK.BASEOFFSETKVS_STATSDRAM, globalparamsK); }
 	if(globalposition.stage == 0 && globalposition.source_partition == globalposition.first_source_partition){ UTIL{{context['id']}}_resetvalues(globalcapsule, globalparamsK.NUM_REDUCEPARTITIONS, 0); } // CRITICAL NEWCHANGE.
-		
+	
 	// process & partition
 	#ifdef CONFIG_ENABLEPROCESSMODULE
 	if(globalparamsK.ENABLE_PROCESSCOMMAND == ON && en_process == ON){
@@ -540,6 +543,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	
 	voffset_kvs = 0;
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int maxsz_actvvs = (globalparamsK.NUM_PROCESSEDGESPARTITIONS * ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION) / VECTOR2_SIZE;
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->clearglobalvars();
@@ -627,7 +631,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 							cout<<"### TOPKERNEL{{n}}_BASELOOP1E:: reading next set of pmasks (currentLOP: "<<currentLOP<<", source_partition: "<<source_partition<<")..."<<endl;
 							#endif
 							MEMACCESS{{context['id']}}_readhelperstats(vdram, pmask_curr, globalparamsV.BASEOFFSETKVS_VERTICESPARTITIONMASK + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
-							MEMACCESS{{context['id']}}_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
+							// MEMACCESS{{context['id']}}_readhelperstats(vdram, emask_curr, globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + source_partition, BLOCKRAM_CURRPMASK_SIZE, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, globalparamsV);
 						}
 						#endif
 						
@@ -651,14 +655,14 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						
 						// hyrid heuristics
 						unsigned int num_active_vertices_in_partition = pmask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
-						unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
+						// unsigned int num_active_edges_in_channel = emask_curr[source_partition % BLOCKRAM_CURRPMASK_SIZE];
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(num_active_vertices_in_partition > 0){ cout<<"topkernelP: partition is active (pmask_curr["<<source_partition<<"]: "<<num_active_vertices_in_partition<<", source_partition: "<<source_partition<<")...."<<endl; } 
 						#endif 
 						if(globalposition.EN_PROCESS == ON){ if(num_active_vertices_in_partition > 0 || GraphAlgoClass == ALGORITHMCLASS_ALLVERTEXISACTIVE){ enable_readandreplicatevdata = ON; } else { enable_readandreplicatevdata = OFF; }} 
 						else { enable_readandreplicatevdata = OFF; }
 						globalposition.num_active_vertices = num_active_vertices_in_partition;
-						globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
+						// globalposition.num_active_edges_in_channel += num_active_edges_in_channel;
 						total_num_active_vertices_in_iteration += num_active_vertices_in_partition;		
 						#ifdef _DEBUGMODE_KERNELPRINTS
 						if(globalposition.EN_PROCESS == ON && GraphAlgoClass != ALGORITHMCLASS_ALLVERTEXISACTIVE){
@@ -679,22 +683,27 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks // NEWCHANGE. // CRITICAL REMOVEME URGENT.
-						#ifdef CONFIG_RELEASE_VERSION3	
+						#ifdef CONFIG_RELEASE_VERSION3		
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer_source{{i}},{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA, voffset_kvs, vsz_kvs, globalposition, globalparamsV);	
 						}
-						#endif
+						#endif	
 						#ifdef CONFIG_RELEASE_VERSION3b	
-						unsigned int depth_i = 0, index = 0;
+						unsigned int depth_i = 0, index = 0, cmd = 0;
 						for(unsigned int s=0; s<NUM_PEs; s++){	
 							unsigned int offset_kvs = voffset_kvs + depth_i;
+							if(s==NUM_PEs-1){ cmd = 1; } else { cmd = 0; }
 							// {%for i in context['T_seq']%}{%if(i<n)%}	
 							// MERGE{{context['id']}}_broadcastVs(vdram, kvdram{{i}}, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs);		
 							// {%endif%}{%endfor%}		
-							MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs);		
+							MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} 
+								globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs,
+									globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES, globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES, maxsz_actvvs,
+										cmd);		
 							depth_i += depth;
 							index += vsz_kvs;
 						}
+						// MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES, globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES, globalparamsV.SIZE_ACTIVEVERTICES);		
 						#endif
 						
 						// acts

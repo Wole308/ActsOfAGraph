@@ -4,12 +4,16 @@ void MERGE{{context['id']}}_mergeVs{{n}}(uint512_dt * kvdram, uint512_dt * vdram
 
 void MERGE{{context['id']}}_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs);
 
-{%for n in context['T_seq']%}{%if(n>=1)%}
-void MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs);				
+{%for n in context['T_seq']%}{%if(n>=1)%}	
+// void MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs);					
+void MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} 
+		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
+			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
+				unsigned int cmd);
 {%endif%}{%endfor%}
 
-unsigned int MERGE{{context['id']}}_copy(unsigned int idx, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramSTATS, unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
-	pmask_dt vpartition_stats___[BLOCKRAM_CURRPMASK_SIZE], wide_word_bits_3t edgeblock_stats[MAX_RED_SRAMSZ], unsigned int totalnum_actvedgeblocks[1],
+unsigned int MERGE{{context['id']}}_copy(unsigned int idx, unsigned int reduce_partition, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramSTATS, unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
+	pmask_dt vpartition_stats___[BLOCKRAM_CURRPMASK_SIZE], wide_word_bits_3t edgeblock_stats[MAX_RED_SRAMSZ],
 	globalparams_t globalparamsSRC, globalparams_t globalparamsDST1, globalparams_t globalparamsDST2);
 
 void MERGE{{context['id']}}_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC);

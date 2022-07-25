@@ -285,8 +285,8 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_
 	{%endfor%}
 	#endif
 	return;
-}
-uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  
+}	
+/* uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  
 	#pragma HLS INLINE
 	uint512_evec_dt dataset;
 	
@@ -299,6 +299,23 @@ uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdg
 	{%for v in context['VECTOR_SIZE_seq']%}
 	dataset.data[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
 	dataset.data[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	return dataset;
+}	 */
+uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  
+	#pragma HLS INLINE
+	uint512_evec_dt dataset;
+	
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	dataset.data[{{2*v}}] = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	dataset.data[{{2*v+1}}] = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	dataset.data[{{2*v}}] = kvdram[offset_kvs].data[{{v}}].key;
+	dataset.data[{{2*v+1}}] = kvdram[offset_kvs].data[{{v}}].value; 
 	{%endfor%}
 	#endif
 	return dataset;
@@ -898,6 +915,10 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_resetenvbuffer(key
 }
 
 // checks 
+bool {{context['classname__acts_util']}}UTIL{{context['id']}}_isbufferused(unsigned int id){
+	if(id==0 || id==NUMCOMPUTEUNITS_SLR2 || id==NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1){ return true; } else { return false; } ///////////////
+	return true;
+}
 void {{context['classname__acts_util']}}UTIL{{context['id']}}_check_capsule(keyvalue_t capsule[MAX_NUM_PARTITIONS], unsigned int num_partitions, unsigned int max_value){
 	#if defined(ENABLE_PERFECTACCURACY) && defined(_DEBUGMODE_CHECKS2)	
 	for(unsigned int i=0; i<num_partitions-1; i++){ 

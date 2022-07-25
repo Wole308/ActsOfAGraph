@@ -159,6 +159,9 @@ void utility::printallparameters(){
 	std::cout<<"utility:: universalparams.PROC_SRAMSZ: "<<universalparams.PROC_SRAMSZ<<std::endl;
 	std::cout<<"utility:: universalparams.RED_SRAMSZ: "<<universalparams.RED_SRAMSZ<<std::endl;
 	
+	std::cout<<"utility:: MAXNUM_EDGEBLOCKS_PER_VPARTITION: "<<MAXNUM_EDGEBLOCKS_PER_VPARTITION<<std::endl;
+	std::cout<<"utility:: ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION: "<<ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION<<std::endl;
+	
 	std::cout<< TIMINGRESULTSCOLOR <<"utility:: universalparams.TREE_DEPTH: "<<universalparams.TREE_DEPTH<< RESET <<std::endl;
 	std::cout<< TIMINGRESULTSCOLOR <<"utility:: universalparams.PROCESSPARTITIONSZ_KVS2: "<<universalparams.PROCESSPARTITIONSZ_KVS2<< RESET <<std::endl;
 	std::cout<< TIMINGRESULTSCOLOR <<"utility:: MAX_BLOCKRAM_VSRCDATA_SIZE: "<<MAX_BLOCKRAM_VSRCDATA_SIZE<< RESET <<std::endl;
@@ -439,6 +442,13 @@ unsigned int utility::UTIL_GETREALVID(unsigned int lvid, unsigned int instid){
 	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
 	return (lvid * NUM_PEs) + instid;
 	#endif 
+}
+
+void utility::writedata(uint512_vec_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
+	unsigned int loc = index / 2;
+	if(index % 2 == 0){ kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].key = data; } 
+	else { kvdram[offset_kvs + (loc / VECTOR_SIZE)].data[loc % VECTOR_SIZE].value = data; }	
+	return;
 }
 
 #ifdef FPGA_IMPL
