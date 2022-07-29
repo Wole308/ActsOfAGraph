@@ -47,6 +47,7 @@ uint512_evec_dt UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned in
 // void UTIL{{context['id']}}_ReadUpdates(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[UPDATEDATA_PACKINGSIZE]);
 
 void UTIL{{context['id']}}_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
+void UTIL{{context['id']}}_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
 void UTIL{{context['id']}}_WriteDatas(uint512_dt * kvdram, unsigned int offset_kvs, value_t datas[VECTOR2_SIZE]);
 void UTIL{{context['id']}}_WriteDatas(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]);
 void UTIL{{context['id']}}_WriteDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_uvec_dt dataset);

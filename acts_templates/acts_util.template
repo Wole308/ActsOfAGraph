@@ -286,23 +286,6 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_
 	#endif
 	return;
 }	
-/* uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  
-	#pragma HLS INLINE
-	uint512_evec_dt dataset;
-	
-	#ifdef _WIDEWORD 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	dataset.data[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-	dataset.data[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
-	{%endfor%}
-	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	dataset.data[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
-	dataset.data[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
-	{%endfor%}
-	#endif
-	return dataset;
-}	 */
 uint512_evec_dt {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadEdges(uint512_dt * kvdram, unsigned int offset_kvs){  
 	#pragma HLS INLINE
 	uint512_evec_dt dataset;
@@ -332,6 +315,21 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadDatas(uint512_
 	{%for v in context['VECTOR_SIZE_seq']%}
 	datas[{{2*v}}] = kvdram[offset_kvs].data[{{v}}].key;
 	datas[{{2*v+1}}] = kvdram[offset_kvs].data[{{v}}].value; 
+	{%endfor%}
+	#endif
+	return;
+}
+void {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadDatas(uint512_dt * kvdram, unsigned int offset_kvs, keyvalue_t datas[VECTOR_SIZE]){
+	#pragma HLS INLINE
+	#ifdef _WIDEWORD 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{v}}].key = kvdram[offset_kvs].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+	datas[{{v}}].value = kvdram[offset_kvs].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	{%endfor%}
+	#else 
+	{%for v in context['VECTOR_SIZE_seq']%}
+	datas[{{v}}].key = kvdram[offset_kvs].data[{{v}}].key;
+	datas[{{v}}].value = kvdram[offset_kvs].data[{{v}}].value; 
 	{%endfor%}
 	#endif
 	return;
@@ -532,7 +530,8 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.EVALUATION_ACTS_VERYBARE = buffer[MESSAGES_EVALUATION_ACTS_VERYBARE];
 	
 	globalparams.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD];
-	globalparams.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION];
+	globalparams.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION];
+	globalparams.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION];
 	
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_MESSAGESDATA];
 	globalparams.VOLUMEOFFSETKVS_WORKDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_VOLUMEOFFSETKVS_WORKDATA];
@@ -541,12 +540,14 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.BASEOFFSETKVS_VERTEXPTR = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTEXPTR];
 	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA];
 	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA];
-	globalparams.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES];
+	globalparams.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS];
+	globalparams.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEUPDATEBLOCKS];
 	globalparams.BASEOFFSETKVS_EDGESMAP = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESMAP];
 	globalparams.BASEOFFSETKVS_EDGEBLOCKMAP = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGEBLOCKMAP];
 	globalparams.BASEOFFSETKVS_VERTICESPARTITIONMASK = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK];
 	globalparams.BASEOFFSETKVS_STATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_STATSDRAM];
 	globalparams.BASEOFFSETKVS_EDGESSTATSDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESSTATSDRAM]; //
+	globalparams.BASEOFFSETKVS_VERTEXUPDATESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTEXUPDATESDATA];
 	globalparams.BASEOFFSETKVS_KVDRAM = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_KVDRAM];
 	globalparams.BASEOFFSETKVS_KVDRAMWORKSPACE = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE];
 	globalparams.BASEOFFSETKVS_OTHERINFOS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_ACTSMESSAGE_OTHERINFOS];
@@ -564,12 +565,14 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.SIZE_VERTEXPTRS = buffer[MESSAGES_SIZE_VERTEXPTRS];
 	globalparams.SIZE_SRCVERTICESDATA = buffer[MESSAGES_SIZE_SRCVERTICESDATA];
 	globalparams.SIZE_DESTVERTICESDATA = buffer[MESSAGES_SIZE_DESTVERTICESDATA];
-	globalparams.SIZE_ACTIVEVERTICES = buffer[MESSAGES_SIZE_ACTIVEVERTICES];
+	globalparams.SIZE_ACTIVEEDGEBLOCKS = buffer[MESSAGES_SIZE_ACTIVEEDGEBLOCKS];
+	globalparams.SIZE_ACTIVEUPDATEBLOCKS = buffer[MESSAGES_SIZE_ACTIVEUPDATEBLOCKS];
 	globalparams.SIZE_EDGESMAP = buffer[MESSAGES_SIZE_EDGESMAP];
 	globalparams.SIZE_EDGEBLOCKMAP = buffer[MESSAGES_SIZE_EDGEBLOCKMAP];
 	globalparams.SIZE_VERTICESPARTITIONMASK = buffer[MESSAGES_SIZE_VERTICESPARTITIONMASK];
 	globalparams.SIZE_KVSTATSDRAM = buffer[MESSAGES_SIZE_KVSTATSDRAM];
 	globalparams.SIZE_EDGESSTATSDRAM = buffer[MESSAGES_SIZE_EDGESSTATSDRAM];
+	globalparams.SIZE_VERTEXUPDATESDATA = buffer[MESSAGES_SIZE_VERTEXUPDATESDATA];
 	globalparams.SIZE_KVDRAM = buffer[MESSAGES_SIZE_KVDRAM];
 	globalparams.SIZE_KVDRAMWORKSPACE = buffer[MESSAGES_SIZE_KVDRAMWORKSPACE];
 	globalparams.SIZE_OTHERINFOS = buffer[MESSAGES_SIZE_OTHERINFOS];
@@ -585,10 +588,11 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.POW_VERTEXPTRS = buffer[MESSAGES_POW_VERTEXPTRS];
 	globalparams.POW_SRCVERTICESDATA = buffer[MESSAGES_POW_SRCVERTICESDATA];
 	globalparams.POW_DESTVERTICESDATA = buffer[MESSAGES_POW_DESTVERTICESDATA];
-	globalparams.POW_ACTIVEVERTICES = buffer[MESSAGES_POW_ACTIVEVERTICES];
+	globalparams.POW_ACTIVEEDGEBLOCKS = buffer[MESSAGES_POW_ACTIVEEDGEBLOCKS];
 	globalparams.POW_VERTICESDATAMASK = buffer[MESSAGES_POW_VERTICESDATAMASK];
 	globalparams.POW_KVSTATSDRAM = buffer[MESSAGES_POW_KVSTATSDRAM];
 	globalparams.POW_EDGESSTATSDRAM = buffer[MESSAGES_POW_EDGESSTATSDRAM];
+	globalparams.POW_VERTEXUPDATESDATA = buffer[MESSAGES_POW_VERTEXUPDATESDATA];
 	globalparams.POW_KVDRAM = buffer[MESSAGES_POW_KVDRAM];
 	globalparams.POW_KVDRAMWORKSPACE = buffer[MESSAGES_POW_KVDRAMWORKSPACE];
 	globalparams.POW_REDUCE = buffer[MESSAGES_POW_REDUCE];

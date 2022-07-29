@@ -18,11 +18,101 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 	globalparams_t globalparams = UTIL{{context['id']}}_getglobalparams(kvdram, 0);
 	globalparams_t globalparamsv = UTIL{{context['id']}}_getglobalparams(vdram, 0);
 	
+	////////////////////////////
+	/* unsigned int num_its; if(sparse_reduce == true){ num_its = MAXNUM_UPDATEBLOCKS_PER_VPARTITION; } else { num_its = 1; }
+	unsigned int index = 0;
+	for(unsigned int n=0; n<num_its; n++){
+		if(sparse_reduce == true){
+			updateblock_id = n; 
+			workload_kvs.offset_begin = (sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION) + (updateblock_id * (MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE)); //0;
+			workload_kvs.size = MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE; // 1; 
+			workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+			buffer_offset = updateblock_id * (MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE);
+			if(stats[sweepparams.source_partition][1 + n] > 0){
+				cout<<"--------------------------- actit/ACTSREDUCEMODE: n: "<<n<<", updateblock_id(read--): "<<updateblock_id<<endl;
+				xblock_ids[index] = updateblock_id;
+				xload_kvs[index] = workload_kvs;
+				buffer_offsets[index] = buffer_offset;
+				index += 1;
+			}
+		} else {
+			workload_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
+			workload_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
+			workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+			buffer_offset = 0;
+			xblock_ids[n] = NAp;
+			xload_kvs[n] = workload_kvs;
+			buffer_offsets[n] = buffer_offset;
+			index = 1;
+		}
+	} */
+	
+	#ifdef KKKKKKKKKKKKKKKKKKKK
+	/////////////////////////////////////////////////////////////////////////////////
 	// vertices data
 	unsigned int voffset_kvs2 = globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
 	MERGE{{context['id']}}_MERGEVSLOOP2: for(unsigned int reduce_partition=0; reduce_partition<globalparams.NUM_REDUCEPARTITIONS; reduce_partition++){
-		// if(globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs2 + globalparams.SIZEKVS2_REDUCEPARTITION < globalparamsv.ACTSPARAMS_MAXHBMCAPACITY_KVS){
+		
+		bool sparse_reduce = false; if(stats[sweepparams.source_partition][0] < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION){ sparse_reduce = true; } else { sparse_reduce = false; }
+		unsigned int num_its; if(sparse_reduce == true){ num_its = MAXNUM_UPDATEBLOCKS_PER_VPARTITION; } else { num_its = 1; }
+		unsigned int index = 0;
+		for(unsigned int n=0; n<num_its; n++){
+			if(sparse_reduce == true){
+				updateblock_id = n; 
+				workload_kvs.offset_begin = updateblock_id * (MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE); //0;
+				workload_kvs.size = MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE; // 1; 
+				workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+				buffer_offset = updateblock_id * (MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE);
+				if(stats[sweepparams.source_partition][1 + n] > 0){
+					cout<<"--------------------------- actit/ACTSREDUCEMODE: n: "<<n<<", updateblock_id(read--): "<<updateblock_id<<endl;
+					xblock_ids[index] = updateblock_id;
+					xload_kvs[index] = workload_kvs;
+					buffer_offsets[index] = buffer_offset;
+					index += 1;
+				}
+			} else {
+				workload_kvs.offset_begin = 0; // FIXME.
+				workload_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
+				workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+				buffer_offset = 0;
+				xblock_ids[n] = NAp;
+				xload_kvs[n] = workload_kvs;
+				buffer_offsets[n] = buffer_offset;
+				index = 1;
+			}
+		}
+		
+		for(unsigned int n=0; n<index; n++){
+			MERGE{{context['id']}}_MERGEVSLOOP2B: for(unsigned int k=xload_kvs[n].offset_begin; k<xload_kvs[n].offset_begin + workload_kvs.size; k++){ // globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE, globalparams.SIZEKVS2_REDUCEPARTITION
+			#pragma HLS PIPELINE II=1
+				#ifdef _DEBUGMODE_CHECKS3
+				actsutilityobj->checkoutofbounds("mergeVs: ERROR 21", voffset_kvs2 + k, ((1 << 28) / 4) / VECTOR2_SIZE, NAp, voffset_kvs2, globalparamsv.SIZE_SRCVERTICESDATA);
+				actsutilityobj->checkoutofbounds("mergeVs: ERROR 22", voffseti_kvs2 + k, ((1 << 28) / 4) / VECTOR2_SIZE, voffseti_kvs2, k, globalparams.SIZE_DESTVERTICESDATA); 
+				#endif
+				vdram[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs2 + k] = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
+				
+				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+					for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
+					value_t combo; if(v%2==0){ combo = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k].data[v/2].key; } else { combo = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k].data[v/2].key; }
+					value_t vdata = combo >> 1; value_t mask = combo & 0x1;
+					unsigned int lvid = (((reduce_partition * globalparams.SIZEKVS2_REDUCEPARTITION) + k) * VDATA_PACKINGSIZE) + v;
+					if(mask == 1){ cout<<">>> MERGE:: MERGE VERTICES SEEN @ reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", vid: "<<UTIL{{context['id']}}_GETREALVID(lvid, globalparams.ACTSPARAMS_INSTID)<<", combo: "<<combo<<", globalparams.SIZE_DESTVERTICESDATA: "<<globalparams.SIZE_DESTVERTICESDATA<<endl; }		
+				}
+				#endif
+			}
+		}
+		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
+		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
+	}
+	#endif 
+	/////////////////////////////////////////////////////////////////////////////////
+	
+	// vertices data
+	unsigned int voffset_kvs2 = globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
+	unsigned int voffseti_kvs2 = 0;
+	MERGE{{context['id']}}_MERGEVSLOOP2: for(unsigned int reduce_partition=0; reduce_partition<globalparams.NUM_REDUCEPARTITIONS; reduce_partition++){
+		if(globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs2 + globalparams.SIZEKVS2_REDUCEPARTITION < globalparamsv.ACTSPARAMS_MAXHBMCAPACITY_KVS){
 		MERGE{{context['id']}}_MERGEVSLOOP2B: for(unsigned int k=0; k<globalparams.SIZEKVS2_REDUCEPARTITION; k++){ // globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE, globalparams.SIZEKVS2_REDUCEPARTITION
 		#pragma HLS PIPELINE II=1
 			#ifdef _DEBUGMODE_CHECKS3
@@ -40,7 +130,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 			}
 			#endif
 		}
-		// }
+		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
@@ -123,8 +213,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(uns
 			for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
 			#pragma HLS UNROLL 
 				value_t vdata = datas[v] >> 1; mask[v] = datas[v] & 0x1;
-				unsigned int lvid = lvid_first + (k * VDATA_PACKINGSIZE) + v; vid[0] = UTIL{{context['id']}}_GETREALVID(lvid, firstinstance_id + i); // FIXME. MAKE SIMPLER.
-				// vid[0] = vbegin + (i * VDATA_PACKINGSIZE) + k;
+				unsigned int lvid = lvid_first + (k * VDATA_PACKINGSIZE) + v; vid[0] = UTIL{{context['id']}}_GETREALVID(lvid, firstinstance_id + i); // FIXME. MAKE SIMPLER. // vid[0] = vbegin + (i * VDATA_PACKINGSIZE) + k;
 				#ifdef _DEBUGMODE_CHECKS3
 				unsigned int check_lvid = lvid_first + (k * VDATA_PACKINGSIZE) + v; unsigned int check_v0 = UTIL{{context['id']}}_GETREALVID(check_lvid, firstinstance_id + i); // FIXME. MAKE SIMPLER.
 				if(vid[0] != check_v0){ cout<<"exchange. seperate calculations of vid[0] don't match. vid[0]("<<vid[0]<<") != check_v0("<<check_v0<<"). EXIITING..."<<endl; exit(EXIT_FAILURE); }
@@ -182,34 +271,32 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_exchange(uint512
 		total_sync[2] = MERGE{{context['id']}}_copy(2, reduce_partition, vdramC, vdramA, vdramB, vdramA, voffsetC_kvs, NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1, NUMCOMPUTEUNITS_SLR0, vpartition_stats, edgeblock_stats, globalparamsvC, globalparamsvA, globalparamsvB);
 	
 		EXCHANGE{{context['id']}}_LOOP1B: for(unsigned int v_p=0; v_p<globalparamsvA.NUM_PROCESSEDGESPARTITIONS; v_p++){ 
-			if(vpartition_stats[v_p] < globalparamsvA.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION){
-				unsigned int offset_vs = (v_p * globalparamsvA.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION) / VDATA_PACKINGSIZE;
+			if(vpartition_stats[v_p] < globalparamsvA.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION){
+				unsigned int offset_vs = (v_p * globalparamsvA.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION) / VDATA_PACKINGSIZE;
 				unsigned int begin = v_p * MAXNUM_EDGEBLOCKS_PER_VPARTITION; unsigned int sz = MAXNUM_EDGEBLOCKS_PER_VPARTITION; // unsigned int end = begin + sz;
 				if(begin + sz >= globalparamsvA.SIZEKVS2_REDUCEPARTITION){ sz = globalparamsvA.SIZEKVS2_REDUCEPARTITION - begin; }
 				unsigned int index = 1; // 0;
-				// cout<<"+++ exchangeVs:: begin: "<<begin<<", sz: "<<sz<<", offset_vs: "<<offset_vs<<endl;
 				for(unsigned int t=begin; t<begin + sz; t++){ 
-					// cout<<"+++ exchangeVs:: begin: "<<begin<<", sz: "<<sz<<", offset_vs: "<<offset_vs<<", t: "<<t<<endl;
 					#ifdef _DEBUGMODE_CHECKS3
 					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 24", t, globalparamsvA.SIZEKVS2_REDUCEPARTITION, begin, begin + sz, sz);
 					actsutilityobj->checkoutofbounds("exchangeVs:: ERROR 25", t, MAX_RED_SRAMSZ, begin, begin + sz, sz);
 					#endif
 					if(edgeblock_stats[t].data[0] > 0 || edgeblock_stats[t].data[1] > 0 || edgeblock_stats[t].data[2] > 0){
-						UTIL{{context['id']}}_WriteData(vdramA, globalparamsvA.BASEOFFSETKVS_ACTIVEVERTICES + offset_vs, index, t-begin);
-						UTIL{{context['id']}}_WriteData(vdramB, globalparamsvB.BASEOFFSETKVS_ACTIVEVERTICES + offset_vs, index, t-begin);
-						UTIL{{context['id']}}_WriteData(vdramC, globalparamsvC.BASEOFFSETKVS_ACTIVEVERTICES + offset_vs, index, t-begin);
+						UTIL{{context['id']}}_WriteData(vdramA, globalparamsvA.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset_vs, index, t-begin);
+						UTIL{{context['id']}}_WriteData(vdramB, globalparamsvB.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset_vs, index, t-begin);
+						UTIL{{context['id']}}_WriteData(vdramC, globalparamsvC.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset_vs, index, t-begin);
 						index += 1; // edgeblock_stats[t] = 0;
-						// #ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
+						#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 						cout<<"+++ EXCHANGE:: ACTIVE EDGE-BLOCK SEEN @ ["<<v_p<<"]["<<t<<"] "<<endl; 
-						// #endif
+						#endif
 					}
 				}
-				UTIL{{context['id']}}_WriteData(vdramA, globalparamsvA.BASEOFFSETKVS_ACTIVEVERTICES + offset_vs, 0, index-1);
+				UTIL{{context['id']}}_WriteData(vdramA, globalparamsvA.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset_vs, 0, index-1);
 			}
 		}	
 	}
 				
-	#ifdef _DEBUGMODE_KERNELPRINTS4		
+	#ifdef _DEBUGMODE_KERNELPRINTS	
 	unsigned int sum=0, sum1=0, sum2=0, sum3=0, sum4 = 0; 
 	bool debug = true; bool debug1 = true;
 	// bool debug = true; bool debug1 = false;

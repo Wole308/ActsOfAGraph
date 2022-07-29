@@ -170,9 +170,9 @@ void app::print_active_partitions(unsigned int GraphIter, uint512_vec_dt * dram,
 		unsigned int * emask0; emask0 = new pmask_dt[512];
 		uint512_ivec_dt * tempdram = (uint512_ivec_dt *)dram;		
 		unsigned int dram_BASEOFFSETKVS_VERTICESPARTITIONMASK = dram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-		unsigned int dram_BASEOFFSETKVS_ACTIVEVERTICES = dram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
+		unsigned int dram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS = dram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS].data[0].key;
 		unsigned int offset_kvs = dram_BASEOFFSETKVS_VERTICESPARTITIONMASK;
-		unsigned int offset2_kvs = dram_BASEOFFSETKVS_ACTIVEVERTICES;
+		unsigned int offset2_kvs = dram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS;
 		for (buffer_type i=0; i<num_partitions; i++){
 			pmask0[i] = tempdram[offset_kvs + i].data[GraphIter];
 			emask0[i] = tempdram[offset2_kvs + i].data[GraphIter];
@@ -279,10 +279,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int k=0; k<universalparams.MAXHBMCAPACITY_KVS2; k++){ for(unsigned int v=0; v<KEYVALUEDATA_PACKINGSIZE; v++){ kvbuffer[i][k].data[v].key = 0; kvbuffer[i][k].data[v].value = 0; }}} // REMOVEME.
 	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edges_map[i][v_p] = new map_t[MAXNUM_LLPs]; }}
-	// for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edgeblock_map[i][v_p] = new keyvalue_t[MAXNUM_EDGEBLOCKS_PER_VPARTITION]; for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ edgeblock_map[i][v_p][t].key = 0; edgeblock_map[i][v_p][t].value = 0; }}}		
 	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edgeblock_map[i][v_p] = new keyvalue_t[ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION]; for(unsigned int t=0; t<ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ edgeblock_map[i][v_p][t].key = 0; edgeblock_map[i][v_p][t].value = 0; }}}		
-	// cout<<"app: MAXNUM_EDGEBLOCKS_PER_VPARTITION: "<<MAXNUM_EDGEBLOCKS_PER_VPARTITION<<endl;
-	// cout<<"app: ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION: "<<ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION<<endl;
 	// exit(EXIT_SUCCESS);
 	
 	// load workload information
@@ -294,7 +291,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsK.BASEOFFSETKVS_VERTEXPTR = 0;
 	globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA = 0;
 	globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA = 0;
-	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES = 0;
+	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsK.BASEOFFSETKVS_EDGESMAP = 0;
 	globalparams.globalparamsK.BASEOFFSETKVS_STATSDRAM = 0;
 	globalparams.globalparamsK.BASEOFFSETKVS_KVDRAM = 0;
@@ -307,7 +304,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsK.SIZE_VERTEXPTRS = 0;
 	globalparams.globalparamsK.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsK.SIZE_DESTVERTICESDATA = 0;
-	globalparams.globalparamsK.SIZE_ACTIVEVERTICES = 0;
+	globalparams.globalparamsK.SIZE_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsK.SIZE_EDGESMAP = 0;
 	globalparams.globalparamsK.SIZE_KVSTATSDRAM = 0;
 	globalparams.globalparamsK.SIZE_KVDRAM = 0;
@@ -319,7 +316,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR = 0;
 	globalparams.globalparamsE.BASEOFFSETKVS_SRCVERTICESDATA = 0;
 	globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA = 0;
-	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEVERTICES = 0;
+	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsE.BASEOFFSETKVS_EDGESMAP = 0;
 	globalparams.globalparamsE.BASEOFFSETKVS_STATSDRAM = 0;
 	globalparams.globalparamsE.BASEOFFSETKVS_KVDRAM = 0;
@@ -332,7 +329,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsE.SIZE_VERTEXPTRS = 0;
 	globalparams.globalparamsE.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsE.SIZE_DESTVERTICESDATA = 0;
-	globalparams.globalparamsE.SIZE_ACTIVEVERTICES = 0;
+	globalparams.globalparamsE.SIZE_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsE.SIZE_EDGESMAP = 0;
 	globalparams.globalparamsE.SIZE_KVSTATSDRAM = 0;
 	globalparams.globalparamsE.SIZE_KVDRAM = 0;
@@ -345,7 +342,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsV.BASEOFFSETKVS_VERTEXPTR = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA = 0;
-	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES = 0;
+	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_EDGESMAP = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_STATSDRAM = 0;
 	globalparams.globalparamsV.BASEOFFSETKVS_KVDRAM = 0;
@@ -358,7 +355,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsV.SIZE_VERTEXPTRS = 0;
 	globalparams.globalparamsV.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsV.SIZE_DESTVERTICESDATA = 0;
-	globalparams.globalparamsV.SIZE_ACTIVEVERTICES = 0;
+	globalparams.globalparamsV.SIZE_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsV.SIZE_EDGESMAP = 0;
 	globalparams.globalparamsV.SIZE_KVSTATSDRAM = 0;
 	globalparams.globalparamsV.SIZE_KVDRAM = 0;
@@ -371,7 +368,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsM.BASEOFFSETKVS_VERTEXPTR = 0;
 	globalparams.globalparamsM.BASEOFFSETKVS_SRCVERTICESDATA = 0;
 	globalparams.globalparamsM.BASEOFFSETKVS_DESTVERTICESDATA = 0;
-	globalparams.globalparamsM.BASEOFFSETKVS_ACTIVEVERTICES = 0;
+	globalparams.globalparamsM.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsM.BASEOFFSETKVS_EDGESMAP = 0;
 	globalparams.globalparamsM.BASEOFFSETKVS_STATSDRAM = 0;
 	globalparams.globalparamsM.BASEOFFSETKVS_KVDRAM = 0;
@@ -382,7 +379,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	globalparams.globalparamsM.SIZE_VERTEXPTRS = 0;
 	globalparams.globalparamsM.SIZE_SRCVERTICESDATA = 0;
 	globalparams.globalparamsM.SIZE_DESTVERTICESDATA = 0;
-	globalparams.globalparamsM.SIZE_ACTIVEVERTICES = 0;
+	globalparams.globalparamsM.SIZE_ACTIVEEDGEBLOCKS = 0;
 	globalparams.globalparamsM.SIZE_EDGESMAP = 0;
 	globalparams.globalparamsM.SIZE_KVSTATSDRAM = 0;
 	globalparams.globalparamsM.SIZE_KVDRAM = 0;
@@ -475,35 +472,10 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#endif 
 	globalparams = loadgraphobj->loadmaps(actvvs, vdram, edges, edges_map, edgeblock_map, globalparams, universalparams);
 	#endif 
-	globalparams.globalparamsM.BASEOFFSETKVS_ACTIVEVERTICES = globalparams.globalparamsM.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsM.SIZE_DESTVERTICESDATA / VALUEDATA_PACKINGSIZE);
-	globalparams.globalparamsM.SIZE_ACTIVEVERTICES = CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ * MAXNUMGRAPHITERATIONS * 2; // (universalparams.NUM_VERTICES * 2); // current and next it active vertices
+	globalparams.globalparamsM.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.globalparamsM.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsM.SIZE_DESTVERTICESDATA / VALUEDATA_PACKINGSIZE);
+	globalparams.globalparamsM.SIZE_ACTIVEEDGEBLOCKS = CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ * MAXNUMGRAPHITERATIONS * 2; // (universalparams.NUM_VERTICES * 2); // current and next it active vertices
 	// exit(EXIT_SUCCESS); //
-	
-	/* ////////////////////////////////////////////////
-	for(unsigned int t=0; t<4; t++){
-		for(unsigned int v=0; v<8; v++){
-			cout<<"app1: vdram["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].key: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].key<<endl; 
-			cout<<"app1: vdram["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].value: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].value<<endl; 
-		}
-	}
-	// exit(EXIT_SUCCESS); //
-	//////////////////////////////////////////////// */
-	
-	/* for(unsigned int t=0; t<16; t++){
-		for(unsigned int v=0; v<8; v++){
-			vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].key = 777; 
-			vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].value = 777;
-		}
-	}
-	for(unsigned int i = 0; i < NUM_PEs; i++){
-		for(unsigned int t=0; t<16; t++){
-			for(unsigned int v=0; v<8; v++){
-				kvbuffer[i][globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].key = 777; 
-				kvbuffer[i][globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].value = 777;
-			}
-		}
-	} */
-	
+
 	// setting root vid
 	#ifdef APP_LOADROOTVID
 	#ifdef _DEBUGMODE_HOSTPRINTS4
@@ -522,16 +494,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	loadgraphobj->accumstats(kvbuffer, edges, globalparams, universalparams); // NEWCHANGE. // OBSOLETE.
 	#endif 
 	// exit(EXIT_SUCCESS); //
-	
-	/* ////////////////////////////////////////////////
-	for(unsigned int t=0; t<4; t++){
-		for(unsigned int v=0; v<8; v++){
-			cout<<"app2: vdram["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].key: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].key<<endl; 
-			cout<<"app2: vdram["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].value: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].value<<endl; 
-		}
-	}
-	// exit(EXIT_SUCCESS); //
-	//////////////////////////////////////////////// */
 
 	// messages
 	#ifdef APP_LOADMESSAGES
@@ -551,16 +513,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.globalparamsK.BASEOFFSETKVS_KVDRAM], globalparams.globalparamsK.SIZE_KVDRAM);
 		utilityobj->resetkeyvalues((keyvalue_t *)&kvbuffer[i][globalparams.globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE], globalparams.globalparamsK.SIZE_KVDRAM);
 	}
-	
-	/* ////////////////////////////////////////////////
-	for(unsigned int t=0; t<4; t++){
-		for(unsigned int v=0; v<8; v++){
-			cout<<"app3: vdram["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].key: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].key<<endl; 
-			cout<<"app3: vdram["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].value: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].value<<endl; 
-		}
-	}
-	// exit(EXIT_SUCCESS); //
-	//////////////////////////////////////////////// */
 
 	// acts helper
 	#ifdef APP_RUNSWVERSION
@@ -584,16 +536,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.VOLUMESIZEU32_WORKDATA / VECTOR2_SIZE); t++){ kvbuffer[i][universalparams.VOLUMEOFFSETKVS_WORKDATA + t] = edges[i][t]; }}
 	if(((universalparams.VOLUMEOFFSETKVS_WORKDATA + (universalparams.VOLUMESIZEU32_WORKDATA / VECTOR2_SIZE)) * sizeof(uint512_vec_dt)) > (universalparams.MAXHBMCAPACITY_UINT32 * sizeof(unsigned int))){ cout<<"app::ERROR: CAN NOT merge. dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	// exit(EXIT_SUCCESS);
-	
-	/* ////////////////////////////////////////////////
-	for(unsigned int t=0; t<4; t++){
-		for(unsigned int v=0; v<8; v++){
-			cout<<"app4: vdram["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].key: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].key<<endl; 
-			cout<<"app4: vdram["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].value: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].value<<endl; 
-		}
-	}
-	// exit(EXIT_SUCCESS); //
-	//////////////////////////////////////////////// */
 
 	// load partitions stats
 	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
@@ -602,16 +544,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#endif 
 	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;		
 	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-	// unsigned int vdram_BASEOFFSETKVS_ACTIVEVERTICES = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ // MAXNUMGRAPHITERATIONS
-		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpartition_stats[iter][t].A; }
-		// for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_ACTIVEVERTICES + t].data[iter] = vpartition_stats[iter][t].B / NUM_PEs; }
-		
-		// for(unsigned int i=0; i<NUM_PEs; i++){ 
-			// uint512_ivec_dt * tempkvdram = (uint512_ivec_dt *)kvbuffer[i];	
-			// unsigned int kvdram_BASEOFFSETKVS_ACTIVEVERTICES = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEVERTICES].data[0].key;
-			// for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempkvdram[kvdram_BASEOFFSETKVS_ACTIVEVERTICES + t].data[iter] = vpmaskstats_merge[iter][i][t].A; }
-		// }		
+		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpartition_stats[iter][t].A; }		
 	}
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"----------------------- app: printing active partitions for acts process-partition-reduce stage... -----------------------"<<endl;
@@ -622,16 +556,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#endif
 	// exit(EXIT_SUCCESS); //
 	
-	/* ////////////////////////////////////////////////
-	for(unsigned int t=0; t<16; t++){
-		for(unsigned int v=0; v<8; v++){
-			cout<<"app30: vdram3["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].key: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].key<<endl; 
-			cout<<"app30: vdram3["<<globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t<<"].data["<<v<<"].value: "<<vdram[globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEVERTICES + t].data[v].value<<endl; 
-		}
-	}
-	exit(EXIT_SUCCESS); //
-	//////////////////////////////////////////////// */
-	
 	// run_hw
 	#ifdef APP_RUNHWVERSION
 	cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
@@ -641,7 +565,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	// exit(EXIT_SUCCESS); //
 	
 	// output
-	unsigned int num_traversed_edges = actshelperobj->getfeedback("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer, universalparams);
+	unsigned int num_traversed_edges = NAp; // actshelperobj->getfeedback("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer, universalparams);
 	actshelperobj->verifyresults(vdram, globalparams.globalparamsV, universalparams);
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<endl<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
