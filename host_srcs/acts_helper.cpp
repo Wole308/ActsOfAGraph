@@ -75,8 +75,8 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 			if(vid < (v_p * myuniversalparams.PROCESSPARTITIONSZ)){ cout<<"acts_helper::extract_stats:: ERROR 20. vid("<<vid<<") < (v_p("<<v_p<<") * myuniversalparams.PROCESSPARTITIONSZ("<<myuniversalparams.PROCESSPARTITIONSZ<<")=("<<(v_p * myuniversalparams.PROCESSPARTITIONSZ)<<")). EXITING... "<<endl; exit(EXIT_FAILURE); }	
 			utilityobj->checkoutofbounds("acts_helper:: ERROR 21", lvid, myuniversalparams.PROCESSPARTITIONSZ, lvid, vid, NAp);
 					
-			// if(edgeblock_stats[GraphIter][v_p][lvid / MAXNUM_VERTICES_PER_EDGEBLOCK] == 0){ 
-				// edgeblock_stats[GraphIter][v_p][lvid / MAXNUM_VERTICES_PER_EDGEBLOCK] = 1; 
+			// if(edgeblock_stats[GraphIter][v_p][lvid / NUM_VERTICES_PER_EDGEBLOCK] == 0){ 
+				// edgeblock_stats[GraphIter][v_p][lvid / NUM_VERTICES_PER_EDGEBLOCK] = 1; 
 				// iteration_stats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; 
 			// }
 			iteration_stats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; 
@@ -271,8 +271,8 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 				
 				unsigned int v_p = vid / myuniversalparams.PROCESSPARTITIONSZ;
 				unsigned int lvid = vid - (v_p * myuniversalparams.PROCESSPARTITIONSZ);
-				if(edgeblock_stats[GraphIter+1][v_p][lvid / MAXNUM_VERTICES_PER_EDGEBLOCK] == 0){ 
-					edgeblock_stats[GraphIter+1][v_p][lvid / MAXNUM_VERTICES_PER_EDGEBLOCK] = 1; 
+				if(edgeblock_stats[GraphIter+1][v_p][lvid / NUM_VERTICES_PER_EDGEBLOCK] == 0){ 
+					edgeblock_stats[GraphIter+1][v_p][lvid / NUM_VERTICES_PER_EDGEBLOCK] = 1; 
 					iteration_stats[GraphIter+1][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; 
 				}
 				iteration_stats2[GraphIter+1][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; 
@@ -415,7 +415,7 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 			if(vid < (v_p * myuniversalparams.PROCESSPARTITIONSZ)){ cout<<"acts_helper::extract_stats:: ERROR 20. vid("<<vid<<") < (v_p("<<v_p<<") * myuniversalparams.PROCESSPARTITIONSZ("<<myuniversalparams.PROCESSPARTITIONSZ<<")=("<<(v_p * myuniversalparams.PROCESSPARTITIONSZ)<<")). EXITING... "<<endl; exit(EXIT_FAILURE); }	
 			utilityobj->checkoutofbounds("acts_helper:: ERROR 21", lvid, myuniversalparams.PROCESSPARTITIONSZ, lvid, vid, NAp);
 					
-			if(edgeblock_stats[GraphIter][v_p][lvid / MAXNUM_VERTICES_PER_EDGEBLOCK] == 0){ edgeblock_stats[GraphIter][v_p][lvid / MAXNUM_VERTICES_PER_EDGEBLOCK] = 1; iteration_stats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; }
+			if(edgeblock_stats[GraphIter][v_p][lvid / NUM_VERTICES_PER_EDGEBLOCK] == 0){ edgeblock_stats[GraphIter][v_p][lvid / NUM_VERTICES_PER_EDGEBLOCK] = 1; iteration_stats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; }
 			// iteration_stats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].A += 1; 
 			iteration_stats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].B += edges_size; // 
 			// cout<<"~~~ iteration_stats["<<GraphIter<<"]["<<vid / myuniversalparams.PROCESSPARTITIONSZ<<"].B: "<<iteration_stats[GraphIter][vid / myuniversalparams.PROCESSPARTITIONSZ].B<<endl;

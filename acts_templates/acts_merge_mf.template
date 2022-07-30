@@ -1,3 +1,5 @@
+void merge{{context['id']}}_trace(uint512_dt * kvdram, unsigned int reduce_partition, unsigned int k, unsigned int offset_kvs, globalparams_t globalparams);
+
 void MERGE{{context['id']}}_print_active_masks(uint512_dt * vdram, globalparams_t globalparams, unsigned int offset_kvs);
 
 void MERGE{{context['id']}}_mergeVs{{n}}(uint512_dt * kvdram, uint512_dt * vdram);
@@ -5,7 +7,6 @@ void MERGE{{context['id']}}_mergeVs{{n}}(uint512_dt * kvdram, uint512_dt * vdram
 void MERGE{{context['id']}}_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs);
 
 {%for n in context['T_seq']%}{%if(n>=1)%}	
-// void MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs);					
 void MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} 
 		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
 			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,

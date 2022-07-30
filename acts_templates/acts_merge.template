@@ -1,3 +1,12 @@
+void {{context['classname__acts_merge']}}merge{{context['id']}}_trace(uint512_dt * kvdram, unsigned int reduce_partition, unsigned int k, unsigned int offset_kvs, globalparams_t globalparams){
+	for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
+		value_t combo; if(v%2==0){ combo = kvdram[offset_kvs].data[v/2].key; } else { combo = kvdram[offset_kvs].data[v/2].key; }
+		value_t vdata = combo >> 1; value_t mask = combo & 0x1;
+		unsigned int lvid = (((reduce_partition * globalparams.SIZEKVS2_REDUCEPARTITION) + k) * VDATA_PACKINGSIZE) + v;
+		if(mask == 1){ cout<<">>> MERGE:: MERGE VERTICES SEEN @ reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", vid: "<<UTIL{{context['id']}}_GETREALVID(lvid, globalparams.ACTSPARAMS_INSTID)<<", combo: "<<combo<<", globalparams.SIZE_DESTVERTICESDATA: "<<globalparams.SIZE_DESTVERTICESDATA<<endl; }		
+	}
+}
+
 void {{context['classname__acts_merge']}}MERGE{{context['id']}}_print_active_masks(uint512_dt * vdram, globalparams_t globalparams, unsigned int offset_kvs){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){	
@@ -17,74 +26,60 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 	
 	globalparams_t globalparams = UTIL{{context['id']}}_getglobalparams(kvdram, 0);
 	globalparams_t globalparamsv = UTIL{{context['id']}}_getglobalparams(vdram, 0);
+
+	// #ifdef KKKKKKKKKKKKKKKKKKKK
+	unsigned int buffer_offset = 0;
+	unsigned int buffer_offsets[BLOCKRAM_SIZE];
+	unsigned int xblock_ids[BLOCKRAM_SIZE];
+	workload_t xload_kvs[BLOCKRAM_SIZE];
+	workload_t workload_uprop_kvs;
+	value_t datas[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable = datas complete
+	unsigned int stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE];
+	#pragma HLS ARRAY_PARTITION variable = stats
 	
-	////////////////////////////
-	/* unsigned int num_its; if(sparse_reduce == true){ num_its = MAXNUM_UPDATEBLOCKS_PER_VPARTITION; } else { num_its = 1; }
-	unsigned int index = 0;
-	for(unsigned int n=0; n<num_its; n++){
-		if(sparse_reduce == true){
-			updateblock_id = n; 
-			workload_kvs.offset_begin = (sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION) + (updateblock_id * (MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE)); //0;
-			workload_kvs.size = MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE; // 1; 
-			workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
-			buffer_offset = updateblock_id * (MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE);
-			if(stats[sweepparams.source_partition][1 + n] > 0){
-				cout<<"--------------------------- actit/ACTSREDUCEMODE: n: "<<n<<", updateblock_id(read--): "<<updateblock_id<<endl;
-				xblock_ids[index] = updateblock_id;
-				xload_kvs[index] = workload_kvs;
-				buffer_offsets[index] = buffer_offset;
-				index += 1;
-			}
-		} else {
-			workload_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
-			workload_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
-			workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
-			buffer_offset = 0;
-			xblock_ids[n] = NAp;
-			xload_kvs[n] = workload_kvs;
-			buffer_offsets[n] = buffer_offset;
-			index = 1;
-		}
-	} */
+	unsigned int numkvs_vertices_per_updateblock = (1 << (globalparams.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
+	unsigned int numkvs_updateblocks_per_reducepartition = globalparams.SIZEKVS2_REDUCEPARTITION / numkvs_vertices_per_updateblock;
 	
-	#ifdef KKKKKKKKKKKKKKKKKKKK
-	/////////////////////////////////////////////////////////////////////////////////
-	// vertices data
 	unsigned int voffset_kvs2 = globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
+	
+	for(unsigned int t=0; t<BLOCKRAM_UPDATEBLOCK_SIZE; t++){
+	#pragma HLS PIPELINE II=1
+		UTIL{{context['id']}}_ReadDatas(kvdram, globalparams.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS + t, datas);	
+		stats[16][t] = datas[0];
+		stats[17][t] = datas[1];
+	}
+	
 	MERGE{{context['id']}}_MERGEVSLOOP2: for(unsigned int reduce_partition=0; reduce_partition<globalparams.NUM_REDUCEPARTITIONS; reduce_partition++){
-		
-		bool sparse_reduce = false; if(stats[sweepparams.source_partition][0] < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION){ sparse_reduce = true; } else { sparse_reduce = false; }
-		unsigned int num_its; if(sparse_reduce == true){ num_its = MAXNUM_UPDATEBLOCKS_PER_VPARTITION; } else { num_its = 1; }
-		unsigned int index = 0;
+		bool sparse_reduce = false; if(stats[17][reduce_partition] < globalparams.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION){ sparse_reduce = true; } else { sparse_reduce = false; }
+		if(sparse_reduce == true){ cout<<"merge:: sparse_reduce is TRUE. stats[17]["<<reduce_partition<<"]: "<<stats[17][reduce_partition]<<endl; } else { cout<<"actit:: sparse_reduce is FALSE. stats[17]["<<reduce_partition<<"]: "<<stats[17][reduce_partition]<<endl; }
+		unsigned int num_its; if(sparse_reduce == true){ num_its = stats[17][reduce_partition]; } else { num_its = 1; }
 		for(unsigned int n=0; n<num_its; n++){
 			if(sparse_reduce == true){
-				updateblock_id = n; 
-				workload_kvs.offset_begin = updateblock_id * (MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE); //0;
-				workload_kvs.size = MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE; // 1; 
-				workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
-				buffer_offset = updateblock_id * (MAXNUM_VERTICES_PER_UPDATEBLOCK / VDATA_PACKINGSIZE);
-				if(stats[sweepparams.source_partition][1 + n] > 0){
-					cout<<"--------------------------- actit/ACTSREDUCEMODE: n: "<<n<<", updateblock_id(read--): "<<updateblock_id<<endl;
-					xblock_ids[index] = updateblock_id;
-					xload_kvs[index] = workload_kvs;
-					buffer_offsets[index] = buffer_offset;
-					index += 1;
-				}
+				unsigned int offset_kvs = reduce_partition * numkvs_vertices_per_updateblock;
+				unsigned int updateblock_id = stats[16][offset_kvs + n]; 
+				workload_uprop_kvs.offset_begin = updateblock_id * numkvs_vertices_per_updateblock; 
+				workload_uprop_kvs.size = numkvs_vertices_per_updateblock;  
+				workload_uprop_kvs.offset_end = workload_uprop_kvs.offset_begin + workload_uprop_kvs.size;
+				buffer_offset = updateblock_id * numkvs_vertices_per_updateblock;
+				cout<<"--------------------------- mergeVs: n: "<<n<<", updateblock_id: "<<updateblock_id<<", num_its: "<<num_its<<", numkvs_vertices_per_updateblock: "<<numkvs_vertices_per_updateblock<<endl;
+				xblock_ids[n] = updateblock_id;
+				xload_kvs[n] = workload_uprop_kvs;
+				buffer_offsets[n] = buffer_offset;
 			} else {
-				workload_kvs.offset_begin = 0; // FIXME.
-				workload_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
-				workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+				workload_uprop_kvs.offset_begin = 0;
+				workload_uprop_kvs.size = globalparams.SIZEKVS2_REDUCEPARTITION;
+				workload_uprop_kvs.offset_end = workload_uprop_kvs.offset_begin + workload_uprop_kvs.size;
 				buffer_offset = 0;
 				xblock_ids[n] = NAp;
-				xload_kvs[n] = workload_kvs;
+				xload_kvs[n] = workload_uprop_kvs;
 				buffer_offsets[n] = buffer_offset;
-				index = 1;
 			}
 		}
 		
-		for(unsigned int n=0; n<index; n++){
-			MERGE{{context['id']}}_MERGEVSLOOP2B: for(unsigned int k=xload_kvs[n].offset_begin; k<xload_kvs[n].offset_begin + workload_kvs.size; k++){ // globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE, globalparams.SIZEKVS2_REDUCEPARTITION
+		for(unsigned int n=0; n<num_its; n++){
+			MERGE{{context['id']}}_MERGEVSLOOP2B: for(unsigned int k=xload_kvs[n].offset_begin; k<xload_kvs[n].offset_begin + xload_kvs[n].size; k++){ // globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE, globalparams.SIZEKVS2_REDUCEPARTITION
 			#pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS3
 				actsutilityobj->checkoutofbounds("mergeVs: ERROR 21", voffset_kvs2 + k, ((1 << 28) / 4) / VECTOR2_SIZE, NAp, voffset_kvs2, globalparamsv.SIZE_SRCVERTICESDATA);
@@ -93,22 +88,17 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 				vdram[globalparamsv.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs2 + k] = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k];
 				
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
-					for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
-					value_t combo; if(v%2==0){ combo = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k].data[v/2].key; } else { combo = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k].data[v/2].key; }
-					value_t vdata = combo >> 1; value_t mask = combo & 0x1;
-					unsigned int lvid = (((reduce_partition * globalparams.SIZEKVS2_REDUCEPARTITION) + k) * VDATA_PACKINGSIZE) + v;
-					if(mask == 1){ cout<<">>> MERGE:: MERGE VERTICES SEEN @ reduce_partition: "<<reduce_partition<<", k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", vid: "<<UTIL{{context['id']}}_GETREALVID(lvid, globalparams.ACTSPARAMS_INSTID)<<", combo: "<<combo<<", globalparams.SIZE_DESTVERTICESDATA: "<<globalparams.SIZE_DESTVERTICESDATA<<endl; }		
-				}
+				merge{{context['id']}}_trace(kvdram, reduce_partition, k, globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k, globalparams);	
 				#endif
 			}
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
-	#endif 
-	/////////////////////////////////////////////////////////////////////////////////
+	// #endif 
 	
 	// vertices data
+	#ifdef TTTTTTTTTTTTTTTTTTTTTTTTT
 	unsigned int voffset_kvs2 = globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
 	MERGE{{context['id']}}_MERGEVSLOOP2: for(unsigned int reduce_partition=0; reduce_partition<globalparams.NUM_REDUCEPARTITIONS; reduce_partition++){
@@ -134,6 +124,7 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 	}
+	#endif 
 	
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<<"mergeVs:: merge operation finished."<<endl; 

@@ -30,11 +30,14 @@ loadgraph.cpp
 // ********************************************** POWERFUL CONFIGS **********************************************
 #define CONFIG_RELEASE_VERSION1
 #define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
-#define CONFIG_RELEASE_VERSION3 // { readANDRVchunks fixed. }
+// #define CONFIG_RELEASE_VERSION3 // { readANDRVchunks fixed. }
+#define CONFIG_RELEASE_VERSION3b // { broadcast-one-by-one / broadcast-one-to-multiple fixed. }
 #define CONFIG_RELEASE_VERSION4 // { (1) exchangeVs fixed. }
 #define CONFIG_RELEASE_VERSION5 // { (1) full kernel run fixed. }
 #define CONFIG_RELEASE_VERSION6 // readV, saveV
 #define CONFIG_RELEASE_VERSION7 // mask included
+
+// #define CONFIG_ENABLE___SPARSEUPDATEBUFFER___ 
 
 #define CONFIG_GOLDENKERNEL // { processedges.cpp, reduceupdates.cpp, algorithm.cpp, classname__top_usrcv_nudstv.cpp, mem_acces.cpp, trad_gp.cpp }
 
@@ -77,9 +80,9 @@ loadgraph.cpp
 #define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD 0 // 1024 // NOT USED.
 #define CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ (1 << 14) // NOT USED.
 
-#define CONFIG_HYBRIDGPMODE_HYBRIDVTHRESHOLD_PER_VPARTITION 16 // 64 // 16
+#define CONFIG_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION 2//1 // *16, 32, 64
+#define CONFIG_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION 2//1 // CONFIG_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION
 
-// #define CONFIG_SEPERATESRCVDESTVBUFFER
 #define CONFIG_USEURAM_FOR_SRCVBUFFER // CRITICAL REMOVEME!
 #define CONFIG_USEURAM_FOR_DESTVBUFFER // { classname__mem_access.cpp, classname__reduceupdates.cpp }
 
