@@ -78,17 +78,11 @@ universalparams_t app::get_universalparams(std::string algo, unsigned int numite
 	universalparams.KVDATA_RANGE_POW = ceil(log2((double)(universalparams.NUM_VERTICES)));
 	universalparams.KVDATA_RANGE = universalparams.NUM_VERTICES;
 
-	unsigned int ceilnum_reduce_partitions = 0;
-	unsigned int num_reduce_partitions = (universalparams.NUM_VERTICES / NUM_PEs) / (universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE); // PROC_SRAMSZ
-	if(num_reduce_partitions == 0){ ceilnum_reduce_partitions = 1; }
-		else if(num_reduce_partitions >= 1 && num_reduce_partitions < 16){ ceilnum_reduce_partitions = 16; }
-			else if(num_reduce_partitions >= 16 && num_reduce_partitions < 256){ ceilnum_reduce_partitions = 256; }
-				else { ceilnum_reduce_partitions = 4096; }
-	cout<<"---+++++++++++++++--------------- num_reduce_partitions: "<<num_reduce_partitions<<", ceilnum_reduce_partitions: "<<ceilnum_reduce_partitions<<endl;
-	universalparams.BATCH_RANGE_POW = ceil(log2((double)(ceilnum_reduce_partitions))) + ceil(log2((double)((universalparams.RED_SRAMSZ * VDATA_PACKINGSIZE)))); // PROC_SRAMSZ
 	universalparams.BATCH_RANGE = universalparams.NUM_VERTICES / NUM_PEs;
+	universalparams.BATCH_RANGE_POW = 0; for(unsigned int t=0; t<64; t++){ if(pow (2, t) >= universalparams.BATCH_RANGE){ universalparams.BATCH_RANGE_POW = t; break; }}
 	universalparams.BATCH_RANGE_KVS = universalparams.BATCH_RANGE / VECTOR_SIZE;
-
+	cout<<"app: universalparams.BATCH_RANGE_POW: "<<universalparams.BATCH_RANGE_POW<<", universalparams.BATCH_RANGE: "<<universalparams.BATCH_RANGE<<", universalparams.BATCH_RANGE_KVS: "<<universalparams.BATCH_RANGE_KVS<<endl;
+	
 	if(universalparams.ALGORITHM == BFS){ 
 		#ifdef BIT_TRAVERSAL_ALGORITHM
 		universalparams.TREE_DEPTH = 1;

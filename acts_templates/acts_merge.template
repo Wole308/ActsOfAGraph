@@ -74,9 +74,6 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(uint512_
 	if(UTIL{{context['id']}}_isbufferused(globalparams.ACTSPARAMS_INSTID) == false){ return; }
 	#endif 
 	
-	unsigned int numkvs_vertices_per_updateblock = (1 << (globalparams.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
-	unsigned int numkvs_updateblocks_per_reducepartition = globalparams.SIZEKVS2_REDUCEPARTITION / numkvs_vertices_per_updateblock;
-	
 	unsigned int voffset_kvs2 = globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
 	
@@ -201,10 +198,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(uns
 	for(unsigned int t=0; t<globalparamsSRC.SIZEKVS2_REDUCEPARTITION; t++){ edgeblock_stats[t].data[idx] = 0; } // FIXME. TOO EXPENSIVE.?
 	unsigned int lvid_first = reduce_partition * globalparamsSRC.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE; // (((reduce_partition * globalparamsDST1.SIZEKVS2_REDUCEPARTITION) + k) * VDATA_PACKINGSIZE) + v;
 	unsigned int vbegin = reduce_partition * globalparamsSRC.SIZEKVS2_REDUCEPARTITION * VDATA_PACKINGSIZE * NUM_PEs;
-	
-	unsigned int numkvs_vertices_per_updateblock = (1 << (globalparamsSRC.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
-	unsigned int numkvs_updateblocks_per_reducepartition = globalparamsSRC.SIZEKVS2_REDUCEPARTITION / numkvs_vertices_per_updateblock;
-	
+
 	/* for(unsigned int t=0; t<BLOCKRAM_UPDATEBLOCK_SIZE; t++){
 	#pragma HLS PIPELINE II=1
 		UTIL{{context['id']}}_ReadDatas(kvdram, globalparamsSRC.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS + t, datas);	
@@ -214,6 +208,9 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(uns
 	
 	EXCHANGE{{context['id']}}_COPY_LOOP1: for(unsigned int i=0; i<num_compute_units; i++){
 		
+		unsigned int reducepsz_kvs = globalparamsSRC.SIZEKVS2_REDUCEPARTITION; 
+		if(globalparamsSRC.NUM_REDUCEPARTITIONS > 1){ if(reduce_partition == globalparamsSRC.NUM_REDUCEPARTITIONS-1){ reducepsz_kvs = (globalparamsSRC.ACTSPARAMS_BATCH_RANGE / VECTOR2_SIZE) % globalparamsSRC.SIZEKVS2_REDUCEPARTITION; } else { reducepsz_kvs = globalparamsSRC.SIZEKVS2_REDUCEPARTITION; }}
+			
 		// unsigned int num_its = merge{{context['id']}}_getworkload(reduce_partition, vdramSRC, stats, globalparamsSRC, xload_kvs);
 		
 		unsigned int num_its = 1;
@@ -221,7 +218,6 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_copy(uns
 		xload_kvs[0].size = globalparamsSRC.SIZEKVS2_REDUCEPARTITION;
 		
 		for(unsigned int n=0; n<num_its; n++){
-			// EXCHANGE{{context['id']}}_COPY_LOOP1B: for(unsigned int k=0; k<globalparamsSRC.SIZEKVS2_REDUCEPARTITION; k++){
 			for(unsigned int k=xload_kvs[n].offset_begin; k<xload_kvs[n].offset_begin + xload_kvs[n].size; k++){
 			#pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS3

@@ -321,7 +321,8 @@ keyvalue_t {{context['classname__acts']}}process_edge(unsigned int mode, bool en
 	// if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION){ loc = 0; }
 	// bool special_loc = false; if(loc == 16383){ loc = 0; special_loc = true; } // header information
 	#ifdef _DEBUGMODE_CHECKS3
-	if(enx == true && loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && loc != 16383){ cout<<"processvector::ERROR SEEN @@ loc("<<loc<<") >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<"). edge_data.key: "<<edge_data.key<<", edge_data.value: "<<edge_data.value<<", v: "<<v<<", INVALIDDATA: "<<INVALIDDATA<<", mode: "<<mode<<". EXITING... "<<endl; exit(EXIT_FAILURE); }					
+	// if(enx == true && loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && loc != 16383){ cout<<"processvector::ERROR SEEN @@ loc("<<loc<<") >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<"). edge_data.key: "<<edge_data.key<<", edge_data.value: "<<edge_data.value<<", v: "<<v<<", INVALIDDATA: "<<INVALIDDATA<<", mode: "<<mode<<". EXITING... "<<endl; exit(EXIT_FAILURE); }					
+	if(enx == true && loc >= MAX_BLOCKRAM_VDESTDATA_SIZE && loc != 16383){ cout<<"processvector::ERROR SEEN @@ loc("<<loc<<") >= MAX_BLOCKRAM_VDESTDATA_SIZE("<<MAX_BLOCKRAM_VDESTDATA_SIZE<<"). edge_data.key: "<<edge_data.key<<", edge_data.value: "<<edge_data.value<<", v: "<<v<<", INVALIDDATA: "<<INVALIDDATA<<", mode: "<<mode<<". EXITING... "<<endl; exit(EXIT_FAILURE); }					
 	#endif 
 	
 	// read
@@ -602,9 +603,16 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 				#endif	
 				if(res[v].key != INVALIDDATA){ 
 					// if(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID==2){ cout<<"acts:: stats["<<v<<"]["<<((offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW))<<"]: "<<stats[v][((offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW))]<<endl; }
-					stats[v][(offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)] = 0xFFFFFFFF; }					
+					// stats[v][(offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)] = 0xFFFFFFFF; }		
+					// stats[v][(offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - (BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW))] = 0xFFFFFFFF; }	// NEWCHANGE.
+					stats[v][(offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)] = 0xFFFFFFFF; }	// NEWCHANGE.
 			}
 		}
+		
+		
+		// unsigned int numkvs_vertices_per_updateblock = ((1 << MAX_RED_SRAMSZ_POW) * globalparams.NUM_REDUCEPARTITIONS) / BLOCKRAM_UPDATEBLOCK_SIZE; // NEWCHANGE.
+		// unsigned int numkvs_updateblocks_per_reducepartition = (1 << MAX_RED_SRAMSZ_POW) / numkvs_vertices_per_updateblock;dsdsd
+	
 		
 		// collect stats fpr debugging
 		#ifdef _DEBUGMODE_STATS___NOTUSED
@@ -789,9 +797,22 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 	unsigned int xblock_ids[BLOCKRAM_SIZE];
 	workload_t xload_kvs[BLOCKRAM_SIZE];
 	
+	// unsigned int numkvs_vertices_per_updateblock = (1 << (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
+	// unsigned int numkvs_updateblocks_per_reducepartition = globalparamsK.SIZEKVS2_REDUCEPARTITION / numkvs_vertices_per_updateblock;
+	
+	// unsigned int numkvs_vertices_per_updateblock = (1 << (globalparamsK.POW_BATCHRANGE - (BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW))) / VDATA_PACKINGSIZE;
 	unsigned int numkvs_vertices_per_updateblock = (1 << (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
-	unsigned int numkvs_updateblocks_per_reducepartition = globalparamsK.SIZEKVS2_REDUCEPARTITION / numkvs_vertices_per_updateblock;
-
+	unsigned int numkvs_updateblocks_per_reducepartition = (1 << MAX_RED_SRAMSZ_POW) / numkvs_vertices_per_updateblock;
+	#ifdef _DEBUGMODE_CHECKS3
+	if(globalparamsK.POW_BATCHRANGE < (BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW)){ cout<<"actit:: ERROR 234. globalparamsK.POW_BATCHRANGE("<<globalparamsK.POW_BATCHRANGE<<") < (BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW)("<<BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	if(globalparamsK.POW_BATCHRANGE < (BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW)){ cout<<"actit:: ERROR 234. globalparamsK.POW_BATCHRANGE("<<globalparamsK.POW_BATCHRANGE<<") < (BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW)("<<BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	#endif 
+	if(globalparamsK.ALGORITHMINFO_GRAPHITERATIONID == 0){ cout<<"actit:: numkvs_updateblocks_per_reducepartition: "<<numkvs_updateblocks_per_reducepartition<<", numkvs_vertices_per_updateblock: "<<numkvs_vertices_per_updateblock<<endl; }
+	// exit(EXIT_SUCCESS);
+	
+	// unsigned int numkvs_vertices_per_updateblock = (((1 << MAX_RED_SRAMSZ_POW) / VECTOR2_SIZE) * globalparamsK.NUM_REDUCEPARTITIONS) / BLOCKRAM_UPDATEBLOCK_SIZE; // NEWCHANGE.
+	// unsigned int numkvs_updateblocks_per_reducepartition = (1 << MAX_RED_SRAMSZ_POW) / numkvs_vertices_per_updateblock;
+	
 	bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
 	bool sparse_process = false; if(globalposition.num_active_edgeblocks < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION){ sparse_process = true; } else { sparse_process = false; }
 	bool sparse_readv = false; if((stats[17][sweepparams.source_partition + 1] - stats[17][sweepparams.source_partition]) < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION){ sparse_readv = true; } else { sparse_readv = false; }
@@ -951,6 +972,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 						sourcebaseaddr_kvs, xload_kvs[n], globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, xload_kvs[n].offset_begin, 0,
 							buffer_offsets[n], // SAVEVPROPERTYMODE parameters
 								collections_tmp, globalparamsK, globalposition);
+				// exit(EXIT_SUCCESS);
 			}
 		}	
 	}
@@ -960,8 +982,6 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"-------------------------------- __processit__i_am_last__ == true, partition: "<<sweepparams.source_partition<<" ----------------------------------"<<endl;
 		#endif
-		unsigned int numkvs_vertices_per_updateblock = (1 << (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
-		unsigned int numkvs_updateblocks_per_reducepartition = globalparamsK.SIZEKVS2_REDUCEPARTITION / numkvs_vertices_per_updateblock;
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"processit:: numkvs_vertices_per_updateblock: "<<numkvs_vertices_per_updateblock<<", numkvs_updateblocks_per_reducepartition: "<<numkvs_updateblocks_per_reducepartition<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl;
 		#endif 
@@ -992,16 +1012,18 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 			datas[1] = stats[17][t];
 			UTIL{{context['id']}}_WriteDatas(kvdram, globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS + t, datas);
 		}
-		// workload_t workload_kvs;
-		// workload_kvs.offset_srcbase = NAp;
-		// workload_kvs.offset_dstbase = globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS;
-		// workload_kvs.offset_begin = NAp;
-		// workload_kvs.size = 1 + (BLOCKRAM_UPDATEBLOCK_SIZE / VECTOR2_SIZE);
-		// workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
-		// ACTS{{context['id']}}_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats,
-						// NAp, workload_kvs, globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS, workload_kvs.offset_begin, 0,
-							// 0, // SAVEVPROPERTYMODE parameters
-								// collections_tmp, globalparamsK, globalposition);
+		#ifdef _DEBUGMODE_STATS___NOTUSED
+		workload_t workload_kvs;
+		workload_kvs.offset_srcbase = NAp;
+		workload_kvs.offset_dstbase = globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS;
+		workload_kvs.offset_begin = NAp;
+		workload_kvs.size = 1 + (BLOCKRAM_UPDATEBLOCK_SIZE / VECTOR2_SIZE);
+		workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+		ACTS{{context['id']}}_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats,
+						NAp, workload_kvs, globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS, workload_kvs.offset_begin, 0,
+							0, // SAVEVPROPERTYMODE parameters
+								collections_tmp, globalparamsK, globalposition);
+		#endif 
 		// exit(EXIT_SUCCESS);
 	}
 	
