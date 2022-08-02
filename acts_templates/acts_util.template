@@ -416,6 +416,43 @@ void {{context['classname__acts_util']}}UTIL{{context['id']}}_WriteData(uint512_
 	#endif 
 	return;
 }
+keyvalue_t {{context['classname__acts_util']}}UTIL{{context['id']}}_ReadKV(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index){
+	#pragma HLS INLINE
+	keyvalue_t data;
+	#ifdef _WIDEWORD
+	unsigned int row = index / VECTOR_SIZE;
+	unsigned int col = index % VECTOR_SIZE;
+	{%for v in context['VECTOR_SIZE_seq']%}
+	{%if(v>0)%}else{%endif%} if(col == {{v}}){
+		data.key = kvdram[offset_kvs + row].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
+		data.value = kvdram[offset_kvs + row].range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
+	}
+	{%endfor%}
+	else {} 
+	#else 
+	data = kvdram[offset_kvs + (index / VECTOR_SIZE)].data[index % VECTOR_SIZE];
+	#endif 
+	return data;
+}
+
+bool {{context['classname__acts_util']}}UTIL{{context['id']}}__processit__i_am_first__(globalposition_t globalposition){
+	#pragma HLS INLINE
+	bool __i_am_first__ = false; 
+	if(globalposition.stage==0 && globalposition.currentLOP==1 && globalposition.source_partition==globalposition.first_source_partition){ __i_am_first__ = true;; } else { __i_am_first__ = false; }
+	#ifdef _DEBUGMODE_KERNELPRINTS4
+	// if(__i_am_first__ == true){ cout<<"--------------------------------actsutil: __i_am_first__ == true, partition: "<<sweepparams.source_partition<<" ----------------------------------"<<endl; }
+	#endif
+	return __i_am_first__;
+}
+bool {{context['classname__acts_util']}}UTIL{{context['id']}}__processit__i_am_last__(globalposition_t globalposition){
+	#pragma HLS INLINE
+	bool __i_am_last__ = false;
+	if(globalposition.stage==0 && globalposition.currentLOP==globalposition.lastLOP && globalposition.source_partition == globalposition.last_source_partition){ __i_am_last__ = true; } else { __i_am_last__ = false; }
+	#ifdef _DEBUGMODE_KERNELPRINTS4
+	// if(__i_am_last__ == true){ cout<<"-------------------------------- actsutil: __i_am_last__ == true, partition: "<<sweepparams.source_partition<<" ----------------------------------"<<endl; }
+	#endif
+	return __i_am_last__;
+}
 
 // utilities
 batch_type {{context['classname__acts_util']}}UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams){
@@ -532,6 +569,7 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_HYBRIDVTHRESHOLD];
 	globalparams.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION];
 	globalparams.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION];
+	globalparams.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION = buffer[MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION];
 	
 	globalparams.BASEOFFSETKVS_MESSAGESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_MESSAGESDATA];
 	globalparams.VOLUMEOFFSETKVS_WORKDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_VOLUMEOFFSETKVS_WORKDATA];

@@ -53,6 +53,10 @@ void UTIL{{context['id']}}_WriteDatas(uint512_dt * kvdram, unsigned int offset_k
 void UTIL{{context['id']}}_WriteDataset(uint512_dt * kvdram, unsigned int offset_kvs, uint512_uvec_dt dataset);
 unsigned int UTIL{{context['id']}}_ReadData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
 void UTIL{{context['id']}}_WriteData(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data);
+keyvalue_t UTIL{{context['id']}}_ReadKV(uint512_dt * kvdram, unsigned int offset_kvs, unsigned int index);
+
+bool UTIL{{context['id']}}__processit__i_am_first__(globalposition_t globalposition);
+bool UTIL{{context['id']}}__processit__i_am_last__(globalposition_t globalposition);
 
 // functions (actsproc utilities)
 batch_type UTIL{{context['id']}}_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);

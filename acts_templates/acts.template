@@ -314,14 +314,14 @@ void {{context['classname__acts']}}check_if_contiguous(keyvalue_t keyvalue[EDGED
 	#endif
 }
 
-keyvalue_t {{context['classname__acts']}}process_edge(unsigned int mode, bool enx, unsigned int v, unsigned int loc, keyvalue_t edge_data, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], unsigned int stats[BLOCKRAM_SIZE], globalparams_t globalparams){				
+keyvalue_t {{context['classname__acts']}}process_edge(unsigned int mode, bool enx, unsigned int v, unsigned int loc, keyvalue_t edge_data, keyvalue_vbuffer_t vbuffer[MAX_BLOCKRAM_VDESTDATA_SIZE], globalparams_t globalparams){				
 	#pragma HLS INLINE
 	
 	// flag 
 	// if(loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION){ loc = 0; }
 	// bool special_loc = false; if(loc == 16383){ loc = 0; special_loc = true; } // header information
 	#ifdef _DEBUGMODE_CHECKS3
-	if(enx == true && loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && loc != 16383){ cout<<"processvector::ERROR SEEN @@ loc("<<loc<<") >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<"). edge_data.key: "<<edge_data.key<<", edge_data.value: "<<edge_data.value<<", v: "<<v<<", INVALIDDATA: "<<INVALIDDATA<<". EXITING... "<<endl; exit(EXIT_FAILURE); }					
+	if(enx == true && loc >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION && loc != 16383){ cout<<"processvector::ERROR SEEN @@ loc("<<loc<<") >= globalparams.SIZEKVS2_PROCESSEDGESPARTITION("<<globalparams.SIZEKVS2_PROCESSEDGESPARTITION<<"). edge_data.key: "<<edge_data.key<<", edge_data.value: "<<edge_data.value<<", v: "<<v<<", INVALIDDATA: "<<INVALIDDATA<<", mode: "<<mode<<". EXITING... "<<endl; exit(EXIT_FAILURE); }					
 	#endif 
 	
 	// read
@@ -357,7 +357,7 @@ void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, un
 	// if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ cout<<"reduce_update:: Error. loc: "<<loc<<", memory[0]: "<<memory[0]<<", mode: "<<mode<<endl; exit(EXIT_FAILURE); }} // CRITICAL FIXME.
 	// if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // FIXME.
 	#ifdef _DEBUGMODE_CHECKS3
-	if(enx == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 113::1", loc, MAX_BLOCKRAM_VDESTDATA_SIZE, update_data.key, update_data.value, loc); }
+	if(enx == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 113::1", loc, MAX_BLOCKRAM_VDESTDATA_SIZE, update_data.key, update_data.value, mode); }
 	#endif
 
 	// read & reduce 
@@ -394,7 +394,7 @@ void load(uint512_dt *in, hls::stream<uint512_evec_dt >& out, batch_type sourceb
 }
 
 void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint512_evec_dt >& in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE],
-					batch_type destbaseaddr_kvs, unsigned int offset_kvs, unsigned int destindex, int size, unsigned int upperlimit, 
+					batch_type destbaseaddr_kvs, unsigned int offset_kvs, unsigned int destindex, int size,
 						collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalposition_t globalposition){
 	
 	keyvalue_t res[UPDATEDATA_PACKINGSIZE]; 
@@ -413,6 +413,7 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 	#pragma HLS ARRAY_PARTITION variable = en complete
 	
 	for(int v = 0; v < VECTOR2_SIZE; v++){ en[v] = true; }
+	unsigned int offsetkvs_dstvid = llp_set * (globalparamsK.SIZEKVS2_REDUCEPARTITION * EDGEDATA_PACKINGSIZE); // CHECKME.
 	
 	ACTIT_COMPUTEANDSTORE_MAINLOOP2A: for (int i = 0; i < size; i++){
 	#pragma HLS PIPELINE II=1
@@ -476,12 +477,24 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 		// store
 		UTIL{{context['id']}}_WriteDatas(out, destbaseaddr_kvs + offset_kvs + destindex + i, datas2);
 		
+		// colelect stats
+		if(mode == ACTSPROCESSMODE){
+			for(int v = 0; v < VECTOR2_SIZE; v++){
+			#pragma HLS UNROLL
+				#ifdef _DEBUGMODE_CHECKS3
+				if(res[v].key != INVALIDDATA){ actsutilityobj->checkoutofbounds("write__process(112)::DEBUG CODE 112::1", (offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW), BLOCKRAM_SIZE, edges[v].key, globalparamsK.POW_BATCHRANGE, globalparamsK.NUM_REDUCEPARTITIONS); }
+				#endif	
+				if(res[v].key != INVALIDDATA){ 
+					stats[v][(offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)] = 0xFFFFFFFF; }					
+			}
+		}
+		
 		// collect stats 
+		#ifdef _DEBUGMODE_STATS___NOTUSED
 		if(mode == ACTSPROCESSMODE){ 
 			collections[TRAVERSEDEDGES_COLLECTIONID].data1 += UPDATEDATA_PACKINGSIZE;
 			collections[PROCESSEDGES_COLLECTIONID].data1 += EDGEDATA_PACKINGSIZE; // *** used in PR, CF implementations ONLY (not BFS) ***
 		}
-		#ifdef _DEBUGMODE_STATS___NOTUSED
 		if(en == true){
 			actsutilityobj->globalstats_countkvsprocessed(globalparamsK.ACTSPARAMS_INSTID, EDGEDATA_PACKINGSIZE);
 			actsutilityobj->globalstats_processedges_countvalidkvsprocessed(globalparamsK.ACTSPARAMS_INSTID, EDGEDATA_PACKINGSIZE); }
@@ -491,8 +504,7 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 #endif 
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned int mode, unsigned int llp_set, uint512_dt *in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], 
-		keyvalue_t edges_buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int edges_buffer_index[VDATA_PACKINGSIZE],
-			batch_type sourcebaseaddr_kvs, unsigned int srcoffset_kvs, batch_type destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int destindex, int size, unsigned int upperlimit, 
+			batch_type sourcebaseaddr_kvs, unsigned int srcoffset_kvs, batch_type destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int destindex, int size,
 				unsigned int offset_buffer, // SAVEVPROPERTYMODE parameters
 					collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalposition_t globalposition){
 	
@@ -548,17 +560,10 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 			}
 		}
 		
-		/* } else { // if(mode == READVPROPERTYMODE){ 
-				for(int v = 0; v < VECTOR2_SIZE; v++){ 
-				#pragma HLS UNROLL 
-					index[v] = offset_vbuffer + (offset_kvs - workload_kvs.offset_begin); data[v].value = datas2[v]; en[v] = true; // CRITICAL NEWCHANGE
-				}
-			} */
-		
 		// process
 		for(int v = 0; v < EDGEDATA_PACKINGSIZE; v++){
 		#pragma HLS UNROLL
-			res[v] = process_edge(mode, en[v], v, index[v], data[v], vbuffer_source[v], stats[v], globalparamsK);
+			res[v] = process_edge(mode, en[v], v, index[v], data[v], vbuffer_source[v], globalparamsK);
 		}	
 		
 		// encode 
@@ -616,8 +621,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 }
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_write__process_base(unsigned int mode, unsigned int llp_set, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE],	
-		keyvalue_t edges_buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int edges_buffer_index[VDATA_PACKINGSIZE],
-			unsigned int upperlimit, unsigned int sourcebaseaddr_kvs, workload_t workload_kvs, unsigned int destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int destindex,
+			unsigned int sourcebaseaddr_kvs, workload_t workload_kvs, unsigned int destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int destindex,
 				unsigned int offset_buffer, // SAVEVPROPERTYMODE parameters
 					collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalposition_t globalposition){
 
@@ -628,13 +632,12 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process_base(uns
 	#pragma HLS dataflow
 	if(mode == ACTSPROCESSMODE){ load(kvdram, c0, sourcebaseaddr_kvs, workload_kvs.offset_begin, workload_kvs.size); }
 	compute_and_store(mode, llp_set, c0, kvdram, vbuffer_source, stats,
-					destbaseaddr_kvs, destoffset_kvs, destindex, workload_kvs.size, upperlimit, 
+					destbaseaddr_kvs, destoffset_kvs, destindex, workload_kvs.size, 
 						collections, globalparamsK, globalposition);
 						
 	#else 
 	ACTS{{context['id']}}_write__process(mode, llp_set, kvdram, kvdram, vbuffer_source, stats,
-		edges_buffer, edges_buffer_index,
-			sourcebaseaddr_kvs, workload_kvs.offset_begin, destbaseaddr_kvs, destoffset_kvs, destindex, workload_kvs.size, upperlimit, 
+			sourcebaseaddr_kvs, workload_kvs.offset_begin, destbaseaddr_kvs, destoffset_kvs, destindex, workload_kvs.size, 
 				offset_buffer,
 					collections, globalparamsK, globalposition);
 	#endif
@@ -722,6 +725,10 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read__reduce(unsigned i
 				for(int v = 0; v < VECTOR2_SIZE; v++){ 
 				#pragma HLS UNROLL 
 					index[v] = offset_vbuffer + (offset_kvs - workload_kvs.offset_begin); data[v].value = datas2[v]; en[v] = true; // CRITICAL NEWCHANGE
+					#ifdef _DEBUGMODE_CHECKS3
+					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, v, offset_vbuffer, offset_kvs); 
+					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112b::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, offset_vbuffer, offset_kvs, workload_kvs.offset_begin); 
+					#endif	
 				}
 			}
 		}
@@ -747,11 +754,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 	workload_t workloads_kvs[DOUBLE_BLOCKRAM_SIZE];
 	keyvalue_vbuffer_t vbuffer_sourcebits[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable = vbuffer_sourcebits
-	keyvalue_t edges_buffer[VDATA_PACKINGSIZE][BLOCKRAM_SIZE]; 
-	#pragma HLS ARRAY_PARTITION variable = edges_buffer
-	unsigned int edges_buffer_index[VDATA_PACKINGSIZE];
-	#pragma HLS ARRAY_PARTITION variable=edges_buffer_index complete
-	keyvalue_t datas[VECTOR_SIZE];
+	value_t datas[VECTOR_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = datas complete
 	stats_t temp_stats[BLOCKRAM_UPDATEBLOCK_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = temp_stats
@@ -789,156 +792,217 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 	unsigned int numkvs_vertices_per_updateblock = (1 << (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
 	unsigned int numkvs_updateblocks_per_reducepartition = globalparamsK.SIZEKVS2_REDUCEPARTITION / numkvs_vertices_per_updateblock;
 
-	for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ edges_buffer_index[v] = 0; }
+	bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
 	bool sparse_process = false; if(globalposition.num_active_edgeblocks < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION){ sparse_process = true; } else { sparse_process = false; }
-	bool sparse_reduce = false; if(stats[17][sweepparams.source_partition] < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION){ sparse_reduce = true; } else { sparse_reduce = false; }
+	bool sparse_readv = false; if((stats[17][sweepparams.source_partition + 1] - stats[17][sweepparams.source_partition]) < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION){ sparse_readv = true; } else { sparse_readv = false; }
 
-	#ifdef _DEBUGMODE_KERNELPRINTS4
-	if(mode == ACTSREDUCEMODE){ if(sparse_reduce == true){ cout<<"actit:: sparse_reduce is TRUE. stats[17]["<<sweepparams.source_partition<<"]: "<<stats[17][sweepparams.source_partition]<<endl; } else { cout<<"actit:: sparse_reduce is FALSE. stats[17]["<<sweepparams.source_partition<<"]: "<<stats[17][sweepparams.source_partition]<<endl; }}
+	#ifdef _DEBUGMODE_KERNELPRINTS
+	if(mode == ACTSPROCESSMODE){ if(sparse_readu == true){ cout<<"actit:: sparse_readu is TRUE. "<<endl; } else { cout<<"actit:: sparse_readu is FALSE. "<<endl; }}
+	if(mode == ACTSPROCESSMODE){ if(sparse_process == true){ cout<<"actit:: sparse_process is TRUE. "<<endl; } else { cout<<"actit:: sparse_process is FALSE. "<<endl; }}
+	if(mode == ACTSREDUCEMODE){ if(sparse_readv == true){ cout<<"actit:: sparse_readv is TRUE. stats[17]["<<sweepparams.source_partition<<"]: "<<stats[17][sweepparams.source_partition]<<", stats[17]["<<sweepparams.source_partition+1<<"]: "<<stats[17][sweepparams.source_partition+1]<<endl; } else { cout<<"actit:: sparse_readv is FALSE. stats[17]["<<sweepparams.source_partition<<"]: "<<stats[17][sweepparams.source_partition]<<", stats[17]["<<sweepparams.source_partition+1<<"]: "<<stats[17][sweepparams.source_partition+1]<<endl; }}					
 	if(false){ cout<<"actit:: [num_LLPs: "<<num_LLPs<<", num_LLPset: "<<num_LLPset<<", num_vPs: "<<num_vPs<<"] "<<endl; }
 	if(false){ cout<<"actit:: globalposition.source_partition: "<<globalposition.source_partition<<", globalposition.num_active_edgeblocks: "<<globalposition.num_active_edgeblocks<<", globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION: "<<globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION<<""<<endl; }
 	#endif 
 	
-	if(mode == ACTSPROCESSMODE || mode == ACTSPARTITIONMODE){
-		#ifdef CONFIG_RELEASE_VERSION3b
-		unsigned int num_its; if(sparse_process == true){ num_its = globalposition.num_active_edgeblocks; } else { num_its = 1; }
-		for(unsigned int n=0; n<num_its; n++){
-			if(sparse_process == true){
-				edgeblock_id = UTIL{{context['id']}}_ReadData(kvdram, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + edgeblockoffset_vs, 1 + n);
-				workload_uprop_kvs.offset_begin = 0;
-				workload_uprop_kvs.size = 1; 
-				buffer_offset = edgeblock_id * (NUM_VERTICES_PER_EDGEBLOCK / VDATA_PACKINGSIZE);
-			} else {
-				edgeblock_id = 0; // NAp;
-				workload_uprop_kvs.offset_begin = 0;
-				workload_uprop_kvs.size = globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs;
-				buffer_offset = 0;
+	bool en = true;
+	if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE && mode == ACTSPROCESSMODE && globalposition.num_active_edgeblocks == 0){ en = false; } // check if vertex partition is active
+
+	if(en == true){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		if(mode == ACTSPROCESSMODE){ cout<<"processit->actit: source_partition: "<<globalposition.source_partition<<" is active (Instance "<<globalparamsK.ACTSPARAMS_INSTID<<")"<<endl; }
+		#endif 
+	
+		if(mode == ACTSPROCESSMODE || mode == ACTSPARTITIONMODE){
+			#ifdef CONFIG_RELEASE_VERSION3b
+			unsigned int num_its; if(sparse_readu == true){ num_its = globalposition.num_active_edgeblocks; } else { num_its = 1; }
+			for(unsigned int n=0; n<num_its; n++){
+				if(sparse_readu == true){
+					edgeblock_id = UTIL{{context['id']}}_ReadData(kvdram, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + edgeblockoffset_vs, 1 + n);
+					workload_uprop_kvs.offset_begin = 0;
+					workload_uprop_kvs.size = 1; 
+					buffer_offset = edgeblock_id * (NUM_VERTICES_PER_EDGEBLOCK / VDATA_PACKINGSIZE);
+				} else {
+					edgeblock_id = 0; // NAp;
+					workload_uprop_kvs.offset_begin = 0;
+					workload_uprop_kvs.size = globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs;
+					buffer_offset = 0;
+				}
+				workload_uprop_kvs.offset_end = workload_uprop_kvs.offset_begin + workload_uprop_kvs.size;
+				xblock_ids[n] = edgeblock_id;
+				xload_kvs[n] = workload_uprop_kvs;
+				buffer_offsets[n] = buffer_offset;
 			}
-			workload_uprop_kvs.offset_end = workload_uprop_kvs.offset_begin + workload_uprop_kvs.size;
-			xblock_ids[n] = edgeblock_id;
-			xload_kvs[n] = workload_uprop_kvs;
-			buffer_offsets[n] = buffer_offset;
+			// for(int t = 0; t < MAX_BLOCKRAM_VDESTDATA_SIZE; t++){ for(int v = 0; v < VDATA_PACKINGSIZE; v++){ vbuffer_source[v][t].data = 0; }} ////////////////////////////////////////// CRITICAL REMOVEME.
+			
+			for(unsigned int n=0; n<num_its; n++){
+				unsigned int voffset_kvs = 0;
+				for(unsigned int s=0; s<NUM_PEs; s++){
+					ACTS{{context['id']}}_read__reduce(READUPROPERTYMODE, kvdram, vbuffer_source, stats,
+						globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs, xload_kvs[n], 
+							buffer_offsets[n], s, // READUPROPERTYMODE parameters
+								NAp, // READVPROPERTYMODE parameters
+									collections_tmp, sweepparams, globalparamsK, globalposition);
+					voffset_kvs += depth;
+				}
+			}
+			#endif 
+			
+			ACTIT_MAINLOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
+				workload_kvs = workloads_kvs[llp_set];
+				batch_type destoffset_kvs = (globalcapsule[1 + llp_set].key + globalcapsule[1 + llp_set].value) / EDGEDATA_PACKINGSIZE;
+				unsigned int destindex = 0;
+				
+				unsigned int num_its; if(sparse_process == true){ num_its = globalposition.num_active_edgeblocks; } else { num_its = 1; }
+				READ_PROCESS_PARTITION_WRITE_GETWORKLOADSTATS_LOOP: for(unsigned int n=0; n<num_its; n++){
+					workload_t workload_kvs;					
+					if(sparse_process == true){
+						unsigned int edgeblock_id = UTIL{{context['id']}}_ReadData(kvdram, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + edgeblockoffset_vs, 1 + n);
+						#ifdef _DEBUGMODE_CHECKS3
+						actsutilityobj->checkoutofbounds("actit(1)", edgeblock_id, ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION, NAp, NAp, n);
+						#endif
+						keyvalue_t kv = UTIL{{context['id']}}_ReadKV(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP + edgeblockmapoffset_vs, (edgeblock_id * VECTOR2_SIZE) + llp_set);
+						workload_kvs.offset_begin = kv.key; workload_kvs.size = kv.value; 
+						workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+						#ifdef _DEBUGMODE_KERNELPRINTS
+						cout<<"actit/sparse_process:: active edge-block seen @ ["<<globalparamsK.ACTSPARAMS_INSTID<<"]["<<sweepparams.source_partition<<"]: edgeblock-id: "<<edgeblock_id<<", edgeblock-map: "<<"["<<workload_kvs.offset_begin<<", "<<workload_kvs.size<<"]"<<endl;
+						#endif 
+					} else {
+						unsigned int index = (sweepparams.source_partition * num_LLPset) + llp_set;
+						workload_kvs.offset_begin = UTIL{{context['id']}}_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index) / EDGEDATA_PACKINGSIZE;
+						workload_kvs.offset_end = UTIL{{context['id']}}_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index + 1) / EDGEDATA_PACKINGSIZE;
+						workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin;
+					}
+				
+					if(workload_kvs.offset_end < workload_kvs.offset_begin){ workload_kvs.size = 0; }
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					cout<<"actit:: [workload_kvs.offset_begin: "<<workload_kvs.offset_begin<<", workload_kvs.offset_end: "<<workload_kvs.offset_end<<", workload_kvs.size: "<<workload_kvs.size<<"] "<<endl;
+					#endif
+					workloads_kvs[n] = workload_kvs;
+				}
+				
+				READ_PROCESS_PARTITION_STORE_LOOP1B: for(unsigned int n=0; n<num_its; n++){
+					ACTS{{context['id']}}_write__process_base(mode, llp_set, kvdram, vbuffer_source, stats,	
+							sourcebaseaddr_kvs, workloads_kvs[n], destbaseaddr_kvs, destoffset_kvs, destindex,
+								NAp, // SAVEVPROPERTYMODE parameters
+									collections_tmp, globalparamsK, globalposition);
+					
+					globalcapsule[1 + llp_set].value += workloads_kvs[n].size * EDGEDATA_PACKINGSIZE;	
+					destindex += workloads_kvs[n].size;
+				}
+			}
 		}
-		for(int t = 0; t < MAX_BLOCKRAM_VDESTDATA_SIZE; t++){ for(int v = 0; v < VDATA_PACKINGSIZE; v++){ vbuffer_source[v][t].data = 0; }} ////////////////////////////////////////// CRITICAL REMOVEME.
 		
-		for(unsigned int n=0; n<num_its; n++){
-			unsigned int voffset_kvs = 0;
-			for(unsigned int s=0; s<NUM_PEs; s++){
-				ACTS{{context['id']}}_read__reduce(READUPROPERTYMODE, kvdram, vbuffer_source, stats,
-					globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs, xload_kvs[n], 
-						buffer_offsets[n], s, // READUPROPERTYMODE parameters
+		if(mode == ACTSREDUCEMODE){
+			workload_t workload_kvs;
+			workload_kvs.offset_begin = globalcapsule[1 + sweepparams.source_partition].key / UPDATEDATA_PACKINGSIZE; 
+			workload_kvs.size = globalcapsule[1 + sweepparams.source_partition].value / UPDATEDATA_PACKINGSIZE;
+			workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+			#ifdef _DEBUGMODE_CHECKS3
+			if(workload_kvs.offset_end < workload_kvs.offset_begin){ cout<<"actit(reduce): ERROR 23: workload_kvs.offset_end("<<workload_kvs.offset_end<<") < workload_kvs.offset_begin("<<workload_kvs.offset_begin<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+			#endif
+			
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			cout<<"actit(reduce): processing all chunks [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<workload_kvs.offset_end<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * UPDATEDATA_PACKINGSIZE<<"] ... "<<endl;					
+			#endif
+		
+			// sparse_readv = false; // REMOVEME.
+			unsigned int num_its; if(sparse_readv == true){ num_its = stats[17][sweepparams.source_partition + 1] - stats[17][sweepparams.source_partition]; } else { num_its = 1; }
+			for(unsigned int n=0; n<num_its; n++){
+				if(sparse_readv == true){
+					updateblock_id = stats[16][stats[17][sweepparams.source_partition] + n]; 
+					workload_uprop_kvs.offset_begin = (sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION) + (updateblock_id * numkvs_vertices_per_updateblock); //0;
+					workload_uprop_kvs.size = numkvs_vertices_per_updateblock; // 1; 
+					workload_uprop_kvs.offset_end = workload_uprop_kvs.offset_begin + workload_uprop_kvs.size;
+					buffer_offset = updateblock_id * numkvs_vertices_per_updateblock;
+					#ifdef _DEBUGMODE_KERNELPRINTS
+					cout<<"actit/ACTSREDUCEMODE/sparse_readv: n: "<<n<<", updateblock_id: "<<updateblock_id<<", num_its: "<<num_its<<", numkvs_vertices_per_updateblock: "<<numkvs_vertices_per_updateblock<<endl;
+					#endif 
+					xblock_ids[n] = updateblock_id;
+					xload_kvs[n] = workload_uprop_kvs;
+					buffer_offsets[n] = buffer_offset;
+				} else {
+					workload_uprop_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
+					workload_uprop_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
+					workload_uprop_kvs.offset_end = workload_uprop_kvs.offset_begin + workload_uprop_kvs.size;
+					buffer_offset = 0;
+					xblock_ids[n] = NAp;
+					xload_kvs[n] = workload_uprop_kvs;
+					buffer_offsets[n] = buffer_offset;
+				}
+			}
+			// for(int t = 0; t < MAX_BLOCKRAM_VDESTDATA_SIZE; t++){ for(int v = 0; v < VDATA_PACKINGSIZE; v++){ vbuffer_dest[v][t].data = 0; }} ///////////////////////////////////////// CRITICAL REMOVEME.
+			
+			for(unsigned int n=0; n<num_its; n++){
+				ACTS{{context['id']}}_read__reduce(READVPROPERTYMODE, kvdram, vbuffer_dest, stats,
+					globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, xload_kvs[n], 
+						NAp, NAp, // READUPROPERTYMODE parameters
+							buffer_offsets[n], // READVPROPERTYMODE parameters
+								collections_tmp, sweepparams, globalparamsK, globalposition);
+			}
+		
+			ACTS{{context['id']}}_read__reduce(ACTSREDUCEMODE, kvdram, vbuffer_dest, stats,
+					sourcebaseaddr_kvs, workload_kvs, 
+						NAp, NAp, // READUPROPERTYMODE parameters
 							NAp, // READVPROPERTYMODE parameters
 								collections_tmp, sweepparams, globalparamsK, globalposition);
-				voffset_kvs += depth;
-			}
-		}
-		#endif 
-		
-		ACTIT_MAINLOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
-			workload_kvs = workloads_kvs[llp_set];
-			batch_type destoffset_kvs = (globalcapsule[1 + llp_set].key + globalcapsule[1 + llp_set].value) / EDGEDATA_PACKINGSIZE;
-			unsigned int destindex = 0;
-			
-			sparse_process = false; // REMOVEME.
-			unsigned int num_its; if(sparse_process == true){ num_its = globalposition.num_active_edgeblocks; } else { num_its = 1; }
-			READ_PROCESS_PARTITION_WRITE_GETWORKLOADSTATS_LOOP: for(unsigned int n=0; n<num_its; n++){
-				workload_t workload_kvs;					
-				if(sparse_process == true){
-					unsigned int edgeblock_id = UTIL{{context['id']}}_ReadData(kvdram, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + edgeblockoffset_vs, 1 + n);
-					#ifdef _DEBUGMODE_CHECKS3
-					actsutilityobj->checkoutofbounds("actit(1)", edgeblock_id, ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION, NAp, NAp, n);
-					#endif
-					workload_kvs.offset_begin = UTIL{{context['id']}}_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP + edgeblockmapoffset_vs, 2*edgeblock_id);
-					workload_kvs.size = UTIL{{context['id']}}_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP + edgeblockmapoffset_vs, 2*edgeblock_id + 1);
-					workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
-					cout<<"actit:: active edge-block seen @ ["<<globalparamsK.ACTSPARAMS_INSTID<<"]["<<sweepparams.source_partition<<"]: edgeblock-id: "<<edgeblock_id<<", edgeblock-map: "<<"["<<workload_kvs.offset_begin<<", "<<workload_kvs.size<<"]"<<endl;
-				} else {
-					unsigned int index = (sweepparams.source_partition * num_LLPset) + llp_set;
-					workload_kvs.offset_begin = UTIL{{context['id']}}_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index) / EDGEDATA_PACKINGSIZE;
-					workload_kvs.offset_end = UTIL{{context['id']}}_ReadData(kvdram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index + 1) / EDGEDATA_PACKINGSIZE;
-					workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin;
-				}
-			
-				if(workload_kvs.offset_end < workload_kvs.offset_begin){ workload_kvs.size = 0; }
-				#ifdef _DEBUGMODE_KERNELPRINTS
-				cout<<"actit:: [workload_kvs.offset_begin: "<<workload_kvs.offset_begin<<", workload_kvs.offset_end: "<<workload_kvs.offset_end<<", workload_kvs.size: "<<workload_kvs.size<<"] "<<endl;
-				#endif
-				workloads_kvs[n] = workload_kvs;
-			}
-			
-			READ_PROCESS_PARTITION_STORE_LOOP1B: for(unsigned int n=0; n<num_its; n++){
-				ACTS{{context['id']}}_write__process_base(mode, llp_set, kvdram, vbuffer_source, stats,	
-					edges_buffer, edges_buffer_index,
-						upperlimit, sourcebaseaddr_kvs, workloads_kvs[n], destbaseaddr_kvs, destoffset_kvs, destindex,
-							NAp, // SAVEVPROPERTYMODE parameters
+
+			for(unsigned int n=0; n<num_its; n++){
+				ACTS{{context['id']}}_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats,
+						sourcebaseaddr_kvs, xload_kvs[n], globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, xload_kvs[n].offset_begin, 0,
+							buffer_offsets[n], // SAVEVPROPERTYMODE parameters
 								collections_tmp, globalparamsK, globalposition);
-				
-				globalcapsule[1 + llp_set].value += workloads_kvs[n].size * EDGEDATA_PACKINGSIZE;	
-				destindex += workloads_kvs[n].size;
 			}
-		}
+		}	
 	}
 	
-	if(mode == ACTSREDUCEMODE){
-		workload_t workload_kvs;
-		workload_kvs.offset_begin = globalcapsule[1 + sweepparams.source_partition].key / UPDATEDATA_PACKINGSIZE; 
-		workload_kvs.size = globalcapsule[1 + sweepparams.source_partition].value / UPDATEDATA_PACKINGSIZE;
-		workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
-		#ifdef _DEBUGMODE_CHECKS3
-		if(workload_kvs.offset_end < workload_kvs.offset_begin){ cout<<"actit(reduce): ERROR 23: workload_kvs.offset_end("<<workload_kvs.offset_end<<") < workload_kvs.offset_begin("<<workload_kvs.offset_begin<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
+	// prepare stats
+	if(mode == ACTSPROCESSMODE && UTIL{{context['id']}}__processit__i_am_last__(globalposition) == true){
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"-------------------------------- __processit__i_am_last__ == true, partition: "<<sweepparams.source_partition<<" ----------------------------------"<<endl;
 		#endif
-		
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"actit(reduce): processing all chunks [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<workload_kvs.offset_end<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * UPDATEDATA_PACKINGSIZE<<"] ... "<<endl;					
+		unsigned int numkvs_vertices_per_updateblock = (1 << (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
+		unsigned int numkvs_updateblocks_per_reducepartition = globalparamsK.SIZEKVS2_REDUCEPARTITION / numkvs_vertices_per_updateblock;
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"processit:: numkvs_vertices_per_updateblock: "<<numkvs_vertices_per_updateblock<<", numkvs_updateblocks_per_reducepartition: "<<numkvs_updateblocks_per_reducepartition<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl;
+		#endif 
+		unsigned int stats_tmp[VECTOR2_SIZE]; for(int v = 0; v < VECTOR2_SIZE; v++){ stats_tmp[v] = 0; }
+		unsigned int index = 0;
+		for(int t = 0; t < BLOCKRAM_UPDATEBLOCK_SIZE; t++){
+		#pragma HLS PIPELINE II=1
+			unsigned int llp_set = t / numkvs_updateblocks_per_reducepartition;
+			unsigned int ind = t;
+			unsigned int stat = stats[0][ind] | stats[1][ind] | stats[2][ind] | stats[3][ind] | stats[4][ind] | stats[5][ind] | stats[6][ind] | 
+				stats[7][ind] | stats[8][ind] | stats[9][ind] | stats[10][ind] | stats[11][ind] | stats[12][ind] | stats[13][ind] | stats[14][ind] | stats[15][ind];
+			if(stat > 0){ stats[16][index] = t; }
+			if(stat > 0){ vbuffer_dest[index % VECTOR2_SIZE][1 + (index / VECTOR2_SIZE)].data = t; }
+			if(stat > 0){ stats_tmp[llp_set] += 1; }
+			if(stat > 0){ index += 1; }
+		}
+		stats[17][0] = 0; vbuffer_dest[0][0].data = 0;
+		stats[17][0] = 0; for(unsigned int i=1; i<VECTOR2_SIZE; i++){ stats[17][i] = stats[17][i-1] + stats_tmp[i-1]; vbuffer_dest[i][0].data = stats[17][i]; } // calculate offsets
+		#ifdef _DEBUGMODE_KERNELPRINTS
+		cout<<"processit:: stats_tmp["<<0<<"]: "<<stats_tmp[0]<<endl;
+		for(unsigned int i=0; i<4; i++){ cout<<"actit:: stats[16]["<<i<<"]: "<<stats[16][i]<<", "<<endl; }
+		for(unsigned int i=0; i<4; i++){ cout<<"actit:: stats[17]["<<i<<"]: "<<stats[17][i]<<", "<<endl; }
 		#endif
-	
-		// sparse_reduce = false; // REMOVEME.
-		unsigned int num_its; if(sparse_reduce == true){ num_its = stats[17][sweepparams.source_partition]; } else { num_its = 1; }
-		for(unsigned int n=0; n<num_its; n++){
-			if(sparse_reduce == true){
-				unsigned int offset_kvs = sweepparams.source_partition * numkvs_vertices_per_updateblock;
-				updateblock_id = stats[16][offset_kvs + n]; 
-				workload_uprop_kvs.offset_begin = (sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION) + (updateblock_id * numkvs_vertices_per_updateblock); //0;
-				workload_uprop_kvs.size = numkvs_vertices_per_updateblock; // 1; 
-				workload_uprop_kvs.offset_end = workload_uprop_kvs.offset_begin + workload_uprop_kvs.size;
-				buffer_offset = updateblock_id * numkvs_vertices_per_updateblock;
-				cout<<"--------------------------- actit/ACTSREDUCEMODE: n: "<<n<<", updateblock_id: "<<updateblock_id<<", num_its: "<<num_its<<", numkvs_vertices_per_updateblock: "<<numkvs_vertices_per_updateblock<<endl;
-				xblock_ids[n] = updateblock_id;
-				xload_kvs[n] = workload_uprop_kvs;
-				buffer_offsets[n] = buffer_offset;
-			} else {
-				workload_uprop_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION; // FIXME.
-				workload_uprop_kvs.size = globalparamsK.SIZEKVS2_REDUCEPARTITION;
-				workload_uprop_kvs.offset_end = workload_uprop_kvs.offset_begin + workload_uprop_kvs.size;
-				buffer_offset = 0;
-				xblock_ids[n] = NAp;
-				xload_kvs[n] = workload_uprop_kvs;
-				buffer_offsets[n] = buffer_offset;
-			}
-		}
-		for(int t = 0; t < MAX_BLOCKRAM_VDESTDATA_SIZE; t++){ for(int v = 0; v < VDATA_PACKINGSIZE; v++){ vbuffer_dest[v][t].data = 0; }} ///////////////////////////////////////// CRITICAL REMOVEME.
-		
-		for(unsigned int n=0; n<num_its; n++){
-			ACTS{{context['id']}}_read__reduce(READVPROPERTYMODE, kvdram, vbuffer_dest, stats,
-				globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, xload_kvs[n], 
-					NAp, NAp, // READUPROPERTYMODE parameters
-						buffer_offsets[n], // READVPROPERTYMODE parameters
-							collections_tmp, sweepparams, globalparamsK, globalposition);
-		}
-	
-		ACTS{{context['id']}}_read__reduce(ACTSREDUCEMODE, kvdram, vbuffer_dest, stats,
-				sourcebaseaddr_kvs, workload_kvs, 
-					NAp, NAp, // READUPROPERTYMODE parameters
-						NAp, // READVPROPERTYMODE parameters
-							collections_tmp, sweepparams, globalparamsK, globalposition);
 
-		for(unsigned int n=0; n<num_its; n++){
-			ACTS{{context['id']}}_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats,
-				edges_buffer, edges_buffer_index,
-					upperlimit, sourcebaseaddr_kvs, xload_kvs[n], globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, xload_kvs[n].offset_begin, 0,
-						buffer_offsets[n], // SAVEVPROPERTYMODE parameters
-							collections_tmp, globalparamsK, globalposition);
+		for(unsigned int t=0; t<BLOCKRAM_UPDATEBLOCK_SIZE; t++){
+		#pragma HLS PIPELINE II=1	
+			datas[0] = stats[16][t];
+			datas[1] = stats[17][t];
+			UTIL{{context['id']}}_WriteDatas(kvdram, globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS + t, datas);
 		}
+		// workload_t workload_kvs;
+		// workload_kvs.offset_srcbase = NAp;
+		// workload_kvs.offset_dstbase = globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS;
+		// workload_kvs.offset_begin = NAp;
+		// workload_kvs.size = 1 + (BLOCKRAM_UPDATEBLOCK_SIZE / VECTOR2_SIZE);
+		// workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
+		// ACTS{{context['id']}}_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats,
+						// NAp, workload_kvs, globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS, workload_kvs.offset_begin, 0,
+							// 0, // SAVEVPROPERTYMODE parameters
+								// collections_tmp, globalparamsK, globalposition);
+		// exit(EXIT_SUCCESS);
 	}
 	
 	collections[TRAVERSEDEDGES_COLLECTIONID] = collections_tmp[TRAVERSEDEDGES_COLLECTIONID];

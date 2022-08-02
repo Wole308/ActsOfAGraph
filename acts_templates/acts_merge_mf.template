@@ -1,6 +1,8 @@
 void merge{{context['id']}}_trace(uint512_dt * kvdram, unsigned int reduce_partition, unsigned int k, unsigned int offset_kvs, globalparams_t globalparams);
-
+	
 void MERGE{{context['id']}}_print_active_masks(uint512_dt * vdram, globalparams_t globalparams, unsigned int offset_kvs);
+
+unsigned int merge{{context['id']}}_getworkload(unsigned int reduce_partition, uint512_dt * dram, unsigned int stats[2][BLOCKRAM_SIZE], globalparams_t globalparams, workload_t xload_kvs[BLOCKRAM_SIZE]);
 
 void MERGE{{context['id']}}_mergeVs{{n}}(uint512_dt * kvdram, uint512_dt * vdram);
 
@@ -13,7 +15,7 @@ void MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in cont
 				unsigned int cmd);
 {%endif%}{%endfor%}
 
-unsigned int MERGE{{context['id']}}_copy(unsigned int idx, unsigned int reduce_partition, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramSTATS, unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
+unsigned int MERGE{{context['id']}}_copy(unsigned int idx, unsigned int reduce_partition, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, unsigned int stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
 	pmask_dt vpartition_stats___[BLOCKRAM_CURRPMASK_SIZE], wide_word_bits_3t edgeblock_stats[MAX_RED_SRAMSZ],
 	globalparams_t globalparamsSRC, globalparams_t globalparamsDST1, globalparams_t globalparamsDST2);
 

@@ -213,7 +213,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	vector<edge_t> vertexptrbuffer;
 	vector<edge2_vec_dt> edges_final[MAXNUM_PEs];
 	map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs]; // [MAXNUM_LLPs];
-	keyvalue_t * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]; // FIXME.  triple_t * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]
+	uint512_vec_dt * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]; // FIXME.  triple_t * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]
 	long double edgesprocessed_totals[128];
 	long double timeelapsed_totals[128][8];
 	unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS];
@@ -279,7 +279,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int k=0; k<universalparams.MAXHBMCAPACITY_KVS2; k++){ for(unsigned int v=0; v<KEYVALUEDATA_PACKINGSIZE; v++){ kvbuffer[i][k].data[v].key = 0; kvbuffer[i][k].data[v].value = 0; }}} // REMOVEME.
 	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edges_map[i][v_p] = new map_t[MAXNUM_LLPs]; }}
-	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edgeblock_map[i][v_p] = new keyvalue_t[ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION]; for(unsigned int t=0; t<ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ edgeblock_map[i][v_p][t].key = 0; edgeblock_map[i][v_p][t].value = 0; }}}		
+	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edgeblock_map[i][v_p] = new uint512_vec_dt[ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION]; for(unsigned int t=0; t<ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ edgeblock_map[i][v_p][t].data[v].key = 0; edgeblock_map[i][v_p][t].data[v].value = 0; }}}}	
 	// exit(EXIT_SUCCESS);
 	
 	// load workload information
