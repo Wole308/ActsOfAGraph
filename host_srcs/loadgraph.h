@@ -32,7 +32,7 @@ public:
 	
 	unsigned int getglobalpartition(keyvalue_t keyvalue, vertex_t upperlimit, unsigned int batch_range_pow, unsigned int treedepth, universalparams_t universalparams);
 	
-	globalparams_t loadvertexdata(std::string algorithm, keyvalue_t * kvbuffer, vertex_t kvbufferoffset_xxx, vertex_t size_xxx, globalparams_t globalparams, unsigned int edgesorkv, unsigned int srcordest, universalparams_t universalparams);
+	globalparams_t loadvertexdata(std::string algo, uint512_vec_dt * kvbuffer, vertex_t vbufferoffset, vertex_t size, globalparams_t globalparams, universalparams_t universalparams);
 	
 	globalparams_TWOt loadactvvertices(uint512_vec_dt * vdram, vector<vertex_t> &activevertices, globalparams_TWOt globalparams, universalparams_t universalparams);
 	

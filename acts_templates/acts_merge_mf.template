@@ -2,7 +2,11 @@ void merge{{context['id']}}_trace(uint512_dt * kvdram, unsigned int reduce_parti
 	
 void MERGE{{context['id']}}_print_active_masks(uint512_dt * vdram, globalparams_t globalparams, unsigned int offset_kvs);
 
-unsigned int merge{{context['id']}}_getworkload(unsigned int reduce_partition, uint512_dt * dram, unsigned int stats[2][BLOCKRAM_SIZE], globalparams_t globalparams, workload_t xload_kvs[BLOCKRAM_SIZE]);
+unsigned int merge{{context['id']}}_get_updateblock_workload(unsigned int en, unsigned int reduce_partition, unsigned int * stats_offsets, unsigned int * stats_metadata, globalparams_t globalparams, workload_t xload_kvs[BLOCKRAM_SIZE], unsigned int buffer_offsets[BLOCKRAM_SIZE]);
+
+unsigned int merge{{context['id']}}_get_upropblock_workload(unsigned int en, unsigned int reduce_partition, uint512_dt * dram, unsigned int num_active_edgeblocks, globalparams_t globalparams, workload_t xload_kvs[BLOCKRAM_SIZE], unsigned int buffer_offsets[BLOCKRAM_SIZE], unsigned int graphiterationid);
+
+unsigned int merge{{context['id']}}_get_edgeblock_workload(unsigned int en, unsigned int process_partition, unsigned int llp_set, uint512_dt * dram, unsigned int num_active_edgeblocks, globalparams_t globalparamsK, globalparams_t globalparamsE, workload_t xload_kvs[DOUBLE_BLOCKRAM_SIZE], unsigned int graphiterationid);
 
 void MERGE{{context['id']}}_mergeVs{{n}}(uint512_dt * kvdram, uint512_dt * vdram);
 
@@ -12,7 +16,7 @@ void MERGE{{context['id']}}_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram,
 void MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} 
 		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
 			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd);
+				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV);
 {%endif%}{%endfor%}
 
 unsigned int MERGE{{context['id']}}_copy(unsigned int idx, unsigned int reduce_partition, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, unsigned int stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 

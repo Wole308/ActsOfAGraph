@@ -1126,9 +1126,9 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	for(unsigned int i=0; i<_NUM_PEs; i++){ edges_final[i].clear(); }
 	for(unsigned int i=0; i<_NUM_PEs; i++){ for(unsigned int v_p=0; v_p<_num_vPs; v_p++){ for(unsigned int ll_p=0; ll_p<_num_LLPs; ll_p++){ edges_map[i][v_p][ll_p].offset = 0; edges_map[i][v_p][ll_p].size = 0; }}}
 	for(unsigned int i=0; i<_NUM_PEs; i++){ for(unsigned int v_p=0; v_p<_num_vPs; v_p++){ edge_count_in_vpartition[i][v_p] = 0; }}
-	keyvalue_t * offsets; offsets = new keyvalue_t[MAXNUM_EDGEBLOCKS_PER_VPARTITION];
-	unsigned int * lower_limits; lower_limits = new unsigned int[MAXNUM_EDGEBLOCKS_PER_VPARTITION];
-	unsigned int * higher_limits; higher_limits = new unsigned int[MAXNUM_EDGEBLOCKS_PER_VPARTITION];
+	keyvalue_t * offsets; offsets = new keyvalue_t[MAXSZ_EDGEBLOCKS_PER_VPARTITION];
+	unsigned int * lower_limits; lower_limits = new unsigned int[MAXSZ_EDGEBLOCKS_PER_VPARTITION];
+	unsigned int * higher_limits; higher_limits = new unsigned int[MAXSZ_EDGEBLOCKS_PER_VPARTITION];
 		
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"loadedges:: [num_LLPs: "<<num_LLPs<<", num_LLPset: "<<num_LLPset<<", vsize_LLP: "<<vsize_LLP<<", num_vPs: "<<num_vPs<<", vsize_vP: "<<vsize_vP<<", INVALIDDATA: "<<INVALIDDATA<<"] "<<endl;
@@ -1174,7 +1174,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			edges_in_channel[H].push_back(edge);
 		}
 	}
-	#ifdef _DEBUGMODE_HOSTPRINTS4
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	for(unsigned int i=0; i<NUM_PEs; i++){ 
 		cout<<"loadedges:: edges_in_channel["<<i<<"].size(): "<<edges_in_channel[i].size()<<endl; 
 		if(edges_in_channel[i].size() > 0){ for(unsigned int t=0; t<0; t++){ cout<<"+++ loadedges:: edges_in_channel["<<i<<"]["<<t<<"]: srcvid: "<<edges_in_channel[i][t].srcvid<<", dstvid: "<<edges_in_channel[i][t].dstvid<<", hashed dstvid: "<<edges_in_channel[i][t].dstvid % (EDGEDATA_PACKINGSIZE * NUM_PEs)<<endl; }}
@@ -1367,7 +1367,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 						
 						edges_temp.push_back(edge_vec2);
 						#ifdef _DEBUGMODE_HOSTCHECKS3
-						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 561::", (edges_temp[t].data[v].srcvid - (v_p * vsize_vP)) / NUM_VERTICES_PER_EDGEBLOCK, MAXNUM_EDGEBLOCKS_PER_VPARTITION, edges_temp[t].data[v].srcvid, v_p, vsize_vP);	}
+						for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ utilityobj->checkoutofbounds("loadedges::ERROR 561::", (edges_temp[t].data[v].srcvid - (v_p * vsize_vP)) / NUM_VERTICES_PER_EDGEBLOCK, MAXSZ_EDGEBLOCKS_PER_VPARTITION, edges_temp[t].data[v].srcvid, v_p, vsize_vP);	}
 						#endif
 					}
 				} // iteration end: llp_id:EDGEDATA_PACKINGSIZE
@@ -1433,7 +1433,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				unsigned int count = 0;
 				unsigned int index = 0;
 				unsigned int upper_limit = 0; 
-				for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ lower_limits[t] = 0; higher_limits[t] = 0; }
+				for(unsigned int t=0; t<MAXSZ_EDGEBLOCKS_PER_VPARTITION; t++){ lower_limits[t] = 0; higher_limits[t] = 0; }
 				
 				// calculate lower limits
 				count = 0;
@@ -1451,7 +1451,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 						}
 						#endif
 						#ifdef _DEBUGMODE_CHECKS3
-						utilityobj->checkoutofbounds("loadedges(135)", index + 1, MAXNUM_EDGEBLOCKS_PER_VPARTITION, NAp, NAp, NAp);
+						utilityobj->checkoutofbounds("loadedges(135)", index + 1, MAXSZ_EDGEBLOCKS_PER_VPARTITION, NAp, NAp, NAp);
 						#endif
 						if(t < 1){ lower_limits[index + 1] = 0; } else { lower_limits[index + 1] = t - 1; }
 						index += 1;
@@ -1474,7 +1474,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 						}
 						#endif 
 						#ifdef _DEBUGMODE_CHECKS3
-						utilityobj->checkoutofbounds("loadedges(137)", index, MAXNUM_EDGEBLOCKS_PER_VPARTITION, NAp, NAp, NAp);
+						utilityobj->checkoutofbounds("loadedges(137)", index, MAXSZ_EDGEBLOCKS_PER_VPARTITION, NAp, NAp, NAp);
 						#endif
 						higher_limits[index] = t; 
 						index += 1;
@@ -1488,7 +1488,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				#endif
 				
 				debug5 = true;
-				for(unsigned int t = 0; t < MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){
+				for(unsigned int t = 0; t < MAXSZ_EDGEBLOCKS_PER_VPARTITION; t++){
 					edgeblock_map[i][v_p][t].data[llp_set].key = edgeblockmap_index + lower_limits[t];
 					edgeblock_map[i][v_p][t].data[llp_set].value = higher_limits[t] - lower_limits[t];
 					#ifdef _DEBUGMODE_HOSTPRINTS
@@ -1598,8 +1598,8 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			for(unsigned int ll_p=0; ll_p<16; ll_p++){ // MAXNUM_LLPs, _num_LLPset
 				cout<<"Edge Map in dram "<<i<<": edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].offset: "<<edges_map[i][v_p][ll_p].offset<<", edges_map["<<i<<"]["<<v_p<<"]["<<ll_p<<"].size: "<<edges_map[i][v_p][ll_p].size<<endl; 
 			}
-			for(unsigned int t=0; t<16; t++){ // MAXNUM_EDGEBLOCKS_PER_VPARTITION
-				cout<<"Edgeblock Map in dram "<<i<<": edgeblock_map["<<i<<"]["<<v_p<<"]["<<t<<"].key: "<<edgeblock_map[i][v_p][t].key<<", edgeblock_map["<<i<<"]["<<v_p<<"]["<<t<<"].value: "<<edgeblock_map[i][v_p][t].value<<endl; 
+			for(unsigned int t=0; t<16; t++){ // MAXSZ_EDGEBLOCKS_PER_VPARTITION
+				cout<<"Edgeblock Map in dram "<<i<<": edgeblock_map["<<i<<"]["<<v_p<<"]["<<t<<"].data[0].key: "<<edgeblock_map[i][v_p][t].data[0].key<<", edgeblock_map["<<i<<"]["<<v_p<<"]["<<t<<"].data[0].value: "<<edgeblock_map[i][v_p][t].data[0].value<<endl; 
 			}
 		}
 	}

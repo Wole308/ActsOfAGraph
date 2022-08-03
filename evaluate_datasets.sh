@@ -78,8 +78,8 @@ DIRECTIONS=(
 # for algo in $PR $CF $HITS $SPMV $BFS	
 # for algo in $PR $CF $HITS $BFS 
 
-for algo in $PR 
-# for algo in $SSSP 
+# for algo in $PR 
+for algo in $SSSP 
 # for algo in $BFS 
 
 # for algo in $PR 

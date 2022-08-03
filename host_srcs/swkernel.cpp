@@ -46,7 +46,7 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 
 	for(unsigned int GraphIter=beginIter; GraphIter<universalparams.NUM_ITERATIONS; GraphIter++){ 
 		#ifdef _DEBUGMODE_HOSTPRINTS4
-		cout<< endl << TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<universalparams.NUM_ITERATIONS<<" iterations)"<< RESET <<endl;
+		cout << TIMINGRESULTSCOLOR <<">>> swkernel::runapp: Iteration: "<<GraphIter<<" (of "<<universalparams.NUM_ITERATIONS<<" iterations)"<< RESET <<endl;
 		#endif 
 		std::chrono::steady_clock::time_point beginkerneltime_proc = std::chrono::steady_clock::now();
 		
@@ -79,9 +79,9 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 		
 		kernelobjs_process[0]->TOPP0_topkernelS((uint512_dt *)vdramA, (uint512_dt *)vdramB, (uint512_dt *)vdramC);	
 		
-		#ifdef _DEBUGMODE_HOSTPRINTS4
+		#ifdef _DEBUGMODE_HOSTPRINTS3
 		long double iter_timeelapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - beginkerneltime_proc).count();
-		cout<<">>> swkernel: iteration: "<<GraphIter<<": Time elapsed: "<<iter_timeelapsed<<"ms, num edges processed: "<<num_edges_processed[GraphIter]<<" edges, throughput: "<<((num_edges_processed[GraphIter] / iter_timeelapsed) * (1000))<<" edges/sec ("<<(((num_edges_processed[GraphIter] / iter_timeelapsed) * (1000)) / 1000000)<<" ME/s)"<<endl;
+		cout<< endl << ">>> swkernel: iteration: "<<GraphIter<<": Time elapsed: "<<iter_timeelapsed<<"ms, num edges processed: "<<num_edges_processed[GraphIter]<<" edges, throughput: "<<((num_edges_processed[GraphIter] / iter_timeelapsed) * (1000))<<" edges/sec ("<<(((num_edges_processed[GraphIter] / iter_timeelapsed) * (1000)) / 1000000)<<" ME/s)"<<endl;
 		#endif 
 	}
 	for(unsigned int i=0; i<universalparams.MAXHBMCAPACITY_KVS2; i++){ vdram[i] = vdramA[i]; }
@@ -93,19 +93,25 @@ long double swkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram, 
 }
 
 void swkernel::run3(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_vec_dt * vdramC, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs]){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P1 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP1( // REMOVEME.
 		(uint512_dt *)kvsourcedram[0],
 		(uint512_dt *)vdramA
 	);
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P1 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP1(
 		(uint512_dt *)kvsourcedram[NUMCOMPUTEUNITS_SLR2],
 		(uint512_dt *)vdramB
 	);
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P1 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP1(
 		(uint512_dt *)kvsourcedram[NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1],
 		(uint512_dt *)vdramC
@@ -246,7 +252,9 @@ void swkernel::run20(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 	);
 }
 void swkernel::run22(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_vec_dt * vdramC, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs]){
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P8 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP8(
 		(uint512_dt *)kvsourcedram[0],
 		(uint512_dt *)kvsourcedram[1],
@@ -259,7 +267,9 @@ void swkernel::run22(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 		(uint512_dt *)vdramA
 	);
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P8 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP8(
 		(uint512_dt *)kvsourcedram[8],
 		(uint512_dt *)kvsourcedram[9],
@@ -272,7 +282,9 @@ void swkernel::run22(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 		(uint512_dt *)vdramB
 	);
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P6 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP6(
 		(uint512_dt *)kvsourcedram[16],
 		(uint512_dt *)kvsourcedram[17],
@@ -288,7 +300,9 @@ void swkernel::run24(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 	unsigned int B_OFFSET = 9;
 	unsigned int C_OFFSET = 18;
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P9 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP9(
 		(uint512_dt *)kvsourcedram[A_OFFSET + 0],
 		(uint512_dt *)kvsourcedram[A_OFFSET + 1],
@@ -303,7 +317,9 @@ void swkernel::run24(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 	);
 	// exit(EXIT_SUCCESS);///////////////
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P9 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP9(
 		(uint512_dt *)kvsourcedram[B_OFFSET + 0],
 		(uint512_dt *)kvsourcedram[B_OFFSET + 1],
@@ -318,7 +334,9 @@ void swkernel::run24(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_v
 	);
 	// exit(EXIT_SUCCESS); //
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P6 instances ------------------------------------"<<endl;
+	#endif 
 	kernelobjs_process[0]->TOPP0_topkernelP6(
 		(uint512_dt *)kvsourcedram[C_OFFSET + 0],
 		(uint512_dt *)kvsourcedram[C_OFFSET + 1],

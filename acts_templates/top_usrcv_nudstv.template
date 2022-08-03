@@ -403,7 +403,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	
 	voffset_kvs = 0;
 	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
-	unsigned int maxsz_actvvs = (globalparamsK.NUM_PROCESSEDGESPARTITIONS * ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION) / VECTOR2_SIZE;
+	unsigned int maxsz_actvvs = (globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXSZ_EDGEBLOCKS_PER_VPARTITION) / VECTOR2_SIZE;
 	
 	#ifdef _DEBUGMODE_STATS
 	actsutilityobj->clearglobalvars();
@@ -523,18 +523,20 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 							MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer_source{{i}},{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA, voffset_kvs, vsz_kvs, globalposition, globalparamsV);	
 						}
 						#endif	
-						#ifdef CONFIG_RELEASE_VERSION3b	
+						#ifdef CONFIG_RELEASE_VERSION_BROADCASTUPROPS	
 						unsigned int depth_i = 0, index = 0, cmd = 0;
 						for(unsigned int s=0; s<NUM_PEs; s++){	
 							unsigned int offset_kvs = voffset_kvs + depth_i;
 							if(s==NUM_PEs-1){ cmd = 1; } else { cmd = 0; }
-							// {%for i in context['T_seq']%}{%if(i<n)%}	
-							// MERGE{{context['id']}}_broadcastVs(vdram, kvdram{{i}}, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs);		
-							// {%endif%}{%endfor%}		
+							#ifdef ___NOT_USED___
+							{%for i in context['T_seq']%}{%if(i<n)%}		
+							MERGE{{context['id']}}_broadcastVs(vdram, kvdram{{i}}, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs);		
+							{%endif%}{%endfor%}		
+							#endif 
 							MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} 
 								globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs,
 									globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS, maxsz_actvvs,
-										cmd);		
+										cmd, globalposition, globalparamsK, globalparamsV);		
 							depth_i += depth;
 							index += vsz_kvs;
 						}
