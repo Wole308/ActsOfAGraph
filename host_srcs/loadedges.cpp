@@ -1488,14 +1488,18 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				#endif
 				
 				debug5 = true;
-				for(unsigned int t = 0; t < MAXSZ_EDGEBLOCKS_PER_VPARTITION; t++){
+				for(unsigned int t = 0; t < MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ // MAXNUM_EDGEBLOCKS_PER_VPARTITION, MAXSZ_EDGEBLOCKS_PER_VPARTITION
+					if(t > 0 && t <= MAXNUM_EDGEBLOCKS_PER_VPARTITION && higher_limits[t] == 0){ higher_limits[t] = edges_temp.size(); }
 					edgeblock_map[i][v_p][t].data[llp_set].key = edgeblockmap_index + lower_limits[t];
 					edgeblock_map[i][v_p][t].data[llp_set].value = higher_limits[t] - lower_limits[t];
+					if(i==0 && false){ cout<<"~~~ loadedges: [lower_limits["<<t<<"]: "<<lower_limits[t]<<", higher_limits["<<t<<"]: "<<higher_limits[t]<<"]"<<", size["<<t<<"]: "<<higher_limits[t] - lower_limits[t]<<"], edges_temp.size(): "<<edges_temp.size()<<endl; }
+					if(higher_limits[t] < lower_limits[t]){ cout<<"loadedges:: ERROR. higher_limits["<<v_p<<"]["<<t<<"]("<<higher_limits[t]<<") < lower_limits["<<v_p<<"]["<<t<<"]("<<lower_limits[t]<<"). edges_temp.size(): "<<edges_temp.size()<<". EXITING..."<<endl; exit(EXIT_FAILURE); }
 					#ifdef _DEBUGMODE_HOSTPRINTS
 					if(debug5==true && i==0 && v_p<0 && t<16){ cout<<"### loadedges/load edgeblock-map:: ["<<i<<"]["<<v_p<<"]["<<t<<"]: min offset: "<<edgeblock_map[i][v_p][t].data[llp_set].key<<", size: "<<edgeblock_map[i][v_p][t].data[llp_set].value<<", max offset: "<<edgeblock_map[i][v_p][t].data[llp_set].key + edgeblock_map[i][v_p][t].data[llp_set].value<<endl; }
 					#endif 
 				}
 				edgeblockmap_index += edges_temp.size();
+				// exit(EXIT_SUCCESS);
 			
 				// exit(EXIT_SUCCESS);
 			} // iteration end: llp_set:num_LLPset
@@ -1578,7 +1582,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	
 	// debug 
 	#ifdef _DEBUGMODE_HOSTPRINTS4
-	cout<<"projected total edge count for all drams: "<<edges_final[0].size() * EDGEDATA_PACKINGSIZE * NUM_PEs<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<" ["<<(((edges_final[0].size() * EDGEDATA_PACKINGSIZE * NUM_PEs) - universalparams.NUM_EDGES) * 100) / universalparams.NUM_EDGES<<"% increase]"<<endl;
+	cout<<"loading edges:: edge count for single dram: "<<edges_final[0].size() * EDGEDATA_PACKINGSIZE<<", projected total edge count for all drams: "<<edges_final[0].size() * EDGEDATA_PACKINGSIZE * NUM_PEs<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<" ["<<(((edges_final[0].size() * EDGEDATA_PACKINGSIZE * NUM_PEs) - universalparams.NUM_EDGES) * 100) / universalparams.NUM_EDGES<<"% increase]"<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	for(unsigned int i=0; i<_NUM_PEs; i++){ cout<<"Edge content in dram "<<i<<": "<<edges_final[i].size() * EDGEDATA_PACKINGSIZE<<endl; }

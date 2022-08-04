@@ -232,6 +232,19 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<<"app:run: num_vertices: "<<num_vertices<<", num_edges: "<<num_edges<<endl;
 	// exit(EXIT_SUCCESS); //
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	#ifdef RRRRRRRRRRR
+	unsigned int num_runs_a = 1; unsigned int num_runs_b = 2; unsigned int num_runs_c = 2; 
+	unsigned int skip_a = 0; unsigned int skip_b = 16; unsigned int skip_c = 16; // 0, 4, 8
+	unsigned int maxlimit_actvedgeblocks_per_vpartition = 0; unsigned int maxlimit_actvupropblocks_per_vpartition = 0; unsigned int maxlimit_actvupdateblocks_per_vpartition = 0; 
+	// if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){} else { num_runs_a = 1; num_runs_b = 1; num_runs_c = 1; }
+	long double total_time_elapsed = 0;
+	for(unsigned int a = 0; a<num_runs_a; a++){
+		for(unsigned int b = 0; b<num_runs_b; b++){
+			for(unsigned int c = 0; c<num_runs_c; c++){
+	#endif 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	
 	// universalparams_t universalparams;
 	universalparams_t universalparams = get_universalparams(algo, numiterations, rootvid, num_vertices, num_edges, graphisundirected_bool);
 	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ vpartition_stats[i] = new tuple_t[universalparams.NUMPROCESSEDGESPARTITIONS]; }
@@ -542,7 +555,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
 	unsigned int vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS].data[0].key;
 	unsigned int kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS = kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS].data[0].key;
-	cout<<")))))))))))) app:: kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS: "<<kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS<<endl;
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
 		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpartition_stats[iter][t].A; }		
 	}
@@ -569,8 +581,8 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	// exit(EXIT_SUCCESS); //
 	
 	// run_hw
-	#ifdef APP_RUNHWVERSION
-	unsigned int num_runs_a = 1; unsigned int num_runs_b = 2; unsigned int num_runs_c = 2; 
+	// #ifdef APP_RUNHWVERSION
+	unsigned int num_runs_a = 1; unsigned int num_runs_b = 1; unsigned int num_runs_c = 1; 
 	unsigned int skip_a = 0; unsigned int skip_b = 16; unsigned int skip_c = 16; // 0, 4, 8
 	unsigned int maxlimit_actvedgeblocks_per_vpartition = 0; unsigned int maxlimit_actvupropblocks_per_vpartition = 0; unsigned int maxlimit_actvupdateblocks_per_vpartition = 0; 
 	if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){} else { num_runs_a = 1; num_runs_b = 1; num_runs_c = 1; }
@@ -579,15 +591,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 		for(unsigned int b = 0; b<num_runs_b; b++){
 			for(unsigned int c = 0; c<num_runs_c; c++){
 				
-				// reload src vertices 
-				loadgraphobj->loadvertexdata(algo, (keyvalue_t *)vdram, globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsV.SIZE_SRCVERTICESDATA, globalparams.globalparamsV, 0, SOURCE, universalparams);
-				for(unsigned int i = 0; i < NUM_PEs; i++){ loadgraphobj->loadvertexdata(algo, (keyvalue_t *)kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsK.SIZE_SRCVERTICESDATA, globalparams.globalparamsK, 0, SOURCE, universalparams); }					
-				
-				// reload dst vertices 
-				loadgraphobj->loadvertexdata(algo, (keyvalue_t *)vdram, globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsV.SIZE_DESTVERTICESDATA, globalparams.globalparamsV, 0, DEST, universalparams);
-				for(unsigned int i = 0; i < NUM_PEs; i++){ loadgraphobj->loadvertexdata(algo, (keyvalue_t *)kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA * VECTOR_SIZE, globalparams.globalparamsK.SIZE_DESTVERTICESDATA, globalparams.globalparamsK, 0, DEST, universalparams); }
-				
-				 
 				// reload src vertices 
 				loadgraphobj->loadvertexdata(algo, vdram, globalparams.globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA, globalparams.globalparamsV.SIZE_SRCVERTICESDATA, globalparams.globalparamsV, universalparams);
 				for(unsigned int i = 0; i < NUM_PEs; i++){ loadgraphobj->loadvertexdata(algo, kvbuffer[i], globalparams.globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA, globalparams.globalparamsK.SIZE_SRCVERTICESDATA, globalparams.globalparamsK, universalparams); }					
@@ -604,7 +607,11 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				
 				// unsigned int maxlimit_actvedgeblocks_per_vpartition = 0; unsigned int maxlimit_actvupropblocks_per_vpartition = 0; unsigned int maxlimit_actvupdateblocks_per_vpartition = 0; 
 				// unsigned int maxlimit_actvedgeblocks_per_vpartition = 0; unsigned int maxlimit_actvupropblocks_per_vpartition = 2; unsigned int maxlimit_actvupdateblocks_per_vpartition = 2; 
-				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 0; 
+				maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0; 
+				// maxlimit_actvedgeblocks_per_vpartition = 32; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
+				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 16; 
+				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 16; 
+				// maxlimit_actvedgeblocks_per_vpartition = 256; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 32; 
 				
 				// uprop needs fixing...
 				for(unsigned int i=0; i<NUM_PEs; i++){
@@ -616,16 +623,10 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION].data[0].key = maxlimit_actvedgeblocks_per_vpartition;
 				vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION].data[0].key = maxlimit_actvupropblocks_per_vpartition;
 				
-				
-				// for(unsigned int t=0; t<4; t++){
-					// for(unsigned int v=0; v<16; v++){
-						// cout<<"~~~+++ app: kvbuffer[0]["<<globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + t<<"].data["<<v<<"].key: "<<kvbuffer[0][globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + t].data[v].key<<", kvbuffer[0]["<<globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + t<<"].data["<<v<<"].value: "<<kvbuffer[0][globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + t].data[v].value<<endl;
-					// }
-				// }
-				// exit(EXIT_SUCCESS);
-				
 				#ifdef _DEBUGMODE_HOSTPRINTS4
-				cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<a<<", "<<b<<", "<<c<<")("<<maxlimit_actvedgeblocks_per_vpartition<<", "<<maxlimit_actvupropblocks_per_vpartition<<", "<<maxlimit_actvupdateblocks_per_vpartition<<"). ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
+				unsigned int numkvs_vertices_per_updateblock = ((1 << universalparams.BATCH_RANGE_POW) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE; // 16
+				unsigned int numkvs_updateblocks_per_reducepartition = (1 << MAX_RED_SRAMSZ_POW) / numkvs_vertices_per_updateblock; // 512
+				cout<<endl<< TIMINGRESULTSCOLOR <<">>> app::run_hw: app started. ("<<a<<", "<<b<<", "<<c<<")("<<maxlimit_actvedgeblocks_per_vpartition<<", "<<maxlimit_actvupropblocks_per_vpartition<<", "<<maxlimit_actvupdateblocks_per_vpartition<<")(of "<<MAXNUM_EDGEBLOCKS_PER_VPARTITION<<", "<<MAXNUM_EDGEBLOCKS_PER_VPARTITION<<", "<<numkvs_updateblocks_per_reducepartition<<"). ("<<actvvs.size()<<" active vertices)"<< RESET <<endl;
 				cout<<"[maxlimit_actvedgeblocks_per_vpartition: "<<maxlimit_actvedgeblocks_per_vpartition<<", maxlimit_actvupropblocks_per_vpartition "<<maxlimit_actvupropblocks_per_vpartition<<", maxlimit_actvupdateblocks_per_vpartition: "<<maxlimit_actvupdateblocks_per_vpartition<< "]" <<endl;
 				#endif 
 				total_time_elapsed = kernelobj->runapp(binaryFile, (uint512_vec_dt *)vdram, (uint512_vec_dt **)edges, (uint512_vec_dt **)kvbuffer, timeelapsed_totals, 
@@ -636,7 +637,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 			}
 		}
 	}
-	#endif 
+	// #endif 
 	// exit(EXIT_SUCCESS); //
 	
 	// output
@@ -651,8 +652,10 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<< TIMINGRESULTSCOLOR <<">>> app::run_hw: throughput projection for 32 workers: "<<((((total_edges_processed / total_time_elapsed) / (1000)) * 32) / NUM_PEs)<<" Million edges / sec"<< RESET <<endl;
 	#endif 
 	
+	#ifdef _DEBUGMODE_HOSTPRINTS3
 	actshelperobj->extract_stats(actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpartition_stats, edgeblock_stats, vpmaskstats_merge, num_edges_processed);
 	summary(GRAPH_PATH, vdram, globalparams.globalparamsV);
+	#endif 
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<endl;
@@ -671,6 +674,14 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	cout<<">>> app:: NUM_VERTICES: "<<universalparams.NUM_VERTICES<<endl; 
 	cout<<">>> app:: NUM_EDGES: "<<universalparams.NUM_EDGES<<endl;
 	#endif 
+	
+	////////////////////////////////
+	#ifdef RRRRRRRRRRR
+			}
+		}
+	}
+	#endif 
+	////////////////////////////////
 	
 	#ifdef TESTKERNEL
 	cout<< TIMINGRESULTSCOLOR <<"================================================================== APP: THIS WAS A TEST RUN ==================================================================" << RESET << endl;

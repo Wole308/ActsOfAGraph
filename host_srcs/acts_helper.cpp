@@ -140,9 +140,9 @@ unsigned int acts_helper::extract_stats(vector<vertex_t> &srcvids, vector<edge_t
 	for(unsigned int iter=0; iter<GraphIter+1; iter++){
 		unsigned int tot = 0, tot2 = 0;
 		for(unsigned int t=0; t<myuniversalparams.NUMPROCESSEDGESPARTITIONS; t++){ tot += vpartition_stats[iter][t].A; tot2 += iteration_stats2[iter][t].A; }
-		cout<<"acts_helper: number of active vertices for iteration "<<iter<<": "<<tot2<<", "<<tot<<endl;
+		cout<<"acts_helper: number of active vertices for iteration "<<iter<<": "<<tot2<<", "<<tot<<" (E:"<<(unsigned int)edgesprocessed_totals[iter]<<")"<<endl;
 	}
-	for(unsigned int iter=0; iter<GraphIter+1; iter++){ cout<<"acts_helper:: number of edges processed in iteration "<<iter<<": "<<(unsigned int)edgesprocessed_totals[iter]<<endl; }
+	// for(unsigned int iter=0; iter<GraphIter+1; iter++){ cout<<"acts_helper:: number of edges processed in iteration "<<iter<<": "<<(unsigned int)edgesprocessed_totals[iter]<<endl; }
 	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS
 	cout<<">>> acts_helper: FINISHED. "<<GraphIter+1<<" iterations required."<<endl;
@@ -262,6 +262,8 @@ void acts_helper::verifyresults(uint512_vec_dt * vbuffer, globalparams_t globalp
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<endl<<"acts_helper::verifyresults: verifying results... "<<endl;
 	#endif
+	
+	if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){} else { return; }
 	
 	unsigned int vdatas[64]; for(unsigned int k=0; k<64; k++){ vdatas[k] = 0; } 
 	for(unsigned int i=0; i<NUM_PEs; i++){

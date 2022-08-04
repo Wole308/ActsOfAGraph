@@ -125,9 +125,16 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readglobalst
 	actsutilityobj->checkoutofbounds("readglobalstats", offset_kvs + globalparams.ACTSPARAMS_NUM_PARTITIONS, globalparams.ACTSPARAMS_MAXHBMCAPACITY_KVS + 1, NAp, NAp, NAp);
 	#endif
 	
+	keyvalue_t datas[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable=datas complete
+	
 	READGLOBALSTATS_LOOP: for (buffer_type i=0; i<1 + globalparams.NUM_REDUCEPARTITIONS; i++){
 	#pragma HLS PIPELINE II=1
 		uint512_vec_dt vec;
+		
+		// UTIL{{context['id']}}_ReadDatas(kvdram, offset_kvs + i, datas); // NEWCHANGE.
+		// globalstatsbuffer[i] = datas[globalparams.VARS_WORKBATCH];
+		
 		#ifdef _WIDEWORD
 		{%for v in context['8_seq']%}
 		vec.data[{{v}}].key = kvdram[offset_kvs + i].range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
@@ -139,63 +146,18 @@ void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_readglobalst
 		vec.data[{{v}}].value = kvdram[offset_kvs + i].data[{{v}}].value; 
 		{%endfor%}
 		#endif 
-		globalstatsbuffer[i] = vec.data[globalparams.VARS_WORKBATCH];
-	}
+		globalstatsbuffer[i] = vec.data[globalparams.VARS_WORKBATCH];	
+	}		
 	
-	#ifdef _DEBUGMODE_CHECKS3
-	for (buffer_type i=0; i<globalparams.NUM_REDUCEPARTITIONS; i++){ actsutilityobj->checkoutofbounds("saveglobalstats", globalstatsbuffer[i].key + globalstatsbuffer[i].value, globalparams.SIZE_KVDRAM, NAp, NAp, NAp); }
-	#endif
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	actsutilityobj->printkeyvalues("mem_access:: readglobalstats.globalstatsbuffer", globalstatsbuffer, 1 + globalparams.NUM_REDUCEPARTITIONS); 
+	#endif
+	#ifdef _DEBUGMODE_CHECKS3
+	for (buffer_type i=0; i<globalparams.NUM_REDUCEPARTITIONS; i++){ actsutilityobj->checkoutofbounds("_readglobalstats 23", globalstatsbuffer[i].key + globalstatsbuffer[i].value, globalparams.SIZE_KVDRAM, i, globalparams.ALGORITHMINFO_GRAPHITERATIONID, NAp); }
 	#endif
 	// exit(EXIT_SUCCESS); 
 	return;
 }
-
-#ifdef NOTUSED____________________________________
-unsigned int {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptr(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int offset){
-	keyvalue_t vptr_kv;
-	
-	uint512_dt V = kvdram[baseoffset_kvs + (offset / VECTOR2_SIZE)];
-	unsigned int M = (offset % VECTOR2_SIZE) / 2;
-	// cout<<"-----------+++++++++++++++++++---MEMACCESS{{context['id']}}_getvptr: baseoffset_kvs: "<<baseoffset_kvs<<", offset: "<<offset<<", baseoffset_kvs + (offset / VECTOR2_SIZE): "<<baseoffset_kvs + (offset / VECTOR2_SIZE)<<endl;
-	
-	#ifdef _WIDEWORD
-	{%for v in context['VECTOR_SIZE_seq']%}
-	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR_SIZE']-1)%}if(M == {{v}}){%endif%}{
-		vptr_kv.key = V.range({{32 * ((v * 2) + 1) - 1}}, {{(v * 2) * 32}}); 
-		vptr_kv.value = V.range({{32 * (((v * 2) + 1) + 1) - 1}}, {{(v * 2 + 1) * 32}}); 
-	}
-	{%endfor%}
-	#else 
-	{%for v in context['VECTOR_SIZE_seq']%}
-	{%if(v>0)%}else{%endif%} {%if(v<context['VECTOR_SIZE']-1)%}if(M == {{v}}){%endif%}{
-		vptr_kv.key = V.data[{{v}}].key; 
-		vptr_kv.value = V.data[{{v}}].value; 
-	}
-	{%endfor%}
-	#endif
-	
-	if(offset % 2 == 0){ return vptr_kv.key; }
-	else { return vptr_kv.value; }
-}
-
-tuple_t {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_getvptrs_opt(uint512_dt * kvdram, unsigned int baseoffset_kvs, unsigned int beginoffset, unsigned int endoffset, unsigned int edgebankID, globalparams_t globalparams){
-	#pragma HLS INLINE 
-	keyy_t beginvptr = 0;
-	keyy_t endvptr = 0;
-	
-	beginoffset = beginoffset / globalparams.ACTSPARAMS_VPTR_SHRINK_RATIO; // convert-to-appropriate-skip-format
-	endoffset = endoffset / globalparams.ACTSPARAMS_VPTR_SHRINK_RATIO;
-	// cout<<"-----------+++++++++++++++++++---MEMACCESS{{context['id']}}_getvptrs_opt: baseoffset_kvs: "<<baseoffset_kvs<<", beginoffset: "<<beginoffset<<", endoffset: "<<endoffset<<", VPTR_SHRINK_RATIO: "<<NAp<<endl;
-	
-	beginvptr = MEMACCESS{{context['id']}}_getvptr(kvdram, baseoffset_kvs, beginoffset);
-	endvptr = MEMACCESS{{context['id']}}_getvptr(kvdram, baseoffset_kvs, endoffset);
-
-	tuple_t t; t.A = beginvptr; t.B = endvptr;
-	return t;
-}
-#endif 
 
 void {{context['classname__mem_access']}}MEMACCESS{{context['id']}}_commitkvstats(uint512_dt * kvdram, value_t * buffer, globalparams_t globalparams){
 	unsigned int totalnumpartitionsb4last = 0;

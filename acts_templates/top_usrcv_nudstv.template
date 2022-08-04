@@ -358,6 +358,16 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){ {%for i in context['T_seq']%}{%if(i<n)%} collections{{i}}[t].data1 = 0; {%endif%}{%endfor%} }
 	
+	/* //////////////////////////////////////////////////////////////////////////////
+	for(unsigned int i=0; i<4; i++){
+		for(unsigned int v=0; v<VECTOR_SIZE; v++){
+			keyvalue_t kv = kvdram0[globalparamsK.BASEOFFSETKVS_STATSDRAM + i].data[v];
+			cout<<"-------------- iter: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<": kv["<<i<<"]["<<v<<"].key: "<<kv.key<<", kv["<<i<<"]["<<v<<"].value: "<<kv.value<<endl;
+		}
+	}
+	////////////////////////////////////////////////////////////////////////////// */
+	// return;
+	
 	unsigned int PARTITION{{context['id']}}_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ]; // NEWCHANGE
 	LOADPARTITIONCHKPTS_LOOP1B: for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){	
 		PARTITION{{context['id']}}_CHKPT[0][u] = kvdram0[globalparamsEs[0].DRAM_BASE_KVS + BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM + u]

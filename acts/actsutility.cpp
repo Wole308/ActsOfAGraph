@@ -285,7 +285,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_VERTEXPTR: "<<globalparams.BASEOFFSETKVS_VERTEXPTR<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_SRCVERTICESDATA: "<<globalparams.BASEOFFSETKVS_SRCVERTICESDATA<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_DESTVERTICESDATA: "<<globalparams.BASEOFFSETKVS_DESTVERTICESDATA<<endl;
-	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_ACTIVEVERTICES: "<<globalparams.BASEOFFSETKVS_ACTIVEVERTICES<<endl;
+	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_ACTIVEEDGEBLOCKS: "<<globalparams.BASEOFFSETKVS_ACTIVEEDGEBLOCKS<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_EDGESMAP: "<<globalparams.BASEOFFSETKVS_EDGESMAP<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_STATSDRAM: "<<globalparams.BASEOFFSETKVS_STATSDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.BASEOFFSETKVS_KVDRAM: "<<globalparams.BASEOFFSETKVS_KVDRAM<<endl;
@@ -296,7 +296,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.SIZE_VERTEXPTRS: "<<globalparams.SIZE_VERTEXPTRS<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_SRCVERTICESDATA: "<<globalparams.SIZE_SRCVERTICESDATA<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_DESTVERTICESDATA: "<<globalparams.SIZE_DESTVERTICESDATA<<endl;
-	std::cout<<"Kernel Started: globalparams.SIZE_ACTIVEVERTICES: "<<globalparams.SIZE_ACTIVEVERTICES<<endl;
+	std::cout<<"Kernel Started: globalparams.SIZE_ACTIVEEDGEBLOCKS: "<<globalparams.SIZE_ACTIVEEDGEBLOCKS<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_EDGESMAP: "<<globalparams.SIZE_EDGESMAP<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_KVSTATSDRAM: "<<globalparams.SIZE_KVSTATSDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.SIZE_KVDRAM: "<<globalparams.SIZE_KVDRAM<<endl;
@@ -310,7 +310,7 @@ void actsutility::printglobalparameters(string message, globalparams_t globalpar
 	std::cout<<"Kernel Started: globalparams.POW_VERTEXPTRS: "<<globalparams.POW_VERTEXPTRS<<endl;
 	std::cout<<"Kernel Started: globalparams.POW_SRCVERTICESDATA: "<<globalparams.POW_SRCVERTICESDATA<<endl;
 	std::cout<<"Kernel Started: globalparams.POW_DESTVERTICESDATA: "<<globalparams.POW_DESTVERTICESDATA<<endl;
-	std::cout<<"Kernel Started: globalparams.POW_ACTIVEVERTICES: "<<globalparams.POW_ACTIVEVERTICES<<endl;
+	std::cout<<"Kernel Started: globalparams.POW_ACTIVEEDGEBLOCKS: "<<globalparams.POW_ACTIVEEDGEBLOCKS<<endl;
 	std::cout<<"Kernel Started: globalparams.POW_VERTICESDATAMASK: "<<globalparams.POW_VERTICESDATAMASK<<endl;
 	std::cout<<"Kernel Started: globalparams.POW_KVSTATSDRAM: "<<globalparams.POW_KVSTATSDRAM<<endl;
 	std::cout<<"Kernel Started: globalparams.POW_KVDRAM: "<<globalparams.POW_KVDRAM<<endl;
