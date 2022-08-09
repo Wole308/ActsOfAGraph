@@ -95,6 +95,11 @@ unsigned int {{context['classname__acts_merge']}}merge{{context['id']}}_get_upro
 		workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
 		xload_kvs[n] = workload_kvs;
 		buffer_offsets[n] = buffer_offset;
+		#ifdef _DEBUGMODE_KERNELPRINTS4
+		if(n==0 && true){ if(sparse_readu == true){ cout<<"UB<sparse><num_its:"<<num_its<<">:: "; } else { cout<<"<dense><num_its:"<<num_its<<">:: "; }
+		cout<<"<instid:"<<globalparamsK.ACTSPARAMS_INSTID<<"><v_p:"<<process_partition<<"><llp_set:"<<llp_set<<"><n:"<<n<<"><edgeblock_id:"<<edgeblock_id<<"><num_active_edgeblocks:"<<num_active_edgeblocks<<">:: ";
+		cout<<"[offset_begin: "<<workload_kvs.offset_begin<<", offset_end: "<<workload_kvs.offset_end<<", size: "<<workload_kvs.size<<"] "<<endl; }
+		#endif
 	}
 	return num_its;
 }
@@ -110,33 +115,34 @@ unsigned int {{context['classname__acts_merge']}}merge{{context['id']}}_get_edge
 	unsigned int edgeblockoffset_vs = process_partition * MAXNUM_EDGEBLOCKS_PER_VPARTITION;	
 	#else  
 	unsigned int edgeblockoffset_vs = (process_partition * MAXNUMGRAPHITERATIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION) + (graphiterationid * MAXNUM_EDGEBLOCKS_PER_VPARTITION);
-	#endif 
-	// unsigned int edgeblockmapoffset_kvs = (process_partition * MAXNUM_EDGEBLOCKS_PER_VPARTITION) / VECTOR_SIZE;
-	unsigned int edgeblockmapoffset_kvs = process_partition * MAXNUM_EDGEBLOCKS_PER_VPARTITION; // NEWCHANGE
+	#endif
 	unsigned int num_LLPs = globalparamsK.NUM_REDUCEPARTITIONS * OPT_NUM_PARTITIONS; 
 	unsigned int num_LLPset = (num_LLPs + (OPT_NUM_PARTITIONS - 1)) / OPT_NUM_PARTITIONS; 
-	// unsigned int num_its; if(sparse_process == true){ num_its = num_active_edgeblocks; } else { num_its = 1; }
+	
 	UTIL{{context['id']}}_ReadDatas(dram, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + edgeblockoffset_vs, datas);
 	unsigned int num_its; if(sparse_process == true){ num_its = datas[llp_set]; } else { num_its = 1; }
-	cout<<"------------))))))))))))))))))))))--------_get_edgeblock_workload: header ---- datas["<<llp_set<<"]: "<<datas[llp_set]<<endl;
-	
+	if(num_its > MAXNUM_EDGEBLOCKS_PER_VPARTITION){ num_its = 1; sparse_process = false; }
+		
+	#ifdef _DEBUGMODE_CHECKS3
+	actsutilityobj->checkoutofbounds("_get_edgeblock_workload(14)", num_its, MAXNUM_EDGEBLOCKS_PER_VPARTITION, globalparamsK.ACTSPARAMS_INSTID, process_partition, llp_set); // llp_set // 0,6,0
+	#endif
+	#ifdef _DEBUGMODE_KERNELPRINTS//4
+	cout<<">>> get_edgeblock_workload:: header: datas["<<llp_set<<"]: "<<datas[llp_set]<<", num_active_edgeblocks: "<<num_active_edgeblocks<<", num_its: "<<num_its<<endl;
+	#endif 
+			
 	READ_PROCESS_PARTITION_WRITE_GETWORKLOADSTATS_LOOP: for(unsigned int n=0; n<num_its; n++){
-		workload_t workload_kvs;					
+		workload_t workload_kvs;
+		unsigned int edgeblock_id = NAp;		
 		if(sparse_process == true){
 			UTIL{{context['id']}}_ReadDatas(dram, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + edgeblockoffset_vs + 1 + n, datas);
-			unsigned int edgeblock_id = datas[llp_set];
-			cout<<"------------))))))))))))))))))))))--------_get_edgeblock_workload: edgeblock_id: "<<edgeblock_id<<endl;
-			// UTILP0_ReadDatas(dram, globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP + edgeblockmapoffset_kvs + edgeblock_id, datas);
-			// workload_kvs.offset_begin = datas[llp_set].key; workload_kvs.size = datas[llp_set].value; 
-			// workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;	
+			edgeblock_id = datas[llp_set];
 			workload_kvs.offset_begin = edgeblock_id * NUM_EDGESKVS_PER_UPROPBLOCK; 
-			workload_kvs.size = NUM_EDGESKVS_PER_UPROPBLOCK; // 32, 54158, NUM_EDGESKVS_PER_UPROPBLOCK
+			workload_kvs.size = NUM_EDGESKVS_PER_UPROPBLOCK;
 			workload_kvs.offset_end = workload_kvs.offset_begin + workload_kvs.size;
-			cout<<"------------))))))))))))))))))))))(1)--------_get_edgeblock_workload: workload_kvs.offset_begin: "<<workload_kvs.offset_begin<<", workload_kvs.size: "<<workload_kvs.size<<endl;
 			#ifdef _DEBUGMODE_CHECKS3
-			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(1)", edgeblock_id, MAXNUM_EDGEBLOCKS_PER_VPARTITION, NAp, NAp, n);
-			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(2)", workload_kvs.offset_begin, (1 << 28) / 8, NAp, NAp, n);
-			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(2)", workload_kvs.size, (1 << 28) / 8, NAp, NAp, n);
+			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(1)", edgeblock_id * NUM_EDGESKVS_PER_UPROPBLOCK, ((1 << 28) / 4) / 16, edgeblock_id, NUM_EDGESKVS_PER_UPROPBLOCK, n); 
+			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(2)", workload_kvs.offset_begin, ((1 << 28) / 4) / 16, NAp, NAp, n);
+			actsutilityobj->checkoutofbounds("_get_edgeblock_workload(2)", workload_kvs.size, ((1 << 28) / 4) / 16, NAp, NAp, n);
 			#endif
 			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			cout<<"_get_edgeblock_workload/sparse_process:: active edge-block seen @ ["<<globalparamsK.ACTSPARAMS_INSTID<<"]["<<process_partition<<"]["<<llp_set<<"]: edgeblock-id: "<<edgeblock_id<<", edgeblock-map: "<<"["<<workload_kvs.offset_begin<<", "<<workload_kvs.size<<"]"<<endl;
@@ -146,15 +152,16 @@ unsigned int {{context['classname__acts_merge']}}merge{{context['id']}}_get_edge
 			workload_kvs.offset_begin = UTIL{{context['id']}}_ReadData(dram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index) / EDGEDATA_PACKINGSIZE;
 			workload_kvs.offset_end = UTIL{{context['id']}}_ReadData(dram, globalparamsE.BASEOFFSETKVS_EDGESMAP, index + 1) / EDGEDATA_PACKINGSIZE;
 			workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin;
-			cout<<"------------))))))))))))))))))))))(2)--------_get_edgeblock_workload: workload_kvs.offset_begin: "<<workload_kvs.offset_begin<<", workload_kvs.size: "<<workload_kvs.size<<endl;
 			#ifdef _DEBUGMODE_KERNELPRINTS//4
 			cout<<"_get_edgeblock_workload/dense_process:: full edge-block seen @ ["<<globalparamsK.ACTSPARAMS_INSTID<<"]["<<process_partition<<"]: edgeblock-id: NAp, edgeblock-map: "<<"["<<workload_kvs.offset_begin<<", "<<workload_kvs.size<<"]"<<endl;
 			#endif 
 		}
 	
 		if(workload_kvs.offset_end < workload_kvs.offset_begin){ workload_kvs.size = 0; }
-		#ifdef _DEBUGMODE_KERNELPRINTS3
-		cout<<"_get_edgeblock_workload:: [workload_kvs.offset_begin: "<<workload_kvs.offset_begin<<", workload_kvs.offset_end: "<<workload_kvs.offset_end<<", workload_kvs.size: "<<workload_kvs.size<<"] "<<endl;
+		#ifdef _DEBUGMODE_KERNELPRINTS4
+		if(n==0 && false){ if(sparse_process == true){ cout<<"<sparse><num_its:"<<num_its<<">:: "; } else { cout<<"<dense><num_its:"<<num_its<<">:: "; }
+		cout<<"<instid:"<<globalparamsK.ACTSPARAMS_INSTID<<"><v_p:"<<process_partition<<"><llp_set:"<<llp_set<<"><n:"<<n<<"><edgeblock_id:"<<edgeblock_id<<"><num_active_edgeblocks:"<<num_active_edgeblocks<<">:: ";
+		cout<<"[offset_begin: "<<workload_kvs.offset_begin<<", offset_end: "<<workload_kvs.offset_end<<", size: "<<workload_kvs.size<<"] "<<endl; }
 		#endif
 		xload_kvs[n] = workload_kvs;
 	}
@@ -300,7 +307,6 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}
 			#endif 
 		}
 	}
-	// exit(EXIT_SUCCESS); ////////////////////////////
 	
 	#ifdef _COLLECT_METADATA_FROM_KERNEL_
 	if(cmd == 1){

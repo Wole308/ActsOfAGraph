@@ -47,27 +47,29 @@ globalparams_TWOt loadgraph::loadactvvertices(uint512_vec_dt * vdram, vector<ver
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"loadgraph::loadactvvertices:: loading active vertices... "<<endl;
 	#endif
-	
+
 	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsK.SIZE_DESTVERTICESDATA / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsK.SIZE_ACTIVEUPROPBLOCKS = MAXNUMGRAPHITERATIONS * universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION; // 0; // CRITICAL FIXME.
 	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + globalparams.globalparamsK.SIZE_ACTIVEUPROPBLOCKS + 1;
 	globalparams.globalparamsK.SIZE_ACTIVEEDGEBLOCKS = MAXNUMGRAPHITERATIONS * universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION; // 0; // CRITICAL FIXME.
-	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + (globalparams.globalparamsK.SIZE_ACTIVEEDGEBLOCKS / VECTOR2_SIZE) + 1;
+	globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + globalparams.globalparamsK.SIZE_ACTIVEEDGEBLOCKS + 1;
 	globalparams.globalparamsK.SIZE_ACTIVEUPDATEBLOCKS = universalparams.NUMREDUCEPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION * VECTOR2_SIZE;
 	
 	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsE.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsE.SIZE_DESTVERTICESDATA / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsE.SIZE_ACTIVEUPROPBLOCKS = 0; // MAXNUMGRAPHITERATIONS * universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION; // 0; // CRITICAL FIXME.
 	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + globalparams.globalparamsE.SIZE_ACTIVEUPROPBLOCKS + 1;
 	globalparams.globalparamsE.SIZE_ACTIVEEDGEBLOCKS = 0;
-	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + (globalparams.globalparamsE.SIZE_ACTIVEEDGEBLOCKS / VECTOR2_SIZE) + 1;
+	globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.globalparamsE.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + globalparams.globalparamsE.SIZE_ACTIVEEDGEBLOCKS + 1;
 	globalparams.globalparamsE.SIZE_ACTIVEUPDATEBLOCKS = 0;
 	
 	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.globalparamsV.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsV.SIZE_DESTVERTICESDATA / VECTOR2_SIZE) + 1;
 	globalparams.globalparamsV.SIZE_ACTIVEUPROPBLOCKS = MAXNUMGRAPHITERATIONS * universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION; // 0; // CRITICAL FIXME.
 	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEUPROPBLOCKS + globalparams.globalparamsV.SIZE_ACTIVEUPROPBLOCKS + 1;
 	globalparams.globalparamsV.SIZE_ACTIVEEDGEBLOCKS = NUM_PEs * universalparams.NUMPROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION; 
-	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + (globalparams.globalparamsV.SIZE_ACTIVEEDGEBLOCKS / VECTOR2_SIZE) + 1;
+	globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS + globalparams.globalparamsV.SIZE_ACTIVEEDGEBLOCKS + 1;
 	globalparams.globalparamsV.SIZE_ACTIVEUPDATEBLOCKS = NUM_PEs * universalparams.NUMREDUCEPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION; // 0; // NEWCHANGE.
+	
+	
 	
 	unsigned int baseoffset_activeedgeblocks = globalparams.globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS * VECTOR_SIZE;
 	#ifdef _DEBUGMODE_CHECKS3

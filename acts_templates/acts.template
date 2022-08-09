@@ -386,18 +386,15 @@ void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, un
 }	
 
 #ifdef FPGA_IMPL
-void load(uint512_dt *in, hls::stream<uint512_evec_dt >& out, batch_type sourcebaseaddr_kvs, unsigned int srcoffset_kvs, int size){
-	Loop_Ld: for (int i = 0; i < size; i++){
+void load(uint512_dt *in, hls::stream<uint512_evec_dt >& out, workload_t workload_kvs){
+	Loop_Ld: for (int i = 0; i < workload_kvs.size; i++){
 	#pragma HLS PIPELINE II=1
-		uint512_evec_dt data = UTIL{{context['id']}}_ReadEdges(in, sourcebaseaddr_kvs + srcoffset_kvs + i);
+		uint512_evec_dt data = UTIL{{context['id']}}_ReadEdges(in, workload_kvs.offset_srcbase + i);
 		out.write(data);
 	}
 }
 
-void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint512_evec_dt >& in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE],
-					batch_type destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int destindex, int size,
-						unsigned int offset_buffer, // SAVEVPROPERTYMODE parameters
-							collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalposition_t globalposition){
+void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint512_evec_dt >& in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK){
 	
 	keyvalue_t res[UPDATEDATA_PACKINGSIZE]; 
 	#pragma HLS ARRAY_PARTITION variable = res complete
@@ -420,7 +417,7 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 	unsigned int numkvs_vertices_per_updateblock = ((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE; //   (1 << (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
 	unsigned int numkvs_updateblocks_per_reducepartition = (1 << MAX_RED_SRAMSZ_POW) / numkvs_vertices_per_updateblock;	
 	
-	ACTIT_COMPUTEANDSTORE_MAINLOOP2A: for (int i = 0; i < size; i++){
+	ACTIT_COMPUTEANDSTORE_MAINLOOP2A: for (int i = 0; i < workload_kvs.size; i++){
 	#pragma HLS PIPELINE II=1
 		// read
 		uint512_evec_dt in_data = in.read();
@@ -445,7 +442,7 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 		} else {
 			for(int v = 0; v < VECTOR2_SIZE; v++){ 
 			#pragma HLS UNROLL 
-				index[v] = offset_buffer + i; data[v].key = datas[v]; data[v].value = datas[v]; en[v] = true;
+				index[v] = workload_kvs.offset_buffer_begin + i; data[v].key = datas[v]; data[v].value = datas[v]; en[v] = true;
 			}
 		}
 		
@@ -480,19 +477,18 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 		}
 
 		// store
-		UTIL{{context['id']}}_WriteDatas(out, destbaseaddr_kvs + destoffset_kvs + destindex + i, datas2);
+		UTIL{{context['id']}}_WriteDatas(out, workload_kvs.offset_dstbase + i, datas2); 
 		
 		// colelect stats
 		if(mode == ACTSPROCESSMODE){
 			for(int v = 0; v < VECTOR2_SIZE; v++){
 			#pragma HLS UNROLL
+				unsigned int loc = (edges[v].key / VDATA_PACKINGSIZE) / (((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE);
 				#ifdef _DEBUGMODE_CHECKS3
-				if(res[v].key != INVALIDDATA){ actsutilityobj->checkoutofbounds("write__process(112)::DEBUG CODE 112::1", (offsetkvs_dstvid + edges[v].key) >> (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW), BLOCKRAM_SIZE, edges[v].key, globalparamsK.POW_BATCHRANGE, globalparamsK.NUM_REDUCEPARTITIONS); }
+				if(res[v].key != INVALIDDATA){ actsutilityobj->checkoutofbounds("write__process(112)::DEBUG CODE 112::1", loc, numkvs_updateblocks_per_reducepartition, edges[v].key, globalparamsK.POW_BATCHRANGE, globalparamsK.NUM_REDUCEPARTITIONS); }
+				if(res[v].key != INVALIDDATA){ actsutilityobj->checkoutofbounds("write__process(112b)::DEBUG CODE 112::1", loc, BLOCKRAM_UPDATEBLOCK_SIZE, edges[v].key, globalparamsK.POW_BATCHRANGE, globalparamsK.NUM_REDUCEPARTITIONS); }
 				#endif	
-				if(res[v].key != INVALIDDATA){
-					// if(res[v].key != INVALIDDATA){ stats[v][((offsetkvs_dstvid + edges[v].key) / EDGEDATA_PACKINGSIZE) / numkvs_vertices_per_updateblock] = 0xFFFFFFFF; } // = vertexid / number of vertices in an update block
-					if(res[v].key != INVALIDDATA){ stats[v][((offsetkvs_dstvid + edges[v].key) / VDATA_PACKINGSIZE) / (((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE)] = 0xFFFFFFFF; } // = vertexid / number of vertices in an update block
-				}
+				if(res[v].key != INVALIDDATA){ stats[v][offsetkvs_stats + loc] = 0xFFFFFFFF; } // = vertexid / number of vertices in an update block
 			}
 		}
 		
@@ -510,10 +506,7 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 }
 #endif 
 
-void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned int mode, unsigned int llp_set, uint512_dt *in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], 
-			batch_type sourcebaseaddr_kvs, unsigned int srcoffset_kvs, batch_type destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int destindex, int size,
-				unsigned int offset_buffer, // SAVEVPROPERTYMODE parameters
-					collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalposition_t globalposition){
+void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned int mode, unsigned int llp_set, uint512_dt *in, uint512_dt *out, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK){
 	
 	keyvalue_t res[UPDATEDATA_PACKINGSIZE]; 
 	#pragma HLS ARRAY_PARTITION variable = res complete
@@ -535,18 +528,14 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 	for(int v = 0; v < VECTOR2_SIZE; v++){ en[v] = true; }
 	unsigned int offsetkvs_dstvid = llp_set * (globalparamsK.SIZEKVS2_REDUCEPARTITION * EDGEDATA_PACKINGSIZE); // CHECKME.
 	
-	// unsigned int offsetkvs_stats = llp_set * numkvs_vertices_per_updateblock;
-	
 	unsigned int numkvs_vertices_per_updateblock = ((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE; //   (1 << (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
 	unsigned int numkvs_updateblocks_per_reducepartition = (1 << MAX_RED_SRAMSZ_POW) / numkvs_vertices_per_updateblock;	
 	unsigned int offsetkvs_stats = llp_set * numkvs_vertices_per_updateblock; // NEWCHANGE.
 	
-	for(int i = 0; i < size; i++){
-		if(i%32==0 && i<500){ cout<<"_write__process 2324. i: "<<i<<endl; }
-		
+	for(int i = 0; i < workload_kvs.size; i++){
 		// read 
-		if(mode == ACTSPROCESSMODE){ 
-			UTIL{{context['id']}}_ReadEdges(in, sourcebaseaddr_kvs + srcoffset_kvs + i, datas);
+		if(mode == ACTSPROCESSMODE){
+			UTIL{{context['id']}}_ReadEdges(in, workload_kvs.offset_srcbase + i, datas);
 		}
 		
 		// decode 
@@ -569,8 +558,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 		} else {
 			for(int v = 0; v < VECTOR2_SIZE; v++){ 
 			#pragma HLS UNROLL 
-				// index[v] = i; data[v].key = datas[v]; data[v].value = datas[v]; en[v] = true;
-				index[v] = offset_buffer + i; data[v].key = datas[v]; data[v].value = datas[v]; en[v] = true;
+				index[v] = workload_kvs.offset_buffer_begin + i; data[v].key = datas[v]; data[v].value = datas[v]; en[v] = true;
 			}
 		}
 		
@@ -605,19 +593,17 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 		}
 
 		// store
-		UTIL{{context['id']}}_WriteDatas(out, destbaseaddr_kvs + destoffset_kvs + destindex + i, datas2); 
+		UTIL{{context['id']}}_WriteDatas(out, workload_kvs.offset_dstbase + i, datas2); 
 		
 		// colelect stats
 		if(mode == ACTSPROCESSMODE){
 			for(int v = 0; v < VECTOR2_SIZE; v++){
 			#pragma HLS UNROLL
-				// unsigned int loc = ((offsetkvs_dstvid + edges[v].key) / VDATA_PACKINGSIZE) / (((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE);
 				unsigned int loc = (edges[v].key / VDATA_PACKINGSIZE) / (((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE);
 				#ifdef _DEBUGMODE_CHECKS3
 				if(res[v].key != INVALIDDATA){ actsutilityobj->checkoutofbounds("write__process(112)::DEBUG CODE 112::1", loc, numkvs_updateblocks_per_reducepartition, edges[v].key, globalparamsK.POW_BATCHRANGE, globalparamsK.NUM_REDUCEPARTITIONS); }
 				if(res[v].key != INVALIDDATA){ actsutilityobj->checkoutofbounds("write__process(112b)::DEBUG CODE 112::1", loc, BLOCKRAM_UPDATEBLOCK_SIZE, edges[v].key, globalparamsK.POW_BATCHRANGE, globalparamsK.NUM_REDUCEPARTITIONS); }
 				#endif	
-				// if(res[v].key != INVALIDDATA){ stats[v][((offsetkvs_dstvid + edges[v].key) / EDGEDATA_PACKINGSIZE) / numkvs_vertices_per_updateblock] = 0xFFFFFFFF; }
 				if(res[v].key != INVALIDDATA){ stats[v][offsetkvs_stats + loc] = 0xFFFFFFFF; } // = vertexid / number of vertices in an update block
 			}
 		}
@@ -640,34 +626,23 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 	// exit(EXIT_SUCCESS);
 }
 
-void {{context['classname__acts']}}ACTS{{context['id']}}_write__process_base(unsigned int mode, unsigned int llp_set, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE],	
-			unsigned int sourcebaseaddr_kvs, workload_t workload_kvs, unsigned int destbaseaddr_kvs, unsigned int destoffset_kvs, unsigned int destindex,
-				unsigned int offset_buffer, // SAVEVPROPERTYMODE parameters
-					collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK, globalposition_t globalposition){
+void {{context['classname__acts']}}ACTS{{context['id']}}_write__process_base(unsigned int mode, unsigned int llp_set, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK){
 
 	#ifdef FPGA_IMPL
 	hls::stream<uint512_evec_dt> c0; //, c1, c2, c3, c4, c5;
 	#pragma HLS STREAM variable = c0 depth = 512
 
-	#pragma HLS dataflow
-	if(mode == ACTSPROCESSMODE){ load(kvdram, c0, sourcebaseaddr_kvs, workload_kvs.offset_begin, workload_kvs.size); }
-	compute_and_store(mode, llp_set, c0, kvdram, vbuffer_source, stats,
-					destbaseaddr_kvs, destoffset_kvs, destindex, workload_kvs.size, 
-						collections, globalparamsK, globalposition);
+	#pragma HLS dataflow	
+	if(mode == ACTSPROCESSMODE){ load(kvdram, c0, workload_kvs); }
+	compute_and_store(mode, llp_set, c0, kvdram, vbuffer_source, stats, workload_kvs, collections, globalparamsK);
 						
 	#else 
-	ACTS{{context['id']}}_write__process(mode, llp_set, kvdram, kvdram, vbuffer_source, stats,
-			sourcebaseaddr_kvs, workload_kvs.offset_begin, destbaseaddr_kvs, destoffset_kvs, destindex, workload_kvs.size, 
-				offset_buffer,
-					collections, globalparamsK, globalposition);
+	ACTS{{context['id']}}_write__process(mode, llp_set, kvdram, kvdram, vbuffer_source, stats, workload_kvs, collections, globalparamsK);
 	#endif
 }
 
 void {{context['classname__acts']}}ACTS{{context['id']}}_read__reduce(unsigned int mode, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE],
-			unsigned int sourcebaseaddr_kvs, workload_t workload_kvs, 
-				unsigned int offset_ubuffer, unsigned int s, // READUPROPERTYMODE parameters
-					unsigned int offsetkvs_vbuffer, // READVPROPERTYMODE parameters
-						collection_t collections[COLLECTIONS_BUFFERSZ], sweepparams_t sweepparams, globalparams_t globalparamsK, globalposition_t globalposition){
+			workload_t workload_kvs, collection_t collections[COLLECTIONS_BUFFERSZ], globalparams_t globalparamsK){
 	
 	unsigned int memory[VECTOR2_SIZE][1];
 	#pragma HLS ARRAY_PARTITION variable = memory 
@@ -705,7 +680,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read__reduce(unsigned i
 		#endif
 		
 		// read 
-		UTIL{{context['id']}}_ReadDatas(kvdram, sourcebaseaddr_kvs + offset_kvs, datas);
+		UTIL{{context['id']}}_ReadDatas(kvdram, workload_kvs.offset_srcbase + offset_kvs, datas);
 		
 		// decode
 		if(mode == ACTSREDUCEMODE){
@@ -738,17 +713,18 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_read__reduce(unsigned i
 			if(mode == READUPROPERTYMODE){
 				for(int v = 0; v < VECTOR2_SIZE; v++){ 
 				#pragma HLS UNROLL
-					index[v] = offset_ubuffer + s + ind; data[v].value = datas2[v]; en[v] = true;
+					index[v] = workload_kvs.offset_buffer_begin + ind; data[v].value = datas2[v]; en[v] = true;
 				}
 				ind += NUM_PEs;
 			} else { // if(mode == READVPROPERTYMODE){ 
 				for(int v = 0; v < VECTOR2_SIZE; v++){ 
 				#pragma HLS UNROLL 
-					index[v] = offsetkvs_vbuffer + (offset_kvs - workload_kvs.offset_begin); data[v].value = datas2[v]; en[v] = true; // CRITICAL NEWCHANGE
+					// index[v] = offsetkvs_vbuffer + (offset_kvs - workload_kvs.offset_begin); data[v].value = datas2[v]; en[v] = true; // CRITICAL NEWCHANGE
+					index[v] = workload_kvs.offset_buffer_begin + (offset_kvs - workload_kvs.offset_begin); data[v].value = datas2[v]; en[v] = true;
 					#ifdef _DEBUGMODE_CHECKS3
-					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, v, offsetkvs_vbuffer, mode); 
-					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, v, offsetkvs_vbuffer, offset_kvs); 
-					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112b::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, offsetkvs_vbuffer, offset_kvs, workload_kvs.offset_begin); 
+					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, v, workload_kvs.offset_buffer_begin, mode); 
+					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, v, workload_kvs.offset_buffer_begin, offset_kvs); 
+					actsutilityobj->checkoutofbounds("read__reduce(112)::DEBUG CODE 112b::1", index[v], MAX_BLOCKRAM_VDESTDATA_SIZE, workload_kvs.offset_buffer_begin, offset_kvs, workload_kvs.offset_begin); 
 					#endif	
 				}
 			}
@@ -845,11 +821,10 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 			for(unsigned int n=0; n<num_its; n++){
 				unsigned int voffset_kvs = 0;
 				for(unsigned int s=0; s<NUM_PEs; s++){
-					ACTS{{context['id']}}_read__reduce(READUPROPERTYMODE, kvdram, vbuffer_source, stats,
-						globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs, xload_kvs[n], 
-							buffer_offsets[n], s, // READUPROPERTYMODE parameters
-								NAp, // READVPROPERTYMODE parameters
-									collections_tmp, sweepparams, globalparamsK, globalposition);
+					xload_kvs[n].offset_srcbase = globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs;
+					xload_kvs[n].offset_dstbase = NAp;
+					xload_kvs[n].offset_buffer_begin = buffer_offsets[n] + s;
+					ACTS{{context['id']}}_read__reduce(READUPROPERTYMODE, kvdram, vbuffer_source, stats, xload_kvs[n], collections_tmp, globalparamsK);
 					voffset_kvs += depth;
 				}	
 			}	
@@ -869,14 +844,13 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 							else { workload_kvs.offset_begin = last_workload.offset_end; workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin; }
 						}
 					}
-					// if(num_its > 1){ cout<<"~~~ actit:: workload_kvs.offset_begin: "<<workload_kvs.offset_begin<<", workload_kvs.size: "<<workload_kvs.size<<", last_workload.offset_end: "<<last_workload.offset_end<<endl; }
 					#ifdef _DEBUGMODE_CHECKS3
 					actsutilityobj->checkoutofbounds("actit(2)", workload_kvs.size, (1 << 28) / 8, NAp, NAp, n);
 					#endif
-					ACTS{{context['id']}}_write__process_base(mode, llp_set, kvdram, vbuffer_source, stats,	
-							sourcebaseaddr_kvs, workload_kvs, destbaseaddr_kvs, destoffset_kvs, destindex,
-								NAp, // SAVEVPROPERTYMODE parameters
-									collections_tmp, globalparamsK, globalposition);
+					workload_kvs.offset_srcbase = sourcebaseaddr_kvs + workload_kvs.offset_begin;
+					workload_kvs.offset_dstbase = destbaseaddr_kvs + destoffset_kvs + destindex;
+					workload_kvs.offset_buffer_begin = NAp;
+					ACTS{{context['id']}}_write__process_base(mode, llp_set, kvdram, vbuffer_source, stats,	workload_kvs, collections_tmp, globalparamsK);
 					
 					globalcapsule[1 + llp_set].value += workload_kvs.size * EDGEDATA_PACKINGSIZE;	
 					destindex += workload_kvs.size;
@@ -901,24 +875,22 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 			unsigned int num_its = merge{{context['id']}}_get_updateblock_workload(true, sweepparams.source_partition, stats[16], stats[17], globalparamsK, xload_kvs, buffer_offsets);
 			// for(int t = 0; t < MAX_BLOCKRAM_VDESTDATA_SIZE; t++){ for(int v = 0; v < VDATA_PACKINGSIZE; v++){ vbuffer_dest[v][t].data = 0; }} ///////////////////////////////////////// CRITICAL REMOVEME.
 			for(unsigned int n=0; n<num_its; n++){
-				ACTS{{context['id']}}_read__reduce(READVPROPERTYMODE, kvdram, vbuffer_dest, stats,
-					globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, xload_kvs[n], 
-						NAp, NAp, // READUPROPERTYMODE parameters
-							buffer_offsets[n], // READVPROPERTYMODE parameters
-								collections_tmp, sweepparams, globalparamsK, globalposition);
+				xload_kvs[n].offset_srcbase = globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA;
+				xload_kvs[n].offset_dstbase = NAp;
+				xload_kvs[n].offset_buffer_begin = buffer_offsets[n];
+				ACTS{{context['id']}}_read__reduce(READVPROPERTYMODE, kvdram, vbuffer_dest, stats, xload_kvs[n], collections_tmp, globalparamsK);
 			}
 		
-			ACTS{{context['id']}}_read__reduce(ACTSREDUCEMODE, kvdram, vbuffer_dest, stats,
-					sourcebaseaddr_kvs, workload_kvs, 
-						NAp, NAp, // READUPROPERTYMODE parameters
-							NAp, // READVPROPERTYMODE parameters
-								collections_tmp, sweepparams, globalparamsK, globalposition);
+			workload_kvs.offset_srcbase = sourcebaseaddr_kvs;
+			workload_kvs.offset_dstbase = NAp;
+			workload_kvs.offset_buffer_begin = NAp;
+			ACTS{{context['id']}}_read__reduce(ACTSREDUCEMODE, kvdram, vbuffer_dest, stats, workload_kvs, collections_tmp, globalparamsK);
 
 			for(unsigned int n=0; n<num_its; n++){
-				ACTS{{context['id']}}_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats,
-						sourcebaseaddr_kvs, xload_kvs[n], globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA, xload_kvs[n].offset_begin, 0,
-							buffer_offsets[n], // SAVEVPROPERTYMODE parameters
-								collections_tmp, globalparamsK, globalposition);
+				xload_kvs[n].offset_srcbase = sourcebaseaddr_kvs + xload_kvs[n].offset_begin;
+				xload_kvs[n].offset_dstbase = globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + xload_kvs[n].offset_begin, 0;
+				xload_kvs[n].offset_buffer_begin = buffer_offsets[n];
+				ACTS{{context['id']}}_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats, xload_kvs[n], collections_tmp, globalparamsK);
 			}
 		}
 	}

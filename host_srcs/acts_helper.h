@@ -54,6 +54,14 @@ public:
 	unsigned int gethash(unsigned int vid);
 	unsigned int getlocalvid(unsigned int vid);
 	
+	void load_edgeblock_stats(unsigned int vid, unsigned int v_p_, int GraphIter, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer,
+		uint512_ivec_dt * tempvdram, uint512_ivec_dt * tempkvdram[NUM_PEs], unsigned int vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS, unsigned int kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS,
+			unsigned int * edgeblock_mask[MAXNUM_PEs], unsigned int * indexes[MAXNUM_PEs]);
+	
+	void set_edgeblock_headers(int GraphIter, unsigned int v_p, 
+		uint512_ivec_dt * tempvdram, uint512_ivec_dt * tempkvdram[NUM_PEs], unsigned int vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS, unsigned int kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS,
+			unsigned int * indexes[MAXNUM_PEs]);
+	
 	unsigned int extract_stats(uint512_vec_dt * vdram, uint512_vec_dt * kvbuffer[MAXNUM_PEs], 
 		vector<vertex_t> &srcvids, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, 
 			long double edgesprocessed_totals[128], tuple_t * vpartition_stats[MAXNUMGRAPHITERATIONS], unsigned int * upropblock_stats[MAXNUMGRAPHITERATIONS][MAXNUM_VPs], unsigned int * edgeblock_stats[MAXNUM_PEs], unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS]);

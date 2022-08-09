@@ -70,7 +70,7 @@
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
 // #define _DEBUGMODE_KERNELPRINTS2 //
-#define _DEBUGMODE_KERNELPRINTS3 //
+// #define _DEBUGMODE_KERNELPRINTS3 //
 #define _DEBUGMODE_KERNELPRINTS4 //
 // #define _DEBUGMODE_RUNKERNELPRINTS // 
 // #define _DEBUGMODE_PROCACTVVSPRINTS //
@@ -78,7 +78,7 @@
 // #define _DEBUGMODE_HOSTCHECKS
 #define _DEBUGMODE_HOSTCHECKS2 //
 #define _DEBUGMODE_HOSTCHECKS3 //
-// #define _DEBUGMODE_HOSTPRINTS
+// #define _DEBUGMODE_HOSTPRINTS 
 // #define _DEBUGMODE_HOSTPRINTS2 //
 // #define _DEBUGMODE_HOSTPRINTS3 //
 #define _DEBUGMODE_HOSTPRINTS4 //
@@ -87,7 +87,7 @@
 #define _DEBUGMODE_TIMERS3
 
 #ifndef FPGA_IMPL
-#define _DEBUGMODE_KERNELPRINTS_TRACE3 //
+// #define _DEBUGMODE_KERNELPRINTS_TRACE3 //
 #endif 
 
 ////////////////
@@ -483,7 +483,7 @@ struct _bitData {
 #define MAXNUM_UPROPBLOCKS_PER_VPARTITION 512
 
 #define NUM_EDGESKVS_PER_UPROPBLOCK 32
-#define MAXNUM_EDGEBLOCKS_PER_VPARTITION 512 // 256 // 1024 // (= 32 vs)
+#define MAXNUM_EDGEBLOCKS_PER_VPARTITION 1024 // 512 // 256 // 1024 // (= 32 vs)
 
 #define POW_SHRINKCONSTANT_UPDATEBLOCKS 8 // 2^8=256 
 
@@ -704,33 +704,21 @@ typedef struct {
 } edge2_type; 
 
 // typedef struct {
-	// keyy_t srcvid; 
-	// keyy_t dstvid;
-	// bool valid;
-// } edge3_type;
+	// edge2_type data[EDGEDATA_PACKINGSIZE];
+// } edge2_vec_dt;
 
 typedef struct {
-	edge2_type data[EDGEDATA_PACKINGSIZE];
-	// edge3_type data[EDGEDATA_PACKINGSIZE];
+	edge2_type data[EDGEDATA_PACKINGSIZE + 1];
 } edge2_vec_dt;
 
-// typedef unsigned int map_t;
 typedef struct {
 	unsigned int offset;
 	unsigned int size;
 } map_t;
 
 typedef struct {
-	// edge2_type edge;
 	unsigned int index;
 } edgeblock_hashtable_dt;
-
-// typedef struct {
-	// keyy_t srcvid;
-	// keyy_t dstvid;
-	// keyy_t status;
-	// keyy_t metadata;
-// } edge3_type;
 
 typedef struct {
 	keyy_t key;
@@ -1225,6 +1213,7 @@ typedef struct {
 	unsigned int offset_begin;
 	unsigned int offset_end;
 	unsigned int size;
+	unsigned int offset_buffer_begin;
 } workload_t;
 
 typedef struct {

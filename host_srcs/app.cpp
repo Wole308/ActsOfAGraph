@@ -528,45 +528,9 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#endif 
 	for(unsigned int i=0; i<NUM_PEs; i++){ for(unsigned int t=0; t<(universalparams.VOLUMESIZEU32_WORKDATA / VECTOR2_SIZE); t++){ kvbuffer[i][universalparams.VOLUMEOFFSETKVS_WORKDATA + t] = edges[i][t]; }}
 	if(((universalparams.VOLUMEOFFSETKVS_WORKDATA + (universalparams.VOLUMESIZEU32_WORKDATA / VECTOR2_SIZE)) * sizeof(uint512_vec_dt)) > (universalparams.MAXHBMCAPACITY_UINT32 * sizeof(unsigned int))){ cout<<"app::ERROR: CAN NOT merge. dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
-	// exit(EXIT_SUCCESS);
-
-	/* // load partitions stats
-	#ifdef CONFIG_PRELOADEDVERTEXPARTITIONMASKS
-	#ifdef _DEBUGMODE_HOSTPRINTS4
-	cout<<">>> app: populating metadata (vpartition_stats & upropblock_stats) ... "<<endl;		
-	#endif 
-	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;	
-	uint512_ivec_dt * tempkvdram[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ tempkvdram[i] = (uint512_ivec_dt *)kvbuffer[i]; }
-	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-	unsigned int vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS].data[0].key;
-	unsigned int kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS = kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS].data[0].key;
-	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
-		for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpartition_stats[iter][t].A; }		
-	}
-	for(unsigned int v_p=0; v_p<universalparams.NUMPROCESSEDGESPARTITIONS; v_p++){ 
-		for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
-			unsigned int index = 0;
-			unsigned int offset = ((v_p * MAXNUMGRAPHITERATIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION) + (iter * MAXNUM_EDGEBLOCKS_PER_VPARTITION)) / VECTOR2_SIZE;
-			for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){
-				if(upropblock_stats[iter][v_p][t] == 1){ // > 0
-					tempvdram[vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + 1 + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = t; 
-					for(unsigned int i=0; i<NUM_PEs; i++){ tempkvdram[i][kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + 1 + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = t; }
-					index += 1;
-				}
-			}
-		}		
-	}
-	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<"----------------------- app: printing active partitions for acts process-partition-reduce stage... -----------------------"<<endl;
-	for(unsigned int GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ print_active_partitions(GraphIter, vdram, universalparams, universalparams.NUMPROCESSEDGESPARTITIONS, true, true); }
-	cout<<"----------------------- app: printing active partitions for merge stage... -----------------------"<<endl;
-	for(unsigned int i=0; i<1; i++){ for(unsigned int GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ print_active_partitions(GraphIter, kvbuffer[i], universalparams, universalparams.NUMREDUCEPARTITIONS, true, true); }} // NUM_PEs
-	#endif
-	#endif */
-	// exit(EXIT_SUCCESS); //
 	
 	// run_hw
-	// #ifdef APP_RUNHWVERSION
+	#ifdef APP_RUNHWVERSION
 	unsigned int num_runs_a = 1; unsigned int num_runs_b = 1; unsigned int num_runs_c = 1; 
 	unsigned int skip_a = 0; unsigned int skip_b = 16; unsigned int skip_c = 16; // 0, 4, 8
 	unsigned int maxlimit_actvedgeblocks_per_vpartition = 0; unsigned int maxlimit_actvupropblocks_per_vpartition = 0; unsigned int maxlimit_actvupdateblocks_per_vpartition = 0; 
@@ -596,7 +560,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				// maxlimit_actvedgeblocks_per_vpartition = 32; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
 				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 16; 
 				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 16; 
-				maxlimit_actvedgeblocks_per_vpartition = 8; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0; 
+				maxlimit_actvedgeblocks_per_vpartition = 512; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
 				
 				// uprop needs fixing...
 				for(unsigned int i=0; i<NUM_PEs; i++){
@@ -622,13 +586,10 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 			}
 		}
 	}
-	// #endif 
-	// exit(EXIT_SUCCESS); //
+	#endif 
 	
 	// output
 	unsigned int num_traversed_edges = NAp; 
-	// actshelperobj->getfeedback("app", graph_path, vdram, vdram, vdram, vdram, kvbuffer, universalparams);
-	// actshelperobj->verifyresults(vdram, globalparams.globalparamsV, universalparams);
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<endl<<">>> app::run_hw: total_edges_processed: "<<total_edges_processed<<" edges ("<<total_edges_processed/1000000<<" million edges)"<<endl;
 	cout<<">>> app::run_hw: num_traversed_edges: "<<num_traversed_edges<<" edges ("<<num_traversed_edges/1000000<<" million edges)"<<endl;
