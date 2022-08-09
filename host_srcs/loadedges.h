@@ -44,7 +44,7 @@ public:
 	void getXYLayoutV(unsigned int s, unsigned int depths[EDGEDATA_PACKINGSIZE]);
 	edge2_vec_dt rearrangeLayoutV(unsigned int s, edge2_vec_dt edge_vec);
 	
-	globalparams_TWOt start(unsigned int col, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vptr_type * vptrs[MAXNUM_PEs], uint512_vec_dt * edges[MAXNUM_PEs], vector<edge2_vec_dt> (&edges_final)[MAXNUM_PEs], map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs], uint512_vec_dt * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs], container_t * container, globalparams_TWOt globalparams);			
+	globalparams_TWOt start(unsigned int col, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer, vptr_type * vptrs[MAXNUM_PEs], uint512_vec_dt * edges[MAXNUM_PEs], vector<edge2_vec_dt> (&edges_final)[MAXNUM_PEs], map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs], uint512_vec_dt * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs], unsigned int * edgeblock_stats[MAXNUM_PEs], container_t * container, globalparams_TWOt globalparams);								
 
 private:
 	utility * utilityobj;

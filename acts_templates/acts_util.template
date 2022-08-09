@@ -158,32 +158,20 @@ keyy_t {{context['classname__acts_util']}}UTIL{{context['id']}}_GETKEYENTRY(uint
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETLOCALVID(unsigned int vid, unsigned int instid){ 
 	#pragma HLS INLINE
 	
-	#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
 	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
 	unsigned int y = vid / W; 
 	unsigned int x = vid % EDGEDATA_PACKINGSIZE;
 	unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
 	return lvid;
-	#endif 
-	
-	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
-	return (vid - instid) / NUM_PEs;
-	#endif 
 }
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GETREALVID(unsigned int lvid, unsigned int instid){ 
 	#pragma HLS INLINE
 	
-	#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
 	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
 	unsigned int y2 = lvid / EDGEDATA_PACKINGSIZE;
 	unsigned int x2 = lvid % EDGEDATA_PACKINGSIZE;		
 	unsigned int vid = (y2 * W) + (instid * EDGEDATA_PACKINGSIZE) + x2;
 	return vid;
-	#endif 
-	
-	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
-	return (lvid * NUM_PEs) + instid;
-	#endif 
 }
 unsigned int {{context['classname__acts_util']}}UTIL{{context['id']}}_GET_PROCESSEDGESPARTITIONSIZEKVS2(globalparams_t globalparams){ 
 	#pragma HLS INLINE
@@ -578,6 +566,7 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.BASEOFFSETKVS_VERTEXPTR = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_VERTEXPTR];
 	globalparams.BASEOFFSETKVS_SRCVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_SRCVERTICESDATA];
 	globalparams.BASEOFFSETKVS_DESTVERTICESDATA = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_DESTVERTICESDATA];
+	globalparams.BASEOFFSETKVS_ACTIVEUPROPBLOCKS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS];
 	globalparams.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS];
 	globalparams.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_ACTIVEUPDATEBLOCKS];
 	globalparams.BASEOFFSETKVS_EDGESMAP = globalparams.DRAM_BASE_KVS + buffer[MESSAGES_BASEOFFSETKVS_EDGESMAP];
@@ -603,6 +592,7 @@ globalparams_t {{context['classname__acts_util']}}UTIL{{context['id']}}_getgloba
 	globalparams.SIZE_VERTEXPTRS = buffer[MESSAGES_SIZE_VERTEXPTRS];
 	globalparams.SIZE_SRCVERTICESDATA = buffer[MESSAGES_SIZE_SRCVERTICESDATA];
 	globalparams.SIZE_DESTVERTICESDATA = buffer[MESSAGES_SIZE_DESTVERTICESDATA];
+	globalparams.SIZE_ACTIVEUPROPBLOCKS = buffer[MESSAGES_SIZE_ACTIVEUPROPBLOCKS];
 	globalparams.SIZE_ACTIVEEDGEBLOCKS = buffer[MESSAGES_SIZE_ACTIVEEDGEBLOCKS];
 	globalparams.SIZE_ACTIVEUPDATEBLOCKS = buffer[MESSAGES_SIZE_ACTIVEUPDATEBLOCKS];
 	globalparams.SIZE_EDGESMAP = buffer[MESSAGES_SIZE_EDGESMAP];

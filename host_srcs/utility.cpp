@@ -159,8 +159,8 @@ void utility::printallparameters(){
 	std::cout<<"utility:: universalparams.PROC_SRAMSZ: "<<universalparams.PROC_SRAMSZ<<std::endl;
 	std::cout<<"utility:: universalparams.RED_SRAMSZ: "<<universalparams.RED_SRAMSZ<<std::endl;
 	
-	std::cout<<"utility:: MAXNUM_EDGEBLOCKS_PER_VPARTITION: "<<MAXNUM_EDGEBLOCKS_PER_VPARTITION<<std::endl;
-	std::cout<<"utility:: ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION: "<<ALLIGNED_MAXNUM_EDGEBLOCKS_PER_VPARTITION<<std::endl;
+	std::cout<<"utility:: NUM_UPROPBLOCKS_PER_VPARTITION: "<<NUM_UPROPBLOCKS_PER_VPARTITION<<std::endl;
+	// std::cout<<"utility:: ALLIGNED_NUM_EDGEBLOCKS_PER_VPARTITION: "<<ALLIGNED_NUM_EDGEBLOCKS_PER_VPARTITION<<std::endl;
 	
 	std::cout<< TIMINGRESULTSCOLOR <<"utility:: universalparams.TREE_DEPTH: "<<universalparams.TREE_DEPTH<< RESET <<std::endl;
 	std::cout<< TIMINGRESULTSCOLOR <<"utility:: universalparams.PROCESSPARTITIONSZ_KVS2: "<<universalparams.PROCESSPARTITIONSZ_KVS2<< RESET <<std::endl;
@@ -416,32 +416,32 @@ void utility::WRITEBITSTO_UINTV(unsigned int * data, unsigned int index, unsigne
 }
 unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
 	#pragma HLS INLINE
-	#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
+	// #ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
 	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
 	unsigned int y = vid / W; 
 	unsigned int x = vid % EDGEDATA_PACKINGSIZE;
 	unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
 	return lvid;
-	#endif 
+	// #endif 
 	
-	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
-	return (vid - instid) / NUM_PEs;
-	#endif 
+	// #ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
+	// return (vid - instid) / NUM_PEs;
+	// #endif 
 }
 unsigned int utility::UTIL_GETREALVID(unsigned int lvid, unsigned int instid){
 	#pragma HLS INLINE
 
-	#ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
+	// #ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
 	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
 	unsigned int y2 = lvid / EDGEDATA_PACKINGSIZE;
 	unsigned int x2 = lvid % EDGEDATA_PACKINGSIZE;		
 	unsigned int vid = (y2 * W) + (instid * EDGEDATA_PACKINGSIZE) + x2;
 	return vid;
-	#endif 
+	// #endif 
 	
-	#ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
-	return (lvid * NUM_PEs) + instid;
-	#endif 
+	// #ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
+	// return (lvid * NUM_PEs) + instid;
+	// #endif 
 }
 
 void utility::writedata(uint512_vec_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){

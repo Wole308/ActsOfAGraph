@@ -4,7 +4,7 @@ void MERGE{{context['id']}}_print_active_masks(uint512_dt * vdram, globalparams_
 
 unsigned int merge{{context['id']}}_get_updateblock_workload(unsigned int en, unsigned int reduce_partition, unsigned int * stats_offsets, unsigned int * stats_metadata, globalparams_t globalparams, workload_t xload_kvs[BLOCKRAM_SIZE], unsigned int buffer_offsets[BLOCKRAM_SIZE]);
 
-unsigned int merge{{context['id']}}_get_upropblock_workload(unsigned int en, unsigned int reduce_partition, uint512_dt * dram, unsigned int num_active_edgeblocks, globalparams_t globalparams, workload_t xload_kvs[BLOCKRAM_SIZE], unsigned int buffer_offsets[BLOCKRAM_SIZE], unsigned int graphiterationid);
+unsigned int merge{{context['id']}}_get_upropblock_workload(unsigned int en, unsigned int reduce_partition, uint512_dt * dram, unsigned int num_active_upropblocks, globalparams_t globalparams, workload_t xload_kvs[BLOCKRAM_SIZE], unsigned int buffer_offsets[BLOCKRAM_SIZE], unsigned int graphiterationid);
 
 unsigned int merge{{context['id']}}_get_edgeblock_workload(unsigned int en, unsigned int process_partition, unsigned int llp_set, uint512_dt * dram, unsigned int num_active_edgeblocks, globalparams_t globalparamsK, globalparams_t globalparamsE, workload_t xload_kvs[DOUBLE_BLOCKRAM_SIZE], unsigned int graphiterationid);
 

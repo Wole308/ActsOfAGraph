@@ -542,6 +542,8 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 	unsigned int offsetkvs_stats = llp_set * numkvs_vertices_per_updateblock; // NEWCHANGE.
 	
 	for(int i = 0; i < size; i++){
+		if(i%32==0 && i<500){ cout<<"_write__process 2324. i: "<<i<<endl; }
+		
 		// read 
 		if(mode == ACTSPROCESSMODE){ 
 			UTIL{{context['id']}}_ReadEdges(in, sourcebaseaddr_kvs + srcoffset_kvs + i, datas);
@@ -867,6 +869,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 							else { workload_kvs.offset_begin = last_workload.offset_end; workload_kvs.size = workload_kvs.offset_end - workload_kvs.offset_begin; }
 						}
 					}
+					// if(num_its > 1){ cout<<"~~~ actit:: workload_kvs.offset_begin: "<<workload_kvs.offset_begin<<", workload_kvs.size: "<<workload_kvs.size<<", last_workload.offset_end: "<<last_workload.offset_end<<endl; }
 					#ifdef _DEBUGMODE_CHECKS3
 					actsutilityobj->checkoutofbounds("actit(2)", workload_kvs.size, (1 << 28) / 8, NAp, NAp, n);
 					#endif

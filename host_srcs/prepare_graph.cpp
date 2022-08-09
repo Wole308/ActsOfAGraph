@@ -146,13 +146,13 @@ void prepare_graph::start(string graphpath, vector<edge2_type> &edgesbuffer_dup,
 		srcv = edgesbuffer[i].srcvid;
 		dstv = edgesbuffer[i].dstvid;
 		
-		edge2_type edge1; edge1.srcvid = srcv; edge1.dstvid = dstv;
+		edge2_type edge1; edge1.srcvid = srcv; edge1.dstvid = dstv; edge1.eblockid = 0;
 		if(vptr_dup[edge1.srcvid] + outdegree[edge1.srcvid] >= edgesbuffer_dup.size()){ cout<<"prepare_graph::start(1):: vptr_dup[edge1.srcvid]("<<vptr_dup[edge1.srcvid]<<") + outdegree[edge1.srcvid]("<<outdegree[edge1.srcvid]<<") >= edgesbuffer_dup.size()("<<edgesbuffer_dup.size()<<"). EXITING... "<<endl; exit(EXIT_FAILURE); }							
 		edgesbuffer_dup[vptr_dup[edge1.srcvid] + outdegree[edge1.srcvid]] = edge1;
 		outdegree[edge1.srcvid] += 1;
 		
 		if(graphisundirected==true){ 
-			edge2_type edge2; edge2.srcvid = dstv; edge2.dstvid = srcv;
+			edge2_type edge2; edge2.srcvid = dstv; edge2.dstvid = srcv; edge2.eblockid = 0;
 			if(vptr_dup[edge2.srcvid] + outdegree[edge2.srcvid] >= edgesbuffer_dup.size()){ cout<<"prepare_graph::start(2):: vptr_dup[edge2.srcvid]("<<vptr_dup[edge2.srcvid]<<") + outdegree[edge2.srcvid]("<<outdegree[edge2.srcvid]<<") >= edgesbuffer_dup.size()("<<edgesbuffer_dup.size()<<"). EXITING... "<<endl; exit(EXIT_FAILURE); }							
 			edgesbuffer_dup[vptr_dup[edge2.srcvid] + outdegree[edge2.srcvid]] = edge2;
 			outdegree[edge2.srcvid] += 1;

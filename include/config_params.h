@@ -81,7 +81,6 @@ loadgraph.cpp
 #define CONFIG_USEURAM_FOR_SRCVBUFFER // CRITICAL REMOVEME!
 #define CONFIG_USEURAM_FOR_DESTVBUFFER // { classname__mem_access.cpp, classname__reduceupdates.cpp }
 
-// #define CONFIG_EDGEHASHSCHEME_SINGLEVID
 #define CONFIG_EDGEHASHSCHEME_SETVIDS // { acts_util.cpp, load_edges.cpp, utility.cpp }
 
 // #define _COLLECT_METADATA_FROM_KERNEL_
