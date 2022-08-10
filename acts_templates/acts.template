@@ -356,7 +356,7 @@ void {{context['classname__acts']}}reduce_update(unsigned int mode, bool enx, un
 	#endif 
 	// if(loc >= globalparams.SIZEKVS2_REDUCEPARTITION && en == true){ loc = 0; } 
 	// if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ cout<<"reduce_update:: Error. loc: "<<loc<<", memory[0]: "<<memory[0]<<", mode: "<<mode<<endl; exit(EXIT_FAILURE); }} // CRITICAL FIXME.
-	// if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // FIXME.
+	if(enx == true && mode == ACTSREDUCEMODE){ if(loc == memory[0]){ loc = (loc + 1) % 8; } memory[0] = loc; } // CRITICAL FIXME.
 	#ifdef _DEBUGMODE_CHECKS3
 	if(enx == true){ actsutilityobj->checkoutofbounds("reducevector(114)::DEBUG CODE 113::1", loc, MAX_BLOCKRAM_VDESTDATA_SIZE, update_data.key, update_data.value, mode); }
 	#endif
@@ -398,8 +398,8 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 	
 	keyvalue_t res[UPDATEDATA_PACKINGSIZE]; 
 	#pragma HLS ARRAY_PARTITION variable = res complete
-	value_t datas2[VECTOR2_SIZE];
-	#pragma HLS ARRAY_PARTITION variable = datas2 complete
+	value_t datas[VECTOR2_SIZE];
+	#pragma HLS ARRAY_PARTITION variable = datas complete
 	keyvalue_t edges[EDGEDATA_PACKINGSIZE];
 	#pragma HLS ARRAY_PARTITION variable = edges complete
 	keyvalue_t res_out[EDGEDATA_PACKINGSIZE]; 
@@ -416,6 +416,7 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 	
 	unsigned int numkvs_vertices_per_updateblock = ((1 << globalparamsK.POW_BATCHRANGE) / VDATA_PACKINGSIZE) / BLOCKRAM_UPDATEBLOCK_SIZE; //   (1 << (globalparamsK.POW_BATCHRANGE - BLOCKRAM_UPDATEBLOCK_POW)) / VDATA_PACKINGSIZE;
 	unsigned int numkvs_updateblocks_per_reducepartition = (1 << MAX_RED_SRAMSZ_POW) / numkvs_vertices_per_updateblock;	
+	unsigned int offsetkvs_stats = llp_set * numkvs_vertices_per_updateblock;
 	
 	ACTIT_COMPUTEANDSTORE_MAINLOOP2A: for (int i = 0; i < workload_kvs.size; i++){
 	#pragma HLS PIPELINE II=1
@@ -467,17 +468,17 @@ void compute_and_store(unsigned int mode, unsigned int llp_set, hls::stream<uint
 			
 			for(int v = 0; v < VECTOR2_SIZE; v++){
 			#pragma HLS UNROLL
-				if(res_out[v].key != INVALIDDATA){ datas2[v] = (res_out[v].value << DSTVID_BITSZ) | res_out[v].key; } else { datas2[v] = INVALIDDATA; }
+				if(res_out[v].key != INVALIDDATA){ datas[v] = (res_out[v].value << DSTVID_BITSZ) | res_out[v].key; } else { datas[v] = INVALIDDATA; }
 			}
 		} else {
 			for(int v = 0; v < VECTOR2_SIZE; v++){
 			#pragma HLS UNROLL
-				datas2[v] = res[v].value; 
+				datas[v] = res[v].value; 
 			}
 		}
 
 		// store
-		UTIL{{context['id']}}_WriteDatas(out, workload_kvs.offset_dstbase + i, datas2); 
+		UTIL{{context['id']}}_WriteDatas(out, workload_kvs.offset_dstbase + i, datas); 
 		
 		// colelect stats
 		if(mode == ACTSPROCESSMODE){
@@ -595,7 +596,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_write__process(unsigned
 		// store
 		UTIL{{context['id']}}_WriteDatas(out, workload_kvs.offset_dstbase + i, datas2); 
 		
-		// colelect stats
+		// collect stats
 		if(mode == ACTSPROCESSMODE){
 			for(int v = 0; v < VECTOR2_SIZE; v++){
 			#pragma HLS UNROLL
@@ -818,9 +819,9 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 			#ifdef CONFIG_RELEASE_VERSION_BROADCASTUPROPS	
 			unsigned int num_its = merge{{context['id']}}_get_upropblock_workload(true, sweepparams.source_partition, kvdram, globalposition.num_active_edgeblocks, globalparamsK, xload_kvs, buffer_offsets, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
 			// for(int t = 0; t < MAX_BLOCKRAM_VDESTDATA_SIZE; t++){ for(int v = 0; v < VDATA_PACKINGSIZE; v++){ vbuffer_source[v][t].data = 0; }} ////////////////////////////////////////// CRITICAL REMOVEME.
-			for(unsigned int n=0; n<num_its; n++){
+			for(unsigned int n=0; n<num_its; n++){	
 				unsigned int voffset_kvs = 0;
-				for(unsigned int s=0; s<NUM_PEs; s++){
+				for(unsigned int s=0; s<NUM_PEs; s++){	
 					xload_kvs[n].offset_srcbase = globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs;
 					xload_kvs[n].offset_dstbase = NAp;
 					xload_kvs[n].offset_buffer_begin = buffer_offsets[n] + s;
@@ -903,7 +904,9 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"processit:: numkvs_vertices_per_updateblock: "<<numkvs_vertices_per_updateblock<<", numkvs_updateblocks_per_reducepartition: "<<numkvs_updateblocks_per_reducepartition<<", sweepparams.source_partition: "<<sweepparams.source_partition<<endl;
 		#endif 
-		unsigned int stats_tmp[VECTOR2_SIZE]; for(int v = 0; v < VECTOR2_SIZE; v++){ stats_tmp[v] = 0; }
+		unsigned int stats_tmp[VECTOR2_SIZE]; 
+		#pragma HLS ARRAY_PARTITION variable = stats_tmp complete
+		for(int v = 0; v < VECTOR2_SIZE; v++){ stats_tmp[v] = 0; }
 		unsigned int index = 0;
 		for(int t = 0; t < BLOCKRAM_UPDATEBLOCK_SIZE; t++){
 		#pragma HLS PIPELINE II=1

@@ -104,7 +104,7 @@
 #define _DEBUGMODE_STATS // CRITICAL ADDME
 // #define _DEBUGMODE_CHECKS
 #define _DEBUGMODE_CHECKS2 // CRITICAL ADDME
-#define _DEBUGMODE_CHECKS3 //
+#define _DEBUGMODE_CHECKS3 // 
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
 // #define _DEBUGMODE_KERNELPRINTS2 //
@@ -142,7 +142,7 @@
 ////////////////
 
 #define NUM_PEs {{context['NUM_PEs']}}
-#define MAXNUM_PEs 32
+#define MAXNUM_PEs NUM_PEs // 32
 #define NUMSYNCTHREADS {{context['NUMSYNCTHREADS']}}
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 #define MAXNUM_VPs 1024 // 512 // 256 // NEWCHANGE***

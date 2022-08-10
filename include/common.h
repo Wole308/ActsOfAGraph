@@ -3,6 +3,12 @@
 #include "config_params.h"
 #include <string.h> 
 #include <cmath>
+#include <ap_int.h>
+// #include "ap_fixed.h"	
+#include <vector> 
+#include<hls_vector.h> 
+#include<hls_stream.h>
+#include <iostream>
  
 
 // CUSTOMPROVISION: { classname__top_usrcv_nudstv.cpp, reduceupdates.cpp, }
@@ -11,7 +17,7 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define TESTKERNEL
-#define SW // SWEMU, HW, SW
+#define HW // SWEMU, HW, SW
 #define PR_ALGORITHM //  // PR_ALGORITHM, CF_ALGORITHM, HITS_ALGORITHM, CC_ALGORITHM, SSSP_ALGORITHM, BFS_ALGORITHM
 #if (defined(SWEMU) || defined(HW))
 #define FPGA_IMPL
@@ -66,7 +72,7 @@
 #define _DEBUGMODE_STATS // CRITICAL ADDME
 // #define _DEBUGMODE_CHECKS
 #define _DEBUGMODE_CHECKS2 // CRITICAL ADDME
-#define _DEBUGMODE_CHECKS3 //
+#define _DEBUGMODE_CHECKS3 // 
 // #define _DEBUGMODE_PRINTS
 // #define _DEBUGMODE_KERNELPRINTS
 // #define _DEBUGMODE_KERNELPRINTS2 //
@@ -104,7 +110,7 @@
 ////////////////
 
 #define NUM_PEs 24
-#define MAXNUM_PEs 32
+#define MAXNUM_PEs NUM_PEs // 32
 #define NUMSYNCTHREADS 
 #define NUMUTILITYTHREADS 16 // NUMCPUTHREADS // FIXME?
 #define MAXNUM_VPs 1024 // 512 // 256 // NEWCHANGE***

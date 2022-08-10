@@ -343,7 +343,7 @@ void loadgraph::accumstats(uint512_vec_dt * kvbuffer[MAXNUM_PEs], uint512_vec_dt
 	return;
 }
 
-globalparams_TWOt loadgraph::loadmaps(vector<vertex_t> &activevertices, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs], uint512_vec_dt * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs], globalparams_TWOt globalparams, universalparams_t universalparams){ 
+globalparams_TWOt loadgraph::loadmaps(vector<vertex_t> &activevertices, uint512_vec_dt * vdram, uint512_vec_dt * edges[MAXNUM_PEs], map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs], globalparams_TWOt globalparams, universalparams_t universalparams){ 
 	#ifdef _DEBUGMODE_HOSTPRINTS2
 	cout<<"loadgraph::loadmaps:: generating vmask... "<<endl;
 	#endif
@@ -406,31 +406,6 @@ globalparams_TWOt loadgraph::loadmaps(vector<vertex_t> &activevertices, uint512_
 		for(unsigned int padd=index; padd<index+16; padd++){ edges_u32[padd] = edges_u32[index]; }// padding 
 	}
 
-	#ifdef NOTUSED_____________
-	for(unsigned int i=0; i<NUM_PEs; i++){ 
-		#ifdef TESTKERNEL 
-		if(utilityobj->isbufferused(i) == false){ continue; }
-		#endif 
-		#ifdef _DEBUGMODE_HOSTPRINTS3
-		cout<<"loadgraph::loadmaps:: [PE: "<<i<<"]"<<endl;
-		#endif 
-		unsigned int index = 0; // triple_t * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]
-
-		for(unsigned int v_p=0; v_p<num_vPs; v_p++){
-			unsigned int edgeblockmapoffset_kvs = v_p * MAXNUM_EDGEBLOCKS_PER_VPARTITION; // NEWCHANGE.
-			for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){
-				for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
-					edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP + edgeblockmapoffset_kvs + t].data[llp_set] = edgeblock_map[i][v_p][t].data[llp_set];
-					#ifdef _DEBUGMODE_HOSTPRINTS3
-					keyvalue_t kv = edges[i][globalparams.globalparamsE.BASEOFFSETKVS_EDGEBLOCKMAP + edgeblockmapoffset_kvs + t].data[llp_set];
-					if(i==0 && v_p<3 && t<64){ cout<<"loadgraph::load edgeblock maps:: edgeblock_map["<<i<<"]["<<edgeblockmapoffset_kvs + t<<"].data["<<llp_set<<"].key: "<<kv.key<<", edgeblock_map["<<i<<"]["<<edgeblockmapoffset_kvs + t<<"].data["<<llp_set<<"].value: "<<kv.value<<endl; }
-					#endif 
-				}
-			}
-		}
-	}
-	#endif 
-	
 	// load vertex partition mask 
 	vdram[_BASEOFFSETV_VERTICESPARTITIONMASK_KVS].data[0].key = 0x00000001;
 	

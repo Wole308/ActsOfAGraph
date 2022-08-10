@@ -207,7 +207,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	vector<edge_t> vertexptrbuffer;
 	vector<edge2_vec_dt> edges_final[MAXNUM_PEs];
 	map_t * edges_map[MAXNUM_PEs][MAXNUM_VPs]; // [MAXNUM_LLPs];
-	uint512_vec_dt * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]; // FIXME.  triple_t * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]
+	// uint512_vec_dt * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]; // FIXME.  triple_t * edgeblock_map[MAXNUM_PEs][MAXNUM_VPs]
 	long double edgesprocessed_totals[128];
 	long double timeelapsed_totals[128][8];
 	unsigned int num_edges_processed[MAXNUMGRAPHITERATIONS];
@@ -215,8 +215,6 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	container_t container;
 	vector<value_t> actvvs; actvvs.push_back(rootvid);
 	tuple_t * vpartition_stats[MAXNUMGRAPHITERATIONS]; 
-	unsigned int * upropblock_stats[MAXNUMGRAPHITERATIONS][MAXNUM_VPs];     
-	unsigned int * edgeblock_stats[MAXNUM_PEs];
 	long double totaltime_ms = 0;
 	binaryFile[0] = _binaryFile1;
 
@@ -230,19 +228,13 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	unsigned int num_edges = edgedatabuffer.size();
 	unsigned int num_vertices = vertexptrbuffer.size();
 	cout<<"app:run: num_vertices: "<<num_vertices<<", num_edges: "<<num_edges<<endl;
-	// exit(EXIT_SUCCESS); //
 	
-	// universalparams_t universalparams;
 	universalparams_t universalparams = get_universalparams(algo, numiterations, rootvid, num_vertices, num_edges, graphisundirected_bool);
 	for(unsigned int i=0; i<MAXNUMGRAPHITERATIONS; i++){ vpartition_stats[i] = new tuple_t[universalparams.NUMPROCESSEDGESPARTITIONS]; }
-	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edges_map[i][v_p] = new map_t[MAXNUM_LLPSETs]; }} // MAXNUM_LLPs, MAXNUM_LLPSETs // NEWCHANGE NOW.
-	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edgeblock_map[i][v_p] = new uint512_vec_dt[MAXNUM_EDGEBLOCKS_PER_VPARTITION]; for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ for(unsigned int v=0; v<VECTOR_SIZE; v++){ edgeblock_map[i][v_p][t].data[v].key = 0; edgeblock_map[i][v_p][t].data[v].value = 0; }}}}						
-	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ upropblock_stats[iter][v_p] = new unsigned int[MAXNUM_EDGEBLOCKS_PER_VPARTITION]; for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ upropblock_stats[iter][v_p][t] = 0; }}}
-	for(unsigned int i=0; i<MAXNUM_PEs; i++){ edgeblock_stats[i] = new unsigned int[universalparams.NUM_VERTICES]; } for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int t=0; t<universalparams.NUM_VERTICES; t++){ edgeblock_stats[i][t] = INVALIDDATA; }}
+	for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ edges_map[i][v_p] = new map_t[MAXNUM_LLPSETs]; }} // MAXNUM_LLPSETs, MAXNUM_LLPSETs // NEWCHANGE NOW.
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<universalparams.NUMPROCESSEDGESPARTITIONS; t++){ vpartition_stats[iter][t].A = 0; vpartition_stats[iter][t].B = 0; }}
 	utility * utilityobj = new utility(universalparams);
 	utilityobj->printallparameters();
-	// exit(EXIT_SUCCESS); //
 	
 	utilityobj = new utility(universalparams);
 	loadgraphobj = new loadgraph(universalparams);
@@ -384,7 +376,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	
 	// load edges
 	#ifdef APP_LOADEDGES
-	globalparams = loadedgesobj->start(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, edges, edges_final, edges_map, edgeblock_map, edgeblock_stats, &container, globalparams);
+	globalparams = loadedgesobj->start(0, vertexptrbuffer, edgedatabuffer, (vptr_type **)edges, edges, edges_final, edges_map, &container, globalparams);
 	// exit(EXIT_SUCCESS);
 	#endif 
 	
@@ -463,7 +455,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"app::loadmaps:: generating vmask... "<<endl;
 	#endif 
-	globalparams = loadgraphobj->loadmaps(actvvs, vdram, edges, edges_map, edgeblock_map, globalparams, universalparams);
+	globalparams = loadgraphobj->loadmaps(actvvs, vdram, edges, edges_map, globalparams, universalparams);
 	#endif 
 	globalparams.globalparamsM.BASEOFFSETKVS_ACTIVEEDGEBLOCKS = globalparams.globalparamsM.BASEOFFSETKVS_DESTVERTICESDATA + (globalparams.globalparamsM.SIZE_DESTVERTICESDATA / VALUEDATA_PACKINGSIZE);
 	globalparams.globalparamsM.SIZE_ACTIVEEDGEBLOCKS = 0; // NAp // CONFIG_HYBRIDGPMODE_MDRAMSECTIONSZ * MAXNUMGRAPHITERATIONS * 2; // (universalparams.NUM_VERTICES * 2); // current and next it active vertices
@@ -509,7 +501,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 
 	// acts helper
 	#ifdef APP_RUNSWVERSION
-	universalparams.NUM_ITERATIONS = actshelperobj->extract_stats(vdram, kvbuffer, actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpartition_stats, upropblock_stats, edgeblock_stats, num_edges_processed);
+	universalparams.NUM_ITERATIONS = actshelperobj->extract_stats(vdram, kvbuffer, actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpartition_stats, num_edges_processed);
 	if(numiterations < universalparams.NUM_ITERATIONS){ universalparams.NUM_ITERATIONS = numiterations; }
 	cout<<"app:: extract_stats finsished successfully. "<<universalparams.NUM_ITERATIONS<<" iterations run."<<endl;
 	if(universalparams.ALGORITHM == BFS || universalparams.ALGORITHM == SSSP){ for(unsigned int t=0; t<MAXNUMGRAPHITERATIONS; t++){ total_edges_processed += edgesprocessed_totals[t]; }} else { total_edges_processed = universalparams.NUM_EDGES; }
@@ -556,11 +548,11 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 				
 				// unsigned int maxlimit_actvedgeblocks_per_vpartition = 0; unsigned int maxlimit_actvupropblocks_per_vpartition = 0; unsigned int maxlimit_actvupdateblocks_per_vpartition = 0; 
 				// unsigned int maxlimit_actvedgeblocks_per_vpartition = 0; unsigned int maxlimit_actvupropblocks_per_vpartition = 2; unsigned int maxlimit_actvupdateblocks_per_vpartition = 2; 
-				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0; 
+				maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 0; 
 				// maxlimit_actvedgeblocks_per_vpartition = 32; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
 				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 16; 
 				// maxlimit_actvedgeblocks_per_vpartition = 0; maxlimit_actvupropblocks_per_vpartition = 0; maxlimit_actvupdateblocks_per_vpartition = 16; 
-				maxlimit_actvedgeblocks_per_vpartition = 512; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
+				// maxlimit_actvedgeblocks_per_vpartition = 512; maxlimit_actvupropblocks_per_vpartition = 16; maxlimit_actvupdateblocks_per_vpartition = 64; 
 				
 				// uprop needs fixing...
 				for(unsigned int i=0; i<NUM_PEs; i++){
@@ -599,7 +591,7 @@ void app::run(std::string setup, std::string algo, unsigned int numiterations, u
 	#endif 
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS//3
-	actshelperobj->extract_stats(vdram, kvbuffer, actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpartition_stats, upropblock_stats, edgeblock_stats, num_edges_processed);
+	actshelperobj->extract_stats(vdram, kvbuffer, actvvs, vertexptrbuffer, edgedatabuffer, edgesprocessed_totals, vpartition_stats, num_edges_processed);
 	summary(GRAPH_PATH, vdram, globalparams.globalparamsV);
 	#endif 
 	

@@ -357,17 +357,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	if(globalparamsV.ALGORITHMINFO_GRAPHITERATIONID > globalparamsK.ALGORITHMINFO_GRAPHITERATIONID){ globalparamsK.ALGORITHMINFO_GRAPHITERATIONID = globalparamsV.ALGORITHMINFO_GRAPHITERATIONID; }	
 	
 	for(unsigned int t=0; t<COLLECTIONS_BUFFERSZ; t++){ {%for i in context['T_seq']%}{%if(i<n)%} collections{{i}}[t].data1 = 0; {%endif%}{%endfor%} }
-	
-	/* //////////////////////////////////////////////////////////////////////////////
-	for(unsigned int i=0; i<4; i++){
-		for(unsigned int v=0; v<VECTOR_SIZE; v++){
-			keyvalue_t kv = kvdram0[globalparamsK.BASEOFFSETKVS_STATSDRAM + i].data[v];
-			cout<<"-------------- iter: "<<globalparamsK.ALGORITHMINFO_GRAPHITERATIONID<<": kv["<<i<<"]["<<v<<"].key: "<<kv.key<<", kv["<<i<<"]["<<v<<"].value: "<<kv.value<<endl;
-		}
-	}
-	////////////////////////////////////////////////////////////////////////////// */
-	// return;
-	
+
 	unsigned int PARTITION{{context['id']}}_CHKPT[MAX_NUM_EDGE_BANKS][EDGESSTATSDRAMSZ]; // NEWCHANGE
 	LOADPARTITIONCHKPTS_LOOP1B: for(unsigned int u=0; u<EDGESSTATSDRAMSZ; u++){	
 		PARTITION{{context['id']}}_CHKPT[0][u] = kvdram0[globalparamsEs[0].DRAM_BASE_KVS + BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_INMESSAGES_EDGESSTATSDRAM + u]
@@ -532,23 +522,31 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						if(enable_readandreplicatevdata == ON){
 							MEMACCESS{{context['id']}}_readANDRVchunks{{n}}(ON, vdram, {%for i in context['T_seq']%}{%if(i<n)%}vbuffer_source{{i}},{%endif%}{%endfor%} globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA, voffset_kvs, vsz_kvs, globalposition, globalparamsV);	
 						}
-						#endif	
-						#ifdef CONFIG_RELEASE_VERSION_BROADCASTUPROPS	
-						unsigned int depth_i = 0, index = 0, cmd = 0;
-						for(unsigned int s=0; s<NUM_PEs; s++){	
-							unsigned int offset_kvs = voffset_kvs + depth_i;
-							if(s==NUM_PEs-1){ cmd = 1; } else { cmd = 0; }
-							#ifdef ___NOT_USED___
-							{%for i in context['T_seq']%}{%if(i<n)%}		
-							MERGE{{context['id']}}_broadcastVs(vdram, kvdram{{i}}, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs);		
-							{%endif%}{%endfor%}		
-							#endif 
-							MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} 
-								globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs,
-									globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS, maxsz_actvedgeblocks,
-										cmd, globalposition, globalparamsK, globalparamsV);		
-							depth_i += depth;
-							index += vsz_kvs;
+						#endif
+						#ifdef CONFIG_RELEASE_VERSION_BROADCASTUPROPS		
+						if(globalposition.num_active_edgeblocks > 0){
+							unsigned int depth_i = 0, index = 0, cmd = 0;
+							unsigned int buffer_offsets[BLOCKRAM_SIZE];
+							workload_t xload_kvs[BLOCKRAM_SIZE];
+							unsigned int num_its = merge{{context['id']}}_get_upropblock_workload(true, globalposition.source_partition, vdram, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
+							for(unsigned int n=0; n<num_its; n++){
+								depth_i = 0;
+								for(unsigned int s=0; s<NUM_PEs; s++){
+									unsigned int offset_kvs = voffset_kvs + depth_i;
+									if(s==NUM_PEs-1){ cmd = 1; } else { cmd = 0; }
+									#ifdef ___NOT_USED___
+									{%for i in context['T_seq']%}{%if(i<n)%}		
+									MERGE{{context['id']}}_broadcastVs(vdram, kvdram{{i}}, globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs);		
+									{%endif%}{%endfor%}		
+									#endif 
+									MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} xload_kvs[n], buffer_offsets[n],	
+										globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs,
+											globalparamsV.BASEOFFSETKVS_ACTIVEEDGEBLOCKS, globalparamsK.BASEOFFSETKVS_ACTIVEEDGEBLOCKS, maxsz_actvedgeblocks,
+												cmd, globalposition, globalparamsK, globalparamsV);		
+									depth_i += depth;
+									index += vsz_kvs;
+								}
+							}
 						}
 						#endif
 						
