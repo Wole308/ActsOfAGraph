@@ -2,12 +2,12 @@
 // https://github.com/Xilinx/SDAccel_Examples/blob/master/getting_started/dataflow/dataflow_stream_c/src/adder.cpp
 // https://github.com/Xilinx/Vitis-HLS-Introductory-Examples/blob/1d19087a2b4aa90fa2d86cf556aa883d3b413247/Dataflow/Channels/using_fifos/diamond.cpp  *
 
-// #define ACTS_ENABLE_COMBINEDLOADS
+#define ACTS_ENABLE_COMBINEDLOADS
 #define ACTS_ENABLE_BROADCASTUPROPS
 #define ACTS_ENABLE_REDUCE
-#define ACTS_ENABLE_COLLECTSTATS
+// #define ACTS_ENABLE_COLLECTSTATS
 
-void ACTSP0_combinedloads_uprops_and_allstats(bool en, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], 
+void {{context['classname__acts_merge']}}ACTS{{context['id']}}_combinedloads_uprops_and_allstats(bool en, uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE], 
 		workload_t edgestats_kvs[BLOCKRAM_SIZE], unsigned int buffer_offsets[BLOCKRAM_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], collection_t collections_tmp[COLLECTIONS_BUFFERSZ], 
 			sweepparams_t sweepparams, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsE){			
 	#pragma HLS INLINE
@@ -25,7 +25,7 @@ void ACTSP0_combinedloads_uprops_and_allstats(bool en, uint512_dt * kvdram, keyv
 	unsigned int num_LLPset = (num_LLPs + (OPT_NUM_PARTITIONS - 1)) / OPT_NUM_PARTITIONS; 
 	unsigned int num_its_ = 0;
 	
-	unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, sweepparams.source_partition, kvdram, vbuffer_source, stats, globalposition.num_active_edgeblocks, globalparamsK, upropload_kvs, buffer_offsets, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
+	unsigned int num_its = MEMACCESS{{context['id']}}_get_upropblock_workload(true, sweepparams.source_partition, kvdram, vbuffer_source, stats, globalposition.num_active_edgeblocks, globalparamsK, upropload_kvs, buffer_offsets, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
 	
 	for(unsigned int c=0; c<3; c++){
 		if(c==0){ num_its_ = 1; } 
@@ -35,7 +35,7 @@ void ACTSP0_combinedloads_uprops_and_allstats(bool en, uint512_dt * kvdram, keyv
 		for(int n=0; n<num_its_; n++){
 			if(c == 0){
 				// load edge-map
-				xload_kvs[n] = MEMACCESSP0_get_edgeblock_offset(ON, globalposition.source_partition, vbuffer_source, globalposition.num_active_edgeblocks, globalparamsK, globalparamsE); 
+				xload_kvs[n] = MEMACCESS{{context['id']}}_get_edgeblock_offset(ON, globalposition.source_partition, vbuffer_source, globalposition.num_active_edgeblocks, globalparamsK, globalparamsE); 
 			} else if(c == 1){
 				// load edge map / edge ptr offsets
 				if(sparse_process == true){ 
@@ -59,7 +59,7 @@ void ACTSP0_combinedloads_uprops_and_allstats(bool en, uint512_dt * kvdram, keyv
 			for(unsigned int s=0; s<NUM_PEs; s++){
 				if(c==2){ mode_ = READUPROPERTYMODE; xload_kvs[n].offset_srcbase = globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs; xload_kvs[n].offset_buffer_begin = buffer_offsets[n] + s; } 
 				else { mode_ = READDATAMODE; if(s>0){ w_.size = 0; } else { w_ = xload_kvs[n]; }}
-				MEMACCESSP0_read__reduce(mode_, kvdram, vbuffer_source, stats, xload_kvs[n], collections_tmp, globalparamsK); 
+				MEMACCESS{{context['id']}}_read__reduce(mode_, kvdram, vbuffer_source, stats, xload_kvs[n], collections_tmp, globalparamsK); 
 				if(c==2){ voffset_kvs += depth; }
 			}
 			
@@ -92,7 +92,7 @@ void ACTSP0_combinedloads_uprops_and_allstats(bool en, uint512_dt * kvdram, keyv
 	}
 }
 
-void ACTSP0_actit(bool_type enable, unsigned int mode,
+void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable, unsigned int mode,
 		uint512_dt * kvdram, keyvalue_vbuffer_t vbuffer_source[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VSRCDATA_SIZE], keyvalue_vbuffer_t vbuffer_dest[VDATA_PACKINGSIZE][MAX_BLOCKRAM_VDESTDATA_SIZE],	workload_t edgestats_kvs[BLOCKRAM_SIZE], stats_t stats[STATS_PACKINGSIZE][BLOCKRAM_SIZE], 
 			keyvalue_t globalcapsule[BLOCKRAM_GLOBALSTATS_SIZE], globalparams_t globalparamsE, globalparams_t globalparamsK, globalposition_t globalposition, sweepparams_t sweepparams, travstate_t ptravstate, batch_type sourcebaseaddr_kvs, batch_type destbaseaddr_kvs,
 				bool_type resetenv, bool_type flush, unsigned int edgebankID, collection_t collections[COLLECTIONS_BUFFERSZ]){
@@ -140,6 +140,7 @@ void ACTSP0_actit(bool_type enable, unsigned int mode,
 	if(globalparamsK.POW_BATCHRANGE < (BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW)){ cout<<"actit:: ERROR 234. globalparamsK.POW_BATCHRANGE("<<globalparamsK.POW_BATCHRANGE<<") < (BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW)("<<BLOCKRAM_UPDATEBLOCK_POW + VECTOR2_SIZE_POW<<"). EXITING..."<<endl; exit(EXIT_FAILURE); }
 	#endif 
 	
+	// if(en == false || globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_process = false; }
 	bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readu = true; } else { sparse_readu = false; }
 	bool sparse_process = false; if(globalposition.num_active_edgeblocks < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVEDGEBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_process = true; } else { sparse_process = false; }
 	bool sparse_readv = false; if((stats[17][sweepparams.source_partition + 1] - stats[17][sweepparams.source_partition]) < globalparamsK.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPDATEBLOCKS_PER_VPARTITION && globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS != ALGORITHMCLASS_ALLVERTEXISACTIVE){ sparse_readv = true; } else { sparse_readv = false; }
@@ -157,41 +158,56 @@ void ACTSP0_actit(bool_type enable, unsigned int mode,
 	
 		if(mode == ACTSPROCESSMODE || mode == ACTSPARTITIONMODE){
 		
-			#ifdef ACTS_ENABLE_BROADCASTUPROPS
+			#ifdef TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 			#ifdef ACTS_ENABLE_COMBINEDLOADS
-				ACTSP0_combinedloads_uprops_and_allstats(true, kvdram, vbuffer_source, 
+				ACTS{{context['id']}}_combinedloads_uprops_and_allstats(true, kvdram, vbuffer_source, 
 					edgestats_kvs, buffer_offsets, stats, collections_tmp, 
 						sweepparams, globalposition, globalparamsK, globalparamsE);
 			#else 
-				MEMACCESSP0_get_edgeblock_ids__or__offsets(ON, globalposition.source_partition, kvdram, vbuffer_dest, edgeblock_ids, stats, collections_tmp, globalposition.num_active_edgeblocks, globalparamsK, globalparamsE);
+				MEMACCESS{{context['id']}}_get_edgeblock_ids(ON, globalposition.source_partition, kvdram, vbuffer_dest, edgeblock_ids, stats, collections_tmp, globalposition.num_active_edgeblocks, globalparamsK, globalparamsE);
 				
-				unsigned int num_its = MEMACCESSP0_get_upropblock_workload(true, sweepparams.source_partition, kvdram, vbuffer_dest, stats, globalposition.num_active_edgeblocks, globalparamsK, xload_kvs, buffer_offsets, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
+				unsigned int num_its = MEMACCESS{{context['id']}}_get_upropblock_workload(true, sweepparams.source_partition, kvdram, vbuffer_dest, stats, globalposition.num_active_edgeblocks, globalparamsK, xload_kvs, buffer_offsets, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
+				// for(int t = 0; t < MAX_BLOCKRAM_VDESTDATA_SIZE; t++){ for(int v = 0; v < VDATA_PACKINGSIZE; v++){ vbuffer_source[v][t].data = 0; }} ////////////////////////////////////////// CRITICAL REMOVEME.
 				for(unsigned int n=0; n<num_its; n++){	
 					unsigned int voffset_kvs = 0;
 					for(unsigned int s=0; s<NUM_PEs; s++){	
 						xload_kvs[n].offset_srcbase = globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs;
 						xload_kvs[n].offset_dstbase = NAp;
 						xload_kvs[n].offset_buffer_begin = buffer_offsets[n] + s;
-						MEMACCESSP0_read__reduce(READUPROPERTYMODE, kvdram, vbuffer_source, stats, xload_kvs[n], collections_tmp, globalparamsK);
+						MEMACCESS{{context['id']}}_read__reduce(READUPROPERTYMODE, kvdram, vbuffer_source, stats, xload_kvs[n], collections_tmp, globalparamsK);
 						voffset_kvs += depth;
 					}	
 				}
 			#endif 
 			#endif 
 			
-			ACTIT_MAINLOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){ 
-			// ACTIT_MAINLOOP1: for(unsigned int llp_set=0; llp_set<1; llp_set++){ // CRITICAL FIXME NOW.
+			#ifdef ACTS_ENABLE_BROADCASTUPROPS
+			unsigned int num_its = MEMACCESS{{context['id']}}_get_upropblock_workload(true, sweepparams.source_partition, kvdram, vbuffer_dest, stats, globalposition.num_active_edgeblocks, globalparamsK, xload_kvs, buffer_offsets, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
+			for(unsigned int n=0; n<num_its; n++){	
+				unsigned int voffset_kvs = 0;
+				for(unsigned int s=0; s<NUM_PEs; s++){	
+					xload_kvs[n].offset_srcbase = globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs;
+					xload_kvs[n].offset_dstbase = NAp;
+					xload_kvs[n].offset_buffer_begin = buffer_offsets[n] + s;
+					MEMACCESS{{context['id']}}_read__reduce(READUPROPERTYMODE, kvdram, vbuffer_source, stats, xload_kvs[n], collections_tmp, globalparamsK);
+					voffset_kvs += depth;
+				}	
+			}	
+			#endif 
+			
+			// ACTIT_MAINLOOP1: for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){ 
+			ACTIT_MAINLOOP1: for(unsigned int llp_set=0; llp_set<1; llp_set++){ // CRITICAL FIXME NOW.
 				batch_type destoffset_kvs = (globalcapsule[1 + llp_set].key + globalcapsule[1 + llp_set].value) / EDGEDATA_PACKINGSIZE;
 				unsigned int destindex = 0; 
 				workload_t last_workload;
 				#ifdef ACTS_ENABLE_COMBINEDLOADS
 				unsigned int num_its; if(sparse_process == true){ num_its = globalposition.num_active_edgeblocks; } else { num_its = 1; }
 				#else 
-				unsigned int num_its = MEMACCESSP0_get_edgeblock_workload(true, kvdram, sweepparams.source_partition, llp_set, edgeblock_ids, stats, globalposition.num_active_edgeblocks, globalparamsK, globalparamsE, xload_kvs, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
+				unsigned int num_its = MEMACCESS{{context['id']}}_get_edgeblock_workload(true, kvdram, sweepparams.source_partition, llp_set, edgeblock_ids, stats, globalposition.num_active_edgeblocks, globalparamsK, globalparamsE, xload_kvs, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
 				#endif 
 				
-				READ_PROCESS_PARTITION_STORE_LOOP1B: for(unsigned int n=0; n<num_its; n++){
-				// READ_PROCESS_PARTITION_STORE_LOOP1B: for(unsigned int n=0; n<1; n++){ // CRITICAL FIXME NOW.
+				// READ_PROCESS_PARTITION_STORE_LOOP1B: for(unsigned int n=0; n<num_its; n++){
+				READ_PROCESS_PARTITION_STORE_LOOP1B: for(unsigned int n=0; n<1; n++){ // CRITICAL FIXME NOW.
 					#ifdef ACTS_ENABLE_COMBINEDLOADS
 					workload_t workload_kvs = edgestats_kvs[n];
 					#else 
@@ -204,7 +220,7 @@ void ACTSP0_actit(bool_type enable, unsigned int mode,
 					workload_kvs.offset_dstbase = destbaseaddr_kvs + destoffset_kvs + destindex;
 					workload_kvs.offset_buffer_begin = 0; // NAp;
 				
-					MEMACCESSP0_write__process_base(mode, llp_set, kvdram, vbuffer_source, stats, workload_kvs, collections_tmp, globalparamsK);
+					MEMACCESS{{context['id']}}_write__process_base(mode, llp_set, kvdram, vbuffer_source, stats, workload_kvs, collections_tmp, globalparamsK);
 					
 					globalcapsule[1 + llp_set].value += workload_kvs.size * EDGEDATA_PACKINGSIZE;	
 					destindex += workload_kvs.size;
@@ -226,26 +242,26 @@ void ACTSP0_actit(bool_type enable, unsigned int mode,
 			cout<<"actit(reduce): processing all chunks [begin_kvs: "<<workload_kvs.offset_begin<<"][end_kvs: "<<workload_kvs.offset_end<<"][size_kvs: "<<workload_kvs.size<<"][size: "<<workload_kvs.size * UPDATEDATA_PACKINGSIZE<<"] ... "<<endl;					
 			#endif
 
-			unsigned int num_its = MEMACCESSP0_get_updateblock_workload(true, sweepparams.source_partition, stats[16], stats[17], globalparamsK, xload_kvs, buffer_offsets);
-			for(unsigned int n=0; n<num_its; n++){
-			// for(unsigned int n=0; n<1; n++){ // CRITICAL FIXME NOW.
+			unsigned int num_its = MEMACCESS{{context['id']}}_get_updateblock_workload(true, sweepparams.source_partition, stats[16], stats[17], globalparamsK, xload_kvs, buffer_offsets);
+			// for(unsigned int n=0; n<num_its; n++){
+			for(unsigned int n=0; n<1; n++){ // CRITICAL FIXME NOW.
 				xload_kvs[n].offset_srcbase = globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA;
 				xload_kvs[n].offset_dstbase = NAp;
 				xload_kvs[n].offset_buffer_begin = buffer_offsets[n];
-				MEMACCESSP0_read__reduce(READVPROPERTYMODE, kvdram, vbuffer_dest, stats, xload_kvs[n], collections_tmp, globalparamsK);
+				MEMACCESS{{context['id']}}_read__reduce(READVPROPERTYMODE, kvdram, vbuffer_dest, stats, xload_kvs[n], collections_tmp, globalparamsK);
 			}
 		
 			workload_kvs.offset_srcbase = sourcebaseaddr_kvs;
 			workload_kvs.offset_dstbase = NAp;
 			workload_kvs.offset_buffer_begin = NAp;
-			MEMACCESSP0_read__reduce(ACTSREDUCEMODE, kvdram, vbuffer_dest, stats, workload_kvs, collections_tmp, globalparamsK);
+			MEMACCESS{{context['id']}}_read__reduce(ACTSREDUCEMODE, kvdram, vbuffer_dest, stats, workload_kvs, collections_tmp, globalparamsK);
 
-			for(unsigned int n=0; n<num_its; n++){
-			// for(unsigned int n=0; n<1; n++){ // CRITICAL FIXME NOW.
+			// for(unsigned int n=0; n<num_its; n++){
+			for(unsigned int n=0; n<1; n++){ // CRITICAL FIXME NOW.
 				xload_kvs[n].offset_srcbase = sourcebaseaddr_kvs + xload_kvs[n].offset_begin;
 				xload_kvs[n].offset_dstbase = globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + xload_kvs[n].offset_begin, 0;
 				xload_kvs[n].offset_buffer_begin = buffer_offsets[n];
-				MEMACCESSP0_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats, xload_kvs[n], collections_tmp, globalparamsK);
+				MEMACCESS{{context['id']}}_write__process_base(SAVEVPROPERTYMODE, NAp, kvdram, vbuffer_dest, stats, xload_kvs[n], collections_tmp, globalparamsK);
 			}
 		}
 		#endif 
@@ -253,7 +269,7 @@ void ACTSP0_actit(bool_type enable, unsigned int mode,
 	
 	// prepare stats
 	#ifdef ACTS_ENABLE_COLLECTSTATS
-	if(mode == ACTSPROCESSMODE && UTILP0__processit__i_am_last__(globalposition) == true){
+	if(mode == ACTSPROCESSMODE && UTIL{{context['id']}}__processit__i_am_last__(globalposition) == true){
 		#ifdef _DEBUGMODE_KERNELPRINTS
 		cout<<"-------------------------------- __processit__i_am_last__ == true, partition: "<<sweepparams.source_partition<<" ----------------------------------"<<endl;
 		#endif
@@ -286,7 +302,7 @@ void ACTSP0_actit(bool_type enable, unsigned int mode,
 		#pragma HLS PIPELINE II=1	
 			datas[0] = stats[16][t];
 			datas[1] = stats[17][t];
-			UTILP0_WriteDatas(kvdram, globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS + t, datas);
+			UTIL{{context['id']}}_WriteDatas(kvdram, globalparamsK.BASEOFFSETKVS_ACTIVEUPDATEBLOCKS + t, datas);
 		}
 	}
 	collections[TRAVERSEDEDGES_COLLECTIONID] = collections_tmp[TRAVERSEDEDGES_COLLECTIONID];
@@ -296,4 +312,5 @@ void ACTSP0_actit(bool_type enable, unsigned int mode,
 	// exit(EXIT_SUCCESS);
 	#endif 
 }
+
 

@@ -57,6 +57,7 @@ value_t reduce_func_sssp(value_t vtemp, value_t vdata, value_t res, unsigned int
 
 value_t process_func(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	#pragma HLS INLINE 
+	#ifdef ALGOFUNCS_ENABLE_ALLALGORITHMS
 	if(GraphAlgo == PAGERANK){
 		return process_func_pr(udata, edgew);
 	} else if(GraphAlgo == CF){
@@ -70,10 +71,14 @@ value_t process_func(value_t udata, value_t edgew, unsigned int GraphAlgo){
 	} else {
 		return process_func_pr(udata, edgew);
 	}
+	#else 
+	return process_func_pr(udata, edgew);	
+	#endif 
 }
 
 value_t reduce_func(value_t vtemp, value_t vdata, value_t res, unsigned int GraphIter, unsigned int GraphAlgo){
 	#pragma HLS INLINE 
+	#ifdef ALGOFUNCS_ENABLE_ALLALGORITHMS
 	if(GraphAlgo == PAGERANK){ 
 		return reduce_func_pr(vtemp, vdata, res, GraphIter);
 	} else if(GraphAlgo == CF){
@@ -87,6 +92,9 @@ value_t reduce_func(value_t vtemp, value_t vdata, value_t res, unsigned int Grap
 	} else {
 		return reduce_func_pr(vtemp, vdata, res, GraphIter);
 	}
+	#else 
+	return reduce_func_pr(vtemp, vdata, res, GraphIter);
+	#endif 
 }
 
 

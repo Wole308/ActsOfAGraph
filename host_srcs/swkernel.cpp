@@ -100,6 +100,7 @@ void swkernel::run3(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_ve
 		(uint512_dt *)kvsourcedram[0],
 		(uint512_dt *)vdramA
 	);
+	// exit(EXIT_SUCCESS);
 	
 	#ifdef _DEBUGMODE_HOSTPRINTS3
 	cout<<"------------------------------------ topkernelP1: processing P1 instances ------------------------------------"<<endl;
@@ -116,6 +117,7 @@ void swkernel::run3(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_ve
 		(uint512_dt *)kvsourcedram[NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1],
 		(uint512_dt *)vdramC
 	);
+	// exit(EXIT_SUCCESS);
 }
 void swkernel::run12(uint512_vec_dt * vdramA, uint512_vec_dt * vdramB, uint512_vec_dt * vdramC, uint512_vec_dt * edges[MAXNUM_PEs], uint512_vec_dt * kvsourcedram[MAXNUM_PEs]){
 	unsigned int A_OFFSET = 0;

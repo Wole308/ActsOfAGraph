@@ -120,10 +120,9 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	cout<<"--------------------------- goclkernel::runapp:: _NUMCOMPUTEUNITS_SLR0: "<<_NUMCOMPUTEUNITS_SLR0<<", _NUMCOMPUTEUNITS_SLR1: "<<_NUMCOMPUTEUNITS_SLR1<<", _NUMCOMPUTEUNITS_SLR2: "<<_NUMCOMPUTEUNITS_SLR2<<endl;
 	
 	unsigned int index_count = 0;
-	unsigned int edgessz_kvs = 0;
 	unsigned int kvdramsz_kvs = 0;
-	edgessz_kvs = universalparams.MAXHBMCAPACITY_KVS2; // KVSOURCEDRAMSZ_KVS;  // CRITICAL REMOVEME.
-	kvdramsz_kvs = universalparams.MAXHBMCAPACITY_KVS2; // KVSOURCEDRAMSZ_KVS;
+	kvdramsz_kvs = universalparams.MAXHBMCAPACITY_KVS2; // KVSOURCEDRAMSZ_KVS; 50000000
+	// kvdramsz_kvs = 50000000 / 16;
 	
 	unsigned int C = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_KVDRAMWORKSPACE].data[0].key;
 	unsigned int D = kvsourcedram[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_SIZE_KVDRAMWORKSPACE].data[0].key / VECTOR_SIZE;
@@ -132,7 +131,7 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 	vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0;
 	for(unsigned int i=0; i<NUM_PEs; i++){ kvsourcedram[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ALGORITHMINFO_GRAPHITERATIONID].data[0].key = 0; } // reset
 	
-	cout<<">>> goclkernel::runapp:: edgessz: "<<edgessz_kvs*VECTOR_SIZE<<" (edgessz_kvs: "<<edgessz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<"  bytes), kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUM_PEs: "<<NUM_PEs<<endl;
+	cout<<">>> goclkernel::runapp:: kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE<<" (kvdramsz: "<<kvdramsz_kvs*VECTOR_SIZE*sizeof(keyvalue_t)<<" bytes), NUM_PEs: "<<NUM_PEs<<endl;
 	
 	uint512_vec_dt * vdramtemp[3];
 	vdramtemp[0] = (uint512_vec_dt *) aligned_alloc(4096, (universalparams.MAXHBMCAPACITY_KVS2 * sizeof(uint512_vec_dt)));
@@ -441,8 +440,8 @@ long double goclkernel::runapp(std::string binaryFile[2], uint512_vec_dt * vdram
 		
 		// synchronizing...
 		std::cout <<">>> goclkernel: synchronizing vertices in iteration "<<GraphIter<<"..."<<endl;
-		OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
-		OCL_CHECK(err, err = kernel_events[3].wait());
+		// OCL_CHECK(err, err = q.enqueueTask(krnls_sync, NULL, &kernel_events[3])); 
+		// OCL_CHECK(err, err = kernel_events[3].wait());
 		
 		#ifdef CONFIG_ENABLE_PROFILING
 		long double iter_timeelapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - iter_starttime).count();

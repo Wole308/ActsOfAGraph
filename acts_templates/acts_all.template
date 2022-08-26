@@ -1,6 +1,12 @@
 #include "acts_all.h"
 
 #ifdef SW
+unsigned int globalvar_actsinstid;
+unsigned int globalvar_dramreadstats[64][2];
+unsigned int globalvar_dramwritestats[64][2];
+#endif 
+
+#ifdef SW
 acts_all::acts_all(mydebug * _mydebugobj){
 	actsutilityobj = new actsutility();
 	mydebugobj = _mydebugobj;

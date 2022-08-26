@@ -507,7 +507,7 @@ void utility::set_callback(cl_event event, const char *queue_name) {
 }
 #endif 
 
-#define UTILITY_BRIEFPRINTONLY
+/* #define UTILITY_BRIEFPRINTONLY
 void utility::printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]){
 	
 	// unsigned int F0 = 0;
@@ -690,7 +690,7 @@ void utility::printallfeedback(string message, string graphpath, uint512_vec_dt 
 	
 	return;
 }
-
+ */
 
 
 

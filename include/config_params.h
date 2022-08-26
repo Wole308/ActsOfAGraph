@@ -29,13 +29,47 @@ loadgraph.cpp
 
 // ********************************************** POWERFUL CONFIGS **********************************************
 #define CONFIG_RELEASE_VERSION1
-#define CONFIG_RELEASE_VERSION2 // { (1) mergeVs fixed. }
-// #define CONFIG_RELEASE_VERSION3 // { readANDRVchunks fixed. }
-#define CONFIG_RELEASE_VERSION_BROADCASTUPROPS // { broadcast-one-by-one / broadcast-one-to-multiple fixed. }
 #define CONFIG_RELEASE_VERSION4 // { (1) exchangeVs fixed. }
-#define CONFIG_RELEASE_VERSION5 // { (1) full kernel run fixed. }
+#define CONFIG_RELEASE_FULLKERNEL // { (1) full kernel run fixed. }
 #define CONFIG_RELEASE_VERSION6 // readV, saveV
 #define CONFIG_RELEASE_VERSION7 // mask included
+// #define CONFIG_RELEASE_VERSION_DUPLICATEEDGES 
+
+
+
+
+
+// #ifdef RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR //////////////////////////////////////////////////
+// >>> top_usrcv_nudstv.cpp <<<
+// #define TOP_ENABLE_SHRINKVBUFFER // { loadgraph.cpp }
+#define TOP_ENABLE_MERGEVS // CRITICAL FIXME NOW. *
+#define TOP_ENABLE_BROADCASTUPROPS // CRITICAL FIXME NOW ***
+// #define TOP_ENABLE_USEURAMS // CRITICAL FIXME NOW.
+
+// >>> mem_acces.cpp <<< 
+#define MEMACCESS_ENABLE_COLLECTSTATSFORHOST
+#define MEMACCESS_ENABLE_ATOMICREDUCE // CRITICAL FIXME NOW.
+#define MEMACCESS_ENABLE_CYCLICSHIFTS 
+// #define MEMACCESS_ENABLE_USEHLSSTREAM
+#define MEMACCESS_ENABLE_SPARSEEDGEBLOCKS // CRITICAL FIXME NOW.
+#define MEMACCESS_ENABLE_SEPERATEINTERFACEFORDRAMREADS
+#define MEMACCESS_ENABLE_SEPERATEINTERFACEFORDRAMWRITES
+#define MEMACCESS_ENABLE_SEPERATEINTERFACEFORMISCREADSANDWRITES
+
+// >>> acts.cpp <<<
+#define ACTS_ENABLE_READUPROPS // CRITICAL FIXME NOW ***.
+#define ACTS_ENABLE_PROCESSEDGES
+#define ACTS_ENABLE_REDUCE
+#define ACTS_ENABLE_COLLECTSTATS // CRITICAL FIXME NOW.
+#define ACTS_ENABLE_COLLECTHOSTSTATS
+
+// >>> algo_funcs.cpp <<<
+#define ALGOFUNCS_ENABLE_ALLALGORITHMS 
+// #endif ////////////////////////////////////////////////// //////////////////////////////////////////////////
+
+
+
+
 
 // #define CONFIG_ENABLE___SPARSEUPDATEBUFFER___ 
 
@@ -85,7 +119,20 @@ loadgraph.cpp
 
 // #define _COLLECT_METADATA_FROM_KERNEL_
 
+
+
+// #define CONFIG_COLLECT_MEMSTATS
+
+
+
+
 #endif
+
+/*
+NEWCHANGES:
+MEMACCESS{{context['id']}}_write__process_base: removed 'if(mode == ACTSPROCESSMODE){ load(kvdram, c0, workload_kvs); }'
+
+*/
 
 
 

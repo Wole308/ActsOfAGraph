@@ -15,42 +15,6 @@ unsigned int acts_helper::getlocalvid(unsigned int vid){
 	return (vid - s) / NUM_PEs; 
 }
 
-void acts_helper::load_edgeblock_stats(unsigned int vid, unsigned int v_p, int GraphIter, vector<edge_t> &vertexptrbuffer, vector<edge2_type> &edgedatabuffer,
-		uint512_ivec_dt * tempvdram, uint512_ivec_dt * tempkvdram[NUM_PEs], unsigned int vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS, unsigned int kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS,
-			unsigned int * edgeblock_mask[MAXNUM_PEs], unsigned int * indexes[MAXNUM_PEs]){
-	unsigned int vsize_vP = myuniversalparams.PROCESSPARTITIONSZ;
-	unsigned int vsize_LLP = myuniversalparams.REDUCEPARTITIONSZ_KVS2;
-	unsigned int vsize_LLPset = vsize_LLP * VDATA_PACKINGSIZE;
-	unsigned int max___ = ((myuniversalparams.NUM_EDGES / EDGEDATA_PACKINGSIZE) / NUM_PEs) / NUM_EDGESKVS_PER_UPROPBLOCK + 8192; // ~20K
-	
-	edge_t vptr_begin = vertexptrbuffer[vid];
-	edge_t vptr_end = vertexptrbuffer[vid+1];
-	edge_t edges_size = vptr_end - vptr_begin;
-	if(vptr_end < vptr_begin){ return; } // FIXME. 
-	// unsigned int v_p_ = vid / myuniversalparams.PROCESSPARTITIONSZ;
-	#ifdef _DEBUGMODE_CHECKS3		
-	if(vptr_end < vptr_begin){ cout<<"extract_stats: ERROR 29: vptr_end("<<vptr_end<<") < vptr_begin("<<vptr_begin<<"). exiting..."<<endl; exit(EXIT_FAILURE); }
-	#endif
-	for(unsigned int k=0; k<edges_size; k++){
-		edge2_type edge = edgedatabuffer[vptr_begin + k];
-		unsigned int H = (edge.dstvid % (EDGEDATA_PACKINGSIZE * NUM_PEs)) / EDGEDATA_PACKINGSIZE;
-		unsigned int v_p_unused = (edge.srcvid / myuniversalparams.PROCESSPARTITIONSZ);
-		unsigned int ldstvid = utilityobj->UTIL_GETLOCALVID(edge.dstvid, H);
-		unsigned int llp_set = ldstvid / vsize_LLPset; 
-		utilityobj->checkoutofbounds("extract_stats::ERROR 561::", edge.eblockid, max___, vid, k, NAp);	
-		if(edgeblock_mask[H][edge.eblockid] == 0){
-			unsigned int offset = ((v_p * MAXNUMGRAPHITERATIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION) + ((GraphIter + 1) * MAXNUM_EDGEBLOCKS_PER_VPARTITION));
-			utilityobj->checkoutofbounds("extract_stats::ERROR 562::", H, MAXNUM_PEs, NAp, offset, indexes[H][llp_set]);	
-			utilityobj->checkoutofbounds("extract_stats::ERROR 563::", llp_set, myuniversalparams.NUMREDUCEPARTITIONS, NAp, offset, indexes[H][llp_set]);	
-			utilityobj->checkoutofbounds("extract_stats::ERROR 564::", vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset + 1 + indexes[H][llp_set], ((1 << 28) / 4) / 16, NAp, offset, indexes[H][llp_set]);	
-			if(indexes[H][llp_set] < MAXNUM_EDGEBLOCKS_PER_VPARTITION - 1){ tempkvdram[H][kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset + 1 + indexes[H][llp_set]].data[llp_set] = edge.eblockid; }
-			edgeblock_mask[H][edge.eblockid] = 1;
-			indexes[H][llp_set] += 1;
-		}
-	}
-	return;
-}
-
 void acts_helper::set_edgeblock_headers(int GraphIter, unsigned int v_p, 
 	uint512_ivec_dt * tempvdram, uint512_ivec_dt * tempkvdram[NUM_PEs], unsigned int vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS, unsigned int kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS,
 		unsigned int * indexes[MAXNUM_PEs]){
@@ -91,17 +55,12 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 	
 	uint512_ivec_dt * tempvdram = (uint512_ivec_dt *)vdram;	
 	uint512_ivec_dt * tempkvdram[NUM_PEs]; for(unsigned int i=0; i<NUM_PEs; i++){ tempkvdram[i] = (uint512_ivec_dt *)kvbuffer[i]; }
-	unsigned int vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS].data[0].key;
-	unsigned int kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS = kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEEDGEBLOCKS].data[0].key;
 	
-	unsigned int * upropblock_stats[MAXNUMGRAPHITERATIONS][MAXNUM_VPs];
-	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ upropblock_stats[iter][v_p] = new unsigned int[MAXNUM_EDGEBLOCKS_PER_VPARTITION]; }}
-	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ upropblock_stats[iter][v_p][t] = 0; }}}
-	
+	unsigned int * upropblock_stats[MAXNUMGRAPHITERATIONS][MAXNUM_VPs]; 
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ 
 		for(unsigned int v_p=0; v_p<MAXNUM_VPs; v_p++){ 
-			upropblock_stats[iter][v_p] = new unsigned int[MAXNUM_EDGEBLOCKS_PER_VPARTITION]; 
-			for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ upropblock_stats[iter][v_p][t] = 0; }
+			upropblock_stats[iter][v_p] = new unsigned int[myuniversalparams.KVDATA_RANGE / NUM_VERTICES_PER_UPROPBLOCK];
+			for(unsigned int t=0; t<myuniversalparams.KVDATA_RANGE / NUM_VERTICES_PER_UPROPBLOCK; t++){ upropblock_stats[iter][v_p][t] = 0; }
 		}
 	}
 	
@@ -130,31 +89,6 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 	unsigned int num_iters = MAXNUMGRAPHITERATIONS; if(myuniversalparams.NUM_ITERATIONS < 5){ num_iters = myuniversalparams.NUM_ITERATIONS; }
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){ for(unsigned int t=0; t<myuniversalparams.NUMPROCESSEDGESPARTITIONS; t++){ iteration_stats[iter][t].A = 0; iteration_stats[iter][t].B = 0; }}
 	bool onetime = false;
-	
-	// reset stats 
-	for(GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){ // MAXNUMGRAPHITERATIONS
-		for(unsigned int H=0; H<NUM_PEs; H++){ // NUM_PEs
-			for(unsigned int v_p=0; v_p<myuniversalparams.NUMPROCESSEDGESPARTITIONS; v_p++){ // myuniversalparams.NUMPROCESSEDGESPARTITIONS
-				for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){ // num_LLPset
-					for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){ // MAXNUM_EDGEBLOCKS_PER_VPARTITION
-						unsigned int offset = ((v_p * MAXNUMGRAPHITERATIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION) + ((GraphIter + 0) * MAXNUM_EDGEBLOCKS_PER_VPARTITION));
-						tempkvdram[H][kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset + t].data[llp_set] = 0; 	
-					}
-				}
-			}
-		}
-	}
-
-	// setting root vid...
-	unsigned int rootvid = actvvs[0];
-	unsigned int v_p_ = rootvid / myuniversalparams.PROCESSPARTITIONSZ;
-	load_edgeblock_stats(rootvid, v_p_, -1, vertexptrbuffer, edgedatabuffer,
-					tempvdram, tempkvdram, vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS, kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS,
-						edgeblock_mask, indexes);	
-	// set headers for edgeblock stats 
-	set_edgeblock_headers(-1, 0, 
-					tempvdram, tempkvdram, vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS, kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS,
-						indexes);
 	
 	for(GraphIter=0; GraphIter<MAXNUMGRAPHITERATIONS; GraphIter++){
 		for(unsigned int i=0; i<MAXNUM_PEs; i++){ for(unsigned int t=0; t<MAXNUM_LLPSETs; t++){ indexes[i][t] = 0; }}
@@ -215,20 +149,8 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 				// load edgeblock stats
 				#ifdef _DEBUGMODE_HOSTPRINTS4
 				if(onetime == false){ cout<<">>> extract_stats: populating metadata (edgeblock stats) ... "<<endl; onetime = true; }
-				#endif 
-				load_edgeblock_stats(vid, v_p_, GraphIter, vertexptrbuffer, edgedatabuffer,
-					tempvdram, tempkvdram, vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS, kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS,
-						edgeblock_mask, indexes);	
+				#endif
 			}
-			
-			// set headers for edgeblock stats 
-			if(vid % myuniversalparams.PROCESSPARTITIONSZ == myuniversalparams.PROCESSPARTITIONSZ - 1){ 
-				set_edgeblock_headers(GraphIter, v_p, 
-					tempvdram, tempkvdram, vdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS, kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS,
-						indexes);
-			}
-			
-			if(vid % myuniversalparams.PROCESSPARTITIONSZ == myuniversalparams.PROCESSPARTITIONSZ - 1){ v_p += 1; }
 		}
 		
 		// check for finish
@@ -252,62 +174,42 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 	cout<<">>> extract_stats: populating metadata (vpartition_stats) ... "<<endl;		
 	#endif
 	unsigned int vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTICESPARTITIONMASK].data[0].key;
-	unsigned int vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS].data[0].key;
-	unsigned int kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS = kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS].data[0].key;
+	#ifdef NOT____USED
 	for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
-		// for(unsigned int t=0; t<myuniversalparams.NUMPROCESSEDGESPARTITIONS; t++){ tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + t].data[iter] = vpartition_stats[iter][t].A; }		
 		for(unsigned int v_p=0; v_p<myuniversalparams.NUMPROCESSEDGESPARTITIONS; v_p++){
-			if(vpartition_stats[iter][v_p].A > 0){
-				unsigned int max = 0;
-				for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){
-					for(unsigned int H=0; H<NUM_PEs; H++){
-						unsigned int offset = ((v_p * MAXNUMGRAPHITERATIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION) + (iter * MAXNUM_EDGEBLOCKS_PER_VPARTITION));
-						unsigned int data = tempkvdram[H][kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset + 0].data[llp_set]; 
-						if(max < data){ max = data; }
-					}
-				}
-				// cout<<"extract_stats: -------------- iter: "<<iter<<", v_p: "<<v_p<<", max: "<<max<<" ---------------------"<<endl;
-				tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] = max;
-			} else {
-				tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] = 0;
-			}
+			tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] = vpartition_stats[iter][v_p].A;
+			if(iter==0 && v_p < 16 && false){ cout<<"~~~ acts_helper: tempvdram["<<vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p<<"].data["<<iter<<"]: "<<tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter]<<endl; }
+			// if(iter==0){ cout<<"~~~ tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + "<<v_p<<"].data["<<iter<<"]: "<<tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter]<<endl; }
 		}
 	}
-	
+	#endif 
+
 	// load upropblock stats
 	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<">>> extract_stats: populating metadata (upropblock_stats) ... "<<endl;		
 	#endif 
+	unsigned int vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS = vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS].data[0].key;
+	unsigned int kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS = kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_ACTIVEUPROPBLOCKS].data[0].key;
 	for(unsigned int v_p=0; v_p<myuniversalparams.NUMPROCESSEDGESPARTITIONS; v_p++){ 
 		for(unsigned int iter=0; iter<MAXNUMGRAPHITERATIONS; iter++){
-			unsigned int index = 1;
-			unsigned int offset = ((v_p * MAXNUMGRAPHITERATIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION) + (iter * MAXNUM_EDGEBLOCKS_PER_VPARTITION)) / VECTOR2_SIZE;
-			for(unsigned int t=0; t<MAXNUM_EDGEBLOCKS_PER_VPARTITION; t++){
+			unsigned int index = 0;
+			unsigned int offset = ((v_p * MAXNUMGRAPHITERATIONS * MAXNUM_UPROPBLOCKS_PER_VPARTITION) + (iter * MAXNUM_UPROPBLOCKS_PER_VPARTITION)) / VECTOR2_SIZE;
+			tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] = 0; 
+			for(unsigned int t=0; t<MAXNUM_UPROPBLOCKS_PER_VPARTITION; t++){
 				if(upropblock_stats[iter][v_p][t] == 1){ // > 0
-					tempvdram[vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = t; 
-					for(unsigned int i=0; i<NUM_PEs; i++){ tempkvdram[i][kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = t; }
+					if(index < MAXNUM_UPROPBLOCKS_PER_VPARTITION){
+						tempvdram[vdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = t; 
+						for(unsigned int i=0; i<NUM_PEs; i++){ tempkvdram[i][kvdram_BASEOFFSETKVS_ACTIVEUPROPBLOCKS + offset + (index / VECTOR2_SIZE)].data[index % VECTOR2_SIZE] = t; }
+						// if(iter==9 && v_p==4){ cout<<"acts_helper.cpp --------------------> t: "<<t<<endl; }
+						tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter] += 1;
+					}
 					index += 1;
 				}
 			}
+			// if(iter==9){ cout<<"tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + "<<v_p<<"].data["<<iter<<"]: "<<tempvdram[vdram_BASEOFFSETKVS_VERTICESPARTITIONMASK + v_p].data[iter]<<endl; }
 		}		
 	}
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS3 // debug - print edge block stats // 4*
-	for(GraphIter=0; GraphIter<8; GraphIter++){ // MAXNUMGRAPHITERATIONS
-	cout<<"+++ acts_helper: printing edgeblock stats for iteration "<<GraphIter<<endl;	
-		for(unsigned int H=0; H<1; H++){ // NUM_PEs
-			for(unsigned int v_p=0; v_p<1; v_p++){ // myuniversalparams.NUMPROCESSEDGESPARTITIONS
-				for(unsigned int llp_set=0; llp_set<num_LLPset; llp_set++){ // num_LLPset
-					for(unsigned int t=0; t<8; t++){ // MAXNUM_EDGEBLOCKS_PER_VPARTITION
-						unsigned int offset = ((v_p * MAXNUMGRAPHITERATIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION) + ((GraphIter) * MAXNUM_EDGEBLOCKS_PER_VPARTITION));
-						unsigned int data = tempkvdram[H][kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS + offset + t].data[llp_set]; 	
-						cout<<"extract_stats:: tempkvdram["<<H<<"]["<<v_p<<"]["<<kvdram_BASEOFFSETKVS_ACTIVEEDGEBLOCKS<<" + "<<offset + t<<"].data["<<llp_set<<"]: "<<data<<endl;
-					}
-				}
-			}
-		}
-	}
-	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS//4 // debug - print uprop block stats
 	for(unsigned int iter=0; iter<GraphIter+1; iter++){
 		cout<<"acts_helper: printing upropblock_stats for iteration "<<iter<<endl;
@@ -365,67 +267,75 @@ unsigned int acts_helper::extract_stats(uint512_vec_dt * vdram, uint512_vec_dt *
 	return GraphIter+1;
 }
 
-unsigned int acts_helper::getfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs], universalparams_t universalparams){
+float acts_helper::getfeedbackstats(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs], universalparams_t universalparams){
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	cout<<endl<<"acts_helper::getfeedback: getting feedback... "<<endl;
+	cout<<endl<<"acts_helper::getfeedbackstats: getting feedback... "<<endl;
 	#endif
 	
 	unsigned int F0 = 0;
 	unsigned int F1 = 1;
 	unsigned int F2 = 2;
-	unsigned int num_traversed_edges = 0;
+	float total__latency_ms = 0;
 	
 	unsigned int num_iters_toprint = universalparams.NUM_ITERATIONS; // MAXNUMGRAPHITERATIONS;
 	if(universalparams.ALGORITHM != BFS && universalparams.ALGORITHM != SSSP){ num_iters_toprint = 1; }
 	
-	for(unsigned int i=0; i<1; i++){ // NUM_PEs
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	for(unsigned int i=0; i<1; i++){
 		for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
-			unsigned int num_edgestraversed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
-			unsigned int num_verticestraversed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[1].key;
-			
-			#ifdef _DEBUGMODE_HOSTPRINTS4
-			cout<<"[PE:"<<i<<"][Iter: "<<GraphIter<<"]:: edges trav: "<<num_edgestraversed<<", vertices trav: "<<num_verticestraversed<<""<<endl;	
-			#endif 
+			unsigned int PROCESSINGPHASE_TRANSFSZ_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].key;	
+			unsigned int PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID].key;
+			unsigned int REDUCEPHASE_TRANSFSZ_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[REDUCEPHASE_TRANSFSZ_COLLECTIONID].key;
+			unsigned int SYNCPHASE_TRANSFSZ_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[SYNCPHASE_TRANSFSZ_COLLECTIONID].key;
+
+			cout<<"[PE:"<<i<<"][Iter: "<<GraphIter<<"]:: processing phase transfsz: "<<PROCESSINGPHASE_TRANSFSZ_COLLECTIONID__<<", partitioning phase transfsz: "<<PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID__<<", reduce phase transfsz: "<<REDUCEPHASE_TRANSFSZ_COLLECTIONID__<<", sync phase transfsz: "<<SYNCPHASE_TRANSFSZ_COLLECTIONID__<<endl;				
 		}
 	}
+	#endif 
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int i=0; i<NUM_PEs; i++){ // NUM_PEs
-		if(i == 0 && i%NUMCOMPUTEUNITS_SLR2==0){} else { continue; } 
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	for(unsigned int i=0; i<1; i++){
 		for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
-			unsigned int num_edgestraversed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
-			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].value;	
-			unsigned int num_updatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[1].key;	
+			unsigned int NUMEDGESPROCESSED_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[NUMEDGESPROCESSED_COLLECTIONID].key;	
+			unsigned int NUMVERTICESPROCESSED_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[NUMVERTICESPROCESSED_COLLECTIONID].key;
 			
-			#ifdef _DEBUGMODE_HOSTPRINTS4
-			cout<<"[PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges traversed: "<<num_edgestraversed<<", num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_updatesreduced<<""<<endl;	
-			#endif 
+			cout<<"[PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges processed: "<<NUMEDGESPROCESSED_COLLECTIONID__<<", num vertices processed: "<<NUMVERTICESPROCESSED_COLLECTIONID__<<"."<<" "<<endl;				
 		}
 	}
 	#endif 
 	
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
-		unsigned int num_edgestraversed = 0;
-		unsigned int num_edgesprocessed = 0;
-		unsigned int num_updatesreduced = 0;
-		for(unsigned int i=0; i<NUM_PEs; i++){
-			num_edgestraversed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
-			num_edgesprocessed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].value;	
-			num_updatesreduced += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[1].key;	
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	for(unsigned int i=0; i<1; i++){
+		for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
+			unsigned int NUMREADSFROMDRAM_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[NUMREADSFROMDRAM_COLLECTIONID].key;	
+			unsigned int NUMWRITESTODRAM_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[NUMWRITESTODRAM_COLLECTIONID].key;
+			
+			cout<<"[PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num reads from dram: "<<NUMREADSFROMDRAM_COLLECTIONID__<<", num writes to dram: "<<NUMWRITESTODRAM_COLLECTIONID__<<"."<<" "<<endl;				
 		}
-		num_traversed_edges += num_edgesprocessed;
-		#ifdef _DEBUGMODE_HOSTPRINTS4
-		cout<<"[PE:ALL][Iter: "<<GraphIter<<"]:: num edges traversed: "<<num_edgestraversed<<", num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_updatesreduced<<""<<endl;	
-		#endif 
 	}
 	#endif 
 	
-	// num_traversed_edges = num_edgesprocessed;
-	#ifdef _DEBUGMODE_HOSTPRINTS
-	cout<<">>> acts_helper:: num_traversed_edges: "<<num_traversed_edges<<", num_edgesprocessed: "<<endl;
-	#endif 
-	return num_traversed_edges;
+	#ifdef _DEBUGMODE_HOSTPRINTS4
+	cout<<"---- AVERAGE_MEMACCESSTHROUGHPUT_SINGLEHBMCHANNEL_MILIONEDGESPERSEC: "<<AVERAGE_MEMACCESSTHROUGHPUT_SINGLEHBMCHANNEL_MILIONEDGESPERSEC<<endl;
+	for(unsigned int i=0; i<1; i++){
+		for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
+			unsigned int PROCESSINGPHASE_TRANSFSZ_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].key;	
+			unsigned int PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID].key;
+			unsigned int REDUCEPHASE_TRANSFSZ_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[REDUCEPHASE_TRANSFSZ_COLLECTIONID].key;
+			unsigned int SYNCPHASE_TRANSFSZ_COLLECTIONID__ = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + GraphIter].data[SYNCPHASE_TRANSFSZ_COLLECTIONID].key;
+
+			unsigned int PROCESSINGPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS = (PROCESSINGPHASE_TRANSFSZ_COLLECTIONID__ / 1000) / AVERAGE_MEMACCESSTHROUGHPUT_SINGLEHBMCHANNEL_MILIONEDGESPERSEC;
+			unsigned int PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS = (PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID__ / 1000) / AVERAGE_MEMACCESSTHROUGHPUT_SINGLEHBMCHANNEL_MILIONEDGESPERSEC;
+			unsigned int REDUCEPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS = (REDUCEPHASE_TRANSFSZ_COLLECTIONID__ / 1000) / AVERAGE_MEMACCESSTHROUGHPUT_SINGLEHBMCHANNEL_MILIONEDGESPERSEC;
+			unsigned int SYNCPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS = (SYNCPHASE_TRANSFSZ_COLLECTIONID__ / 1000) / AVERAGE_MEMACCESSTHROUGHPUT_SINGLEHBMCHANNEL_MILIONEDGESPERSEC;
+			unsigned int total__iteration_latency_ms = PROCESSINGPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS + PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS + REDUCEPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS + SYNCPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS;
+			total__latency_ms += total__iteration_latency_ms;
+			
+			cout<<"[PE:"<<i<<"][Iter: "<<GraphIter<<"][latencies]:: total latency (ms): "<<total__iteration_latency_ms<<"ms [processing phase: "<<PROCESSINGPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS<<"ms, partitioning phase: "<<PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS<<"ms, reduce phase: "<<REDUCEPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS<<"ms, sync phase: "<<SYNCPHASE_TRANSFSZ_COLLECTIONID__LATENCY_MS<<"ms]"<<endl;				
+		}
+	}
+	#endif
+	return total__latency_ms;
 }
 
 void acts_helper::verifyresults(uint512_vec_dt * vbuffer, globalparams_t globalparams, universalparams_t universalparams){
