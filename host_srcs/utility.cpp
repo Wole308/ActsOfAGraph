@@ -94,7 +94,7 @@ void utility::printallparameters(){
 	
 	std::cout<<"utility:: PROCESSPARTITIONSZ / NUM_PEs: "<<universalparams.PROCESSPARTITIONSZ / NUM_PEs<<" (remainder "<<(1 << universalparams.PROCESSPARTITIONSZ_KVS2) % NUM_PEs<<")"<<std::endl;
 	std::cout<<"utility:: PROCESSPARTITIONSZ_KVS2 / NUM_PEs: "<<universalparams.PROCESSPARTITIONSZ_KVS2 / NUM_PEs<<" (remainder "<<universalparams.PROCESSPARTITIONSZ_KVS2 % NUM_PEs<<")"<<std::endl;
-	std::cout<<"utility:: SUB_CHUNK_HEIGHT: "<<universalparams.SUB_CHUNK_HEIGHT<<std::endl;
+	// std::cout<<"utility:: SUB_CHUNK_HEIGHT: "<<universalparams.SUB_CHUNK_HEIGHT<<std::endl;
 	
 	std::cout<<"utility:: VDATA_SHRINK_RATIO_POW: "<<VDATA_SHRINK_RATIO_POW<<std::endl;
 	std::cout<<"utility:: VDATA_SHRINK_RATIO: "<<VDATA_SHRINK_RATIO<<std::endl;
@@ -415,33 +415,33 @@ void utility::WRITEBITSTO_UINTV(unsigned int * data, unsigned int index, unsigne
 	return; 
 }
 unsigned int utility::UTIL_GETLOCALVID(unsigned int vid, unsigned int instid){
-	#pragma HLS INLINE
-	// #ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
-	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
-	unsigned int y = vid / W; 
-	unsigned int x = vid % EDGEDATA_PACKINGSIZE;
-	unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
-	return lvid;
-	// #endif 
+	// unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
+	// unsigned int y = vid / W; 
+	// unsigned int x = vid % EDGEDATA_PACKINGSIZE;
+	// unsigned int lvid = (y * EDGEDATA_PACKINGSIZE) + x;
+	// return lvid;
 	
-	// #ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
-	// return (vid - instid) / NUM_PEs;
-	// #endif 
+	unsigned int W = (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int y = vid / W; 
+	unsigned int x = vid % (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);
+	unsigned int lvid = (y * (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE)) + x;
+	
+	// cout<<"UTIL_GETLOCALVID:: vid: "<<vid<<endl;
+	// cout<<"UTIL_GETLOCALVID:: W: "<<W<<endl;
+	// cout<<"UTIL_GETLOCALVID:: y: "<<y<<endl;
+	// cout<<"UTIL_GETLOCALVID:: x: "<<x<<endl;
+	// cout<<"UTIL_GETLOCALVID:: lvid: "<<lvid<<endl;
+	// exit(EXIT_SUCCESS);
+	return lvid;
 }
 unsigned int utility::UTIL_GETREALVID(unsigned int lvid, unsigned int instid){
 	#pragma HLS INLINE
 
-	// #ifdef CONFIG_EDGEHASHSCHEME_SETVIDS
-	unsigned int W = EDGEDATA_PACKINGSIZE * NUM_PEs;
-	unsigned int y2 = lvid / EDGEDATA_PACKINGSIZE;
-	unsigned int x2 = lvid % EDGEDATA_PACKINGSIZE;		
-	unsigned int vid = (y2 * W) + (instid * EDGEDATA_PACKINGSIZE) + x2;
+	unsigned int W = (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE) * NUM_PEs;
+	unsigned int y2 = lvid / (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);
+	unsigned int x2 = lvid % (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);		
+	unsigned int vid = (y2 * W) + (instid * (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE)) + x2;
 	return vid;
-	// #endif 
-	
-	// #ifdef CONFIG_EDGEHASHSCHEME_SINGLEVID
-	// return (lvid * NUM_PEs) + instid;
-	// #endif 
 }
 
 void utility::writedata(uint512_vec_dt * kvdram, unsigned int offset_kvs, unsigned int index, unsigned int data){
@@ -506,191 +506,6 @@ void utility::set_callback(cl_event event, const char *queue_name) {
       clSetEventCallback(event, CL_COMPLETE, event_cb, (void *)queue_name));
 }
 #endif 
-
-/* #define UTILITY_BRIEFPRINTONLY
-void utility::printallfeedback(string message, string graphpath, uint512_vec_dt * vdram, uint512_vec_dt * vdramtemp0, uint512_vec_dt * vdramtemp1, uint512_vec_dt * vdramtemp2, uint512_vec_dt * kvbuffer[NUM_PEs]){
-	
-	// unsigned int F0 = 0;
-	// unsigned int F1 = NUMCOMPUTEUNITS_SLR2;
-	// unsigned int F2 = NUMCOMPUTEUNITS_SLR2 + NUMCOMPUTEUNITS_SLR1;
-	
-	unsigned int F0 = 0;
-	unsigned int F1 = 1;
-	unsigned int F2 = 2;
-	unsigned int totalnum_edgesprocessed = 0;
-	
-	unsigned int num_iters_toprint = MAXNUMGRAPHITERATIONS;
-	if(universalparams.ALGORITHM != BFS){ num_iters_toprint = 1; }
-	
-	for(unsigned int i=0; i<1; i++){
-		for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
-			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
-			unsigned int num_vertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
-			
-			unsigned int num_validedgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].value;	
-			unsigned int num_validvertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].value;	
-			
-			cout<<">>> utility::[A]["<<message<<"][PE:"<<i<<"][Iter: "<<GraphIter<<"]:: num edges processed: "<<num_edgesprocessed<<"("<<num_validedgesprocessed<<"), num vertex updates reduced: "<<num_vertexupdatesreduced<<"("<<num_validvertexupdatesreduced<<")"<<endl;	
-		}
-	}
-
-	for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){ 
-		unsigned int num_edgesprocessed = 0;
-		unsigned int num_vertexupdatesreduced = 0;
-		unsigned int num_validedgesprocessed = 0;
-		unsigned int num_validvertexupdatesreduced = 0;
-		for(unsigned int i=0; i<NUM_PEs; i++){
-			num_edgesprocessed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
-			num_vertexupdatesreduced += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
-			
-			num_validedgesprocessed += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].value;	
-			num_validvertexupdatesreduced += kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].value;
-			
-			totalnum_edgesprocessed += num_edgesprocessed;
-		}
-		cout<<">>> utility::[A]["<<message<<"][PE:ALL][Iter: "<<GraphIter<<"]:: num edges processed: "<<num_edgesprocessed<<"("<<num_validedgesprocessed<<"), num vertex updates reduced: "<<num_vertexupdatesreduced<<"("<<num_validvertexupdatesreduced<<")"<<endl;	
-	}
-	
-	#ifndef UTILITY_BRIEFPRINTONLY
-	for(unsigned int GraphIter=0; GraphIter<num_iters_toprint; GraphIter++){
-		unsigned int sum_edgesprocessed = 0;
-		unsigned int sum_vertexupdatesreduced = 0;
-		for(unsigned int i=0; i<NUM_PEs; i++){
-			unsigned int num_edgesprocessed = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key;	
-			unsigned int num_vertexupdatesreduced = kvbuffer[i][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key;	
-			sum_edgesprocessed += num_edgesprocessed;	
-			sum_vertexupdatesreduced += num_vertexupdatesreduced;	
-			cout<<">>> utility::[B]["<<message<<"][PE:"<<i<<"]:: num edges processed: "<<num_edgesprocessed<<", num vertex updates reduced: "<<num_vertexupdatesreduced<<""<<endl;	
-		}
-		cout<<">>> utility::[B]["<<message<<"]:: num edges processed: "<<sum_edgesprocessed<<", num vertex updates reduced: "<<sum_vertexupdatesreduced<<""<<endl;	
-	}
-	
-	cout<<">>> utility::verifyresults:: Printing results from app.cpp [vdram @ 0][num processed edges stats @ processedges.cpp] & [@ 32][num reduced vertex-update stats @ processedges.cpp]"<<endl;
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + "<<GraphIter<<"]]: ("<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key<<", "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
-	}
-	
-	cout<<">>> utility::verifyresults:: Printing results from app.cpp [vdram @ 64][num processed edges stats @ processedges.cpp->actsutility.cpp]."<<endl;
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED2 + "<<GraphIter<<"]]: "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESPROCESSED2 + GraphIter].data[0].key<<endl;
-	}
-	
-	cout<<">>> utility::verifyresults:: Printing results from app.cpp [vdram @ 96][num active vertices for next iteration @ mem_access.cpp]."<<endl;
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMACTIVEVERTICESFORNEXTITERATION + "<<GraphIter<<"]]: "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMACTIVEVERTICESFORNEXTITERATION + GraphIter].data[0].key<<endl;
-	}
-	
-	cout<<">>> utility::verifyresults:: Printing results from app.cpp [@ 0][num processed edges stats @ processedges.cpp] & [@ 32][num reduced vertex-update stats @ processedges.cpp]"<<endl;
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[vdramtemp0[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + "<<GraphIter<<"]]: ("<<vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key<<", "<<vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
-	}
-	
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[vdramtemp1[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + "<<GraphIter<<"]]: ("<<vdramtemp1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key<<", "<<vdramtemp1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
-	}
-	
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[vdramtemp2[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + "<<GraphIter<<"]]: ("<<vdramtemp2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key<<", "<<vdramtemp2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
-	}
-	
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[vdram[MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + "<<GraphIter<<"]]: ("<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key<<", "<<vdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
-	}
-	
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F0<<"][MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + "<<GraphIter<<"]]: ("<<kvbuffer[F0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key<<", "<<kvbuffer[F0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
-	}
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F1<<"][MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + "<<GraphIter<<"]]: ("<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key<<", "<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
-	}
-	for(unsigned int GraphIter=0; GraphIter<4; GraphIter++){
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F2<<"][MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + "<<GraphIter<<"]]: ("<<kvbuffer[F2][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMEDGESTRAVERSED + GraphIter].data[0].key<<", "<<kvbuffer[F2][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_NUMVERTEXUPDATESREDUCED + GraphIter].data[0].key<<")"<<endl;
-	}
-	
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F0<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[F0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F1<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F2<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[F2][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
-	}
-	
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F0<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[F0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F1<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F2<<"][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[F2][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
-	}
-	
-	// for(unsigned int t=0; t<4; t++){ // 128
-		// cout<<">>> utility::["<<message<<"]::[kvbuffer[5][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[5][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
-	// }
-	// for(unsigned int t=0; t<4; t++){ // 128
-		// cout<<">>> utility::["<<message<<"]::[kvbuffer[6][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[6][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
-	// }
-	// for(unsigned int t=0; t<4; t++){ // 128
-		// cout<<">>> utility::["<<message<<"]::[kvbuffer[7][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + "<<t<<"]]: "<<kvbuffer[7][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_LOCALBEGINPTR + t].data[0].key<<""<<endl;
-	// }
-	
-	// for(unsigned int t=0; t<4; t++){ // 128
-		// cout<<">>> utility::["<<message<<"]::[kvbuffer[5][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[5][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
-	// }
-	// for(unsigned int t=0; t<4; t++){ // 128
-		// cout<<">>> utility::["<<message<<"]::[kvbuffer[6][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[6][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
-	// }
-	// for(unsigned int t=0; t<4; t++){ // 128
-		// cout<<">>> utility::["<<message<<"]::[kvbuffer[7][MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + "<<t<<"]]: "<<kvbuffer[7][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_PROCESSIT_NUMEDGES + t].data[0].key<<""<<endl;
-	// }
-	
-	unsigned int offset = kvbuffer[0][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_BASEOFFSETKVS_VERTEXPTR].data[0].key;
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F0<<"]["<<offset + t<<"]]: "<<kvbuffer[F0][offset + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F1<<"]["<<offset + t<<"]]: "<<kvbuffer[F1][offset + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F2<<"]["<<offset + t<<"]]: "<<kvbuffer[F2][offset + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer[5]["<<offset + t<<"]]: "<<kvbuffer[5][offset + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer[6]["<<offset + t<<"]]: "<<kvbuffer[6][offset + t].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){ // 128
-		cout<<">>> utility::["<<message<<"]::[kvbuffer[7]["<<offset + t<<"]]: "<<kvbuffer[7][offset + t].data[0].key<<""<<endl;
-	}
-	
-	unsigned int F = 0;
-	for(unsigned int t=0; t<3; t++){
-		if(t==0){ F = F0; } if(t==1){ F = F1; } if(t==2){ F = F2; }
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_EDGEBANKLOOP]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_EDGEBANKLOOP].data[0].key<<""<<endl;
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_VCHUNKLOOP]]: "<<kvbuffer[F1][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_VCHUNKLOOP].data[0].key<<""<<endl;
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_STAGELOOP]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_STAGELOOP].data[0].key<<""<<endl;
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_LOPLOOP]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_LOPLOOP].data[0].key<<""<<endl;
-		cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_CHKPT1_SOURCEPLOOP].data[0].key<<""<<endl;
-	}
-	
-	for(unsigned int t2=0; t2<64; t2++){
-		cout<<">>> utility::["<<message<<"]::[vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + "<<BASEOFFSET_MESSAGESDATA_KVS + t2<<"]]: "<<vdramtemp0[BASEOFFSET_MESSAGESDATA_KVS + t2].data[0].key<<""<<endl;
-	}
-	for(unsigned int t=0; t<4; t++){
-		for(unsigned int t2=0; t2<64; t2++){
-			if(t==0){ F = F0; } if(t==1){ F = F1; } if(t==2){ F = F2; } if(t==2){ F = 3; }
-			cout<<">>> utility::["<<message<<"]::[kvbuffer["<<F<<"][BASEOFFSET_MESSAGESDATA_KVS + "<<BASEOFFSET_MESSAGESDATA_KVS + t2<<"]]: "<<kvbuffer[F][BASEOFFSET_MESSAGESDATA_KVS + t2].data[0].key<<""<<endl;
-		}
-	}
-	#endif 
-	
-	return;
-}
- */
 
 
 

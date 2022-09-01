@@ -637,7 +637,8 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt
 	cout<<"[globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE: "<<globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE<<"]"<<endl;
 	cout<<"[globalparams.globalparamsV.SIZE_OTHERINFOS: "<<globalparams.globalparamsV.SIZE_OTHERINFOS<<"]"<<endl;
 	cout<<"[globalparams.globalparamsV.ACTSPARAMS_NUMEDGECHUNKSINABUFFER: "<<globalparams.globalparamsV.ACTSPARAMS_NUMEDGECHUNKSINABUFFER<<"]"<<endl;
-	
+	#endif 
+	#ifdef _DEBUGMODE_HOSTPRINTS4
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid universalparams.PADDEDKVSOURCEDRAMSZ: "<<((((unsigned long)globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(unsigned int)((1 << 28))<<" bytes)"<< RESET <<std::endl;					
 	// if(((((unsigned long)globalparams.globalparamsV.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + (unsigned long)globalparams.globalparamsV.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > ((1 << 28))){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#endif
@@ -715,7 +716,8 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt
 	cout<<"[globalparams.globalparamsK.SIZE_KVDRAM: "<<globalparams.globalparamsK.SIZE_KVDRAM<<"]"<<endl;
 	cout<<"[globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE: "<<globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE<<"]"<<endl;
 	cout<<"[globalparams.globalparamsK.ACTSPARAMS_NUMEDGECHUNKSINABUFFER: "<<globalparams.globalparamsK.ACTSPARAMS_NUMEDGECHUNKSINABUFFER<<"]"<<endl;
-	
+	#endif 
+	#ifdef _DEBUGMODE_HOSTPRINTS4
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid universalparams.PADDEDKVSOURCEDRAMSZ: "<<((((unsigned long)globalparams.globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(unsigned int)(universalparams.VOLUMESIZEU32_WORKSPACEDATA * sizeof(unsigned int))<<" bytes)"<< RESET <<std::endl;					
 	if(((((unsigned long)globalparams.globalparamsK.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + (unsigned long)globalparams.globalparamsK.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (universalparams.VOLUMESIZEU32_WORKSPACEDATA * sizeof(unsigned int))){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	if(globalparams.globalparamsK.SIZE_KVDRAM < 1000){ cout<<"ERROR: globalparams.globalparamsK.SIZE_KVDRAM("<<globalparams.globalparamsK.SIZE_KVDRAM<<") < 1000. EXITING... "<<endl; exit(EXIT_FAILURE); }
@@ -797,7 +799,8 @@ globalparams_TWOt loadgraph::loadmessages(uint512_vec_dt * mdram, uint512_vec_dt
 	cout<<"[globalparams.globalparamsE.SIZE_KVDRAM: "<<globalparams.globalparamsE.SIZE_KVDRAM<<"]"<<endl;
 	cout<<"[globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE: "<<globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE<<"]"<<endl;
 	cout<<"[globalparams.globalparamsE.ACTSPARAMS_NUMEDGECHUNKSINABUFFER: "<<globalparams.globalparamsE.ACTSPARAMS_NUMEDGECHUNKSINABUFFER<<"]"<<endl;
-	
+	#endif
+	#ifdef _DEBUGMODE_HOSTPRINTS4
 	std::cout<< TIMINGRESULTSCOLOR << ">> host[bytes]:: valid universalparams.PADDEDKVSOURCEDRAMSZ: "<<((((unsigned long)globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t))<<" bytes. (HBM max="<<(unsigned int)(universalparams.VOLUMESIZEU32_WORKDATA * sizeof(unsigned int))<<" bytes)"<< RESET <<std::endl;					
 	if(((((unsigned long)globalparams.globalparamsE.BASEOFFSETKVS_KVDRAMWORKSPACE*VECTOR_SIZE) + (unsigned long)globalparams.globalparamsE.SIZE_KVDRAMWORKSPACE) * sizeof(keyvalue_t)) > (universalparams.VOLUMESIZEU32_WORKDATA * sizeof(unsigned int))){ cout<<"ERROR: dataset too large. EXITING... "<<endl; exit(EXIT_FAILURE); }
 	#endif
@@ -903,12 +906,11 @@ globalparams_t loadgraph::createmessages(
 			globalparams_t globalparams,
 			universalparams_t universalparams){
 				
-				
 	#ifdef TOP_ENABLE_SHRINKVBUFFER //
 	universalparams.PROCESSPARTITIONSZ_KVS2 = 512;
 	universalparams.REDUCEPARTITIONSZ_KVS2 = 512;
 	#endif 
-				
+	
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_RUNKERNELCOMMAND].data[0].key = ON;
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PROCESSCOMMAND].data[0].key = ON;//ON,OFF // CRITICAL REMOVEME.
 	kvbuffer[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_ENABLE_PARTITIONCOMMAND].data[0].key = ON;//ON,OFF  // CRITICAL REMOVEME

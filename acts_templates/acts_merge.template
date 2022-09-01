@@ -44,9 +44,9 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(
 	globalparams_t globalparams = UTIL{{context['id']}}_getglobalparams(kvdram, 0);
 	globalparams_t globalparamsv = UTIL{{context['id']}}_getglobalparams(vdram, 0);
 	
-	#ifdef TESTKERNEL 
-	if(UTIL{{context['id']}}_isbufferused(globalparams.ACTSPARAMS_INSTID) == false){ return 0; }
-	#endif 
+	// #ifdef TESTKERNEL 
+	// if(UTIL{{context['id']}}_isbufferused(globalparams.ACTSPARAMS_INSTID) == false){ return 0; }
+	// #endif 	
 	
 	unsigned int voffset_kvs2 = globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
@@ -61,7 +61,7 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(
 			#endif 
 		}
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	for(unsigned int i=0; i<4; i++){ cout<<"merge:: stats[0]["<<i<<"]: "<<stats[0][i]<<", "<<endl; }
 	for(unsigned int i=0; i<4; i++){ cout<<"merge:: stats[1]["<<i<<"]: "<<stats[1][i]<<", "<<endl; }
 	#endif
@@ -87,9 +87,11 @@ unsigned int {{context['classname__acts_merge']}}MERGE{{context['id']}}_mergeVs(
 			}
 			// check this. =false works, =true not work?
 			num_its = MEMACCESS{{context['id']}}_get_updateblock_workload(true, reduce_partition, stats[0], stats[1], globalparams, xload_kvs, buffer_offsets); 
+			// num_its = MEMACCESS{{context['id']}}_get_updateblock_workload(false, reduce_partition, stats[0], stats[1], globalparams, xload_kvs, buffer_offsets); 
 		}
 		
 		MERGE{{context['id']}}_MERGEVSLOOP2B: for(unsigned int n=0; n<num_its; n++){
+			// cout<<"---------------------- topkernelP::_mergeVs: n: "<<n<<", num_its: "<<num_its<<", xload_kvs["<<n<<"].offset_begin: "<<xload_kvs[n].offset_begin<<", xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<endl;
 			MERGE{{context['id']}}_MERGEVSLOOP2C: for(unsigned int k=xload_kvs[n].offset_begin; k<xload_kvs[n].offset_begin + xload_kvs[n].size; k++){ // globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE, globalparams.SIZEKVS2_REDUCEPARTITION
 			#pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS3
@@ -124,22 +126,20 @@ void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs(uint
 }
 
 {%for n in context['T_seq']%}{%if(n>=1)%}
-void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-				globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void {{context['classname__acts_merge']}}MERGE{{context['id']}}_broadcastVs{{n}}(uint512_dt * vdram, {%for i in context['T_seq']%}{%if(i<n)%}uint512_dt * kvdram{{i}},{%endif%}{%endfor%} workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGE{{context['id']}}_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
 	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTIL{{context['id']}}_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
+		UTIL{{context['id']}}_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		{%for i in context['T_seq']%}{%if(i<n)%}		
-		UTIL{{context['id']}}_WriteDatas(kvdram{{i}}, offset2_kvs + buffer_offset + k, datas);
+		UTIL{{context['id']}}_WriteDatas(kvdram{{i}}, offsetDST_kvs + k, datas);
 		{%endif%}{%endfor%}
 	}
 	return;

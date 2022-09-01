@@ -1,6 +1,18 @@
 #!/bin/bash
 #!/bin/bash
 
+# com-Orkut.mtx (undirected)
+# soc-LiveJournal1.mtx (directed)
+# sx-stackoverflow.mtx (directed)
+# ljournal-2008.mtx (directed)
+# soc-Pokec.mtx (directed)
+# kron_g500-logn20.mtx (undirected)
+# kron_g500-logn21.mtx (undirected)
+# uk-2002.mtx (directed)
+# delicious.mtx (directed)
+# rmat_16m_256m.mtx (directed)
+# rmat_32m_256m.mtx (directed)
+
 PR="pr"
 CF="cf"
 HITS="hits"
@@ -8,16 +20,14 @@ SPMV="spmv"
 BFS="bfs"
 SSSP="sssp"
 
+# XCLBIN_DIR="/home/oj2zf/Documents/actsofagraph/ytest_portal/xclbin"
+# XCLBIN_FILE="acts.hw.xilinx_u280_xdma_201920_3.xclbin"
+
 XCLBIN_DIR="/home/oj2zf/Documents/actsofagraph/outputs/xclbins"
-# XCLBIN_FILE="goldenTEST3_170mhz.xclbin"
-# XCLBIN_FILE="goldenTEST3_250mhz.xclbin"
-# XCLBIN_FILE="goldenRK16.xclbin"
 XCLBIN_FILE="golden_x3.xclbin"
-# XCLBIN_FILE="golden_x24.xclbin"
-# XCLBIN_FILE="golden_realreduce.xclbin"
-# XCLBIN_FILE="golden_dummyreduce.xclbin"
-DATASET_DIR=/home/oj2zf/dataset
-RESULT_PATH=/home/oj2zf/Documents/analysis_results/acts4/
+
+DATASET_DIR=/home/oj2zf/Documents/dataset
+RESULT_PATH=/home/oj2zf/Documents/analysis_results/acts/
 
 ./evaluate.sh
 
@@ -25,61 +35,29 @@ make cleanall
 # make host
 make actsobj
 
+DIRECTIONS=(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0)
+# DIRECTIONS=(1)
+
 DATSETS=(
-		com-Orkut.mtx
-		# soc-LiveJournal1.mtx
-		# sx-stackoverflow.mtx
-		# ljournal-2008.mtx
-		# soc-Pokec.mtx
-		# kron_g500-logn20.mtx
-		# kron_g500-logn21.mtx
+		com-Orkut.mtx #(undirected)(3M,234M)
+		# soc-LiveJournal1.mtx #(directed)(5M,70M)
+		# sx-stackoverflow.mtx #(directed)(2.6M,36M)
+		# ljournal-2008.mtx #(directed)(5M,79M)
+		# soc-Pokec.mtx #(directed)(1.6M,30M)
+		# kron_g500-logn20.mtx #(undirected)(1M,89M)
+		# kron_g500-logn21.mtx #(undirected)(2M,182M)
 		
-		# uk-2002.mtx
-		# delicious.mtx
-		# rmat_16m_256m.mtx
-		# rmat_32m_512m.mtx
-		# rmat_64m_512m.mtx
-		
-		# rmat_12m_128m.mtx 
-		# rmat_16m_128m.mtx 
-		# rmat_20m_128m.mtx 
-		# rmat_24m_128m.mtx 
-		# rmat_28m_128m.mtx 
-		)
-		
-DIRECTIONS=(
-		1
-		1
-		1
-		1
-		1
-		1
-		1
-		1
-		1
-		
-		1
-		0
-		0
-		0
-		0
-		
-		0
-		0
-		0
-		0
-		0
+		# uk-2002.mtx #(directed)(18.5M,298M)
+		####################### delicious.mtx #(directed)(M,M)
+		# rmat_16m_256m.mtx #(directed)(16M,256M)
+		# rmat_32m_256m.mtx #(directed)(32M,256M)
 		)		
-		
-# DIRECTIONS=(
-		# 0
-		# )
 	
 # for algo in $PR $CF $HITS $SPMV $BFS	
-# for algo in $PR $CF $HITS $BFS 
+# for algo in $SSSP $BFS 
 
-# for algo in $PR 
-for algo in $SSSP 
+for algo in $PR 
+# for algo in $SSSP 
 # for algo in $BFS 
 
 # for algo in $PR 
@@ -91,7 +69,7 @@ for algo in $SSSP
 do
 	for ((i = 0; i < ${#DATSETS[@]}; i++)) do
 		echo ${BUILD_DIR}/${algo} ${DATSETS[i]}
-		./host "nap" "${algo}" 1 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
+		./host "nap" "${algo}" 16 1 "$DATASET_DIR/${DATSETS[i]}" "${DIRECTIONS[i]}" "$XCLBIN_DIR/$XCLBIN_FILE" #> ${RESULT_PATH}/${algo}/${DATSETS[i]}.out
 		# gdb ./host
 		# exit 0
 	done

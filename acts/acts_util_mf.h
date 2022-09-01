@@ -4,6 +4,8 @@ unsigned int UTILP0_amax(unsigned int val1, unsigned int val2);
 unsigned int UTILP0_aplus(unsigned int val1, unsigned int val2);
 uint32_type UTILP0_amin2(uint32_type val1, uint32_type val2);
 
+void UTILP0_writetoglobalvar(bool write);
+
 // functions (allignment)
 batch_type UTILP0_allignlower_KV(batch_type val);
 batch_type UTILP0_allignhigher_KV(batch_type val);
@@ -57,6 +59,7 @@ keyvalue_t UTILP0_ReadKV(uint512_dt * kvdram, unsigned int offset_kvs, unsigned 
 
 bool UTILP0__processit__i_am_first__(globalposition_t globalposition);
 bool UTILP0__processit__i_am_last__(globalposition_t globalposition);
+bool UTILP0__reduceit__i_am_last__(globalposition_t globalposition, sweepparams_t sweepparams, globalparams_t globalparams);
 
 // functions (actsproc utilities)
 batch_type UTILP0_getskipsize(step_type currentLOP, bool_type sourceORdest, globalparams_t globalparams);
@@ -69,8 +72,6 @@ batch_type UTILP0_get_num_source_partitions(step_type currentLOP);
 globalparams_t UTILP0_getglobalparams(uint512_dt * kvdram, unsigned int banksection);
 globalparams_t UTILP0_getglobalparamsUNUSED(uint512_dt * kvdram, unsigned int banksection);
 sweepparams_t UTILP0_getsweepparams(globalparams_t globalparams, step_type currentLOP, batch_type source_partition);
-travstate_t UTILP0_gettravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, step_type currentLOP, batch_type sourcestatsmarker);
-void UTILP0_settravstate(bool_type enable, uint512_dt * kvdram, globalparams_t globalparams, batch_type offset, unsigned int value);
 
 partition_type UTILP0_getpartition(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, unsigned int tree_depth);				
 partition_type UTILP0_getpartition2(bool_type enable, unsigned int mode, keyvalue_buffer_t keyvalue, step_type currentLOP, vertex_t upperlimit, unsigned int upperpartition, unsigned int batch_range_pow, globalparams_t globalparams);

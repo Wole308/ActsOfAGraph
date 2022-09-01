@@ -1,4 +1,4 @@
-void mergeP0_trace(uint512_dt * kvdram, unsigned int reduce_partition, unsigned int k, unsigned int offset_kvs, globalparams_t globalparams){
+void acts_all::mergeP0_trace(uint512_dt * kvdram, unsigned int reduce_partition, unsigned int k, unsigned int offset_kvs, globalparams_t globalparams){
 	#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 	for(unsigned int v=0; v<VDATA_PACKINGSIZE; v++){
 		value_t combo; if(v%2==0){ combo = kvdram[offset_kvs].data[v/2].key; } else { combo = kvdram[offset_kvs].data[v/2].key; }
@@ -11,7 +11,7 @@ void mergeP0_trace(uint512_dt * kvdram, unsigned int reduce_partition, unsigned 
 	#endif 
 }
 
-void MERGEP0_print_active_masks(uint512_dt * vdram, globalparams_t globalparams, unsigned int offset_kvs){
+void acts_all::MERGEP0_print_active_masks(uint512_dt * vdram, globalparams_t globalparams, unsigned int offset_kvs){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	for(unsigned int v=0; v<VECTOR_SIZE; v++){	
 		unsigned int K = vdram[globalparams.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs].data[v].key;
@@ -23,7 +23,7 @@ void MERGEP0_print_active_masks(uint512_dt * vdram, globalparams_t globalparams,
 	return;
 }
 
-void MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
+unsigned int acts_all::MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	#ifdef _DEBUGMODE_KERNELPRINTS3
 	cout<< TIMINGRESULTSCOLOR << ">>> mergeVs:: merging vertices..."<< RESET <<endl; 
 	#endif
@@ -39,12 +39,14 @@ void MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	unsigned int stats[2][BLOCKRAM_SIZE];
 	#pragma HLS ARRAY_PARTITION variable = stats
 	
+	unsigned int transfsz_kvs = 0;
+	
 	globalparams_t globalparams = UTILP0_getglobalparams(kvdram, 0);
 	globalparams_t globalparamsv = UTILP0_getglobalparams(vdram, 0);
 	
-	#ifdef TESTKERNEL 
-	if(UTILP0_isbufferused(globalparams.ACTSPARAMS_INSTID) == false){ return; }
-	#endif 
+	// #ifdef TESTKERNEL 
+	// if(UTILP0_isbufferused(globalparams.ACTSPARAMS_INSTID) == false){ return 0; }
+	// #endif 	
 	
 	unsigned int voffset_kvs2 = globalparams.ACTSPARAMS_INSTID * globalparams.NUM_REDUCEPARTITIONS * globalparams.SIZEKVS2_REDUCEPARTITION;
 	unsigned int voffseti_kvs2 = 0;
@@ -59,7 +61,7 @@ void MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 			#endif 
 		}
 	}
-	#ifdef _DEBUGMODE_KERNELPRINTS
+	#ifdef _DEBUGMODE_KERNELPRINTS//4
 	for(unsigned int i=0; i<4; i++){ cout<<"merge:: stats[0]["<<i<<"]: "<<stats[0][i]<<", "<<endl; }
 	for(unsigned int i=0; i<4; i++){ cout<<"merge:: stats[1]["<<i<<"]: "<<stats[1][i]<<", "<<endl; }
 	#endif
@@ -85,9 +87,11 @@ void MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 			}
 			// check this. =false works, =true not work?
 			num_its = MEMACCESSP0_get_updateblock_workload(true, reduce_partition, stats[0], stats[1], globalparams, xload_kvs, buffer_offsets); 
+			// num_its = MEMACCESSP0_get_updateblock_workload(false, reduce_partition, stats[0], stats[1], globalparams, xload_kvs, buffer_offsets); 
 		}
 		
 		MERGEP0_MERGEVSLOOP2B: for(unsigned int n=0; n<num_its; n++){
+			// cout<<"---------------------- topkernelP::_mergeVs: n: "<<n<<", num_its: "<<num_its<<", xload_kvs["<<n<<"].offset_begin: "<<xload_kvs[n].offset_begin<<", xload_kvs["<<n<<"].size: "<<xload_kvs[n].size<<endl;
 			MERGEP0_MERGEVSLOOP2C: for(unsigned int k=xload_kvs[n].offset_begin; k<xload_kvs[n].offset_begin + xload_kvs[n].size; k++){ // globalparams.SIZE_DESTVERTICESDATA / VECTOR2_SIZE, globalparams.SIZEKVS2_REDUCEPARTITION
 			#pragma HLS PIPELINE II=1
 				#ifdef _DEBUGMODE_CHECKS3
@@ -99,10 +103,8 @@ void MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 				#ifdef _DEBUGMODE_KERNELPRINTS_TRACE3
 				mergeP0_trace(kvdram, reduce_partition, k, globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k, globalparams); total_vertices_merged += VDATA_PACKINGSIZE;
 				#endif
-				#ifdef _DEBUGMODE_STATS
-				kvdram[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparams.ALGORITHMINFO_GRAPHITERATIONID - 1].data[0].key += UPDATEDATA_PACKINGSIZE;
-				#endif 
 			}
+			transfsz_kvs += xload_kvs[n].size;
 		}
 		voffset_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
 		voffseti_kvs2 += globalparams.SIZEKVS2_REDUCEPARTITION;
@@ -112,10 +114,10 @@ void MERGEP0_mergeVs(uint512_dt * kvdram, uint512_dt * vdram){
 	cout<<"mergeVs:: merge operation finished. total_vertices_merged: "<<total_vertices_merged<<endl; 
 	#endif
 	// exit(EXIT_SUCCESS); // 
-	return;
+	return transfsz_kvs;
 }
 
-void MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs){
+void acts_all::MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs){
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=0; k<size_kvs; k++){
 	#pragma HLS PIPELINE II=1
 		kvdram[offset2_kvs + k] = vdram[offset1_kvs + k];
@@ -123,416 +125,344 @@ void MERGEP0_broadcastVs(uint512_dt * vdram, uint512_dt * kvdram, unsigned int o
 	return;
 }
 
-void MERGEP0_broadcastVs1(uint512_dt * vdram, uint512_dt * kvdram0, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs1(uint512_dt * vdram, uint512_dt * kvdram0, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs2(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs2(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs3(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs3(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs4(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs4(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs5(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs5(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram4, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram4, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs6(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs6(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram4, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram5, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram4, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram5, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs7(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs7(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram4, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram5, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram6, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram4, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram5, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram6, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs8(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs8(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram4, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram5, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram6, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram7, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram7[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram4, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram5, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram6, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram7, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs9(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs9(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram4, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram5, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram6, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram7, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram8, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram7[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram8[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram4, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram5, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram6, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram7, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram8, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs10(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs10(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram4, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram5, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram6, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram7, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram8, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram9, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram7[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram8[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram9[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram4, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram5, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram6, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram7, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram8, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram9, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs11(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs11(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram4, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram5, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram6, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram7, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram8, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram9, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram10, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram7[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram8[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram9[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram10[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram4, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram5, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram6, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram7, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram8, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram9, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram10, offsetDST_kvs + k, datas);
 	}
 	return;
 }
-void MERGEP0_broadcastVs12(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, workload_t workload_kvs, unsigned int buffer_offset,
-		unsigned int offset1_kvs, unsigned int offset2_kvs, unsigned int size_kvs,
-			unsigned int offset1b_kvs, unsigned int offset2b_kvs, unsigned int sizeb_kvs,
-				unsigned int cmd, globalposition_t globalposition, globalparams_t globalparamsK, globalparams_t globalparamsV){
+void acts_all::MERGEP0_broadcastVs12(uint512_dt * vdram, uint512_dt * kvdram0,uint512_dt * kvdram1,uint512_dt * kvdram2,uint512_dt * kvdram3,uint512_dt * kvdram4,uint512_dt * kvdram5,uint512_dt * kvdram6,uint512_dt * kvdram7,uint512_dt * kvdram8,uint512_dt * kvdram9,uint512_dt * kvdram10,uint512_dt * kvdram11, workload_t workload_kvs, unsigned int offsetSRC_kvs, unsigned int offsetDST_kvs){
 	value_t datas[VECTOR2_SIZE]; 
 	#pragma HLS ARRAY_PARTITION variable=datas complete
 	
 	MERGEP0_BROADCASTVS_LOOP: for(unsigned int k=workload_kvs.offset_begin; k<workload_kvs.size; k++){
-	#pragma HLS PIPELINE II=1	// buffer_offsets[n]
+	#pragma HLS PIPELINE II=1
 		#ifdef _DEBUGMODE_CHECKS3
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offset1_kvs + buffer_offset + k, (1 << 26) / 16, offset1_kvs, buffer_offset, k);
-		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offset2_kvs + buffer_offset + k, (1 << 26) / 16, offset2_kvs, buffer_offset, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 21", offsetSRC_kvs + k, (1 << 26) / 16, offsetSRC_kvs, NAp, k);
+		actsutilityobj->checkoutofbounds("_broadcastVs:: ERROR 22", offsetDST_kvs + k, (1 << 26) / 16, offsetDST_kvs, NAp, k);
 		#endif
 		
-		UTILP0_ReadDatas(vdram, offset1_kvs + buffer_offset + k, datas);	
-		UTILP0_WriteDatas(kvdram0, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram1, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram2, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram3, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram4, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram5, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram6, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram7, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram8, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram9, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram10, offset2_kvs + buffer_offset + k, datas);
-		UTILP0_WriteDatas(kvdram11, offset2_kvs + buffer_offset + k, datas);
+		UTILP0_ReadDatas(vdram, offsetSRC_kvs + k, datas);	
 		
-		#ifdef _DEBUGMODE_STATS 
-		kvdram0[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram1[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram2[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram3[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram4[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram5[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram6[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram7[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram8[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram9[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram10[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		kvdram11[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsV.ALGORITHMINFO_GRAPHITERATIONID].data[0].key += VDATA_PACKINGSIZE;
-		#endif 
+		UTILP0_WriteDatas(kvdram0, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram1, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram2, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram3, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram4, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram5, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram6, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram7, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram8, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram9, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram10, offsetDST_kvs + k, datas);
+		
+		UTILP0_WriteDatas(kvdram11, offsetDST_kvs + k, datas);
 	}
 	return;
 }
 
-unsigned int MERGEP0_copy(unsigned int idx, unsigned int reduce_partition, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramREF, unsigned int stats[2][BLOCKRAM_SIZE], unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
+unsigned int acts_all::MERGEP0_copy(unsigned int idx, unsigned int reduce_partition, uint512_dt * vdramSRC, uint512_dt * vdramDST1, uint512_dt * vdramDST2, uint512_dt * vdramREF, unsigned int stats[2][BLOCKRAM_SIZE], unsigned int voffset_kvs, unsigned int firstinstance_id, unsigned int num_compute_units, 
 		pmask_dt vpartition_stats[BLOCKRAM_CURRPMASK_SIZE], wide_word_bits_3t upropblock_stats[MAX_RED_SRAMSZ],
 		globalparams_t globalparamsSRC, globalparams_t globalparamsDST1, globalparams_t globalparamsDST2){
 	unsigned int total_sync = 0;
@@ -601,10 +531,6 @@ unsigned int MERGEP0_copy(unsigned int idx, unsigned int reduce_partition, uint5
 						#endif 
 					}
 				}
-				
-				#ifdef _DEBUGMODE_STATS 
-				vdramREF[BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_NUMVERTICESTRAVERSED + globalparamsSRC.ALGORITHMINFO_GRAPHITERATIONID - 1].data[0].key += VDATA_PACKINGSIZE;
-				#endif 
 			} // end-of-k
 		}
 		v2offset_kvs += globalparamsSRC.NUM_REDUCEPARTITIONS * globalparamsSRC.SIZEKVS2_REDUCEPARTITION;
@@ -612,7 +538,7 @@ unsigned int MERGEP0_copy(unsigned int idx, unsigned int reduce_partition, uint5
 	return 0;
 }
 
-void MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC){
+void acts_all::MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC){
 	#ifdef _DEBUGMODE_KERNELPRINTS4//3
 	cout<< TIMINGRESULTSCOLOR << ">>> exchangeVs:: exchanging vertices across different SLRs..." << RESET <<endl; 
 	#endif
@@ -716,7 +642,7 @@ void MERGEP0_exchange(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdr
 }
 
 extern "C" {
-void TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC){
+void acts_all::TOPP0_topkernelS(uint512_dt * vdramA, uint512_dt * vdramB, uint512_dt * vdramC){
 #pragma HLS INTERFACE m_axi port = vdramA offset = slave bundle = gmem0
 #pragma HLS INTERFACE m_axi port = vdramB offset = slave bundle = gmem1
 #pragma HLS INTERFACE m_axi port = vdramC offset = slave bundle = gmem2

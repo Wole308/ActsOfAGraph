@@ -1117,7 +1117,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	unsigned int _num_LLPs = num_LLPs;
 	unsigned int _num_LLPset = num_LLPset;
 	unsigned int _num_vblockPs = utilityobj->allignhigher_FACTOR(((universalparams.KVDATA_RANGE + (NUM_VERTICES_PER_UPROPBLOCK - 1)) / NUM_VERTICES_PER_UPROPBLOCK), VECTOR2_SIZE);
-	
+		
 	bool debug = false; // true, false;
 	bool debug_detail = false;
 	
@@ -1168,10 +1168,26 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 			if(edge.srcvid >= universalparams.KVDATA_RANGE || edge.dstvid >= universalparams.KVDATA_RANGE){ continue; } // edge.dstvid = edge.dstvid % universalparams.KVDATA_RANGE; } // CRIICAL FIXME.
 			#endif 
 			
-			unsigned int H = (edge.dstvid % (EDGEDATA_PACKINGSIZE * NUM_PEs)) / EDGEDATA_PACKINGSIZE;
+			/* unsigned int H = (edge.dstvid % (EDGEDATA_PACKINGSIZE * NUM_PEs)) / EDGEDATA_PACKINGSIZE;
+			unsigned int lvid = utilityobj->UTIL_GETLOCALVID(edge.dstvid, H);
+			unsigned int vid = utilityobj->UTIL_GETREALVID(lvid, H);
+			edge.dstvid = lvid; */
+			
+			// edge.dstvid = 9216;
+			// edge.dstvid = 5;
+			// edge.dstvid = 31;
+			// edge.dstvid = 35;
+			
+			unsigned int H = (edge.dstvid % (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE * NUM_PEs)) / (VDATA_PACKINGNUMSETS * EDGEDATA_PACKINGSIZE);
 			unsigned int lvid = utilityobj->UTIL_GETLOCALVID(edge.dstvid, H);
 			unsigned int vid = utilityobj->UTIL_GETREALVID(lvid, H);
 			edge.dstvid = lvid;
+			
+			// cout<<"loadedges:: H: "<<H<<endl;
+			// cout<<"loadedges:: lvid: "<<lvid<<endl;
+			// cout<<"loadedges:: vid: "<<vid<<endl;
+			// cout<<"loadedges:: H: "<<H<<endl;
+			// exit(EXIT_SUCCESS);
 			
 			#ifdef _DEBUGMODE_HOSTCHECKS3
 			utilityobj->checkoutofbounds("loadedges::ERROR 223::", H, NUM_PEs, edge.srcvid, edge.dstvid, vsize_vP);
@@ -1445,17 +1461,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 						#endif 
 						// exit(EXIT_SUCCESS); 
 					}
-					
-					// load hash-table for edge-block-maps 
-					for(unsigned int v=0; v<EDGEDATA_PACKINGSIZE; v++){ 
-						edge2_type edge = edge_vec2.data[v];
-						if(edge.valid == true){
-							if(edge.srcvid == 1 && false){ cout<<"loadedges:: edge.srcvid: "<<edge.srcvid<<", edge.dstvid: "<<edge.dstvid<<", index: "<<index<<", index / NUM_EDGESKVS_PER_UPROPBLOCK: "<<index / NUM_EDGESKVS_PER_UPROPBLOCK<<endl; }
-							edgedatabuffer[edge.eblockid].eblockid = index / NUM_EDGESKVS_PER_UPROPBLOCK;	// OBSOLETE
-							if(max_index < (index / NUM_EDGESKVS_PER_UPROPBLOCK)){ max_index = index / NUM_EDGESKVS_PER_UPROPBLOCK; }
-						}
-					}
-					
+				
 					index += 1;
 					
 					// update edges_final, edges_map & edge_count_in_vpartition
@@ -1466,8 +1472,8 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 				// exit(EXIT_SUCCESS);
 			} // iteration end: llp_set:num_LLPset
 			// exit(EXIT_SUCCESS);
-			#ifdef _DEBUGMODE_KERNELPRINTS4//3
-			if(i==0 && v_p == 0){ cout<<"loadedges:: edges_final[0].size(): "<<edges_final[0].size()<<", last_offset: "<<last_offset<<", last_offset(uedge): "<<last_offset * EDGEDATA_PACKINGSIZE<<endl<<endl; }
+			#ifdef _DEBUGMODE_KERNELPRINTS3
+			if(i==0 && v_p == 0){ cout<<"loadedges:: edges_final[0].size() @ v_p=0: "<<edges_final[0].size()<<", last_offset: "<<last_offset<<", last_offset(uedge): "<<last_offset * EDGEDATA_PACKINGSIZE<<endl<<endl; }
 			#endif 
 		} // iteration end: v_p:num_vPs 
 		if(false){ cout<<"------------------------------------------------------ loadedges:: kvdram["<<i<<"]: max_index: "<<max_index<<", index: "<<index<<endl; }
@@ -1516,6 +1522,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR = globalparams.globalparamsE.BASEOFFSETKVS_EDGESDATA + (globalparams.globalparamsE.SIZE_EDGES / EDGEDATA_PACKINGSIZE) + universalparams.DRAMPADD_KVS;
 	globalparams.globalparamsE.SIZE_VERTEXPTRS = _num_vblockPs + universalparams.DRAMPADD_VPTRS; 
 
+	cout<<"------------- loadedges: _num_vblockPs: "<<_num_vblockPs<<endl;
 	globalparams_t globalparamsVPTRS; globalparamsVPTRS = globalparams.globalparamsE; 
 	unsigned int vptr_baseoffset = globalparamsVPTRS.BASEOFFSETKVS_VERTEXPTR * VECTOR2_SIZE;
 	for(unsigned int i=0; i<_NUM_PEs; i++){
@@ -1523,6 +1530,7 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 		vptrs[i][vptr_baseoffset + 0].key = 0;
 		for(unsigned int vblock_p=1; vblock_p<_num_vblockPs; vblock_p++){
 			vptrs[i][vptr_baseoffset + vblock_p].key = vptrs[i][vptr_baseoffset + vblock_p - 1].key + vptrs_temp[i][vblock_p - 1]; 
+			// if(i==0){ cout<<"--- loadedges:: vptrs["<<i<<"][vptr_baseoffset + "<<vblock_p<<"].key: "<<vptrs[i][vptr_baseoffset + vblock_p].key<<endl; }
 		}
 		for(unsigned int vblock_p=_num_vblockPs; vblock_p<_num_vblockPs + universalparams.DRAMPADD_VPTRS; vblock_p++){ // dummy filling...
 			vptrs[i][vptr_baseoffset + vblock_p].key = vptrs[i][vptr_baseoffset + _num_vblockPs - 1].key; 
@@ -1549,10 +1557,12 @@ globalparams_TWOt loadedges::start(unsigned int col, vector<edge_t> &vertexptrbu
 	cout<<"loadedges:: [globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR: "<<globalparams.globalparamsE.BASEOFFSETKVS_VERTEXPTR<<"]"<<endl;
 	#endif
 	#ifdef _DEBUGMODE_HOSTPRINTS4
+	for(unsigned int i=0; i<_NUM_PEs; i++){ cout<<"Edge content in dram "<<i<<": "<<edges_final[i].size() * EDGEDATA_PACKINGSIZE<<endl; }
+	#endif 
+	#ifdef _DEBUGMODE_HOSTPRINTS4
 	cout<<"loading edges:: edge count for single dram: "<<edges_final[0].size() * EDGEDATA_PACKINGSIZE<<", projected total edge count for all drams: "<<edges_final[0].size() * EDGEDATA_PACKINGSIZE * NUM_PEs<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<" ["<<(((edges_final[0].size() * EDGEDATA_PACKINGSIZE * NUM_PEs) - universalparams.NUM_EDGES) * 100) / universalparams.NUM_EDGES<<"% increase]"<<endl;
 	#endif 
 	#ifdef _DEBUGMODE_HOSTPRINTS3
-	for(unsigned int i=0; i<_NUM_PEs; i++){ cout<<"Edge content in dram "<<i<<": "<<edges_final[i].size() * EDGEDATA_PACKINGSIZE<<endl; }
 	cout<<"projected total edge count for all drams: "<<edges_final[0].size() * EDGEDATA_PACKINGSIZE * NUM_PEs<<", universalparams.NUM_EDGES: "<<universalparams.NUM_EDGES<<" ["<<(((edges_final[0].size() * EDGEDATA_PACKINGSIZE * NUM_PEs) - universalparams.NUM_EDGES) * 100) / universalparams.NUM_EDGES<<"% increase]"<<endl;
 	for(unsigned int i=0; i<1; i++){ // _NUM_PEs
 		cout<<"loadedges:: SEEN 0a"<<endl;

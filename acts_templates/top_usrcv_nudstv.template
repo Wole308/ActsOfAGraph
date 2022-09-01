@@ -392,7 +392,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	if(globalparamsV.ENABLE_APPLYUPDATESCOMMAND == ON){ num_stages = 3; }
 	
 	voffset_kvs = 0;
-	unsigned int depth = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
+	unsigned int upartition_base_kvs = (globalparamsV.NUM_REDUCEPARTITIONS * globalparamsV.SIZEKVS2_REDUCEPARTITION) / VDATA_SHRINK_RATIO; 
 	unsigned int maxsz_actvedgeblocks = globalparamsK.NUM_PROCESSEDGESPARTITIONS * MAXNUM_EDGEBLOCKS_PER_VPARTITION;
 	
 	#ifdef _DEBUGMODE_STATS
@@ -504,33 +504,44 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 						if(globalposition.EN_REDUCE == ON){ enablereduce = ON; } else { enablereduce = OFF; }
 						
 						// read vertices & vmasks
-						#ifdef TOP_ENABLE_BROADCASTUPROPS
+						#ifdef TOP_ENABLE_BROADCASTUPROPS	
 						if(stage==0 && globalparamsK.ENABLE_PROCESSCOMMAND == ON){
 							if(globalparamsK.ALGORITHMINFO_GRAPHALGORITHMCLASS == ALGORITHMCLASS_ALLVERTEXISACTIVE || globalposition.num_active_edgeblocks > 0){
-								unsigned int depth_i = 0, index = 0, transfsz_kvs = 0;
+								unsigned int depth_i = 0, transfsz_kvs = 0;
 								unsigned int buffer_offsets[BLOCKRAM_SIZE];
 								workload_t xload_kvs[BLOCKRAM_SIZE];
 								unsigned int num_its = MEMACCESS{{context['id']}}_get_upropblock_workload(true, globalposition.source_partition, vdram, vbuffer0, stats0, globalposition.num_active_edgeblocks, globalparamsV, xload_kvs, buffer_offsets, globalparamsV.ALGORITHMINFO_GRAPHITERATIONID);
-								for(unsigned int n=0; n<num_its; n++){
-									depth_i = 0;
-									for(unsigned int s=0; s<NUM_PEs; s++){
-										unsigned int offset_kvs = voffset_kvs + depth_i;
-										MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} xload_kvs[n], buffer_offsets[n],	
-											globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offset_kvs, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + index, vsz_kvs,
-													globalposition, globalparamsK, globalparamsV);		
-										depth_i += depth;
-										index += vsz_kvs;
+								bool sparse_readu = false; if(globalposition.num_active_edgeblocks < globalparamsV.THRESHOLD_HYBRIDGPMODE_MAXLIMIT_ACTVUPROPBLOCKS_PER_VPARTITION){ sparse_readu = true; } else { sparse_readu = false; }
+								
+								if(sparse_readu == true){
+									for(unsigned int n=0; n<num_its; n++){
+										unsigned int s = xload_kvs[n].offset_begin / NUM_VERTICESKVS_PER_UPROPBLOCK; // CHECKME.
+										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (xload_kvs[n].offset_begin % NUM_VERTICESKVS_PER_UPROPBLOCK);
+										#ifdef _DEBUGMODE_CHECKS3		
+										actsutilityobj->checkoutofbounds("topkernelP:: ERROR 27", s, NUM_PEs, source_partition, n, num_its);
+										#endif			
+										MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} xload_kvs[n], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
 										transfsz_kvs += xload_kvs[n].size;
 									}
+								} else {
+									depth_i = 0;
+									for(unsigned int s=0; s<NUM_PEs; s++){
+										unsigned int offsetSRC = (s * globalparamsV.SIZEKVS2_REDUCEPARTITION) + (source_partition * (globalparamsV.SIZEKVS2_PROCESSEDGESPARTITION / NUM_PEs));
+										MERGE{{context['id']}}_broadcastVs{{n}}(vdram, {%for i in context['T_seq']%}{%if(i<n)%}kvdram{{i}},{%endif%}{%endfor%} xload_kvs[0], globalparamsV.BASEOFFSETKVS_SRCVERTICESDATA + offsetSRC, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA);
+										transfsz_kvs += xload_kvs[0].size;
+									}
 								}
-								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
-								collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
-								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE;
-								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
+								
+								#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST	
+								collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
+								collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE;
+								collections0[NUMREADSFROMDRAM_COLLECTIONID].data1 += (transfsz_kvs + (NUM_PEs*REPORT__DRAM_ACCESS_LATENCY)) * VECTOR2_SIZE; 
 								#endif 
+								cout<<"----------- top_nusrcv_nudstv-------------------------: transfsz: "<<transfsz_kvs * VECTOR2_SIZE<<", collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1: "<<collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1<<endl;
+								
 							}
 						}
-						#endif
+						#endif 
 						
 						// acts
 						#ifdef CONFIG_RELEASE_FULLKERNEL
@@ -561,7 +572,7 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	#ifdef TOP_ENABLE_MERGEVS
 	unsigned int transfsz_kvs = 0;
 	if(globalparamsV.ENABLE_MERGECOMMAND == ON){	
-		{%for i in context['T_seq']%}{%if(i<n)%}		
+		{%for i in context['T_seq']%}{%if(i<n)%}	
 		transfsz_kvs += MERGE{{context['id']}}_mergeVs(kvdram{{i}}, vdram); 
 		{%endif%}{%endfor%}
 	}
@@ -571,17 +582,19 @@ void {{context['classname__top_usrcv_nudstv']}}TOP{{context['id']}}_topkernelP{{
 	collections0[NUMWRITESTODRAM_COLLECTIONID].data1 += transfsz_kvs * VECTOR2_SIZE; 
 	#endif 
 	#endif
+	// exit(EXIT_SUCCESS); //
 	
 	#ifdef ACTS_ENABLE_COLLECTHOSTSTATS	
 	value_t host_stats[VECTOR2_SIZE];
-	host_stats[2*PROCESSINGPHASE_TRANSFSZ_COLLECTIONID] = collections0[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1;
-	host_stats[2*PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID] = collections0[PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID].data1;
-	host_stats[2*REDUCEPHASE_TRANSFSZ_COLLECTIONID] = collections0[REDUCEPHASE_TRANSFSZ_COLLECTIONID].data1;
-	host_stats[2*SYNCPHASE_TRANSFSZ_COLLECTIONID] = collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1;
-	host_stats[2*NUMEDGESPROCESSED_COLLECTIONID] = collections0[NUMEDGESPROCESSED_COLLECTIONID].data1;
-	host_stats[2*NUMVERTICESPROCESSED_COLLECTIONID] = collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1;
-	host_stats[2*NUMREADSFROMDRAM_COLLECTIONID] = collections0[NUMREADSFROMDRAM_COLLECTIONID].data1;
-	host_stats[2*NUMWRITESTODRAM_COLLECTIONID] = collections0[NUMWRITESTODRAM_COLLECTIONID].data1;
+	host_stats[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID] = collections0[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1;
+	host_stats[PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID] = collections0[PARTITIONINGPHASE_TRANSFSZ_COLLECTIONID].data1;
+	host_stats[REDUCEPHASE_TRANSFSZ_COLLECTIONID] = collections0[REDUCEPHASE_TRANSFSZ_COLLECTIONID].data1;
+	host_stats[BROADCASTPHASE_TRANSFSZ_COLLECTIONID] = collections0[BROADCASTPHASE_TRANSFSZ_COLLECTIONID].data1;
+	host_stats[SYNCPHASE_TRANSFSZ_COLLECTIONID] = collections0[SYNCPHASE_TRANSFSZ_COLLECTIONID].data1;
+	host_stats[NUMEDGESPROCESSED_COLLECTIONID] = collections0[NUMEDGESPROCESSED_COLLECTIONID].data1;
+	host_stats[NUMVERTICESPROCESSED_COLLECTIONID] = collections0[NUMVERTICESPROCESSED_COLLECTIONID].data1;
+	host_stats[NUMREADSFROMDRAM_COLLECTIONID] = collections0[NUMREADSFROMDRAM_COLLECTIONID].data1;
+	host_stats[NUMWRITESTODRAM_COLLECTIONID] = collections0[NUMWRITESTODRAM_COLLECTIONID].data1;
 	UTIL{{context['id']}}_WriteDatas(kvdram0, BASEOFFSET_MESSAGESDATA_KVS + MESSAGES_RETURNVALUES + MESSAGES_RETURNVALUES_STATSCOLLECTED + globalparamsK.ALGORITHMINFO_GRAPHITERATIONID, host_stats);
 	#endif 
 

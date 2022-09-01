@@ -102,6 +102,7 @@ loadgraph.cpp
 
 #define CONFIG_SELECTIVEVERTEXPARTITIONS // OBSOLETE.
 #define CONFIG_PRELOADEDVERTEXPARTITIONMASKS
+// #define CONFIG_PRELOADEDVERTEXMASKS /////////////////////////////////// FIXME?
 
 #define CONFIG_FORCEDCORRECT_LOADEDGES
 #define CONFIG_FORCEDCORRECT_TRADGP
@@ -116,15 +117,6 @@ loadgraph.cpp
 #define CONFIG_USEURAM_FOR_DESTVBUFFER // { classname__mem_access.cpp, classname__reduceupdates.cpp }
 
 #define CONFIG_EDGEHASHSCHEME_SETVIDS // { acts_util.cpp, load_edges.cpp, utility.cpp }
-
-// #define _COLLECT_METADATA_FROM_KERNEL_
-
-
-
-// #define CONFIG_COLLECT_MEMSTATS
-
-
-
 
 #endif
 

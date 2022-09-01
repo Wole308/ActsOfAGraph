@@ -122,6 +122,9 @@ VPP_FLAGS += -t $(TARGET) --platform $(PLATFORM) --save-temps
 ifneq ($(TARGET), hw)
 	VPP_FLAGS += -g
 endif
+# VPP_FLAGS += -t $(TARGET) --platform $(PLATFORM) --save-temps -g
+# VPP_LDFLAGS += --profile.data all:all:all
+# VPP_LDFLAGS += --profile.memory=all 
 
 EXECUTABLE = ./slr_assign
 EMCONFIG_DIR = $(TEMP_DIR)
@@ -203,8 +206,8 @@ $(TEMP_DIR)/vS.xo: $(RELREF)acts/acts_allS.cpp
 	$(VPP) $(VPP_FLAGS) -c -k $(KERNELS_NAME) --temp_dir $(TEMP_DIR)  -I'$(<D)' -o'$@' '$^'
 $(XCLBIN)/acts.$(TARGET).$(DSA).xclbin: $(BINARY_CONTAINER_vmult_vadd_OBJS)
 	mkdir -p $(BUILD_DIR)
-	# $(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
-	# $(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/acts.$(TARGET).$(DSA).xclbin
+	$(VPP) $(VPP_FLAGS) -l $(VPP_LDFLAGS) --kernel_frequency $(SYNFREQUENCY) --temp_dir $(TEMP_DIR) $(VPP_LDFLAGS_vmult_vadd) -o'$(BUILD_DIR)/vmult_vadd.link.xclbin' $(+)
+	$(VPP) -p $(BUILD_DIR)/vmult_vadd.link.xclbin -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) -o $(XCLBIN)/acts.$(TARGET).$(DSA).xclbin
 	
 ############################## Setting Rules for Host (Building Host Executable) ##############################
 $(EXECUTABLE): $(HOST_SRCS) | check-xrt

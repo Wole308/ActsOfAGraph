@@ -63,12 +63,31 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 			
 			#ifdef ACTS_ENABLE_READUPROPS
 			unsigned int num_its = MEMACCESS{{context['id']}}_get_upropblock_workload(true, sweepparams.source_partition, kvdram, vbuffer, stats, globalposition.num_active_edgeblocks, globalparamsK, xload_kvs, buffer_offsets, globalparamsK.ALGORITHMINFO_GRAPHITERATIONID);
-			if(sparse_readu == true){
-				for(unsigned int n=0; n<num_its; n++){		
-					MEMACCESS{{context['id']}}_readV(ON, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA, xload_kvs[n].offset_begin, xload_kvs[n].offset_begin, xload_kvs[n].size);
-				}
-			} else {
-				MEMACCESS{{context['id']}}_readV(ON, kvdram, vbuffer, globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA, 0, 0, globalparamsK.SIZEKVS2_PROCESSEDGESPARTITION);
+			for(unsigned int n=0; n<num_its; n++){	
+				unsigned int voffset_kvs = 0;
+				for(unsigned int s=0; s<NUM_PEs; s++){	
+					xload_kvs[n].offset_srcbase = globalparamsK.BASEOFFSETKVS_SRCVERTICESDATA + voffset_kvs;
+					xload_kvs[n].offset_dstbase = NAp;
+					xload_kvs[n].offset_buffer_begin = buffer_offsets[n] + s;
+					#ifdef MEMACCESS_ENABLE_SEPERATEINTERFACEFORDRAMREADS
+						READUDATA_LOOP1: for (buffer_type i=0; i<xload_kvs[n].size; i++){
+						#pragma HLS PIPELINE II=1
+							UTIL{{context['id']}}_ReadDatas(kvdram, xload_kvs[n].offset_srcbase + i, datas);
+							for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+							#pragma HLS UNROLL 
+								vbuffer[v][xload_kvs[n].offset_buffer_begin + i].data = datas[v];
+							}
+						}
+						#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
+						collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += (xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+						collections_tmp[NUMVERTICESPROCESSED_COLLECTIONID].data1 += (xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+						collections_tmp[NUMREADSFROMDRAM_COLLECTIONID].data1 += (xload_kvs[n].size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+						#endif 
+					#else 
+					MEMACCESS{{context['id']}}_read__reduce(READUPROPERTYMODE, kvdram, vbuffer, stats, xload_kvs[n], collections_tmp, globalparamsK);	
+					#endif 
+					voffset_kvs += depth;
+				}	
 			}
 			#endif 
 			
@@ -101,9 +120,8 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 					// globalcapsule[1 + llp_set].value += activetransfsz_kvs * EDGEDATA_PACKINGSIZE; // workload_kvs.size
 					destindex += workload_kvs.size;	
 					#ifdef MEMACCESS_ENABLE_COLLECTSTATSFORHOST
-					/// if(sparse_process == true){ collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += ((workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE) * 2) * REPORT__SPARSEPROCESS_SLOWDOWN_FACTOR; } // '* 2' because both read & write happens in processing phase
-					/// else { collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE) * 2) }
-					collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += ((workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE) * 2; 
+					collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
+					collections_tmp[PROCESSINGPHASE_TRANSFSZ_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; // because both read & write happens in processing phase
 					collections_tmp[NUMEDGESPROCESSED_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE;
 					collections_tmp[NUMREADSFROMDRAM_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
 					collections_tmp[NUMWRITESTODRAM_COLLECTIONID].data1 += (activetransfsz_kvs + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
@@ -130,9 +148,10 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 			unsigned int num_its = MEMACCESS{{context['id']}}_get_updateblock_workload(true, sweepparams.source_partition, stats[16], stats[17], globalparamsK, xload_kvs, buffer_offsets);
 			unsigned int voffset_kvs = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION;
 			for(unsigned int n=0; n<num_its; n++){
-				xload_kvs[n].offset_srcbase = NAp; 
+				xload_kvs[n].offset_srcbase = NAp; // globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs;
 				xload_kvs[n].offset_dstbase = globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA;
 				xload_kvs[n].offset_buffer_begin = buffer_offsets[n];
+				// workload1_vprop_kvs.offset_begin = sweepparams.source_partition * globalparamsK.SIZEKVS2_REDUCEPARTITION;
 				#ifdef MEMACCESS_ENABLE_SEPERATEINTERFACEFORDRAMREADS
 					ACTIT_READVDATA_LOOP1: for (buffer_type i=0; i<xload_kvs[n].size; i++){
 					#pragma HLS PIPELINE II=1
@@ -162,9 +181,24 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 			collections_tmp[NUMREADSFROMDRAM_COLLECTIONID].data1 += (workload_kvs.size + REPORT__DRAM_ACCESS_LATENCY) * VECTOR2_SIZE; 
 			#endif 
 			
+			/* ////////////////////////////////////////////////////////////////
+			for(unsigned int k=0; k<8192; k++){
+				for(unsigned int v=0; v<VECTOR2_SIZE; v++){
+					// unsigned int data1 = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k].key;
+					// unsigned int data2 = kvdram[globalparams.BASEOFFSETKVS_DESTVERTICESDATA + voffseti_kvs2 + k].key;
+					
+					unsigned int data1 = vbuffer[v][k].data;
+					
+					value_t combo = data1; 
+					value_t vdata = combo >> 1; value_t mask = combo & 0x1;
+					if(mask == 1){ cout<<">>>----------------- ACTIT:: MERGE VERTICES SEEN @ k: "<<k<<", v: "<<v<<", vdata: "<<vdata<<", mask: "<<mask<<", vid: combo: "<<combo<<", globalparamsK.SIZE_DESTVERTICESDATA: "<<globalparamsK.SIZE_DESTVERTICESDATA<<endl; }	
+				}
+			}
+			//////////////////////////////////////////////////////////////// */
+
 			for(unsigned int n=0; n<num_its; n++){
-				xload_kvs[n].offset_srcbase = NAp; 
-				xload_kvs[n].offset_dstbase = globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA;
+				xload_kvs[n].offset_srcbase = NAp; // sourcebaseaddr_kvs + xload_kvs[n].offset_begin;
+				xload_kvs[n].offset_dstbase = globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA; // xload_kvs[n].offset_begin, 0;
 				xload_kvs[n].offset_buffer_begin = buffer_offsets[n];
 				#ifdef MEMACCESS_ENABLE_SEPERATEINTERFACEFORDRAMWRITES
 					ACTIT_READVDATA_LOOP2: for (buffer_type i=0; i<xload_kvs[n].size; i++){
@@ -173,6 +207,7 @@ void {{context['classname__acts']}}ACTS{{context['id']}}_actit(bool_type enable,
 						#pragma HLS UNROLL 
 							datas[v] = vbuffer[v][xload_kvs[n].offset_buffer_begin + i].data;
 						}
+						// UTIL{{context['id']}}_WriteDatas(kvdram, xload_kvs[n].offset_srcbase + i, datas);
 						UTIL{{context['id']}}_WriteDatas(kvdram, globalparamsK.BASEOFFSETKVS_DESTVERTICESDATA + voffset_kvs + xload_kvs[n].offset_begin + i, datas);
 					}
 				#else 
